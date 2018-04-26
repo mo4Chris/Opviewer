@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
+import { FormGroup, FormControl, Validators, FormsModule, } from '@angular/forms';
+import { CommonService } from '../../common.service';
+
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 @Component({
     selector: 'app-tables',
@@ -8,7 +12,29 @@ import { routerTransition } from '../../router.animations';
     animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
-    constructor() {}
+    constructor(private newService: CommonService ) { }
+    Repdata;
+    valbutton = "Save";
 
-    ngOnInit() {}
+
+    ngOnInit() {
+        this.newService.GetVessel().subscribe(data => this.Repdata = data)
+    }
+
+    onSave = function (vessel, isValid: boolean) {
+        vessel.mode = this.valbutton;
+        this.newService.saveVessel(vessel)
+            .subscribe(data => {
+                alert(data.data);
+
+                this.ngOnInit();
+            }
+                , error => this.errorMessage = error)
+    }
+    edit = function (kk) {
+        this.id = kk._id;
+        this.name = kk.name;
+        this.address = kk.address;
+        this.valbutton = "Update";
+    }
 }
