@@ -2,7 +2,11 @@
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
     
     <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl">
-
+        <agm-polyline *ngFor="let ll of LLdata" [strokeColor]="'#ECAB7E'" [strokeOpacity]="0.8" [strokeWeight]="1.5" [zIndex]="1" >
+            <ng-container *ngFor="let geo of ll.geometry.coordinates; let i=index" >
+                 <agm-polyline-point [latitude]="geo[1]" [longitude]="geo[0]" >
+                 </agm-polyline-point>
+            </ng-container>
+        </agm-polyline>
     </agm-map>
-
 </div>
