@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbCarouselModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
+import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
 
 import { HttpModule } from '@angular/http';  
 import { FormsModule } from '@angular/forms';  
@@ -29,6 +30,7 @@ import { StatModule } from '../../shared';
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyBo-s6bmJYN-5Pw-Lw_DKSd8wtq_whx4NE'
         }),
+        AgmSnazzyInfoWindowModule,
         StatModule
     ],
     declarations: [

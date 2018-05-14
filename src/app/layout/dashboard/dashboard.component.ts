@@ -24,6 +24,25 @@ export class DashboardComponent implements OnInit {
     mapTypeId = "roadmap"
     streetViewControl = false;
 
+    infoWindowOpened = null;
+
+    filter() {
+        infoWindowOpened = null;
+        // redraw the map with filtered markers
+    }
+
+    showInfoWindow(infoWindow, index) {
+        if (this.infoWindowOpened === infoWindow) {
+            return;
+        }
+
+        if (this.infoWindowOpened !== null) {
+            this.infoWindowOpened.close();
+        }
+        
+        this.infoWindowOpened = infoWindow;   
+    }
+
     //End map settings
 
     ngOnInit() {    

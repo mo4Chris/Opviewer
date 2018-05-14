@@ -8,8 +8,15 @@
             </ng-container>
         </agm-polyline>
         <ng-container *ngFor="let loc of Locdata; let i=index" >
-             <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" >
+             <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" (markerClick)="showInfoWindow(infoWindow, i)">
+             	<agm-info-window #infoWindow>
+     	            	<pre>
+MMSI: {{loc._id}}
+Latitude: {{loc.LAT}}
+Longitude: {{loc.LON}} </pre>
+     	        </agm-info-window>
              </agm-marker>
         </ng-container>
     </agm-map>
+
 </div>
