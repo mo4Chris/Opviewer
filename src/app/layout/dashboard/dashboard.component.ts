@@ -13,7 +13,7 @@ import {Http,Response, Headers, RequestOptions } from '@angular/http';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(private newService :CommonService,) {   }  
+    constructor(private newService :CommonService) {   }  
     LLdata;
 
     //Map settings
