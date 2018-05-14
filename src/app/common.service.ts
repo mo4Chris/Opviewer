@@ -25,6 +25,12 @@ export class CommonService {
   GetLatLon(){       
     return this.http.get('http://localhost:8080/api/getLatLon/').pipe(  
             map((response: Response) => response.json()))              
-  }  
+  }
+
+   GetLatestBoatLocation(){       
+    return this.http.get('http://localhost:8080/api/getLatestBoatLocation/').pipe(  
+            map((response: Response) => response.json()))              
+  }    
  
 }
+

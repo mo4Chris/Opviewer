@@ -15,6 +15,7 @@ import {Http,Response, Headers, RequestOptions } from '@angular/http';
 export class DashboardComponent implements OnInit {
     constructor(private newService :CommonService) {   }  
     LLdata;
+    Locdata;
 
     //Map settings
     latitude = 52.3702157;
@@ -26,6 +27,7 @@ export class DashboardComponent implements OnInit {
     //End map settings
 
     ngOnInit() {    
-        this.newService.GetLatLon().subscribe(data =>  this.LLdata = data)  
+        this.newService.GetLatLon().subscribe(data =>  this.LLdata = data);
+        this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
       }  
 }

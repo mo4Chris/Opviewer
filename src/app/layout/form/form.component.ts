@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
+import { FormGroup, FormControl, Validators, FormsModule, } from '@angular/forms';
+import { CommonService } from '../../common.service';
+
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 @Component({
     selector: 'app-form',
@@ -8,7 +12,12 @@ import { routerTransition } from '../../router.animations';
     animations: [routerTransition()]
 })
 export class FormComponent implements OnInit {
-    constructor() {}
+    constructor(private newService: CommonService ) { }
+    Locdata;
+    errData;
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err)
+    }
+    
 }

@@ -39,7 +39,15 @@ var LatLonSchema = new Schema({
     client: { type: String },
     mmsi: { type: Number },
 }, { versionKey: false });
-var LatLonmodel = mongo.model('geo_locations', LatLonSchema, 'geo_locations');
+var LatLonmodel = mongo.model('WindparksGeoLocation', LatLonSchema, 'WindparksGeoLocation');
+
+var boatLocationSchema = new Schema({
+    vesselname: { type: String },
+    nicename: { type: String },
+    client: { type: String },
+    mmsi: { type: Number },
+}, { versionKey: false });
+var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
 app.post("/api/SaveVessel", function (req, res) {
     var mod = new model(req.body);
@@ -69,7 +77,10 @@ app.post("/api/SaveVessel", function (req, res) {
 })
 
 app.get("/api/getVessel", function (req, res) {
-    Vesselmodel.find({}, function (err, data) {
+    Vesselmodel.find({
+
+
+    }, function (err, data) {
         if (err) {
             res.send(err);
         }
@@ -87,6 +98,37 @@ app.get("/api/getLatLon", function (req, res) {
         else {
             res.send(data);
         }
+    });
+})
+
+app.get("/api/getLatestBoatLocation", function (req, res) {
+    // boatLocationmodel.find({
+       
+    // }, function (err, data) {
+    //     if (err) {
+    //         res.send(err);
+    //     }
+    //     else {
+    //         res.send(data);
+    //     }
+    // });
+
+    boatLocationmodel.aggregate([
+        { $group: {
+            _id : "$MMSI",
+            "LON": { "$last": "$LON" },
+            "LAT": { "$last": "$LAT" },
+            "TIMESTAMP": { "$last": "$TIMESTAMP" }
+        }}
+    ]).exec(function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data);
+
+        }           
     });
 })
 
