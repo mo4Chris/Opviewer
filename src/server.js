@@ -25,6 +25,13 @@ app.use(function (req, res, next) {
 
 var Schema = mongo.Schema;
 
+var loginSchema = new Schema({
+    username: { type: String },
+    password: { type: String },
+    permissions: { type: String }
+}, { versionKey: false });
+var Loginmodel = mongo.model('users', loginSchema, 'users');
+
 var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -48,6 +55,30 @@ var boatLocationSchema = new Schema({
     mmsi: { type: Number },
 }, { versionKey: false });
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
+
+app.post("/api/login", function(req,res){
+    let userData = req.body
+
+    Loginmodel.findOne({username: userData.username}, 
+        function (err, user) {
+            if (err) {
+                res.send(err);
+            }
+            else {
+                if(!user){
+                    res.status(401).send('User does not exist')
+                }else
+                {
+                    if(user.password !== userData.password){
+                        res.status(401).send('password is incorrect')    
+                    }else{
+                        res.status(200).send(user)
+                    }
+                }
+            }
+        });
+})
+
 
 app.post("/api/SaveVessel", function (req, res) {
     var mod = new model(req.body);
@@ -102,16 +133,6 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.get("/api/getLatestBoatLocation", function (req, res) {
-    // boatLocationmodel.find({
-       
-    // }, function (err, data) {
-    //     if (err) {
-    //         res.send(err);
-    //     }
-    //     else {
-    //         res.send(data);
-    //     }
-    // });
 
     boatLocationmodel.aggregate([
         { $group: {

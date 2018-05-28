@@ -16,6 +16,7 @@ export class DashboardComponent implements OnInit {
     constructor(private newService :CommonService) {   }  
     LLdata;
     Locdata;
+    errData;
 
     //Map settings
     latitude = 52.3702157;
@@ -27,7 +28,7 @@ export class DashboardComponent implements OnInit {
     infoWindowOpened = null;
 
     filter() {
-        infoWindowOpened = null;
+        this.infoWindowOpened = null;
         // redraw the map with filtered markers
     }
 
@@ -42,6 +43,8 @@ export class DashboardComponent implements OnInit {
         
         this.infoWindowOpened = infoWindow;   
     }
+
+    
 
     //End map settings
 

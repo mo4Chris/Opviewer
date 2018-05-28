@@ -3,41 +3,38 @@
     "project": {
         "name": "test-ng4"
     },
-    "apps": [
-        {
-            "root": "src",
-            "outDir": "dist",
-            "assets": ["assets", "favicon.ico"],
-            "index": "index.html",
-            "main": "main.ts",
-            "polyfills": "polyfills.ts",
-            "test": "test.ts",
-            "tsconfig": "tsconfig.app.json",
-            "testTsconfig": "tsconfig.spec.json",
-            "prefix": "app",
-            "styles": [
-                "../node_modules/font-awesome/css/font-awesome.css",
-                "styles/app.scss"
-            ],
-            "scripts": ["../node_modules/chart.js/dist/Chart.js"],
-            "environmentSource": "environments/environment.ts",
-            "environments": {
-                "dev": "environments/environment.ts",
-                "prod": "environments/environment.prod.ts"
-            }
+    "apps": [{
+        "root": "src",
+        "outDir": "dist",
+        "assets": ["assets", "favicon.ico"],
+        "index": "index.html",
+        "main": "main.ts",
+        "polyfills": "polyfills.ts",
+        "test": "test.ts",
+        "tsconfig": "tsconfig.app.json",
+        "testTsconfig": "tsconfig.spec.json",
+        "prefix": "app",
+        "styles": [
+            "../node_modules/font-awesome/css/font-awesome.css",
+            "styles/app.scss"
+        ],
+        "scripts": ["../node_modules/chart.js/dist/Chart.js"],
+        "environmentSource": "environments/environment.ts",
+        "environments": {
+            "dev": "environments/environment.ts",
+            "prod": "environments/environment.prod.ts"
         }
-    ],
+    }],
     "e2e": {
         "protractor": {
             "config": "./protractor.conf.js"
         }
     },
     "styles": [
-      "styles.css",
-      "../node_modules/snazzy-info-window/dist/snazzy-info-window.css"
+        "styles.css",
+        "../node_modules/snazzy-info-window/dist/snazzy-info-window.css"
     ],
-    "lint": [
-        {
+    "lint": [{
             "project": "src/tsconfig.app.json",
             "exclude": "**/node_modules/**"
         },
@@ -58,6 +55,6 @@
     "defaults": {
         "styleExt": "scss",
         "component": {}
-    },
+    }
 
 }
