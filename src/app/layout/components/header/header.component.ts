@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as jwt_decode from "jwt-decode";
 
 @Component({
     selector: 'app-header',
@@ -9,6 +10,16 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class HeaderComponent implements OnInit {
     pushRightClass: string = 'push-right';
+
+    getDecodedAccessToken(token: string): any {
+        try{
+            return jwt_decode(token);
+        }
+        catch(Error){
+            return null;
+        }
+      }
+    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
 
     constructor(private translate: TranslateService, public router: Router) {
 
@@ -46,7 +57,7 @@ export class HeaderComponent implements OnInit {
     }
 
     onLoggedout() {
-        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
     }
 
     changeLang(language: string) {

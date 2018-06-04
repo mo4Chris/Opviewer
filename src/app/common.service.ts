@@ -12,10 +12,15 @@ export class CommonService {
   
   constructor(private http: Http) { }
 
-  loginUser(){      
-    return this.http.post('http://localhost:8080/api/login/').pipe(  
+  loginUser(user){      
+    return this.http.post('http://localhost:8080/api/login/', user).pipe(  
             map((response: Response) =>response.json()))              
-  }    
+  }
+
+  registerUser(user){      
+    return this.http.post('http://localhost:8080/api/registerUser/', user).pipe(  
+            map((response: Response) =>response.json()))              
+  }      
   
   saveVessel(vessel){      
     return this.http.post('http://localhost:8080/api/SaveVessel/', vessel).pipe(  

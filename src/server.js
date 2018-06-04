@@ -2,6 +2,8 @@ var express = require('express');
 var path = require("path");
 var bodyParser = require('body-parser');
 var mongo = require("mongoose");
+var jwt = require("jsonwebtoken");
+var bcrypt = require("bcryptjs");
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
     if (err) { console.log(err); }
@@ -22,15 +24,18 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
+//#########################################################
+//##################   Schemas   ##########################
+//#########################################################
 
 var Schema = mongo.Schema;
 
-var loginSchema = new Schema({
+var userSchema = new Schema({
     username: { type: String },
     password: { type: String },
     permissions: { type: String }
 }, { versionKey: false });
-var Loginmodel = mongo.model('users', loginSchema, 'users');
+var Usermodel = mongo.model('users', userSchema, 'users');
 
 var VesselsSchema = new Schema({
     vesselname: { type: String },
@@ -56,10 +61,77 @@ var boatLocationSchema = new Schema({
 }, { versionKey: false });
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
+
+
+//#########################################################
+//#################   Functionality   #####################
+//#########################################################
+
+
+
+
+function verifyToken(req, res, next){
+    if (!req.headers.authorization){
+        return res.status(401).send('Unauthorized request')
+    }
+    let token = req.headers.authorization.split(' ')[1];
+
+    if (token === 'null'){
+        return res.status(401).send('Unauthorized request')
+    }
+
+    let payload = jwt.verify(token, 'secretKey')
+
+    if (payload === 'null'){
+        return res.status(401).send('Unauthorized request')
+    }
+    req.userId = payload.subject
+    next()
+}
+
+
+//#########################################################
+//#################   Endpoints   #########################
+//#########################################################
+
+
+app.post("/api/registerUser", function(req,res){
+    let userData = req.body;
+
+    if(userData.password === userData.confirmPassword){
+        Usermodel.findOne({username: userData.email}, 
+            function (err, existingUser) {
+                if (err) {
+                    res.send(err);
+                }
+                else {
+                    if(!existingUser){
+                        let user = new Usermodel({"username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": "user"});
+                                user.save((error, registeredUser) =>{
+                                    if(error){
+                                        console.log(error);
+                                        res.status(401).send('User already exists');
+                                    }else{
+                                        res.status(200).send(registeredUser);
+                                    }
+                                });
+                    } else {
+                        console.log("user already exists");
+                    }
+                }
+            });
+        
+    }  else{
+        res.status(401).send('passwords do not match');
+    }
+})
+
+
+
 app.post("/api/login", function(req,res){
     let userData = req.body
 
-    Loginmodel.findOne({username: userData.username}, 
+    Usermodel.findOne({username: userData.username}, 
         function (err, user) {
             if (err) {
                 res.send(err);
@@ -69,10 +141,12 @@ app.post("/api/login", function(req,res){
                     res.status(401).send('User does not exist')
                 }else
                 {
-                    if(user.password !== userData.password){
-                        res.status(401).send('password is incorrect')    
+                    if(bcrypt.compareSync(userData.password, user.password)){
+                        let payload = { userID: user._id, userPermission: user.permissions };
+                        let token = jwt.sign(payload, 'secretKey');
+                        res.status(200).send({token});    
                     }else{
-                        res.status(200).send(user)
+                        res.status(401).send('password is incorrect');
                     }
                 }
             }
@@ -109,7 +183,7 @@ app.post("/api/SaveVessel", function (req, res) {
 
 app.get("/api/getVessel", function (req, res) {
     Vesselmodel.find({
-
+        
 
     }, function (err, data) {
         if (err) {
