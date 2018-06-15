@@ -32,6 +32,11 @@ export class CommonService {
             map((response: Response) => response.json()))              
   }
 
+  GetCompanies(){       
+    return this.http.get('http://localhost:8080/api/getCompanies/').pipe(  
+            map((response: Response) => response.json()))              
+  }
+
   GetLatLon(){       
     return this.http.get('http://localhost:8080/api/getLatLon/').pipe(  
             map((response: Response) => response.json()))              

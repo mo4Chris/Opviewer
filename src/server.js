@@ -33,7 +33,8 @@ var Schema = mongo.Schema;
 var userSchema = new Schema({
     username: { type: String },
     password: { type: String },
-    permissions: { type: String }
+    permissions: { type: String },
+    client: {type: String}
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -99,7 +100,7 @@ app.post("/api/registerUser", function(req,res){
                 }
                 else {
                     if(!existingUser){
-                        let user = new Usermodel({"username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": "user"});
+                        let user = new Usermodel({"username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": "user", "client": userData.client});
                                 user.save((error, registeredUser) =>{
                                     if(error){
                                         console.log(error);
@@ -133,7 +134,7 @@ app.post("/api/login", function(req,res){
                 }else
                 {
                     if(bcrypt.compareSync(userData.password, user.password)){
-                        let payload = { userID: user._id, userPermission: user.permissions };
+                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client };
                         let token = jwt.sign(payload, 'secretKey');
                         res.status(200).send({token});    
                     }else{
@@ -181,6 +182,21 @@ app.get("/api/getVessel", function (req, res) {
         }
         else {
             res.send(data);
+        }
+    });
+})
+
+app.get("/api/getCompanies", function (req, res) {
+    
+    Vesselmodel.find().distinct('client', function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            let BusinessData = data + '';
+            let arrayOfCompanies = [];
+            arrayOfCompanies = BusinessData.split(",");
+            res.send(arrayOfCompanies);
         }
     });
 })

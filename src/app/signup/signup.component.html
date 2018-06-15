@@ -15,6 +15,11 @@
                     <div class="form-group">
                         <input type="password" class="form-control input-underline input-lg" name="confirmPasswordField" id="confirmPasswordField" [(ngModel)]="registerUserData.confirmPassword" placeholder="Repeat Password">
                     </div>
+                    <div>
+                        <select name="selectBusinessName" [(ngModel)]="registerUserData.client" required>
+                            <option *ngFor="let b of businessNames" [ngValue]="b">{{b}}</option>
+                        </select>
+                    </div>
                 </div>
                 <a class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
                 <a class="btn rounded-btn" [routerLink]="['/dashboard']">Cancel</a>

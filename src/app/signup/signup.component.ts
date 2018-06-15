@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import {CommonService} from '../common.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { routerTransition } from '../router.animations';
@@ -15,8 +16,8 @@ import { AuthService } from '../auth.service';
 })
 export class SignupComponent implements OnInit {
 	registerUserData = {};
-
-    constructor(public router: Router, private _auth: AuthService) {}
+    businessNames;
+    constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
 
     onRegistration(){
 
@@ -34,5 +35,7 @@ export class SignupComponent implements OnInit {
 
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.newService.GetCompanies().subscribe(data =>  this.businessNames = data);
+    }
 }
