@@ -10,7 +10,6 @@ var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo
     else { console.log('Connected to ' + db, ' + '/*, response*/); }
 });
 
-
 var app = express()
 app.use(bodyParser());
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -24,8 +23,9 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
+
 //#########################################################
-//##################   Schemas   ##########################
+//##################   Models   ###########################
 //#########################################################
 
 var Schema = mongo.Schema;
@@ -61,14 +61,9 @@ var boatLocationSchema = new Schema({
 }, { versionKey: false });
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
-
-
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
-
-
-
 
 function verifyToken(req, res, next){
     if (!req.headers.authorization){
@@ -89,11 +84,9 @@ function verifyToken(req, res, next){
     next()
 }
 
-
 //#########################################################
 //#################   Endpoints   #########################
 //#########################################################
-
 
 app.post("/api/registerUser", function(req,res){
     let userData = req.body;
@@ -126,8 +119,6 @@ app.post("/api/registerUser", function(req,res){
     }
 })
 
-
-
 app.post("/api/login", function(req,res){
     let userData = req.body
 
@@ -152,7 +143,6 @@ app.post("/api/login", function(req,res){
             }
         });
 })
-
 
 app.post("/api/SaveVessel", function (req, res) {
     var mod = new model(req.body);
@@ -183,7 +173,7 @@ app.post("/api/SaveVessel", function (req, res) {
 
 app.get("/api/getVessel", function (req, res) {
     Vesselmodel.find({
-        
+
 
     }, function (err, data) {
         if (err) {
