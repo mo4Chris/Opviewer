@@ -45,7 +45,12 @@ export class CommonService {
    GetLatestBoatLocation(){       
     return this.http.get('http://localhost:8080/api/getLatestBoatLocation/').pipe(  
             map((response: Response) => response.json()))              
-  }    
+  }
+
+  GetLatestBoatLocationForCompany(company){    
+    return this.http.post('http://localhost:8080/api/getLatestBoatLocationForCompany/', company).pipe(  
+            map((response: Response) => response.json()))
+  }      
  
 }
 

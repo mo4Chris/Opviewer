@@ -7,7 +7,7 @@ var bcrypt = require("bcryptjs");
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
     if (err) { console.log(err); }
-    else { console.log('Connected to ' + db, ' + '/*, response*/); }
+    else { console.log('Connected to Database'); }
 });
 
 var app = express()
@@ -82,6 +82,7 @@ function verifyToken(req, res, next){
         return res.status(401).send('Unauthorized request')
     }
     req.userId = payload.subject
+    console.log(req.userId);
     next()
 }
 
@@ -121,7 +122,7 @@ app.post("/api/registerUser", function(req,res){
 })
 
 app.post("/api/login", function(req,res){
-    let userData = req.body
+    let userData = req.body;
 
     Usermodel.findOne({username: userData.username}, 
         function (err, user) {
@@ -213,7 +214,7 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.get("/api/getLatestBoatLocation", function (req, res) {
-
+    
     boatLocationmodel.aggregate([
         { $group: {
             _id : "$MMSI",
@@ -231,6 +232,50 @@ app.get("/api/getLatestBoatLocation", function (req, res) {
 
         }           
     });
+})
+
+app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
+    let companyName = req.body[0].companyName;
+    let companyMmsi = [];
+    
+    Vesselmodel.find({ client: companyName }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            for(i = 0; i< data.length;){
+                companyMmsi.push(data[i].mmsi);
+                i++;
+            }
+
+            boatLocationmodel.aggregate([
+                { 
+                    "$match": { 
+                        MMSI : {$in:companyMmsi }
+                    }
+                },
+                { $group: {
+                    _id : "$MMSI",
+                    "LON": { "$last": "$LON" },
+                    "LAT": { "$last": "$LAT" },
+                    "TIMESTAMP": { "$last": "$TIMESTAMP" }
+                }}
+            ]).exec(function (err, data) {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                }
+                else {
+                    res.send(data);
+        
+                }           
+            });
+        }    
+    });
+
+
+
 })
 
 app.listen(8080, function () {

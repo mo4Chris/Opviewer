@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
+import * as jwt_decode from "jwt-decode";
 
 //Mongo Imports
 import {FormGroup,FormControl,Validators,FormsModule, } from '@angular/forms';
@@ -17,6 +18,17 @@ export class DashboardComponent implements OnInit {
     LLdata;
     Locdata;
     errData;
+    
+
+    getDecodedAccessToken(token: string): any {
+        try{
+            return jwt_decode(token);
+        }
+        catch(Error){
+            return null;
+        }
+      }
+    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
 
     //Map settings
     latitude = 52.3702157;
@@ -24,6 +36,7 @@ export class DashboardComponent implements OnInit {
     zoomlvl = 6;
     mapTypeId = "roadmap"
     streetViewControl = false;
+    
 
     infoWindowOpened = null;
 
@@ -50,6 +63,11 @@ export class DashboardComponent implements OnInit {
 
     ngOnInit() {    
         this.newService.GetLatLon().subscribe(data =>  this.LLdata = data);
-        this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
+
+        if(this.tokenInfo.userPermission == "admin"){
+            this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
+        } else {
+            this.newService.GetLatestBoatLocationForCompany([{"companyName" : this.tokenInfo.userCompany}]).subscribe(data => this.Locdata = data, err => this.errData = err);
+        }
       }  
 }
