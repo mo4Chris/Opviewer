@@ -47,10 +47,20 @@ export class CommonService {
             map((response: Response) => response.json()))              
   }
 
+  GetSpecificPark(park){       
+    return this.http.post('http://localhost:8080/api/GetSpecificPark/', park).pipe(  
+            map((response: Response) => response.json()))              
+  }
+
   GetLatestBoatLocationForCompany(company){    
     return this.http.post('http://localhost:8080/api/getLatestBoatLocationForCompany/', company).pipe(  
             map((response: Response) => response.json()))
-  }      
+  }
+  
+  GetTransfersForVessel (vessel){    
+    return this.http.post('http://localhost:8080/api/GetTransfersForVessel/', vessel).pipe(  
+            map((response: Response) => response.json()))
+  }  
  
 }
 

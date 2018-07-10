@@ -46,6 +46,20 @@ var VesselsSchema = new Schema({
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
+var TransferSchema = new Schema({
+    mmsi: { type: Number },
+    vesselname:{ type: String },
+    date:{ type: Number },
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    duration: { type: Number },
+    location: { type: String },
+    fieldname: { type: String },
+    comment: { type: String },
+    detector: { type: String },
+}, { versionKey: false });
+var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
+
 var LatLonSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -213,6 +227,17 @@ app.get("/api/getLatLon", function (req, res) {
     });
 })
 
+app.post("/api/GetSpecificPark", function (req, res) {
+    LatLonmodel.findOne({ "properties.Name": "burbobanks turbine" }, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
 app.get("/api/getLatestBoatLocation", function (req, res) {
     
     boatLocationmodel.aggregate([
@@ -271,6 +296,23 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
         
                 }           
             });
+        }    
+    });
+
+
+
+})
+
+app.post("/api/GetTransfersForVessel", function (req, res) {
+    
+    //TODO: make MMSI dynamic
+    Transfermodel.find({ mmsi: 235095774 }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data); 
         }    
     });
 
