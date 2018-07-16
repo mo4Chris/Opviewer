@@ -21,6 +21,7 @@ export class VesselreportComponent implements OnInit {
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
 
   constructor(private newService: CommonService) { }
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()}
   zoomlvl = 8;
   latitude;
   longitude;

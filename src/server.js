@@ -228,8 +228,11 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.post("/api/GetSpecificPark", function (req, res) {
-    //TODO: Make name dynamic
-    LatLonmodel.findOne({ "properties.Name": "burbobanks turbine" }, function (err, data) {
+    var parkname = req.body.park.replace(new RegExp("_", 'g'), " ");
+    var lastIndex = parkname.lastIndexOf(" ");
+    parkname = parkname.substring(0, lastIndex);
+    
+    LatLonmodel.findOne({ "properties.Name": parkname }, function (err, data) {
         if (err) {
             res.send(err);
         }

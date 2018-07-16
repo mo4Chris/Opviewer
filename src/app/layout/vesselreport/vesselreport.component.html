@@ -3,7 +3,7 @@
     <form class="form-inline mb-3">
         <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
             <div class="input-group datepicker-input">
-                <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="datePickerValue"  ngbDatepicker #d="ngbDatepicker">
+                <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate"  ngbDatepicker #d="ngbDatepicker">
                 <button class="input-group-addon" (click)="d.toggle()" type="button">
                     <span class="fa fa-calendar"></span>
                 </button>
