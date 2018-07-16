@@ -1,5 +1,18 @@
-<h2 class="text-muted">Vessel report <small> 23-02-2018 </small></h2>
-
+<h2 class="text-muted">Vessel report <small> {{ MatlabDateToJSDate(vesselObject.date) }} </small></h2>
+{{vesselObject.dateNormal}}
+<div class="col-lg-12">
+    <form class="form-inline mb-3">
+        <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
+            <div class="input-group datepicker-input">
+                <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="datePickerValue"  ngbDatepicker #d="ngbDatepicker">
+                <button class="input-group-addon" (click)="d.toggle()" type="button">
+                    <span class="fa fa-calendar"></span>
+                </button>
+                <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
 <div class="divContainer">
     <div class="leftdiv">
       <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl">
@@ -9,6 +22,13 @@
                 </agm-polyline-point>
           </ng-container>
       </agm-polyline>
+
+      <agm-polyline [strokeColor]="'#000'" [strokeWeight]="1.5">
+            <ng-container *ngFor="let loc of boatLocationData" >
+                  <agm-polyline-point [latitude]="loc.LAT" [longitude]="loc.LON" >
+                  </agm-polyline-point>
+            </ng-container>
+        </agm-polyline>
       </agm-map>
     </div>
     <div class="rightdiv">  
@@ -19,6 +39,12 @@
                 </agm-polyline-point>
           </ng-container>
       </agm-polyline>
+      <agm-polyline [strokeColor]="'#000'" [strokeWeight]="1.5">
+            <ng-container *ngFor="let loc of boatLocationData" >
+                  <agm-polyline-point [latitude]="loc.LAT" [longitude]="loc.LON" >
+                  </agm-polyline-point>
+            </ng-container>
+        </agm-polyline>
       </agm-map>
     </div>
 </div>
@@ -28,10 +54,10 @@
       <thead>
       <tr>
           <th>#</th>
-          <th>date</th>
-          <th>startTime</th>
-          <th>stopTime</th>
+          <th>start time</th>
+          <th>stop time</th>
           <th>duration</th>
+          <th>score</th>
           <th>location</th>
           <th>comment</th>
           <th>detector</th>
@@ -40,10 +66,10 @@
       <tbody>
           <tr *ngFor="let kk of Repdata;let ind = index">
               <td>{{ind + 1}}</td>  
-              <td>{{ MatlabDateToJSDate(kk.date) }}</td> 
               <td>{{ MatlabDateToJSTime(kk.startTime)}}</td>
               <td>{{ MatlabDateToJSTime(kk.stopTime) }}</td>  
-              <td>{{ MatlabDateToJSTimeDifference(kk.stopTime, kk.startTime) }}</td> 
+              <td>{{ MatlabDateToJSTimeDifference(kk.stopTime, kk.startTime) }}</td>
+              <td>{{kk.score}}</td> 
               <td>{{kk.location}}</td>  
               <td>{{kk.comment}}</td> 
               <td>{{kk.detector}}</td>

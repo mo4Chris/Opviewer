@@ -228,6 +228,7 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.post("/api/GetSpecificPark", function (req, res) {
+    //TODO: Make name dynamic
     LatLonmodel.findOne({ "properties.Name": "burbobanks turbine" }, function (err, data) {
         if (err) {
             res.send(err);
@@ -256,6 +257,21 @@ app.get("/api/getLatestBoatLocation", function (req, res) {
             res.send(data);
 
         }           
+    });
+})
+
+app.post("/api/getRouteForBoat", function(req, res){
+    boatLocationmodel.find({
+        "TIMESTAMP" : { $regex: req.body.dateNormal, $options: 'i' },
+        "MMSI": req.body.mmsi
+    }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data); 
+        }    
     });
 })
 
@@ -305,8 +321,7 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
 
 app.post("/api/GetTransfersForVessel", function (req, res) {
     
-    //TODO: make MMSI dynamic
-    Transfermodel.find({ mmsi: 235095774 }, function(err, data){
+    Transfermodel.find({ mmsi: req.body.mmsi , date: req.body.date }, function(err, data){
         if (err) {
             console.log(err);
             res.send(err);
@@ -315,8 +330,6 @@ app.post("/api/GetTransfersForVessel", function (req, res) {
             res.send(data); 
         }    
     });
-
-
 
 })
 

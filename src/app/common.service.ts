@@ -60,6 +60,11 @@ export class CommonService {
   GetTransfersForVessel (vessel){    
     return this.http.post('http://localhost:8080/api/GetTransfersForVessel/', vessel).pipe(  
             map((response: Response) => response.json()))
+  }
+  
+  getRouteForBoat(vessel){    
+    return this.http.post('http://localhost:8080/api/getRouteForBoat/', vessel).pipe(  
+            map((response: Response) => response.json()))
   }  
  
 }
