@@ -84,8 +84,12 @@ export class VesselreportComponent implements OnInit {
 
   ngOnInit() {
     this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {;
-      this.newService.GetSpecificPark("test").subscribe(data => {this.Locdata = data.geometry.coordinates, this.latitude = data.geometry.coordinates[0][1], this.longitude = data.geometry.coordinates[0][0]} );
-      this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+     
+      if(this.Repdata.length !== 0){
+        this.newService.GetSpecificPark({"park" : this.Repdata[0].fieldname}).subscribe(data => {this.Locdata = data.geometry.coordinates, this.latitude = data.geometry.coordinates[0][1], this.longitude = data.geometry.coordinates[0][0]} );
+        this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+      }
+      
     });
   }
 
@@ -103,8 +107,6 @@ export class VesselreportComponent implements OnInit {
 
   getJSDateYesterdayYMD(){
     let JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour:0,minute:0,second:0,millisecond:0}).format("YYYY-MM-DD");
-    console.log(JSValueYesterday);
-
     return JSValueYesterday;
   }
 

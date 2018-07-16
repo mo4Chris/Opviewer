@@ -35,14 +35,13 @@ export class DashboardComponent implements OnInit {
     longitude = 4.895167;
     zoomlvl = 6;
     mapTypeId = "roadmap"
-    streetViewControl = false;
-    
+    streetViewControl = false;    
+    //End map settings
 
     infoWindowOpened = null;
 
     filter() {
         this.infoWindowOpened = null;
-        // redraw the map with filtered markers
     }
 
     showInfoWindow(infoWindow, index) {
@@ -57,17 +56,27 @@ export class DashboardComponent implements OnInit {
         this.infoWindowOpened = infoWindow;   
     }
 
-    
+    getLatestBoatLocationAdmin(){
+        this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
+        setTimeout(()=>{
+            this.getLatestBoatLocationAdmin();
+        }, 60000);
+    }
+    getLatestBoatLocationCompany(company){
+        this.newService.GetLatestBoatLocationForCompany(company).subscribe(data => this.Locdata = data, err => this.errData = err);
+        setTimeout(()=>{
+            this.getLatestBoatLocationCompany(company);
+        }, 60000)
+    }
 
-    //End map settings
 
     ngOnInit() {    
         this.newService.GetLatLon().subscribe(data =>  this.LLdata = data);
 
         if(this.tokenInfo.userPermission == "admin"){
-            this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
+            this.getLatestBoatLocationAdmin();
         } else {
-            this.newService.GetLatestBoatLocationForCompany([{"companyName" : this.tokenInfo.userCompany}]).subscribe(data => this.Locdata = data, err => this.errData = err);
+            this.getLatestBoatLocationCompany([{"companyName" : this.tokenInfo.userCompany}]);
         }
       }  
 }
