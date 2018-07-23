@@ -46,14 +46,14 @@ bordercolors =  [
     this.setScatterPoints().subscribe();
   }
 
-  // bar chart
-  public barChartOptions: any = {
+  // scatter chart
+  public scatterChartOptions: any = {
     scaleShowVerticalLines: true,
     responsive: true
 };
 
-public barChartType: string = 'scatter';
-public barChartLegend: boolean = true;
+public scatterChartType: string = 'scatter';
+public scatterChartLegend: boolean = true;
 
 setScatterPoints(){
   return this.newService
@@ -75,61 +75,4 @@ setScatterPoints(){
       console.log('error ' + error);
       throw error;
     });
-}
-
-public barChartData: any[] = [
-    
-    {
-      radius: 8,
-      label: 'Scatter Dataset',
-      data: [{ x: -10, y: 0},  { x: 10, y: 5}],
-      backgroundColor: this.backgroundcolors[1],
-      borderColor: this.bordercolors[1]
-    },
-    {
-      radius: 8,
-      label: 'Scatter Dataset 2',
-      data: [{ x: -8, y: 2}, { x: 5, y: 8}],
-      backgroundColor: this.backgroundcolors[2],
-      borderColor: this.bordercolors[2]
-    },
-    {
-      radius: 8,
-      label: 'Scatter Dataset 3',
-      data: [{ x: -5, y: -1}, { x: -3, y: 3}],
-      backgroundColor: this.backgroundcolors[3],
-      borderColor: this.bordercolors[3]
-    },
-    {
-      radius: 8,
-      label: 'Scatter Dataset 4',
-      data: [{ x: 0, y: 10}, { x: 9, y: 8}],
-      backgroundColor: this.backgroundcolors[4],
-      borderColor: this.bordercolors[4]
-    },
-    {
-      radius: 8,
-      label: 'Scatter Dataset 5',
-      data: [{ x: 2, y: 5}, { x: 4, y: 4}],
-      backgroundColor: this.backgroundcolors[5],
-      borderColor: this.bordercolors[5]
-    },
-    {
-      radius: 8,
-      label: 'Scatter Dataset 6',
-      data: [{ x: 1, y: 4}, { x: -4, y: 4}],
-      backgroundColor: this.backgroundcolors[6],
-      borderColor: this.bordercolors[6]
-    }
-];
-
-// Doughnut
-public doughnutChartLabels: string[] = [
-    'Download Sales',
-    'In-Store Sales',
-    'Mail-Order Sales'
-];
-public doughnutChartData: number[] = [350, 450, 100];
-public doughnutChartType: string = 'doughnut';
-
 }
