@@ -13,16 +13,17 @@ import * as moment from "moment";
   animations: [routerTransition()]
 })
 export class VesselreportComponent implements OnInit {
-  Repdata;
+  transferData;
   Locdata;
   boatLocationData;
   datePickerValue;
+  dateData;
   vesselObject = {"date": this.getMatlabDateYesterday(), "mmsi": 235095774, "dateNormal": this.getJSDateYesterdayYMD()};
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
 
   constructor(private newService: CommonService) { }
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()}
-  zoomlvl = 8;
+  zoomlvl = 9;
   latitude;
   longitude;
   mapTypeId = "roadmap"
@@ -36,6 +37,11 @@ export class VesselreportComponent implements OnInit {
   MatlabDateToJSDateYMD(serial) {
     var datevar = moment((serial - 719529) * 864e5).format("YYYY-MM-DD");
     return datevar;
+  }
+  JSDateYMDToObjectDate(YMDDate){
+    YMDDate = YMDDate.split("-");
+    var ObjectDate = {year: YMDDate[0], month: YMDDate[1] , day: YMDDate[2]};
+    return ObjectDate;
   }
 
   MatlabDateToJSTime(serial) {
@@ -55,7 +61,6 @@ export class VesselreportComponent implements OnInit {
     let difference = serialEnd.diff(serialBegin);
 
     return moment(difference).subtract(1, "hours").format("HH:mm:ss");
-    
   }
 
   getDecodedAccessToken(token: string): any {
@@ -67,27 +72,41 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-
   GetTransfersForVessel(vessel) {
     return this.newService
     .GetTransfersForVessel(vessel)
     .map(
       (transfers) => {
-        this.Repdata = transfers;
+        this.transferData = transfers;
       })
      .catch((error) => {
         console.log('error ' + error);
         throw error;
       });
-    // users => this.users = users,
-    // error => this.errorMsg = <any>error);
+  }
+
+  getDatesWithTransfers(date){
+    return this.newService
+    .getDatesWithValues(date)
+    .map(
+      (dates) => {
+        for (var _i = 0; _i < dates.length; _i++) {
+          dates[_i] = this.JSDateYMDToObjectDate(this.MatlabDateToJSDateYMD(dates[_i]));
+      }
+        this.dateData = dates;
+      })
+     .catch((error) => {
+        console.log('error ' + error);
+        throw error;
+      });
   }
 
   ngOnInit() {
+   
     this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {;
-     
-      if(this.Repdata.length !== 0){
-        this.newService.GetSpecificPark({"park" : this.Repdata[0].fieldname}).subscribe(data => {this.Locdata = data.geometry.coordinates, this.latitude = data.geometry.coordinates[0][1], this.longitude = data.geometry.coordinates[0][0]} );
+    this.getDatesWithTransfers(this.vesselObject).subscribe();
+      if(this.transferData.length !== 0){
+        this.newService.GetSpecificPark({"park" : this.transferData[0].fieldname}).subscribe(data => {this.Locdata = data.geometry.coordinates, this.latitude = data.geometry.coordinates[0][1], this.longitude = data.geometry.coordinates[0][0]} );
         this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
       }
       
@@ -118,15 +137,11 @@ export class VesselreportComponent implements OnInit {
     
     let momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
     
-    let dateAsMatlab : number;
-    dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-
+    let dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
     
     this.vesselObject.date = dateAsMatlab;
-    this.newService.GetTransfersForVessel(this.vesselObject).subscribe(data => this.Repdata = data );
     this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
-    this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
-
+    
     this.ngOnInit();
   }
 }

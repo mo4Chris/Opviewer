@@ -1,0 +1,9 @@
+<app-page-header [heading]="'Charts'" [icon]="'fa-bar-chart-o'"></app-page-header>
+{{scatterDataArray}}
+<div class="row">
+  <div class="col col-sm-9" *ngIf="showContent">
+    <canvas baseChart [datasets]="scatterDataArray" [legend]="barChartLegend" [chartType]="barChartType" >
+    </canvas>
+  </div>
+</div>
+   

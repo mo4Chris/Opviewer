@@ -28,6 +28,7 @@ app.use(function (req, res, next) {
 //##################   Models   ###########################
 //#########################################################
 
+
 var Schema = mongo.Schema;
 
 var userSchema = new Schema({
@@ -45,6 +46,13 @@ var VesselsSchema = new Schema({
     mmsi: { type: Number },
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
+
+var ScatterSchema = new Schema({
+    name: { type: String },
+    timestamp: { type: String },
+    mmsi: { type: Number },
+}, { versionKey: false });
+var Scattermodel = mongo.model('placeholder_scatter', ScatterSchema, 'placeholder_scatter');
 
 var TransferSchema = new Schema({
     mmsi: { type: Number },
@@ -317,13 +325,26 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
             });
         }    
     });
+})
 
-
-
+app.post("/api/getDatesWithValues", function (req, res) {
+    console.log(req.body);
+    Transfermodel.find({ mmsi: req.body.mmsi }).distinct('date', function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            console.log(data);
+            let dateData = data + '';
+            let arrayOfDates = [];
+            arrayOfDates = dateData.split(",");
+            res.send(arrayOfDates);
+        }
+    });
 })
 
 app.post("/api/GetTransfersForVessel", function (req, res) {
-    
     Transfermodel.find({ mmsi: req.body.mmsi , date: req.body.date }, function(err, data){
         if (err) {
             console.log(err);
@@ -334,6 +355,18 @@ app.post("/api/GetTransfersForVessel", function (req, res) {
         }    
     });
 
+})
+
+app.post("/api/getScatter", function (req, res) {
+    Scattermodel.find({}, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            console.log(data);
+            res.send(data);
+        }
+    });
 })
 
 app.listen(8080, function () {

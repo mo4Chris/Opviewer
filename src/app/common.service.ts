@@ -32,6 +32,11 @@ export class CommonService {
             map((response: Response) => response.json()))              
   }
 
+  GetScatter(test){       
+    return this.http.post('http://localhost:8080/api/getScatter/', test).pipe(  
+            map((response: Response) => response.json()))              
+  }
+
   GetCompanies(){       
     return this.http.get('http://localhost:8080/api/getCompanies/').pipe(  
             map((response: Response) => response.json()))              
@@ -65,7 +70,12 @@ export class CommonService {
   getRouteForBoat(vessel){    
     return this.http.post('http://localhost:8080/api/getRouteForBoat/', vessel).pipe(  
             map((response: Response) => response.json()))
-  }  
+  }
+
+  getDatesWithValues(vessel){    
+    return this.http.post('http://localhost:8080/api/getDatesWithValues/', vessel).pipe(  
+            map((response: Response) => response.json()))
+  }
  
 }
 
