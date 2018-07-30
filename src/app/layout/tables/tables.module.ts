@@ -11,9 +11,11 @@ import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';  
   
 import {CommonService} from '../../common.service'; 
+import { VesselreportModule } from '../vesselreport/vesselreport.module';
+import { ScatterplotModule } from '../scatterplot/scatterplot.module';
 
 @NgModule({
-    imports: [ HttpModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule],
+    imports: [ HttpModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule,VesselreportModule, ScatterplotModule],
     declarations: [TablesComponent, TablesComponent],
     providers: [CommonService],  
     bootstrap: [TablesComponent]

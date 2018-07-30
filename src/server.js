@@ -69,12 +69,10 @@ var TransferSchema = new Schema({
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
 var LatLonSchema = new Schema({
-    vesselname: { type: String },
-    nicename: { type: String },
-    client: { type: String },
-    mmsi: { type: Number },
+    filename: { type: String },
+    SiteName: { type: String }
 }, { versionKey: false });
-var LatLonmodel = mongo.model('WindparksGeoLocation', LatLonSchema, 'WindparksGeoLocation');
+var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
 var boatLocationSchema = new Schema({
     vesselname: { type: String },
@@ -198,7 +196,29 @@ app.post("/api/SaveVessel", function (req, res) {
 app.get("/api/getVessel", function (req, res) {
     Vesselmodel.find({
 
+    }, null ,{
+        sort:{
+           client: 'asc', nicename:'asc'
+        }
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
 
+app.post("/api/getVesselsForCompany", function (req, res) {
+    let companyName = req.body[0].client;
+    Vesselmodel.find({
+        client: companyName
+
+    }, null ,{
+        sort:{
+            nicename: 'asc'
+        }
     }, function (err, data) {
         if (err) {
             res.send(err);
@@ -239,8 +259,8 @@ app.post("/api/GetSpecificPark", function (req, res) {
     var parkname = req.body.park.replace(new RegExp("_", 'g'), " ");
     var lastIndex = parkname.lastIndexOf(" ");
     parkname = parkname.substring(0, lastIndex);
-    
-    LatLonmodel.findOne({ "properties.Name": parkname }, function (err, data) {
+
+    LatLonmodel.findOne({ "filename": req.body.park }, function (err, data) {
         if (err) {
             res.send(err);
         }
@@ -328,14 +348,12 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
 })
 
 app.post("/api/getDatesWithValues", function (req, res) {
-    console.log(req.body);
     Transfermodel.find({ mmsi: req.body.mmsi }).distinct('date', function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
         }
         else {
-            console.log(data);
             let dateData = data + '';
             let arrayOfDates = [];
             arrayOfDates = dateData.split(",");
@@ -363,7 +381,6 @@ app.post("/api/getScatter", function (req, res) {
             res.send(err);
         }
         else {
-            console.log(data);
             res.send(data);
         }
     });

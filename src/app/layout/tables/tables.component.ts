@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
-import { FormGroup, FormControl, Validators, FormsModule, } from '@angular/forms';
 import { CommonService } from '../../common.service';
-
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import * as jwt_decode from "jwt-decode";
+ 
+import { Router } from '../../../../node_modules/@angular/router';
 
 @Component({
     selector: 'app-tables',
@@ -12,13 +12,34 @@ import { Http, Response, Headers, RequestOptions } from '@angular/http';
     animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
-    constructor(private newService: CommonService ) { }
+    constructor(private newService: CommonService, private _router: Router ) { }
     Repdata;
+    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     valbutton = "Save";
 
+    getDecodedAccessToken(token: string): any {
+        try{
+            return jwt_decode(token);
+        }
+        catch(Error){
+            return null;
+        }
+      }
 
     ngOnInit() {
-        this.newService.GetVessel().subscribe(data => this.Repdata = data)
+        if(this.tokenInfo.userPermission == "admin"){
+            this.newService.GetVessel().subscribe(data => this.Repdata = data)
+        }else{
+            this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Repdata = data)
+        }
+    }
+
+    redirectDailyVesselReport(mmsi){
+        this._router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    }
+
+    redirectScatterplot(mmsi){
+        this._router.navigate(['scatterplot', {boatmmsi: mmsi}]);
     }
 
     onSave = function (vessel, isValid: boolean) {

@@ -25,7 +25,7 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,0,255,0.4)',
     'rgba(0,255,255,0.4)'
   ];
-bordercolors =  [
+  bordercolors =  [
     'rgba(255,99,132,1)',
     'rgba(54, 162, 235, 1)',
     'rgba(255, 206, 86, 1)',
@@ -50,29 +50,30 @@ bordercolors =  [
   public scatterChartOptions: any = {
     scaleShowVerticalLines: true,
     responsive: true
-};
+  };
 
-public scatterChartType: string = 'scatter';
-public scatterChartLegend: boolean = true;
+  public scatterChartType: string = 'scatter';
+  public scatterChartLegend: boolean = true;
 
-setScatterPoints(){
-  return this.newService
-  .GetScatter("test")
-  .map(
-    (scatterData) => {
-      for (var _i = 0; _i < scatterData.length; _i++) {
-        var obj = {};
-        obj['label'] = scatterData[_i].name;
-        obj['data'] = scatterData[_i].data;
-        obj['backgroundColor'] = this.backgroundcolors[_i];
-        obj['borderColor'] = this.bordercolors[_i];
-        obj['radius'] = 6;
-        obj['pointHoverRadius'] = 8;
-        this.scatterDataArray.push(obj);
-      }
-    })
-   .catch((error) => {
-      console.log('error ' + error);
-      throw error;
-    });
+  setScatterPoints(){
+    return this.newService
+    .GetScatter("test")
+    .map(
+      (scatterData) => {
+        for (var _i = 0; _i < scatterData.length; _i++) {
+          var obj = {};
+          obj['label'] = scatterData[_i].name;
+          obj['data'] = scatterData[_i].data;
+          obj['backgroundColor'] = this.backgroundcolors[_i];
+          obj['borderColor'] = this.bordercolors[_i];
+          obj['radius'] = 6;
+          obj['pointHoverRadius'] = 8;
+          this.scatterDataArray.push(obj);
+        }
+      })
+    .catch((error) => {
+        console.log('error ' + error);
+        throw error;
+      });
+  }
 }

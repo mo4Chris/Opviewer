@@ -1,9 +1,9 @@
 <div [@routerTransition]>
-    <app-page-header [heading]="'Tables'" [icon]="'fa-table'"></app-page-header>
+    <app-page-header [heading]="'Boats and reports'" [icon]="'fa-table'"></app-page-header>
     <div class="row">
         <div class="col col-xl-12 col-lg-24">
            <div class="card mb-3">
-                <div class="card-header">BotenOverzicht
+                <div class="card-header">Boat overview
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table table-hover table-striped">
@@ -11,16 +11,20 @@
                         <tr>
                             <th>#</th>
                             <th>Boatname</th>
-                            <th>Client</th>
+                            <th *ngIf="tokenInfo.userPermission == 'admin'">Client</th>
                             <th>mmsi</th>
+                            <th>Daily vessel report</th>
+                            <th>Scatterplot</th>
                         </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let kk of Repdata;let ind = index">
                                 <td>{{ind + 1}}</td>  
                                 <td>{{kk.nicename}}</td>  
-                                <td>{{kk.client}}</td> 
+                                <td *ngIf="tokenInfo.userPermission == 'admin'">{{kk.client}}</td> 
                                 <td>{{kk.mmsi}}</td>
+                                <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(kk.mmsi)"> Daily Vessel Report </a></td>
+                                <td><a class="btn rounded-btn" (click)="redirectScatterplot(kk.mmsi)"> Scatterplot </a></td>
                             </tr>
                         </tbody>
                     </table>

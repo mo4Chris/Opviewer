@@ -5,8 +5,6 @@ import { Http, Response, Headers, RequestOptions } from '@angular/http';
    
 import { Observable } from 'rxjs';  
   
-  
-  
 @Injectable()  
 export class CommonService {  
   
@@ -29,6 +27,11 @@ export class CommonService {
   
   GetVessel(){       
     return this.http.get('http://localhost:8080/api/getVessel/').pipe(  
+            map((response: Response) => response.json()))              
+  }
+  
+  GetVesselsForCompany(client){       
+    return this.http.post('http://localhost:8080/api/getVesselsForCompany/', client).pipe(  
             map((response: Response) => response.json()))              
   }
 

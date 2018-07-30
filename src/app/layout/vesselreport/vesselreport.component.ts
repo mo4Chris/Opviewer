@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import * as jwt_decode from "jwt-decode";
 import * as moment from "moment";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-vesselreport',
@@ -13,21 +14,34 @@ import * as moment from "moment";
   animations: [routerTransition()]
 })
 export class VesselreportComponent implements OnInit {
+
+  constructor(private newService: CommonService, private route: ActivatedRoute) {
+    
+  }
+
   transferData;
   Locdata;
   boatLocationData;
   datePickerValue;
   dateData;
-  vesselObject = {"date": this.getMatlabDateYesterday(), "mmsi": 235095774, "dateNormal": this.getJSDateYesterdayYMD()};
+  typeOfLat;
+  vesselObject = {"date": this.getMatlabDateYesterday(), "mmsi": this.getMMSIFromParameter(), "dateNormal": this.getJSDateYesterdayYMD()};
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  public showContent: boolean = false;
 
-  constructor(private newService: CommonService) { }
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()}
   zoomlvl = 9;
   latitude;
   longitude;
   mapTypeId = "roadmap"
   streetViewControl = false;
+
+  getMMSIFromParameter(){
+    let mmsi;
+    this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
+
+    return mmsi;
+  }
 
   MatlabDateToJSDate(serial) {
     var dateInt = moment((serial - 719529) * 864e5).format("DD-MM-YYYY");
@@ -101,15 +115,23 @@ export class VesselreportComponent implements OnInit {
       });
   }
 
+  objectToInt(objectvalue){
+    return parseFloat(objectvalue);
+  }
+
   ngOnInit() {
-   
+    
+    this.BuildPageWithCurrentInformation();
+  }
+  
+  BuildPageWithCurrentInformation(){
     this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {;
-    this.getDatesWithTransfers(this.vesselObject).subscribe();
+      this.getDatesWithTransfers(this.vesselObject).subscribe();
       if(this.transferData.length !== 0){
-        this.newService.GetSpecificPark({"park" : this.transferData[0].fieldname}).subscribe(data => {this.Locdata = data.geometry.coordinates, this.latitude = data.geometry.coordinates[0][1], this.longitude = data.geometry.coordinates[0][0]} );
+        this.newService.GetSpecificPark({"park" : this.transferData[0].fieldname}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data.lat[Math.floor(data.lat.length / 2)]), this.longitude = parseFloat(data.lon[Math.floor(data.lon.length / 2)])} );
         this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
       }
-      
+    setTimeout(()=>this.showContent=true, 350);
     });
   }
 
@@ -142,6 +164,6 @@ export class VesselreportComponent implements OnInit {
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
     
-    this.ngOnInit();
+    this.BuildPageWithCurrentInformation();
   }
 }
