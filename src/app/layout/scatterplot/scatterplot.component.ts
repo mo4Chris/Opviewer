@@ -66,8 +66,8 @@ export class ScatterplotComponent implements OnInit {
           obj['data'] = scatterData[_i].data;
           obj['backgroundColor'] = this.backgroundcolors[_i];
           obj['borderColor'] = this.bordercolors[_i];
-          obj['radius'] = 6;
-          obj['pointHoverRadius'] = 8;
+          obj['radius'] = 8;
+          obj['pointHoverRadius'] = 10;
           this.scatterDataArray.push(obj);
         }
       })

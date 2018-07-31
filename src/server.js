@@ -244,6 +244,21 @@ app.get("/api/getCompanies", function (req, res) {
     });
 })
 
+app.post("/api/getDistinctFieldnames", function (req, res) {
+    
+    Transfermodel.find({"mmsi": req.body.mmsi, "date": req.body.date}).distinct('fieldname', function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            let fieldnameData = data + '';
+            let arrayOfFields = [];
+            arrayOfFields = fieldnameData.split(",");
+            res.send(arrayOfFields);
+        }
+    });
+})
+
 app.get("/api/getLatLon", function (req, res) {
     LatLonmodel.find({}, function (err, data) {
         if (err) {
@@ -256,16 +271,16 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.post("/api/GetSpecificPark", function (req, res) {
-    var parkname = req.body.park.replace(new RegExp("_", 'g'), " ");
-    var lastIndex = parkname.lastIndexOf(" ");
-    parkname = parkname.substring(0, lastIndex);
 
-    LatLonmodel.findOne({ "filename": req.body.park }, function (err, data) {
+    LatLonmodel.find({ 
+            filename : {$in:req.body.park }
+    }, function (err, data2) {
         if (err) {
+            console.log(err);
             res.send(err);
         }
         else {
-            res.send(data);
+            res.send(data2);
         }
     });
 })

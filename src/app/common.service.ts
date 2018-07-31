@@ -45,6 +45,11 @@ export class CommonService {
             map((response: Response) => response.json()))              
   }
 
+  GetDistinctFieldnames(transferdata){       
+    return this.http.post('http://localhost:8080/api/getDistinctFieldnames/', transferdata).pipe(  
+            map((response: Response) => response.json()))              
+  }
+
   GetLatLon(){       
     return this.http.get('http://localhost:8080/api/getLatLon/').pipe(  
             map((response: Response) => response.json()))              
