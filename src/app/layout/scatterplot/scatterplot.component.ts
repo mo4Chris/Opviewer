@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonService } from '../../common.service';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import * as moment from "moment";
 
 @Component({
   selector: 'app-scatterplot',
@@ -12,6 +13,7 @@ export class ScatterplotComponent implements OnInit {
   
   scatterData;
   scatterDataArray = [];
+  scatterDataArrayVessel = [];
 
   backgroundcolors = [
     'rgba(255, 99, 132, 0.4)',
@@ -41,19 +43,64 @@ export class ScatterplotComponent implements OnInit {
   constructor(private newService: CommonService) { }
   public showContent: boolean = false;
   ngOnInit() {
-    //minimal timeout has to be 38ms to work. 150ms has been set just to be sure
-    setTimeout(()=>this.showContent=true, 150);
-    this.setScatterPoints().subscribe();
+    //minimal timeout has to be 38ms to work. 100ms has been set just to be sure
+    setTimeout(()=>this.showContent=true, 1000);
+    //this.setScatterPoints().subscribe();
+    this.setScatterPointsVessel().subscribe();
+    
   }
 
   // scatter chart
   public scatterChartOptions: any = {
     scaleShowVerticalLines: true,
-    responsive: true
+    responsive: true,
+    scales : {
+      xAxes: [{
+        type: 'time',
+        distribution: 'series',
+        time:{
+          unit:'day'
+       }
+      }]
+    } 
   };
 
   public scatterChartType: string = 'scatter';
-  public scatterChartLegend: boolean = true;
+  public scatterChartLegend: boolean = false;
+
+  MatlabDateToUnixEpoch(serial) {
+    var time_info  = moment((serial - 719529) * 864e5 );
+    
+    return time_info;
+  }
+
+  setScatterPointsVessel(){
+    return this.newService
+    .GetTransfersForVessel({"mmsi": 219770000, "date": 737271})
+    .map(
+      (scatterData) => {
+        var obj = {};
+        obj['data'] = [];
+        for (var _i = 0; _i < scatterData.length; _i++) {
+          if(scatterData[_i].impactForceNmax !== null){
+            obj['data'][_i] = {
+              "x" : this.MatlabDateToUnixEpoch(scatterData[_i].startTime),
+              'y' : (scatterData[_i].impactForceNmax / 1000)
+            }
+          }
+        }
+        obj['radius'] = 8;
+        obj['pointHoverRadius'] = 10;
+        obj['borderColor'] = this.bordercolors[0];
+        obj['backgroundColor'] = this.backgroundcolors[6];
+        this.scatterDataArrayVessel.push(obj);
+        setTimeout(()=>this.showContent=true, 0);
+      })
+    .catch((error) => {
+        console.log('error ' + error);
+        throw error;
+      });
+  }
 
   setScatterPoints(){
     return this.newService

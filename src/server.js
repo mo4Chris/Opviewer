@@ -274,13 +274,13 @@ app.post("/api/GetSpecificPark", function (req, res) {
 
     LatLonmodel.find({ 
             filename : {$in:req.body.park }
-    }, function (err, data2) {
+    }, function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
         }
         else {
-            res.send(data2);
+            res.send(data);
         }
     });
 })

@@ -138,7 +138,7 @@ export class VesselreportComponent implements OnInit {
     
       if(this.transferData.length !== 0){
         this.newService.GetDistinctFieldnames({"mmsi" : this.transferData[0].mmsi, "date" : this.transferData[0].date}).subscribe(data => {;
-          this.newService.GetSpecificPark({"park" : data}).subscribe(data2 => {this.Locdata = data2, this.latitude = parseFloat(data2[0].lat[Math.floor(data2[0].lat.length / 2)]), this.longitude = parseFloat(data2[0].lon[Math.floor(data2[0].lon.length / 2)])} );
+          this.newService.GetSpecificPark({"park" : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)])} );
         });
         this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
       }
