@@ -18,7 +18,7 @@ import {CommonService} from '../../common.service';
 @NgModule({
     imports: [ HttpModule,
         AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyBo-s6bmJYN-5Pw-Lw_DKSd8wtq_whx4NE',
+            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw',
             apiVersion: '3.31'
         }),
         FormsModule,
