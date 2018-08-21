@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
 import { ScatterplotRoutingModule } from './scatterplot-routing.module';
@@ -17,6 +18,7 @@ import {CommonService} from '../../common.service';
     imports: [ HttpModule,
         Ng2Charts,
         FormsModule,
+        NgbModule.forRoot(),
         ReactiveFormsModule,
         CommonModule,
         ScatterplotRoutingModule, 

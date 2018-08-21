@@ -18,14 +18,12 @@ import {CommonService} from '../../common.service';
 @NgModule({
     imports: [ HttpModule,
         AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw',
-            apiVersion: '3.31'
+            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
         FormsModule,
         ReactiveFormsModule,
         NgbModule.forRoot(),
         CommonModule,
-        //DatePickerComponent, 
         VesselreportRoutingModule, 
         PageHeaderModule],
     declarations: [VesselreportComponent, VesselreportComponent],

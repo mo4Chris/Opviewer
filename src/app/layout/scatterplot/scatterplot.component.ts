@@ -3,6 +3,9 @@ import { CommonService } from '../../common.service';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import * as moment from "moment";
+import {ActivatedRoute} from "@angular/router";
+import * as jwt_decode from "jwt-decode";
+import * as Chart from "chart.js"
 
 @Component({
   selector: 'app-scatterplot',
@@ -16,8 +19,8 @@ export class ScatterplotComponent implements OnInit {
   scatterDataArrayVessel = [];
 
   backgroundcolors = [
-    'rgba(255, 99, 132, 0.4)',
     'rgba(54, 162, 235, 0.4)',
+    'rgba(255, 99, 132, 0.4)',
     'rgba(255, 206, 86, 0.4)',
     'rgba(75, 192, 192, 0.4)',
     'rgba(153, 102, 255, 0.4)',
@@ -28,8 +31,8 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,0.4)'
   ];
   bordercolors =  [
-    'rgba(255,99,132,1)',
     'rgba(54, 162, 235, 1)',
+    'rgba(255,99,132,1)',
     'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
     'rgba(153, 102, 255, 1)',
@@ -40,83 +43,177 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,1)',
   ];
 
-  constructor(private newService: CommonService) { }
-  public showContent: boolean = false;
-  ngOnInit() {
-    //minimal timeout has to be 38ms to work. 100ms has been set just to be sure
-    setTimeout(()=>this.showContent=true, 1000);
-    //this.setScatterPoints().subscribe();
-    this.setScatterPointsVessel().subscribe();
-    
-  }
+  constructor(private newService: CommonService, private route: ActivatedRoute) { }
 
-  // scatter chart
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
+  vesselObject = {"date": this.getMatlabDateYesterday(), "mmsi": this.getMMSIFromParameter(), "dateNormal": this.getJSDateYesterdayYMD()};
+
+  datePickerValue = this.maxDate;
+  Vessels;
+  transferData;
+  myChart;
+  showContent = false ;
+  tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  public scatterChartLegend: boolean = false;
   public scatterChartOptions: any = {
-    scaleShowVerticalLines: true,
+    scaleShowVerticalLines: false,
+    legend:false,
     responsive: true,
+    radius: 8,
+    pointHoverRadius: 10,
     scales : {
       xAxes: [{
         type: 'time',
-        distribution: 'series',
         time:{
-          unit:'day'
+          min: this.MatlabDateToUnixEpoch(this.vesselObject.date),
+          unit:'hour'
        }
       }]
     } 
   };
 
-  public scatterChartType: string = 'scatter';
-  public scatterChartLegend: boolean = false;
+
+  createScatterChart(){
+    this.myChart = new Chart('canvas', {
+      type: 'scatter',
+      data: {
+      datasets: [{
+          data: this.scatterDataArrayVessel[0],
+          backgroundColor: this.backgroundcolors,
+          borderColor: this.bordercolors,
+          radius: 8,
+          pointHoverRadius: 10,
+          borderWidth: 1
+          }]
+      },
+        options: this.scatterChartOptions
+    });
+  }
+ 
+
+  getDecodedAccessToken(token: string): any {
+    try{
+        return jwt_decode(token);
+    }
+    catch(Error){
+        return null;
+    }
+  }
+
+  getMatlabDateYesterday(){
+    let matlabValueYesterday = moment().add(-2, 'days');
+    matlabValueYesterday.utcOffset(0).set({hour:0,minute:0,second:0,millisecond:0});
+    matlabValueYesterday.format();
+
+    let momentDateAsIso = moment(matlabValueYesterday).unix();
+
+    let dateAsMatlab =  this.unixEpochtoMatlabDate(momentDateAsIso);
+
+    return dateAsMatlab;
+  }
+
+  getJSDateYesterdayYMD(){
+    let JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour:0,minute:0,second:0,millisecond:0}).format("YYYY-MM-DD");
+    return JSValueYesterday;
+  }
+  MatlabDateToJSDateYMD(serial) {
+    var datevar = moment((serial - 719529) * 864e5).format("YYYY-MM-DD");
+    return datevar;
+  }
+
+  unixEpochtoMatlabDate(epochDate){
+    let matlabTime = ((epochDate / 864e2) + 719530);
+    return matlabTime;
+  }
+
+  getMMSIFromParameter(){
+    let mmsi;
+    this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
+
+    return mmsi;
+  }
+
+  ngOnInit() {
+    if(this.tokenInfo.userPermission == "admin"){
+      this.newService.GetVessel().subscribe(data => this.Vessels = data)
+    }else{
+        this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data)
+    }
+    setTimeout(()=>this.showContent=true, 1000);
+    this.setScatterPointsVessel().subscribe();
+    
+  }
 
   MatlabDateToUnixEpoch(serial) {
-    var time_info  = moment((serial - 719529) * 864e5 );
+    var time_info  = moment((serial - 719529) * 864e5);
     
     return time_info;
   }
 
+  searchTransfersByNewSpecificDate(){
+    let datepickerValueAsMomentDate = moment(this.datePickerValue.day + "-" + this.datePickerValue.month + "-" + this.datePickerValue.year, "DD-MM-YYYY");
+    datepickerValueAsMomentDate.utcOffset(0).set({hour:0,minute:0,second:0,millisecond:0});
+    datepickerValueAsMomentDate.format();
+    
+    let momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
+    
+    let dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    
+    this.vesselObject.date = dateAsMatlab;
+    this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
+    
+    this.BuildPageWithCurrentInformation();
+  }
+
+  GetTransfersForVessel(vessel) {
+     return this.newService
+     .GetTransfersForVessel(vessel)
+     .map(
+       (transfers) => {
+         this.transferData = transfers;
+       })
+      .catch((error) => {
+         console.log('error ' + error);
+         throw error;
+       });
+   }
+
+  BuildPageWithCurrentInformation(){
+    this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {;
+      this.setScatterPointsVessel().subscribe();
+      setTimeout(()=>this.showContent=true, 1050);
+      this.myChart.update();
+    });
+  }
+
   setScatterPointsVessel(){
     return this.newService
-    .GetTransfersForVessel({"mmsi": 219770000, "date": 737271})
+    .GetTransfersForVessel({"mmsi": this.vesselObject.mmsi, "date": this.vesselObject.date})
     .map(
       (scatterData) => {
-        var obj = {};
-        obj['data'] = [];
-        for (var _i = 0; _i < scatterData.length; _i++) {
-          if(scatterData[_i].impactForceNmax !== null){
-            obj['data'][_i] = {
+        var obj = [];
+        for (var _i = 0, arr_i = 0; _i < scatterData.length; _i++) {
+          if(scatterData[_i].impactForceNmax !== null && typeof scatterData[_i].impactForceNmax !== "object"){
+            obj[arr_i] = {
               "x" : this.MatlabDateToUnixEpoch(scatterData[_i].startTime),
               'y' : (scatterData[_i].impactForceNmax / 1000)
             }
+            arr_i++;
           }
         }
-        obj['radius'] = 8;
-        obj['pointHoverRadius'] = 10;
-        obj['borderColor'] = this.bordercolors[0];
-        obj['backgroundColor'] = this.backgroundcolors[6];
-        this.scatterDataArrayVessel.push(obj);
-        setTimeout(()=>this.showContent=true, 0);
-      })
-    .catch((error) => {
-        console.log('error ' + error);
-        throw error;
-      });
-  }
-
-  setScatterPoints(){
-    return this.newService
-    .GetScatter("test")
-    .map(
-      (scatterData) => {
-        for (var _i = 0; _i < scatterData.length; _i++) {
-          var obj = {};
-          obj['label'] = scatterData[_i].name;
-          obj['data'] = scatterData[_i].data;
-          obj['backgroundColor'] = this.backgroundcolors[_i];
-          obj['borderColor'] = this.bordercolors[_i];
-          obj['radius'] = 8;
-          obj['pointHoverRadius'] = 10;
-          this.scatterDataArray.push(obj);
+        this.scatterDataArrayVessel[0] = (obj);
+        if(this.myChart == null){
+          this.createScatterChart();
+        }else{
+          if(this.scatterDataArrayVessel[0].length <= 0){
+            this.myChart.destroy();
+          }else{
+            this.myChart.destroy();
+            this.createScatterChart();
+          }
         }
+        
+        setTimeout(()=>this.showContent=true, 0);
       })
     .catch((error) => {
         console.log('error ' + error);

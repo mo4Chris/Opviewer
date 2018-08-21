@@ -1,0 +1,26 @@
+.divContainer{
+    width:100%;
+    min-height: 200px;
+}
+.leftdiv{
+    width: 49%;
+    display:inline-block;
+    margin-right:.5%;
+}
+.rightdiv{
+    width:49%;
+    display:inline-block;
+    margin-left:.5%;
+}
+.submitBtnDate{
+    margin-left: 20px;
+}
+.boatSelectDropdown{
+    height: 48px !important;
+    margin-left: 20px;
+}
+.keyTD{
+    background: gray;
+    color: white;
+}
+
