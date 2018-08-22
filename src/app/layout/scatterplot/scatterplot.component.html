@@ -3,7 +3,7 @@
   <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
           <div class="input-group datepicker-input">
-              <input class="form-control" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate"  ngbDatepicker #d="ngbDatepicker">
+              <input class="form-control" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate" [displayMonths]="2" [dayTemplate]="t"  ngbDatepicker #d="ngbDatepicker">
               <button class="input-group-addon" (click)="d.toggle()" type="button">
                   <span class="fa fa-calendar"></span>
               </button>
@@ -17,7 +17,6 @@
       </div>
   </form>
 </div>
-{{scatterDataArrayVessel}}
 <div class="row">
   <div class="col-lg-9" >
     <canvas id="canvas"> {{myChart}} </canvas>

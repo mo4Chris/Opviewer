@@ -7,12 +7,11 @@ import { ScatterplotComponent } from './scatterplot.component';
 import { PageHeaderModule } from '../../shared';
 import { ChartsModule as Ng2Charts } from 'ng2-charts';
 
-//modules mongoDB   
+// modules mongoDB
 
-import { HttpModule } from '@angular/http';  
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';  
-  
-import {CommonService} from '../../common.service'; 
+import { HttpModule } from '@angular/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {CommonService} from '../../common.service';
 
 @NgModule({
     imports: [ HttpModule,
@@ -21,10 +20,10 @@ import {CommonService} from '../../common.service';
         NgbModule.forRoot(),
         ReactiveFormsModule,
         CommonModule,
-        ScatterplotRoutingModule, 
+        ScatterplotRoutingModule,
         PageHeaderModule],
     declarations: [ScatterplotComponent, ScatterplotComponent],
-    providers: [CommonService],  
+    providers: [CommonService],
     bootstrap: [ScatterplotComponent]
 })
 export class ScatterplotModule {}
