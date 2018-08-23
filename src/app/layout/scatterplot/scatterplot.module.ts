@@ -9,12 +9,12 @@ import { ChartsModule as Ng2Charts } from 'ng2-charts';
 
 // modules mongoDB
 
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 
 @NgModule({
-    imports: [ HttpModule,
+    imports: [ HttpClientModule,
         Ng2Charts,
         FormsModule,
         NgbModule.forRoot(),

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';  
+import { HttpClientModule } from '@angular/common/http';
 
 
 import { SignupRoutingModule } from './signup-routing.module';
@@ -11,9 +11,9 @@ import {CommonService} from '../common.service';
 
 @NgModule({
   imports: [
-  	HttpModule,
+    HttpClientModule,
     CommonModule,
-    SignupRoutingModule, 
+    SignupRoutingModule,
     FormsModule
   ],
   providers: [CommonService],

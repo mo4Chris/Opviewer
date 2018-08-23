@@ -5,19 +5,19 @@ import { TablesRoutingModule } from './tables-routing.module';
 import { TablesComponent } from './tables.component';
 import { PageHeaderModule } from './../../shared';
 
-//modules mongoDB   
+// modules mongoDB
 
-import { HttpModule } from '@angular/http';  
-import { FormsModule } from '@angular/forms';  
-  
-import {CommonService} from '../../common.service'; 
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+
+import {CommonService} from '../../common.service';
 import { VesselreportModule } from '../vesselreport/vesselreport.module';
 import { ScatterplotModule } from '../scatterplot/scatterplot.module';
 
 @NgModule({
-    imports: [ HttpModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule,VesselreportModule, ScatterplotModule],
+    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, VesselreportModule, ScatterplotModule],
     declarations: [TablesComponent, TablesComponent],
-    providers: [CommonService],  
+    providers: [CommonService],
     bootstrap: [TablesComponent]
 })
 export class TablesModule {}

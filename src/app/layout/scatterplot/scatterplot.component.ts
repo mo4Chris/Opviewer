@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonService } from '../../common.service';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+
+
 import * as moment from 'moment';
 import {ActivatedRoute} from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
+import { map, catchError } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-scatterplot',
@@ -165,15 +167,15 @@ export class ScatterplotComponent implements OnInit {
 
   GetTransfersForVessel(vessel) {
      return this.newService
-     .GetTransfersForVessel(vessel)
-     .map(
+     .GetTransfersForVessel(vessel).pipe(
+     map(
        (transfers) => {
          this.transferData = transfers;
-       })
-      .catch((error) => {
+       }),
+      catchError(error => {
          console.log('error ' + error);
          throw error;
-       });
+       }));
    }
 
   BuildPageWithCurrentInformation() {
@@ -186,8 +188,8 @@ export class ScatterplotComponent implements OnInit {
 
   setScatterPointsVessel() {
     return this.newService
-    .GetTransfersForVessel({'mmsi': this.vesselObject.mmsi, 'date': this.vesselObject.date})
-    .map(
+    .GetTransfersForVessel({'mmsi': this.vesselObject.mmsi, 'date': this.vesselObject.date}).pipe(
+    map(
       (scatterData) => {
         const obj = [];
         for (let _i = 0, arr_i = 0; _i < scatterData.length; _i++) {
@@ -212,10 +214,10 @@ export class ScatterplotComponent implements OnInit {
           }
         }
         setTimeout(() => this.showContent = true, 0);
-      })
-    .catch((error) => {
+      }),
+      catchError(error => {
         console.log('error ' + error);
         throw error;
-      });
+      }));
   }
 }

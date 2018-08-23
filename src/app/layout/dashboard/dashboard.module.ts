@@ -4,9 +4,8 @@ import { NgbCarouselModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
 
-import { HttpModule } from '@angular/http';  
-import { FormsModule } from '@angular/forms';  
-  
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 
 
@@ -22,7 +21,7 @@ import { StatModule } from '../../shared';
 @NgModule({
     imports: [
         CommonModule,
-        HttpModule,
+        HttpClientModule,
         FormsModule,
         NgbCarouselModule.forRoot(),
         NgbAlertModule.forRoot(),
@@ -39,7 +38,7 @@ import { StatModule } from '../../shared';
         NotificationComponent,
         ChatComponent
     ],
-    providers:[CommonService],
+    providers: [CommonService],
     bootstrap: [DashboardComponent]
 })
 export class DashboardModule {

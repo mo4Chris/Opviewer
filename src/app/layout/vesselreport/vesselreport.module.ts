@@ -6,17 +6,17 @@ import { AgmCoreModule } from '@agm/core';
 import { VesselreportRoutingModule } from './vesselreport-routing.module';
 import { VesselreportComponent } from './vesselreport.component';
 import { PageHeaderModule } from '../../shared';
-//import { DatePickerComponent } from './../bs-component/components'
+// import { DatePickerComponent } from './../bs-component/components'
 
-//modules mongoDB   
+// modules mongoDB
 
-import { HttpModule } from '@angular/http';  
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';  
-  
-import {CommonService} from '../../common.service'; 
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import {CommonService} from '../../common.service';
 
 @NgModule({
-    imports: [ HttpModule,
+    imports: [ HttpClientModule,
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
@@ -24,10 +24,10 @@ import {CommonService} from '../../common.service';
         ReactiveFormsModule,
         NgbModule.forRoot(),
         CommonModule,
-        VesselreportRoutingModule, 
+        VesselreportRoutingModule,
         PageHeaderModule],
     declarations: [VesselreportComponent, VesselreportComponent],
-    providers: [CommonService],  
+    providers: [CommonService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}
