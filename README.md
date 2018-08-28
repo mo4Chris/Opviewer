@@ -1,5 +1,5 @@
 ##Start api server
-node server.js
+node server.js in SRC folder
 
 ##Start Angular
 ng serve
