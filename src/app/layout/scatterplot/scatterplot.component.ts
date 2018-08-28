@@ -7,6 +7,7 @@ import {ActivatedRoute} from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
+import {NgbDate, NgbCalendar} from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -18,6 +19,9 @@ export class ScatterplotComponent implements OnInit {
   scatterData;
   scatterDataArray = [];
   scatterDataArrayVessel = [];
+  hoveredDate: NgbDate;
+  fromDate: NgbDate;
+  toDate: NgbDate;
 
   backgroundcolors = [
     'rgba(54, 162, 235, 0.4)',
@@ -44,7 +48,10 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,1)',
   ];
 
-  constructor(private newService: CommonService, private route: ActivatedRoute) { }
+  constructor(private newService: CommonService, private route: ActivatedRoute, calendar: NgbCalendar) {
+    this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 3);
+    this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
+   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
   vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
@@ -57,6 +64,20 @@ export class ScatterplotComponent implements OnInit {
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
 
+  onDateSelection(date: NgbDate) {
+    if (!this.fromDate && !this.toDate) {
+      this.fromDate = date;
+    } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
+      this.toDate = date;
+    } else {
+      this.toDate = null;
+      this.fromDate = date;
+    }
+  }
+
+  isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
+  isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
+  isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
   createScatterChart() {
     this.myChart = new Chart('canvas', {
@@ -202,7 +223,6 @@ export class ScatterplotComponent implements OnInit {
           }
         }
         this.scatterDataArrayVessel[0] = (obj);
-        console.log(this.vesselObject.date);
         if (this.myChart == null) {
           this.createScatterChart();
         } else {
