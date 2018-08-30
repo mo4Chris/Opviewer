@@ -24,7 +24,13 @@ export class CommonService {
     return this.http.post('http://localhost:8080/api/SaveVessel/', vessel).pipe(  
             map((response: Response) =>response.json()))              
   }  
-  
+
+  saveTransfer(transfer) {
+      console.log(`${transfer.comment} in service`)
+      return this.http.post('http://localhost:8080/api/SaveTransfer/', transfer).pipe(
+          map((response: Response) => response.json()))
+  }  
+
   GetVessel(){       
     return this.http.get('http://localhost:8080/api/getVessel/').pipe(  
             map((response: Response) => response.json()))              

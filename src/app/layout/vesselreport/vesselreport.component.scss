@@ -28,3 +28,10 @@ agm-map {
     color: white;
 }
 
+input {
+    display: none;
+}
+
+input.is-active {
+    display: block;
+}

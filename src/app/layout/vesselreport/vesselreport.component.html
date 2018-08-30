@@ -122,20 +122,31 @@
                     <th>location</th>
                     <th>comment</th>
                     <th>detector</th>
+                    <th *ngIf="tokenInfo.userPermission == 'admin'">save</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let td of transferData;let ind = index">
                     <td>{{ind + 1}}</td>  
-                    <td>{{ MatlabDateToJSTime(td.startTime)}}</td>
-                    <td>{{ MatlabDateToJSTime(td.stopTime) }}</td>  
-                    <td>{{ MatlabDateToJSTimeDifference(td.stopTime, td.startTime) }}</td>
+                    <td>{{MatlabDateToJSTime(td.startTime)}}</td>
+                    <td>{{MatlabDateToJSTime(td.stopTime)}}</td>  
+                    <td>{{MatlabDateToJSTimeDifference(td.stopTime, td.startTime)}}</td>
                     <td>{{td.score}}</td> 
                     <td>{{td.location}}</td>  
-                    <td>{{td.comment}}</td> 
+                    <td>
+                        <span *ngIf="tokenInfo.userPermission == 'admin'">
+                            <select #comment [(ngModel)]="td.comment">
+                                <option *ngFor="let opt of commentOptions" value="{{opt}}">{{opt}}</option>
+                            </select>
+                            <input name="otherComment" #otherComment [(ngModel)]="otherComment.comment" [class.is-active]="td.comment == 'Other'"/>
+                        </span>
+                        <span *ngIf="tokenInfo.userPermission != 'admin'">{{td.comment}}</span>
+                    </td> 
                     <td>{{td.detector}}</td>
+                    <td *ngIf="tokenInfo.userPermission == 'admin'"><button (click)="saveComment(td)">save</button></td>
                 </tr>
             </tbody>
         </table>
+        
     </div>
 </div>

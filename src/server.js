@@ -193,6 +193,34 @@ app.post("/api/SaveVessel", function (req, res) {
     }
 })
 
+app.post("/api/SaveTransfer", function (req, res) {
+    console.log(`in server`);
+    var mod = new model(req.body);
+    if (req.body.mode == "Save") {
+        mod.save(function (err, data) {
+            if (err) {
+                res.send(err);
+            }
+            else {
+                res.send({ data: "Record has been Inserted..!!" });
+            }
+        });
+    }
+    else {
+        Transfermodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address },
+            function (err, data) {
+                if (err) {
+                    res.send(err);
+                }
+                else {
+                    res.send({ data: "Record has been Updated..!!" });
+                }
+            });
+
+
+    }
+})
+
 app.get("/api/getVessel", function (req, res) {
     Vesselmodel.find({
 

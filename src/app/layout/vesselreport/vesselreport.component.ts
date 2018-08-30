@@ -39,6 +39,10 @@ export class VesselreportComponent implements OnInit {
   longitude;
   mapTypeId = 'roadmap';
   streetViewControl = false;
+  commentOptions = ["Transfer OK", "Unassigned", "Tied off",
+      "Incident", "Embarkation", "Vessel2Vessel",
+      "_NaN_", "Too much wind for craning", "Trial docking",
+      "Transfer of PAX not possible", "Other"]
 
   getMMSIFromParameter() {
     let mmsi;
@@ -177,5 +181,9 @@ export class VesselreportComponent implements OnInit {
     this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
 
     this.BuildPageWithCurrentInformation();
+  }
+
+  saveComment(td) {
+      this.newService.saveTransfer(td);
   }
 }
