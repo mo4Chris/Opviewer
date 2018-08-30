@@ -18,4 +18,4 @@ pipelines:
           - curl --insecure -OL https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.1.0.1141-linux.zip
           - unzip sonar-scanner-cli-3.1.0.1141-linux.zip
           - export SONAR_SCANNER_OPTS="-Xmx1024m"
-          - if [ -n $BITBUCKET_PULL_REQUEST_ID ]; then ./sonar-scanner-3.1.0.1141-linux/bin/sonar-scanner -Dproject.settings=sonar-project.properties -Dsonar.analysis.mode=issues -Dsonar.bitbucket.repoSlug=$BITBUCKET_REPO_SLUG -Dsonar.bitbucket.accountName=$BITBUCKET_REPO_OWNER -Dsonar.bitbucket.branchName=$BITBUCKET_BRANCH -Dsonar.bitbucket.oauthClientKey=$OAUTH_CLIENT_KEY -Dsonar.bitbucket.oauthClientSecret=$OAUTH_CLIENT_SECRET -Dsonar.login=$SONAR_LOGIN -Dsonar.bitbucket.pullRequestId=$BITBUCKET_PULL_REQUEST_ID; fi
+          - ./sonar-scanner-3.1.0.1141-linux/bin/sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=BMO-Opviewer -Dproject.settings=sonar-project.properties  -Dsonar.login=c7c72c2d63d7a0e1da298dd2a1b4a8def283fcec; fi
