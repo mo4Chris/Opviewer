@@ -26,7 +26,6 @@ export class CommonService {
   }  
 
   saveTransfer(transfer) {
-      console.log(`${transfer.comment} in service`)
       return this.http.post('http://localhost:8080/api/SaveTransfer/', transfer).pipe(
           map((response: Response) => response.json()))
   }  
@@ -90,6 +89,10 @@ export class CommonService {
     return this.http.post('http://localhost:8080/api/getDatesWithValues/', vessel).pipe(  
             map((response: Response) => response.json()))
   }
- 
+
+  getCommentsForVessel(vessel) {
+      return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
+          map((response: Response) => response.json()))
+  }
 }
 

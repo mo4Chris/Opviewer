@@ -82,6 +82,16 @@ var boatLocationSchema = new Schema({
 }, { versionKey: false });
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
+var CommentsChangedSchema = new Schema({
+    mmsi: { type: Number }, //Which boat
+    newComment: { type: String }, //TNew comment
+    idTransfer: { type: Number }, //Transfer it belongs to
+    otherComment: { type: String }, //Extra comment for when newComment is Other
+    userID: { type: Number }, //User who changed it
+    date: { type: Number } //Date of when I was changed
+}, { versonKey: false });
+var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -194,31 +204,31 @@ app.post("/api/SaveVessel", function (req, res) {
 })
 
 app.post("/api/SaveTransfer", function (req, res) {
-    console.log(`in server`);
-    var mod = new model(req.body);
-    if (req.body.mode == "Save") {
-        mod.save(function (err, data) {
-            if (err) {
-                res.send(err);
-            }
-            else {
-                res.send({ data: "Record has been Inserted..!!" });
-            }
-        });
-    }
-    else {
-        Transfermodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address },
-            function (err, data) {
-                if (err) {
-                    res.send(err);
-                }
-                else {
-                    res.send({ data: "Record has been Updated..!!" });
-                }
-            });
+    console.log(`Mode: ${req.body.mode} newComment: ${req.body.comment} otherComment: ${req.body.otherComment}`);
+    var mod = new CommentsChangedmodel();
+    mod.newComment = req.body.comment;
+    mod.otherComment = req.body.otherComment;
+    mod.idTransfer = req.body._id;
+    mod.save(function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send({ data: "Record has been Inserted..!!" });
+        }
+    });
+})
 
-
-    }
+app.post("/api/getCommentsForVessel", function (req, res) {
+    CommentsChangedmodel.find({ mmsi: req.body }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
 })
 
 app.get("/api/getVessel", function (req, res) {

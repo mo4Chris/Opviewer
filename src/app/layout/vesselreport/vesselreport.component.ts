@@ -34,6 +34,7 @@ export class VesselreportComponent implements OnInit {
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
+  public showCommentOptions = this.tokenInfo.userPermission == 'admin';
   zoomlvl = 9;
   latitude;
   longitude;
@@ -42,7 +43,12 @@ export class VesselreportComponent implements OnInit {
   commentOptions = ["Transfer OK", "Unassigned", "Tied off",
       "Incident", "Embarkation", "Vessel2Vessel",
       "_NaN_", "Too much wind for craning", "Trial docking",
-      "Transfer of PAX not possible", "Other"]
+      "Transfer of PAX not possible", "Other"];
+  CommentsChanged = [this.getCommentsChanged()];
+  otherComment = {
+      trasId: 0,
+      text: ""
+  };
 
   getMMSIFromParameter() {
     let mmsi;
@@ -183,7 +189,18 @@ export class VesselreportComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
-  saveComment(td) {
-      this.newService.saveTransfer(td);
+  saveComment(td, comment) {
+    td.otherComment = comment.text;
+    td.commentData = Date.now();
+    td.userID = this.tokenInfo.userId;
+    console.log(this.otherComment);
+    console.log(td.otherComment);
+    console.log(comment.transId);
+      //console.log(`other :${this.otherComment} | ${comment} comment: ${td.comment} id: ${this.tokenInfo.userId} date: ${td.commentData}`);
+    this.newService.saveTransfer(td).subscribe();
+  }
+
+  getCommentsChanged() {
+    return this.newService.getCommentsForVessel(this.vesselObject).subscribe();
   }
 }
