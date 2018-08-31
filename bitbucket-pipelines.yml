@@ -13,9 +13,8 @@ pipelines:
         script: # Modify the commands below to build your repository.
           - npm install
           - apt-get update
-          - apt-get install -y imagemagick libjmagick6-java
           - apt-get install unzip
           - curl --insecure -OL https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.1.0.1141-linux.zip
           - unzip sonar-scanner-cli-3.1.0.1141-linux.zip
           - export SONAR_SCANNER_OPTS="-Xmx1024m"
-          - ./sonar-scanner-3.1.0.1141-linux/bin/sonar-scanner.bat -Dsonar.projectKey=BMO-Opviewer -Dsonar.organization=tcwchris-bitbucket -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c3fe3a36d2d7bb574cc024677ee5c893c5762aef
+          - ./sonar-scanner-3.1.0.1141-linux/bin/sonar-scanner -Dsonar.projectKey=BMO-Opviewer -Dsonar.organization=tcwchris-bitbucket -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c3fe3a36d2d7bb574cc024677ee5c893c5762aef
