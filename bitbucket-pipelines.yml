@@ -15,6 +15,7 @@ pipelines:
           - apt-get update
           - apt-get install -y imagemagick libjmagick6-java
           - apt-get install unzip
+          - cd src
           - curl --insecure -OL https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.1.0.1141-linux.zip
           - unzip sonar-scanner-cli-3.1.0.1141-linux.zip
           - export SONAR_SCANNER_OPTS="-Xmx1024m"
