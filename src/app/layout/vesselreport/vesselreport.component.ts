@@ -46,7 +46,7 @@ export class VesselreportComponent implements OnInit {
       "Transfer of PAX not possible", "Other"];
   CommentsChanged = [this.getCommentsChanged()];
   otherComment = {
-      trasId: 0,
+      transId: 0,
       text: ""
   };
 
