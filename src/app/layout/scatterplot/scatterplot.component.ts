@@ -24,7 +24,7 @@ export class ScatterplotComponent implements OnInit {
   toDate: NgbDate;
 
   backgroundcolors = [
-    'rgba(54, 162, 235, 0.4)',
+    'rgba(228, 94, 157 , 0.4)',
     'rgba(255, 99, 132, 0.4)',
     'rgba(255, 206, 86, 0.4)',
     'rgba(75, 192, 192, 0.4)',
@@ -36,7 +36,7 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,0.4)'
   ];
   bordercolors =  [
-    'rgba(54, 162, 235, 1)',
+    'rgba(228, 94, 157 , 1)',
     'rgba(255,99,132,1)',
     'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
@@ -54,7 +54,7 @@ export class ScatterplotComponent implements OnInit {
    }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
+  vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
 
   datePickerValue = this.maxDate;
   Vessels;
@@ -106,9 +106,9 @@ export class ScatterplotComponent implements OnInit {
             },
             type: 'time',
             time: {
-              min: this.MatlabDateToUnixEpoch(this.vesselObject.date),
-              max: this.MatlabDateToUnixEpoch(this.vesselObject.date + 1),
-              unit: 'hour'
+              min: this.MatlabDateToUnixEpoch(this.vesselObject.dateMin),
+              max: this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1),
+              unit: 'day'
           }
           }],
           yAxes: [{
@@ -176,19 +176,19 @@ export class ScatterplotComponent implements OnInit {
   }
 
   searchTransfersByNewSpecificDate() {
-    const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
+    const datepickerValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
     datepickerValueAsMomentDate.format();
     const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
     const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-    this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
+    this.vesselObject.dateMin = dateAsMatlab;
+    this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateAsMatlab);
     this.BuildPageWithCurrentInformation();
   }
 
-  GetTransfersForVessel(vessel) {
+  GetTransfersForVesselByRange(vessel) {
      return this.newService
-     .GetTransfersForVessel(vessel).pipe(
+     .GetTransfersForVesselByRange(vessel).pipe(
      map(
        (transfers) => {
          this.transferData = transfers;
@@ -200,7 +200,7 @@ export class ScatterplotComponent implements OnInit {
    }
 
   BuildPageWithCurrentInformation() {
-    this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {
+    this.GetTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
       this.setScatterPointsVessel().subscribe();
       setTimeout(() => this.showContent = true, 1050);
       this.myChart.update();
@@ -209,7 +209,7 @@ export class ScatterplotComponent implements OnInit {
 
   setScatterPointsVessel() {
     return this.newService
-    .GetTransfersForVessel({'mmsi': this.vesselObject.mmsi, 'date': this.vesselObject.date}).pipe(
+    .GetTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax}).pipe(
     map(
       (scatterData) => {
         const obj = [];
