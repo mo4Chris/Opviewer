@@ -142,7 +142,6 @@
                                 </span>
                             </span>
                             <input *ngIf="transfer_Data.comment == 'Other'" name="otherComment.text" [(ngModel)]="otherComment.text" (value)="otherComment.text"/>
-                            <input type="hidden" name="otherComment.transId" [(ngModel)]="otherComment.transId" (value)="otherComment.transId" />
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
                     </td>

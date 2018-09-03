@@ -44,7 +44,7 @@ export class VesselreportComponent implements OnInit {
       "Incident", "Embarkation", "Vessel2Vessel",
       "_NaN_", "Too much wind for craning", "Trial docking",
       "Transfer of PAX not possible", "Other"];
-  CommentsChanged = [this.getCommentsChanged()];
+  commentsChanged;
   otherComment = {
       transId: 0,
       text: ""
@@ -99,7 +99,7 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-  GetTransfersForVessel(vessel) {
+  getTransfersForVessel(vessel) {
     return this.newService
     .GetTransfersForVessel(vessel).pipe(
     map(
@@ -110,6 +110,19 @@ export class VesselreportComponent implements OnInit {
         console.log('error ' + error);
         throw error;
       }));
+  }
+
+  getComments(vessel) {
+      return this.newService.getCommentsForVessel(this.vesselObject).pipe(
+          map(
+              (changed) => {
+                  this.commentsChanged = changed;
+              }),
+          catchError(error => {
+              console.log('error ' + error);
+              throw error;
+          }));
+      
   }
 
   getDatesWithTransfers(date) {
@@ -143,9 +156,18 @@ export class VesselreportComponent implements OnInit {
   }
 
   BuildPageWithCurrentInformation() {
-    this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {
-      this.getDatesWithTransfers(this.vesselObject).subscribe();
-
+    this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
+        this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
+            this.getComments(this.vesselObject).subscribe(_ => {
+                for (let i = 0; i < this.transferData.length; i++) {
+                    for (let j = 0; j < this.commentsChanged.length; j++) {
+                        if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
+                            this.transferData[i].newComment = this.commentsChanged[j];
+                        }
+                    }
+                }
+            });
+        });
       if (this.transferData.length !== 0) {
         this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
           // tslint:disable-next-line:no-shadowed-variable
@@ -196,11 +218,6 @@ export class VesselreportComponent implements OnInit {
     console.log(this.otherComment);
     console.log(transferData.otherComment);
     console.log(comment.transId);
-      //console.log(`other :${this.otherComment} | ${comment} comment: ${transferData.comment} id: ${this.tokenInfo.userId} date: ${transferData.commentData}`);
     this.newService.saveTransfer(transferData).subscribe();
-  }
-
-  getCommentsChanged() {
-    return this.newService.getCommentsForVessel(this.vesselObject).subscribe();
   }
 }

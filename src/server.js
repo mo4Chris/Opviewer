@@ -85,7 +85,7 @@ var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 var CommentsChangedSchema = new Schema({
     mmsi: { type: Number }, //Which boat
     newComment: { type: String }, //TNew comment
-    idTransfer: { type: Number }, //Transfer it belongs to
+    idTransfer: { type: String }, //Transfer it belongs to
     otherComment: { type: String }, //Extra comment for when newComment is Other
     userID: { type: Number }, //User who changed it
     date: { type: Number } //Date of when I was changed
@@ -220,7 +220,13 @@ app.post("/api/SaveTransfer", function (req, res) {
 })
 
 app.post("/api/getCommentsForVessel", function (req, res) {
-    CommentsChangedmodel.find({ mmsi: req.body }, function (err, data) {
+    CommentsChangedmodel.find({
+        mmsi: req.body.mmsi
+    }, null, {
+        sort: {
+            client: 'asc', nicename: 'asc'
+        }
+    }, function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
