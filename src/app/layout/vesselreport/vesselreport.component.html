@@ -126,29 +126,29 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let td of transferData;let ind = index">
+                <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
                     <td>{{ind + 1}}</td>  
-                    <td>{{MatlabDateToJSTime(td.startTime)}}</td>
-                    <td>{{MatlabDateToJSTime(td.stopTime)}}</td>  
-                    <td>{{MatlabDateToJSTimeDifference(td.stopTime, td.startTime)}}</td>
-                    <td>{{td.score}}</td> 
-                    <td>{{td.location}}</td>  
+                    <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
+                    <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
+                    <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                    <td>{{transfer_Data.score}}</td> 
+                    <td>{{transfer_Data.location}}</td>  
                     <td>
                         <span *ngIf="showCommentOptions">
                             <span ngbDropdown class="d-inline-block dropdown">
-                                <button class="btn btn-outline-primary" ngbDropdownToggle>{{td.comment}}</button>
+                                <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
                                 <span ngbDropdownMenu>
-                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="td.comment = opt">{{opt}}</button>
+                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
                                 </span>
                             </span>
-                            <input *ngIf="td.comment == 'Other'" name="otherComment.text" ([ngModel])="otherComment?.text" value="{{otherComment?.text}}"/>
-                            <input type="hidden" name="otherComment.transId" ([ngModel])="otherComment?.transId" value="{{otherComment?.transId}}" />
+                            <input *ngIf="transfer_Data.comment == 'Other'" name="otherComment.text" [(ngModel)]="otherComment.text" (value)="otherComment.text"/>
+                            <input type="hidden" name="otherComment.transId" [(ngModel)]="otherComment.transId" (value)="otherComment.transId" />
                         </span>
-                        <span *ngIf="!showCommentOptions">{{td.comment}}</span>
-                    </td> 
-                    <td>{{td.detector}}</td>
+                        <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
+                    </td>
+                    <td>{{transfer_Data.detector}}</td>
                     <td *ngIf="showCommentOptions">
-                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(td, otherComment)" type="button">Save</button>
+                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data, otherComment)" type="button">Save</button>
                     </td>
                 </tr>
             </tbody>

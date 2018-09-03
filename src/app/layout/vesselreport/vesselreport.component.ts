@@ -189,15 +189,15 @@ export class VesselreportComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
-  saveComment(td, comment) {
-    td.otherComment = comment.text;
-    td.commentData = Date.now();
-    td.userID = this.tokenInfo.userId;
+  saveComment(transferData, comment) {
+    transferData.otherComment = comment.text;
+    transferData.commentData = Date.now();
+    transferData.userID = this.tokenInfo.userId;
     console.log(this.otherComment);
-    console.log(td.otherComment);
+    console.log(transferData.otherComment);
     console.log(comment.transId);
-      //console.log(`other :${this.otherComment} | ${comment} comment: ${td.comment} id: ${this.tokenInfo.userId} date: ${td.commentData}`);
-    this.newService.saveTransfer(td).subscribe();
+      //console.log(`other :${this.otherComment} | ${comment} comment: ${transferData.comment} id: ${this.tokenInfo.userId} date: ${transferData.commentData}`);
+    this.newService.saveTransfer(transferData).subscribe();
   }
 
   getCommentsChanged() {
