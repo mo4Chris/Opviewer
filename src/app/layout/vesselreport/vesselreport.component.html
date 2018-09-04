@@ -136,18 +136,26 @@
                     <td>
                         <span *ngIf="showCommentOptions">
                             <span ngbDropdown class="d-inline-block dropdown">
-                                <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
-                                <span ngbDropdownMenu>
-                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
-                                </span>
+                                <span *ngIf="transfer_Data.showCommentChanged;then commentChanged else comment"></span>
+                                <ng-template #commentChanged>
+                                    <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.commentChanged.newComment}}</button>
+                                </ng-template>
+                                <ng-template #comment>
+                                    <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
+                                </ng-template>
+                                    <span ngbDropdownMenu>
+                                        <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
+                                    </span>
                             </span>
-                            <input *ngIf="transfer_Data.comment == 'Other'" name="otherComment.text" [(ngModel)]="otherComment.text" (value)="otherComment.text"/>
+                            <span *ngIf="transfer_Data.showCommentChanged">
+                                <input *ngIf="transfer_Data.commentChanged.newComment == 'Other'" name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" (value)="transfer_Data.commentChanged.otherComment" />
+                            </span>
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
                     </td>
                     <td>{{transfer_Data.detector}}</td>
                     <td *ngIf="showCommentOptions">
-                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data, otherComment)" type="button">Save</button>
+                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button">Save</button>
                     </td>
                 </tr>
             </tbody>

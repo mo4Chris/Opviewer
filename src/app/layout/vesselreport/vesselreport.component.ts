@@ -160,9 +160,11 @@ export class VesselreportComponent implements OnInit {
         this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
             this.getComments(this.vesselObject).subscribe(_ => {
                 for (let i = 0; i < this.transferData.length; i++) {
+                    this.transferData[i].showCommentChanged = false;
                     for (let j = 0; j < this.commentsChanged.length; j++) {
                         if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
-                            this.transferData[i].newComment = this.commentsChanged[j];
+                            this.transferData[i].commentChanged = this.commentsChanged[j];
+                            this.transferData[i].showCommentChanged = true;
                         }
                     }
                 }
@@ -211,13 +213,9 @@ export class VesselreportComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
-  saveComment(transferData, comment) {
-    transferData.otherComment = comment.text;
-    transferData.commentData = Date.now();
-    transferData.userID = this.tokenInfo.userId;
-    console.log(this.otherComment);
-    console.log(transferData.otherComment);
-    console.log(comment.transId);
+  saveComment(transferData) {
+    transferData.commentDate = Date.now();
+    transferData.userID = this.tokenInfo.userID;
     this.newService.saveTransfer(transferData).subscribe();
   }
 }

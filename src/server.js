@@ -83,13 +83,13 @@ var boatLocationSchema = new Schema({
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
 var CommentsChangedSchema = new Schema({
-    mmsi: { type: Number }, //Which boat
-    newComment: { type: String }, //TNew comment
-    idTransfer: { type: String }, //Transfer it belongs to
-    otherComment: { type: String }, //Extra comment for when newComment is Other
-    userID: { type: Number }, //User who changed it
-    date: { type: Number } //Date of when I was changed
-}, { versonKey: false });
+    mmsi: { type: Number },
+    newComment: { type: String },
+    idTransfer: { type: String },
+    otherComment: { type: String },
+    userID: { type: String },
+    date: { type: Number }
+}, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
 
 //#########################################################
@@ -204,11 +204,13 @@ app.post("/api/SaveVessel", function (req, res) {
 })
 
 app.post("/api/SaveTransfer", function (req, res) {
-    console.log(`Mode: ${req.body.mode} newComment: ${req.body.comment} otherComment: ${req.body.otherComment}`);
     var mod = new CommentsChangedmodel();
-    mod.newComment = req.body.comment;
-    mod.otherComment = req.body.otherComment;
+    mod.newComment = req.body.commentChanged.newComment;
+    mod.otherComment = req.body.commentChanged.otherComment;
     mod.idTransfer = req.body._id;
+    mod.date = req.body.commentDate;
+    mod.mmsi = req.body.mmsi;
+    mod.userID = req.body.userID;
     mod.save(function (err, data) {
         if (err) {
             res.send(err);
@@ -224,7 +226,7 @@ app.post("/api/getCommentsForVessel", function (req, res) {
         mmsi: req.body.mmsi
     }, null, {
         sort: {
-            client: 'asc', nicename: 'asc'
+            date: 'asc'
         }
     }, function (err, data) {
         if (err) {
