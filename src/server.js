@@ -222,7 +222,33 @@ app.post("/api/SaveTransfer", function (req, res) {
 })
 
 app.post("/api/getCommentsForVessel", function (req, res) {
-    CommentsChangedmodel.find({
+    CommentsChangedmodel.aggregate([
+        {
+            "$match": {
+                mmsi: { $in: [req.body.mmsi] }
+            }
+        },
+        {
+            $group: {
+                _id: "$idTransfer",
+                "date": { "$last": "$date" },
+                "idTransfer": { "$last": "$idTransfer" },
+                "newComment": { "$last": "$newComment" },
+                "otherComment": { "$last": "$otherComment" }
+            }
+        }
+    ]).exec(function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data);
+
+        }
+    });
+
+    /*CommentsChangedmodel.find({
         mmsi: req.body.mmsi
     }, null, {
         sort: {
@@ -236,7 +262,7 @@ app.post("/api/getCommentsForVessel", function (req, res) {
         else {
             res.send(data);
         }
-    });
+    });*/
 })
 
 app.get("/api/getVessel", function (req, res) {

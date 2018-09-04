@@ -136,19 +136,13 @@
                     <td>
                         <span *ngIf="showCommentOptions">
                             <span ngbDropdown class="d-inline-block dropdown">
-                                <span *ngIf="transfer_Data.showCommentChanged;then commentChanged else comment"></span>
-                                <ng-template #commentChanged>
-                                    <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.commentChanged.newComment}}</button>
-                                </ng-template>
-                                <ng-template #comment>
-                                    <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
-                                </ng-template>
-                                    <span ngbDropdownMenu>
-                                        <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
-                                    </span>
+                                <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
+                                <span ngbDropdownMenu>
+                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
+                                </span>
                             </span>
-                            <span *ngIf="transfer_Data.showCommentChanged || transfer_Data.comment == 'Other'">
-                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" ng-value="transfer_Data.commentChanged.otherComment" />
+                            <span *ngIf="transfer_Data.comment == 'Other'">
+                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" />
                             </span>
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>

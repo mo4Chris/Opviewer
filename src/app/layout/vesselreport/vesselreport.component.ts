@@ -45,7 +45,7 @@ export class VesselreportComponent implements OnInit {
       "_NaN_", "Too much wind for craning", "Trial docking",
       "Transfer of PAX not possible", "Other"];
   commentsChanged;
-  otherComment = { 'otherComment': '' }
+  changedCommentObj = { 'newComment':'','otherComment': '' }
 
   getMMSIFromParameter() {
     let mmsi;
@@ -154,11 +154,11 @@ export class VesselreportComponent implements OnInit {
 
   BuildPageWithCurrentInformation() {
     this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-        this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
-            this.getComments(this.vesselObject).subscribe(_ => {
-                this.matchCommentsWithTransfers();
-            });
+      this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
+        this.getComments(this.vesselObject).subscribe(_ => {
+          this.matchCommentsWithTransfers();
         });
+      });
       if (this.transferData.length !== 0) {
         this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
           // tslint:disable-next-line:no-shadowed-variable
@@ -173,10 +173,11 @@ export class VesselreportComponent implements OnInit {
   matchCommentsWithTransfers() {
     for (let i = 0; i < this.transferData.length; i++) {
       this.transferData[i].showCommentChanged = false;
-      this.transferData[i].commentChanged = this.otherComment;
+      this.transferData[i].commentChanged = this.changedCommentObj;
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
           this.transferData[i].commentChanged = this.commentsChanged[j];
+          this.transferData[i].comment = this.commentsChanged[j].newComment;
           this.transferData[i].showCommentChanged = true;
           this.commentsChanged.splice(j, 1);
         }
@@ -217,6 +218,9 @@ export class VesselreportComponent implements OnInit {
   }
 
   saveComment(transferData) {
+      if (transferData.comment != "Other") {
+          transferData.commentChanged.otherComment = '';
+      }
     transferData.commentDate = Date.now();
     transferData.userID = this.tokenInfo.userID;
     this.newService.saveTransfer(transferData).subscribe();
