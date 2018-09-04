@@ -147,8 +147,8 @@
                                         <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
                                     </span>
                             </span>
-                            <span *ngIf="transfer_Data.showCommentChanged">
-                                <input *ngIf="transfer_Data.commentChanged.newComment == 'Other'" name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" (value)="transfer_Data.commentChanged.otherComment" />
+                            <span *ngIf="transfer_Data.showCommentChanged || transfer_Data.comment == 'Other'">
+                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" ng-value="transfer_Data.commentChanged.otherComment" />
                             </span>
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>

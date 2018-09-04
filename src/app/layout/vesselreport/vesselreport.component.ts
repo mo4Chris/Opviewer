@@ -45,10 +45,7 @@ export class VesselreportComponent implements OnInit {
       "_NaN_", "Too much wind for craning", "Trial docking",
       "Transfer of PAX not possible", "Other"];
   commentsChanged;
-  otherComment = {
-      transId: 0,
-      text: ""
-  };
+  otherComment = { 'otherComment': '' }
 
   getMMSIFromParameter() {
     let mmsi;
@@ -159,15 +156,7 @@ export class VesselreportComponent implements OnInit {
     this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
         this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
             this.getComments(this.vesselObject).subscribe(_ => {
-                for (let i = 0; i < this.transferData.length; i++) {
-                    this.transferData[i].showCommentChanged = false;
-                    for (let j = 0; j < this.commentsChanged.length; j++) {
-                        if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
-                            this.transferData[i].commentChanged = this.commentsChanged[j];
-                            this.transferData[i].showCommentChanged = true;
-                        }
-                    }
-                }
+                this.matchCommentsWithTransfers();
             });
         });
       if (this.transferData.length !== 0) {
@@ -179,6 +168,20 @@ export class VesselreportComponent implements OnInit {
       }
     setTimeout(() => this.showContent = true, 1050);
     });
+  }
+
+  matchCommentsWithTransfers() {
+    for (let i = 0; i < this.transferData.length; i++) {
+      this.transferData[i].showCommentChanged = false;
+      this.transferData[i].commentChanged = this.otherComment;
+      for (let j = 0; j < this.commentsChanged.length; j++) {
+        if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
+          this.transferData[i].commentChanged = this.commentsChanged[j];
+          this.transferData[i].showCommentChanged = true;
+          this.commentsChanged.splice(j, 1);
+        }
+      }
+    }
   }
 
   getMatlabDateYesterday() {

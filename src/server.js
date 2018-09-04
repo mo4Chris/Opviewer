@@ -205,7 +205,7 @@ app.post("/api/SaveVessel", function (req, res) {
 
 app.post("/api/SaveTransfer", function (req, res) {
     var mod = new CommentsChangedmodel();
-    mod.newComment = req.body.commentChanged.newComment;
+    mod.newComment = req.body.comment;
     mod.otherComment = req.body.commentChanged.otherComment;
     mod.idTransfer = req.body._id;
     mod.date = req.body.commentDate;
