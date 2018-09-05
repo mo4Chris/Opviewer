@@ -133,16 +133,18 @@
                     <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
                     <td>{{transfer_Data.score}}</td> 
                     <td>{{transfer_Data.location}}</td>  
-                    <td>
+                    <td class="comment">
                         <span *ngIf="showCommentOptions">
                             <span ngbDropdown class="d-inline-block dropdown">
-                                <button class="btn btn-outline-primary" ngbDropdownToggle>{{transfer_Data.comment}}</button>
+                                <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
+                                    <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+                                </button>
                                 <span ngbDropdownMenu>
                                     <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
                                 </span>
                             </span>
                             <span *ngIf="transfer_Data.comment == 'Other'">
-                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" />
+                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" />
                             </span>
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
