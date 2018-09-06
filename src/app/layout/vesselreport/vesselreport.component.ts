@@ -6,7 +6,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import {ActivatedRoute} from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vesselreport',
@@ -34,6 +34,7 @@ export class VesselreportComponent implements OnInit {
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
+  public showAlert = false;
   public showCommentOptions = this.tokenInfo.userPermission == 'admin';
   zoomlvl = 9;
   latitude;
@@ -45,7 +46,9 @@ export class VesselreportComponent implements OnInit {
       "_NaN_", "Too much wind for craning", "Trial docking",
       "Transfer of PAX not possible", "Other"];
   commentsChanged;
-  changedCommentObj = { 'newComment':'','otherComment': '' }
+  changedCommentObj = { 'newComment': '', 'otherComment': '' }
+  alert = { type: '', message: '' };
+  timeout;
 
   getMMSIFromParameter() {
     let mmsi;
@@ -174,6 +177,7 @@ export class VesselreportComponent implements OnInit {
     for (let i = 0; i < this.transferData.length; i++) {
       this.transferData[i].showCommentChanged = false;
       this.transferData[i].commentChanged = this.changedCommentObj;
+      this.transferData[i].formChanged = false;
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
           this.transferData[i].commentChanged = this.commentsChanged[j];
@@ -218,11 +222,31 @@ export class VesselreportComponent implements OnInit {
   }
 
   saveComment(transferData) {
-      if (transferData.comment != "Other") {
-          transferData.commentChanged.otherComment = '';
-      }
+    if (transferData.comment != "Other") {
+        transferData.commentChanged.otherComment = '';
+    }
     transferData.commentDate = Date.now();
     transferData.userID = this.tokenInfo.userID;
-    this.newService.saveTransfer(transferData).subscribe();
+    this.newService.saveTransfer(transferData).pipe(
+        map(
+            (res) => {
+                this.alert.type = "success";
+                this.alert.message = res.data;
+                transferData.formChanged = false;
+            }
+        ),
+        catchError(error => {
+            this.alert.type = "danger";
+            this.alert.message = error;
+            throw error;
+        })
+    ).subscribe(_ => {
+        clearTimeout(this.timeout);
+        this.showAlert = true;
+        this.timeout = setTimeout(() => {
+            this.showAlert = false;
+        }, 7000);
+    });
   }
+
 }

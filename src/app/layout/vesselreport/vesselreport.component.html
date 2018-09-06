@@ -140,22 +140,22 @@
                                     <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
                                 </button>
                                 <span ngbDropdownMenu>
-                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt">{{opt}}</button>
+                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
                                 </span>
                             </span>
                             <span *ngIf="transfer_Data.comment == 'Other'">
-                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" />
+                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
                             </span>
                         </span>
                         <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
                     </td>
                     <td>{{transfer_Data.detector}}</td>
                     <td *ngIf="showCommentOptions">
-                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button">Save</button>
+                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>
                 </tr>
             </tbody>
         </table>
-        
+        <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
 </div>
