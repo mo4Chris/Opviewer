@@ -130,8 +130,8 @@ app.post("/api/registerUser", function(req,res){
                     res.send(err);
                 }
                 else {
-                    if(!existingUser){
-                        let user = new Usermodel({"username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": "user", "client": userData.client});
+                    if (!existingUser) {
+                        let user = new Usermodel({ "username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": userData.permissions, "client": userData.client });
                                 user.save((error, registeredUser) =>{
                                     if(error){
                                         console.log(error);
