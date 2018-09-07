@@ -203,7 +203,7 @@ app.post("/api/SaveVessel", function (req, res) {
     }
 })
 
-app.post("/api/SaveTransfer", function (req, res) {
+app.post("/api/saveTransfer", function (req, res) {
     var mod = new CommentsChangedmodel();
     mod.newComment = req.body.comment;
     mod.otherComment = req.body.commentChanged.otherComment;
@@ -247,22 +247,6 @@ app.post("/api/getCommentsForVessel", function (req, res) {
 
         }
     });
-
-    /*CommentsChangedmodel.find({
-        mmsi: req.body.mmsi
-    }, null, {
-        sort: {
-            date: 'asc'
-        }
-    }, function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        }
-        else {
-            res.send(data);
-        }
-    });*/
 })
 
 app.get("/api/getVessel", function (req, res) {
