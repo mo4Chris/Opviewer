@@ -3,7 +3,7 @@ import {map} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
-import { Observable } from 'rxjs';
+// import { Observable } from 'rxjs';
 
 @Injectable()
 export class CommonService {
@@ -23,6 +23,11 @@ export class CommonService {
   saveVessel(vessel) {
     return this.http.post('http://localhost:8080/api/SaveVessel/', vessel).pipe(
             map((response: Response) => response.json()));
+  }
+
+  saveTransfer(transfer) {
+      return this.http.post('http://localhost:8080/api/saveTransfer/', transfer).pipe(
+          map((response: Response) => response.json()));
   }
 
   GetVessel() {
@@ -83,7 +88,11 @@ export class CommonService {
   getDatesWithValues(vessel) {
     return this.http.post('http://localhost:8080/api/getDatesWithValues/', vessel).pipe(
             map((response: Response) => response.json()));
-  }
 
+  getCommentsForVessel(vessel) {
+      return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
+          map((response: Response) => response.json()));
+  }
+  }
 }
 
