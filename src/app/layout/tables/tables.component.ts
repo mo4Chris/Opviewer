@@ -15,6 +15,7 @@ export class TablesComponent implements OnInit {
     constructor(private newService: CommonService, private _router: Router ) { }
     Repdata;
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    ScatterplotPermission = (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist');
     valbutton = "Save";
 
     getDecodedAccessToken(token: string): any {
@@ -29,8 +30,10 @@ export class TablesComponent implements OnInit {
     ngOnInit() {
         if(this.tokenInfo.userPermission == "admin"){
             this.newService.GetVessel().subscribe(data => this.Repdata = data)
-        }else{
-            this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Repdata = data)
+        } else {
+            if (this.ScatterplotPermission) {
+                this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data)
+            }
         }
     }
 

@@ -19,7 +19,7 @@
                         <select name="selectPermission" [(ngModel)]="registerUserData.permissions">
                             <option *ngFor="let permission of permissions" [ngValue]="permission">{{permission | titlecase}}</option>
                         </select>
-                        <select name="selectBusinessName" [(ngModel)]="registerUserData.client" required>
+                        <select *ngIf="userPermission == 'admin'" name="selectBusinessName" [(ngModel)]="registerUserData.client" required>
                             <option *ngFor="let businessName of businessNames" [ngValue]="businessName">{{businessName}}</option>
                         </select>
                     </div>

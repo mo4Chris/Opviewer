@@ -14,15 +14,24 @@ import * as jwt_decode from 'jwt-decode';
     animations: [routerTransition()]
 })
 export class SignupComponent implements OnInit {
-	registerUserData = {};
+    registerUserData = {
+        permissions: '',
+        client: ''
+    };
     businessNames;
-    userPermission = this.getDecodedAccessToken(localStorage.getItem('token')).userPermission;
+    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    userPermission = this.tokenInfo.userPermission;
     permissions = ["Vessel master","Marine controller"];
 
     constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
 
-    onRegistration(){
-
+    onRegistration() {
+        if (!this.permissions.find(permission => permission == this.registerUserData.permissions)){
+            this.router.navigate(['/access-denied']);
+        }
+        if (this.userPermission != 'admin') {
+            this.registerUserData.client = this.tokenInfo.userCompany;
+        }
         this._auth.registerUser(this.registerUserData).subscribe(
     		res => {
     			this.router.navigate(['/dashboard']);

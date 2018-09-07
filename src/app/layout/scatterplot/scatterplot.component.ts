@@ -3,7 +3,7 @@ import { CommonService } from '../../common.service';
 
 
 import * as moment from 'moment';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
@@ -44,7 +44,7 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,1)',
   ];
 
-  constructor(private newService: CommonService, private route: ActivatedRoute) { }
+  constructor(private newService: CommonService, private route: ActivatedRoute, public router: Router) { }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
   vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
@@ -140,13 +140,15 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.GetVessel().subscribe(data => this.Vessels = data);
-    } else {
-        this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
-    }
-    setTimeout(() => this.showContent = true, 1000);
-    this.setScatterPointsVessel().subscribe();
+      if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.GetVessel().subscribe(data => this.Vessels = data);
+      } else if (this.tokenInfo.userPermission === 'Logistics specialist') {
+          this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Vessels = data);
+      } else {
+          this.router.navigate(['/access-denied']);
+      }
+      setTimeout(() => this.showContent = true, 1000);
+      this.setScatterPointsVessel().subscribe();
   }
 
   MatlabDateToUnixEpoch(serial) {
