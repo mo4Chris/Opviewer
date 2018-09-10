@@ -93,5 +93,20 @@ export class CommonService {
         return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
             map((response: Response) => response.json()));
     }
+
+  getUsers() {
+    return this.http.get('http://localhost:8080/api/getUsers/').pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getUsersForCompany(client) {
+    return this.http.post('http://localhost:8080/api/getUsersForCompany/', client).pipe(
+        map((response: Response) => response.json()));
+    }
+
+  getUserByUsername(username) {
+    return this.http.post('http://localhost:8080/api/getUserByUsername/', username).pipe(
+        map((response: Response) => response.json()));
+  }
 }
 

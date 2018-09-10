@@ -457,6 +457,55 @@ app.post("/api/getScatter", function (req, res) {
     });
 })
 
+app.get("/api/getUsers", function (req, res) {
+    Usermodel.find({
+
+    }, null, {
+
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
+app.post("/api/getUsersForCompany", function (req, res) {
+    let companyName = req.body[0].client;
+    Usermodel.find({
+        client: companyName,
+        permissions: ["Vessel master", "Marine controller"]
+    }, null, {
+
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
+app.post("/api/getUserByUsername", function (req, res) {
+    console.log(req.body.username)
+    Usermodel.find({
+        username: req.body.username
+    }, null, {
+
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            console.log(data);
+            res.send(data);
+        }
+    });
+})
+
 app.listen(8080, function () {
 
     console.log('Example app listening on port 8080!')
