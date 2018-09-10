@@ -470,7 +470,7 @@ app.get("/api/getUsers", function (req, res) {
             res.send(data);
         }
     });
-})
+});
 
 app.post("/api/getUsersForCompany", function (req, res) {
     let companyName = req.body[0].client;
@@ -487,10 +487,9 @@ app.post("/api/getUsersForCompany", function (req, res) {
             res.send(data);
         }
     });
-})
+});
 
 app.post("/api/getUserByUsername", function (req, res) {
-    console.log(req.body.username)
     Usermodel.find({
         username: req.body.username
     }, null, {
@@ -504,7 +503,7 @@ app.post("/api/getUserByUsername", function (req, res) {
             res.send(data);
         }
     });
-})
+});
 
 app.listen(8080, function () {
 

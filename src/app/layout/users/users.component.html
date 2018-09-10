@@ -23,7 +23,7 @@
                                 <td>{{user_data.username}}</td>
                                 <td>{{user_data.permissions}}</td>
                                 <td>{{user_data.client}}</td>
-                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)">Manage boats</a></td>
+                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage boats</a></td>
                             </tr>
                         </tbody>
                     </table>
