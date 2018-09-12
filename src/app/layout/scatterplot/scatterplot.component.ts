@@ -8,7 +8,6 @@ import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
 import {NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import * as daterangepicker from 'daterangepicker';
 
 @Component({
   selector: 'app-scatterplot',
@@ -132,14 +131,6 @@ export class ScatterplotComponent implements OnInit {
               }
             }]
           }
-        }
-      });
-      this.myDatepicker = new daterangepicker({
-        timePicker: true,
-        startDate: moment().startOf('hour'),
-        endDate: moment().startOf('hour').add(32, 'hour'),
-        locale: {
-          format: 'M/DD hh:mm A'
         }
       });
     }
