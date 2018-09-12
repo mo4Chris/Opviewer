@@ -3,7 +3,6 @@ import {map} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
-
 @Injectable()
 export class CommonService {
 
@@ -79,8 +78,18 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
+  getTransfersForVesselByRange (vessel) {
+    return this.http.post('http://localhost:8080/api/getTransfersForVesselByRange/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+
   getRouteForBoat(vessel) {
     return this.http.post('http://localhost:8080/api/getRouteForBoat/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+
+  getCrewRouteForBoat(vessel) {
+    return this.http.post('http://localhost:8080/api/getCrewRouteForBoat/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -90,8 +99,8 @@ export class CommonService {
   }
 
   getCommentsForVessel(vessel) {
-        return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
-            map((response: Response) => response.json()));
-    }
+      return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
+          map((response: Response) => response.json()));
+  }
 }
 
