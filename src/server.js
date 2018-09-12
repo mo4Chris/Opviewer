@@ -468,7 +468,7 @@ app.post("/api/GetTransfersForVessel", function (req, res) {
 
 })
 
-app.post("/api/GetTransfersForVesselByRange", function (req, res) {
+app.post("/api/getTransfersForVesselByRange", function (req, res) {
     Transfermodel.find({ mmsi: req.body.mmsi , date: { $gte: req.body.dateMin, $lte: req.body.dateMax} }, function(err, data){
         if (err) {
             console.log(err);

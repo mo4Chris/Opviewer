@@ -213,9 +213,9 @@ export class ScatterplotComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
-  GetTransfersForVesselByRange(vessel) {
+  getTransfersForVesselByRange(vessel) {
      return this.newService
-     .GetTransfersForVesselByRange(vessel).pipe(
+     .getTransfersForVesselByRange(vessel).pipe(
      map(
        (transfers) => {
          this.transferData = transfers;
@@ -227,7 +227,7 @@ export class ScatterplotComponent implements OnInit {
    }
 
   BuildPageWithCurrentInformation() {
-    this.GetTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
+    this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
       this.setScatterPointsVessel().subscribe();
       setTimeout(() => this.showContent = true, 1050);
       if (this.scatterDataArrayVessel[0].length > 0) {
@@ -238,7 +238,7 @@ export class ScatterplotComponent implements OnInit {
 
   setScatterPointsVessel() {
     return this.newService
-    .GetTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax}).pipe(
+    .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax}).pipe(
     map(
       (scatterData) => {
         const obj = [];

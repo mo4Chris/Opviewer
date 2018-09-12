@@ -78,8 +78,8 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
-  GetTransfersForVesselByRange (vessel) {
-    return this.http.post('http://localhost:8080/api/GetTransfersForVesselByRange/', vessel).pipe(
+  getTransfersForVesselByRange (vessel) {
+    return this.http.post('http://localhost:8080/api/getTransfersForVesselByRange/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
