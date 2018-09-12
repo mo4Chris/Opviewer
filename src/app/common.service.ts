@@ -7,11 +7,13 @@ import { Http, Response, Headers, RequestOptions } from '@angular/http';
 @Injectable()
 export class CommonService {
 
-  constructor(private http: Http) { }
-
+    constructor(private http: Http) {  }
+    headers = new Headers()
+    
   loginUser(user) {
-    return this.http.post('http://localhost:8080/api/login/', user).pipe(
-            map((response: Response) => response.json()));
+      let res = this.http.post('http://localhost:8080/api/login/', user).pipe(
+          map((response: Response) => response.json()));
+      return res;
   }
 
   registerUser(user) {
@@ -35,7 +37,8 @@ export class CommonService {
   }
 
   GetVesselsForCompany(client) {
-    return this.http.post('http://localhost:8080/api/getVesselsForCompany/', client).pipe(
+      this.headers.append('authorization', localStorage.getItem('token'));
+      return this.http.post('http://localhost:8080/api/getVesselsForCompany/', client, { headers: this.headers }).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -69,8 +72,9 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
-  GetLatestBoatLocationForCompany(company) {
-    return this.http.post('http://localhost:8080/api/getLatestBoatLocationForCompany/', company).pipe(
+    GetLatestBoatLocationForCompany(company) {
+        this.headers.append('authorization', localStorage.getItem('token'));
+        return this.http.post('http://localhost:8080/api/getLatestBoatLocationForCompany/', company, { headers: this.headers }).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -102,11 +106,16 @@ export class CommonService {
   getUsersForCompany(client) {
     return this.http.post('http://localhost:8080/api/getUsersForCompany/', client).pipe(
         map((response: Response) => response.json()));
-    }
+  }
 
   getUserByUsername(username) {
     return this.http.post('http://localhost:8080/api/getUserByUsername/', username).pipe(
         map((response: Response) => response.json()));
   }
+
+  saveUserBoats(user) {
+    return this.http.post('http://localhost:8080/api/saveUserBoats/', user).pipe(
+        map((response: Response) => response.json()));
+  }  
 }
 

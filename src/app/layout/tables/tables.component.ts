@@ -31,9 +31,7 @@ export class TablesComponent implements OnInit {
         if(this.tokenInfo.userPermission == "admin"){
             this.newService.GetVessel().subscribe(data => this.Repdata = data)
         } else {
-            if (this.ScatterplotPermission) {
-                this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data)
-            }
+            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data );
         }
     }
 

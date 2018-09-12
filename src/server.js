@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
@@ -35,7 +35,8 @@ var userSchema = new Schema({
     username: { type: String },
     password: { type: String },
     permissions: { type: String },
-    client: {type: String}
+    client: { type: String },
+    boats: { type: Array }
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -96,11 +97,11 @@ var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema,
 //#################   Functionality   #####################
 //#########################################################
 
-function verifyToken(req, res, next){
+function verifyToken(req, res) {
     if (!req.headers.authorization){
         return res.status(401).send('Unauthorized request')
     }
-    let token = req.headers.authorization.split(' ')[1];
+    let token = req.headers.authorization;
 
     if (token === 'null'){
         return res.status(401).send('Unauthorized request')
@@ -111,9 +112,7 @@ function verifyToken(req, res, next){
     if (payload === 'null'){
         return res.status(401).send('Unauthorized request')
     }
-    req.userId = payload.subject
-    console.log(req.userId);
-    next()
+    return payload;
 }
 
 //#########################################################
@@ -165,7 +164,7 @@ app.post("/api/login", function(req,res){
                 }else
                 {
                     if(bcrypt.compareSync(userData.password, user.password)){
-                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client };
+                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
                         res.status(200).send({token});    
                     }else{
@@ -268,10 +267,15 @@ app.get("/api/getVessel", function (req, res) {
 
 app.post("/api/getVesselsForCompany", function (req, res) {
     let companyName = req.body[0].client;
-    Vesselmodel.find({
-        client: companyName
-
-    }, null ,{
+    let token = verifyToken(req, res);
+    let filter = { client: companyName };
+    if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
+        filter.mmsi = [];
+        for (var i = 0; i < token.userBoats.length; i++) {
+            filter.mmsi[i] = token.userBoats[i].mmsi;
+        }
+    }
+    Vesselmodel.find(filter, null ,{
         sort:{
             nicename: 'asc'
         }
@@ -380,16 +384,23 @@ app.post("/api/getRouteForBoat", function(req, res){
 app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
     let companyName = req.body[0].companyName;
     let companyMmsi = [];
-    
+    let token = verifyToken(req, res);
     Vesselmodel.find({ client: companyName }, function(err, data){
         if (err) {
             console.log(err);
             res.send(err);
         }
         else {
-            for(i = 0; i< data.length;){
-                companyMmsi.push(data[i].mmsi);
-                i++;
+            if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
+                for (i = 0; i < token.userBoats.length;) {
+                    companyMmsi.push(token.userBoats[i].mmsi);
+                    i++;
+                }
+            } else {
+                for (i = 0; i < data.length;) {
+                    companyMmsi.push(data[i].mmsi);
+                    i++;
+                }
             }
 
             boatLocationmodel.aggregate([
@@ -499,11 +510,22 @@ app.post("/api/getUserByUsername", function (req, res) {
             res.send(err);
         }
         else {
-            console.log(data);
             res.send(data);
         }
     });
 });
+
+app.post("/api/saveUserBoats", function (req, res) {
+    Usermodel.findOneAndUpdate(req.body._id, { boats: req.body.boats },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            }
+            else {
+                res.send({ data: "Record has been Updated..!!" });
+            }
+        });
+})
 
 app.listen(8080, function () {
 

@@ -1,8 +1,18 @@
-<div [@routerTransition]>
+<div [@routerTransition] *ngIf="user">
     <app-page-header [heading]="'Usermanagement'" [icon]="'fa-edit'"></app-page-header>
-    <ng-multiselect-dropdown [placeholder]="'Select boat'"
-                             [data]="boats"
-                             [(ngModel)]="selectedItems"
-                             [settings]="multiSelectSettings">
-    </ng-multiselect-dropdown>
+    <table class="table table-responsive">
+        <tr><td>Username:</td> <td>{{user.username}}</td></tr>
+        <tr><td>Permissions:</td> <td>{{user.permissions}}</td></tr>
+        <tr *ngIf="tokenInfo.userPermission=='admin'"><td>Client:</td> <td>{{user.client}}</td></tr>
+    </table>
+    <div class="multiSelectDiv">
+        <ng-multiselect-dropdown [placeholder]="'Select boat'"
+                                 [data]="boats"
+                                 [(ngModel)]="user.boats"
+                                 [settings]="multiSelectSettings">
+        </ng-multiselect-dropdown>
+    </div>
+    <div class="submitBtnDiv">
+        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveUserBoats()" type="button">Save</button>
+    </div>
 </div>

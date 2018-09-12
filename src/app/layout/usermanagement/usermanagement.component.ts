@@ -9,49 +9,33 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'app-usermanagement',
   templateUrl: './usermanagement.component.html',
-    styleUrls: ['./usermanagement.component.scss'],
-    animations: [routerTransition()]
+  styleUrls: ['./usermanagement.component.scss'],
+  animations: [routerTransition()]
 })
 export class UserManagementComponent implements OnInit {
 
     constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) { }
-    user;
     username = this.getUsernameFromParameter();
+    user = this.getUser();
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
-    userpermissions = this.tokenInfo.userPermission;
     boats;
 
     multiSelectSettings = {
         idField: 'mmsi',
         textField: 'nicename',
+        allowSearchFilter: true,
         selectAllText: 'Select All',
         unSelectAllText: 'UnSelect All',
-        allowSearchFilter: true
+        singleSelection: false
     };
 
     ngOnInit() {
-        this.newService.getUserByUsername({ username: this.username }).subscribe(data => {
-            this.user = data[0];
-            if (this.user.permissions == "admin" || this.user.permissions == "Logistics specialist" ) {
-                this.router.navigate(['/access-denied']);
-            }
-            if (this.userpermissions != "admin") {
-                if (this.userpermissions != "Logistics specialist") {
-                    this.router.navigate(['/access-denied']);
-                } else {
-                    if (this.tokenInfo.userCompany != this.user.client) {
-                        this.router.navigate(['/access-denied']);
-                    }
-                }
-            }
-            this.newService.GetVesselsForCompany([{ client: this.user.client }]).subscribe(data => this.boats = data);
-        });
+        
     }
 
     getUsernameFromParameter() {
         let username;
         this.route.params.subscribe(params => username = String(params.username));
-
         return username;
     }
 
@@ -63,5 +47,28 @@ export class UserManagementComponent implements OnInit {
         }
     }
 
+    getUser() {
+        this.newService.getUserByUsername({ username: this.username }).subscribe(data => {
+            if (data[0].permissions == "admin" || data[0].permissions == "Logistics specialist" || data[0] == null) {
+                this.router.navigate(['/access-denied']);
+            }
+            if (this.tokenInfo.userPermission != "admin") {
+                if (this.tokenInfo.userPermission != "Logistics specialist") {
+                    this.router.navigate(['/access-denied']);
+                } else {
+                    if (this.tokenInfo.userCompany != data[0].client) {
+                        this.router.navigate(['/access-denied']);
+                    }
+                }
+            }
+            this.newService.GetVesselsForCompany([{ client: data[0].client }]).subscribe(data => { this.boats = data; });
+            this.user = data[0];
+            this.multiSelectSettings.singleSelection = (data[0].permissions == "Vessel master")
+        });
+    }
+
+    saveUserBoats() {
+        this.newService.saveUserBoats(this.user).subscribe();
+    }
     
 }

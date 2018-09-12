@@ -9,7 +9,7 @@
         <a [routerLink]="['/tables']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Boats and Reports' | translate }}
         </a>
-        <a [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-edit"></i>&nbsp;{{ 'Users' | translate }}
         </a>
         <a *ngIf="userCreatePermission" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" class="list-group-item">
