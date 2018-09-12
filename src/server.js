@@ -120,7 +120,6 @@ function verifyToken(req, res, next){
         return res.status(401).send('Unauthorized request')
     }
     req.userId = payload.subject
-    console.log(req.userId);
     next()
 }
 
@@ -386,7 +385,6 @@ app.post("/api/getRouteForBoat", function(req, res){
 })
 
 app.post("/api/getCrewRouteForBoat", function(req, res){
-    console.log(req.body)
     boatCrewLocationmodel.find({
         "date" : req.body.date,
         "mmsi": req.body.mmsi
