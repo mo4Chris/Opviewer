@@ -492,6 +492,19 @@ app.post("/api/getScatter", function (req, res) {
     });
 })
 
+app.post("/api/validatePermissionToViewData", function(req,res){
+    Vesselmodel.find({ mmsi: req.body.mmsi , client: req.body.client}, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            console.log(data);
+            res.send(data); 
+        }    
+    });
+})
+
 app.listen(8080, function () {
 
     console.log('Example app listening on port 8080!')

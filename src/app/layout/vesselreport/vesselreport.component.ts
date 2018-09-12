@@ -35,6 +35,7 @@ export class VesselreportComponent implements OnInit {
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
   public showAlert = false;
+  public noPermissionForData = false;
   public showCommentOptions = this.tokenInfo.userPermission === 'admin';
   zoomlvl = 9;
   latitude;
@@ -155,23 +156,32 @@ export class VesselreportComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
+  // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
-    this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-      // tslint:disable-next-line:no-shadowed-variable
-      this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
-        // tslint:disable-next-line:no-shadowed-variable
-        this.getComments(this.vesselObject).subscribe(_ => {
-          this.matchCommentsWithTransfers();
-        });
-      });
-      if (this.transferData.length !== 0) {
-        this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
+    this.noPermissionForData = false;
+    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+        this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
           // tslint:disable-next-line:no-shadowed-variable
-          this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
+          this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
+            // tslint:disable-next-line:no-shadowed-variable
+            this.getComments(this.vesselObject).subscribe(_ => {
+              this.matchCommentsWithTransfers();
+            });
+          });
+          if (this.transferData.length !== 0) {
+            this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
+              // tslint:disable-next-line:no-shadowed-variable
+              this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
+            });
+            this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+          }
+        setTimeout(() => this.showContent = true, 1050);
         });
-        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+      } else {
+        this.showContent = true;
+        this.noPermissionForData = true;
       }
-    setTimeout(() => this.showContent = true, 1050);
     });
   }
 
