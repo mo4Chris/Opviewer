@@ -178,7 +178,6 @@ export class ScatterplotComponent implements OnInit {
   ngOnInit() {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
-      console.log(validatedValue.length);
       if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
         this.setScatterPointsVessel().subscribe();
       } else {
@@ -240,7 +239,6 @@ export class ScatterplotComponent implements OnInit {
   BuildPageWithCurrentInformation() {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
-      console.log(validatedValue.length);
       if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
         this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
           this.setScatterPointsVessel().subscribe();

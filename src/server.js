@@ -493,7 +493,6 @@ app.post("/api/getScatter", function (req, res) {
 })
 
 app.post("/api/validatePermissionToViewData", function(req,res){
-    console.log(req.body);
     Vesselmodel.find({ mmsi: req.body.mmsi , client: req.body.client}, function(err, data){
         if (err) {
             console.log(err);
