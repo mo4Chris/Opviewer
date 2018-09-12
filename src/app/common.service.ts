@@ -99,8 +99,12 @@ export class CommonService {
   }
 
   getCommentsForVessel(vessel) {
-      return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
-          map((response: Response) => response.json()));
+    return this.http.post('http://localhost:8080/api/getCommentsForVessel/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+  validatePermissionToViewData(vessel) {
+    return this.http.post('http://localhost:8080/api/validatePermissionToViewData/', vessel).pipe(
+            map((response: Response) => response.json()));
   }
 }
 

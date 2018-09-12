@@ -62,7 +62,8 @@ export class ScatterplotComponent implements OnInit {
   transferData;
   myChart;
   myDatepicker;
-  showContent = false ;
+  showContent = false;
+  noPermissionForData = false;
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
   closeResult: string;
@@ -175,13 +176,23 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.GetVessel().subscribe(data => this.Vessels = data);
-    } else {
-        this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
-    }
-    setTimeout(() => this.showContent = true, 1000);
-    this.setScatterPointsVessel().subscribe();
+    this.noPermissionForData = false;
+    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      console.log(validatedValue.length);
+      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+        setTimeout(() => this.showContent = true, 1000);
+        this.setScatterPointsVessel().subscribe();
+      } else {
+        this.showContent = true;
+        this.noPermissionForData = true;
+      }
+      if (this.tokenInfo.userPermission === 'admin') {
+        this.newService.GetVessel().subscribe(data => this.Vessels = data);
+      } else {
+          this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
+      }
+    });
+
   }
 
   MatlabDateToUnixEpoch(serial) {
@@ -227,11 +238,20 @@ export class ScatterplotComponent implements OnInit {
    }
 
   BuildPageWithCurrentInformation() {
-    this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
-      this.setScatterPointsVessel().subscribe();
-      setTimeout(() => this.showContent = true, 1050);
-      if (this.scatterDataArrayVessel[0].length > 0) {
-        this.myChart.update();
+    this.noPermissionForData = false;
+    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      console.log(validatedValue.length);
+      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+        this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
+          this.setScatterPointsVessel().subscribe();
+          setTimeout(() => this.showContent = true, 1050);
+          if (this.scatterDataArrayVessel[0].length > 0) {
+            this.myChart.update();
+          }
+        });
+      } else {
+        this.showContent = true;
+        this.noPermissionForData = true;
       }
     });
   }
