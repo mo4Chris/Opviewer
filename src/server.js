@@ -74,6 +74,14 @@ var LatLonSchema = new Schema({
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
+var boatCrewLocationSchema = new Schema({
+    vesselname: { type: String },
+    nicename: { type: String },
+    client: { type: String },
+    mmsi: { type: Number },
+}, { versionKey: false });
+var boatCrewLocationmodel = mongo.model('crew', boatCrewLocationSchema, 'crew');
+
 var boatLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -310,6 +318,22 @@ app.post("/api/getRouteForBoat", function(req, res){
     boatLocationmodel.find({
         "TIMESTAMP" : { $regex: req.body.dateNormal, $options: 'i' },
         "MMSI": req.body.mmsi
+    }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data); 
+        }    
+    });
+})
+
+app.post("/api/getCrewRouteForBoat", function(req, res){
+    console.log(req.body)
+    boatCrewLocationmodel.find({
+        "date" : req.body.date,
+        "mmsi": req.body.mmsi
     }, function(err, data){
         if (err) {
             console.log(err);

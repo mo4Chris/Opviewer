@@ -1,4 +1,4 @@
-<app-page-header [heading]="'Scatterplot'" [icon]="'fa-bar-chart-o'"></app-page-header>
+<h2 class="text-muted">Scatterplot Impact:<small> {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}} </small></h2>
 <div>
     <ng-template #t let-date="date" let-focused="focused">
         <span class="custom-day"
@@ -15,24 +15,44 @@
     <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
           <div class="input-group datepicker-input">
-              <!-- <input class="form-control" #dp="ngbDatepicker" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate" [displayMonths]="2" ngbDatepicker  (select)="onDateSelection($event)">
-              <button class="input-group-addon" (click)="dp.toggle()" type="button">
-                  <span class="fa fa-calendar"></span>
-              </button> -->
-              <ngb-datepicker #dp (select)="onDateSelection($event)" [displayMonths]="2" [dayTemplate]="t" [maxDate]="maxDate">
-                </ngb-datepicker>
+                <ng-template #content let-modal>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Select your date range</h4>
+                        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ngb-datepicker #dp (select)="onDateSelection($event)" [displayMonths]="2" [dayTemplate]="t" [maxDate]="maxDate">
+                        </ngb-datepicker>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" (click)="closeModal()">Close</button>
+                    </div>
+                </ng-template>                   
+                
               <div class="form-group">
+                 <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">Date selector</button>
                   <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required>
                       <option class="dropdown-item" *ngFor="let vessel of Vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                   </select>
+                  <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
               </div>
-              <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
+              
           </div>
       </div>
   </form>
 </div>
+<hr>
+
+<div class="row" *ngIf="scatterDataArrayVessel[0]?.length == 0;">
+    <div class="col-lg-8">
+        <h3>There is not data available for the selected day and vessel.</h3>
+    </div>
+</div>
+
 <div class="row">
-  <div class="col-lg-8" >
-    <canvas id="canvas">{{myChart}}</canvas>
-  </div>
+    <div class="col-lg-8" >
+        <canvas id="canvas">{{myChart}}</canvas>
+    </div>
 </div>

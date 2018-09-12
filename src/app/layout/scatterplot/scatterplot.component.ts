@@ -7,8 +7,8 @@ import {ActivatedRoute} from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
-import {NgbDate, NgbCalendar} from '@ng-bootstrap/ng-bootstrap';
-
+import {NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import * as daterangepicker from 'daterangepicker';
 
 @Component({
   selector: 'app-scatterplot',
@@ -22,6 +22,7 @@ export class ScatterplotComponent implements OnInit {
   hoveredDate: NgbDate;
   fromDate: NgbDate;
   toDate: NgbDate;
+  modalReference: NgbModalRef;
 
   backgroundcolors = [
     'rgba(228, 94, 157 , 0.4)',
@@ -48,10 +49,11 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,1)',
   ];
 
-  constructor(private newService: CommonService, private route: ActivatedRoute, calendar: NgbCalendar) {
-    this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 3);
+  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar) {
+    this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
-   }
+
+  }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
   vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
@@ -60,9 +62,11 @@ export class ScatterplotComponent implements OnInit {
   Vessels;
   transferData;
   myChart;
+  myDatepicker;
   showContent = false ;
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
+  closeResult: string;
 
   onDateSelection(date: NgbDate) {
     if (!this.fromDate && !this.toDate) {
@@ -79,47 +83,66 @@ export class ScatterplotComponent implements OnInit {
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
+  openModal(content) {
+    this.modalReference = this.modalService.open(content);
+ }
+
+ closeModal() {
+  this.modalReference.close();
+  }
+
+
   createScatterChart() {
-    this.myChart = new Chart('canvas', {
-      type: 'scatter',
-      data: {
-      datasets: [{
-          data: this.scatterDataArrayVessel[0],
-          backgroundColor: this.backgroundcolors,
-          borderColor: this.bordercolors,
-          radius: 8,
-          pointHoverRadius: 10,
-          borderWidth: 1
-          }]
-      },
-      options: {
-        scaleShowVerticalLines: false,
-        legend: false,
-        responsive: true,
-        radius: 6,
-        pointHoverRadius: 6,
-        scales : {
-          xAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Time'
-            },
-            type: 'time',
-            time: {
-              min: this.MatlabDateToUnixEpoch(this.vesselObject.dateMin),
-              max: this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1),
-              unit: 'day'
-          }
-          }],
-          yAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Impact force [kN]'
+    if (this.scatterDataArrayVessel[0].length > 0) {
+      this.myChart = new Chart('canvas', {
+        type: 'scatter',
+        data: {
+        datasets: [{
+            data: this.scatterDataArrayVessel[0],
+            backgroundColor: this.backgroundcolors,
+            borderColor: this.bordercolors,
+            radius: 8,
+            pointHoverRadius: 10,
+            borderWidth: 1
+            }]
+        },
+        options: {
+          scaleShowVerticalLines: false,
+          legend: false,
+          responsive: true,
+          radius: 6,
+          pointHoverRadius: 6,
+          scales : {
+            xAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Time'
+              },
+              type: 'time',
+              time: {
+                min: this.MatlabDateToUnixEpoch(this.vesselObject.dateMin),
+                max: this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1),
+                unit: 'day'
             }
-          }]
+            }],
+            yAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Impact force [kN]'
+              }
+            }]
+          }
         }
-      }
-    });
+      });
+      this.myDatepicker = new daterangepicker({
+        timePicker: true,
+        startDate: moment().startOf('hour'),
+        endDate: moment().startOf('hour').add(32, 'hour'),
+        locale: {
+          format: 'M/DD hh:mm A'
+        }
+      });
+    }
   }
 
   getDecodedAccessToken(token: string): any {
@@ -176,13 +199,26 @@ export class ScatterplotComponent implements OnInit {
   }
 
   searchTransfersByNewSpecificDate() {
-    const datepickerValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
-    datepickerValueAsMomentDate.format();
-    const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-    this.vesselObject.dateMin = dateAsMatlab;
-    this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateAsMatlab);
+    const minValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
+    const maxpickerValueAsMomentDate = moment(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
+
+    minValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    minValueAsMomentDate.format();
+
+    maxpickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    maxpickerValueAsMomentDate.format();
+
+    const momentMinDateAsIso = moment(minValueAsMomentDate).unix();
+    const dateMinAsMatlab = this.unixEpochtoMatlabDate(momentMinDateAsIso);
+
+    const momentMaxDateAsIso = moment(maxpickerValueAsMomentDate).unix();
+    const dateMaxAsMatlab = this.unixEpochtoMatlabDate(momentMaxDateAsIso);
+
+    this.vesselObject.dateMin = dateMinAsMatlab;
+    this.vesselObject.dateMax = dateMaxAsMatlab;
+
+    this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
+    this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
     this.BuildPageWithCurrentInformation();
   }
 
@@ -203,7 +239,9 @@ export class ScatterplotComponent implements OnInit {
     this.GetTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
       this.setScatterPointsVessel().subscribe();
       setTimeout(() => this.showContent = true, 1050);
-      this.myChart.update();
+      if (this.scatterDataArrayVessel[0].length > 0) {
+        this.myChart.update();
+      }
     });
   }
 

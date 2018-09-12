@@ -141,7 +141,7 @@ export class VesselreportComponent implements OnInit {
           // tslint:disable-next-line:no-shadowed-variable
           this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
         });
-        this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
       }
     setTimeout(() => this.showContent = true, 1050);
     });
