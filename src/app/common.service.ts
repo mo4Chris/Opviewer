@@ -24,7 +24,7 @@ export class CommonService {
   }
 
   saveTransfer(transfer) {
-      return this.http.post('http://localhost:8080/api/SaveTransfer/', transfer).pipe(
+      return this.http.post('http://localhost:8080/api/saveTransfer/', transfer).pipe(
           map((response: Response) => response.json()));
   }
 

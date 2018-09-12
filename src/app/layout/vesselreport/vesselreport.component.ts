@@ -6,7 +6,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import {ActivatedRoute} from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vesselreport',
@@ -34,11 +34,21 @@ export class VesselreportComponent implements OnInit {
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
+  public showAlert = false;
+  public showCommentOptions = this.tokenInfo.userPermission == 'admin';
   zoomlvl = 9;
   latitude;
   longitude;
   mapTypeId = 'roadmap';
   streetViewControl = false;
+  commentOptions = ["Transfer OK", "Unassigned", "Tied off",
+      "Incident", "Embarkation", "Vessel2Vessel",
+      "_NaN_", "Too much wind for craning", "Trial docking",
+      "Transfer of PAX not possible", "Other"];
+  commentsChanged;
+  changedCommentObj = { 'newComment': '', 'otherComment': '' }
+  alert = { type: '', message: '' };
+  timeout;
 
   getMMSIFromParameter() {
     let mmsi;
@@ -89,7 +99,7 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-  GetTransfersForVessel(vessel) {
+  getTransfersForVessel(vessel) {
     return this.newService
     .GetTransfersForVessel(vessel).pipe(
     map(
@@ -100,6 +110,19 @@ export class VesselreportComponent implements OnInit {
         console.log('error ' + error);
         throw error;
       }));
+  }
+
+  getComments(vessel) {
+      return this.newService.getCommentsForVessel(this.vesselObject).pipe(
+          map(
+              (changed) => {
+                  this.commentsChanged = changed;
+              }),
+          catchError(error => {
+              console.log('error ' + error);
+              throw error;
+          }));
+      
   }
 
   getDatesWithTransfers(date) {
@@ -133,9 +156,12 @@ export class VesselreportComponent implements OnInit {
   }
 
   BuildPageWithCurrentInformation() {
-    this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {
-      this.getDatesWithTransfers(this.vesselObject).subscribe();
-
+    this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
+      this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
+        this.getComments(this.vesselObject).subscribe(_ => {
+          this.matchCommentsWithTransfers();
+        });
+      });
       if (this.transferData.length !== 0) {
         this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
           // tslint:disable-next-line:no-shadowed-variable
@@ -145,6 +171,22 @@ export class VesselreportComponent implements OnInit {
       }
     setTimeout(() => this.showContent = true, 1050);
     });
+  }
+
+  matchCommentsWithTransfers() {
+    for (let i = 0; i < this.transferData.length; i++) {
+      this.transferData[i].showCommentChanged = false;
+      this.transferData[i].commentChanged = this.changedCommentObj;
+      this.transferData[i].formChanged = false;
+      for (let j = 0; j < this.commentsChanged.length; j++) {
+        if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
+          this.transferData[i].commentChanged = this.commentsChanged[j];
+          this.transferData[i].comment = this.commentsChanged[j].newComment;
+          this.transferData[i].showCommentChanged = true;
+          this.commentsChanged.splice(j, 1);
+        }
+      }
+    }
   }
 
   getMatlabDateYesterday() {
@@ -178,4 +220,33 @@ export class VesselreportComponent implements OnInit {
 
     this.BuildPageWithCurrentInformation();
   }
+
+  saveComment(transferData) {
+    if (transferData.comment != "Other") {
+        transferData.commentChanged.otherComment = '';
+    }
+    transferData.commentDate = Date.now();
+    transferData.userID = this.tokenInfo.userID;
+    this.newService.saveTransfer(transferData).pipe(
+        map(
+            (res) => {
+                this.alert.type = "success";
+                this.alert.message = res.data;
+                transferData.formChanged = false;
+            }
+        ),
+        catchError(error => {
+            this.alert.type = "danger";
+            this.alert.message = error;
+            throw error;
+        })
+    ).subscribe(_ => {
+        clearTimeout(this.timeout);
+        this.showAlert = true;
+        this.timeout = setTimeout(() => {
+            this.showAlert = false;
+        }, 7000);
+    });
+  }
+
 }

@@ -90,6 +90,16 @@ var boatLocationSchema = new Schema({
 }, { versionKey: false });
 var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
+var CommentsChangedSchema = new Schema({
+    mmsi: { type: Number },
+    newComment: { type: String },
+    idTransfer: { type: String },
+    otherComment: { type: String },
+    userID: { type: String },
+    date: { type: Number }
+}, { versionKey: false });
+var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -199,6 +209,52 @@ app.post("/api/SaveVessel", function (req, res) {
 
 
     }
+})
+
+app.post("/api/saveTransfer", function (req, res) {
+    var mod = new CommentsChangedmodel();
+    mod.newComment = req.body.comment;
+    mod.otherComment = req.body.commentChanged.otherComment;
+    mod.idTransfer = req.body._id;
+    mod.date = req.body.commentDate;
+    mod.mmsi = req.body.mmsi;
+    mod.userID = req.body.userID;
+    mod.save(function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send({ data: "Succesfully saved the comment" });
+        }
+    });
+})
+
+app.post("/api/getCommentsForVessel", function (req, res) {
+    CommentsChangedmodel.aggregate([
+        {
+            "$match": {
+                mmsi: { $in: [req.body.mmsi] }
+            }
+        },
+        {
+            $group: {
+                _id: "$idTransfer",
+                "date": { "$last": "$date" },
+                "idTransfer": { "$last": "$idTransfer" },
+                "newComment": { "$last": "$newComment" },
+                "otherComment": { "$last": "$otherComment" }
+            }
+        }
+    ]).exec(function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data);
+
+        }
+    });
 })
 
 app.get("/api/getVessel", function (req, res) {
