@@ -75,6 +75,14 @@ var LatLonSchema = new Schema({
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
+var boatCrewLocationSchema = new Schema({
+    vesselname: { type: String },
+    nicename: { type: String },
+    client: { type: String },
+    mmsi: { type: Number },
+}, { versionKey: false });
+var boatCrewLocationmodel = mongo.model('crew', boatCrewLocationSchema, 'crew');
+
 var boatLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -381,6 +389,21 @@ app.post("/api/getRouteForBoat", function(req, res){
     });
 })
 
+app.post("/api/getCrewRouteForBoat", function(req, res){
+    boatCrewLocationmodel.find({
+        "date" : req.body.date,
+        "mmsi": req.body.mmsi
+    }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data); 
+        }    
+    });
+})
+
 app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
     let companyName = req.body[0].companyName;
     let companyMmsi = [];
@@ -446,6 +469,19 @@ app.post("/api/getDatesWithValues", function (req, res) {
 
 app.post("/api/GetTransfersForVessel", function (req, res) {
     Transfermodel.find({ mmsi: req.body.mmsi , date: req.body.date }, function(err, data){
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data); 
+        }    
+    });
+
+})
+
+app.post("/api/getTransfersForVesselByRange", function (req, res) {
+    Transfermodel.find({ mmsi: req.body.mmsi , date: { $gte: req.body.dateMin, $lte: req.body.dateMax} }, function(err, data){
         if (err) {
             console.log(err);
             res.send(err);

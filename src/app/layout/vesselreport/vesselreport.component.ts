@@ -40,12 +40,12 @@ export class VesselreportComponent implements OnInit {
   longitude;
   mapTypeId = 'roadmap';
   streetViewControl = false;
-  commentOptions = ["Transfer OK", "Unassigned", "Tied off",
-      "Incident", "Embarkation", "Vessel2Vessel",
-      "_NaN_", "Too much wind for craning", "Trial docking",
-      "Transfer of PAX not possible", "Other"];
+  commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
+      'Incident', 'Embarkation', 'Vessel2Vessel',
+      '_NaN_', 'Too much wind for craning', 'Trial docking',
+      'Transfer of PAX not possible', 'Other'];
   commentsChanged;
-  changedCommentObj = { 'newComment': '', 'otherComment': '' }
+  changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
   timeout;
 
@@ -121,7 +121,7 @@ export class VesselreportComponent implements OnInit {
               console.log('error ' + error);
               throw error;
           }));
-      
+
   }
 
   getDatesWithTransfers(date) {
@@ -161,7 +161,9 @@ export class VesselreportComponent implements OnInit {
 
   BuildPageWithCurrentInformation() {
     this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-      this.getDatesWithTransfers(this.vesselObject).subscribe(_ => { 
+      // tslint:disable-next-line:no-shadowed-variable
+      this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
+        // tslint:disable-next-line:no-shadowed-variable
         this.getComments(this.vesselObject).subscribe(_ => {
           this.matchCommentsWithTransfers(); 
         });
@@ -171,7 +173,7 @@ export class VesselreportComponent implements OnInit {
           // tslint:disable-next-line:no-shadowed-variable
           this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
         });
-        this.newService.getRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
+        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
       }
     setTimeout(() => this.showContent = true, 1050);
     });
@@ -183,7 +185,7 @@ export class VesselreportComponent implements OnInit {
       this.transferData[i].commentChanged = this.changedCommentObj;
       this.transferData[i].formChanged = false;
       for (let j = 0; j < this.commentsChanged.length; j++) {
-        if (this.transferData[i]._id == this.commentsChanged[j].idTransfer) {
+        if (this.transferData[i]._id === this.commentsChanged[j].idTransfer) {
           this.transferData[i].commentChanged = this.commentsChanged[j];
           this.transferData[i].comment = this.commentsChanged[j].newComment;
           this.transferData[i].showCommentChanged = true;
@@ -226,7 +228,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   saveComment(transferData) {
-    if (transferData.comment != "Other") {
+    if (transferData.comment !== 'Other') {
         transferData.commentChanged.otherComment = '';
     }
     transferData.commentDate = Date.now();
@@ -234,13 +236,13 @@ export class VesselreportComponent implements OnInit {
     this.newService.saveTransfer(transferData).pipe(
         map(
             (res) => {
-                this.alert.type = "success";
+                this.alert.type = 'success';
                 this.alert.message = res.data;
                 transferData.formChanged = false;
             }
         ),
         catchError(error => {
-            this.alert.type = "danger";
+            this.alert.type = 'danger';
             this.alert.message = error;
             throw error;
         })
