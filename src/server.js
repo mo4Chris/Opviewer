@@ -129,7 +129,7 @@ function verifyToken(req, res) {
 
 app.post("/api/registerUser", function(req,res){
     let userData = req.body;
-
+    let token = verifyToken(req, res);
     if(userData.password === userData.confirmPassword){
         Usermodel.findOne({username: userData.email}, 
             function (err, existingUser) {
@@ -185,7 +185,8 @@ app.post("/api/login", function(req,res){
 
 app.post("/api/SaveVessel", function (req, res) {
     var mod = new model(req.body);
-    if (req.body.mode == "Save") {
+    let token = verifyToken(req, res);
+    if (req.body.mode === "Save") {
         mod.save(function (err, data) {
             if (err) {
                 res.send(err);
@@ -211,6 +212,7 @@ app.post("/api/SaveVessel", function (req, res) {
 })
 
 app.post("/api/saveTransfer", function (req, res) {
+    let token = verifyToken(req, res);
     var mod = new CommentsChangedmodel();
     mod.newComment = req.body.comment;
     mod.otherComment = req.body.commentChanged.otherComment;
@@ -229,6 +231,7 @@ app.post("/api/saveTransfer", function (req, res) {
 })
 
 app.post("/api/getCommentsForVessel", function (req, res) {
+    let token = verifyToken(req, res);
     CommentsChangedmodel.aggregate([
         {
             "$match": {
@@ -257,6 +260,7 @@ app.post("/api/getCommentsForVessel", function (req, res) {
 })
 
 app.get("/api/getVessel", function (req, res) {
+    let token = verifyToken(req, res);
     Vesselmodel.find({
 
     }, null ,{
@@ -298,7 +302,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
 })
 
 app.get("/api/getCompanies", function (req, res) {
-    
+    let token = verifyToken(req, res);
     Vesselmodel.find().distinct('client', function (err, data) {
         if (err) {
             res.send(err);
@@ -313,7 +317,7 @@ app.get("/api/getCompanies", function (req, res) {
 })
 
 app.post("/api/getDistinctFieldnames", function (req, res) {
-    
+    let token = verifyToken(req, res);
     Transfermodel.find({"mmsi": req.body.mmsi, "date": req.body.date}).distinct('fieldname', function (err, data) {
         if (err) {
             res.send(err);
@@ -328,6 +332,7 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
 })
 
 app.get("/api/getLatLon", function (req, res) {
+    let token = verifyToken(req, res);
     LatLonmodel.find({}, function (err, data) {
         if (err) {
             res.send(err);
@@ -339,7 +344,7 @@ app.get("/api/getLatLon", function (req, res) {
 })
 
 app.post("/api/GetSpecificPark", function (req, res) {
-
+    let token = verifyToken(req, res);
     LatLonmodel.find({ 
             filename : {$in:req.body.park }
     }, function (err, data) {
@@ -354,7 +359,7 @@ app.post("/api/GetSpecificPark", function (req, res) {
 })
 
 app.get("/api/getLatestBoatLocation", function (req, res) {
-    
+    let token = verifyToken(req, res);
     boatLocationmodel.aggregate([
         { $group: {
             _id : "$MMSI",
@@ -374,7 +379,8 @@ app.get("/api/getLatestBoatLocation", function (req, res) {
     });
 })
 
-app.post("/api/getRouteForBoat", function(req, res){
+app.post("/api/getRouteForBoat", function (req, res) {
+    let token = verifyToken(req, res);
     boatLocationmodel.find({
         "TIMESTAMP" : { $regex: req.body.dateNormal, $options: 'i' },
         "MMSI": req.body.mmsi
@@ -389,7 +395,8 @@ app.post("/api/getRouteForBoat", function(req, res){
     });
 })
 
-app.post("/api/getCrewRouteForBoat", function(req, res){
+app.post("/api/getCrewRouteForBoat", function (req, res) {
+    let token = verifyToken(req, res);
     boatCrewLocationmodel.find({
         "date" : req.body.date,
         "mmsi": req.body.mmsi
@@ -453,6 +460,7 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
 })
 
 app.post("/api/getDatesWithValues", function (req, res) {
+    let token = verifyToken(req, res);
     Transfermodel.find({ mmsi: req.body.mmsi }).distinct('date', function (err, data) {
         if (err) {
             console.log(err);
@@ -468,6 +476,7 @@ app.post("/api/getDatesWithValues", function (req, res) {
 })
 
 app.post("/api/GetTransfersForVessel", function (req, res) {
+    let token = verifyToken(req, res);
     Transfermodel.find({ mmsi: req.body.mmsi , date: req.body.date }, function(err, data){
         if (err) {
             console.log(err);
@@ -481,6 +490,7 @@ app.post("/api/GetTransfersForVessel", function (req, res) {
 })
 
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
+    let token = verifyToken(req, res);
     Transfermodel.find({ mmsi: req.body.mmsi , date: { $gte: req.body.dateMin, $lte: req.body.dateMax} }, function(err, data){
         if (err) {
             console.log(err);
@@ -494,6 +504,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
 })
 
 app.post("/api/getScatter", function (req, res) {
+    let token = verifyToken(req, res);
     Scattermodel.find({}, function (err, data) {
         if (err) {
             res.send(err);
@@ -505,6 +516,7 @@ app.post("/api/getScatter", function (req, res) {
 })
 
 app.get("/api/getUsers", function (req, res) {
+    let token = verifyToken(req, res);
     Usermodel.find({
 
     }, null, {
@@ -521,6 +533,7 @@ app.get("/api/getUsers", function (req, res) {
 
 app.post("/api/getUsersForCompany", function (req, res) {
     let companyName = req.body[0].client;
+    let token = verifyToken(req, res);
     Usermodel.find({
         client: companyName,
         permissions: ["Vessel master", "Marine controller"]
@@ -537,6 +550,7 @@ app.post("/api/getUsersForCompany", function (req, res) {
 });
 
 app.post("/api/getUserByUsername", function (req, res) {
+    let token = verifyToken(req, res);
     Usermodel.find({
         username: req.body.username
     }, null, {
@@ -552,6 +566,7 @@ app.post("/api/getUserByUsername", function (req, res) {
 });
 
 app.post("/api/saveUserBoats", function (req, res) {
+    let token = verifyToken(req, res);
     Usermodel.findOneAndUpdate(req.body._id, { boats: req.body.boats },
         function (err, data) {
             if (err) {
