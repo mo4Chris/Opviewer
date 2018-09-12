@@ -180,7 +180,6 @@ export class ScatterplotComponent implements OnInit {
     this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       console.log(validatedValue.length);
       if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
-        setTimeout(() => this.showContent = true, 1000);
         this.setScatterPointsVessel().subscribe();
       } else {
         this.showContent = true;
@@ -191,6 +190,7 @@ export class ScatterplotComponent implements OnInit {
       } else {
           this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
       }
+      setTimeout(() => this.showContent = true, 1000);
     });
 
   }
