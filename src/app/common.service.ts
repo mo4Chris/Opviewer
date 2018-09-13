@@ -143,5 +143,10 @@ export class CommonService {
   createAuthorizationHeader(headers: Headers) {
     headers.append('authorization', localStorage.getItem('token'));
   }
+
+  validatePermissionToViewData(vessel) {
+    return this.post('http://localhost:8080/api/validatePermissionToViewData/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
 }
 

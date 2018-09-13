@@ -580,6 +580,18 @@ app.post("/api/getUserByUsername", function (req, res) {
     });
 });
 
+app.post("/api/validatePermissionToViewData", function (req, res) {
+    Vesselmodel.find({ mmsi: req.body.mmsi, client: req.body.client }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+});
+
 app.post("/api/saveUserBoats", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
