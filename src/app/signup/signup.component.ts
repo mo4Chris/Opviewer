@@ -21,7 +21,7 @@ export class SignupComponent implements OnInit {
     businessNames;
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
-    permissions = ["Vessel master","Marine controller"];
+    permissions = ['Vessel master','Marine controller'];
 
     constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
 
@@ -47,12 +47,12 @@ export class SignupComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.userPermission != "admin") {
-            if (this.userPermission != "Logistics specialist") {
+        if (this.userPermission != 'admin') {
+            if (this.userPermission != 'Logistics specialist') {
                 this.router.navigate(['/access-denied']);
             }
         } else {
-            this.permissions = this.permissions.concat(["Logistics specialist", "admin"]);
+            this.permissions = this.permissions.concat(['Logistics specialist', 'admin']);
             this.newService.GetCompanies().subscribe(data => this.businessNames = data);
         }
     }
