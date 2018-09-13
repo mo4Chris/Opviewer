@@ -22,6 +22,7 @@ export class SidebarComponent {
         }
       }
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    userCreatePermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
 
     constructor(private translate: TranslateService, public router: Router) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de']);

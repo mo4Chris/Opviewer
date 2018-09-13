@@ -3,7 +3,7 @@ import { CommonService } from '../../common.service';
 
 
 import * as moment from 'moment';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
@@ -47,11 +47,9 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,0,255,1)',
     'rgba(0,255,255,1)',
   ];
-
-  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar) {
+  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router) {
     this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
-
   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
@@ -191,7 +189,6 @@ export class ScatterplotComponent implements OnInit {
       }
       setTimeout(() => this.showContent = true, 1000);
     });
-
   }
 
   MatlabDateToUnixEpoch(serial) {

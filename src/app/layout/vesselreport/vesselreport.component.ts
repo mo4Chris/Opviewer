@@ -5,7 +5,7 @@ import { CommonService } from '../../common.service';
 
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError, debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -16,7 +16,7 @@ import { map, catchError, debounceTime } from 'rxjs/operators';
 })
 export class VesselreportComponent implements OnInit {
 
-  constructor(private newService: CommonService, private route: ActivatedRoute) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
 
   }
 
@@ -36,7 +36,6 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  public showCommentOptions = this.tokenInfo.userPermission === 'admin';
   zoomlvl = 9;
   latitude;
   longitude;
@@ -114,7 +113,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   getComments(vessel) {
-      return this.newService.getCommentsForVessel(this.vesselObject).pipe(
+      return this.newService.getCommentsForVessel(vessel).pipe(
           map(
               (changed) => {
                   this.commentsChanged = changed;
@@ -150,7 +149,12 @@ export class VesselreportComponent implements OnInit {
     if (this.tokenInfo.userPermission === 'admin') {
       this.newService.GetVessel().subscribe(data => this.Vessels = data);
     } else {
-        this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
+        this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.Vessels = data;
+            if (!this.Vessels.find(vessel => vessel.mmsi == this.vesselObject.mmsi)) {
+                this.router.navigate(['/access-denied']);
+            }
+        });
     }
 
     this.BuildPageWithCurrentInformation();
