@@ -20,7 +20,7 @@ export class CommonService {
   }
 
   saveVessel(vessel) {
-    return this.post('http://localhost:8080/api/SaveVessel/', vessel).pipe(
+    return this.post('http://localhost:8080/api/saveVessel/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -65,7 +65,7 @@ export class CommonService {
   }
 
   GetSpecificPark(park) {
-    return this.post('http://localhost:8080/api/GetSpecificPark/', park).pipe(
+    return this.post('http://localhost:8080/api/getSpecificPark/', park).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -75,7 +75,7 @@ export class CommonService {
   }
 
   GetTransfersForVessel (vessel) {
-    return this.post('http://localhost:8080/api/GetTransfersForVessel/', vessel).pipe(
+    return this.post('http://localhost:8080/api/getTransfersForVessel/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -90,7 +90,7 @@ export class CommonService {
   }
 
   getCrewRouteForBoat(vessel) {
-    return this.http.post('http://localhost:8080/api/getCrewRouteForBoat/', vessel).pipe(
+    return this.post('http://localhost:8080/api/getCrewRouteForBoat/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
