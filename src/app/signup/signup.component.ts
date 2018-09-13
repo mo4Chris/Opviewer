@@ -53,8 +53,8 @@ export class SignupComponent implements OnInit {
             }
         } else {
             this.permissions = this.permissions.concat(["Logistics specialist", "admin"]);
+            this.newService.GetCompanies().subscribe(data => this.businessNames = data);
         }
-        this.newService.GetCompanies().subscribe(data =>  this.businessNames = data);
     }
 
     getDecodedAccessToken(token: string): any {
