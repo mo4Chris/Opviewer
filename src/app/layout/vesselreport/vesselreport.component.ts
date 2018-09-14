@@ -6,7 +6,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError, debounceTime } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vesselreport',
@@ -145,11 +145,13 @@ export class VesselreportComponent implements OnInit {
     return parseFloat(objectvalue);
   }
 
-  ngOnInit() {
-      this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-          this.vessels = data;
-          this.BuildPageWithCurrentInformation();
-      });
+    ngOnInit() {
+        if (this.tokenInfo.userPermission == "admin") {
+            this.newService.GetVessel().subscribe(data => this.vessels = data);
+        } else {
+            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.vessels = data);
+        }
+        this.BuildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes

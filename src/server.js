@@ -110,7 +110,6 @@ function verifyToken(req, res) {
         return res.status(401).send('Unauthorized request');
     }
     let token = req.headers.authorization;
-
     if (token === 'null'){
         return res.status(401).send('Unauthorized request');
     }
@@ -242,27 +241,24 @@ app.post("/api/saveVessel", function (req, res) {
 });
 
 app.post("/api/saveTransfer", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin") {
-        if (token.userPermission === "Logistics specialist" && token.userCompany !== req.body.client) {
-            return res.status(401).send('Acces denied');
-        } else if (!token.userBoats.find({ mmsi: req.body.mmsi })) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Acces denied');
         }
-    }
-    var mod = new CommentsChangedmodel();
-    mod.newComment = req.body.comment;
-    mod.otherComment = req.body.commentChanged.otherComment;
-    mod.idTransfer = req.body._id;
-    mod.date = req.body.commentDate;
-    mod.mmsi = req.body.mmsi;
-    mod.userID = req.body.userID;
-    mod.save(function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send({ data: "Succesfully saved the comment" });
-        }
+        var mod = new CommentsChangedmodel();
+        mod.newComment = req.body.comment;
+        mod.otherComment = req.body.commentChanged.otherComment;
+        mod.idTransfer = req.body._id;
+        mod.date = req.body.commentDate;
+        mod.mmsi = req.body.mmsi;
+        mod.userID = req.body.userID;
+        mod.save(function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the comment" });
+            }
+        });
     });
 });
 
@@ -404,28 +400,27 @@ app.post("/api/getSpecificPark", function (req, res) {
 });
 
 app.get("/api/getLatestBoatLocation", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    boatLocationmodel.aggregate([
+        {
+            $group: {
+                _id: "$MMSI",
+                "LON": { "$last": "$LON" },
+                "LAT": { "$last": "$LAT" },
+                "TIMESTAMP": { "$last": "$TIMESTAMP" }
+            }
         }
-        boatLocationmodel.aggregate([
-            {
-                $group: {
-                    _id: "$MMSI",
-                    "LON": { "$last": "$LON" },
-                    "LAT": { "$last": "$LAT" },
-                    "TIMESTAMP": { "$last": "$TIMESTAMP" }
-                }
-            }
-        ]).exec(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
+    ]).exec(function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
 
-            }
-        });
+        }
     });
 });
 
@@ -652,7 +647,7 @@ app.post("/api/saveUserBoats", function (req, res) {
                 if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
                     return res.status(401).send('Acces denied');
                 } else {
-                    res.send({ data: "Record has been Updated..!!" });
+                    res.send({ data: "Succesfully saved the comment" });
                 }
             }
         });
