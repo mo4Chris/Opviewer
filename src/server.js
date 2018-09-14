@@ -132,9 +132,9 @@ app.post("/api/registerUser", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin") {
         if (token.userPermission === "Logistics specialist" && token.userCompany !== userData.client) {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         } else if (token.userPermission !== "Logistics specialist") {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         }
     }
     if (userData.password === userData.confirmPassword) {
@@ -148,9 +148,9 @@ app.post("/api/registerUser", function (req, res) {
                         user.save((error, registeredUser) => {
                             if (error) {
                                 console.log(error);
-                                res.status(401).send('User already exists');
+                                return res.status(401).send('User already exists');
                             } else {
-                                res.status(200).send(registeredUser);
+                                return res.status(200).send(registeredUser);
                             }
                         });
                     } else {
@@ -160,7 +160,7 @@ app.post("/api/registerUser", function (req, res) {
             });
 
     } else {
-        res.status(401).send('passwords do not match');
+        return res.status(401).send('passwords do not match');
     }
 });
 
@@ -173,14 +173,14 @@ app.post("/api/login", function (req, res) {
                 res.send(err);
             } else {
                 if (!user) {
-                    res.status(401).send('User does not exist');
+                    return res.status(401).send('User does not exist');
                 } else {
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
-                        res.status(200).send({ token });
+                        return res.status(200).send({ token });
                     } else {
-                        res.status(401).send('password is incorrect');
+                        return res.status(401).send('password is incorrect');
                     }
                 }
             }
@@ -192,7 +192,7 @@ app.post("/api/saveVessel", function (req, res) {
     let token = verifyToken(req, res);
     if (req.body.mode === "Save") {
         if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         }
         mod.save(function (err, data) {
             if (err) {
@@ -204,7 +204,7 @@ app.post("/api/saveVessel", function (req, res) {
     }
     else {
         if (token.userPermission !== "admin") {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         }
         Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address },
             function (err, data) {
@@ -223,9 +223,9 @@ app.post("/api/saveTransfer", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin") {
         if (token.userPermission === "Logistics specialist" && token.userCompany !== req.body.client) {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         } else if (!token.userBoats.find({ mmsi: req.body.mmsi })) {
-            res.status(401).send('Acces denied');
+            return res.status(401).send('Acces denied');
         }
     }
     var mod = new CommentsChangedmodel();
@@ -275,7 +275,7 @@ app.post("/api/getCommentsForVessel", function (req, res) {
 app.get("/api/getVessel", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Vesselmodel.find({
 
@@ -296,7 +296,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     let filter = { client: companyName };
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
@@ -321,7 +321,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
 app.get("/api/getCompanies", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Vesselmodel.find().distinct('client', function (err, data) {
         if (err) {
@@ -430,7 +430,7 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
     let companyMmsi = [];
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Vesselmodel.find({ client: companyName }, function (err, data) {
         if (err) {
@@ -520,7 +520,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
 app.get("/api/getUsers", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Usermodel.find({
 
@@ -539,10 +539,10 @@ app.post("/api/getUsersForCompany", function (req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     if (token.userPermission === "Logistics specialist" && token.userCompany !== companyName) {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Usermodel.find({
         client: companyName,
@@ -561,7 +561,7 @@ app.post("/api/getUsersForCompany", function (req, res) {
 app.post("/api/getUserByUsername", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Usermodel.find({
         username: req.body.username
@@ -572,7 +572,7 @@ app.post("/api/getUserByUsername", function (req, res) {
             res.send(err);
         } else {
             if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-                res.status(401).send('Acces denied');
+                return res.status(401).send('Acces denied');
             } else {
                 res.send(data);
             }
@@ -595,7 +595,7 @@ app.post("/api/validatePermissionToViewData", function (req, res) {
 app.post("/api/saveUserBoats", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        res.status(401).send('Acces denied');
+        return res.status(401).send('Acces denied');
     }
     Usermodel.findOneAndUpdate(req.body._id, { boats: req.body.boats },
         function (err, data) {
@@ -603,7 +603,7 @@ app.post("/api/saveUserBoats", function (req, res) {
                 res.send(err);
             } else {
                 if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-                    res.status(401).send('Acces denied');
+                    return res.status(401).send('Acces denied');
                 } else {
                     res.send({ data: "Record has been Updated..!!" });
                 }
