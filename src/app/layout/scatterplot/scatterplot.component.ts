@@ -175,8 +175,8 @@ export class ScatterplotComponent implements OnInit {
 
   ngOnInit() {
     this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
-      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+      this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
         this.setScatterPointsVessel().subscribe();
       } else {
         this.showContent = true;
@@ -235,8 +235,8 @@ export class ScatterplotComponent implements OnInit {
 
   BuildPageWithCurrentInformation() {
     this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
-      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+    this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
         this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
           this.setScatterPointsVessel().subscribe();
           setTimeout(() => this.showContent = true, 1050);

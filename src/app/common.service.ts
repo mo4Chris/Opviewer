@@ -7,16 +7,6 @@ import { Http, Response, Headers } from '@angular/http';
 export class CommonService {
 
     constructor(private http: Http) {  }
-    
-  loginUser(user) {
-      return this.post('http://localhost:8080/api/login/', user).pipe(
-          map((response: Response) => response.json()));
-  }
-
-  registerUser(user) {
-    return this.post('http://localhost:8080/api/registerUser/', user).pipe(
-            map((response: Response) => response.json()));
-  }
 
   saveVessel(vessel) {
     return this.post('http://localhost:8080/api/saveVessel/', vessel).pipe(
