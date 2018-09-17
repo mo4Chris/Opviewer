@@ -638,17 +638,15 @@ app.post("/api/saveUserBoats", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
         return res.status(401).send('Acces denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Acces denied');
     }
-    Usermodel.findOneAndUpdate(req.body._id, { boats: req.body.boats },
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { boats: req.body.boats },
         function (err, data) {
             if (err) {
                 res.send(err);
             } else {
-                if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-                    return res.status(401).send('Acces denied');
-                } else {
-                    res.send({ data: "Succesfully saved the comment" });
-                }
+                res.send({ data: "Succesfully saved the comment" });
             }
         });
 });
