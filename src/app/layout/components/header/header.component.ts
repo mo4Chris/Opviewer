@@ -11,6 +11,7 @@ import * as jwt_decode from 'jwt-decode';
 export class HeaderComponent implements OnInit {
     pushRightClass = 'push-right';
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
     getDecodedAccessToken(token: string): any {
         try {
@@ -19,8 +20,6 @@ export class HeaderComponent implements OnInit {
             return null;
         }
       }
-    userCreatePermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
-
 
     constructor(private translate: TranslateService, public router: Router) {
 
