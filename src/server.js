@@ -349,15 +349,35 @@ app.post("/api/GetSpecificPark", function (req, res) {
 })
 
 app.get("/api/getLatestBoatLocation", function (req, res) {
-    
     boatLocationmodel.aggregate([
-        { $group: {
-            _id : "$MMSI",
-            "LON": { "$last": "$LON" },
-            "LAT": { "$last": "$LAT" },
-            "TIMESTAMP": { "$last": "$TIMESTAMP" }
-        }}
-    ]).exec(function (err, data) {
+        {
+          $group: {
+            _id: "$MMSI",
+            "LON": {
+              "$last": "$LON"
+            }, 
+            "LAT": {
+              "$last": "$LAT"
+            }, 
+            "TIMESTAMP": {
+              "$last": "$TIMESTAMP"
+            }
+          }
+        },
+        {
+            $lookup: {
+                from: 'vessels', 
+                localField: '_id', 
+                foreignField: 'mmsi', 
+                as: 'vesselInformation'
+            }
+        },
+        {
+          $addFields: {
+            vesselInformation: "$vesselInformation.nicename"
+          }  
+        }
+      ]).exec(function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
@@ -420,12 +440,33 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
                         MMSI : {$in:companyMmsi }
                     }
                 },
-                { $group: {
-                    _id : "$MMSI",
-                    "LON": { "$last": "$LON" },
-                    "LAT": { "$last": "$LAT" },
-                    "TIMESTAMP": { "$last": "$TIMESTAMP" }
-                }}
+                {
+                    $group: {
+                      _id: "$MMSI",
+                      "LON": {
+                        "$last": "$LON"
+                      }, 
+                      "LAT": {
+                        "$last": "$LAT"
+                      }, 
+                      "TIMESTAMP": {
+                        "$last": "$TIMESTAMP"
+                      }
+                    }
+                  },
+                  {
+                      $lookup: {
+                          from: 'vessels', 
+                          localField: '_id', 
+                          foreignField: 'mmsi', 
+                          as: 'vesselInformation'
+                      }
+                  },
+                  {
+                    $addFields: {
+                      vesselInformation: "$vesselInformation.nicename"
+                    }  
+                  }
             ]).exec(function (err, data) {
                 if (err) {
                     console.log(err);

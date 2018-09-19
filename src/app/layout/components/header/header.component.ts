@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import * as jwt_decode from "jwt-decode";
+import * as jwt_decode from 'jwt-decode';
 
 @Component({
     selector: 'app-header',
@@ -9,17 +9,17 @@ import * as jwt_decode from "jwt-decode";
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-    pushRightClass: string = 'push-right';
+    pushRightClass = 'push-right';
+    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
 
     getDecodedAccessToken(token: string): any {
-        try{
+        try {
             return jwt_decode(token);
-        }
-        catch(Error){
+        } catch (Error) {
             return null;
         }
       }
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+
 
     constructor(private translate: TranslateService, public router: Router) {
 
