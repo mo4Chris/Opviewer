@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Http, Headers } from '@angular/http';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class AuthService {
     private _loginurl = 'http://localhost:8080/api/login/';
     private _registerurl = 'http://localhost:8080/api/registerUser/';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: Http, private httpClient: HttpClient) { }
 
     loginUser(user) {
-        return this.http.post<any>(this._loginurl, user);
+        return this.httpClient.post<any>(this._loginurl, user);
     }
 
     getToken() {
@@ -17,6 +19,9 @@ export class AuthService {
     }
 
     registerUser(user) {
-        return this.http.post<any>(this._registerurl, user);
+        let headers = new Headers();
+        headers.append('authorization', localStorage.getItem('token'));
+        return this.http.post(this._registerurl, user, { headers: headers }).pipe(
+            map((response: Response) => response.json()));;
     }
 }

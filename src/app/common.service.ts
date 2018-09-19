@@ -1,23 +1,12 @@
 
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Http, Response, Headers } from '@angular/http';
 
 @Injectable()
 export class CommonService {
 
     constructor(private http: Http) {  }
-    headers = new Headers()
-    
-  loginUser(user) {
-      return this.post('http://localhost:8080/api/login/', user).pipe(
-          map((response: Response) => response.json()));
-  }
-
-  registerUser(user) {
-    return this.post('http://localhost:8080/api/registerUser/', user).pipe(
-            map((response: Response) => response.json()));
-  }
 
   saveVessel(vessel) {
     return this.post('http://localhost:8080/api/saveVessel/', vessel).pipe(

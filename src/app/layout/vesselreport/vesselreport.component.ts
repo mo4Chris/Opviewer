@@ -6,7 +6,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError, debounceTime } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vesselreport',
@@ -30,7 +30,7 @@ export class VesselreportComponent implements OnInit {
   datePickerValue = this.maxDate;
   dateData;
   typeOfLat;
-  Vessels;
+  vessels;
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -145,26 +145,20 @@ export class VesselreportComponent implements OnInit {
     return parseFloat(objectvalue);
   }
 
-  ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.GetVessel().subscribe(data => this.Vessels = data);
-    } else {
-        this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-            this.Vessels = data;
-            if (!this.Vessels.find(vessel => vessel.mmsi == this.vesselObject.mmsi)) {
-                this.router.navigate(['/access-denied']);
-            }
-        });
-    }
-
-    this.BuildPageWithCurrentInformation();
+    ngOnInit() {
+        if (this.tokenInfo.userPermission == "admin") {
+            this.newService.GetVessel().subscribe(data => this.vessels = data);
+        } else {
+            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.vessels = data);
+        }
+        this.BuildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
     this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({client: this.tokenInfo.userCompany, mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
-      if (validatedValue.length === 1 || this.tokenInfo.userCompany === 'BMO Offshore') {
+    this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
         this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
           // tslint:disable-next-line:no-shadowed-variable
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
