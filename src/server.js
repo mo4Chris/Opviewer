@@ -126,8 +126,8 @@ function validatePermissionToViewData(req, res, callback) {
     let token = verifyToken(req, res);
     let filter = { mmsi: req.body.mmsi };
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        if (!token.userBoats.find({ mmsi: req.body.mmsi })) {
-            return res.status(401).send('Acces denied');
+        if (!token.userBoats.find(x => x.mmsi === req.body.mmsi )) {
+            return [];
         }
     } else if (token.userPermission !== 'admin') {
         filter.client = token.userCompany;
@@ -135,7 +135,7 @@ function validatePermissionToViewData(req, res, callback) {
     Vesselmodel.find(filter, function (err, data) {
         if (err) {
             console.log(err);
-            return res.send(err);
+            return [];
         }
         else {
             callback(data);
