@@ -1,0 +1,23 @@
+.rounded-btn {
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    color: rgb(255, 255, 255) !important;
+    background: rgba(66, 125, 237, 1);
+    border: 2px solid rgba(66, 125, 237, 0.919);
+    font-size: 14px;
+    line-height: 25px;
+    padding: 0 5px;
+}
+
+.rounded-btn:hover,
+.rounded-btn:focus,
+.rounded-btn:active,
+.rounded-btn:visited {
+    color: rgba(66, 125, 237, 1);
+    border: 2px solid rgba(66, 125, 237, 1);
+    outline: none;
+}
+
+a {
+    color: rgb(255,255,255);
+}

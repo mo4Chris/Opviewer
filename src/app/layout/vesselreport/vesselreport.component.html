@@ -11,7 +11,7 @@
                     </button>
                     <div class="form-group">
                         <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required>
-                            <option class="dropdown-item" *ngFor="let vessel of Vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
+                            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                         </select>
                     </div>
                     <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
@@ -19,34 +19,36 @@
             </div>
         </form>
     </div>
-    <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
-        <div class="leftdiv">
-            <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                <ng-container *ngFor="let parks of Locdata; let i=index" >
-                    <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                    </agm-circle>
-                </ng-container>
-                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                        <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                            </agm-polyline-point>
-                        </ng-container>
-                </agm-polyline>
-            </agm-map>
-        </div>
-        <div class="rightdiv">  
-            <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-                <ng-container *ngFor="let parks of Locdata; let i=index" >
-                    <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                    </agm-circle>
-                </ng-container>
-                <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                        <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                            </agm-polyline-point>
-                        </ng-container>
-                </agm-polyline>
-            </agm-map>
+    <div *ngIf="noPermissionForData == false; else noPermission">
+        <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
+            <div class="leftdiv">
+                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let parks of Locdata; let i=index" >
+                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                        </agm-circle>
+                    </ng-container>
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
+                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
+                                </agm-polyline-point>
+                            </ng-container>
+                    </agm-polyline>
+                </agm-map>
+            </div>
+            <div class="rightdiv">  
+                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let parks of Locdata; let i=index" >
+                        <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                        </agm-circle>
+                    </ng-container>
+                    <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
+                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
+                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
+                                </agm-polyline-point>
+                            </ng-container>
+                    </agm-polyline>
+                </agm-map>
+            </div>
         </div>
     </div>
     <ng-template #other_content>
@@ -127,7 +129,7 @@
                     <th>location</th>
                     <th>comment</th>
                     <th>detector</th>
-                    <th *ngIf="showCommentOptions">save</th>
+                    <th>save</th>
                 </tr>
             </thead>
             <tbody>
@@ -139,23 +141,20 @@
                     <td>{{transfer_Data.score}}</td> 
                     <td>{{transfer_Data.location}}</td>  
                     <td class="comment">
-                        <span *ngIf="showCommentOptions">
-                            <span ngbDropdown class="d-inline-block dropdown">
-                                <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
-                                    <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
-                                </button>
-                                <span ngbDropdownMenu>
-                                    <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
-                                </span>
-                            </span>
-                            <span *ngIf="transfer_Data.comment == 'Other'">
-                                <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
+                        <span ngbDropdown class="d-inline-block dropdown">
+                            <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
+                                <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+                            </button>
+                            <span ngbDropdownMenu>
+                                <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
                             </span>
                         </span>
-                        <span *ngIf="!showCommentOptions">{{transfer_Data.comment}}</span>
+                        <span *ngIf="transfer_Data.comment == 'Other'">
+                            <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
+                        </span>
                     </td>
                     <td>{{transfer_Data.detector}}</td>
-                    <td *ngIf="showCommentOptions">
+                    <td>
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>
                 </tr>
@@ -163,4 +162,9 @@
         </table>
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
+    <ng-template #noPermission>
+        <div class="divContainer">
+            <h3>You are not allowed to view the boat you requested</h3>
+        </div>
+    </ng-template>
 </div>

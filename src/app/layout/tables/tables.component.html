@@ -14,7 +14,7 @@
                             <th *ngIf="tokenInfo.userPermission == 'admin'">Client</th>
                             <th>mmsi</th>
                             <th>Daily vessel report</th>
-                            <th>Scatterplot</th>
+                            <th *ngIf="ScatterplotPermission">Scatterplot</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -24,7 +24,7 @@
                                 <td *ngIf="tokenInfo.userPermission == 'admin'">{{kk.client}}</td> 
                                 <td>{{kk.mmsi}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(kk.mmsi)"> Daily Vessel Report </a></td>
-                                <td><a class="btn rounded-btn" (click)="redirectScatterplot(kk.mmsi)"> Scatterplot </a></td>
+                                <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(kk.mmsi)"> Scatterplot </a></td>
                             </tr>
                         </tbody>
                     </table>

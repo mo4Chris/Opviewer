@@ -1,0 +1,35 @@
+<div [@routerTransition]>
+    <app-page-header [heading]="'Users'" [icon]="'fa-edit'"></app-page-header>
+    <div class="row">
+        <div class="col col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Management
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Username</th>
+                                <th>Permission</th>
+                                <th>Client</th>
+                                <th>Manage boats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user_data of userData; let ind=index">
+                                <td>{{ind + 1}}</td>
+                                <td>{{user_data.username}}</td>
+                                <td>{{user_data.permissions}}</td>
+                                <td>{{user_data.client}}</td>
+                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage boats</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{errData}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

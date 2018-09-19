@@ -19,6 +19,7 @@ export class HeaderComponent implements OnInit {
             return null;
         }
       }
+    userCreatePermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
 
 
     constructor(private translate: TranslateService, public router: Router) {

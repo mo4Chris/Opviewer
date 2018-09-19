@@ -17,7 +17,9 @@ const routes: Routes = [
             { path: 'vesselreport', loadChildren: './vesselreport/vesselreport.module#VesselreportModule'},
             { path: 'scatterplot', loadChildren: './scatterplot/scatterplot.module#ScatterplotModule'},
             { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
-            { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' }
+            { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
+            { path: 'users', loadChildren: './users/users.module#UsersModule' },
+            { path: 'usermanagement', loadChildren: './usermanagement/usermanagement.module#UserManagementModule' }
         ]
     }
 ];

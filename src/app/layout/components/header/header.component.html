@@ -9,7 +9,7 @@
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
-            <li  *ngIf="tokenInfo.userPermission == 'admin'" class="nav-item dropdown">
+            <li  *ngIf="userCreatePermission" class="nav-item dropdown">
                 <a [routerLink]="['/signup']" href="javascript:void(0)" class="nav-link">
                     <i class="fa fa-user-plus"></i> Add new user <b class="caret"></b>
                 </a>
