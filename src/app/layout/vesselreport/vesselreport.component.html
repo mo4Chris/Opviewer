@@ -10,7 +10,7 @@
                         <span class="fa fa-calendar"></span>
                     </button>
                     <div class="form-group">
-                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required>
+                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
                             <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                         </select>
                     </div>
@@ -130,6 +130,7 @@
                     <th>comment</th>
                     <th>detector</th>
                     <th>save</th>
+                    <th>video request</th>
                 </tr>
             </thead>
             <tbody>
@@ -156,6 +157,17 @@
                     <td>{{transfer_Data.detector}}</td>
                     <td>
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
+                    </td>
+                    <td>
+                        <span ngbDropdown class="d-inline-block dropdown">
+                            <button class="btn btn-outline-primary"  ngbDropdownToggle [disabled]="transfer_Data.videoAvailable == 0">
+                                <span>{{transfer_Data.video_requested}}</span>
+                            </button>
+                            <span ngbDropdownMenu>
+                                <button class="dropdown-item" (click)="setRequest(transfer_Data, 'Not requested');">Not requested</button>
+                                <button class="dropdown-item" (click)="setRequest(transfer_Data, 'Requested');">Requested</button>
+                            </span>
+                        </span>
                     </td>
                 </tr>
             </tbody>

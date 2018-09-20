@@ -31,6 +31,7 @@ export class VesselreportComponent implements OnInit {
   dateData;
   typeOfLat;
   vessels;
+  videoRequests;
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -113,15 +114,28 @@ export class VesselreportComponent implements OnInit {
   }
 
   getComments(vessel) {
-      return this.newService.getCommentsForVessel(vessel).pipe(
-          map(
-              (changed) => {
-                  this.commentsChanged = changed;
-              }),
-          catchError(error => {
-              console.log('error ' + error);
-              throw error;
-          }));
+    return this.newService.getCommentsForVessel(vessel).pipe(
+    map(
+      (changed) => {
+        this.commentsChanged = changed;
+      }),
+      catchError(error => {
+        console.log('error ' + error);
+        throw error;
+      }));
+
+    }
+
+  getVideoRequests(vessel) {
+      return this.newService.getVideoRequests(vessel).pipe(
+    map(
+      (requests) => {
+        this.videoRequests = requests;
+      }),
+      catchError(error => {
+        console.log('error ' + error);
+        throw error;
+      }));
 
   }
 
@@ -163,8 +177,10 @@ export class VesselreportComponent implements OnInit {
           // tslint:disable-next-line:no-shadowed-variable
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
             // tslint:disable-next-line:no-shadowed-variable
-            this.getComments(this.vesselObject).subscribe(_ => {
-              this.matchCommentsWithTransfers();
+              this.getComments(this.vesselObject).subscribe(_ => {
+                this.getVideoRequests(this.vesselObject).subscribe(_ => { 
+                  this.matchCommentsWithTransfers();
+                });
             });
           });
           if (this.transferData.length !== 0) {
@@ -188,6 +204,7 @@ export class VesselreportComponent implements OnInit {
       this.transferData[i].showCommentChanged = false;
       this.transferData[i].commentChanged = this.changedCommentObj;
       this.transferData[i].formChanged = false;
+      this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (this.transferData[i]._id === this.commentsChanged[j].idTransfer) {
           this.transferData[i].commentChanged = this.commentsChanged[j];
@@ -198,6 +215,18 @@ export class VesselreportComponent implements OnInit {
       }
     }
   }
+
+    matchVideoRequestWithTransfer(transfer) {
+        if (!this.videoRequests) {
+            return "Not requested";
+        }
+        let vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
+        if (vid && vid.active) {
+            return "Requested";
+        } else {
+            return "Not requested";
+        }
+    }
 
   getMatlabDateYesterday() {
     const matlabValueYesterday = moment().add(-2, 'days');
@@ -258,5 +287,12 @@ export class VesselreportComponent implements OnInit {
         }, 7000);
     });
   }
+
+    setRequest(transferData, request) {
+        if (transferData.videoAvailable) {
+            transferData.video_requested = request;
+            this.newService.saveVideoRequest(transferData).subscribe();
+        }
+    }
 
 }

@@ -65,7 +65,9 @@ var TransferSchema = new Schema({
     location: { type: String },
     fieldname: { type: String },
     comment: { type: String },
-    detector: { type: String }
+    detector: { type: String },
+    videoAvailable: { type: Number },
+    videoPath: { type: String }
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
@@ -100,6 +102,15 @@ var CommentsChangedSchema = new Schema({
     date: { type: Number }
 }, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
+
+var videoRequestedSchema = new Schema({
+    mmsi: { type: Number },
+    videoPath: { type: String },
+    vesselname: { type: String },
+    date: { type: Number },
+    active: { type: Boolean }
+}, { versionKey: false });
+var videoRequestedmodel = mongo.model('videoRequests', videoRequestedSchema, 'videoRequests');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -646,9 +657,62 @@ app.post("/api/saveUserBoats", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the comment" });
+                res.send({ data: "Succesfully saved the user" });
             }
         });
+});
+
+app.post("/api/getVideoRequests", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        videoRequestedmodel.find({
+            mmsi: req.body.mmsi
+        }, null, {
+
+        }, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/saveVideoRequest", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        videoRequestedmodel.find({ videoPath: req.body.videoPath }, function (err, data) {
+            if (data.length > 0) {
+                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: req.body.video_requested === "Requested" ? true : false },
+                    function (err, data) {
+                        if (err) {
+                            return res.send(err);
+                        } else {
+                            return res.send({ data: "Succesfully saved the video request" });
+                        }
+                    });
+            } else {
+                var mod = new videoRequestedmodel();
+                mod.mmsi = req.body.mmsi;
+                mod.videoPath = req.body.videoPath;
+                mod.vesselname = req.body.vesselname;
+                mod.date = Date.now();
+                mod.active = req.body.video_requested === "Requested" ? true : false;
+                mod.save(function (err, data) {
+                    if (err) {
+                        return res.send(err);
+                    } else {
+                        return res.send({ data: "Succesfully saved the video request" });
+                    }
+                });
+            }
+        });
+    });
 });
 
 app.listen(8080, function () {
