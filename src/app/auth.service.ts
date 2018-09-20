@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Http, Headers } from '@angular/http';
+import { Http, Headers, Response } from '@angular/http';
 import { map } from 'rxjs/operators';
 
 @Injectable()
@@ -22,6 +22,6 @@ export class AuthService {
         let headers = new Headers();
         headers.append('authorization', localStorage.getItem('token'));
         return this.http.post(this._registerurl, user, { headers: headers }).pipe(
-            map((response: Response) => response.json()));;
+            map((response: Response) => response.json()));
     }
 }
