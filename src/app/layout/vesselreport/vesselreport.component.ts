@@ -218,14 +218,24 @@ export class VesselreportComponent implements OnInit {
 
     matchVideoRequestWithTransfer(transfer) {
         if (!this.videoRequests) {
-            return "Not requested";
+            return { text: "Not requested", disabled: false };
         }
         let vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
-        if (vid && vid.active) {
-            return "Requested";
+        if (vid) {
+            vid.disabled = false;
+            vid.text = "Not requested";
+            if (vid.active) {
+                vid.text = "Requested";
+            }
+            if (vid.status === "denied" || vid.status === "approved" || vid.status === "awaiting approval") {
+                vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
+                vid.status = vid.status.replace(' ', '_');
+                vid.disabled = true;
+            }
         } else {
-            return "Not requested";
+           return { text: "Not requested", disabled: false };
         }
+        return vid;
     }
 
   getMatlabDateYesterday() {
@@ -288,10 +298,33 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
-    setRequest(transferData, request) {
+    setRequest(transferData) {
         if (transferData.videoAvailable) {
-            transferData.video_requested = request;
-            this.newService.saveVideoRequest(transferData).subscribe();
+            if (transferData.video_requested.text == "Not requested") {
+                transferData.video_requested.text = "Requested";
+            } else {
+                transferData.video_requested.text = "Not requested";
+            }
+            this.newService.saveVideoRequest(transferData).pipe(
+                map(
+                    (res) => {
+                        this.alert.type = 'success';
+                        this.alert.message = res.data;
+                        transferData.formChanged = false;
+                    }
+                ),
+                catchError(error => {
+                    this.alert.type = 'danger';
+                    this.alert.message = error;
+                    throw error;
+                })
+            ).subscribe(_ => {
+                clearTimeout(this.timeout);
+                this.showAlert = true;
+                this.timeout = setTimeout(() => {
+                    this.showAlert = false;
+                }, 7000);
+            });
         }
     }
 

@@ -16,9 +16,6 @@ agm-map {
     display:inline-block;
     margin-left:.5%;
 }
-.submitBtnDate{
-    margin-left: 20px;
-}
 .boatSelectDropdown{
     height: 48px !important;
     margin-left: 20px;
@@ -47,4 +44,19 @@ td.comment{
 ngb-alert {
     position: fixed;
     bottom: 0px;
+}
+.videoRequest{
+    min-width: 202px;
+}
+.approved{
+    background-color: #298a00;
+}
+.denied{
+    background-color: #b60000;
+}
+.awaiting_approval {
+    background-color: #f98a00;
+}
+:disabled {
+    opacity: 0.4;
 }

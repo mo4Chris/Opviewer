@@ -108,7 +108,8 @@ var videoRequestedSchema = new Schema({
     videoPath: { type: String },
     vesselname: { type: String },
     date: { type: Number },
-    active: { type: Boolean }
+    active: { type: Boolean },
+    status: { type: String }
 }, { versionKey: false });
 var videoRequestedmodel = mongo.model('videoRequests', videoRequestedSchema, 'videoRequests');
 
@@ -721,12 +722,12 @@ app.post("/api/getVideoRequests", function (req, res) {
 
 app.post("/api/saveVideoRequest", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
+        if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
             return res.status(401).send('Acces denied');
         }
         videoRequestedmodel.find({ videoPath: req.body.videoPath }, function (err, data) {
             if (data.length > 0) {
-                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: req.body.video_requested === "Requested" ? true : false },
+                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: req.body.video_requested.text === "Requested" ? true : false },
                     function (err, data) {
                         if (err) {
                             return res.send(err);
@@ -740,7 +741,8 @@ app.post("/api/saveVideoRequest", function (req, res) {
                 mod.videoPath = req.body.videoPath;
                 mod.vesselname = req.body.vesselname;
                 mod.date = Date.now();
-                mod.active = req.body.video_requested === "Requested" ? true : false;
+                mod.active = req.body.video_requested.text === "Requested" ? true : false;
+                mod.status = '';
                 mod.save(function (err, data) {
                     if (err) {
                         return res.send(err);
