@@ -48,13 +48,13 @@ ngb-alert {
 .videoRequest{
     min-width: 202px;
 }
-.approved{
+.deleverd {
     background-color: #298a00;
 }
 .denied{
     background-color: #b60000;
 }
-.awaiting_approval {
+.pending_collection {
     background-color: #f98a00;
 }
 :disabled {

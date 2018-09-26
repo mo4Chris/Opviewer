@@ -227,15 +227,17 @@ export class VesselreportComponent implements OnInit {
             if (vid.active) {
                 vid.text = "Requested";
             }
-            if (vid.status === "denied" || vid.status === "approved" || vid.status === "awaiting approval") {
+            if (vid.status === "denied" || vid.status === "deleverd" || vid.status === "pending collection") {
                 vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
                 vid.status = vid.status.replace(' ', '_');
                 vid.disabled = true;
             }
+            return vid;
+        } else if (transfer.videoAvailable) {
+            return { text: "Not requested", disabled: false };
         } else {
-           return { text: "Not requested", disabled: false };
+            return { text: "Unavailable", disabled: true };
         }
-        return vid;
     }
 
   getMatlabDateYesterday() {
