@@ -50,6 +50,7 @@ export class VesselreportComponent implements OnInit {
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
   timeout;
+  vessel;
 
   getMMSIFromParameter() {
     let mmsi;
@@ -161,9 +162,14 @@ export class VesselreportComponent implements OnInit {
 
     ngOnInit() {
         if (this.tokenInfo.userPermission == "admin") {
-            this.newService.GetVessel().subscribe(data => this.vessels = data);
+            this.newService.GetVessel().subscribe(data => {
+                this.vessels = data;
+            });
         } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.vessels = data);
+            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+                this.vessels = data;
+                
+            });
         }
         this.BuildPageWithCurrentInformation();
   }
@@ -178,7 +184,8 @@ export class VesselreportComponent implements OnInit {
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
             // tslint:disable-next-line:no-shadowed-variable
               this.getComments(this.vesselObject).subscribe(_ => {
-                this.getVideoRequests(this.vesselObject).subscribe(_ => { 
+                  this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                  this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
                   this.matchCommentsWithTransfers();
                 });
             });
@@ -217,10 +224,12 @@ export class VesselreportComponent implements OnInit {
   }
 
     matchVideoRequestWithTransfer(transfer) {
+        let vid;
         if (!this.videoRequests) {
-            return { text: "Not requested", disabled: false };
+            vid = { text: "Not requested", disabled: false };
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
         }
-        let vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
+        vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
         if (vid) {
             vid.disabled = false;
             vid.text = "Not requested";
@@ -232,12 +241,29 @@ export class VesselreportComponent implements OnInit {
                 vid.status = vid.status.replace(' ', '_');
                 vid.disabled = true;
             }
-            return vid;
-        } else if (transfer.videoAvailable) {
-            return { text: "Not requested", disabled: false };
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+        } else
+        if (transfer.videoAvailable) {
+            vid = { text: "Not requested", disabled: false };
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
         } else {
-            return { text: "Unavailable", disabled: true };
+            vid = { text: "Unavailable", disabled: true };
+            return vid;
         }
+    }
+
+    checkVideoBudget(duration, vid) {
+        if (this.vessel.videoRequestMaxBudget) {
+            if (this.vessel.videoRequestBudget) {
+                if (this.vessel.videoRequestMaxBudget <= this.vessel.videoRequestBudget + duration) {
+                    vid.disabled = true;
+                    if (vid.status !== "denied" && vid.status !== "deleverd" && vid.status !== "pending collection") {
+                        vid.text = "Not enough budget";
+                    }
+                }
+            }
+        }
+        return vid;
     }
 
   getMatlabDateYesterday() {
@@ -302,11 +328,21 @@ export class VesselreportComponent implements OnInit {
 
     setRequest(transferData) {
         if (transferData.videoAvailable) {
+            if (!this.vessel.videoRequestMaxBudget) {
+                this.vessel.videoRequestBudget = 100;
+            }
+            if (!this.vessel.videoRequestBudget) {
+                this.vessel.videoRequestBudget = 0;
+            }
             if (transferData.video_requested.text == "Not requested") {
                 transferData.video_requested.text = "Requested";
+                this.vessel.videoRequestBudget += transferData.videoDurationMinutes;
             } else {
                 transferData.video_requested.text = "Not requested";
+                this.vessel.videoRequestBudget -= transferData.videoDurationMinutes;
             }
+            transferData.maxBudget = this.vessel.videoRequestMaxBudget;
+            transferData.currentBudget = this.vessel.videoRequestBudget;
             this.newService.saveVideoRequest(transferData).pipe(
                 map(
                     (res) => {
@@ -321,6 +357,9 @@ export class VesselreportComponent implements OnInit {
                     throw error;
                 })
             ).subscribe(_ => {
+                for (let i = 0; i < this.transferData.length; i++) {
+                    this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
+                }
                 clearTimeout(this.timeout);
                 this.showAlert = true;
                 this.timeout = setTimeout(() => {

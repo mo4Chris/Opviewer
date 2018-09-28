@@ -44,7 +44,9 @@ var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
     client: { type: String },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    videoRequestMaxBudget: { type: Number },
+    videoRequestBudget: { type: Number }
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
@@ -67,7 +69,8 @@ var TransferSchema = new Schema({
     comment: { type: String },
     detector: { type: String },
     videoAvailable: { type: Number },
-    videoPath: { type: String }
+    videoPath: { type: String },
+    videoDurationMinutes: { type: Number }
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
@@ -727,12 +730,20 @@ app.post("/api/saveVideoRequest", function (req, res) {
         }
         videoRequestedmodel.find({ videoPath: req.body.videoPath }, function (err, data) {
             if (data.length > 0) {
-                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: req.body.video_requested.text === "Requested" ? true : false },
+                const active = req.body.video_requested.text === "Requested" ? true : false;
+                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: active },
                     function (err, data) {
                         if (err) {
                             return res.send(err);
                         } else {
-                            return res.send({ data: "Succesfully saved the video request" });
+                            Vesselmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { videoRequestMaxBudget: req.body.maxBudget, videoRequestBudget: req.body.currentBudget },
+                                function (_err, _data) {
+                                    if (_err) {
+                                        return res.send(_err);
+                                    } else {
+                                        return res.send({ data: "Succesfully saved the video request" });
+                                    }
+                                });
                         }
                     });
             } else {
@@ -747,7 +758,14 @@ app.post("/api/saveVideoRequest", function (req, res) {
                     if (err) {
                         return res.send(err);
                     } else {
-                        return res.send({ data: "Succesfully saved the video request" });
+                        Vesselmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { videoRequestMaxBudget: req.body.maxBudget, videoRequestBudget: req.body.currentBudget },
+                            function (_err, _data) {
+                                if (_err) {
+                                    return res.send(_err);
+                                } else {
+                                    return res.send({ data: "Succesfully saved the video request" });
+                                }
+                            });
                     }
                 });
             }
