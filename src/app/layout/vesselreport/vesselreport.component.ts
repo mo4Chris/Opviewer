@@ -51,6 +51,8 @@ export class VesselreportComponent implements OnInit {
   alert = { type: '', message: '' };
   timeout;
   vessel;
+  videoRequestPermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
+  videoRequestLoading = false;
 
   getMMSIFromParameter() {
     let mmsi;
@@ -183,11 +185,11 @@ export class VesselreportComponent implements OnInit {
           // tslint:disable-next-line:no-shadowed-variable
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
             // tslint:disable-next-line:no-shadowed-variable
-              this.getComments(this.vesselObject).subscribe(_ => {
-                  this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                  this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
-                  this.matchCommentsWithTransfers();
-                });
+            this.getComments(this.vesselObject).subscribe(_ => {
+              this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
+                this.matchCommentsWithTransfers();
+              });
             });
           });
           if (this.transferData.length !== 0) {
@@ -253,8 +255,8 @@ export class VesselreportComponent implements OnInit {
     }
 
     checkVideoBudget(duration, vid) {
-        if (this.vessel.videoRequestMaxBudget) {
-            if (this.vessel.videoRequestBudget) {
+        if (this.vessel.videoRequestMaxBudget && !vid.active) {
+            if (this.vessel.videoRequestBudget>=0) {
                 if (this.vessel.videoRequestMaxBudget <= this.vessel.videoRequestBudget + duration) {
                     vid.disabled = true;
                     if (vid.status !== "denied" && vid.status !== "deleverd" && vid.status !== "pending collection") {
@@ -327,9 +329,10 @@ export class VesselreportComponent implements OnInit {
   }
 
     setRequest(transferData) {
-        if (transferData.videoAvailable) {
+        if (transferData.videoAvailable && !this.videoRequestLoading) {
+            this.videoRequestLoading = true;
             if (!this.vessel.videoRequestMaxBudget) {
-                this.vessel.videoRequestBudget = 100;
+                this.vessel.videoRequestMaxBudget = 100;
             }
             if (!this.vessel.videoRequestBudget) {
                 this.vessel.videoRequestBudget = 0;
@@ -357,9 +360,12 @@ export class VesselreportComponent implements OnInit {
                     throw error;
                 })
             ).subscribe(_ => {
-                for (let i = 0; i < this.transferData.length; i++) {
-                    this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
-                }
+                this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    for (let i = 0; i < this.transferData.length; i++) {
+                        this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
+                    }
+                    this.videoRequestLoading = false;
+                });
                 clearTimeout(this.timeout);
                 this.showAlert = true;
                 this.timeout = setTimeout(() => {

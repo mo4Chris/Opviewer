@@ -2,25 +2,25 @@ agm-map {
     height: 400px;
 }
 
-.divContainer{
+.divContainer {
     width:100%;
     min-height: 200px;
 }
-.leftdiv{
+.leftdiv {
     width: 49%;
     display:inline-block;
     margin-right:.5%;
 }
-.rightdiv{
+.rightdiv {
     width:49%;
     display:inline-block;
     margin-left:.5%;
 }
-.boatSelectDropdown{
+.boatSelectDropdown {
     height: 48px !important;
     margin-left: 20px;
 }
-.keyTD{
+.keyTD {
     background: gray;
     color: white;
 }
@@ -34,7 +34,7 @@ agm-map {
     width: 250px;
     text-align: left;
 }
-td.comment{
+td.comment {
     width: 300px
 }
 .commentButton {
@@ -51,7 +51,7 @@ ngb-alert {
 .deleverd {
     background-color: #298a00;
 }
-.denied{
+.denied {
     background-color: #b60000;
 }
 .pending_collection {
@@ -59,4 +59,17 @@ ngb-alert {
 }
 :disabled {
     opacity: 0.4;
+}
+.videoRequestLoading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.4);
+    z-index: 1050;
+
+    img {
+        margin: 0 auto;
+    }
 }

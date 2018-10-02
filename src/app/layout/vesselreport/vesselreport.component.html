@@ -130,7 +130,7 @@
                     <th>comment</th>
                     <th>detector</th>
                     <th>save</th>
-                    <th>video request</th>
+                    <th *ngIf="videoRequestPermission">video request</th>
                 </tr>
             </thead>
             <tbody>
@@ -158,8 +158,8 @@
                     <td>
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>
-                    <td *ngIf="transfer_Data.video_requested">
-                        <button class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+                    <td *ngIf="videoRequestPermission">
+                        <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
                     </td>
                 </tr>
             </tbody>
@@ -171,4 +171,5 @@
             <h3>You are not allowed to view the boat you requested</h3>
         </div>
     </ng-template>
+    <div *ngIf="videoRequestLoading" class="videoRequestLoading"></div>
 </div>
