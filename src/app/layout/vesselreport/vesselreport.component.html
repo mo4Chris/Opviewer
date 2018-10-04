@@ -171,5 +171,11 @@
             <h3>You are not allowed to view the boat you requested</h3>
         </div>
     </ng-template>
-    <div *ngIf="videoRequestLoading" class="videoRequestLoading"></div>
+    <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+        <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+    </div>
 </div>
