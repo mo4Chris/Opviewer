@@ -23,7 +23,7 @@
                             <option *ngFor="let businessName of businessNames" [ngValue]="businessName">{{businessName}}</option>
                         </select>
                     </div>
-                    <ngb-alert *ngIf="showAlert" type="danger" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
                 </div>
                 <a class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
                 <a class="btn rounded-btn" [routerLink]="['/dashboard']">Cancel</a>

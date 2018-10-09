@@ -171,7 +171,7 @@ app.post("/api/registerUser", function (req, res) {
                                 console.log(error);
                                 return res.status(401).send('User already exists');
                             } else {
-                                return res.status(200).send(registeredUser);
+                                return res.send({ data: 'User created' , status: 200 });
                             }
                         });
                     } else {

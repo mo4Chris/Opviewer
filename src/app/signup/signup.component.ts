@@ -22,8 +22,7 @@ export class SignupComponent implements OnInit {
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
     permissions = ['Vessel master', 'Marine controller'];
-    alert = { message: 'Something is wrong, contact BMO Offshore' };
-    timeout;
+    alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
 
     constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
@@ -32,9 +31,14 @@ export class SignupComponent implements OnInit {
         if (!this.permissions.find(permission => permission == this.registerUserData.permissions)){
             this.showAlert = true;
             this.alert.message = "You're not allowed to add a user of this type";
+            return;
         }
         if (this.userPermission != 'admin') {
             this.registerUserData.client = this.tokenInfo.userCompany;
+        } else if (this.businessNames.indexOf(this.registerUserData.client) < 0) {
+            this.showAlert = true;
+            this.alert.message = "User needs a client";
+            return;
         }
         this._auth.registerUser(this.registerUserData).subscribe(
     		res => {
@@ -42,9 +46,10 @@ export class SignupComponent implements OnInit {
     		},
     		err => {
                 this.showAlert = true;
+                this.alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
                 if (err.status === 401) {
                     this.alert.message = err._body;
-    				this.router.navigate(['/signup'])
+                    this.router.navigate(['/signup']);
     			}
     		})
 
