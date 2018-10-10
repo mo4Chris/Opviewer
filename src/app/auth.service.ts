@@ -5,8 +5,8 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class AuthService {
-    private _loginurl = 'http://localhost:8080/api/login/';
-    private _registerurl = 'http://localhost:8080/api/registerUser/';
+    private _loginurl = 'http://81.169.211.83:8080/api/login/';
+    private _registerurl = 'http://81.169.211.83:8080/api/registerUser/';
 
     constructor(private http: Http, private httpClient: HttpClient) { }
 
