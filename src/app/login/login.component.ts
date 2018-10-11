@@ -12,10 +12,13 @@ import { HttpErrorResponse } from '@angular/common/http';
     animations: [routerTransition()]
 })
 export class LoginComponent implements OnInit {
-    loginUserData = {};
     alert = { message: 'Something is wrong, contact BMO Offshore' };
     timeout;
     showAlert = false;
+    loginUserData = {
+        username: '',
+        password: ''
+    };
 
     constructor(public router: Router, private _auth: AuthService) {}
     

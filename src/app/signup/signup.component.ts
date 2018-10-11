@@ -14,10 +14,14 @@ import * as jwt_decode from 'jwt-decode';
     animations: [routerTransition()]
 })
 export class SignupComponent implements OnInit {
-    registerUserData = {
-        permissions: '',
-        client: ''
+    
+    registerUserData:any = {
+        Permissions: '',
+        client: '',
+        username: '',
+        password: ''
     };
+
     businessNames;
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
