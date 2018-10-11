@@ -5,6 +5,7 @@ import { CommonService } from '../../common.service';
 
 import * as jwt_decode from 'jwt-decode';
 import { ActivatedRoute, Router } from '@angular/router';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-usermanagement',
@@ -19,6 +20,9 @@ export class UserManagementComponent implements OnInit {
     user = this.getUser();
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     boats;
+    alert = { type: '', message: '' };
+    showAlert = false;
+    timeout;
 
     multiSelectSettings = {
         idField: 'mmsi',
@@ -68,7 +72,25 @@ export class UserManagementComponent implements OnInit {
     }
 
     saveUserBoats() {
-        this.newService.saveUserBoats(this.user).subscribe();
+        this.newService.saveUserBoats(this.user).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
     }
     
 }

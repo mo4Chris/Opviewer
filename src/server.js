@@ -172,17 +172,17 @@ app.post("/api/registerUser", function (req, res) {
                                 console.log(error);
                                 return res.status(401).send('User already exists');
                             } else {
-                                return res.status(200).send(registeredUser);
+                                return res.send({ data: 'User created' , status: 200 });
                             }
                         });
                     } else {
-                        console.log("user already exists"); //TO DO ALERT
+                        return res.status(401).send('User already exists');
                     }
                 }
             });
 
     } else {
-        return res.status(401).send('passwords do not match');
+        return res.status(401).send('Passwords do not match');
     }
 });
 
@@ -202,7 +202,7 @@ app.post("/api/login", function (req, res) {
                         let token = jwt.sign(payload, 'secretKey');
                         return res.status(200).send({ token });
                     } else {
-                        return res.status(401).send('password is incorrect');
+                        return res.status(401).send('Password is incorrect');
                     }
                 }
             }
@@ -685,7 +685,7 @@ app.post("/api/saveUserBoats", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the comment" });
+                res.send({ data: "Succesfully saved the permissions" });
             }
         });
 });

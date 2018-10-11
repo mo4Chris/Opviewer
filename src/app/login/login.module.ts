@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -7,7 +8,7 @@ import { LoginComponent } from './login.component';
 
 
 @NgModule({
-    imports: [CommonModule, LoginRoutingModule, FormsModule],
+    imports: [CommonModule, LoginRoutingModule, NgbModule.forRoot(), FormsModule],
     declarations: [LoginComponent]
 })
 export class LoginModule {}

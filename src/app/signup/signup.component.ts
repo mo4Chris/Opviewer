@@ -25,26 +25,35 @@ export class SignupComponent implements OnInit {
     businessNames;
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
-    permissions = ['Vessel master','Marine controller'];
+    permissions = ['Vessel master', 'Marine controller'];
+    alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
+    showAlert = false;
 
     constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
 
     onRegistration() {
         if (!this.permissions.find(permission => permission == this.registerUserData.permissions)){
-            this.router.navigate(['/access-denied']);
+            this.showAlert = true;
+            this.alert.message = "You\'re not allowed to add a user of this type";
+            return;
         }
         if (this.userPermission != 'admin') {
             this.registerUserData.client = this.tokenInfo.userCompany;
+        } else if (this.businessNames.indexOf(this.registerUserData.client) < 0) {
+            this.showAlert = true;
+            this.alert.message = "User needs a client";
+            return;
         }
         this._auth.registerUser(this.registerUserData).subscribe(
     		res => {
     			this.router.navigate(['/dashboard']);
     		},
     		err => {
-                if (err instanceof HttpErrorResponse) {
-    				if (err.status === 401){
-    					this.router.navigate(['/signup'])
-    				}
+                this.showAlert = true;
+                this.alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
+                if (err.status === 401) {
+                    this.alert.message = err._body;
+                    this.router.navigate(['/signup']);
     			}
     		})
 

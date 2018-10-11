@@ -12,6 +12,9 @@ import { HttpErrorResponse } from '@angular/common/http';
     animations: [routerTransition()]
 })
 export class LoginComponent implements OnInit {
+    alert = { message: 'Something is wrong, contact BMO Offshore' };
+    timeout;
+    showAlert = false;
     loginUserData = {
         username: '',
         password: ''
@@ -29,9 +32,11 @@ export class LoginComponent implements OnInit {
     			localStorage.setItem('token', res.token);
     			this.router.navigate(['/dashboard']);
     		},
-    		err => {
+            err => {
+                this.showAlert = true;
     			if(err instanceof HttpErrorResponse){
-    				if (err.status === 401){
+                    if (err.status === 401) {
+                        this.alert.message = err.error;
     					this.router.navigate(['/login'])
     				}
     			}
