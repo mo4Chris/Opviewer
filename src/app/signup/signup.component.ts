@@ -34,7 +34,7 @@ export class SignupComponent implements OnInit {
     onRegistration() {
         if (!this.permissions.find(permission => permission == this.registerUserData.permissions)){
             this.showAlert = true;
-            this.alert.message = "You're not allowed to add a user of this type";
+            this.alert.message = "You\'re not allowed to add a user of this type";
             return;
         }
         if (this.userPermission != 'admin') {
