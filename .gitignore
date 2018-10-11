@@ -35,6 +35,7 @@ testem.log
 .scannerwork
 /src/.scannerwork
 /dist
+/.env
 
 # e2e
 /e2e/*.js
