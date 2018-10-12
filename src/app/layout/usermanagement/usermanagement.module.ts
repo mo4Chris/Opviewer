@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
 import { UserManagementRoutingModule } from './usermanagement-routing.module';
@@ -12,7 +13,7 @@ import { CommonService } from '../../common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, UserManagementRoutingModule, PageHeaderModule, NgMultiSelectDropDownModule.forRoot(),],
+    imports: [CommonModule, HttpClientModule, FormsModule, UserManagementRoutingModule, PageHeaderModule, NgbModule.forRoot(), NgMultiSelectDropDownModule.forRoot(),],
     declarations: [UserManagementComponent],
     providers: [CommonService],
     bootstrap: [UserManagementComponent]

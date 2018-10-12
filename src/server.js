@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+require('dotenv').config({path:__dirname+'/./../.env'});
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
     if (err) { console.log(err); }
@@ -17,8 +18,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Origin', process.env.IP_USER);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
@@ -186,17 +187,17 @@ app.post("/api/registerUser", function (req, res) {
                                 console.log(error);
                                 return res.status(401).send('User already exists');
                             } else {
-                                return res.status(200).send(registeredUser);
+                                return res.send({ data: 'User created' , status: 200 });
                             }
                         });
                     } else {
-                        console.log("user already exists"); //TO DO ALERT
+                        return res.status(401).send('User already exists');
                     }
                 }
             });
 
     } else {
-        return res.status(401).send('passwords do not match');
+        return res.status(401).send('Passwords do not match');
     }
 });
 
@@ -216,7 +217,7 @@ app.post("/api/login", function (req, res) {
                         let token = jwt.sign(payload, 'secretKey');
                         return res.status(200).send({ token });
                     } else {
-                        return res.status(401).send('password is incorrect');
+                        return res.status(401).send('Password is incorrect');
                     }
                 }
             }
@@ -699,7 +700,7 @@ app.post("/api/saveUserBoats", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the user" });
+                res.send({ data: "Succesfully saved the permissions" });
             }
         });
 });

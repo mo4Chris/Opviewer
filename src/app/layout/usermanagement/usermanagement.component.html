@@ -15,4 +15,5 @@
     <div class="submitBtnDiv">
         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveUserBoats()" type="button">Save</button>
     </div>
+    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
 </div>

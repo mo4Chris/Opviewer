@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -14,6 +15,7 @@ import {CommonService} from '../common.service';
     HttpClientModule,
     CommonModule,
     SignupRoutingModule,
+    NgbModule.forRoot(),
     FormsModule
   ],
   providers: [CommonService],
