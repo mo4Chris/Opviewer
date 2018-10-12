@@ -140,12 +140,12 @@ export class CommonService {
     }
 
     getVideoRequests(vessel) {
-        return this.post('http://localhost:8080/api/getVideoRequests/', vessel).pipe(
+        return this.post('http://' + environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
             map((response: Response) => response.json()));
     }
 
     saveVideoRequest(transfer) {
-        return this.post('http://localhost:8080/api/saveVideoRequest/', transfer).pipe(
+        return this.post('http://' + environment.DB_IP + '/api/saveVideoRequest/', transfer).pipe(
             map((response: Response) => response.json()));
     } 
 }
