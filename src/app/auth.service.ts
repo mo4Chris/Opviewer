@@ -8,6 +8,8 @@ import { environment } from '../environments/environment';
 export class AuthService {
     private _loginurl = 'http://' + environment.DB_IP + '/api/login/';
     private _registerurl = 'http://' + environment.DB_IP + '/api/registerUser/';
+    private _getUserByTokenUrl = 'http://' + environment.DB_IP + '/api/getUserByToken/';
+    private _setPasswordUrl = 'http://' + environment.DB_IP + '/api/setPassword/';
 
     constructor(private http: Http, private httpClient: HttpClient) { }
 
@@ -23,6 +25,16 @@ export class AuthService {
         const headers = new Headers();
         headers.append('authorization', localStorage.getItem('token'));
         return this.http.post(this._registerurl, user, { headers: headers }).pipe(
+            map((response: Response) => response.json()));
+    }
+
+    getUserByToken(token) {
+        return this.http.post(this._getUserByTokenUrl, token).pipe(
+            map((response: Response) => response.json()));
+    }
+
+    setUserPassword(passwords) {
+        return this.http.post(this._setPasswordUrl, passwords).pipe(
             map((response: Response) => response.json()));
     }
 }

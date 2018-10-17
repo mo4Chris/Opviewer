@@ -40,4 +40,8 @@ export class UsersComponent implements OnInit {
             return null;
         }
     }
+
+    resetPassword(id) {
+        this.newService.resetPassword({ _id: id }).subscribe(data => this.errData = data.data); //TODO send email when pressed
+    }
 }

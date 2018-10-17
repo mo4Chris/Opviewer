@@ -37,7 +37,8 @@ var userSchema = new Schema({
     password: { type: String },
     permissions: { type: String },
     client: { type: String },
-    boats: { type: Array }
+    boats: { type: Array },
+    token: { type: String }
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -159,31 +160,27 @@ app.post("/api/registerUser", function (req, res) {
             return res.status(401).send('Acces denied');
         }
     }
-    if (userData.password === userData.confirmPassword) {
-        Usermodel.findOne({ username: userData.email },
-            function (err, existingUser) {
-                if (err) {
-                    res.send(err);
+    Usermodel.findOne({ username: userData.email },
+        function (err, existingUser) {
+            if (err) {
+                res.send(err);
+            } else {
+                if (!existingUser) {
+                    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10); //TODO send mail to user
+                    let user = new Usermodel({ "username": userData.email, "token": randomToken, "permissions": userData.permissions, "client": userData.client });
+                    user.save((error, registeredUser) => {
+                        if (error) {
+                            console.log(error);
+                            return res.status(401).send('User already exists');
+                        } else {
+                            return res.send({ data: 'User created' , status: 200 });
+                        }
+                    });
                 } else {
-                    if (!existingUser) {
-                        let user = new Usermodel({ "username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": userData.permissions, "client": userData.client });
-                        user.save((error, registeredUser) => {
-                            if (error) {
-                                console.log(error);
-                                return res.status(401).send('User already exists');
-                            } else {
-                                return res.send({ data: 'User created' , status: 200 });
-                            }
-                        });
-                    } else {
-                        return res.status(401).send('User already exists');
-                    }
+                    return res.status(401).send('User already exists');
                 }
-            });
-
-    } else {
-        return res.status(401).send('Passwords do not match');
-    }
+            }
+        });
 });
 
 app.post("/api/login", function (req, res) {
@@ -197,6 +194,9 @@ app.post("/api/login", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
+                    if (!user.password) {
+                        return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
+                    } else
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
@@ -686,6 +686,49 @@ app.post("/api/saveUserBoats", function (req, res) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/resetPassword", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Acces denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Acces denied');
+    }
+    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: "test" },
+    function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({ data: "Succesfully reset the password" });
+        }
+    });
+});
+
+app.post("/api/getUserByToken", function (req, res) {
+    Usermodel.findOne({ token: req.body.passwordToken }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({ username: data.username });
+        }
+    });
+});
+
+app.post("/api/setPassword", function (req, res) {
+    let userData = req.body;
+    if (userData.password !== userData.confirmPassword) {
+        return res.status(401).send('Passwords do not match');
+    }
+    Usermodel.findOne({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10) }, //TODO set token on null
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully reset the password" });
             }
         });
 });
