@@ -698,7 +698,7 @@ app.post("/api/resetPassword", function (req, res) {
         return res.status(401).send('Acces denied');
     }
     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: "test" },
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: randomToken, $unset: { password: 1 } },
     function (err, data) {
         if (err) {
             res.send(err);
@@ -713,7 +713,11 @@ app.post("/api/getUserByToken", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send({ username: data.username });
+            if (data) {
+                res.send({ username: data.username });
+            } else {
+                res.send({ err: "no user" });
+            }
         }
     });
 });
@@ -723,7 +727,7 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOne({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10) }, //TODO set token on null
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), $unset: { token: 1} },
         function (err, data) {
             if (err) {
                 res.send(err);
