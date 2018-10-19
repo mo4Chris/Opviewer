@@ -6,8 +6,8 @@ import { environment } from '../environments/environment';
 
 @Injectable()
 export class AuthService {
-    private _loginurl = 'http://' + environment.DB_IP + '/api/login/';
-    private _registerurl = 'http://' + environment.DB_IP + '/api/registerUser/';
+    private _loginurl = environment.DB_IP + '/api/login/';
+    private _registerurl = environment.DB_IP + '/api/registerUser/';
 
     constructor(private http: Http, private httpClient: HttpClient) { }
 
