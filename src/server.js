@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+var nodemailer = require('nodemailer');
 require('dotenv').config({path:__dirname+'/./../.env'});
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
@@ -23,6 +24,16 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
+});
+
+let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: 'ais.bmo@gmail.com',
+        pass: 'flexmetmast'
+    }
 });
 
 //#########################################################
@@ -146,6 +157,25 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
+function mailTo(to, subject, text, html) {
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
+        to: to, //'bar@example.com, baz@example.com' list of receivers
+        subject: subject, //'Hello ✔' Subject line
+        text: text, //'Hello world?' plain text body
+        html: html //'<b>Hello world?</b>' html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+    });
+}
+
 //#########################################################
 //#################   Endpoints   #########################
 //#########################################################
@@ -166,13 +196,17 @@ app.post("/api/registerUser", function (req, res) {
                 res.send(err);
             } else {
                 if (!existingUser) {
-                    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10); //TODO send mail to user
+                    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
                     let user = new Usermodel({ "username": userData.email, "token": randomToken, "permissions": userData.permissions, "client": userData.client });
                     user.save((error, registeredUser) => {
                         if (error) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
+                            let link = "localhost:4200/set-password;token=" + randomToken + ";user=" + user.username; //TODO SERVER_IP ipv localhost
+                            let text = 'A account for the BMO dataviewer has been created for this email to activate it click the link below \n' + link; //TODO stylen mails
+                            let html = 'A account for the BMO dataviewer has been created for this email to activate it click the link below <br> <a href="' + link + '">' + link + '</a>';
+                            mailTo(user.username, 'Registered user', text, html);
                             return res.send({ data: 'User created' , status: 200 });
                         }
                     });
@@ -703,20 +737,24 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
+            let link = "localhost:4200/set-password;token=" + randomToken + ";user=" + data.username; //TODO SERVER_IP ipv localhost
+            let text = 'Your password has been reset to be able to use your account again you need to click the link and set a new password \n' + link; //TODO stylen mails
+            let html = 'Your password has been reset to be able to use your account again you need to click the link and set a new password <br> <a href="' + link + '">' + link + '</a>';
+            mailTo(data.username, 'Password reset', text, html);
             res.send({ data: "Succesfully reset the password" });
         }
     });
 });
 
 app.post("/api/getUserByToken", function (req, res) {
-    Usermodel.findOne({ token: req.body.passwordToken }, function (err, data) {
+    Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
             if (data) {
                 res.send({ username: data.username });
             } else {
-                res.send({ err: "no user" });
+                res.send({ err: "No user" });
             }
         }
     });

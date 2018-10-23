@@ -42,6 +42,6 @@ export class UsersComponent implements OnInit {
     }
 
     resetPassword(id) {
-        this.newService.resetPassword({ _id: id }).subscribe(data => this.errData = data.data); //TODO send email when pressed
+        this.newService.resetPassword({ _id: id }).subscribe(data => this.errData = data.data);
     }
 }

@@ -26,8 +26,14 @@ export class SetPasswordComponent implements OnInit {
         return _token;
     }
 
+    getUsernameFromParameter() {
+        let _username;
+        this.route.params.subscribe(params => _username = String(params.user));
+        return _username;
+    }
+
     getUserByToken(token) {
-        this._auth.getUserByToken({ passwordToken: token }).subscribe(data => {
+        this._auth.getUserByToken({ passwordToken: token, user: this.getUsernameFromParameter() }).subscribe(data => {
             if (data.username) {
                 this.user = data.username;
             } else {
