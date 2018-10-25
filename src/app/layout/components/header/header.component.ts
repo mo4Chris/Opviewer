@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as jwt_decode from 'jwt-decode';
 
 @Component({
@@ -9,7 +11,11 @@ import * as jwt_decode from 'jwt-decode';
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+    routerValue = '';
     pushRightClass = 'push-right';
+    modalReference: NgbModalRef;
+    feedbackForm: FormGroup;
+    pages = ['dashboard', 'tables', 'vesselreport', 'scatterplot', 'users', 'signup', 'login' ];
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
@@ -21,7 +27,7 @@ export class HeaderComponent implements OnInit {
         }
       }
 
-    constructor(private translate: TranslateService, public router: Router) {
+    constructor(private translate: TranslateService, public router: Router, private formBuilder: FormBuilder, private modalService: NgbModal) {
 
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de', 'zh-CHS']);
         this.translate.setDefaultLang('en');
@@ -39,7 +45,31 @@ export class HeaderComponent implements OnInit {
         });
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+    }
+
+    openModal(content) {
+
+        if (this.router.url.includes(';')){
+            const mySubString = this.router.url.substring(
+                this.router.url.lastIndexOf('/') + 1,
+                this.router.url.lastIndexOf(';')
+            );
+            this.routerValue = mySubString;
+        } else {
+            this.routerValue = this.router.url.replace('/', '');
+        }
+
+        this.feedbackForm = this.formBuilder.group({
+            pageControl: [this.routerValue]
+        });
+
+        this.modalReference = this.modalService.open(content);
+     }
+
+    closeModal() {
+        this.modalReference.close();
+    }
 
     isToggled(): boolean {
         const dom: Element = document.querySelector('body');
