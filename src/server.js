@@ -4,6 +4,8 @@ var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+var fs = require("fs");
+
 require('dotenv').config({path:__dirname+'/./../.env'});
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
@@ -16,9 +18,13 @@ app.use(bodyParser());
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', process.env.IP_USER);
+    var allowedOrigins = process.env.IP_USER;
+    var origin = req.headers.origin;
+    if(allowedOrigins.indexOf(origin) > -1){
+        res.setHeader('Access-Control-Allow-Origin', origin)
+    }    
+
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
     res.setHeader('Access-Control-Allow-Credentials', true);
