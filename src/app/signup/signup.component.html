@@ -10,12 +10,6 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="password" class="form-control input-underline input-lg" name="passwordField" id="passwordField" [(ngModel)]="registerUserData.password" placeholder="Password">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" class="form-control input-underline input-lg" name="confirmPasswordField" id="confirmPasswordField" [(ngModel)]="registerUserData.confirmPassword" placeholder="Repeat Password">
-                    </div>
-                    <div class="form-group">
                         <select name="selectPermission" [(ngModel)]="registerUserData.permissions">
                             <option *ngFor="let permission of permissions" [ngValue]="permission">{{permission | titlecase}}</option>
                         </select>
