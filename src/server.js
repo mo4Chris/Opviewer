@@ -31,12 +31,12 @@ app.use(function (req, res, next) {
 });
 
 let transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: (process.env.EMAIL_PORT==465),
     auth: {
-        user: 'ais.bmo@gmail.com',
-        pass: 'flexmetmast'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -202,7 +202,13 @@ app.post("/api/registerUser", function (req, res) {
             } else {
                 if (!existingUser) {
                     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-                    let user = new Usermodel({ "username": userData.email, "token": randomToken, "permissions": userData.permissions, "client": userData.client });
+                    let user = new Usermodel({
+                        "username": userData.email,
+                        "token": randomToken,
+                        "permissions": userData.permissions,
+                        "client": userData.client,
+                        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
+                    });
                     user.save((error, registeredUser) => {
                         if (error) {
                             console.log(error);
@@ -233,9 +239,9 @@ app.post("/api/login", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (!user.password) {
+                    /*if (!user.password) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
-                    } else
+                    } else*/ //Has to be implemented when test phase is over
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
