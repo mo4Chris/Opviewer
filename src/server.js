@@ -157,13 +157,12 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
-function mailTo(to, subject, text, html) {
+function mailTo(subject, html) {
     // setup email data with unicode symbols
     let mailOptions = {
         from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
-        to: to, //'bar@example.com, baz@example.com' list of receivers
+        to: process.env.EMAIL, //'bar@example.com, baz@example.com' list of receivers
         subject: subject, //'Hello ✔' Subject line
-        text: text, //'Hello world?' plain text body
         html: html //'<b>Hello world?</b>' html body
     };
 
@@ -203,10 +202,9 @@ app.post("/api/registerUser", function (req, res) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
-                            let link = "localhost:4200/set-password;token=" + randomToken + ";user=" + user.username; //TODO SERVER_IP ipv localhost
-                            let text = 'A account for the BMO dataviewer has been created for this email to activate it click the link below \n' + link; //TODO stylen mails
+                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username; //TODO email stylen
                             let html = 'A account for the BMO dataviewer has been created for this email to activate it click the link below <br> <a href="' + link + '">' + link + '</a>';
-                            mailTo(user.username, 'Registered user', text, html);
+                            mailTo('Registered user', html);
                             return res.send({ data: 'User created' , status: 200 });
                         }
                     });
@@ -737,10 +735,9 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            let link = "localhost:4200/set-password;token=" + randomToken + ";user=" + data.username; //TODO SERVER_IP ipv localhost
-            let text = 'Your password has been reset to be able to use your account again you need to click the link and set a new password \n' + link; //TODO stylen mails
+            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username; //TODO email stylen
             let html = 'Your password has been reset to be able to use your account again you need to click the link and set a new password <br> <a href="' + link + '">' + link + '</a>';
-            mailTo(data.username, 'Password reset', text, html);
+            mailTo('Password reset', html);
             res.send({ data: "Succesfully reset the password" });
         }
     });
