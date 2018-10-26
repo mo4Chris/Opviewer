@@ -44,6 +44,7 @@
     "morgan": "^1.9.0",
     "ng-multiselect-dropdown": "^0.2.1",
     "ng2-charts": "^1.6.0",
+    "nodemailer": "^4.6.8",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "pm2": "^3.2.2",

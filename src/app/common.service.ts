@@ -138,5 +138,10 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
             map((response: Response) => response.json()));
   }
+  
+  resetPassword(user) {
+    return this.post(environment.DB_IP + '/api/resetPassword/', user).pipe(
+            map((response: Response) => response.json()));
+  }
 }
 
