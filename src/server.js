@@ -1,10 +1,10 @@
 var express = require('express');
-var path = require("path");
 var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
+
 require('dotenv').config({path:__dirname+'/./../.env'});
 
 var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
@@ -17,9 +17,13 @@ app.use(bodyParser());
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', process.env.IP_USER);
+    var allowedOrigins = process.env.IP_USER;
+    var origin = req.headers.origin;
+    if(allowedOrigins.indexOf(origin) > -1){
+        res.setHeader('Access-Control-Allow-Origin', origin)
+    }    
+
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -157,13 +161,15 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
-function mailTo(subject, html) {
+function mailTo(subject, html, user) {
     // setup email data with unicode symbols
+    body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
+
     let mailOptions = {
         from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
         to: process.env.EMAIL, //'bar@example.com, baz@example.com' list of receivers
         subject: subject, //'Hello ✔' Subject line
-        html: html //'<b>Hello world?</b>' html body
+        html: body //'<b>Hello world?</b>' html body
     };
 
     // send mail with defined transport object
@@ -202,9 +208,10 @@ app.post("/api/registerUser", function (req, res) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
-                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username; //TODO email stylen
-                            let html = 'A account for the BMO dataviewer has been created for this email to activate it click the link below <br> <a href="' + link + '">' + link + '</a>';
-                            mailTo('Registered user', html);
+                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username;
+                            let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+                            'If that doesnt work copy the link below <br>' + link;
+                            mailTo('Registered user', html, user.username);
                             return res.send({ data: 'User created' , status: 200 });
                         }
                     });
@@ -735,9 +742,10 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username; //TODO email stylen
-            let html = 'Your password has been reset to be able to use your account again you need to click the link and set a new password <br> <a href="' + link + '">' + link + '</a>';
-            mailTo('Password reset', html);
+            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username;
+            let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
+            'If that doesnt work copy the link below <br>' + link;
+            mailTo('Password reset', html, data.username);
             res.send({ data: "Succesfully reset the password" });
         }
     });
