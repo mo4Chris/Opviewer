@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { UsersRoutingModule } from './users-routing.module';
 import { UsersComponent } from './users.component';
@@ -11,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, UsersRoutingModule, PageHeaderModule],
+    imports: [CommonModule, HttpClientModule, FormsModule, UsersRoutingModule, NgbModule.forRoot(), PageHeaderModule],
     declarations: [UsersComponent],
     providers: [CommonService],
     bootstrap: [UsersComponent]
