@@ -61,9 +61,7 @@ var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
     client: { type: String },
-    mmsi: { type: Number },
-    videoRequestMaxBudget: { type: Number },
-    videoRequestBudget: { type: Number }
+    mmsi: { type: Number }
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
@@ -124,6 +122,7 @@ var CommentsChangedSchema = new Schema({
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
 
 var videoRequestedSchema = new Schema({
+    requestID: { type: Number },
     mmsi: { type: Number },
     videoPath: { type: String },
     vesselname: { type: String },
@@ -132,6 +131,14 @@ var videoRequestedSchema = new Schema({
     status: { type: String }
 }, { versionKey: false });
 var videoRequestedmodel = mongo.model('videoRequests', videoRequestedSchema, 'videoRequests');
+
+var videoBudgetSchema = new Schema({
+    mmsi: { type: Number },
+    currentBudget: { type: Number },
+    maxBudget: { type: Number },
+    resetDate: { type: Number }
+}, { versionKey: false });
+var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -755,15 +762,66 @@ app.post("/api/getVideoRequests", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Acces denied');
         }
-        videoRequestedmodel.find({
+        videoRequestedmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: [req.body.mmsi] }
+                }
+            },
+            {
+                $group: {
+                    _id: "$videoPath",
+                    "mmsi": { "$last": "$mmsi" },
+                    "videoPath": { "$last": "$videoPath" },
+                    "vesselname": { "$last": "$vesselname" },
+                    "date": { "$last": "$date" },
+                    "active": { "$last": "$active" },
+                    "status": { "$last": "$status" }
+                }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/getVideoBudgetByMmsi", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        videoBudgetmodel.find({
             mmsi: req.body.mmsi
         }, null, {
 
         }, function (err, data) {
             if (err) {
-                res.send(err);
+                return res.send(err);
             } else {
-                res.send(data);
+                var videoBudget = data[0];
+                if (videoBudget) {
+                    if (videoBudget.resetDate <= new Date().getTime()) {
+                        var date = new Date(videoBudget.resetDate);
+                        while (date.getTime() <= new Date().getTime()) {
+                            date.setMonth(date.getMonth() + 1);
+                        }
+                        data[0].resetDate = date;
+                        data[0].currentBudget = 0;
+                        data[0].save(function (_err, _data) {
+                            if (_err) {
+                                return res.send(_err);
+                            } else {
+                                return res.send(data);
+                            }
+                        });
+                    }
+                } else {
+                    return res.send(data);
+                }
             }
         });
     });
@@ -774,46 +832,48 @@ app.post("/api/saveVideoRequest", function (req, res) {
         if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
             return res.status(401).send('Acces denied');
         }
-        videoRequestedmodel.find({ videoPath: req.body.videoPath }, function (err, data) {
-            if (data.length > 0) {
-                const active = req.body.video_requested.text === "Requested" ? true : false;
-                videoRequestedmodel.findOneAndUpdate({ videoPath: req.body.videoPath }, { active: active },
-                    function (err, data) {
-                        if (err) {
-                            return res.send(err);
-                        } else {
-                            Vesselmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { videoRequestMaxBudget: req.body.maxBudget, videoRequestBudget: req.body.currentBudget },
-                                function (_err, _data) {
-                                    if (_err) {
-                                        return res.send(_err);
-                                    } else {
-                                        return res.send({ data: "Succesfully saved the video request" });
-                                    }
-                                });
-                        }
-                    });
+        var mod = new videoRequestedmodel();
+        mod.mmsi = req.body.mmsi;
+        mod.videoPath = req.body.videoPath;
+        mod.vesselname = req.body.vesselname;
+        mod.date = Date.now();
+        mod.active = req.body.video_requested.text === "Requested" ? true : false;
+        mod.status = '';
+        mod.save(function (err, data) {
+            if (err) {
+                return res.send(err);
             } else {
-                var mod = new videoRequestedmodel();
-                mod.mmsi = req.body.mmsi;
-                mod.videoPath = req.body.videoPath;
-                mod.vesselname = req.body.vesselname;
-                mod.date = Date.now();
-                mod.active = req.body.video_requested.text === "Requested" ? true : false;
-                mod.status = '';
-                mod.save(function (err, data) {
+                videoBudgetmodel.findOne({ mmsi: req.body.mmsi }, function (err, data) {
                     if (err) {
                         return res.send(err);
                     } else {
-                        Vesselmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { videoRequestMaxBudget: req.body.maxBudget, videoRequestBudget: req.body.currentBudget },
-                            function (_err, _data) {
+                        if (data) {
+                            Usermodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function(_err, _data) {
                                 if (_err) {
                                     return res.send(_err);
                                 } else {
                                     return res.send({ data: "Succesfully saved the video request" });
                                 }
                             });
+                        } else {
+                            var budget = new videoBudgetmodel();
+                            budget.mmsi = req.body.mmsi;
+                            budget.maxBudget = req.body.maxBudget;
+                            budget.currentBudget = req.body.currentBudget;
+                            var date = new Date();
+                            date = date.setMonth(date.getMonth() + 1);
+                            budget.resetDate = date;
+                            budget.save(function (_err, _data) {
+                                if (_err) {
+                                    return res.send(_err);
+                                } else {
+                                    return res.send({ data: "Succesfully saved the video request" });
+                                }
+                            });
+                        }
                     }
                 });
+                
             }
         });
     });

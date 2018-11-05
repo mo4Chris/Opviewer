@@ -32,6 +32,7 @@ export class VesselreportComponent implements OnInit {
   typeOfLat;
   vessels;
   videoRequests;
+  videoBudget = { maxBudget: -1, currentBudget: -1};
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -43,8 +44,7 @@ export class VesselreportComponent implements OnInit {
   mapTypeId = 'roadmap';
   streetViewControl = false;
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-      'Incident', 'Embarkation', 'Vessel2Vessel',
-      '_NaN_', 'Too much wind for craning', 'Trial docking',
+      'Incident', 'Embarkation', 'Vessel2Vessel', 'Too much wind for craning', 'Trial docking',
       'Transfer of PAX not possible', 'Other'];
   commentsChanged;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
@@ -133,7 +133,7 @@ export class VesselreportComponent implements OnInit {
       return this.newService.getVideoRequests(vessel).pipe(
     map(
       (requests) => {
-        this.videoRequests = requests;
+          this.videoRequests = requests;
       }),
       catchError(error => {
         console.log('error ' + error);
@@ -187,8 +187,13 @@ export class VesselreportComponent implements OnInit {
             // tslint:disable-next-line:no-shadowed-variable
             this.getComments(this.vesselObject).subscribe(_ => {
               this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
-                this.matchCommentsWithTransfers();
+                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                  if (data[0]) {
+                    this.videoBudget = data[0];
+                  }
+                  this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
+                  this.matchCommentsWithTransfers();
+                });
               });
             });
           });
@@ -255,9 +260,9 @@ export class VesselreportComponent implements OnInit {
     }
 
     checkVideoBudget(duration, vid) {
-        if (this.vessel.videoRequestMaxBudget && !vid.active) {
-            if (this.vessel.videoRequestBudget>=0) {
-                if (this.vessel.videoRequestMaxBudget <= this.vessel.videoRequestBudget + duration) {
+        if (!vid.active) {  
+            if (this.videoBudget.maxBudget >= 0 && this.videoBudget.currentBudget>=0) {
+                if (this.videoBudget.maxBudget <= this.videoBudget.currentBudget + duration) {
                     vid.disabled = true;
                     if (vid.status !== "denied" && vid.status !== "deleverd" && vid.status !== "pending collection") {
                         vid.text = "Not enough budget";
@@ -331,21 +336,21 @@ export class VesselreportComponent implements OnInit {
     setRequest(transferData) {
         if (transferData.videoAvailable && !this.videoRequestLoading) {
             this.videoRequestLoading = true;
-            if (!this.vessel.videoRequestMaxBudget) {
-                this.vessel.videoRequestMaxBudget = 100;
+            if (this.videoBudget.maxBudget<0) {
+                this.videoBudget.maxBudget = 100;
             }
-            if (!this.vessel.videoRequestBudget) {
-                this.vessel.videoRequestBudget = 0;
+            if (this.videoBudget.currentBudget<0) {
+                this.videoBudget.currentBudget = 0;
             }
             if (transferData.video_requested.text == "Not requested") {
                 transferData.video_requested.text = "Requested";
-                this.vessel.videoRequestBudget += transferData.videoDurationMinutes;
+                this.videoBudget.currentBudget += transferData.videoDurationMinutes;
             } else {
                 transferData.video_requested.text = "Not requested";
-                this.vessel.videoRequestBudget -= transferData.videoDurationMinutes;
+                this.videoBudget.currentBudget -= transferData.videoDurationMinutes;
             }
-            transferData.maxBudget = this.vessel.videoRequestMaxBudget;
-            transferData.currentBudget = this.vessel.videoRequestBudget;
+            transferData.maxBudget = this.videoBudget.maxBudget;
+            transferData.currentBudget = this.videoBudget.currentBudget;
             this.newService.saveVideoRequest(transferData).pipe(
                 map(
                     (res) => {
@@ -366,6 +371,7 @@ export class VesselreportComponent implements OnInit {
                     }
                     this.videoRequestLoading = false;
                 });
+                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => this.videoBudget = data[0]);
                 clearTimeout(this.timeout);
                 this.showAlert = true;
                 this.timeout = setTimeout(() => {
