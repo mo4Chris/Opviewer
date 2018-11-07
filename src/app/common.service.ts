@@ -44,11 +44,6 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
-  GetDatesWithTransfers(transferdata) {
-    return this.post(environment.DB_IP + '/api/getDatesWithTransfers/', transferdata).pipe(
-            map((response: Response) => response.json()));
-  }
-
   GetLatLon() {
     return this.get(environment.DB_IP + '/api/getLatLon/').pipe(
             map((response: Response) => response.json()));

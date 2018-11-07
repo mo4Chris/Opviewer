@@ -7,7 +7,7 @@ import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
-import {NgbDate, NgbDateStruct, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-vesselreport',
@@ -34,7 +34,6 @@ export class VesselreportComponent implements OnInit {
   typeOfLat;
   vessels;
 
-
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
   public showAlert = false;
@@ -53,7 +52,7 @@ export class VesselreportComponent implements OnInit {
   alert = { type: '', message: '' };
   timeout;
 
-  onChange(event): void {  // event will give you full breif of action
+  onChange(event): void {
     this.searchTransfersByNewSpecificDate();
   }
 

@@ -18,7 +18,7 @@
                     </button>
                     <div class="form-group">
                         <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required>
-                            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi" (click)="searchTransfersByNewSpecificDate()">{{vessel.nicename}}</option>
+                            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                         </select>
                     </div>
                 </div>
