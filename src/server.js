@@ -1,10 +1,9 @@
 var express = require('express');
-var path = require("path");
 var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-var fs = require("fs");
+var nodemailer = require('nodemailer');
 
 require('dotenv').config({path:__dirname+'/./../.env'});
 
@@ -31,6 +30,16 @@ app.use(function (req, res, next) {
     next();
 });
 
+let transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: (process.env.EMAIL_PORT==465),
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
 //#########################################################
 //##################   Models   ###########################
 //#########################################################
@@ -43,7 +52,8 @@ var userSchema = new Schema({
     password: { type: String },
     permissions: { type: String },
     client: { type: String },
-    boats: { type: Array }
+    boats: { type: Array },
+    token: { type: String }
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -151,6 +161,26 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
+function mailTo(subject, html, user) {
+    // setup email data with unicode symbols
+    body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
+
+    let mailOptions = {
+        from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
+        to: process.env.EMAIL, //'bar@example.com, baz@example.com' list of receivers
+        subject: subject, //'Hello ✔' Subject line
+        html: body //'<b>Hello world?</b>' html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+    });
+}
+
 //#########################################################
 //#################   Endpoints   #########################
 //#########################################################
@@ -165,31 +195,38 @@ app.post("/api/registerUser", function (req, res) {
             return res.status(401).send('Acces denied');
         }
     }
-    if (userData.password === userData.confirmPassword) {
-        Usermodel.findOne({ username: userData.email },
-            function (err, existingUser) {
-                if (err) {
-                    res.send(err);
+    Usermodel.findOne({ username: userData.email },
+        function (err, existingUser) {
+            if (err) {
+                res.send(err);
+            } else {
+                if (!existingUser) {
+                    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+                    randomToken = randomToken.replace(/\//gi, '8');
+                    let user = new Usermodel({
+                        "username": userData.email,
+                        "token": randomToken,
+                        "permissions": userData.permissions,
+                        "client": userData.client,
+                        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
+                    });
+                    user.save((error, registeredUser) => {
+                        if (error) {
+                            console.log(error);
+                            return res.status(401).send('User already exists');
+                        } else {
+                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username;
+                            let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+                            'If that doesnt work copy the link below <br>' + link;
+                            mailTo('Registered user', html, user.username);
+                            return res.send({ data: 'User created' , status: 200 });
+                        }
+                    });
                 } else {
-                    if (!existingUser) {
-                        let user = new Usermodel({ "username": userData.email, "password": bcrypt.hashSync(userData.password, 10), "permissions": userData.permissions, "client": userData.client });
-                        user.save((error, registeredUser) => {
-                            if (error) {
-                                console.log(error);
-                                return res.status(401).send('User already exists');
-                            } else {
-                                return res.send({ data: 'User created' , status: 200 });
-                            }
-                        });
-                    } else {
-                        return res.status(401).send('User already exists');
-                    }
+                    return res.status(401).send('User already exists');
                 }
-            });
-
-    } else {
-        return res.status(401).send('Passwords do not match');
-    }
+            }
+        });
 });
 
 app.post("/api/login", function (req, res) {
@@ -203,6 +240,9 @@ app.post("/api/login", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
+                    /*if (!user.password) {
+                        return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
+                    } else*/ //Has to be implemented when test phase is over
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
@@ -692,6 +732,58 @@ app.post("/api/saveUserBoats", function (req, res) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/resetPassword", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Acces denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Acces denied');
+    }
+    randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+    randomToken = randomToken.replace(/\//gi, '8');
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: randomToken },
+    function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username;
+            let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
+            'If that doesnt work copy the link below <br>' + link;
+            mailTo('Password reset', html, data.username);
+            res.send({ data: "Succesfully reset the password" });
+        }
+    });
+});
+
+app.post("/api/getUserByToken", function (req, res) {
+    Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (data) {
+                res.send({ username: data.username });
+            } else {
+                res.send({ err: "No user" });
+            }
+        }
+    });
+});
+
+app.post("/api/setPassword", function (req, res) {
+    let userData = req.body;
+    if (userData.password !== userData.confirmPassword) {
+        return res.status(401).send('Passwords do not match');
+    }
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), $unset: { token: 1} },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully reset the password" });
             }
         });
 });
