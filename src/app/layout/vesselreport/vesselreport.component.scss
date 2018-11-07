@@ -52,15 +52,14 @@ ngb-alert {
 .custom-day {
     text-align:center;
     line-height: 2rem;
-    border-radius: .25rem;
-    background-color:lightcoral;
+    background-color:rgb(245, 245, 245);
 }
 
 .has-sailed{
-    background-color:lightgreen;
+    background-color:rgb(198, 233, 255);
 }
 
 .disable-day{
-   background-color: lightgray;
-   color: darkgrey;
+   background-color: white;
+   color: rgb(225, 225, 225) !important;
 }
