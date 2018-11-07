@@ -48,3 +48,26 @@ ngb-alert {
     position: fixed;
     bottom: 0px;
 }
+
+.ngb-dp-day[_ngcontent-c10]{
+    text-align: center !important;
+}
+
+.custom-day {
+    width:100%;
+    text-align:center;
+    line-height: 2rem;
+    border-radius: .25rem;
+    background-color:lightcoral;
+}
+
+.has-sailed{
+    line-height: 2rem;
+    border-radius: .25rem;
+    background-color:lightgreen;
+}
+
+.disable-day{
+   background-color: lightgray;
+   color: darkgrey;
+}

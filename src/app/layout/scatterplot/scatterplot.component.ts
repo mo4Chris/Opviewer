@@ -52,7 +52,7 @@ export class ScatterplotComponent implements OnInit {
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
 
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
   vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
 
   datePickerValue = this.maxDate;
