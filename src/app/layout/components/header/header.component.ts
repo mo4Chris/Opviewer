@@ -89,6 +89,7 @@ export class HeaderComponent implements OnInit {
 
         this.closeModal();
 
+        this.feedback.message = '';
         this.alert = { type: 'success', message: 'Feedback has been sent' };
         this.showAlert = true;
     }

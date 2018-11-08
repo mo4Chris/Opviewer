@@ -768,7 +768,7 @@ app.post("/api/sendFeedback", function (req, res) {
             if (data) {
                 let html = 'feedback has been given by: ' + data.username + ' on page '+ req.body.page + '.<br><br>' +
                 'feedback message: ' + req.body.message;
-                mailTo('Feedback submitted', html, 'Webmasters');
+                mailTo('Feedback ' + data.client , html, 'Webmasters');
             } else {
                 res.send({ data: 'Feedback has not been sent, please contact BMO' , status: 400 });
             }
