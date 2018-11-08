@@ -48,3 +48,18 @@ ngb-alert {
     position: fixed;
     bottom: 0px;
 }
+
+.custom-day {
+    text-align:center;
+    line-height: 2rem;
+    background-color:rgb(245, 245, 245);
+}
+
+.has-sailed{
+    background-color:rgb(198, 233, 255);
+}
+
+.disable-day{
+   background-color: white;
+   color: rgb(225, 225, 225) !important;
+}
