@@ -7,6 +7,7 @@ import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-vesselreport',
@@ -20,7 +21,8 @@ export class VesselreportComponent implements OnInit {
 
   }
 
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
+  outsideDays = 'collapsed';
   vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
 
   transferData;
@@ -43,12 +45,32 @@ export class VesselreportComponent implements OnInit {
   streetViewControl = false;
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
       'Incident', 'Embarkation', 'Vessel2Vessel',
-      '_NaN_', 'Too much wind for craning', 'Trial docking',
+      'Too much wind for craning', 'Trial docking',
       'Transfer of PAX not possible', 'Other'];
   commentsChanged;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
   timeout;
+
+  onChange(event): void {
+    this.searchTransfersByNewSpecificDate();
+  }
+
+  hasSailed(date: NgbDateStruct) {
+    return this.dateHasSailed(date);
+  }
+
+  dateHasSailed(date: NgbDateStruct): boolean {
+    for (let i = 0; i < this.dateData.length; i++) {
+      const day: number = this.dateData[i].day;
+      const month: number = this.dateData[i].month;
+      const year: number =  this.dateData[i].year;
+      // tslint:disable-next-line:triple-equals
+      if (day == date.day && month == date.month && year == date.year) {
+        return true;
+      }
+    }
+  }
 
   getMMSIFromParameter() {
     let mmsi;
@@ -146,7 +168,7 @@ export class VesselreportComponent implements OnInit {
   }
 
     ngOnInit() {
-        if (this.tokenInfo.userPermission == "admin") {
+        if (this.tokenInfo.userPermission === 'admin') {
             this.newService.GetVessel().subscribe(data => this.vessels = data);
         } else {
             this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.vessels = data);
@@ -160,16 +182,13 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-          // tslint:disable-next-line:no-shadowed-variable
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
-            // tslint:disable-next-line:no-shadowed-variable
             this.getComments(this.vesselObject).subscribe(_ => {
               this.matchCommentsWithTransfers();
             });
           });
           if (this.transferData.length !== 0) {
             this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
-              // tslint:disable-next-line:no-shadowed-variable
               this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
             });
             this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
