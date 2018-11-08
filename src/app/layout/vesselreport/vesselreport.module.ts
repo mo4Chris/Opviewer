@@ -14,6 +14,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {CommonService} from '../../common.service';
+import { ReportComponent } from './sov/report/report.component';
+import { CalculationService } from '../../supportModules/calculation.service';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -26,8 +28,8 @@ import {CommonService} from '../../common.service';
         CommonModule,
         VesselreportRoutingModule,
         PageHeaderModule],
-    declarations: [VesselreportComponent, VesselreportComponent],
-    providers: [CommonService],
+    declarations: [VesselreportComponent, VesselreportComponent, ReportComponent],
+    providers: [CommonService, CalculationService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}

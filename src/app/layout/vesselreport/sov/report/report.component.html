@@ -1,0 +1,519 @@
+<h1>Sov report</h1>
+
+<div class="divContainer">
+    <div class="leftdiv">
+        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomLvl" [mapTypeId]="mapTypeId"
+            [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
+            <ng-container *ngFor="let parks of Locdata; let i=index">
+                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)"
+                    [longitude]="objectToInt(parks.lon[i])">
+                </agm-circle>
+            </ng-container>
+            <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
+                <ng-container *ngFor="let location of boatLocationData; let i = index">
+                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
+                        [longitude]="objectToInt(location.lon[i])">
+                    </agm-polyline-point>
+                </ng-container>
+            </agm-polyline>
+        </agm-map>
+    </div>
+    <div class="rightdiv">
+        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="3" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative"
+            [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
+            <ng-container *ngFor="let parks of Locdata; let i=index">
+                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)"
+                    [longitude]="objectToInt(parks.lon[i])">
+                </agm-circle>
+            </ng-container>
+            <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
+                <ng-container *ngFor="let location of boatLocationData; let i = index">
+                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
+                        [longitude]="objectToInt(location.lon[i])">
+                    </agm-polyline-point>
+                </ng-container>
+            </agm-polyline>
+        </agm-map>
+    </div>
+</div>
+
+<br />
+<div class="row">
+    <div class="col-lg-4">
+        <canvas id="operationalPieChart">{{operationalPieChart}}</canvas>
+    </div>
+    <div class="col-lg-4">
+        <canvas id="workActivityPieChart">{{workActivityPieChart}}</canvas>
+    </div>
+    <div class="col-lg-4">
+        <canvas id="WOWandNoAccessPieChart">{{WOWandNoAccessPieChart}}</canvas>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="offset-xl-2 col-xl-8 offset-lg-4 col-lg-16">
+        <div class="card mb-3">
+            <div class="card-header">Daily Summary
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Median</th>
+                            <th>Maximum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Sailing duration</th>
+                            <td>15.0 h</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Number of platforms visited</th>
+                            <td>12</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Time in waiting zone</th>
+                            <td></td>
+                            <td></td>
+                            <td>8.1 min</td>
+                            <td>50.1 min</td>
+                        </tr>
+                        <tr>
+                            <th>Time in exclusion zone</th>
+                            <td></td>
+                            <td></td>
+                            <td>10.5 min</td>
+                            <td>106.6 min</td>
+                        </tr>
+                        <tr>
+                            <th>Time docking</th>
+                            <td></td>
+                            <td></td>
+                            <td>25.2 min</td>
+                            <td>88.3 min</td>
+                        </tr>
+                        <tr>
+                            <th>Time travelling to platforms</th>
+                            <td></td>
+                            <td></td>
+                            <td>25.3 min</td>
+                            <td>42.5 min</td>
+                        </tr>
+                        <tr>
+                            <th>Number of vessel transfers</th>
+                            <td>2</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Time spent docking</th>
+                            <td></td>
+                            <td></td>
+                            <td>11 min</td>
+                            <td>15 min</td>
+                        </tr>
+                        <tr>
+                            <th>Number of daughter-craft launches</th>
+                            <td>1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>DC sailing time</th>
+                            <td></td>
+                            <td></td>
+                            <td>227 min</td>
+                            <td>227 min</td>
+                        </tr>
+                        <tr>
+                            <th>Number of helicopter visits</th>
+                            <td>1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Time on deck</th>
+                            <td></td>
+                            <td></td>
+                            <td>5 min</td>
+                            <td>5 min</td>
+                        </tr>
+                        <tr>
+                            <th>Hs during operations</th>
+                            <td></td>
+                            <td></td>
+                            <td>1.7 m</td>
+                            <td>2.1 m</td>
+                        </tr>
+                        <tr>
+                            <th>Wind speed during operations</th>
+                            <td></td>
+                            <td></td>
+                            <td>20 kts.</td>
+                            <td>24 kts.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 col-lg-24">
+        <div class="card mb-3">
+            <div class="card-header">Chronology of Operations
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Enter waiting zone</th>
+                            <th>Enter Exclusion Zone</th>
+                            <th>DP</th>
+                            <th>Gangway Connected</th>
+                            <th>Gangway Disconnected</th>
+                            <th>Leave Exclusion Zone</th>
+                            <th>Hs [m]</th>
+                            <th>Duration [min.]</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>KS-D</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PB</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PP</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PB</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PB</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>K5-D</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PP</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PB</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PB</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>K5-D</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>K5-D</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>PE-K5-PP</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 col-lg-24">
+        <div class="card mb-3">
+            <div class="card-header">Chronology of Operations
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Vessel</th>
+                            <th>Start time</th>
+                            <th>End time</th>
+                            <th>Duration [min.]</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Vessel X</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Vessel Y</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>Helicopter</th>
+                            <th>Start time</th>
+                            <th>End time</th>
+                            <th>Duration [min.]</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Helicopter X</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>DC</th>
+                            <th>Launch time</th>
+                            <th>Return time</th>
+                            <th>Duration [min.]</th>
+                            <th>Destination</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hannah</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 col-lg-24">
+        <div class="card mb-3">
+            <div class="card-header">Chronology of environmental conditions during operations
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Wind direction/speed</th>
+                            <th>Significant wave height</th>
+                            <th>Maximum wave height</th>
+                            <th>DP current</th>
+                            <th>Wave period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>00:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>03:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>06:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>09:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>12:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>15:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>18:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>21:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>00:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <canvas id="weatherLimitGraph">{{weatherLimitGraph}}</canvas>
+    </div>
+</div>

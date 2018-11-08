@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
@@ -7,6 +7,7 @@ import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import { CalculationService } from '../../supportModules/calculation.service';
 
 @Component({
   selector: 'app-vesselreport',
@@ -16,12 +17,12 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService : CalculationService) {
 
   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
+  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD(), vesselType: ''};
 
   transferData;
   parkNamesData;
@@ -36,7 +37,7 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  zoomlvl = 9;
+  zoomlvl = 9; //TODO: weghalen en in de aparte files zetten
   latitude;
   longitude;
   mapTypeId = 'roadmap';
@@ -44,7 +45,7 @@ export class VesselreportComponent implements OnInit {
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
       'Incident', 'Embarkation', 'Vessel2Vessel',
       '_NaN_', 'Too much wind for craning', 'Trial docking',
-      'Transfer of PAX not possible', 'Other'];
+      'Transfer of PAX not possible', 'Other']; //Mogelijk opsplitsen
   commentsChanged;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
@@ -142,7 +143,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   objectToInt(objectvalue) {
-    return parseFloat(objectvalue);
+    return this.calculationService.objectToInt(objectvalue);
   }
 
     ngOnInit() {
@@ -159,6 +160,7 @@ export class VesselreportComponent implements OnInit {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
+        this.vesselObject.vesselType = validatedValue[0].operationsClass;
         this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
           // tslint:disable-next-line:no-shadowed-variable
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
@@ -170,7 +172,8 @@ export class VesselreportComponent implements OnInit {
           if (this.transferData.length !== 0) {
             this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
               // tslint:disable-next-line:no-shadowed-variable
-              this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
+              this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); 
+              } );
             });
             this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
           }
@@ -258,5 +261,4 @@ export class VesselreportComponent implements OnInit {
         }, 7000);
     });
   }
-
 }
