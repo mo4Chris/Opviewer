@@ -4,7 +4,6 @@
         <!-- <span class="navbar-toggler-icon"></span> -->
         <i class="fa fa-bars text-muted" aria-hidden="true"></i>
     </button>
-
     <ng-template #content let-modal>
         <div class="modal-header">
             <h4 class="modal-title">Feedback form</h4>
@@ -13,21 +12,22 @@
             </button>
         </div>
         <div class="modal-body">
-            <form [formGroup]="feedbackForm">
+            <form >
                 <div class="form-content">
                         <div class="form-group">
-                            <select formControlName="pageControl">
+                            Page regarding feedback:   
+                            <select name="feedbackPage" [(ngModel)]="feedback.page">
                                 <option [value]="page" *ngFor="let page of pages">{{page}}</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <textarea class="form-control" rows="3" placeholder="feedback"></textarea>
+                            <textarea required name="feedbackMessage" class="form-control" rows="3" [(ngModel)]="feedback.message" placeholder="feedback"></textarea>
                         </div>
                     </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-light" (click)="closeModal()">Close</button>
+            <button type="button" class="btn btn-primary" (click)="sendFeedback()">Submit feedback</button>
         </div>
     </ng-template>
 
@@ -36,6 +36,7 @@
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
+                <li><ngb-alert class="alertMessage" *ngIf="showAlert" [dismissible]='false' [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert></li>
                 <li class="nav-item dropdown">
                     <a (click)="openModal(content)" href="javascript:void(0)" class="nav-link">
                         <i class="fa fa-comment"></i> Give feedback <b class="caret"></b>
