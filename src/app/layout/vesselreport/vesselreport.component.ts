@@ -24,7 +24,7 @@ export class VesselreportComponent implements OnInit {
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
   outsideDays = 'collapsed';
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
+  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD(), 'vesselType': ''};
 
   transferData;
   parkNamesData;
