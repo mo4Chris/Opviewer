@@ -819,9 +819,8 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
                             }
                         });
                     }
-                } else {
-                    return res.send(data);
                 }
+                return res.send(data);
             }
         });
     });
