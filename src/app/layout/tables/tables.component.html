@@ -1,16 +1,17 @@
 <div [@routerTransition]>
-    <app-page-header [heading]="'Boats and reports'" [icon]="'fa-table'"></app-page-header>
+    <app-page-header [heading]="'Vessels and reports'" [icon]="'fa-table'"></app-page-header>
     <div class="row">
         <div class="col col-xl-12 col-lg-24">
            <div class="card mb-3">
-                <div class="card-header">Boat overview
-                </div>
+               <div class="card-header">
+                   Vessel overview
+               </div>
                 <div class="card-body table-responsive">
                     <table class="table table-hover table-striped">
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>Boatname</th>
+                            <th>Vesselname</th>
                             <th *ngIf="tokenInfo.userPermission == 'admin'">Client</th>
                             <th>mmsi</th>
                             <th>Daily vessel report</th>

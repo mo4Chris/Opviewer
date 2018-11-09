@@ -5,16 +5,22 @@
         <form class="form-inline mb-3">
             <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
                 <div class="input-group datepicker-input">
-                    <input class="form-control" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate"  ngbDatepicker #d="ngbDatepicker">
-                    <button class="input-group-addon" (click)="d.toggle()" type="button">
+                    <input class="form-control" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
+
+                    <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+                            <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
+                                {{ date.day }}
+                            </div>
+                        </ng-template>
+
+                    <button class="input-group-addon" (click)="dp.toggle()" type="button">
                         <span class="fa fa-calendar"></span>
                     </button>
                     <div class="form-group">
-                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required>
+                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
                             <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                         </select>
                     </div>
-                    <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
                 </div>
             </div>
         </form>
@@ -130,6 +136,7 @@
                     <th>comment</th>
                     <th>detector</th>
                     <th>save</th>
+                    <th *ngIf="videoRequestPermission">video request</th>
                 </tr>
             </thead>
             <tbody>
@@ -157,6 +164,9 @@
                     <td>
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>
+                    <td *ngIf="videoRequestPermission">
+                        <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -167,6 +177,13 @@
             <h3>You are not allowed to view the boat you requested</h3>
         </div>
     </ng-template>
+    <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+        <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+    </div>
 </div>
 
 

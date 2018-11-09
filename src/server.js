@@ -82,7 +82,10 @@ var TransferSchema = new Schema({
     location: { type: String },
     fieldname: { type: String },
     comment: { type: String },
-    detector: { type: String }
+    detector: { type: String },
+    videoAvailable: { type: Number },
+    videoPath: { type: String },
+    videoDurationMinutes: { type: Number }
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
@@ -117,6 +120,25 @@ var CommentsChangedSchema = new Schema({
     date: { type: Number }
 }, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
+
+var videoRequestedSchema = new Schema({
+    requestID: { type: Number },
+    mmsi: { type: Number },
+    videoPath: { type: String },
+    vesselname: { type: String },
+    date: { type: Number },
+    active: { type: Boolean },
+    status: { type: String }
+}, { versionKey: false });
+var videoRequestedmodel = mongo.model('videoRequests', videoRequestedSchema, 'videoRequests');
+
+var videoBudgetSchema = new Schema({
+    mmsi: { type: Number },
+    currentBudget: { type: Number },
+    maxBudget: { type: Number },
+    resetDate: { type: Number }
+}, { versionKey: false });
+var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -256,13 +278,13 @@ app.post("/api/login", function (req, res) {
 });
 
 app.post("/api/saveVessel", function (req, res) {
-    var mod = new model(req.body);
+    var vessel = new model(req.body);
     let token = verifyToken(req, res);
     if (req.body.mode === "Save") {
         if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
             return res.status(401).send('Acces denied');
         }
-        mod.save(function (err, data) {
+        vessel.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -292,14 +314,14 @@ app.post("/api/saveTransfer", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Acces denied');
         }
-        var mod = new CommentsChangedmodel();
-        mod.newComment = req.body.comment;
-        mod.otherComment = req.body.commentChanged.otherComment;
-        mod.idTransfer = req.body._id;
-        mod.date = req.body.commentDate;
-        mod.mmsi = req.body.mmsi;
-        mod.userID = req.body.userID;
-        mod.save(function (err, data) {
+        var comment = new CommentsChangedmodel();
+        comment.newComment = req.body.comment;
+        comment.otherComment = req.body.commentChanged.otherComment;
+        comment.idTransfer = req.body._id;
+        comment.date = req.body.commentDate;
+        comment.mmsi = req.body.mmsi;
+        comment.userID = req.body.userID;
+        comment.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -736,6 +758,127 @@ app.post("/api/saveUserBoats", function (req, res) {
         });
 });
 
+app.post("/api/getVideoRequests", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        videoRequestedmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: [req.body.mmsi] }
+                }
+            },
+            {
+                $group: {
+                    _id: "$videoPath",
+                    "mmsi": { "$last": "$mmsi" },
+                    "videoPath": { "$last": "$videoPath" },
+                    "vesselname": { "$last": "$vesselname" },
+                    "date": { "$last": "$date" },
+                    "active": { "$last": "$active" },
+                    "status": { "$last": "$status" }
+                }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/getVideoBudgetByMmsi", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        videoBudgetmodel.find({
+            mmsi: req.body.mmsi
+        }, null, {
+
+        }, function (err, data) {
+            if (err) {
+                return res.send(err);
+            } else {
+                var videoBudget = data[0];
+                if (videoBudget) {
+                    var today = new Date().getTime();
+                    if (videoBudget.resetDate <= today) {
+                        var date = new Date(videoBudget.resetDate);
+                        while (date.getTime() <= today) {
+                            date.setMonth(date.getMonth() + 1);
+                        }
+                        data[0].resetDate = date;
+                        data[0].currentBudget = 0;
+                        data[0].save(function (_err, _data) {
+                            if (_err) {
+                                return res.send(_err);
+                            } else {
+                                return res.send(data);
+                            }
+                        });
+                    }
+                }
+                return res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/saveVideoRequest", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
+            return res.status(401).send('Acces denied');
+        }
+        var videoRequest = new videoRequestedmodel();
+        videoRequest.mmsi = req.body.mmsi;
+        videoRequest.videoPath = req.body.videoPath;
+        videoRequest.vesselname = req.body.vesselname;
+        videoRequest.date = Date.now();
+        videoRequest.active = req.body.video_requested.text === "Requested" ? true : false;
+        videoRequest.status = '';
+        videoRequest.save(function (err, data) {
+            if (err) {
+                return res.send(err);
+            } else {
+                videoBudgetmodel.findOne({ mmsi: req.body.mmsi }, function (err, data) {
+                    if (err) {
+                        return res.send(err);
+                    } else {
+                        if (data) {
+                            videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function(_err, _data) {
+                                if (_err) {
+                                    return res.send(_err);
+                                } else {
+                                    return res.send({ data: "Succesfully saved the video request" });
+                                }
+                            });
+                        } else {
+                            var budget = new videoBudgetmodel();
+                            budget.mmsi = req.body.mmsi;
+                            budget.maxBudget = req.body.maxBudget;
+                            budget.currentBudget = req.body.currentBudget;
+                            var date = new Date();
+                            budget.resetDate = date.setMonth(date.getMonth() + 1);
+                            budget.save(function (_err, _data) {
+                                if (_err) {
+                                    return res.send(_err);
+                                } else {
+                                    return res.send({ data: "Succesfully saved the video request" });
+                                }
+                            });
+                        }
+                    }
+                });
+                
+            }
+        });
+    });
+});
+
 app.post("/api/resetPassword", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
@@ -757,6 +900,24 @@ app.post("/api/resetPassword", function (req, res) {
             res.send({ data: "Succesfully reset the password" });
         }
     });
+});
+
+app.post("/api/sendFeedback", function (req, res) {
+
+    Usermodel.findOne({ _id: req.body.person}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (data) {
+                let html = 'feedback has been given by: ' + data.username + ' on page '+ req.body.page + '.<br><br>' +
+                'feedback message: ' + req.body.message;
+                mailTo('Feedback ' + data.client , html, 'Webmasters');
+            } else {
+                res.send({ data: 'Feedback has not been sent, please contact BMO' , status: 400 });
+            }
+        }
+    });
+    res.send({ data: 'Feedback has been sent' , status: 200 });
 });
 
 app.post("/api/getUserByToken", function (req, res) {

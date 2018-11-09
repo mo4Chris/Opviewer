@@ -4,11 +4,44 @@
         <!-- <span class="navbar-toggler-icon"></span> -->
         <i class="fa fa-bars text-muted" aria-hidden="true"></i>
     </button>
+    <ng-template #content let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Feedback form</h4>
+            <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form >
+                <div class="form-content">
+                        <div class="form-group">
+                            Page regarding feedback:   
+                            <select name="feedbackPage" [(ngModel)]="feedback.page">
+                                <option [value]="page" *ngFor="let page of pages">{{page}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea required name="feedbackMessage" class="form-control" rows="3" [(ngModel)]="feedback.message" placeholder="feedback"></textarea>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="sendFeedback()">Submit feedback</button>
+        </div>
+    </ng-template>
+
     <div class="collapse navbar-collapse">
         <!-- <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
+                <li><ngb-alert class="alertMessage" *ngIf="showAlert" [dismissible]='false' [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert></li>
+                <li class="nav-item dropdown">
+                    <a (click)="openModal(content)" href="javascript:void(0)" class="nav-link">
+                        <i class="fa fa-comment"></i> Give feedback <b class="caret"></b>
+                    </a>
+                </li>
             <li  *ngIf="userCreatePermission" class="nav-item dropdown">
                 <a [routerLink]="['/signup']" href="javascript:void(0)" class="nav-link">
                     <i class="fa fa-user-plus"></i> Add new user <b class="caret"></b>
