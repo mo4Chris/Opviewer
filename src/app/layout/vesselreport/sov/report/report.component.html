@@ -2,59 +2,93 @@
 
 <div class="divContainer">
     <div class="leftdiv">
-        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomLvl" [mapTypeId]="mapTypeId"
-            [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-            <ng-container *ngFor="let parks of Locdata; let i=index">
-                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)"
-                    [longitude]="objectToInt(parks.lon[i])">
+        <agm-map
+            [latitude]="latitude"
+            [longitude]="longitude"
+            [zoom]="zoomLvl"
+            [mapTypeId]="mapTypeId"
+            [gestureHandling]="cooperative"
+            [disableDefaultUI]="true"
+            [streetViewControl]="streetViewControl"
+        >
+            <ng-container *ngFor="let parks of Locdata; let i = index">
+                <agm-circle
+                    [fillOpacity]="0.8"
+                    [radius]="100"
+                    *ngFor="let geo of parks.lat; let i = index"
+                    [latitude]="objectToInt(geo)"
+                    [longitude]="objectToInt(parks.lon[i])"
+                >
                 </agm-circle>
             </ng-container>
             <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                <ng-container *ngFor="let location of boatLocationData; let i = index">
-                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
-                        [longitude]="objectToInt(location.lon[i])">
+                <ng-container
+                    *ngFor="let location of boatLocationData; let i = index"
+                >
+                    <agm-polyline-point
+                        *ngFor="let loc of location.lat; let i = index"
+                        [latitude]="objectToInt(loc)"
+                        [longitude]="objectToInt(location.lon[i])"
+                    >
                     </agm-polyline-point>
                 </ng-container>
             </agm-polyline>
         </agm-map>
     </div>
     <div class="rightdiv">
-        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="3" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative"
-            [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-            <ng-container *ngFor="let parks of Locdata; let i=index">
-                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)"
-                    [longitude]="objectToInt(parks.lon[i])">
+        <agm-map
+            [latitude]="latitude"
+            [longitude]="longitude"
+            [zoom]="3"
+            [mapTypeId]="mapTypeId"
+            [gestureHandling]="cooperative"
+            [disableDefaultUI]="true"
+            [streetViewControl]="streetViewControl"
+        >
+            <ng-container *ngFor="let parks of Locdata; let i = index">
+                <agm-circle
+                    [fillOpacity]="0.8"
+                    [radius]="100"
+                    *ngFor="let geo of parks.lat; let i = index"
+                    [latitude]="objectToInt(geo)"
+                    [longitude]="objectToInt(parks.lon[i])"
+                >
                 </agm-circle>
             </ng-container>
             <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                <ng-container *ngFor="let location of boatLocationData; let i = index">
-                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
-                        [longitude]="objectToInt(location.lon[i])">
+                <ng-container
+                    *ngFor="let location of boatLocationData; let i = index"
+                >
+                    <agm-polyline-point
+                        *ngFor="let loc of location.lat; let i = index"
+                        [latitude]="objectToInt(loc)"
+                        [longitude]="objectToInt(location.lon[i])"
+                    >
                     </agm-polyline-point>
                 </ng-container>
             </agm-polyline>
         </agm-map>
     </div>
 </div>
-
 <br />
 <div class="row">
     <div class="col-lg-4">
-        <canvas id="operationalPieChart">{{operationalPieChart}}</canvas>
+        <canvas id="operationalPieChart">{{ operationalPieChart }}</canvas>
     </div>
     <div class="col-lg-4">
-        <canvas id="workActivityPieChart">{{workActivityPieChart}}</canvas>
+        <canvas id="workActivityPieChart">{{ workActivityPieChart }}</canvas>
     </div>
     <div class="col-lg-4">
-        <canvas id="WOWandNoAccessPieChart">{{WOWandNoAccessPieChart}}</canvas>
+        <canvas id="WOWandNoAccessPieChart">{{
+            WOWandNoAccessPieChart
+        }}</canvas>
     </div>
 </div>
 <br />
 <div class="row">
-    <div class="offset-xl-2 col-xl-8 offset-lg-4 col-lg-16">
+    <div class="col-xl-12 col-lg-24">
         <div class="card mb-3">
-            <div class="card-header">Daily Summary
-            </div>
+            <div class="card-header">Daily Summary</div>
             <div class="card-body table-responsive">
                 <table class="table table-hover table-striped">
                     <thead>
@@ -171,11 +205,11 @@
         </div>
     </div>
 </div>
+<br/>
 <div class="row">
     <div class="col-xl-12 col-lg-24">
         <div class="card mb-3">
-            <div class="card-header">Chronology of Operations
-            </div>
+            <div class="card-header">Chronology of Operations</div>
             <div class="card-body table-responsive">
                 <table class="table table-hover table-striped">
                     <thead>
@@ -343,11 +377,11 @@
         </div>
     </div>
 </div>
+<br/>
 <div class="row">
     <div class="col-xl-12 col-lg-24">
         <div class="card mb-3">
-            <div class="card-header">Chronology of Operations
-            </div>
+            <div class="card-header">Chronology of Operations</div>
             <div class="card-body table-responsive">
                 <table class="table table-hover table-striped">
                     <thead>
@@ -416,10 +450,12 @@
         </div>
     </div>
 </div>
+<br/>
 <div class="row">
     <div class="col-xl-12 col-lg-24">
         <div class="card mb-3">
-            <div class="card-header">Chronology of environmental conditions during operations
+            <div class="card-header">
+                Chronology of environmental conditions during operations
             </div>
             <div class="card-body table-responsive">
                 <table class="table table-hover table-striped">
@@ -513,7 +549,27 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-4">
-        <canvas id="weatherLimitGraph">{{weatherLimitGraph}}</canvas>
+    <div class="offset-lg-2 col-lg-8">
+        <div class="chart-container dockingGraph">
+            <canvas id="weatherLimitDocking1Graph"></canvas>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="offset-lg-2 col-lg-8">
+        <div class="chart-container dockingGraph">
+            <canvas id="weatherLimitDocking2Graph"></canvas>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="offset-lg-2 col-lg-8">
+        <div class="chart-container dockingGraph">
+            <div class="dockingGraph">
+                <canvas id="weatherLimitDocking3Graph"></canvas>
+            </div>
+        </div>
     </div>
 </div>
