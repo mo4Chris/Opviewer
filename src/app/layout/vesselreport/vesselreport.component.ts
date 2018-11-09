@@ -33,6 +33,8 @@ export class VesselreportComponent implements OnInit {
   dateData;
   typeOfLat;
   vessels;
+  videoRequests;
+  videoBudget;
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -51,6 +53,9 @@ export class VesselreportComponent implements OnInit {
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
   timeout;
+  vessel;
+  videoRequestPermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
+  videoRequestLoading = false;
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
@@ -135,15 +140,28 @@ export class VesselreportComponent implements OnInit {
   }
 
   getComments(vessel) {
-      return this.newService.getCommentsForVessel(vessel).pipe(
-          map(
-              (changed) => {
-                  this.commentsChanged = changed;
-              }),
-          catchError(error => {
-              console.log('error ' + error);
-              throw error;
-          }));
+    return this.newService.getCommentsForVessel(vessel).pipe(
+    map(
+      (changed) => {
+        this.commentsChanged = changed;
+      }),
+      catchError(error => {
+        console.log('error ' + error);
+        throw error;
+      }));
+
+    }
+
+  getVideoRequests(vessel) {
+      return this.newService.getVideoRequests(vessel).pipe(
+    map(
+      (requests) => {
+          this.videoRequests = requests;
+      }),
+      catchError(error => {
+        console.log('error ' + error);
+        throw error;
+      }));
 
   }
 
@@ -171,7 +189,10 @@ export class VesselreportComponent implements OnInit {
         if (this.tokenInfo.userPermission === 'admin') {
             this.newService.GetVessel().subscribe(data => this.vessels = data);
         } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.vessels = data);
+            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+                this.vessels = data;
+                
+            });
         }
         this.BuildPageWithCurrentInformation();
   }
@@ -184,7 +205,17 @@ export class VesselreportComponent implements OnInit {
         this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
           this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
             this.getComments(this.vesselObject).subscribe(_ => {
-              this.matchCommentsWithTransfers();
+              this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                    if (data[0]) {
+                        this.videoBudget = data[0];
+                    } else {
+                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                    }
+                  this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
+                  this.matchCommentsWithTransfers();
+                });
+              });
             });
           });
           if (this.transferData.length !== 0) {
@@ -207,6 +238,7 @@ export class VesselreportComponent implements OnInit {
       this.transferData[i].showCommentChanged = false;
       this.transferData[i].commentChanged = this.changedCommentObj;
       this.transferData[i].formChanged = false;
+      this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (this.transferData[i]._id === this.commentsChanged[j].idTransfer) {
           this.transferData[i].commentChanged = this.commentsChanged[j];
@@ -217,6 +249,49 @@ export class VesselreportComponent implements OnInit {
       }
     }
   }
+
+    matchVideoRequestWithTransfer(transfer) {
+        let vid;
+        if (!this.videoRequests) {
+            vid = { text: "Not requested", disabled: false };
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+        }
+        vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
+        if (vid) {
+            vid.disabled = false;
+            vid.text = "Not requested";
+            if (vid.active) {
+                vid.text = "Requested";
+            }
+            if (vid.status === "denied" || vid.status === "delivered" || vid.status === "pending collection") {
+                vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
+                vid.status = vid.status.replace(' ', '_');
+                vid.disabled = true;
+            }
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+        } else
+        if (transfer.videoAvailable) {
+            vid = { text: "Not requested", disabled: false };
+            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+        } else {
+            vid = { text: "Unavailable", disabled: true };
+            return vid;
+        }
+    }
+
+    checkVideoBudget(duration, vid) {
+        if (!vid.active) {  
+            if (this.videoBudget.maxBudget >= 0 && this.videoBudget.currentBudget>=0) {
+                if (this.videoBudget.maxBudget <= this.videoBudget.currentBudget + duration) {
+                    vid.disabled = true;
+                    if (vid.status !== "denied" && vid.status !== "delivered" && vid.status !== "pending collection") {
+                        vid.text = "Not enough budget";
+                    }
+                }
+            }
+        }
+        return vid;
+    }
 
   getMatlabDateYesterday() {
     const matlabValueYesterday = moment().add(-2, 'days');
@@ -277,5 +352,53 @@ export class VesselreportComponent implements OnInit {
         }, 7000);
     });
   }
+
+    setRequest(transferData) {
+        if (transferData.videoAvailable && !this.videoRequestLoading) {
+            this.videoRequestLoading = true;
+            if (this.videoBudget.maxBudget < 0) {
+                this.videoBudget.maxBudget = 100;
+            }
+            if (this.videoBudget.currentBudget < 0) {
+                this.videoBudget.currentBudget = 0;
+            }
+            if (transferData.video_requested.text == "Not requested") {
+                transferData.video_requested.text = "Requested";
+                this.videoBudget.currentBudget += transferData.videoDurationMinutes;
+            } else {
+                transferData.video_requested.text = "Not requested";
+                this.videoBudget.currentBudget -= transferData.videoDurationMinutes;
+            }
+            transferData.maxBudget = this.videoBudget.maxBudget;
+            transferData.currentBudget = this.videoBudget.currentBudget;
+            this.newService.saveVideoRequest(transferData).pipe(
+                map(
+                    (res) => {
+                        this.alert.type = 'success';
+                        this.alert.message = res.data;
+                        transferData.formChanged = false;
+                    }
+                ),
+                catchError(error => {
+                    this.alert.type = 'danger';
+                    this.alert.message = error;
+                    throw error;
+                })
+            ).subscribe(_ => {
+                this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    for (let i = 0; i < this.transferData.length; i++) {
+                        this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
+                    }
+                    this.videoRequestLoading = false;
+                });
+                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => this.videoBudget = data[0]);
+                clearTimeout(this.timeout);
+                this.showAlert = true;
+                this.timeout = setTimeout(() => {
+                    this.showAlert = false;
+                }, 7000);
+            });
+        }
+    }
 
 }

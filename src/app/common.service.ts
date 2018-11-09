@@ -141,12 +141,27 @@ export class CommonService {
 
   validatePermissionToViewData(vessel) {
     return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
-            map((response: Response) => response.json()));
+        map((response: Response) => response.json()));
   }
 
   resetPassword(user) {
     return this.post(environment.DB_IP + '/api/resetPassword/', user).pipe(
-            map((response: Response) => response.json()));
+        map((response: Response) => response.json()));
+  }
+
+  getVideoRequests(vessel) {
+    return this.post(environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  saveVideoRequest(transfer) {
+    return this.post(environment.DB_IP + '/api/saveVideoRequest/', transfer).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getVideoBudgetByMmsi(mmsi) {
+    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', mmsi).pipe(
+        map((response: Response) => response.json()));
   }
 }
 

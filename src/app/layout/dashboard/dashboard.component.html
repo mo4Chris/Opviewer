@@ -4,9 +4,9 @@
         <ng-container *ngFor="let loc of Locdata; let i=index" >
              <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" (markerClick)="showInfoWindow(infoWindow, i)">
              	<agm-info-window #infoWindow>
-     	            	<pre>
+                    <pre>
 MMSI: {{loc._id}}
-Boatname: {{ loc.vesselInformation[loc.vesselInformation.length -1]}}
+Vesselname: {{ loc.vesselInformation[loc.vesselInformation.length -1]}}
 Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
      	        </agm-info-window>
              </agm-marker>
