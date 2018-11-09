@@ -902,6 +902,24 @@ app.post("/api/resetPassword", function (req, res) {
     });
 });
 
+app.post("/api/sendFeedback", function (req, res) {
+
+    Usermodel.findOne({ _id: req.body.person}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (data) {
+                let html = 'feedback has been given by: ' + data.username + ' on page '+ req.body.page + '.<br><br>' +
+                'feedback message: ' + req.body.message;
+                mailTo('Feedback ' + data.client , html, 'Webmasters');
+            } else {
+                res.send({ data: 'Feedback has not been sent, please contact BMO' , status: 400 });
+            }
+        }
+    });
+    res.send({ data: 'Feedback has been sent' , status: 200 });
+});
+
 app.post("/api/getUserByToken", function (req, res) {
     Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user }, function (err, data) {
         if (err) {

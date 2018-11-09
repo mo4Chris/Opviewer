@@ -114,6 +114,11 @@ export class CommonService {
         map((response: Response) => response.json()));
   }
 
+  sendFeedback(feedback) {
+    return this.post(environment.DB_IP + '/api/sendFeedback/', feedback).pipe(
+        map((response: Response) =>  response.json()));
+  }
+
   get(url) {
     const headers = new Headers();
     this.createAuthorizationHeader(headers);
@@ -138,7 +143,7 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
         map((response: Response) => response.json()));
   }
-  
+
   resetPassword(user) {
     return this.post(environment.DB_IP + '/api/resetPassword/', user).pipe(
         map((response: Response) => response.json()));
