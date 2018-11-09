@@ -1,5 +1,5 @@
 <div *ngIf="showContent">
-    <h2 class="text-muted">Vessel report <small> {{ MatlabDateToJSDate(vesselObject.date) }} </small></h2>
+    <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }} </small></h2>
     <div class="col-lg-12">
         <form class="form-inline mb-3">
             <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
@@ -141,9 +141,9 @@
             <tbody>
                 <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
                     <td>{{ind + 1}}</td>  
-                    <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
-                    <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
-                    <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                    <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
+                    <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
+                    <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
                     <td>{{transfer_Data.score}}</td> 
                     <td>{{transfer_Data.location}}</td>  
                     <td class="comment">

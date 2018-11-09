@@ -2,13 +2,13 @@ import { Component, OnInit, Input } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
-
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { DatetimeService } from '../../supportModules/datetime.service';
 
 @Component({
   selector: 'app-vesselreport',
@@ -18,13 +18,13 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 })
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService : CalculationService) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService : CalculationService, private dateTimeService : DatetimeService) {
 
   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
   outsideDays = 'collapsed';
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD(), 'vesselType': ''};
+  vesselObject = {'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': ''};
 
   transferData;
   parkNamesData;
@@ -63,19 +63,19 @@ export class VesselreportComponent implements OnInit {
   }
 
   hasSailed(date: NgbDateStruct) {
-    return this.dateHasSailed(date);
+    return this.dateTimeService.dateHasSailed(date, this.dateData);
   }
 
-  dateHasSailed(date: NgbDateStruct): boolean {
-    for (let i = 0; i < this.dateData.length; i++) {
-      const day: number = this.dateData[i].day;
-      const month: number = this.dateData[i].month;
-      const year: number =  this.dateData[i].year;
-      // tslint:disable-next-line:triple-equals
-      if (day == date.day && month == date.month && year == date.year) {
-        return true;
-      }
-    }
+  getMatlabDateToJSTime(serial) {
+    return this.dateTimeService.MatlabDateToJSTime(serial);
+  }
+  
+  getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
+    return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
+  }
+
+  getMatlabDateToJSDate(serial) {
+    return this.dateTimeService.MatlabDateToJSDate(serial);
   }
 
   getMMSIFromParameter() {
@@ -83,40 +83,6 @@ export class VesselreportComponent implements OnInit {
     this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
 
     return mmsi;
-  }
-
-  MatlabDateToJSDate(serial) {
-    const dateInt = moment((serial - 719529) * 864e5).format('DD-MM-YYYY');
-    return dateInt;
-  }
-
-  MatlabDateToJSDateYMD(serial) {
-    const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
-    return datevar;
-  }
-  JSDateYMDToObjectDate(YMDDate) {
-    YMDDate = YMDDate.split('-');
-    const ObjectDate = {year: YMDDate[0], month: YMDDate[1] , day: YMDDate[2]};
-    return ObjectDate;
-  }
-
-  MatlabDateToJSTime(serial) {
-    const time_info  = moment((serial - 719529) * 864e5 ).format('HH:mm:ss');
-
-    return time_info;
-  }
-
-  unixEpochtoMatlabDate(epochDate) {
-    const matlabTime = ((epochDate / 864e2) + 719530);
-    return matlabTime;
-  }
-
-  MatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    serialEnd = moment((serialEnd - 719529) * 864e5).startOf('second');
-    serialBegin = moment((serialBegin - 719529) * 864e5).startOf('second');
-    const difference = serialEnd.diff(serialBegin);
-
-    return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
   }
 
   getDecodedAccessToken(token: string): any {
@@ -172,7 +138,7 @@ export class VesselreportComponent implements OnInit {
       map(
         (dates) => {
           for (let _i = 0; _i < dates.length; _i++) {
-            dates[_i] = this.JSDateYMDToObjectDate(this.MatlabDateToJSDateYMD(dates[_i]));
+            dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
         }
           this.dateData = dates;
         }),
@@ -295,23 +261,6 @@ export class VesselreportComponent implements OnInit {
         return vid;
     }
 
-  getMatlabDateYesterday() {
-    const matlabValueYesterday = moment().add(-2, 'days');
-    matlabValueYesterday.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
-    matlabValueYesterday.format();
-
-    const momentDateAsIso = moment(matlabValueYesterday).unix();
-
-    const dateAsMatlab =  this.unixEpochtoMatlabDate(momentDateAsIso);
-
-    return dateAsMatlab;
-  }
-
-  getJSDateYesterdayYMD() {
-    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
-    return JSValueYesterday;
-  }
-
   searchTransfersByNewSpecificDate() {
     const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
@@ -319,10 +268,10 @@ export class VesselreportComponent implements OnInit {
 
     const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
 
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    const dateAsMatlab = this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
 
     this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
+    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
 
     this.BuildPageWithCurrentInformation();
   }
