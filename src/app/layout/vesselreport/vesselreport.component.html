@@ -5,7 +5,6 @@
             <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
                 <div class="input-group datepicker-input">
                     <input class="form-control" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
-
                     <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
                             <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
                                 {{ date.day }}
@@ -27,7 +26,7 @@
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
             <div class="leftdiv">
-                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="overviewZoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let parks of Locdata; let i=index" >
                         <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
                         </agm-circle>
@@ -41,7 +40,7 @@
                 </agm-map>
             </div>
             <div class="rightdiv">  
-                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
+                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="detailZoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let parks of Locdata; let i=index" >
                         <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
                         </agm-circle>
@@ -172,7 +171,7 @@
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
     <div *ngIf="vesselObject.vesselType == 'CTV'">
-            <app-report [latitude]='latitude' [longitude]='longitude' [Locdata]='Locdata' [boatLocationData]='boatLocationData'></app-report>
+            <app-report (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-report>
            <hr/>
     </div>
     <ng-template #noPermission>

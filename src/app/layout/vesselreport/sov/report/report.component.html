@@ -1,34 +1,4 @@
 <h2 class="text-muted">SOV report</h2>
-<div class="divContainer">
-    <div class="leftdiv">
-        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-            <ng-container *ngFor="let parks of Locdata; let i = index">
-                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
-                </agm-circle>
-            </ng-container>
-            <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                <ng-container *ngFor="let location of boatLocationData; let i = index">
-                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
-                    </agm-polyline-point>
-                </ng-container>
-            </agm-polyline>
-        </agm-map>
-    </div>
-    <div class="rightdiv">
-        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="3" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-            <ng-container *ngFor="let parks of Locdata; let i = index">
-                <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
-                </agm-circle>
-            </ng-container>
-            <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                <ng-container *ngFor="let location of boatLocationData; let i = index">
-                    <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
-                    </agm-polyline-point>
-                </ng-container>
-            </agm-polyline>
-        </agm-map>
-    </div>
-</div>
 <br />
 <div class="row">
     <div class="col-lg-4">

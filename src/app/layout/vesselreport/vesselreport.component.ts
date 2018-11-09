@@ -41,7 +41,10 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  zoomlvl = 9; //TODO: weghalen en in de aparte files zetten
+  
+  overviewZoomlvl;
+  detailZoomlvl;
+
   latitude;
   longitude;
   mapTypeId = 'roadmap';
@@ -60,6 +63,14 @@ export class VesselreportComponent implements OnInit {
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
+  }
+
+  getOverviewZoomLvl(childZoomLvl: number): void{
+    this.overviewZoomlvl = childZoomLvl;
+  }
+
+  getDetailZoomLvl(childZoomLvl: number): void{
+    this.detailZoomlvl = childZoomLvl;
   }
 
   hasSailed(date: NgbDateStruct) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { CalculationService } from "../../../../supportModules/calculation.service";
 import * as Chart from "chart.js";
 import * as annotation from 'chartjs-plugin-annotation';
@@ -9,11 +9,10 @@ import * as annotation from 'chartjs-plugin-annotation';
     styleUrls: ["./report.component.scss"]
 })
 export class ReportComponent implements OnInit {
-    @Input() latitude;
-    @Input() longitude;
-    @Input() Locdata;
-    @Input() boatLocationData;
-    zoomLvl = 8;
+
+    @Output() overviewZoomLvl : EventEmitter<number> = new EventEmitter<number>();
+    @Output() detailZoomLvl : EventEmitter<number> = new EventEmitter<number>();
+
     mapTypeId = "roadmap";
     streetViewControl = false;
 
@@ -25,6 +24,9 @@ export class ReportComponent implements OnInit {
     constructor(private calculationService: CalculationService) {}
 
     ngOnInit() {
+        this.overviewZoomLvl.emit(9);
+        this.detailZoomLvl.emit(10);
+
         Chart.pluginService.register(annotation);
         this.createOperationalPieChart();
         this.createworkActivityPieChart();
