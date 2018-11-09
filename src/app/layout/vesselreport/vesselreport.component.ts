@@ -263,7 +263,7 @@ export class VesselreportComponent implements OnInit {
             if (vid.active) {
                 vid.text = "Requested";
             }
-            if (vid.status === "denied" || vid.status === "deliverd" || vid.status === "pending collection") {
+            if (vid.status === "denied" || vid.status === "delivered" || vid.status === "pending collection") {
                 vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
                 vid.status = vid.status.replace(' ', '_');
                 vid.disabled = true;
@@ -284,7 +284,7 @@ export class VesselreportComponent implements OnInit {
             if (this.videoBudget.maxBudget >= 0 && this.videoBudget.currentBudget>=0) {
                 if (this.videoBudget.maxBudget <= this.videoBudget.currentBudget + duration) {
                     vid.disabled = true;
-                    if (vid.status !== "denied" && vid.status !== "deliverd" && vid.status !== "pending collection") {
+                    if (vid.status !== "denied" && vid.status !== "delivered" && vid.status !== "pending collection") {
                         vid.text = "Not enough budget";
                     }
                 }

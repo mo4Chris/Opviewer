@@ -278,13 +278,13 @@ app.post("/api/login", function (req, res) {
 });
 
 app.post("/api/saveVessel", function (req, res) {
-    var mod = new model(req.body);
+    var vessel = new model(req.body);
     let token = verifyToken(req, res);
     if (req.body.mode === "Save") {
         if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
             return res.status(401).send('Acces denied');
         }
-        mod.save(function (err, data) {
+        vessel.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -314,14 +314,14 @@ app.post("/api/saveTransfer", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Acces denied');
         }
-        var mod = new CommentsChangedmodel();
-        mod.newComment = req.body.comment;
-        mod.otherComment = req.body.commentChanged.otherComment;
-        mod.idTransfer = req.body._id;
-        mod.date = req.body.commentDate;
-        mod.mmsi = req.body.mmsi;
-        mod.userID = req.body.userID;
-        mod.save(function (err, data) {
+        var comment = new CommentsChangedmodel();
+        comment.newComment = req.body.comment;
+        comment.otherComment = req.body.commentChanged.otherComment;
+        comment.idTransfer = req.body._id;
+        comment.date = req.body.commentDate;
+        comment.mmsi = req.body.mmsi;
+        comment.userID = req.body.userID;
+        comment.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -833,14 +833,14 @@ app.post("/api/saveVideoRequest", function (req, res) {
         if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
             return res.status(401).send('Acces denied');
         }
-        var mod = new videoRequestedmodel();
-        mod.mmsi = req.body.mmsi;
-        mod.videoPath = req.body.videoPath;
-        mod.vesselname = req.body.vesselname;
-        mod.date = Date.now();
-        mod.active = req.body.video_requested.text === "Requested" ? true : false;
-        mod.status = '';
-        mod.save(function (err, data) {
+        var videoRequest = new videoRequestedmodel();
+        videoRequest.mmsi = req.body.mmsi;
+        videoRequest.videoPath = req.body.videoPath;
+        videoRequest.vesselname = req.body.vesselname;
+        videoRequest.date = Date.now();
+        videoRequest.active = req.body.video_requested.text === "Requested" ? true : false;
+        videoRequest.status = '';
+        videoRequest.save(function (err, data) {
             if (err) {
                 return res.send(err);
             } else {
