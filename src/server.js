@@ -804,9 +804,10 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
             } else {
                 var videoBudget = data[0];
                 if (videoBudget) {
-                    if (videoBudget.resetDate <= new Date().getTime()) {
+                    var today = new Date().getTime();
+                    if (videoBudget.resetDate <= today) {
                         var date = new Date(videoBudget.resetDate);
-                        while (date.getTime() <= new Date().getTime()) {
+                        while (date.getTime() <= today) {
                             date.setMonth(date.getMonth() + 1);
                         }
                         data[0].resetDate = date;
@@ -847,7 +848,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
                         return res.send(err);
                     } else {
                         if (data) {
-                            Usermodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function(_err, _data) {
+                            videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function(_err, _data) {
                                 if (_err) {
                                     return res.send(_err);
                                 } else {
@@ -860,8 +861,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
                             budget.maxBudget = req.body.maxBudget;
                             budget.currentBudget = req.body.currentBudget;
                             var date = new Date();
-                            date = date.setMonth(date.getMonth() + 1);
-                            budget.resetDate = date;
+                            budget.resetDate = date.setMonth(date.getMonth() + 1);
                             budget.save(function (_err, _data) {
                                 if (_err) {
                                     return res.send(_err);

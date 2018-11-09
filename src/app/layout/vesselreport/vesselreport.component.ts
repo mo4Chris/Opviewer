@@ -336,10 +336,10 @@ export class VesselreportComponent implements OnInit {
     setRequest(transferData) {
         if (transferData.videoAvailable && !this.videoRequestLoading) {
             this.videoRequestLoading = true;
-            if (this.videoBudget.maxBudget<0) {
+            if (this.videoBudget.maxBudget < 0) {
                 this.videoBudget.maxBudget = 100;
             }
-            if (this.videoBudget.currentBudget<0) {
+            if (this.videoBudget.currentBudget < 0) {
                 this.videoBudget.currentBudget = 0;
             }
             if (transferData.video_requested.text == "Not requested") {
