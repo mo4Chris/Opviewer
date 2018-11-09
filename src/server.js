@@ -224,6 +224,7 @@ app.post("/api/registerUser", function (req, res) {
             } else {
                 if (!existingUser) {
                     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+                    randomToken = randomToken.replace(/\//gi, '8');
                     let user = new Usermodel({
                         "username": userData.email,
                         "token": randomToken,
@@ -886,7 +887,8 @@ app.post("/api/resetPassword", function (req, res) {
         return res.status(401).send('Acces denied');
     }
     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: randomToken, $unset: { password: 1 } },
+    randomToken = randomToken.replace(/\//gi, '8');
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: randomToken },
     function (err, data) {
         if (err) {
             res.send(err);

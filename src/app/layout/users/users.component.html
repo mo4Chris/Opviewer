@@ -29,7 +29,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    {{errData}}
+                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
                 </div>
             </div>
         </div>

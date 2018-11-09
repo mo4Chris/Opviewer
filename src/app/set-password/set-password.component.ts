@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
 import { ActivatedRoute } from '@angular/router';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-set-password',
@@ -17,6 +18,7 @@ export class SetPasswordComponent implements OnInit {
     user = "";
     token = this.getTokenFromParameter();
     noUser = false;
+    showAfterscreen = false;
 
     constructor(private route: ActivatedRoute, private _auth: AuthService) { }
 
@@ -51,6 +53,18 @@ export class SetPasswordComponent implements OnInit {
     }
 
     setUserPassword() {
-        this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).subscribe();
+        this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).pipe(
+            map(
+                (res) => {
+                    this.showAfterscreen = true;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error._body;
+                this.showAlert = true;
+                throw error;
+            })
+        ).subscribe();
     }
 }
