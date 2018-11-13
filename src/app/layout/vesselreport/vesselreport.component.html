@@ -63,61 +63,61 @@
         </div>
     </ng-template>
     <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0">
+    <div class="divContainer" *ngIf="transferData?.length > 0 && !noTransits">
         <table class="table table-responsive">
             <tr>
                 <td class="keyTD">Departure Port</td>
-                <td>6:58</td>
+                <td>{{MatlabDateToJSTime(general.portDepartureTime)}}</td>
                 <td class="keyTD">Departure Wind Farm</td>
-                <td>15:46</td>
+                <td>{{MatlabDateToJSTime(general.departureWindFarmTime)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Arrival wind farm</td>
-                <td>8:57</td>
+                <td>{{MatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
                 <td class="keyTD">Arrival Port</td>
-                <td>17:39</td>
+                <td>{{MatlabDateToJSTime(general.portArrivalTime)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Distance Sailed</td>
-                <td>99.1 NM</td>
+                <td>{{general.sailedDistance | number:'1.1-1'}} NM</td>
                 <td class="keyTD">Fuel Consumed</td>
-                <td>n/a Ltr</td>
+                <td>{{general.TotalFuel}}</td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
                 <td class="keyTD">Fuel Economy</td>
-                <td>n/a ltr/nm</td>
+                <td>{{general.FuelEcon}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Avg. speed outbound</td>
-                <td>19.9 knots</td>
+                <td>{{general.AvgSpeedOutbound | number:'1.1-1'}} knots</td>
                 <td class="keyTD">Avg. speed inbound</td>
-                <td>21.8 knots</td>
+                <td>{{general.AvgSpeedInbound | number:'1.1-1'}} knots</td>
             </tr>
             <tr>
                 <td class="keyTD">Max. speed outbound</td>
-                <td>22.0 knots</td>
+                <td>{{general.AvgSpeedOutboundUnrestricted | number:'1.1-1'}} knots</td>
                 <td class="keyTD">Max. speed inbound</td>
-                <td>23.7 knots</td>
+                <td>{{general.AvgSpeedInboundUnrestricted | number:'1.1-1'}} knots</td>
             </tr>
             <tr>
                 <td class="keyTD">MSI outbound</td>
-                <td>17.2%</td>
+                <td>{{general.MsiOutbound | number:'1.1-1'}}%</td>
                 <td class="keyTD">MSI inbound</td>
-                <td>19.7%</td>
+                <td>{{general.MsiInbound | number:'1.1-1'}}%</td>
             </tr>
             <tr>
                 <td class="keyTD">WBV, Technicians</td>
-                <td>0.46 (A8)</td>
+                <td>{{general.WBVtechs | number:'1.1-2'}} (A8)</td>
                 <td class="keyTD">WBV, Vessel Crew</td>
-                <td>0.69(A8)</td>
+                <td>{{general.WBVcrew | number:'1.1-2'}} (A8)</td>
             </tr>
             <tr>
                 <td class="keyTD">Number of dockings</td>
-                <td>9</td>
+                <td>{{general.numDockings}}</td>
                 <td class="keyTD">Average Docking Time</td>
-                <td>00:10:18</td>
+                <td>{{general.AverageDockedTime}}</td>
             </tr>
         </table>
     </div>

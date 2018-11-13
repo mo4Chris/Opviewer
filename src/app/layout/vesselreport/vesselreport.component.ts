@@ -35,6 +35,10 @@ export class VesselreportComponent implements OnInit {
   vessels;
   videoRequests;
   videoBudget;
+  transits;
+  noTransits = true;
+  transitStats = { distance: '0 NM', avgDockingtime: "00:10:18" };
+  general;
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -207,13 +211,20 @@ export class VesselreportComponent implements OnInit {
             this.getComments(this.vesselObject).subscribe(_ => {
               this.getVideoRequests(this.vesselObject).subscribe(_ => {
                 this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                    if (data[0]) {
-                        this.videoBudget = data[0];
-                    } else {
-                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                    }
+                  if (data[0]) {
+                    this.videoBudget = data[0];
+                  } else {
+                      this.videoBudget = { maxBudget: -1, currentBudget: -1 }; 
+                  }
                   this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
                   this.matchCommentsWithTransfers();
+                  this.newService.getGeneral(this.vesselObject).subscribe(general => {
+                    this.noTransits = true;
+                    if (general.data.length > 0 && general.data[0].DPRstats) {
+                      this.general = general.data[0].DPRstats;
+                      this.noTransits = false;
+                    }
+                  });
                 });
               });
             });
@@ -400,5 +411,4 @@ export class VesselreportComponent implements OnInit {
             });
         }
     }
-
 }
