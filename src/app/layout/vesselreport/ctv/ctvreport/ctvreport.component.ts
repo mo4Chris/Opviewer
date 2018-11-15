@@ -3,7 +3,6 @@ import { CommonService } from "../../../../common.service";
 import { map, catchError } from "rxjs/operators";
 import { DatetimeService } from "../../../../supportModules/datetime.service";
 import * as jwt_decode from 'jwt-decode';
-import * as moment from 'moment';
 
 @Component({
     selector: "app-ctvreport",
@@ -31,7 +30,6 @@ export class CtvreportComponent implements OnInit {
     videoRequests;
     videoBudget;
     
-    vessel;
     dateData;
 
     public showAlert = false;
@@ -44,8 +42,8 @@ export class CtvreportComponent implements OnInit {
 
     ngOnInit() {
         this.videoRequestPermission = this.tokenInfo.userPermission == "admin" || this.tokenInfo.userPermission == "Logistics specialist"; 
-        this.overviewZoomLvl.emit(8);
-        this.detailZoomLvl.emit(9);
+        this.overviewZoomLvl.emit(10);
+        this.detailZoomLvl.emit(11);
 
         this.BuildPageWithCurrentInformation();
     }

@@ -23,11 +23,8 @@
             </div>
         </form>
     </div>
-    <p>{{vesselObject.vesselType}}</p>
     <div *ngIf="noPermissionForData == false; else noPermission">
-        <!-- todo: remove because SOV does not have transferdata -->
-            <!-- <div class="divContainer" *ngIf="transferData?.length > 0; else other_content"> -->
-        <div class="divContainer" *ngIf="latitude != null && longitude != null && showContent == true; else other_content">
+        <div class="divContainer" *ngIf="Locdata != null && Locdata.length > 0 && showContent == true; else other_content">
             <div class="leftdiv">
                 <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="overviewZoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let parks of Locdata; let i=index" >
@@ -57,11 +54,10 @@
                 </agm-map>
             </div>
             <div *ngIf="vesselObject.vesselType == 'CTV'">
-                    <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-ctvreport>
+                <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-ctvreport>
             </div>
             <div *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'">
-                    <app-report (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-report>
-                   <hr/>
+                <app-sovreport (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-sovreport>
             </div>
         </div>
     </div>

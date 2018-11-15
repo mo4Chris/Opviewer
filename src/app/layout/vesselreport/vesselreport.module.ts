@@ -14,9 +14,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CommonService } from '../../common.service';
-import { ReportComponent } from './sov/report/report.component';
+
 import { CalculationService } from '../../supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
+import { SovreportComponent } from './sov/sovreport/sovreport.component';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -29,7 +30,7 @@ import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
         CommonModule,
         VesselreportRoutingModule,
         PageHeaderModule],
-    declarations: [VesselreportComponent, ReportComponent, CtvreportComponent],
+    declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService],
     bootstrap: [VesselreportComponent]
 })

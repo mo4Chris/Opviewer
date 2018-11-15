@@ -29,7 +29,7 @@ export class VesselreportComponent implements OnInit {
   vesselObject = {'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': ''};
 
   parkNamesData;
-  Locdata;
+  Locdata = [];
   boatLocationData;
   datePickerValue = this.maxDate;
   dateData;
@@ -51,13 +51,6 @@ export class VesselreportComponent implements OnInit {
 
   @ViewChild(CtvreportComponent)
   private child: CtvreportComponent;
-
-  onChange(event): void {
-    this.searchTransfersByNewSpecificDate();
-    if(this.vesselObject.vesselType == 'CTV') {
-        setTimeout(() => this.child.BuildPageWithCurrentInformation(), 500);
-    }
-  }
 
   getOverviewZoomLvl(childZoomLvl: number): void{
     setTimeout(() => this.overviewZoomlvl = childZoomLvl, 500);
@@ -128,19 +121,18 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
-        this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
-            //this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
-        
-          //if (this.transferData.length !== 0) {
+        this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {        
             this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
               this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
                 if(data.length !== 0) {
                     this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); 
-                };             
+                }
+                else {
+                  this.Locdata = [];
+                }             
                 });
             });
             this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
-          //}
             setTimeout(() => this.showContent = true, 1050);
         });
       } else {
@@ -150,8 +142,13 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
+  onChange(event): void {
+    this.searchTransfersByNewSpecificDate();
+    if(this.vesselObject.vesselType == 'CTV' && this.child != null) {
+        setTimeout(() => this.child.BuildPageWithCurrentInformation(), 1000);
+    }
+  }
 
-  //check interaction with children
   searchTransfersByNewSpecificDate() {
     const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
