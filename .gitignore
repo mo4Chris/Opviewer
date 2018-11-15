@@ -46,6 +46,3 @@ testem.log
 Thumbs.db
 .vs/
 .vscode/
-
-# Custom
-.env
