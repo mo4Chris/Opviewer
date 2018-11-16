@@ -133,7 +133,7 @@ export class VesselreportComponent implements OnInit {
 
   getTransfersForVessel(vessel) {
 
-    let isUp = false;
+    let isTransfering = false;
     const responseTimes = [];
 
     return this.newService
@@ -153,12 +153,12 @@ export class VesselreportComponent implements OnInit {
 
                     XYTempvars[i].push({ x: this.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
 
-                    if (isUp === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
+                    if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
                       responseTimes[i].push(_i);
-                      isUp = true;
-                    } else if (isUp === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
+                      isTransfering = true;
+                    } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
                       responseTimes[i].push(_i);
-                      isUp = false;
+                      isTransfering = false;
                     }
                   }
                 }
@@ -168,10 +168,10 @@ export class VesselreportComponent implements OnInit {
                 this.XYvars.push([]);
                 for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
                   let pointColor;
-
                   pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
+                  const BorderColor = 'rgba(0, 0, 0, 0)';
 
-                  this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: pointColor, pointHoverRadius: 0});
+                  this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
                   if (_i === 0) {
                     this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
                   } else if (_i === responseTimes.length) {
@@ -188,7 +188,7 @@ export class VesselreportComponent implements OnInit {
           throw error;
         }));
   }
-
+  // todo: set to datetime service after SOV report is merged
   MatlabDateToUnixEpoch(serial) {
     const time_info = moment((serial - 719529) * 864e5);
     return time_info;
@@ -357,7 +357,7 @@ export class VesselreportComponent implements OnInit {
           }
           setTimeout(() => this.showContent = true, 1050);
 
-
+          // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
           if (this.charts.length <= 0) {
             setTimeout(() => this.createSlipgraphs(), 10);
           } else {
