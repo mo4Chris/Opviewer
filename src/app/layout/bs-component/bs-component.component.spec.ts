@@ -1,6 +1,25 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BsComponentComponent } from './bs-component.component';
+import { PageHeaderModule } from '../../shared';
+import { RouterTestingModule } from '@angular/router/testing';
+import {
+    AlertComponent,
+    ButtonsComponent,
+    ModalComponent,
+    CollapseComponent,
+    DatePickerComponent,
+    DropdownComponent,
+    PaginationComponent,
+    PopOverComponent,
+    ProgressbarComponent,
+    TabsComponent,
+    RatingComponent,
+    TooltipComponent,
+    TimepickerComponent
+} from './components';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 describe('BsComponentComponent', () => {
     let component: BsComponentComponent;
@@ -9,7 +28,29 @@ describe('BsComponentComponent', () => {
     beforeEach(
         async(() => {
             TestBed.configureTestingModule({
-                declarations: [BsComponentComponent]
+                imports: [
+                    FormsModule,
+                    ReactiveFormsModule,
+                    NgbModule.forRoot(),
+                    PageHeaderModule,
+                    RouterTestingModule
+                ],
+                declarations: [
+                    BsComponentComponent,
+                    ButtonsComponent,
+                    AlertComponent,
+                    ModalComponent,
+                    CollapseComponent,
+                    DatePickerComponent,
+                    DropdownComponent,
+                    PaginationComponent,
+                    PopOverComponent,
+                    ProgressbarComponent,
+                    TabsComponent,
+                    RatingComponent,
+                    TooltipComponent,
+                    TimepickerComponent
+                ]
             }).compileComponents();
         })
     );

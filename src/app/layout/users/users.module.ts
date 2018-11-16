@@ -10,11 +10,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import {CommonService} from '../../common.service';
+import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
     imports: [CommonModule, HttpClientModule, FormsModule, UsersRoutingModule, NgbModule.forRoot(), PageHeaderModule],
     declarations: [UsersComponent],
-    providers: [CommonService],
+    providers: [CommonService, UserService],
     bootstrap: [UsersComponent]
 })
 export class UsersModule {}

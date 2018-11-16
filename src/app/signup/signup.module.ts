@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SignupRoutingModule } from './signup-routing.module';
 import { SignupComponent } from './signup.component';
 import {CommonService} from '../common.service';
+import { UserService } from '../shared/services/user.service';
 
 
 @NgModule({
@@ -18,7 +19,7 @@ import {CommonService} from '../common.service';
     NgbModule.forRoot(),
     FormsModule
   ],
-  providers: [CommonService],
+  providers: [CommonService, UserService],
   declarations: [SignupComponent]
 })
 export class SignupModule { }
