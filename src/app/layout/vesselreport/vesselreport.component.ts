@@ -166,18 +166,21 @@ export class VesselreportComponent implements OnInit {
 
               for (let i = 0; i < transfers.length; i++) {
                 this.XYvars.push([]);
-                for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
-                  let pointColor;
-                  pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
-                  const BorderColor = 'rgba(0, 0, 0, 0)';
 
-                  this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
-                  if (_i === 0) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
-                  } else if (_i === responseTimes.length) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_i]);
-                  } else {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                if ( responseTimes.length !== 0) {
+                  for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
+                    let pointColor;
+                    pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
+                    const BorderColor = 'rgba(0, 0, 0, 0)';
+
+                    this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
+                    if (_i === 0) {
+                      this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
+                    } else if (_i === responseTimes.length) {
+                      this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_i]);
+                    } else {
+                      this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                    }
                   }
                 }
               }
@@ -361,9 +364,11 @@ export class VesselreportComponent implements OnInit {
           if (this.charts.length <= 0) {
             setTimeout(() => this.createSlipgraphs(), 10);
           } else {
-            if (this.transferData[0].slipGraph.length <= 0) {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
+            if (this.transferData.length > 0) {
+              if (typeof this.transferData[0].slipX !== 'undefined' && this.transferData[0].slipX.length > 0) {
+                for (let i = 0; i < this.charts.length; i++) {
+                  this.charts[i].destroy();
+                }
               }
             } else {
               for (let i = 0; i < this.charts.length; i++) {
