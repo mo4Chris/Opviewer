@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
@@ -18,18 +18,14 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
   animations: [routerTransition()]
 })
 
-
-
 export class VesselreportComponent implements OnInit {
-  @ViewChild('yourId') yourId: ElementRef;
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private elementRef: ElementRef) {
-
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
   }
 
-  maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD() };
+  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD() };
 
   transferData;
   parkNamesData;
@@ -41,9 +37,7 @@ export class VesselreportComponent implements OnInit {
   vessels;
   videoRequests;
   videoBudget;
-  myChart;
   XYvars = [];
-  ColorVarsPoints = [];
   charts = [];
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
@@ -65,7 +59,7 @@ export class VesselreportComponent implements OnInit {
   timeout;
   vessel;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-  RequestLoading = false;
+  RequestLoading = true;
 
 
   onChange(event): void {
@@ -150,12 +144,10 @@ export class VesselreportComponent implements OnInit {
             if (transfers !== 0) {
               this.XYvars = [];
               const XYTempvars = [];
-              this.ColorVarsPoints = [];
               for (let i = 0; i < transfers.length; i++) {
 
                 if (transfers[i].slipGraph !== undefined) {
                   XYTempvars.push([]);
-                  this.ColorVarsPoints.push([]);
                   responseTimes.push([]);
                   for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
 
@@ -284,7 +276,7 @@ export class VesselreportComponent implements OnInit {
               yAxes: [{
                 scaleLabel: {
                   display: true,
-                  labelString: 'Something that is slipping'
+                  labelString: 'Slip (m)'
                 }
               }]
             },
@@ -323,7 +315,6 @@ export class VesselreportComponent implements OnInit {
 
 
   ngOnInit() {
-    this.RequestLoading = true;
     Chart.pluginService.register(ChartAnnotation);
     if (this.tokenInfo.userPermission === 'admin') {
       this.newService.GetVessel().subscribe(data => this.vessels = data);
