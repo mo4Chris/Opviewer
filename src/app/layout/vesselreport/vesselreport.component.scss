@@ -84,6 +84,7 @@ ngb-alert {
    color: rgb(225, 225, 225) !important;
 }
 
-.mainAlert{
-    z-index: 1;
+.noMapDataAlert {
+    position: relative;
+    width: 99%;
 }

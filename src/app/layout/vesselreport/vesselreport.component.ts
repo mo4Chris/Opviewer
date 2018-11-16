@@ -37,7 +37,7 @@ export class VesselreportComponent implements OnInit {
   vessels;
   videoRequests;
   videoBudget;
-  general;
+  general = {};
   XYvars = [];
   charts = [];
 
@@ -574,14 +574,14 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-    roundNumber(number, decimal = 10, addString = '') {
-        if (typeof number === 'string' || number instanceof String) {
-            return number;
-        }
-        if (!number) {
-            return "n/a";
-        }
-
-        return (Math.round(number * decimal) / decimal) + addString;
+  roundNumber(number, decimal = 10, addString = '') {
+    if (typeof number === 'string' || number instanceof String) {
+      return number;
     }
+    if (!number) {
+      return "n/a";
+    }
+
+    return (Math.round(number * decimal) / decimal) + addString;
+  }
 }

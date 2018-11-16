@@ -33,31 +33,32 @@
     </div>
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
+            <ngb-alert class="noMapDataAlert" *ngIf="parkNotFound" [type]="'danger'" (close)="parkNotFound=false">Map data not complete</ngb-alert>
             <div class="leftdiv">
-                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index" >
-                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let parks of Locdata; let i=index">
+                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
                         </agm-circle>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                                </agm-polyline-point>
-                            </ng-container>
+                        <ng-container *ngFor="let location of boatLocationData; let i = index">
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
+                            </agm-polyline-point>
+                        </ng-container>
                     </agm-polyline>
                 </agm-map>
             </div>
-            <div class="rightdiv">  
+            <div class="rightdiv">
                 <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index" >
-                        <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                    <ng-container *ngFor="let parks of Locdata; let i=index">
+                        <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
                         </agm-circle>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                                </agm-polyline-point>
-                            </ng-container>
+                        <ng-container *ngFor="let location of boatLocationData; let i = index">
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
+                            </agm-polyline-point>
+                        </ng-container>
                     </agm-polyline>
                 </agm-map>
             </div>
@@ -153,7 +154,7 @@
                     <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
                     <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
                     <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
-                    <td>{{transfer_Data.score}}</td> 
+                    <td>{{roundNumber(transfer_Data.score, 10)}}</td> 
                     <td>{{transfer_Data.location}}</td>  
                     <td class="comment">
                         <span ngbDropdown class="d-inline-block dropdown">
@@ -178,8 +179,7 @@
                 </tr>
             </tbody>
         </table>
-        <ngb-alert class="mainAlert" *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
-        <ngb-alert class="noMapDataAlert" *ngIf="parkNotFound" [type]="'danger'" (close)="parkNotFound=false">Map data not complete</ngb-alert>
+        <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
     <ng-template #noPermission>
         <div class="divContainer">
