@@ -64,7 +64,6 @@ export class ScatterplotComponent implements OnInit {
   noPermissionForData = false;
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
-  closeResult: string;
 
   onDateSelection(date: NgbDate) {
     if (!this.fromDate && !this.toDate) {
