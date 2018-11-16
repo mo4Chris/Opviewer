@@ -63,7 +63,8 @@
         </div>
     </ng-template>
     <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0 && !noTransits">
+    <div class="divContainer" *ngIf="transferData?.length > 0">
+        <h3 *ngIf="noTransits">There is no transit data available</h3>
         <table class="table table-responsive">
             <tr>
                 <td class="keyTD">Departure Port</td>
@@ -79,45 +80,45 @@
             </tr>
             <tr>
                 <td class="keyTD">Distance Sailed</td>
-                <td>{{general.sailedDistance | number:'1.1-1'}} NM</td>
+                <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
                 <td class="keyTD">Fuel Consumed</td>
-                <td>{{general.TotalFuel}}</td>
+                <td>{{roundNumber(general.TotalFuel, 10)}}</td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
                 <td class="keyTD">Fuel Economy</td>
-                <td>{{general.FuelEcon}}</td>
+                <td>{{roundNumber(general.FuelEcon, 10)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Avg. speed outbound</td>
-                <td>{{general.AvgSpeedOutbound | number:'1.1-1'}} knots</td>
+                <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
                 <td class="keyTD">Avg. speed inbound</td>
-                <td>{{general.AvgSpeedInbound | number:'1.1-1'}} knots</td>
+                <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Max. speed outbound</td>
-                <td>{{general.AvgSpeedOutboundUnrestricted | number:'1.1-1'}} knots</td>
+                <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
                 <td class="keyTD">Max. speed inbound</td>
-                <td>{{general.AvgSpeedInboundUnrestricted | number:'1.1-1'}} knots</td>
+                <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">MSI outbound</td>
-                <td>{{general.MsiOutbound | number:'1.1-1'}}%</td>
+                <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
                 <td class="keyTD">MSI inbound</td>
-                <td>{{general.MsiInbound | number:'1.1-1'}}%</td>
+                <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">WBV, Technicians</td>
-                <td>{{general.WBVtechs | number:'1.1-2'}} (A8)</td>
+                <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
                 <td class="keyTD">WBV, Vessel Crew</td>
-                <td>{{general.WBVcrew | number:'1.1-2'}} (A8)</td>
+                <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Number of dockings</td>
-                <td>{{general.numDockings}}</td>
+                <td>{{roundNumber(general.numDockings, 1)}}</td>
                 <td class="keyTD">Average Docking Time</td>
-                <td>{{general.AverageDockedTime}}</td>
+                <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
             </tr>
         </table>
     </div>
@@ -170,7 +171,8 @@
                 </tr>
             </tbody>
         </table>
-        <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+        <ngb-alert class="mainAlert" *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+        <ngb-alert class="noMapDataAlert" *ngIf="parkNotFound" [type]="'danger'" (close)="parkNotFound=false">Map data not complete</ngb-alert>
     </div>
     <ng-template #noPermission>
         <div class="divContainer">
