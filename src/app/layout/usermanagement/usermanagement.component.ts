@@ -6,6 +6,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-usermanagement',
@@ -15,10 +16,10 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class UserManagementComponent implements OnInit {
 
-    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) { }
+    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private userService: UserService) { }
     username = this.getUsernameFromParameter();
     user = this.getUser();
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats;
     alert = { type: '', message: '' };
     showAlert = false;
@@ -41,14 +42,6 @@ export class UserManagementComponent implements OnInit {
         let username;
         this.route.params.subscribe(params => username = String(params.username));
         return username;
-    }
-
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
     }
 
     getUser() {

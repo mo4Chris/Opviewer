@@ -3,7 +3,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from '../../../common.service';
-import * as jwt_decode from 'jwt-decode';
+
+import { UserService } from '../../../shared/services/user.service';
 
 @Component({
     selector: 'app-header',
@@ -15,23 +16,14 @@ export class HeaderComponent implements OnInit {
     pushRightClass = 'push-right';
     modalReference: NgbModalRef;
     pages = ['dashboard', 'tables', 'vesselreport', 'scatterplot', 'users', 'signup', 'login' ];
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
-    userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-    feedback = {message: '', page: '', person: this.tokenInfo.userID};
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    userCreatePermission;
+    feedback;
     alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
     timeout;
 
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
-      }
-
-    constructor(private translate: TranslateService, public router: Router, private newService: CommonService, private modalService: NgbModal) {
-
+    constructor(private translate: TranslateService, public router: Router, private newService: CommonService, private modalService: NgbModal, private userService: UserService) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de', 'zh-CHS']);
         this.translate.setDefaultLang('en');
         const browserLang = this.translate.getBrowserLang();
@@ -49,6 +41,8 @@ export class HeaderComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
+        this.feedback = {message: '', page: '', person: this.tokenInfo.userID};
     }
 
     openModal(content) {

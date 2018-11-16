@@ -3,6 +3,7 @@ import { routerTransition } from '../../router.animations';
 import * as jwt_decode from 'jwt-decode';
 
 import {CommonService} from '../../common.service';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -11,7 +12,7 @@ import {CommonService} from '../../common.service';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(private newService: CommonService) {   }
+    constructor(private newService: CommonService, private userService: UserService) {   }
     LLdata;
     Locdata;
     errData;
@@ -26,15 +27,7 @@ export class DashboardComponent implements OnInit {
 
      infoWindowOpened = null;
 
-     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
-
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
-      }
+     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
 
     filter() {
         this.infoWindowOpened = null;

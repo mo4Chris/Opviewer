@@ -2,12 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
-
-import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-vesselreport',
@@ -17,7 +16,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 })
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private userService: UserService) {
 
   }
 
@@ -36,7 +35,7 @@ export class VesselreportComponent implements OnInit {
   videoRequests;
   videoBudget;
 
-  tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
@@ -116,14 +115,6 @@ export class VesselreportComponent implements OnInit {
     const difference = serialEnd.diff(serialBegin);
 
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-        return jwt_decode(token);
-    } catch (Error) {
-        return null;
-    }
   }
 
   getTransfersForVessel(vessel) {
