@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
 
 import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
+import * as Chart from 'chart.js';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -15,15 +17,19 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./vesselreport.component.scss'],
   animations: [routerTransition()]
 })
-export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
+
+
+export class VesselreportComponent implements OnInit {
+  @ViewChild('yourId') yourId: ElementRef;
+
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private elementRef: ElementRef) {
 
   }
 
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
+  maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
+  vesselObject = { 'date': this.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD() };
 
   transferData;
   parkNamesData;
@@ -35,6 +41,10 @@ export class VesselreportComponent implements OnInit {
   vessels;
   videoRequests;
   videoBudget;
+  myChart;
+  XYvars = [];
+  ColorVarsPoints = [];
+  charts = [];
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -46,16 +56,17 @@ export class VesselreportComponent implements OnInit {
   mapTypeId = 'roadmap';
   streetViewControl = false;
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-      'Incident', 'Embarkation', 'Vessel2Vessel',
-      'Too much wind for craning', 'Trial docking',
-      'Transfer of PAX not possible', 'Other'];
+    'Incident', 'Embarkation', 'Vessel2Vessel',
+    'Too much wind for craning', 'Trial docking',
+    'Transfer of PAX not possible', 'Other'];
   commentsChanged;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
   timeout;
   vessel;
-  videoRequestPermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
-  videoRequestLoading = false;
+  videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
+  RequestLoading = false;
+
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
@@ -69,7 +80,7 @@ export class VesselreportComponent implements OnInit {
     for (let i = 0; i < this.dateData.length; i++) {
       const day: number = this.dateData[i].day;
       const month: number = this.dateData[i].month;
-      const year: number =  this.dateData[i].year;
+      const year: number = this.dateData[i].year;
       // tslint:disable-next-line:triple-equals
       if (day == date.day && month == date.month && year == date.year) {
         return true;
@@ -79,7 +90,7 @@ export class VesselreportComponent implements OnInit {
 
   getMMSIFromParameter() {
     let mmsi;
-    this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
+    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
 
     return mmsi;
   }
@@ -95,12 +106,12 @@ export class VesselreportComponent implements OnInit {
   }
   JSDateYMDToObjectDate(YMDDate) {
     YMDDate = YMDDate.split('-');
-    const ObjectDate = {year: YMDDate[0], month: YMDDate[1] , day: YMDDate[2]};
+    const ObjectDate = { year: YMDDate[0], month: YMDDate[1], day: YMDDate[2] };
     return ObjectDate;
   }
 
   MatlabDateToJSTime(serial) {
-    const time_info  = moment((serial - 719529) * 864e5 ).format('HH:mm:ss');
+    const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
 
     return time_info;
   }
@@ -120,44 +131,96 @@ export class VesselreportComponent implements OnInit {
 
   getDecodedAccessToken(token: string): any {
     try {
-        return jwt_decode(token);
+      return jwt_decode(token);
     } catch (Error) {
-        return null;
+      return null;
     }
   }
 
   getTransfersForVessel(vessel) {
+
+    let isUp = false;
+    const responseTimes = [];
+
     return this.newService
-    .GetTransfersForVessel(vessel).pipe(
-    map(
-      (transfers) => {
-        this.transferData = transfers;
-      }),
-     catchError(error => {
-        console.log('error ' + error);
-        throw error;
-      }));
+      .GetTransfersForVessel(vessel).pipe(
+        map(
+          (transfers) => {
+            this.transferData = transfers;
+            if (transfers !== 0) {
+              this.XYvars = [];
+              const XYTempvars = [];
+              this.ColorVarsPoints = [];
+              for (let i = 0; i < transfers.length; i++) {
+
+                if (transfers[i].slipGraph !== undefined) {
+                  XYTempvars.push([]);
+                  this.ColorVarsPoints.push([]);
+                  responseTimes.push([]);
+                  for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
+
+                    XYTempvars[i].push({ x: this.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
+
+                    if (isUp === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
+                      responseTimes[i].push(_i);
+                      isUp = true;
+                    } else if (isUp === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
+                      responseTimes[i].push(_i);
+                      isUp = false;
+                    }
+                  }
+                }
+              }
+
+              for (let i = 0; i < transfers.length; i++) {
+                this.XYvars.push([]);
+                for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
+                  let pointColor;
+
+                  pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
+
+                  this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: pointColor, pointHoverRadius: 0});
+                  if (_i === 0) {
+                    this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
+                  } else if (_i === responseTimes.length) {
+                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_i]);
+                  } else {
+                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                  }
+                }
+              }
+            }
+          }),
+        catchError(error => {
+          console.log('error ' + error);
+          throw error;
+        }));
+  }
+
+  MatlabDateToUnixEpoch(serial) {
+    const time_info = moment((serial - 719529) * 864e5);
+    return time_info;
   }
 
   getComments(vessel) {
     return this.newService.getCommentsForVessel(vessel).pipe(
-    map(
-      (changed) => {
-        this.commentsChanged = changed;
-      }),
+      map(
+        (changed) => {
+          this.commentsChanged = changed;
+        }),
       catchError(error => {
         console.log('error ' + error);
         throw error;
       }));
 
-    }
+  }
 
   getVideoRequests(vessel) {
-      return this.newService.getVideoRequests(vessel).pipe(
-    map(
-      (requests) => {
+    return this.newService.getVideoRequests(vessel).pipe(
+      map(
+        (requests) => {
           this.videoRequests = requests;
-      }),
+        }),
       catchError(error => {
         console.log('error ' + error);
         throw error;
@@ -167,70 +230,164 @@ export class VesselreportComponent implements OnInit {
 
   getDatesWithTransfers(date) {
     return this.newService
-    .getDatesWithValues(date).pipe(
-      map(
-        (dates) => {
-          for (let _i = 0; _i < dates.length; _i++) {
-            dates[_i] = this.JSDateYMDToObjectDate(this.MatlabDateToJSDateYMD(dates[_i]));
-        }
-          this.dateData = dates;
-        }),
+      .getDatesWithValues(date).pipe(
+        map(
+          (dates) => {
+            for (let _i = 0; _i < dates.length; _i++) {
+              dates[_i] = this.JSDateYMDToObjectDate(this.MatlabDateToJSDateYMD(dates[_i]));
+            }
+            this.dateData = dates;
+          }),
         catchError(error => {
           console.log('error ' + error);
           throw error;
         }));
   }
 
+  createSlipgraphs() {
+    this.charts = [];
+    if (this.transferData.length > 0 && this.transferData[0].slipGraph !== undefined && this.transferData[0].slipGraph.slipX.length > 0) {
+      const array = [];
+      for (let i = 0; i < this.transferData.length; i++) {
+        const line = {
+          type: 'line',
+          data: {
+            datasets: this.XYvars[i]
+          },
+          options: {
+            scaleShowVerticalLines: false,
+            legend: false,
+            tooltips: false,
+            responsive: true,
+            elements: {
+
+              point:
+                { radius: 0 },
+              line:
+                { tension: 0 }
+            },
+              animation: {
+                duration: 0,
+              },
+              hover: {
+                  animationDuration: 0,
+              },
+              responsiveAnimationDuration: 0,
+            scales: {
+              xAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Time'
+                },
+                type: 'time'
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Something that is slipping'
+                }
+              }]
+            },
+            annotation: {
+              annotations: [
+                {
+                  type: 'line',
+                  drawTime: 'afterDatasetsDraw',
+                  id: 'average',
+                  mode: 'horizontal',
+                  scaleID: 'y-axis-0',
+                  value: this.transferData[0].slipGraph.slipLimit,
+                  borderWidth: 2,
+                  borderColor: 'red'
+                }
+              ]
+            },
+          },
+        };
+        array.push(line);
+      }
+      this.createCharts(array);
+    }
+  }
+
+  createCharts(pieData) {
+    for (let j = 0; j < pieData.length; j++) {
+      const tempChart = new Chart('canvas' + j, pieData[j]);
+      this.charts.push(tempChart);
+    }
+  }
+
   objectToInt(objectvalue) {
     return parseFloat(objectvalue);
   }
 
-    ngOnInit() {
-        if (this.tokenInfo.userPermission === 'admin') {
-            this.newService.GetVessel().subscribe(data => this.vessels = data);
-        } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-                this.vessels = data;
-                
-            });
-        }
-        this.BuildPageWithCurrentInformation();
+
+  ngOnInit() {
+    this.RequestLoading = true;
+    Chart.pluginService.register(ChartAnnotation);
+    if (this.tokenInfo.userPermission === 'admin') {
+      this.newService.GetVessel().subscribe(data => this.vessels = data);
+    } else {
+      this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+        this.vessels = data;
+
+      });
+    }
+    this.BuildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
     this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+    this.RequestLoading = true;
+    this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-          this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {
+          this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
             this.getComments(this.vesselObject).subscribe(_ => {
               this.getVideoRequests(this.vesselObject).subscribe(_ => {
                 this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                    if (data[0]) {
-                        this.videoBudget = data[0];
-                    } else {
-                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                    }
-                  this.vessel = this.vessels.find(x => x.mmsi == this.vesselObject.mmsi);
+                  if (data[0]) {
+                    this.videoBudget = data[0];
+                  } else {
+                    this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                  }
+                  this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
                   this.matchCommentsWithTransfers();
                 });
               });
             });
           });
           if (this.transferData.length !== 0) {
-            this.newService.GetDistinctFieldnames({'mmsi' : this.transferData[0].mmsi, 'date' : this.transferData[0].date}).subscribe(data => {
-              this.newService.GetSpecificPark({'park' : data}).subscribe(data => {this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); } );
+            this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
+              this.newService.GetSpecificPark({ 'park': data }).subscribe(data => { this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); });
             });
             this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
           }
-        setTimeout(() => this.showContent = true, 1050);
+          setTimeout(() => this.showContent = true, 1050);
+
+
+          if (this.charts.length <= 0) {
+            setTimeout(() => this.createSlipgraphs(), 10);
+          } else {
+            if (this.transferData[0].slipGraph.length <= 0) {
+              for (let i = 0; i < this.charts.length; i++) {
+                this.charts[i].destroy();
+              }
+            } else {
+              for (let i = 0; i < this.charts.length; i++) {
+                this.charts[i].destroy();
+              }
+              setTimeout(() => this.createSlipgraphs(), 10);
+            }
+          }
         });
       } else {
         this.showContent = true;
         this.noPermissionForData = true;
       }
     });
+    setTimeout(() => this.RequestLoading = false, 2500);
   }
 
   matchCommentsWithTransfers() {
@@ -250,69 +407,69 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-    matchVideoRequestWithTransfer(transfer) {
-        let vid;
-        if (!this.videoRequests) {
-            vid = { text: "Not requested", disabled: false };
-            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
-        }
-        vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
-        if (vid) {
-            vid.disabled = false;
-            vid.text = "Not requested";
-            if (vid.active) {
-                vid.text = "Requested";
-            }
-            if (vid.status === "denied" || vid.status === "delivered" || vid.status === "pending collection") {
-                vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
-                vid.status = vid.status.replace(' ', '_');
-                vid.disabled = true;
-            }
-            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
-        } else
-        if (transfer.videoAvailable) {
-            vid = { text: "Not requested", disabled: false };
-            return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
-        } else {
-            vid = { text: "Unavailable", disabled: true };
-            return vid;
-        }
+  matchVideoRequestWithTransfer(transfer) {
+    let vid;
+    if (!this.videoRequests) {
+      vid = { text: 'Not requested', disabled: false };
+      return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
     }
-
-    checkVideoBudget(duration, vid) {
-        if (!vid.active) {  
-            if (this.videoBudget.maxBudget >= 0 && this.videoBudget.currentBudget>=0) {
-                if (this.videoBudget.maxBudget <= this.videoBudget.currentBudget + duration) {
-                    vid.disabled = true;
-                    if (vid.status !== "denied" && vid.status !== "delivered" && vid.status !== "pending collection") {
-                        vid.text = "Not enough budget";
-                    }
-                }
-            }
-        }
+    vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
+    if (vid) {
+      vid.disabled = false;
+      vid.text = 'Not requested';
+      if (vid.active) {
+        vid.text = 'Requested';
+      }
+      if (vid.status === 'denied' || vid.status === 'delivered' || vid.status === 'pending collection') {
+        vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
+        vid.status = vid.status.replace(' ', '_');
+        vid.disabled = true;
+      }
+      return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+    } else
+      if (transfer.videoAvailable) {
+        vid = { text: 'Not requested', disabled: false };
+        return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
+      } else {
+        vid = { text: 'Unavailable', disabled: true };
         return vid;
+      }
+  }
+
+  checkVideoBudget(duration, vid) {
+    if (!vid.active) {
+      if (this.videoBudget.maxBudget >= 0 && this.videoBudget.currentBudget >= 0) {
+        if (this.videoBudget.maxBudget <= this.videoBudget.currentBudget + duration) {
+          vid.disabled = true;
+          if (vid.status !== 'denied' && vid.status !== 'delivered' && vid.status !== 'pending collection') {
+            vid.text = 'Not enough budget';
+          }
+        }
+      }
     }
+    return vid;
+  }
 
   getMatlabDateYesterday() {
     const matlabValueYesterday = moment().add(-2, 'days');
-    matlabValueYesterday.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
 
     const momentDateAsIso = moment(matlabValueYesterday).unix();
 
-    const dateAsMatlab =  this.unixEpochtoMatlabDate(momentDateAsIso);
+    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
 
     return dateAsMatlab;
   }
 
   getJSDateYesterdayYMD() {
-    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
+    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
     return JSValueYesterday;
   }
 
   searchTransfersByNewSpecificDate() {
     const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    datepickerValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     datepickerValueAsMomentDate.format();
 
     const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
@@ -327,78 +484,78 @@ export class VesselreportComponent implements OnInit {
 
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {
-        transferData.commentChanged.otherComment = '';
+      transferData.commentChanged.otherComment = '';
     }
     transferData.commentDate = Date.now();
     transferData.userID = this.tokenInfo.userID;
     this.newService.saveTransfer(transferData).pipe(
-        map(
-            (res) => {
-                this.alert.type = 'success';
-                this.alert.message = res.data;
-                transferData.formChanged = false;
-            }
-        ),
-        catchError(error => {
-            this.alert.type = 'danger';
-            this.alert.message = error;
-            throw error;
-        })
+      map(
+        (res) => {
+          this.alert.type = 'success';
+          this.alert.message = res.data;
+          transferData.formChanged = false;
+        }
+      ),
+      catchError(error => {
+        this.alert.type = 'danger';
+        this.alert.message = error;
+        throw error;
+      })
     ).subscribe(_ => {
-        clearTimeout(this.timeout);
-        this.showAlert = true;
-        this.timeout = setTimeout(() => {
-            this.showAlert = false;
-        }, 7000);
+      clearTimeout(this.timeout);
+      this.showAlert = true;
+      this.timeout = setTimeout(() => {
+        this.showAlert = false;
+      }, 7000);
     });
   }
 
-    setRequest(transferData) {
-        if (transferData.videoAvailable && !this.videoRequestLoading) {
-            this.videoRequestLoading = true;
-            if (this.videoBudget.maxBudget < 0) {
-                this.videoBudget.maxBudget = 100;
-            }
-            if (this.videoBudget.currentBudget < 0) {
-                this.videoBudget.currentBudget = 0;
-            }
-            if (transferData.video_requested.text == "Not requested") {
-                transferData.video_requested.text = "Requested";
-                this.videoBudget.currentBudget += transferData.videoDurationMinutes;
-            } else {
-                transferData.video_requested.text = "Not requested";
-                this.videoBudget.currentBudget -= transferData.videoDurationMinutes;
-            }
-            transferData.maxBudget = this.videoBudget.maxBudget;
-            transferData.currentBudget = this.videoBudget.currentBudget;
-            this.newService.saveVideoRequest(transferData).pipe(
-                map(
-                    (res) => {
-                        this.alert.type = 'success';
-                        this.alert.message = res.data;
-                        transferData.formChanged = false;
-                    }
-                ),
-                catchError(error => {
-                    this.alert.type = 'danger';
-                    this.alert.message = error;
-                    throw error;
-                })
-            ).subscribe(_ => {
-                this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                    for (let i = 0; i < this.transferData.length; i++) {
-                        this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
-                    }
-                    this.videoRequestLoading = false;
-                });
-                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => this.videoBudget = data[0]);
-                clearTimeout(this.timeout);
-                this.showAlert = true;
-                this.timeout = setTimeout(() => {
-                    this.showAlert = false;
-                }, 7000);
-            });
-        }
+  setRequest(transferData) {
+    if (transferData.videoAvailable && !this.RequestLoading) {
+      this.RequestLoading = true;
+      if (this.videoBudget.maxBudget < 0) {
+        this.videoBudget.maxBudget = 100;
+      }
+      if (this.videoBudget.currentBudget < 0) {
+        this.videoBudget.currentBudget = 0;
+      }
+      if (transferData.video_requested.text === 'Not requested') {
+        transferData.video_requested.text = 'Requested';
+        this.videoBudget.currentBudget += transferData.videoDurationMinutes;
+      } else {
+        transferData.video_requested.text = 'Not requested';
+        this.videoBudget.currentBudget -= transferData.videoDurationMinutes;
+      }
+      transferData.maxBudget = this.videoBudget.maxBudget;
+      transferData.currentBudget = this.videoBudget.currentBudget;
+      this.newService.saveVideoRequest(transferData).pipe(
+        map(
+          (res) => {
+            this.alert.type = 'success';
+            this.alert.message = res.data;
+            transferData.formChanged = false;
+          }
+        ),
+        catchError(error => {
+          this.alert.type = 'danger';
+          this.alert.message = error;
+          throw error;
+        })
+      ).subscribe(_ => {
+        this.getVideoRequests(this.vesselObject).subscribe(_ => {
+          for (let i = 0; i < this.transferData.length; i++) {
+            this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(this.transferData[i]);
+          }
+          this.RequestLoading = false;
+        });
+        this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => this.videoBudget = data[0]);
+        clearTimeout(this.timeout);
+        this.showAlert = true;
+        this.timeout = setTimeout(() => {
+          this.showAlert = false;
+        }, 7000);
+      });
     }
+  }
 
 }
