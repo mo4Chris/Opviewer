@@ -37,6 +37,7 @@ export class VesselreportComponent implements OnInit {
   vessels;
   videoRequests;
   videoBudget;
+  general = {};
   XYvars = [];
   charts = [];
 
@@ -58,9 +59,10 @@ export class VesselreportComponent implements OnInit {
   alert = { type: '', message: '' };
   timeout;
   vessel;
+  parkNotFound = false;
+  noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   RequestLoading = true;
-
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
@@ -105,6 +107,9 @@ export class VesselreportComponent implements OnInit {
   }
 
   MatlabDateToJSTime(serial) {
+    if (!serial) {
+      return "n/a";
+    }
     const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
 
     return time_info;
@@ -348,13 +353,21 @@ export class VesselreportComponent implements OnInit {
                   }
                   this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
                   this.matchCommentsWithTransfers();
+                  this.getGeneralStats(); 
                 });
               });
             });
           });
           if (this.transferData.length !== 0) {
             this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-              this.newService.GetSpecificPark({ 'park': data }).subscribe(data => { this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); });
+              this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
+                if (data[0]) {
+                  this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
+                  this.parkNotFound = false;
+                } else {
+                  this.parkNotFound = true;
+                }
+              });
             });
             this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
           }
@@ -478,6 +491,18 @@ export class VesselreportComponent implements OnInit {
     this.BuildPageWithCurrentInformation();
   }
 
+  getGeneralStats() {
+      this.newService.getGeneral(this.vesselObject).subscribe(general => {
+          if (general.data.length > 0 && general.data[0].DPRstats) {
+              this.general = general.data[0].DPRstats;
+              this.noTransits = false;
+          } else {
+              this.general = {};
+              this.noTransits = true;
+          }
+      });
+  }
+
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {
       transferData.commentChanged.otherComment = '';
@@ -554,4 +579,14 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
+  roundNumber(number, decimal = 10, addString = '') {
+    if (typeof number === 'string' || number instanceof String) {
+      return number;
+    }
+    if (!number) {
+      return "n/a";
+    }
+
+    return (Math.round(number * decimal) / decimal) + addString;
+  }
 }

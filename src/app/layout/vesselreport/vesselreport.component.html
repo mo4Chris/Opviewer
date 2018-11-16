@@ -33,31 +33,32 @@
     </div>
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
+            <ngb-alert class="noMapDataAlert" *ngIf="parkNotFound" [type]="'danger'" (close)="parkNotFound=false">Map data not complete</ngb-alert>
             <div class="leftdiv">
-                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index" >
-                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let parks of Locdata; let i=index">
+                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
                         </agm-circle>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                                </agm-polyline-point>
-                            </ng-container>
+                        <ng-container *ngFor="let location of boatLocationData; let i = index">
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
+                            </agm-polyline-point>
+                        </ng-container>
                     </agm-polyline>
                 </agm-map>
             </div>
-            <div class="rightdiv">  
+            <div class="rightdiv">
                 <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index" >
-                        <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                    <ng-container *ngFor="let parks of Locdata; let i=index">
+                        <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
                         </agm-circle>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                                </agm-polyline-point>
-                            </ng-container>
+                        <ng-container *ngFor="let location of boatLocationData; let i = index">
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
+                            </agm-polyline-point>
+                        </ng-container>
                     </agm-polyline>
                 </agm-map>
             </div>
@@ -70,60 +71,61 @@
     </ng-template>
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
+        <h3 *ngIf="noTransits">There is no transit data available</h3>
         <table class="table table-responsive">
             <tr>
                 <td class="keyTD">Departure Port</td>
-                <td>6:58</td>
+                <td>{{MatlabDateToJSTime(general.portDepartureTime)}}</td>
                 <td class="keyTD">Departure Wind Farm</td>
-                <td>15:46</td>
+                <td>{{MatlabDateToJSTime(general.departureWindFarmTime)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Arrival wind farm</td>
-                <td>8:57</td>
+                <td>{{MatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
                 <td class="keyTD">Arrival Port</td>
-                <td>17:39</td>
+                <td>{{MatlabDateToJSTime(general.portArrivalTime)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Distance Sailed</td>
-                <td>99.1 NM</td>
+                <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
                 <td class="keyTD">Fuel Consumed</td>
-                <td>n/a Ltr</td>
+                <td>{{roundNumber(general.TotalFuel, 10)}}</td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
                 <td class="keyTD">Fuel Economy</td>
-                <td>n/a ltr/nm</td>
+                <td>{{roundNumber(general.FuelEcon, 10)}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Avg. speed outbound</td>
-                <td>19.9 knots</td>
+                <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
                 <td class="keyTD">Avg. speed inbound</td>
-                <td>21.8 knots</td>
+                <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Max. speed outbound</td>
-                <td>22.0 knots</td>
+                <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
                 <td class="keyTD">Max. speed inbound</td>
-                <td>23.7 knots</td>
+                <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">MSI outbound</td>
-                <td>17.2%</td>
+                <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
                 <td class="keyTD">MSI inbound</td>
-                <td>19.7%</td>
+                <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">WBV, Technicians</td>
-                <td>0.46 (A8)</td>
+                <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
                 <td class="keyTD">WBV, Vessel Crew</td>
-                <td>0.69(A8)</td>
+                <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
             </tr>
             <tr>
                 <td class="keyTD">Number of dockings</td>
-                <td>9</td>
+                <td>{{roundNumber(general.numDockings, 1)}}</td>
                 <td class="keyTD">Average Docking Time</td>
-                <td>00:10:18</td>
+                <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
             </tr>
         </table>
     </div>
@@ -152,7 +154,7 @@
                     <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
                     <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
                     <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
-                    <td>{{transfer_Data.score}}</td> 
+                    <td>{{roundNumber(transfer_Data.score, 10)}}</td> 
                     <td>{{transfer_Data.location}}</td>  
                     <td class="comment">
                         <span ngbDropdown class="d-inline-block dropdown">
