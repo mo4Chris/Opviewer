@@ -377,17 +377,15 @@ export class VesselreportComponent implements OnInit {
           if (this.charts.length <= 0) {
             setTimeout(() => this.createSlipgraphs(), 10);
           } else {
-            if (this.transferData.length > 0) {
-              if (typeof this.transferData[0].slipX !== 'undefined' && this.transferData[0].slipX.length > 0) {
+            if (typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
                 for (let i = 0; i < this.charts.length; i++) {
                   this.charts[i].destroy();
                 }
-              }
-            } else {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
-              }
-              setTimeout(() => this.createSlipgraphs(), 10);
+                setTimeout(() => this.createSlipgraphs(), 10);
+              } else {
+                for (let i = 0; i < this.charts.length; i++) {
+                  this.charts[i].destroy();
+                }
             }
           }
         });
