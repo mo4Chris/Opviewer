@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import * as jwt_decode from 'jwt-decode';
+import { ActivatedRoute } from '@angular/router';
 
 import {CommonService} from '../../common.service';
 
@@ -11,7 +12,7 @@ import {CommonService} from '../../common.service';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(private newService: CommonService) {   }
+    constructor(private newService: CommonService, private route: ActivatedRoute) {   }
     LLdata;
     Locdata;
     errData;
@@ -25,8 +26,10 @@ export class DashboardComponent implements OnInit {
      // End map settings
 
      infoWindowOpened = null;
-
+     showAlert = false;
      tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    alert = { type: '', text: '' };
+    timeout;
 
     getDecodedAccessToken(token: string): any {
         try {
@@ -73,5 +76,17 @@ export class DashboardComponent implements OnInit {
         } else {
             this.getLatestBoatLocationCompany([{'companyName' : this.tokenInfo.userCompany}]);
         }
-      }
+        this.getAlert();
+    }
+
+    getAlert() {
+        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message });
+        if (this.alert.type != '' && this.alert.text != '') {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 10000);
+        }
+    }
 }
