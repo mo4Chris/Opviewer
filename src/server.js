@@ -140,6 +140,67 @@ var videoBudgetSchema = new Schema({
 }, { versionKey: false });
 var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
+var SovModel = new Schema({
+    vesselname: { type: String},
+    date: { type: String},
+    mmsi: { Type: Number}
+}, {versionKey: false });
+var SovModel = mongo.model('SOV_generalStats', SovModel, 'SOV_generalStats');
+
+var SovPlatformTransfers = new Schema({
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    vesselname: { type: String },
+    mmsi: { type: Number },
+    timeInWaitingZone: { type: Number },
+    Tentry1000mWaitingRange: { type: Number },
+    locationname: { type: String },
+    aproachTime: { type: Number },
+    visitDuration: { type: Number },
+    totalDuration: { type: Number },
+    gangwayDeployedDuration: { type: String },
+    timeGangwayDeployed: { type: String },
+    current: { type: String },
+    timeGangwayReady: { type: String },
+    timeGangwayRetracted: { type: String },
+    timeGangwayStowed: { type: String },
+    peakWindGust: { type: String },
+    peakWindAvg: { type: String },
+    gangwayUtilisation: { type: String },
+    peakHeave: { type: String },
+    DPutilisation: { type: String },
+    Hs: { type: String },
+}, {versionKey: false });
+var SovPlatformTransfers = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
+
+var SovTurbineTransfers = new Schema({
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    vesselname: { type: String },
+    mmsi: { type: Number },
+    duration: { type: Number },
+    location: { type: String },
+    fieldname: { type: String },
+    gangwayDeployedDuration: { type: String },
+    gangwayReadyDuration: { type: String },
+    timeGangwayDeployed: { type: String },
+    timeGangwayReady: { type: String },
+    timeGangwayRetracted: { type: String },
+    timeGangwayStowed: { type: String },
+    peakWindGust: { type: Number },
+    peakWindAvg: { type: Number },
+    gangwayUtilisation: { type: String },
+    gangwayUtilisationLimiter: { type: String },
+    peakHeave: { type: String },
+    DPutilisation: { type: String },
+    current: { type: String },
+    approachTime: { type: String },
+    Hs: { type: String },
+    Ts: { type: String },
+    comment: { type: String }
+});
+var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -375,6 +436,52 @@ app.get("/api/getVessel", function (req, res) {
             client: 'asc', nicename: 'asc'
         }
     }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getSov/:mmsi", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+
+    SovModel.find({"mmsi": mmsi} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getPlatformTransfers/:mmsi", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    SovPlatformTransfers.find({"mmsi": mmsi} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getTurbineTransfers/:mmsi", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    SovTurbineTransfers.find({"mmsi": mmsi} , function (err, data) {
         if (err) {
             res.send(err);
         } else {

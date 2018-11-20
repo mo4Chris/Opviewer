@@ -9,6 +9,12 @@ export class DatetimeService {
 
   constructor() { }
 
+  //Improve when more data is calculated for SOV transfers
+  MatlabDurationToMinutes(serial) {
+    const minutes = moment.duration(serial).asMinutes();
+    return minutes;
+  }
+
   MatlabDateToJSDate(serial) {
     const dateInt = moment((serial - 719529) * 864e5).format('DD-MM-YYYY');
     return dateInt;

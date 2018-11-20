@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 
-
 @Injectable()
 export class CommonService {
 
@@ -22,6 +21,21 @@ export class CommonService {
   GetVessel() {
     return this.get(environment.DB_IP + '/api/getVessel/').pipe(
             map((response: Response) => response.json()));
+  }
+
+  GetSov(mmsi) {
+    return this.get(environment.DB_IP + '/api/getSov/' + mmsi).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetPlatformTransfers(mmsi) {
+    return this.get(environment.DB_IP + '/api/getPlatformTransfers/' + mmsi).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetTurbineTransfers(mmsi) {
+    return this.get(environment.DB_IP + '/api/getTurbineTransfers/' + mmsi).pipe(
+      map((response: Response) => response.json()));
   }
 
   GetVesselsForCompany(client) {

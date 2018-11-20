@@ -24,7 +24,8 @@
         </form>
     </div>
     <div *ngIf="noPermissionForData == false; else noPermission">
-        <div class="divContainer" *ngIf="Locdata != null && Locdata.length > 0 && showContent == true; else other_content">
+        <div class="divContainer" *ngIf="showContent == true; else other_content">
+        <div *ngIf="Locdata != null && Locdata.length > 0">
             <div class="leftdiv">
                 <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="overviewZoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let parks of Locdata; let i=index" >
@@ -53,11 +54,12 @@
                     </agm-polyline>
                 </agm-map>
             </div>
+        </div>
             <div *ngIf="vesselObject.vesselType == 'CTV'">
                 <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-ctvreport>
             </div>
             <div *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'">
-                <app-sovreport (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-sovreport>
+                <app-sovreport [vesselObject]="vesselObject" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-sovreport>
             </div>
         </div>
     </div>
