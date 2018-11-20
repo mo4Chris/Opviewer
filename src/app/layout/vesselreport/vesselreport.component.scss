@@ -66,7 +66,7 @@ ngb-alert {
     height: 100%;
     top: 0;
     left: 0;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.995);
     z-index: 1050;
 }
 .custom-day {
@@ -82,4 +82,9 @@ ngb-alert {
 .disable-day{
    background-color: white;
    color: rgb(225, 225, 225) !important;
+}
+
+.noMapDataAlert {
+    position: relative;
+    width: 99%;
 }

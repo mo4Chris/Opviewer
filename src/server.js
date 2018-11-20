@@ -140,6 +140,17 @@ var videoBudgetSchema = new Schema({
 }, { versionKey: false });
 var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
+var generalSchema = new Schema({
+    mmsi: { type: Number },
+    vesselname: { type: String },
+    date: { type: Number },
+    minutesFloating: { type: Number },
+    minutesInField: { type: Number },
+    distancekm: { type: Number },
+    DPRstats: { type: Object } 
+}, { versionKey: false });
+var generalmodel = mongo.model('general', generalSchema, 'general');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -947,6 +958,21 @@ app.post("/api/setPassword", function (req, res) {
                 res.send({ data: "Succesfully reset the password" });
             }
         });
+});
+
+app.post("/api/getGeneral", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: data });
+            }
+        });
+    });
 });
 
 app.listen(8080, function () {
