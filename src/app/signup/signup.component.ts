@@ -47,7 +47,7 @@ export class SignupComponent implements OnInit {
         }
         this._auth.registerUser(this.registerUserData).subscribe(
             res => {
-                this.router.navigate(['/dashboard', { status: 'success', message: res.data }]);
+                this.router.navigate(['/dashboard']);
             },
             err => {
                 this.showAlert = true;
