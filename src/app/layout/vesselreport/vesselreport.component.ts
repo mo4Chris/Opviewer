@@ -408,6 +408,10 @@ export class VesselreportComponent implements OnInit {
 
   matchVideoRequestWithTransfer(transfer) {
     let vid;
+    if (this.vessel.videobudget == "_NaN_" || this.vessel.videobudget == undefined) {
+        vid = { disabled: true, text: 'Unavailable' };
+        return vid;
+    }
     if (!this.videoRequests) {
       vid = { text: 'Not requested', disabled: false };
       return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
@@ -524,11 +528,16 @@ export class VesselreportComponent implements OnInit {
   setRequest(transferData) {
     if (transferData.videoAvailable && !this.RequestLoading) {
       this.RequestLoading = true;
-      if (this.videoBudget.maxBudget < 0) {
-        this.videoBudget.maxBudget = 100;
+      if (this.vessel.videobudget != "_NaN_") {
+        this.videoBudget.maxBudget = this.vessel.videobudget;
+      } else {
+        this.videoBudget.maxBudget = 0;
       }
       if (this.videoBudget.currentBudget < 0) {
         this.videoBudget.currentBudget = 0;
+      }
+      if (this.vessel.videoResetDay != "_NaN_") {
+        this.videoBudget.resetDate = this.vessel.videoResetDay;
       }
       if (transferData.video_requested.text === 'Not requested') {
         transferData.video_requested.text = 'Requested';
@@ -539,6 +548,7 @@ export class VesselreportComponent implements OnInit {
       }
       transferData.maxBudget = this.videoBudget.maxBudget;
       transferData.currentBudget = this.videoBudget.currentBudget;
+      transferData.resetDate = this.videoBudget.resetDate;
       this.newService.saveVideoRequest(transferData).pipe(
         map(
           (res) => {
