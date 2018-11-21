@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
-
-import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-vesselreport',
@@ -20,7 +19,8 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private userService: UserService) {
+
   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
@@ -41,7 +41,7 @@ export class VesselreportComponent implements OnInit {
   XYvars = [];
   charts = [];
 
-  tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
@@ -127,14 +127,6 @@ export class VesselreportComponent implements OnInit {
     const difference = serialEnd.diff(serialBegin);
 
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-      return jwt_decode(token);
-    } catch (Error) {
-      return null;
-    }
   }
 
   getTransfersForVessel(vessel) {
@@ -438,6 +430,10 @@ export class VesselreportComponent implements OnInit {
 
   matchVideoRequestWithTransfer(transfer) {
     let vid;
+    if (this.vessel.videobudget == "_NaN_" || this.vessel.videobudget == undefined) {
+      vid = {disabled: true, text: 'Unavailable'};
+      return vid;
+    }
     if (!this.videoRequests) {
       vid = { text: 'Not requested', disabled: false };
       return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
@@ -554,11 +550,16 @@ export class VesselreportComponent implements OnInit {
   setRequest(transferData) {
     if (transferData.videoAvailable && !this.RequestLoading) {
       this.RequestLoading = true;
-      if (this.videoBudget.maxBudget < 0) {
-        this.videoBudget.maxBudget = 100;
+      if(this.vessel.videobudget != "_NaN_") {
+        this.videoBudget.maxbudget = this.vessel.videobudget;
+      } else {
+        this.videoBudget.maxBudget = 0;
       }
       if (this.videoBudget.currentBudget < 0) {
         this.videoBudget.currentBudget = 0;
+      }
+      if (this.vessel.videoResetDay != "_NaN_"){
+        this.videoBudget.resetDate = this.vessel.videoResetDay;
       }
       if (transferData.video_requested.text === 'Not requested') {
         transferData.video_requested.text = 'Requested';
@@ -569,6 +570,7 @@ export class VesselreportComponent implements OnInit {
       }
       transferData.maxBudget = this.videoBudget.maxBudget;
       transferData.currentBudget = this.videoBudget.currentBudget;
+      transferData.resetDate = this.videoBudget.resetDate;
       this.newService.saveVideoRequest(transferData).pipe(
         map(
           (res) => {

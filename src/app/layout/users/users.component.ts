@@ -4,6 +4,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import { Router } from '../../../../node_modules/@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-users',
@@ -12,10 +13,10 @@ import { map, catchError } from 'rxjs/operators';
     animations: [routerTransition()]
 })
 export class UsersComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router ) { }
+    constructor(private newService: CommonService, private _router: Router, private userService: UserService ) { }
     errData;
     userData;
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
     alert = { type: '', message: '' };
     timeout;
@@ -35,14 +36,6 @@ export class UsersComponent implements OnInit {
 
     redirectManageBoats(username) {
         this._router.navigate(['usermanagement', { username: username }]);
-    }
-
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
     }
 
     resetPassword(id) {
