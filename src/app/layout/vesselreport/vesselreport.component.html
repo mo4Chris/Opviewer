@@ -33,13 +33,14 @@
     </div>
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
-            <ngb-alert class="noMapDataAlert" *ngIf="parkNotFound" [type]="'danger'" (close)="parkNotFound=false">Map data not complete</ngb-alert>
+            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && routeFound" [type]="'warning'">We were not able to find the requested windpark. Only the route is being displayed. Please contact BMO and provide them with the vessel name and date</ngb-alert>
+            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && !routeFound" [type]="'danger'">We were not able to find any travel data. Please contact BMO and provide them with the vessel name and date</ngb-alert>
             <div class="leftdiv">
                 <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index">
-                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
-                        </agm-circle>
-                    </ng-container>
+                        <ng-container *ngFor="let parks of Locdata; let i=index">
+                            <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
+                            </agm-circle>
+                        </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let location of boatLocationData; let i = index">
                             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
@@ -185,13 +186,12 @@
         <div class="divContainer">
             <h3>You are not allowed to view the boat you requested</h3>
         </div>
-    </ng-template>
-    
+    </ng-template>  
 </div>
 
 <div class="row">
-        <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
-            <span *ngIf="transfer_Data.slipGraph !== 'undefined' && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer #{{ind + 1}}</h3></span>
-            <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
-        </div>
+    <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
+        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer #{{ind + 1}}</h3></span>
+        <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
     </div>
+</div>
