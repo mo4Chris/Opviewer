@@ -12,4 +12,5 @@ Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
              </agm-marker>
         </ng-container>
     </agm-map>
+    <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
 </div>

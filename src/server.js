@@ -61,7 +61,9 @@ var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
     client: { type: String },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    videobudget: { type: Number },
+    videoResetDay: { type: Number }
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
@@ -234,6 +236,10 @@ app.post("/api/registerUser", function (req, res) {
                 res.send(err);
             } else {
                 if (!existingUser) {
+                    var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    if (!regex.test(userData.email)) {
+                        return res.status(401).send('The Email address is not a valid e-mail address.');
+                    }
                     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
                     randomToken = randomToken.replace(/\//gi, '8');
                     let user = new Usermodel({
@@ -248,7 +254,7 @@ app.post("/api/registerUser", function (req, res) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
-                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username;
+                            let link = process.env.IP_USER[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
                             let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
                             'If that doesnt work copy the link below <br>' + link;
                             mailTo('Registered user', html, user.username);
@@ -873,6 +879,9 @@ app.post("/api/saveVideoRequest", function (req, res) {
                             budget.maxBudget = req.body.maxBudget;
                             budget.currentBudget = req.body.currentBudget;
                             var date = new Date();
+                            if (req.body.resetDate) {
+                                date.setDate(req.body.resetDate);
+                            }
                             budget.resetDate = date.setMonth(date.getMonth() + 1);
                             budget.save(function (_err, _data) {
                                 if (_err) {
@@ -904,7 +913,7 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username;
+            let link = process.env.IP_USER[0] + "/set-password;token=" + randomToken + ";user=" + data.username;
             let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
             'If that doesnt work copy the link below <br>' + link;
             mailTo('Password reset', html, data.username);
