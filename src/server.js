@@ -181,6 +181,10 @@ function validatePermissionToViewData(req, res, callback) {
         if (!token.userBoats.find(x => x.mmsi === req.body.mmsi )) {
             return [];
         }
+        else{
+            filter.client = token.userCompany;
+            filter.mmsi = req.body.mmsi;
+        }
     } else if (token.userPermission !== 'admin') {
         filter.client = token.userCompany;
     }
