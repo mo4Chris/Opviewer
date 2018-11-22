@@ -5,8 +5,8 @@
              <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" (markerClick)="showInfoWindow(infoWindow, i)">
              	<agm-info-window #infoWindow>
                     <pre>
+<strong style="font-size: 15px;">{{ loc.vesselInformation[loc.vesselInformation.length -1]}}</strong>
 MMSI: {{loc._id}}
-Vesselname: {{ loc.vesselInformation[loc.vesselInformation.length -1]}}
 Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
      	        </agm-info-window>
              </agm-marker>

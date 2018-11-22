@@ -178,11 +178,9 @@ function validatePermissionToViewData(req, res, callback) {
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
         if (!token.userBoats.find(x => x.mmsi === req.body.mmsi )) {
             return [];
-        }
-        else {
+        } else {
             filter.client = token.userCompany;
-            filter.mmsi = req.body.mmsi;
-        }
+        } 
     } else if (token.userPermission !== 'admin') {
         filter.client = token.userCompany;
     }
@@ -695,7 +693,9 @@ app.get("/api/getUsers", function (req, res) {
     Usermodel.find({
 
     }, null, {
-
+        sort: {
+            client: 'asc', permissions: 'asc'
+        }
     }, function (err, data) {
         if (err) {
             res.send(err);

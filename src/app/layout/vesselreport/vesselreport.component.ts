@@ -369,7 +369,7 @@ export class VesselreportComponent implements OnInit {
           if (this.charts.length <= 0) {
             setTimeout(() => this.createSlipgraphs(), 10);
           } else {
-            if (typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+            if (typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
                 for (let i = 0; i < this.charts.length; i++) {
                   this.charts[i].destroy();
                 }
@@ -549,7 +549,8 @@ export class VesselreportComponent implements OnInit {
       transferData.maxBudget = this.videoBudget.maxBudget;
       transferData.currentBudget = this.videoBudget.currentBudget;
       transferData.resetDate = this.videoBudget.resetDate;
-      this.newService.saveVideoRequest(transferData).pipe(
+      const videoRequestTransferData = {mmsi: transferData.mmsi, videoPath: transferData.videoPath, vesselname: transferData.vesselname, videoAvailable: transferData.videoAvailable, video_requested: transferData.video_requested, maxBudget: transferData.maxBudget, currentBudget: this.videoBudget.currentBudget };
+      this.newService.saveVideoRequest(videoRequestTransferData).pipe(
         map(
           (res) => {
             this.alert.type = 'success';
