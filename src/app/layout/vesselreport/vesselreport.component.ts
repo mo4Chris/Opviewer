@@ -59,7 +59,8 @@ export class VesselreportComponent implements OnInit {
   alert = { type: '', message: '' };
   timeout;
   vessel;
-  parkNotFound = false;
+  parkFound = false;
+  routeFound = false;
   noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   RequestLoading = true;
@@ -329,6 +330,7 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
+    this.resetVesselData();
     this.noPermissionForData = false;
     this.RequestLoading = true;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
@@ -354,14 +356,28 @@ export class VesselreportComponent implements OnInit {
             this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
               this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
                 if (data[0]) {
-                  this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
-                  this.parkNotFound = false;
+                  this.Locdata = data, 
+                  this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), 
+                  this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
+                  this.parkFound = true;
                 } else {
-                  this.parkNotFound = true;
+                  this.parkFound = false;
                 }
+                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
+                  if (data[0]) {
+                  this.boatLocationData = data;
+                  this.routeFound = true;
+                    if(!this.parkFound) {
+                      this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), 
+                      this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
+                    }
+                  }
+                  else {
+                    this.routeFound = false;
+                }
+                });
               });
             });
-            this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
           }
           setTimeout(() => this.showContent = true, 1050);
 
@@ -589,5 +605,15 @@ export class VesselreportComponent implements OnInit {
     }
 
     return (Math.round(number * decimal) / decimal) + addString;
+  }
+
+  //Empty values so update doesn't overlap
+  resetVesselData() {
+    this.Locdata = null;
+    this.boatLocationData = null;
+    this.longitude = null;
+    this.latitude = null;
+    this.routeFound = false;
+    this.parkFound = false;
   }
 }
