@@ -142,7 +142,6 @@ export class VesselreportComponent implements OnInit {
               this.XYvars = [];
               const XYTempvars = [];
               for (let i = 0; i < transfers.length; i++) {
-
                 if (transfers[i].slipGraph !== undefined) {
                   XYTempvars.push([]);
                   responseTimes.push([]);
@@ -160,7 +159,6 @@ export class VesselreportComponent implements OnInit {
                   }
                 }
               }
-
               for (let i = 0; i < transfers.length; i++) {
                 this.XYvars.push([]);
 
@@ -173,8 +171,8 @@ export class VesselreportComponent implements OnInit {
                     this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
                     if (_i === 0) {
                       this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
-                    } else if (_i === responseTimes.length) {
-                      this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_i]);
+                    } else if (_i === responseTimes[i].length) {
+                      this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
                     } else {
                       this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
                     }
@@ -302,9 +300,9 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-  createCharts(pieData) {
-    for (let j = 0; j < pieData.length; j++) {
-      const tempChart = new Chart('canvas' + j, pieData[j]);
+  createCharts(lineData) {
+    for (let j = 0; j < lineData.length; j++) {
+      const tempChart = new Chart('canvas' + j, lineData[j]);
       this.charts.push(tempChart);
     }
   }
@@ -369,7 +367,7 @@ export class VesselreportComponent implements OnInit {
           if (this.charts.length <= 0) {
             setTimeout(() => this.createSlipgraphs(), 10);
           } else {
-            if (typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+            if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
                 for (let i = 0; i < this.charts.length; i++) {
                   this.charts[i].destroy();
                 }
@@ -549,7 +547,8 @@ export class VesselreportComponent implements OnInit {
       transferData.maxBudget = this.videoBudget.maxBudget;
       transferData.currentBudget = this.videoBudget.currentBudget;
       transferData.resetDate = this.videoBudget.resetDate;
-      this.newService.saveVideoRequest(transferData).pipe(
+      const videoRequestTransferData = {mmsi: transferData.mmsi, videoPath: transferData.videoPath, vesselname: transferData.vesselname, videoAvailable: transferData.videoAvailable, video_requested: transferData.video_requested, maxBudget: transferData.maxBudget, currentBudget: this.videoBudget.currentBudget };
+      this.newService.saveVideoRequest(videoRequestTransferData).pipe(
         map(
           (res) => {
             this.alert.type = 'success';
