@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
 import * as jwt_decode from 'jwt-decode';
+import { UserService } from '../shared/services/user.service';
 
 
 @Component({
@@ -23,13 +24,13 @@ export class SignupComponent implements OnInit {
     };
 
     businessNames;
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
     permissions = ['Vessel master', 'Marine controller'];
     alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
 
-    constructor(public router: Router, private _auth: AuthService, private newService: CommonService) {}
+    constructor(public router: Router, private _auth: AuthService, private newService: CommonService, private userService: UserService) {}
 
     onRegistration() {
         if (!this.permissions.find(permission => permission === this.registerUserData.permissions)) {
@@ -46,7 +47,7 @@ export class SignupComponent implements OnInit {
         }
         this._auth.registerUser(this.registerUserData).subscribe(
             res => {
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/dashboard', {status: 'success', message: res.data }]);
             },
             err => {
                 this.showAlert = true;
@@ -67,14 +68,6 @@ export class SignupComponent implements OnInit {
         } else {
             this.permissions = this.permissions.concat(['Logistics specialist', 'admin']);
             this.newService.GetCompanies().subscribe(data => this.businessNames = data);
-        }
-    }
-
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
         }
     }
 }

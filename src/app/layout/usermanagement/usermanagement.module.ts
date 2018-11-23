@@ -11,11 +11,12 @@ import { FormsModule } from '@angular/forms';
 
 import { CommonService } from '../../common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
     imports: [CommonModule, HttpClientModule, FormsModule, UserManagementRoutingModule, PageHeaderModule, NgbModule.forRoot(), NgMultiSelectDropDownModule.forRoot(),],
     declarations: [UserManagementComponent],
-    providers: [CommonService],
+    providers: [CommonService, UserService],
     bootstrap: [UserManagementComponent]
 })
 export class UserManagementModule {}

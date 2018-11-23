@@ -4,6 +4,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from "jwt-decode";
  
 import { Router } from '../../../../node_modules/@angular/router';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-tables',
@@ -12,20 +13,11 @@ import { Router } from '../../../../node_modules/@angular/router';
     animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router ) { }
+    constructor(private newService: CommonService, private _router: Router, private userService: UserService ) { }
     Repdata;
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     ScatterplotPermission = (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist');
     valbutton = "Save";
-
-    getDecodedAccessToken(token: string): any {
-        try{
-            return jwt_decode(token);
-        }
-        catch(Error){
-            return null;
-        }
-      }
 
     ngOnInit() {
         if(this.tokenInfo.userPermission == "admin"){
