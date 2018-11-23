@@ -192,7 +192,7 @@
 
 <div class="row">
     <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
-        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer #{{ind + 1}}</h3></span>
+        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score: {{roundNumber(transfer_Data.score, 10)}}</h3></span>
         <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
     </div>
 </div>
