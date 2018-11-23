@@ -338,13 +338,7 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
-
-    //Empty values so update doesn't overlap
-    this.Locdata = null;
-    this.boatLocationData = null;
-    this.longitude = null;
-    this.latitude = null;
-
+    this.resetVesselData();
     this.noPermissionForData = false;
     this.RequestLoading = true;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
@@ -608,5 +602,15 @@ export class VesselreportComponent implements OnInit {
     }
 
     return (Math.round(number * decimal) / decimal) + addString;
+  }
+
+  //Empty values so update doesn't overlap
+  resetVesselData() {
+    this.Locdata = null;
+    this.boatLocationData = null;
+    this.longitude = null;
+    this.latitude = null;
+    this.routeFound = false;
+    this.parkFound = false;
   }
 }
