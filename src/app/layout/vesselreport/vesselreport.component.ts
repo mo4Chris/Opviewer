@@ -109,7 +109,7 @@ export class VesselreportComponent implements OnInit {
 
   MatlabDateToJSTime(serial) {
     if (!serial) {
-      return "n/a";
+      return 'n/a';
     }
     const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
 
@@ -345,7 +345,7 @@ export class VesselreportComponent implements OnInit {
                   }
                   this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
                   this.matchCommentsWithTransfers();
-                  this.getGeneralStats(); 
+                  this.getGeneralStats();
                 });
               });
             });
@@ -354,8 +354,8 @@ export class VesselreportComponent implements OnInit {
             this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
               this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
                 if (data[0]) {
-                  this.Locdata = data, 
-                  this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), 
+                  this.Locdata = data,
+                  this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]),
                   this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
                   this.parkFound = true;
                 } else {
@@ -365,12 +365,11 @@ export class VesselreportComponent implements OnInit {
                   if (data[0]) {
                   this.boatLocationData = data;
                   this.routeFound = true;
-                    if(!this.parkFound) {
-                      this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), 
+                    if (!this.parkFound) {
+                      this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]),
                       this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
                     }
-                  }
-                  else {
+                  } else {
                     this.routeFound = false;
                 }
                 });
@@ -422,7 +421,7 @@ export class VesselreportComponent implements OnInit {
 
   matchVideoRequestWithTransfer(transfer) {
     let vid;
-    if (this.vessel.videobudget == "_NaN_" || this.vessel.videobudget == undefined) {
+    if (this.vessel.videobudget === '_NaN_' || this.vessel.videobudget === undefined) {
       vid = {disabled: true, text: 'Unavailable'};
       return vid;
     }
@@ -542,7 +541,7 @@ export class VesselreportComponent implements OnInit {
   setRequest(transferData) {
     if (transferData.videoAvailable && !this.RequestLoading) {
       this.RequestLoading = true;
-      if(this.vessel.videobudget != "_NaN_") {
+      if (this.vessel.videobudget !== '_NaN_') {
         this.videoBudget.maxbudget = this.vessel.videobudget;
       } else {
         this.videoBudget.maxBudget = 0;
@@ -550,7 +549,7 @@ export class VesselreportComponent implements OnInit {
       if (this.videoBudget.currentBudget < 0) {
         this.videoBudget.currentBudget = 0;
       }
-      if (this.vessel.videoResetDay != "_NaN_"){
+      if (this.vessel.videoResetDay !== '_NaN_') {
         this.videoBudget.resetDate = this.vessel.videoResetDay;
       }
       if (transferData.video_requested.text === 'Not requested') {
@@ -599,13 +598,13 @@ export class VesselreportComponent implements OnInit {
       return number;
     }
     if (!number) {
-      return "n/a";
+      return 'n/a';
     }
 
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  //Empty values so update doesn't overlap
+  // Empty values so update doesn't overlap
   resetVesselData() {
     this.Locdata = null;
     this.boatLocationData = null;

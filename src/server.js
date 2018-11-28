@@ -250,7 +250,9 @@ app.post("/api/registerUser", function (req, res) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
-                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username;
+
+                            var serveradres = process.env.IP_USER.split(",");
+                            let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
                             let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
                             'If that doesnt work copy the link below <br>' + link;
                             mailTo('Registered user', html, user.username);
@@ -908,7 +910,8 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username;
+            let serveradres = process.env.IP_USER.split(',');
+            let link =  serveradres[0] + "/set-password;token=" + randomToken + ";user=" + data.username;
             let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
             'If that doesnt work copy the link below <br>' + link;
             mailTo('Password reset', html, data.username);
