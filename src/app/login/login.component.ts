@@ -21,26 +21,26 @@ export class LoginComponent implements OnInit {
     };
 
     constructor(public router: Router, private _auth: AuthService) {}
-    
+
 
     ngOnInit() {}
 
     onLoggedin() {
-        
-    	this._auth.loginUser(this.loginUserData).subscribe(
-    		res => {
-    			localStorage.setItem('token', res.token);
-    			this.router.navigate(['/dashboard']);
-    		},
+
+        this._auth.loginUser(this.loginUserData).subscribe(
+            res => {
+                localStorage.setItem('token', res.token);
+                this.router.navigate(['/dashboard']);
+            },
             err => {
                 this.showAlert = true;
-    			if(err instanceof HttpErrorResponse){
+                if (err instanceof HttpErrorResponse) {
                     if (err.status === 401) {
                         this.alert.message = err.error;
-    					this.router.navigate(['/login'])
-    				}
-    			}
-    		})
-    	
+                        this.router.navigate(['/login']);
+                    }
+                }
+            });
+
    }
 }

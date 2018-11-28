@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 
 @Component({
@@ -20,7 +20,7 @@ export class SetPasswordComponent implements OnInit {
     noUser = false;
     showAfterscreen = false;
 
-    constructor(private route: ActivatedRoute, private _auth: AuthService) { }
+    constructor(public router: Router, private route: ActivatedRoute, private _auth: AuthService) { }
 
     getTokenFromParameter() {
         let _token;
@@ -57,6 +57,7 @@ export class SetPasswordComponent implements OnInit {
             map(
                 (res) => {
                     this.showAfterscreen = true;
+                    setTimeout(() => this.router.navigate(['/login']), 3000);
                 }
             ),
             catchError(error => {
