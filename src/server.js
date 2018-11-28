@@ -201,6 +201,18 @@ var SovTurbineTransfers = new Schema({
 });
 var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
+var SovTransits = new Schema({
+    dayNum: {type: Number },
+    vesselname: {type: String },
+    mmsi: {type: Number },
+    toName: {type: String },
+    speedInTransitAvg: {type: Number },
+    speedInTransitAvgUnrestricted: {type: String },
+    transitTimeMinutes: {type: Number },
+    avHeading: {type: Number }
+});
+var SovTransits = mongo.model('SOV_transitStats', SovTransits, 'SOV_transitStats');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -460,13 +472,15 @@ app.get("/api/getSov/:mmsi", function (req, res) {
     });
 });
 
-app.get("/api/getPlatformTransfers/:mmsi", function (req, res) {
+app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
     let mmsi = parseInt(req.params.mmsi);
-    SovPlatformTransfers.find({"mmsi": mmsi} , function (err, data) {
+    let date = req.params.date;
+
+    SovTransits.find({"mmsi": mmsi, "dayNum": { $gte: date, $lt: date + 1 }} , function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -475,13 +489,32 @@ app.get("/api/getPlatformTransfers/:mmsi", function (req, res) {
     });
 });
 
-app.get("/api/getTurbineTransfers/:mmsi", function (req, res) {
+app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
     let mmsi = parseInt(req.params.mmsi);
-    SovTurbineTransfers.find({"mmsi": mmsi} , function (err, data) {
+    let date = req.params.date;
+
+    SovPlatformTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+    
+    SovTurbineTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }} , function (err, data) {
         if (err) {
             res.send(err);
         } else {

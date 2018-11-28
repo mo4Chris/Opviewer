@@ -11,6 +11,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DatetimeService } from '../../supportModules/datetime.service';
 
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
+import { SovreportComponent } from './sov/sovreport/sovreport.component';
 
 @Component({
   selector: 'app-vesselreport',
@@ -51,6 +52,9 @@ export class VesselreportComponent implements OnInit {
 
   @ViewChild(CtvreportComponent)
   private child: CtvreportComponent;
+
+  @ViewChild(SovreportComponent)
+  private sovChild: SovreportComponent;
 
   getOverviewZoomLvl(childZoomLvl: number): void{
     setTimeout(() => this.overviewZoomlvl = childZoomLvl, 500);
@@ -147,17 +151,23 @@ export class VesselreportComponent implements OnInit {
     if(this.vesselObject.vesselType == 'CTV' && this.child != null) {
         setTimeout(() => this.child.BuildPageWithCurrentInformation(), 1000);
     }
+    if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != null) {
+      setTimeout(() => this.sovChild.BuildPageWithCurrentInformation(), 1000);
+    }
   }
 
-  searchTransfersByNewSpecificDate() {
+  GetDateAsMatlab(): any {
     const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
     datepickerValueAsMomentDate.format();
 
     const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
 
-    const dateAsMatlab = this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
+    return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
+  }
 
+  searchTransfersByNewSpecificDate() {
+    const dateAsMatlab = this.GetDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
 

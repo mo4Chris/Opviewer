@@ -1,6 +1,6 @@
 <br /><br />
 <div *ngIf="loaded == true;">
-    <h2>{{sovModel.vesselname}}</h2>
+    <h2>{{sovModel.vesselname}}: {{sovModel.mmsi}}</h2>
     <div class="row">
         <div class="col-lg-4"><canvas id="operationalPieChart"></canvas></div>
         <div class="col-lg-4"><canvas id="workActivityPieChart"></canvas></div>
@@ -129,13 +129,14 @@
             </div>
         </div>
     </div>
-    <div class="row" *ngIf="(platformTransfers != null && platformTransfers.length > 0) || (turbineTransfers != null && turbineTransfers.length > 0)">
+    <div class="row">
         <br />
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
                 <div class="card-header">Chronology of Operations</div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped">
+                    <b *ngIf="noDataFound">No data was found for the selected sov vessel on the given date</b>
+                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Platform && platformTransfers.length > 0">
                         <thead>
                             <tr>
                                 <th>Platform</th>
@@ -151,46 +152,101 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <ng-container *ngIf="vesselIsPlatformType == true">
-                                    <ng-container *ngFor="let platformTransfer of platformTransfers">
-                                            <tr>
-                                                    <th>{{platformTransfer.location}}</th>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>{{platformTransfer.timeGangwayReady}}</td>
-                                                    <td>{{platformTransfer.timeGangwayRetracted}}</td>
-                                                    <td></td>
-                                                    <td>{{platformTransfer.Hs}}</td>
-                                                    <td>{{platformTransfer.duration}}</td>
-                                                    <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="10" class="text-right">{{platformTransfer.Comment}}</td>
-                                            </tr>
-                                </ng-container>
-                            </ng-container>
-                            <ng-container *ngIf="vesselIsPlatformType == false">
-                                    <ng-container *ngFor="let turbineTransfer of turbineTransfers">
-                                            <tr>
-                                                <th>{{turbineTransfer.location}}</th>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td>{{turbineTransfer.timeGangwayReady}}</td>
-                                                <td>{{turbineTransfer.timeGangwayRetracted}}</td>
-                                                <td></td>
-                                                <td>{{turbineTransfer.Hs}}</td>
-                                                <td>{{turbineTransfer.duration}}</td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="10" class="text-right">{{turbineTransfer.Comment}}</td>
-                                            </tr>
-                                        </ng-container>
+                            <ng-container *ngFor="let platformTransfer of platformTransfers">
+                                <tr>
+                                    <th>{{platformTransfer.location}}</th>
+                                    <td>{{platformTransfer.Tentry1000mWaitingRange}}</td>
+                                    <td>{{platformTransfer.startTime}}</td>
+                                    <td>{{platformTransfer.DPutilisation}}</td>
+                                    <td>{{platformTransfer.timeGangwayReady}}</td>
+                                    <td>{{platformTransfer.timeGangwayRetracted}}</td>
+                                    <td>{{platformTransfer.stopTime}}</td>
+                                    <td>{{platformTransfer.Hs}}</td>
+                                    <td>{{platformTransfer.duration}}</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="10" class="text-right">{{platformTransfer.Comment}}</td>
+                                </tr>
                             </ng-container>
                         </tbody>
                     </table>
+                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Turbine && turbineTransfers.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Farm</th>
+                                <th>Start</th>
+                                <th>Stop</th>
+                                <th>Gangway Ready</th>
+                                <th>Gangway Retracted</th>
+                                <th>Utilisation</th>
+                                <th>Hs</th>
+                                <th>Dp</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let turbineTransfer of turbineTransfers">
+                                <tr>
+                                    <th>{{turbineTransfer.location}}</th>
+                                    <td></td>
+                                    <td>{{GetMatlabDateToJSTime(turbineTransfer.startTime)}}</td>
+                                    <td>{{GetMatlabDateToJSTime(turbineTransfer.stopTime)}}</td>
+                                    <td>{{turbineTransfer.timeGangwayReady}}</td>
+                                    <td>{{turbineTransfer.timeGangwayRetracted}}</td>
+                                    <td></td>
+                                    <td>{{turbineTransfer.Hs}}</td>
+                                    <td>{{turbineTransfer.DPutilisation}}</td>
+                                    <td>{{turbineTransfer.comment}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="10" class="text-right">{{turbineTransfer.Comment}}</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>                    
+                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Unknown && transits.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Start time</th>
+                                    <th>End time</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let transit of transits">
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">
+                                            <table>
+                                                <!-- CTU TRANSFER -->
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Start</th>
+                                                        <th>End</th>
+                                                        <th>To</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
                 </div>
             </div>
         </div>

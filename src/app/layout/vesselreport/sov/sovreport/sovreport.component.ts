@@ -7,6 +7,8 @@ import { SovModel } from "../models/sov-model";
 import { DatetimeService } from "../../../../supportModules/datetime.service";
 import { PlatformTransfers } from "../models/platform-transfers";
 import { TurbineTransfer } from "../models/turbine-transfer";
+import { SovType } from "../models/SovType";
+import { Transit } from "../models/Transit";
 
 @Component({
     selector: "app-sovreport",
@@ -26,11 +28,16 @@ export class SovreportComponent implements OnInit {
     backgroundcolors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"];
 
     loaded = false;
-    sovModel: SovModel;
+    sovModel: SovModel = new SovModel();
+    sovType: SovType;
 
-    vesselIsPlatformType = true;
+    //used for comparison in the HTML
+    SovTypeEnum = SovType;
+
     platformTransfers: PlatformTransfers[];
     turbineTransfers: TurbineTransfer[];
+    transits: Transit[];
+    noDataFound = false;
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
 
@@ -38,23 +45,42 @@ export class SovreportComponent implements OnInit {
         this.overviewZoomLvl.emit(9);
         this.detailZoomLvl.emit(10);
 
+        this.BuildPageWithCurrentInformation();
+    }
+
+    GetMatlabDateToJSTime(serial) {
+        return this.datetimeService.MatlabDateToJSTime(serial);
+    }
+
+    BuildPageWithCurrentInformation() {
+        this.ResetTransfers();
         this.commonService.GetSov(this.vesselObject.mmsi).subscribe(sov => {
             if (sov.length !== 0) {
                 this.sovModel = sov[0];
-                this.commonService
-                    .GetPlatformTransfers(this.sovModel.mmsi)
-                    .subscribe(platformTransfers => {
-                        if (platformTransfers.length === 0) {
-                            //The vessel is not of a plaform type but turbine
-                            this.commonService
-                                .GetTurbineTransfers(this.vesselObject.mmsi)
-                                .subscribe(turbineTransfers => {
-                                    this.vesselIsPlatformType = false;
-                                    this.turbineTransfers = turbineTransfers;
+               
+                this.commonService.GetPlatformTransfers(this.sovModel.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                    if (platformTransfers.length === 0) {
+                        this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
+                            if(turbineTransfers.length === 0) {
+                                this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
+                                    if(transits.length === 0) {
+                                        this.noDataFound = true;
+                                    }
+                                    else {
+                                        this.transits = transits;
+                                        this.sovType = SovType.Unknown;
+                                    }
                                 });
-                        } else {
-                            this.platformTransfers = platformTransfers;
-                        }
+                            }
+                           else {
+                               this.turbineTransfers = turbineTransfers;
+                               this.sovType = SovType.Turbine;
+                           }
+                        });
+                    } else {
+                        this.platformTransfers = platformTransfers;
+                        this.sovType = SovType.Platform;
+                    }
                     });
             }
 
@@ -415,5 +441,13 @@ export class SovreportComponent implements OnInit {
                 }
             }
         });
+    }
+
+    private ResetTransfers() {
+        this.platformTransfers = [];
+        this.turbineTransfers = [];
+        this.transits = [];
+        this.sovType = SovType.Unknown;
+        this.noDataFound = false;
     }
 }

@@ -28,13 +28,18 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  GetPlatformTransfers(mmsi) {
-    return this.get(environment.DB_IP + '/api/getPlatformTransfers/' + mmsi).pipe(
+  GetTransitsForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetTransitsForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 
-  GetTurbineTransfers(mmsi) {
-    return this.get(environment.DB_IP + '/api/getTurbineTransfers/' + mmsi).pipe(
+  GetPlatformTransfers(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getPlatformTransfers/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetTurbineTransfers(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getTurbineTransfers/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 
