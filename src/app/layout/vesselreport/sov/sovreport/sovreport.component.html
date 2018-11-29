@@ -1,5 +1,5 @@
 <br /><br />
-<div *ngIf="loaded == true;">
+<div *ngIf="loaded == true">
     <h2>{{sovModel.vesselname}}: {{sovModel.mmsi}}</h2>
     <div class="row">
         <div class="col-lg-4"><canvas id="operationalPieChart"></canvas></div>
@@ -26,13 +26,19 @@
                         <tbody>
                             <tr>
                                 <th colspan="2">Sailing duration</th>
-                                <td>{{summaryModel.TotalSailDuration}}</td>
+                                <td>{{sovModel.summary.TotalSailDuration}}</td>
                                 <td></td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            <tr *ngIf="sovModel.sovType == SovTypeEnum.Platform">
                                 <th colspan="2">Number of platforms visited</th>
-                                <td>{{summaryModel.NrOfPlatformsVisited}}</td>
+                                <td>{{sovModel.summary.NrOfPlatformsVisited}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+                                <th colspan="2">Number of vessel transfers</th>
+                                <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -45,8 +51,8 @@
                             <tr>
                                 <th colspan="2">Time in exclusion zone</th>
                                 <td></td>
-                                <td>{{summaryModel.AvgTimeInExclusionZone}}</td>
-                                <td>{{summaryModel.TimeInExclusionZone}}</td>
+                                <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
+                                <td>{{sovModel.summary.TimeInExclusionZone}}</td>
                             </tr>
                             <tr>
                                 <th colspan="2">Time docking</th>
@@ -59,12 +65,6 @@
                                 <td></td>
                                 <td> min</td>
                                 <td> min</td>
-                            </tr>
-                            <tr>
-                                <th colspan="2">Number of vessel transfers</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
                             </tr>
                             <tr>
                                 <th colspan="2">Time spent docking</th>
@@ -99,14 +99,14 @@
                             <tr>
                                 <th colspan="2">Hs during operations</th>
                                 <td></td>
-                                <td>{{summaryModel.HsDuringOperations}} m</td>
-                                <td>{{summaryModel.AvgHsDuringOperations}} m</td>
+                                <td>{{sovModel.summary.HsDuringOperations}} m</td>
+                                <td>{{sovModel.summary.AvgHsDuringOperations}} m</td>
                             </tr>
                             <tr>
                                 <th colspan="2">Wind speed during operations</th>
                                 <td></td>
-                                <td>{{summaryModel.AvgWindSpeedDuringOperations}} kts.</td>
-                                <td>{{summaryModel.WindSpeedDuringOperations}} kts.</td>
+                                <td>{{sovModel.summary.AvgWindSpeedDuringOperations}} kts.</td>
+                                <td>{{sovModel.summary.WindSpeedDuringOperations}} kts.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -121,7 +121,7 @@
                 <div class="card-header">Chronology of Operations</div>
                 <div class="card-body table-responsive">
                     <b *ngIf="noDataFound">No data was found for the selected sov vessel on the given date</b>
-                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Platform && platformTransfers.length > 0">
+                    <table class="table table-hover table-striped" *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
                         <thead>
                             <tr>
                                 <th>Platform</th>
@@ -137,7 +137,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <ng-container *ngFor="let platformTransfer of platformTransfers">
+                            <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
                                 <tr>
                                     <th>{{platformTransfer.location}}</th>
                                     <td>{{platformTransfer.Tentry1000mWaitingRange}}</td>
@@ -156,7 +156,7 @@
                             </ng-container>
                         </tbody>
                     </table>
-                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Turbine && turbineTransfers.length > 0">
+                    <table class="table table-hover table-striped" *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                         <thead>
                             <tr>
                                 <th>Location</th>
@@ -172,7 +172,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <ng-container *ngFor="let turbineTransfer of turbineTransfers">
+                            <ng-container *ngFor="let turbineTransfer of sovModel.turbineTransfers">
                                 <tr>
                                     <th>{{turbineTransfer.location}}</th>
                                     <td></td>
@@ -191,7 +191,7 @@
                             </ng-container>
                         </tbody>
                     </table>                    
-                    <table class="table table-hover table-striped" *ngIf="sovType == SovTypeEnum.Unknown && transits.length > 0">
+                    <table class="table table-hover table-striped" *ngIf="sovModel.sovType == SovTypeEnum.Unknown && sovModel.transits.length > 0">
                             <thead>
                                 <tr>
                                     <th>From</th>
@@ -202,7 +202,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <ng-container *ngFor="let transit of transits">
+                                <ng-container *ngFor="let transit of sovModel.transits">
                                     <tr>
                                         <td></td>
                                         <td></td>
@@ -329,7 +329,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr *ngFor="let transfer of sovModel.conditions">
+                                <th>{{transfer.Time}}</th>
+                                <td>{{transfer.Windspeed}}</td>
+                                <td>{{transfer.WaveHeight}}</td>
+                                <td></td>
+                                <td>{{transfer.DpCurrent}}</td>
+                                <td>{{transfer.WavePeriod}}</td>      
+                            </tr>
+                            <!-- <tr>
                                 <th>00:00</th>
                                 <td></td>
                                 <td></td>
@@ -352,55 +360,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                            </tr>
-                            <tr>
-                                <th>09:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>12:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>15:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>18:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>21:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>00:00</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>

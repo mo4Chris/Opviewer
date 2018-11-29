@@ -35,6 +35,11 @@ export class DatetimeService {
     return time_info;
   }
 
+  MatlabDateToCustomJSTime(serial, format) {
+    const time_info  = moment((serial - 719529) * 864e5 ).format(format);
+    return time_info;
+  }
+
   unixEpochtoMatlabDate(epochDate) {
     const matlabTime = ((epochDate / 864e2) + 719530);
     return matlabTime;
