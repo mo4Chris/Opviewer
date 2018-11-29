@@ -17,111 +17,96 @@
                     <table class="table table-hover table-striped">
                         <thead>
                             <tr>
+                                <th colspan="2"></th>
                                 <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>Median</th>
+                                <th>Average</th>
                                 <th>Maximum</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <th>Sailing duration</th>
-                                <td>15.0 h</td>
+                                <th colspan="2">Sailing duration</th>
+                                <td>{{summaryModel.TotalSailDuration}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Number of platforms visited</th>
+                                <td>{{summaryModel.NrOfPlatformsVisited}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Time in waiting zone</th>
+                                <td></td>
+                                <td> min</td>
+                                <td> min</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Time in exclusion zone</th>
+                                <td></td>
+                                <td>{{summaryModel.AvgTimeInExclusionZone}}</td>
+                                <td>{{summaryModel.TimeInExclusionZone}}</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Time docking</th>
+                                <td></td>
+                                <td> min</td>
+                                <td> min</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Time travelling to platforms</th>
+                                <td></td>
+                                <td> min</td>
+                                <td> min</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Number of vessel transfers</th>
                                 <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <th>Number of platforms visited</th>
-                                <td>12</td>
+                                <th colspan="2">Time spent docking</th>
+                                <td></td>
+                                <td> min</td>
+                                <td> min</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Number of daughter-craft launches</th>
                                 <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <th>Time in waiting zone</th>
+                                <th colspan="2">DC sailing time</th>
                                 <td></td>
-                                <td></td>
-                                <td>8.1 min</td>
-                                <td>50.1 min</td>
+                                <td> min</td>
+                                <td> min</td>
                             </tr>
                             <tr>
-                                <th>Time in exclusion zone</th>
-                                <td></td>
-                                <td></td>
-                                <td>10.5 min</td>
-                                <td>106.6 min</td>
-                            </tr>
-                            <tr>
-                                <th>Time docking</th>
-                                <td></td>
-                                <td></td>
-                                <td>25.2 min</td>
-                                <td>88.3 min</td>
-                            </tr>
-                            <tr>
-                                <th>Time travelling to platforms</th>
-                                <td></td>
-                                <td></td>
-                                <td>25.3 min</td>
-                                <td>42.5 min</td>
-                            </tr>
-                            <tr>
-                                <th>Number of vessel transfers</th>
-                                <td>2</td>
+                                <th colspan="2">Number of helicopter visits</th>
                                 <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <th>Time spent docking</th>
+                                <th colspan="2">Time on deck</th>
                                 <td></td>
-                                <td></td>
-                                <td>11 min</td>
-                                <td>15 min</td>
+                                <td> min</td>
+                                <td> min</td>
                             </tr>
                             <tr>
-                                <th>Number of daughter-craft launches</th>
-                                <td>1</td>
+                                <th colspan="2">Hs during operations</th>
                                 <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>{{summaryModel.HsDuringOperations}} m</td>
+                                <td>{{summaryModel.AvgHsDuringOperations}} m</td>
                             </tr>
                             <tr>
-                                <th>DC sailing time</th>
+                                <th colspan="2">Wind speed during operations</th>
                                 <td></td>
-                                <td></td>
-                                <td>227 min</td>
-                                <td>227 min</td>
-                            </tr>
-                            <tr>
-                                <th>Number of helicopter visits</th>
-                                <td>1</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>Time on deck</th>
-                                <td></td>
-                                <td></td>
-                                <td>5 min</td>
-                                <td>5 min</td>
-                            </tr>
-                            <tr>
-                                <th>Hs during operations</th>
-                                <td></td>
-                                <td></td>
-                                <td>1.7 m</td>
-                                <td>2.1 m</td>
-                            </tr>
-                            <tr>
-                                <th>Wind speed during operations</th>
-                                <td></td>
-                                <td></td>
-                                <td>20 kts.</td>
-                                <td>24 kts.</td>
+                                <td>{{summaryModel.AvgWindSpeedDuringOperations}} kts.</td>
+                                <td>{{summaryModel.WindSpeedDuringOperations}} kts.</td>
                             </tr>
                         </tbody>
                     </table>

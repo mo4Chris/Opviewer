@@ -1,5 +1,4 @@
 import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
-import { CalculationService } from "../../../../supportModules/calculation.service";
 import * as Chart from "chart.js";
 import * as annotation from "chartjs-plugin-annotation";
 import { CommonService } from "../../../../common.service";
@@ -9,6 +8,7 @@ import { PlatformTransfers } from "../models/platform-transfers";
 import { TurbineTransfer } from "../models/turbine-transfer";
 import { SovType } from "../models/SovType";
 import { Transit } from "../models/Transit";
+import { SummaryModel } from "../models/Summary";
 
 @Component({
     selector: "app-sovreport",
@@ -39,6 +39,8 @@ export class SovreportComponent implements OnInit {
     transits: Transit[];
     noDataFound = false;
 
+    summaryModel: SummaryModel = new SummaryModel();
+
     constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
 
     ngOnInit() {
@@ -56,8 +58,7 @@ export class SovreportComponent implements OnInit {
         this.ResetTransfers();
         this.commonService.GetSov(this.vesselObject.mmsi).subscribe(sov => {
             if (sov.length !== 0) {
-                this.sovModel = sov[0];
-               
+                this.sovModel = sov[0];          
                 this.commonService.GetPlatformTransfers(this.sovModel.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
@@ -81,7 +82,7 @@ export class SovreportComponent implements OnInit {
                         this.platformTransfers = platformTransfers;
                         this.sovType = SovType.Platform;
                     }
-                    });
+                });
             }
 
             this.loaded = true;
@@ -94,9 +95,35 @@ export class SovreportComponent implements OnInit {
                 this.createWeatherLimitDocking1Graph();
                 this.createWeatherLimitDocking2Graph();
                 this.createWeatherLimitDocking3Graph();
+                this.CalculateDailySummary();
             }, 500);
         });
     }
+
+    CalculateDailySummary() {
+        //Only for turbine at the moment
+        if(this.turbineTransfers.length > 0) {
+            var turbineTransfers = this.turbineTransfers;
+            var maxIndex = turbineTransfers.length - 1;
+            let sailDuration = this.datetimeService.MatlabDateToJSTimeDifference(turbineTransfers[0].startTime, turbineTransfers[maxIndex].stopTime);
+            this.summaryModel.TotalSailDuration = sailDuration;
+            this.summaryModel.NrOfPlatformsVisited = turbineTransfers.length;
+
+            this.summaryModel.WindSpeedDuringOperations = Math.max.apply(Math, turbineTransfers.map(function(o){return o.peakWindGust.toFixed(1);}));
+            this.summaryModel.AvgWindSpeedDuringOperations = turbineTransfers.reduce(function(sum, a,i,ar) { sum += a.peakWindAvg;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
+            
+            this.summaryModel.HsDuringOperations = Math.max.apply(Math, turbineTransfers.map(function(o){return o.Hs;}));
+            this.summaryModel.AvgHsDuringOperations = turbineTransfers.reduce(function(sum, a,i,ar) { sum += a.Hs;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
+        
+            //Time in waiting zone, need Tentry1000mWaitingRange on turbinetransfer
+            
+            var maxTimeInExclusionZoneSerial = Math.max.apply(Math, turbineTransfers.map(function(o){ return o.stopTime - o.startTime; }));
+            this.summaryModel.TimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(maxTimeInExclusionZoneSerial);
+            var avgTimeInExclusionZoneSerial = turbineTransfers.reduce(function(sum, a,i,ar) { sum += (a.stopTime - a.startTime);  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            this.summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(avgTimeInExclusionZoneSerial);
+        }
+    }
+
 
     createOperationalPieChart() {
         this.chart = new Chart("operationalPieChart", {
@@ -449,5 +476,6 @@ export class SovreportComponent implements OnInit {
         this.transits = [];
         this.sovType = SovType.Unknown;
         this.noDataFound = false;
+        this.sovModel = new SovModel();
     }
 }

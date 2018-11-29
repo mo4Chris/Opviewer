@@ -1,6 +1,6 @@
 export abstract class Transfer {
-    startTime: Number;
-    stopTime: Number;
+    startTime: number;
+    stopTime: number;
     vesselname: String;
     mmsi: Number;
     gangwayDeployedDuration: String;
@@ -8,11 +8,11 @@ export abstract class Transfer {
     timeGangwayReady: String;
     timeGangwayRetracted: String;
     timeGangwayStowed: String;
-    peakWindGust: String;
-    peakWindAvg: String;
+    peakWindGust: number;
+    peakWindAvg: number;
     gangwayUtilisation: String;
     peakHeave: String;
     DPutilisation: String;
     current: String;
-    Hs: String;
+    Hs: number;
 }

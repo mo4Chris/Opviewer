@@ -514,7 +514,13 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     
-    SovTurbineTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }} , function (err, data) {
+    SovTurbineTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, 
+    null, {
+        sort: {
+            startTime: 'asc'
+        }
+    },
+     function (err, data) {
         if (err) {
             res.send(err);
         } else {
