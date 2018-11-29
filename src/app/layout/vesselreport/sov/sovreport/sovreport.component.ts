@@ -57,13 +57,15 @@ export class SovreportComponent implements OnInit {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
                             if(turbineTransfers.length === 0) {
                                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-                                    if(transits.length === 0) {
-                                        this.noDataFound = true;
-                                    }
-                                    else {
+                                    this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
+                                        if(transits.length === 0 && vessel2vessels === 0) {
+                                            this.noDataFound = true;
+                                        }
+                                        
                                         this.sovModel.transits = transits;
+                                        this.sovModel.vessel2vessels = vessel2vessels;
                                         this.sovModel.sovType = SovType.Unknown;
-                                    }
+                                    });
                                 });
                             }
                            else {

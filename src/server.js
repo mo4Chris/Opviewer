@@ -213,6 +213,24 @@ var SovTransits = new Schema({
 });
 var SovTransits = mongo.model('SOV_transitStats', SovTransits, 'SOV_transitStats');
 
+var vessel2vesselTransfers = new Schema({
+    vesselname: {type: String },
+    mmsi: {type: Number },
+    startTime: {type: Number },
+    stopTime: {type: Number },
+    duration: {type: Number },
+    toVesselname: {type: String },
+    toMMSI: {type: Number },
+    peakWindGust: {type: Number },
+    peakWindAvg: {type: Number },
+    DPutilisation: {type: Number },
+    current: {type: Number },
+    Hs: {type: Number },
+    Ts: {type: Number },
+    date: {type: Number },
+});
+var vessel2vesselTransfers = mongo.model('vessel2vesselTransfers', vessel2vesselTransfers, 'vessel2vesselTransfers');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -481,6 +499,28 @@ app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     let date = req.params.date;
 
     SovTransits.find({"mmsi": mmsi, "dayNum": { $gte: date, $lt: date + 1 }} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    //todo: use mmsi and date from url!
+    //let mmsi = parseInt(req.params.mmsi);
+    //let date = req.params.date;
+
+    vessel2vesselTransfers.find({"mmsi": 232008874, "startTime": { $gte: 737362, $lt: 737362 + 1 }}, null, {
+        sort: {
+            startTime: 'asc'
+        }
+    }, function (err, data) {
         if (err) {
             res.send(err);
         } else {

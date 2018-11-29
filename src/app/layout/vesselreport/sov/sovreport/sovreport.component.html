@@ -190,48 +190,49 @@
                                 </tr>
                             </ng-container>
                         </tbody>
-                    </table>                    
-                    <table class="table table-hover table-striped" *ngIf="sovModel.sovType == SovTypeEnum.Unknown && sovModel.transits.length > 0">
-                            <thead>
-                                <tr>
-                                    <th>From</th>
-                                    <th>To</th>
-                                    <th>Start time</th>
-                                    <th>End time</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngFor="let transit of sovModel.transits">
+                    </table>
+                    <div *ngIf="sovModel.sovType == SovTypeEnum.Unknown">
+                        <div *ngIf="sovModel.transits.length > 0">
+                            <h2>Transits</h2>
+                            <table class="table table-hover table-striped" >
+                                <thead>
                                     <tr>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Start time</th>
+                                        <th>End time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let transit of sovModel.transits">
                                         <td></td>
-                                        <td></td>
+                                        <td>{{transit.toName}}</td>
                                         <td></td>
                                         <td></td>
                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div *ngIf="sovModel.vessel2vessels.length > 0">
+                            <h2>Vessel 2 vessel</h2>
+                            <table class="table table-hover table-striped" >
+                                <thead>
                                     <tr>
-                                        <td colspan="4">
-                                            <table>
-                                                <!-- CTU TRANSFER -->
-                                                <thead>
-                                                    <tr>
-                                                        <th>Name</th>
-                                                        <th>Start</th>
-                                                        <th>End</th>
-                                                        <th>To</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>To vessel</th>
                                     </tr>
-                                </ng-container>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let vessel2vessel of sovModel.vessel2vessels">
+                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.startTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.stopTime)}}</td>
+                                        <td>{{vessel2vessel.toVesselname}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>                    
                 </div>
             </div>
         </div>

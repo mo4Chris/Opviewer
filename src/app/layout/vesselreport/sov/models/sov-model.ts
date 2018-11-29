@@ -1,9 +1,10 @@
 import { SummaryModel } from "./Summary";
-import { PlatformTransfers } from "./platform-transfers";
-import { TurbineTransfer } from "./turbine-transfer";
-import { Transit } from "./Transit";
+import { PlatformTransfers } from "./Transfers/platform-transfers";
+import { TurbineTransfer } from "./Transfers/turbine-transfer";
+import { Transit } from "./Transfers/Transit";
 import { SovType } from "./SovType";
 import { ConditionDuringOperationModel } from "./ConditionDuringOperation";
+import { Vessel2vesselModel } from "./Transfers/Vessel2vessel";
 
 export class SovModel {
     vesselname: String;
@@ -18,6 +19,7 @@ export class SovModel {
     platformTransfers: PlatformTransfers[];
     turbineTransfers: TurbineTransfer[];
     transits: Transit[];
+    vessel2vessels: Vessel2vesselModel[];
 
     constructor() {
         this.summary = new SummaryModel();
@@ -27,6 +29,7 @@ export class SovModel {
         this.conditions = [];
 
         this.transits = [];
+        this.vessel2vessels = [];
         this.platformTransfers = [];
         this.turbineTransfers = [];
     }

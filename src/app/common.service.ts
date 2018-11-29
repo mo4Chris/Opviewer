@@ -33,6 +33,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  GetVessel2vesselsForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetVessel2vesselForSov/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
   GetPlatformTransfers(mmsi, date) {
     return this.get(environment.DB_IP + '/api/getPlatformTransfers/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
