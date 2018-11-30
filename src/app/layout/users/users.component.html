@@ -13,8 +13,9 @@
                                 <th>#</th>
                                 <th>Username</th>
                                 <th>Permission</th>
-                                <th>Client</th>
+                                <th *ngIf="userPermission == 'admin'">Client</th>
                                 <th>Manage boats</th>
+                                <th>Reset password</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -22,12 +23,13 @@
                                 <td>{{ind + 1}}</td>
                                 <td>{{user_data.username}}</td>
                                 <td>{{user_data.permissions}}</td>
-                                <td>{{user_data.client}}</td>
+                                <td *ngIf="userPermission == 'admin'">{{user_data.client}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage boats</a></td>
+                                <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
                             </tr>
                         </tbody>
                     </table>
-                    {{errData}}
+                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
                 </div>
             </div>
         </div>

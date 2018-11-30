@@ -5,21 +5,20 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 
-import { SignupRoutingModule } from './signup-routing.module';
-import { SignupComponent } from './signup.component';
+import { SetPasswordRoutingModule } from './set-password-routing.module';
+import { SetPasswordComponent } from './set-password.component';
 import {CommonService} from '../common.service';
-import { UserService } from '../shared/services/user.service';
 
 
 @NgModule({
   imports: [
     HttpClientModule,
     CommonModule,
-    SignupRoutingModule,
+    SetPasswordRoutingModule,
     NgbModule.forRoot(),
     FormsModule
   ],
-  providers: [CommonService, UserService],
-  declarations: [SignupComponent]
+  providers: [CommonService],
+    declarations: [SetPasswordComponent]
 })
-export class SignupModule { }
+export class SetPasswordModule { }

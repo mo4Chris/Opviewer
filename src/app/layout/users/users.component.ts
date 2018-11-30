@@ -3,6 +3,8 @@ import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import { Router } from '../../../../node_modules/@angular/router';
+import { map, catchError } from 'rxjs/operators';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-users',
@@ -11,11 +13,14 @@ import { Router } from '../../../../node_modules/@angular/router';
     animations: [routerTransition()]
 })
 export class UsersComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router ) { }
+    constructor(private newService: CommonService, private _router: Router, private userService: UserService ) { }
     errData;
     userData;
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
+    alert = { type: '', message: '' };
+    timeout;
+    showAlert = false;
 
     ngOnInit() {
         if (this.userPermission != "admin") {
@@ -33,11 +38,25 @@ export class UsersComponent implements OnInit {
         this._router.navigate(['usermanagement', { username: username }]);
     }
 
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
+    resetPassword(id) {
+        this.newService.resetPassword({ _id: id }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
     }
 }

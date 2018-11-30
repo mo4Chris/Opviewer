@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
 import * as jwt_decode from 'jwt-decode';
+import { UserService } from '../shared/services/user.service';
 
 
 @Component({
@@ -14,8 +15,8 @@ import * as jwt_decode from 'jwt-decode';
     animations: [routerTransition()]
 })
 export class SignupComponent implements OnInit {
-    
-    registerUserData:any = {
+
+    registerUserData: any = {
         Permissions: '',
         client: '',
         username: '',
@@ -23,58 +24,50 @@ export class SignupComponent implements OnInit {
     };
 
     businessNames;
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userPermission = this.tokenInfo.userPermission;
     permissions = ['Vessel master', 'Marine controller'];
     alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
 
-    constructor(public router: Router, private _auth: AuthService, private newService :CommonService) {}
+    constructor(public router: Router, private _auth: AuthService, private newService: CommonService, private userService: UserService) {}
 
     onRegistration() {
-        if (!this.permissions.find(permission => permission == this.registerUserData.permissions)){
+        if (!this.permissions.find(permission => permission === this.registerUserData.permissions)) {
             this.showAlert = true;
-            this.alert.message = "You\'re not allowed to add a user of this type";
+            this.alert.message = 'You\'re not allowed to add a user of this type';
             return;
         }
-        if (this.userPermission != 'admin') {
+        if (this.userPermission !== 'admin') {
             this.registerUserData.client = this.tokenInfo.userCompany;
         } else if (this.businessNames.indexOf(this.registerUserData.client) < 0) {
             this.showAlert = true;
-            this.alert.message = "User needs a client";
+            this.alert.message = 'User needs a client';
             return;
         }
         this._auth.registerUser(this.registerUserData).subscribe(
-    		res => {
-    			this.router.navigate(['/dashboard']);
-    		},
-    		err => {
+            res => {
+                this.router.navigate(['/dashboard', {status: 'success', message: res.data }]);
+            },
+            err => {
                 this.showAlert = true;
                 this.alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
                 if (err.status === 401) {
                     this.alert.message = err._body;
                     this.router.navigate(['/signup']);
-    			}
-    		})
+                }
+            });
 
     }
 
     ngOnInit() {
-        if (this.userPermission != 'admin') {
-            if (this.userPermission != 'Logistics specialist') {
+        if (this.userPermission !== 'admin') {
+            if (this.userPermission !== 'Logistics specialist') {
                 this.router.navigate(['/access-denied']);
             }
         } else {
             this.permissions = this.permissions.concat(['Logistics specialist', 'admin']);
             this.newService.GetCompanies().subscribe(data => this.businessNames = data);
-        }
-    }
-
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
         }
     }
 }

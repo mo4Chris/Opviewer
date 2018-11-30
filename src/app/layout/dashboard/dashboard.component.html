@@ -4,12 +4,13 @@
         <ng-container *ngFor="let loc of Locdata; let i=index" >
              <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" (markerClick)="showInfoWindow(infoWindow, i)">
              	<agm-info-window #infoWindow>
-     	            	<pre>
+                    <pre>
+<strong style="font-size: 15px;">{{ loc.vesselInformation[loc.vesselInformation.length -1]}}</strong>
 MMSI: {{loc._id}}
-Boatname: {{ loc.vesselInformation[loc.vesselInformation.length -1]}}
 Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
      	        </agm-info-window>
              </agm-marker>
         </ng-container>
     </agm-map>
+    <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
 </div>

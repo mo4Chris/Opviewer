@@ -7,7 +7,7 @@
             <i class="fa fa-fw fa-bar-chart-o"></i>&nbsp;{{ 'Charts' | translate }}
         </a>-->
         <a [routerLink]="['/tables']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Boats and Reports' | translate }}
+            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
         <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-edit"></i>&nbsp;{{ 'Users' | translate }}

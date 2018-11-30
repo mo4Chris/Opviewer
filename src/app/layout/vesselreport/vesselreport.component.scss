@@ -2,28 +2,25 @@ agm-map {
     height: 400px;
 }
 
-.divContainer{
+.divContainer {
     width:100%;
     min-height: 200px;
 }
-.leftdiv{
+.leftdiv {
     width: 49%;
     display:inline-block;
     margin-right:.5%;
 }
-.rightdiv{
+.rightdiv {
     width:49%;
     display:inline-block;
     margin-left:.5%;
 }
-.submitBtnDate{
-    margin-left: 20px;
-}
-.boatSelectDropdown{
+.boatSelectDropdown {
     height: 48px !important;
     margin-left: 20px;
 }
-.keyTD{
+.keyTD {
     background: gray;
     color: white;
 }
@@ -37,7 +34,7 @@ agm-map {
     width: 250px;
     text-align: left;
 }
-td.comment{
+td.comment {
     width: 300px
 }
 .commentButton {
@@ -47,4 +44,47 @@ td.comment{
 ngb-alert {
     position: fixed;
     bottom: 0px;
+}
+.videoRequest{
+    min-width: 216px;
+}
+.delivered {
+    background-color: #298a00;
+}
+.denied {
+    background-color: #b60000;
+}
+.pending_collection {
+    background-color: #f98a00;
+}
+:disabled {
+    opacity: 0.4;
+}
+.videoRequestLoading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.995);
+    z-index: 1050;
+}
+.custom-day {
+    text-align:center;
+    line-height: 2rem;
+    background-color:rgb(245, 245, 245);
+}
+
+.has-sailed{
+    background-color:rgb(198, 233, 255);
+}
+
+.disable-day{
+   background-color: white;
+   color: rgb(225, 225, 225) !important;
+}
+
+.noMapDataAlert {
+    position: relative;
+    width: 99%;
 }

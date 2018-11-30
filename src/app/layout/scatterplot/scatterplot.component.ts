@@ -8,6 +8,7 @@ import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
 import {NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-scatterplot',
@@ -47,12 +48,12 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,0,255,1)',
     'rgba(0,255,255,1)',
   ];
-  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router) {
+  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService) {
     this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
 
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
   vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
 
   datePickerValue = this.maxDate;
@@ -62,9 +63,8 @@ export class ScatterplotComponent implements OnInit {
   myDatepicker;
   showContent = false;
   noPermissionForData = false;
-  tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
-  closeResult: string;
 
   onDateSelection(date: NgbDate) {
     if (!this.fromDate && !this.toDate) {
@@ -132,14 +132,6 @@ export class ScatterplotComponent implements OnInit {
           }
         }
       });
-    }
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-        return jwt_decode(token);
-    } catch (Error) {
-        return null;
     }
   }
 

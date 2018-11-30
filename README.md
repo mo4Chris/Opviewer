@@ -9,3 +9,14 @@ sonar-scanner.bat -Dsonar.projectKey=BMO-Opviewer -Dsonar.organization=tcwchris-
 
 ##Start api server on remote server
 ng serve --host 0.0.0.0
+
+##.Htaccess code (In case of deletion)
+Order Deny,Allow
+Deny from all
+Allow from (insert IP's of whitelisted users)
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule . index.html [L]
+
