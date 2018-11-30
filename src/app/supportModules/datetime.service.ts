@@ -9,10 +9,16 @@ export class DatetimeService {
 
   constructor() { }
 
-  //Improve when more data is calculated for SOV transfers
+  //Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   MatlabDurationToMinutes(serial) {
-    const minutes = moment.duration(serial).asMinutes();
-    return minutes;
+    const minutes = moment.duration(serial, 'minutes');
+    const format = minutes.minutes() + ":" + minutes.seconds();
+    return format;
+  }
+
+  MinutesToHours(date) {
+    const hours = (date / 60).toFixed(1);
+    return hours;
   }
 
   MatlabDateToJSDate(serial) {

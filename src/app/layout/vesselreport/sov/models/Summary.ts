@@ -1,6 +1,7 @@
 export class SummaryModel {
     TotalSailDuration: string;
-
+    TotalSailDistance: string
+    
     TimeInWaitingZone: string;
     AvgTimeInWaitingZone: string;
 
@@ -13,20 +14,19 @@ export class SummaryModel {
     TimeTravelingToPlatforms: string;
     AvgTimeTravelingToPlatforms: string;
 
-    DCSailingTime: string;
-    AvgDCSailingTime: string;
+    NrOfHelicopterVisits: number;
+    AvgTimeHelicopterDocking: string;
 
-    TimeOnDeck: string;
-    AvgTimeOnDeck: string;
+    NrOfVesselTransfers: number;
+    AvgTimeVesselDocking: string;
+
+    NrOfDaughterCraftLaunches: number;
+    AvgTimeDaughterCraftDocking: string;
+
 
     HsDuringOperations: string;
     AvgHsDuringOperations: string;
 
     WindSpeedDuringOperations: number;
     AvgWindSpeedDuringOperations: string;
-
-    NrOfHelicopterVisits: number;
-    NrOfPlatformsVisited: number;
-    NrOfVesselTransfers: number;
-    NrOfDaughterCraftLaunches: number;
 }

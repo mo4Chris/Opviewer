@@ -31,7 +31,7 @@ export class SovreportComponent implements OnInit {
     //used for comparison in the HTML
     SovTypeEnum = SovType;
 
-    noDataFound = false;
+    dataFound = false;
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
 
@@ -56,27 +56,28 @@ export class SovreportComponent implements OnInit {
                     if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
                             if(turbineTransfers.length === 0) {
-                                this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-                                    this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
-                                        if(transits.length === 0 && vessel2vessels === 0) {
-                                            this.noDataFound = true;
-                                        }
-                                        
-                                        this.sovModel.transits = transits;
-                                        this.sovModel.vessel2vessels = vessel2vessels;
-                                        this.sovModel.sovType = SovType.Unknown;
-                                    });
-                                });
+                                this.dataFound = false;
+                                this.sovModel.sovType = SovType.Unknown;
                             }
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
+                               this.dataFound = true;
                            }
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
+                        this.dataFound = true;
                     }
+                });
+
+                this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
+                    this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
+                        this.sovModel.transits = transits;
+                        this.sovModel.vessel2vessels = vessel2vessels;
+                        this.dataFound = true;                                
+                    });
                 });
             }
             this.loaded = true;
@@ -97,39 +98,52 @@ export class SovreportComponent implements OnInit {
 
     CalculateDailySummary() {
         let summaryModel = new SummaryModel();
+        
+        var sumSailingDuration = this.sovModel.transits.map(transit => transit.transitTimeMinutes).reduce((prev, next) => prev + next);
+        summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
 
-        if(this.sovModel.turbineTransfers.length > 0) {
+        summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
+        summaryModel.NrOfDaughterCraftLaunches = 0;
+        summaryModel.NrOfHelicopterVisits = 0;
+
+        if(this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType == SovType.Turbine) {
             var turbineTransfers = this.sovModel.turbineTransfers;
             
-            summaryModel.NrOfVesselTransfers = turbineTransfers.length;
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         }
-        else if(this.sovModel.platformTransfers.length > 0) {
+        else if(this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType == SovType.Platform) {
             var platformTransfers = this.sovModel.platformTransfers;
-            summaryModel.NrOfPlatformsVisited = platformTransfers.length;
             
-            var maxTimeInWaitingZoneSerial = Math.max.apply(Math, platformTransfers.map(function(o){ return o.Tentry1000mWaitingRange; }));
-            summaryModel.TimeInWaitingZone = this.datetimeService.MatlabDateToJSTime(maxTimeInWaitingZoneSerial);
+            //var maxTimeInWaitingZoneSerial = Math.max.apply(Math, platformTransfers.map(function(o){ return o.Tentry1000mWaitingRange; }));
+            //summaryModel.TimeInWaitingZone = this.datetimeService.MatlabDateToCustomJSTime(maxTimeInWaitingZoneSerial, 'HH:mm');
+            var avgTimeInWaitingZoneSerial = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.Tentry1000mWaitingRange;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDateToCustomJSTime(avgTimeInWaitingZoneSerial, 'HH:mm');
 
-            summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
+            //var maxTimeInExclusionZoneSerial = Math.max.apply(Math, platformTransfers.map(function(o){ return o.stopTime - o.startTime; }));
+            //summaryModel.TimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(maxTimeInExclusionZoneSerial);
+            var avgTimeInExclusionZoneSerial = platformTransfers.reduce(function(sum, a,i,ar) { sum += (a.stopTime - a.startTime);  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(avgTimeInExclusionZoneSerial);
+
+            //todo: traveling between platforms
+
+            summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
         }
+
         this.sovModel.summary = summaryModel;
     }
 
-    GetDailySummary(model: SummaryModel, transfers: any[]) {
-        var maxIndex = transfers.length - 1;
-        model.TotalSailDuration = this.datetimeService.MatlabDateToJSTimeDifference(transfers[0].startTime, transfers[maxIndex].stopTime);
-
-        model.WindSpeedDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust.toFixed(1);}));
-        model.AvgWindSpeedDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.peakWindAvg;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
+    //Common used by platform and turbine
+    private GetDailySummary(model: SummaryModel, transfers: any[]) {
+        model.WindSpeedDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust;}));
+        //model.AvgWindSpeedDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.peakWindAvg;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
             
         model.HsDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.Hs;}));
-        model.AvgHsDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.Hs;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
-                
-        var maxTimeInExclusionZoneSerial = Math.max.apply(Math, transfers.map(function(o){ return o.stopTime - o.startTime; }));
-        model.TimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(maxTimeInExclusionZoneSerial);
-        var avgTimeInExclusionZoneSerial = transfers.reduce(function(sum, a,i,ar) { sum += (a.stopTime - a.startTime);  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-        model.AvgTimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(avgTimeInExclusionZoneSerial);
+        //model.AvgHsDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.Hs;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
+
+        //var maxTimeDocking = Math.max.apply(Math, transfers.map(function(o){return o.gangwayDeployedDuration;}));
+        //model.TimeDocking = this.datetimeService.MatlabDurationToMinutes(maxTimeDocking);
+        var avgTimeDocking = transfers.reduce(function(sum, a,i,ar) { sum += a.gangwayDeployedDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+        model.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
         
         return model;
     }
@@ -138,13 +152,16 @@ export class SovreportComponent implements OnInit {
         let conditions: ConditionDuringOperationModel[] = [];
         this.sovModel.turbineTransfers.forEach(turbineTransfer => {
             var condition = new ConditionDuringOperationModel(
-                this.datetimeService.MatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm'), turbineTransfer.peakWindGust.toFixed(1), turbineTransfer.peakHeave, turbineTransfer.DPutilisation, null
+                this.datetimeService.MatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm'), turbineTransfer.peakWindGust, turbineTransfer.peakHeave, turbineTransfer.DPutilisation, null
             );
             conditions.push(condition);
         });
         this.sovModel.conditions = conditions;
     }
 
+    GetMatlabDurationToMinutes(serial) {
+        return this.datetimeService.MatlabDurationToMinutes(serial);
+    }
 
     createOperationalPieChart() {
         this.chart = new Chart("operationalPieChart", {
@@ -492,7 +509,7 @@ export class SovreportComponent implements OnInit {
     }
 
     private ResetTransfers() {
-        this.noDataFound = false;
+        this.dataFound = false;
         this.sovModel = new SovModel();
     }
 }

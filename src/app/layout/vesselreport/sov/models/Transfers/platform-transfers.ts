@@ -2,10 +2,10 @@ import { Transfer } from "./transfer";
 
 export class PlatformTransfers extends Transfer {
 
-    timeInWaitingZone: Number;
-    Tentry1000mWaitingRange: Number;
+    timeInWaitingZone: number;
+    Tentry1000mWaitingRange: number;
     locationname: String;
-    aproachTime: Number;
-    visitDuration: Number;
-    totalDuration: Number;
+    aproachTime: number;
+    visitDuration: number;
+    totalDuration: number;
 }
