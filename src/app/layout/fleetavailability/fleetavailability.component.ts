@@ -4,6 +4,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { Router } from '@angular/router';
+import * as moment from 'moment';
 
 @Component({
     selector: 'app-users',
@@ -16,9 +17,17 @@ export class FleetavailabilityComponent implements OnInit {
 
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
+    hideText = false;
+    edit = false;
+    turbineWarrenty;
+    loaded = false;
 
     ngOnInit() {
         this.createLineChart();
+        this.newService.getTurbineWarranty().subscribe(data => {
+            this.turbineWarrenty = data[3];
+            this.loaded = true;
+        });
     }
 
     createLineChart() {
@@ -44,24 +53,50 @@ export class FleetavailabilityComponent implements OnInit {
                   }
                 ]
               },
-            options: {
-                scales: {
-                    yAxes: [{
-                        stacked: false,
-                        ticks: {
-                            suggestedMin: 0
-                        }
-                    }]
-                }, elements: {
-                    line: {
-                        tension: 0, // disables bezier curves
-                    }
-                }
+              options: {
+                  responsive: true,
+                  elements: {
+                      point:
+                          { radius: 0 },
+                      line:
+                          { tension: 0 }
+                  },
+                  animation: {
+                      duration: 0,
+                  },
+                  hover: {
+                      animationDuration: 0,
+                  },
+                  responsiveAnimationDuration: 0,
+                  scales: {
+                      yAxes: [{
+                          stacked: false,
+                          ticks: {
+                              suggestedMin: 0
+                          }
+                      }]
+                  }
             }
         });
     }
 
+    editData() {
+        this.edit = true;
+        this.hideText = false;
+    }
 
+    saveData() {
+        this.edit = false;
+    }
+
+    MatlabDateToJSDate(serial) {
+        const dateInt = moment((serial - 719529) * 864e5).format('DD-MM-YYYY');
+        return dateInt;
+    }
+
+    changeToNicename(name) {
+        return name.replace(/_/g, ' ');
+    }
 
     getDecodedAccessToken(token: string): any {
         try {

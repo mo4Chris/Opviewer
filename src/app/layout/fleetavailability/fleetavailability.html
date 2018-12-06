@@ -6,104 +6,35 @@
         </div>
     </div>
     <div class="card-body table-responsive">
-        <table class="table table-hover table-bordered">
+        <table class="table table-hover table-bordered" *ngIf="loaded">
             <thead>
             <tr>
-                <th> </th>
-                <th>01</th>
-                <th>02</th>
-                <th>03</th>
-                <th>04</th>
-                <th>05</th>
-                <th>06</th>
-                <th>07</th>
-                <th>08</th>
-                <th>09</th>
-                <th>10</th>
-                <th>11</th>
-                <th>12</th>
-                <th>13</th>
-                <th>14</th>
-                <th>15</th>
-                <th>16</th>
-                <th>17</th>
-                <th>18</th>
-                <th>19</th>
-                <th>20</th>
-                <th>21</th>
-                <th>22</th>
-                <th>23</th>
-                <th>24</th>
-                <th>25</th>
-                <th>26</th>
-                <th>27</th>
-                <th>28</th>
+                <th>Vessel\Date</th>
+                <th *ngFor="let td of turbineWarrenty.Dates;let ind = index">
+                    <span>{{MatlabDateToJSDate(td)}}</span>
+                    <!--<span>{{MatlabDateToJSDate(td)}}</span>-->
+                </th>
             </tr>
             </thead>
             <tbody>
-                <tr >
-                    <td>Vessel 1</td>  
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="grey"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="grey"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="red"></td>
-                </tr>
-                <tr >
-                    <td>Vessel 2</td>  
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="yellow" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="yellow" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="grey"></td>
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="yellow" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="yellow" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="yellow"></td>
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="grey" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>  
-                    <td bgcolor="yellow" ></td> 
-                    <td bgcolor="red"></td>
-                    <td bgcolor="green"></td>
+                <tr *ngFor="let vessel of turbineWarrenty.sailMatrix;let ind = index">
+                    <ng-container  *ngIf="turbineWarrenty.activeFleet.indexOf(turbineWarrenty.fullFleet[ind])>=0">
+                        <td>{{changeToNicename(turbineWarrenty.fullFleet[ind]) | titlecase}}</td>
+                        <td *ngFor="let sailDay of turbineWarrenty.sailMatrix[ind];" [class.green]="sailDay==1" [class.red]="sailDay==0" [class.yellow]="sailDay==0.5" [class.gray]="sailDay=='_NaN_'" [class.hideColor]="hideText==false">
+                            <span *ngIf="hideText==false && !edit">{{sailDay}}</span>
+                            <select *ngIf="edit">
+                                <option value="NaN" *ngIf="sailDay=='_NaN_'" selected>_NaN_</option>
+                                <option value="0" [selected]="sailDay==0">0</option>
+                                <option value="0.5" [selected]="sailDay==0.5">0.5</option>
+                                <option value="1" [selected]="sailDay==1">1</option>
+                            </select>
+                        </td>
+                    </ng-container>
                 </tr>
             </tbody>
         </table>
+        <button (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
+        <button (click)="editData()" *ngIf="!edit">Edit</button>
+        <button (click)="saveData()" *ngIf="edit">Save</button>
     </div>
 </div>

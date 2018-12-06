@@ -151,6 +151,24 @@ var generalSchema = new Schema({
 }, { versionKey: false });
 var generalmodel = mongo.model('general', generalSchema, 'general');
 
+var turbineWarrantySchema = new Schema({
+    activeFleet: { type: Array },
+    fullFleet: { type: Array },
+    validFields: { type: Array },
+    startDate: { type: Number },
+    stopDate: { type: Number },
+    windfield: { type: String },
+    numContractedVessels: { type: Number },
+    campaignName: { type: String },
+    weatherDayTarget: { type: Number },
+    weatherDayForecast: { type: Array },
+    Dates: { type: Array },
+    sailMatrix: { type: Array },
+    currentlyActive: { type: Array },
+    client: { type: String }
+}, { versionKey: false });
+var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic'); 
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -979,6 +997,20 @@ app.post("/api/getGeneral", function (req, res) {
                 res.send({ data: data });
             }
         });
+    });
+});
+
+app.get("/api/getTurbineWarranty", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userPermission !== 'logistics') {
+        return res.status(401).send('Unauthorized request');
+    }
+    turbineWarrantymodel.find({}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
     });
 });
 
