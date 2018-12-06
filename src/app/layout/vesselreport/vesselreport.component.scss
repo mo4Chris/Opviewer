@@ -1,10 +1,15 @@
 agm-map {
-    height: 400px;
+    height: 440px;
+}
+
+.transitTable{
+    margin-bottom: 0;
 }
 
 .divContainer {
     width:100%;
     min-height: 200px;
+    margin-top:1rem;
 }
 .leftdiv {
     width: 49%;
@@ -19,6 +24,7 @@ agm-map {
 .boatSelectDropdown {
     height: 48px !important;
     margin-left: 20px;
+    width: auto;
 }
 .keyTD {
     background: gray;
