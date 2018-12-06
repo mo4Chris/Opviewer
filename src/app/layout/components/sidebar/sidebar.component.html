@@ -15,6 +15,9 @@
         <a *ngIf="userCreatePermission" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-user-plus"></i>&nbsp;{{ 'Create new user' | translate }}
         </a>
+        <a class="dropdown-item" [routerLink]="['/login']" (click)="onLoggedout()">
+            <i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }}
+        </a>
         <!-- <a [routerLink]="['/bs-element']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-desktop"></i>&nbsp;{{ 'Bootstrap Element' | translate }}
         </a>
