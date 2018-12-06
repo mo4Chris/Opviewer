@@ -6,7 +6,6 @@ import { SovModel } from "../models/sov-model";
 import { DatetimeService } from "../../../../supportModules/datetime.service";
 import { SovType } from "../models/SovType";
 import { SummaryModel } from "../models/Summary";
-import { ConditionDuringOperationModel } from "../models/ConditionDuringOperation";
 
 @Component({
     selector: "app-sovreport",
@@ -29,6 +28,8 @@ export class SovreportComponent implements OnInit {
 
     loaded = false;
     sovModel: SovModel = new SovModel();
+
+    operationalChartCalculated = false;
 
     //used for comparison in the HTML
     SovTypeEnum = SovType;
@@ -113,8 +114,11 @@ export class SovreportComponent implements OnInit {
         this.sovModel.transits.forEach(transit => {
             sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
         });
-        summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
-
+        if(sumSailingDuration > 0) {
+            summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
+            summaryModel.HasSailed = true;
+        }
+        
         summaryModel.NrOfDaughterCraftLaunches = 0;
         summaryModel.NrOfHelicopterVisits = 0;
 
@@ -171,43 +175,55 @@ export class SovreportComponent implements OnInit {
         this.sovModel.transits.forEach(transit => {
             sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
         });
-        this.sovModel.platformTransfers.forEach(platformTransfer => {
-            sumWaitingDuration = sumWaitingDuration + platformTransfer.timeInWaitingZone;
-            sumExclusionZone = sumExclusionZone + platformTransfer.visitDuration;
-        });
 
-        var totalSum = sumSailingDuration + sumWaitingDuration + sumExclusionZone;
+        if(this.sovModel.sovType == SovType.Platform) {
+            this.sovModel.platformTransfers.forEach(platformTransfer => {
+                sumWaitingDuration = sumWaitingDuration + platformTransfer.timeInWaitingZone;
+                sumExclusionZone = sumExclusionZone + platformTransfer.visitDuration;
+            });
+        }
+        else if(this.sovModel.sovType == SovType.Turbine) {
+            this.sovModel.turbineTransfers.forEach(turbineTransfer => {
+                sumWaitingDuration = sumWaitingDuration + turbineTransfer.gangwayReadyDuration;
+                sumExclusionZone = sumExclusionZone + turbineTransfer.gangwayDeployedDuration;
+            });
+        }
 
-        var sailingDurationPerc = ((sumSailingDuration / totalSum) * 100).toFixed(1);
-        var sumWaitingDurationPerc = ((sumWaitingDuration / totalSum) * 100).toFixed(1);
-        var sumExclusionZonePerc = ((sumExclusionZone / totalSum) * 100).toFixed(1);
+        if(sumSailingDuration > 0 && sumWaitingDuration > 0 && sumExclusionZone > 0) {
 
-        this.operationsChart = new Chart("operationalStats", {
-            type: "pie",
-            data: {
-                datasets: [
-                    {
-                        data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
-                        backgroundColor: this.backgroundcolors,
-                        radius: 8,
-                        pointHoverRadius: 10,
-                        borderWidth: 1
-                    }
-                ],
-                labels: ["Sailing", "Waiting", "Exclusion zone"]
-            },
-            options: {
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Operational activity",
-                    fontSize: 25
+            this.operationalChartCalculated = true;
+            var totalSum = sumSailingDuration + sumWaitingDuration + sumExclusionZone;
+            var sailingDurationPerc = ((sumSailingDuration / totalSum) * 100).toFixed(1);
+            var sumWaitingDurationPerc = ((sumWaitingDuration / totalSum) * 100).toFixed(1);
+            var sumExclusionZonePerc = ((sumExclusionZone / totalSum) * 100).toFixed(1);
+
+            this.operationsChart = new Chart("operationalStats", {
+                type: "pie",
+                data: {
+                    datasets: [
+                        {
+                            data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
+                            backgroundColor: this.backgroundcolors,
+                            radius: 8,
+                            pointHoverRadius: 10,
+                            borderWidth: 1
+                        }
+                    ],
+                    labels: ["Sailing", "Waiting", "Exclusion zone"]
                 },
-                responsive: true,
-                radius: 6,
-                pointHoverRadius: 6
-            }
-        });
+                options: {
+                    title: {
+                        display: true,
+                        position: "top",
+                        text: "Operational activity",
+                        fontSize: 25
+                    },
+                    responsive: true,
+                    radius: 6,
+                    pointHoverRadius: 6
+                }
+            });
+        }
     }
 
     createGangwayLimitationsChart() {
@@ -496,6 +512,7 @@ export class SovreportComponent implements OnInit {
         
         if(this.operationsChart != undefined) {
             this.operationsChart.destroy();
+            this.operationalChartCalculated = false;
         }
         if(this.gangwayLimitationsChart != undefined) {
             this.gangwayLimitationsChart.destroy();

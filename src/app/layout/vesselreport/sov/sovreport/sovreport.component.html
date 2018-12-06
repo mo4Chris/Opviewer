@@ -2,27 +2,33 @@
 <div *ngIf="loaded == true">
     <h2>{{sovModel.vesselname}}: {{sovModel.mmsi}}</h2>
     <div class="row">
-        <div class="col-lg-4"><canvas id="operationalStats"></canvas></div>
-        <div *ngIf="sovModel.sovType == SovTypeEnum.Platform" class="col-lg-4"><canvas id="gangwayLimitations"></canvas></div>
+        <div *ngIf="operationalChartCalculated" class="col-lg-4">
+            <canvas id="operationalStats"></canvas>
+        </div>
+        <div *ngIf="sovModel.sovType == SovTypeEnum.Platform" class="col-lg-4">
+            <canvas id="gangwayLimitations"></canvas>
+        </div>
     </div>
     <br />
-    <div class="row">
+    <div class="row" *ngIf="sovModel.summary.HasSailed">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
                 <div class="card-header">Daily Summary</div>
                 <div class="card-body table-responsive">
                     <table class="table table-hover">
-                        <tr>
-                            <td>Departure port</td>
-                            <td> - </td>
-                        </tr>
-                        <tr>
-                            <td>Sailing duration</td>
-                            <td>{{sovModel.summary.TotalSailDuration}} hours</td>
-                        </tr>
-                        <tr class="blank_row">
-                            <td colspan="2"></td>
-                        </tr>
+                        <ng-container>
+                            <tr>
+                                <td>Departure port</td>
+                                <td> - </td>
+                            </tr>
+                            <tr>
+                                <td>Sailing duration</td>
+                                <td>{{sovModel.summary.TotalSailDuration}} hours</td>
+                            </tr>
+                            <tr class="blank_row">
+                                <td colspan="2"></td>
+                            </tr>
+                        </ng-container>
                         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
                             <tr>
                                 <th>Number of platforms visited</th>
@@ -112,7 +118,7 @@
                         </tr>
                         <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                             <td>Maximum wind speed during operations</td>
-                            <td>{{sovModel.summary.maxWindSpeedDuringOperations | number}} kts.</td>
+                            <td>{{sovModel.summary.maxWindSpeedDuringOperations.toFixed(1)}} km/hour</td>
                         </tr>
                     </table>
                 </div>
@@ -179,7 +185,7 @@
                                         <td>{{GetMatlabDateToJSTime(turbineTransfer.stopTime)}}</td>
                                         <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
                                         <td>{{turbineTransfer.gangwayUtilisation}}</td>
-                                        <td>{{turbineTransfer.peakWindGust | number}} m/s</td>
+                                        <td>{{turbineTransfer.peakWindGust.toFixed(1)}} m/s</td>
                                         <td>{{turbineTransfer.peakHeave}} m</td>
                                     </tr>
                                 </ng-container>
@@ -285,7 +291,7 @@
                                         <td>{{GetMatlabDateToJSTime(vessel2vessel.startTime)}}</td>
                                         <td>{{GetMatlabDateToJSTime(vessel2vessel.stopTime)}}</td>
                                         <td>{{GetMatlabDurationToMinutes(vessel2vessel.duration)}}</td>
-                                        <td>{{vessel2vessel.peakWindGust}}</td>
+                                        <td>{{vessel2vessel.peakWindGust.toFixed(1)}}</td>
                                         <td>{{vessel2vessel.peakWindAvg}}</td>      
                                     </tr>
                             </ng-container>

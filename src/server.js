@@ -571,12 +571,12 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
-    //let mmsi = parseInt(req.params.mmsi);
-    //let date = req.params.date;
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
     
     //TEST DATA
-    let mmsi = 232008874;
-    let date = 737199;
+    //let mmsi = 232008874;
+    //let date = 737199;
 
     SovPlatformTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }} , function (err, data) {
         if (err) {

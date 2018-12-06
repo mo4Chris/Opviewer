@@ -1,6 +1,7 @@
 export class SummaryModel {
     TotalSailDuration: string;
-    TotalSailDistance: string
+    TotalSailDistance: string;
+    HasSailed: boolean;
     
     AvgTimeInWaitingZone: string;
     AvgTimeInExclusionZone: string;

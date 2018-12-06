@@ -5,7 +5,7 @@ export class TurbineTransfer extends Transfer{
 duration: number;
 location: String;
 fieldname: String;
-gangwayReadyDuration: String;
+gangwayReadyDuration: number;
 gangwayUtilisationLimiter: String;
 approachTime: String;
 Ts: String;

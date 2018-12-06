@@ -3,7 +3,7 @@ export abstract class Transfer {
     stopTime: number;
     vesselname: String;
     mmsi: Number;
-    gangwayDeployedDuration: String;
+    gangwayDeployedDuration: number;
     timeGangwayDeployed: String;
     timeGangwayReady: String;
     timeGangwayRetracted: String;
