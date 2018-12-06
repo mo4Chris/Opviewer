@@ -231,6 +231,15 @@ var vessel2vesselTransfers = new Schema({
 });
 var vessel2vesselTransfers = mongo.model('vessel2vesselTransfers', vessel2vesselTransfers, 'vessel2vesselTransfers');
 
+var stationaryPeriods = new Schema({
+    vesselname: {type: String },
+    mmsi: {type: Number },
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    location: { type: String }
+});
+var stationaryPeriods = mongo.model('SOV_stationaryPeriods', stationaryPeriods, 'SOV_stationaryPeriods');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -532,17 +541,42 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
+app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
+
+    //TEST DATA
+    //let mmsi = 244090781;
+    //let date = 737366;
+
+    stationaryPeriods.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
+        sort: {
+            startTime: 'asc'
+        }
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    //let mmsi = parseInt(req.params.mmsi);
+    //let date = req.params.date;
     
     //TEST DATA
-    //let mmsi = 232008874;
-    //let date = 737199;
+    let mmsi = 232008874;
+    let date = 737199;
 
     SovPlatformTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }} , function (err, data) {
         if (err) {

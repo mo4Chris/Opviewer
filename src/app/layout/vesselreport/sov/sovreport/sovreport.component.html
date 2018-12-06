@@ -2,11 +2,8 @@
 <div *ngIf="loaded == true">
     <h2>{{sovModel.vesselname}}: {{sovModel.mmsi}}</h2>
     <div class="row">
-        <div class="col-lg-4"><canvas id="operationalPieChart"></canvas></div>
-        <div class="col-lg-4"><canvas id="workActivityPieChart"></canvas></div>
-        <div class="col-lg-4">
-            <canvas id="WOWandNoAccessPieChart"></canvas>
-        </div>
+        <div class="col-lg-4"><canvas id="operationalStats"></canvas></div>
+        <div *ngIf="sovModel.sovType == SovTypeEnum.Platform" class="col-lg-4"><canvas id="gangwayLimitations"></canvas></div>
     </div>
     <br />
     <div class="row">
@@ -14,7 +11,7 @@
             <div class="card mb-3">
                 <div class="card-header">Daily Summary</div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped" *ngIf="dataFound; else other_content">
+                    <table class="table table-hover">
                         <tr>
                             <td>Departure port</td>
                             <td> - </td>
@@ -33,19 +30,19 @@
                             </tr>
                             <tr>
                                 <td>Average time in waiting zone</td>
-                                <td>{{sovModel.summary.AvgTimeInWaitingZone}} min</td>
+                                <td>{{sovModel.summary.AvgTimeInWaitingZone}}</td>
                             </tr>
                             <tr>
                                 <td>Average time in exclusion zone</td>
-                                <td>{{sovModel.summary.AvgTimeInExclusionZone}} min</td>
+                                <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
                             </tr>
                             <tr>
                                 <td>Average time spent docking</td>
-                                <td>{{sovModel.summary.AvgTimeDocking}} min</td>
+                                <td>{{sovModel.summary.AvgTimeDocking}}</td>
                             </tr>
                             <tr>
                                 <td>Average time travelling between assets</td>
-                                <td> min</td>
+                                <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
                             </tr>
                             <tr class="blank_row">
                                 <td colspan="2"></td>
@@ -59,7 +56,7 @@
                             </tr>
                             <tr>
                                 <td>Average time spent docking</td>
-                                <td>{{sovModel.summary.AvgTimeDocking}} min</td>
+                                <td>{{sovModel.summary.AvgTimeDocking}}</td>
                             </tr>
                             <tr class="blank_row">
                                 <td colspan="2"></td>
@@ -69,11 +66,11 @@
                         <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                             <tr>
                                 <th>Number of vessels</th>
-                                <td></td>
+                                <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                             </tr>
                             <tr>
                                 <td>Average time spent docking</td>
-                                <td></td>
+                                <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
                             </tr>
                             <tr class="blank_row">
                                 <td colspan="2"></td>
@@ -109,154 +106,166 @@
                             </tr>
                         </ng-container>
 
-                        <tr *ngIf="sovModel.summary.HsDuringOperations > 0">
+                        <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations > 0">
                             <td>Maximum significant wave height during operations</td>
-                            <td>{{sovModel.summary.HsDuringOperations}} m</td>
+                            <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}} m</td>
                         </tr>
-                        <tr *ngIf="sovModel.summary.WindSpeedDuringOperations > 0">
+                        <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                             <td>Maximum wind speed during operations</td>
-                            <td>{{sovModel.summary.WindSpeedDuringOperations}} kts.</td>
+                            <td>{{sovModel.summary.maxWindSpeedDuringOperations | number}} kts.</td>
                         </tr>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
         <br />
         <div class="col-xl-12 col-lg-24">
-            <div class="card mb-3">
-                <div class="card-header">Chronology of Operations</div>
-                <div class="card-body table-responsive">
-                    <div *ngIf="dataFound; else other_content">
-                        <div *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
-                            <h2>Platform Transfers</h2>
-                            <table class="table table-hover table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Platform</th>
-                                            <th>Enter waiting zone</th>
-                                            <th>Enter Exclusion Zone</th>
-                                            <th>DP</th>
-                                            <th>Gangway Connected</th>
-                                            <th>Gangway Disconnected</th>
-                                            <th>Leave Exclusion Zone</th>
-                                            <th>Hs [m]</th>
-                                            <th>Duration [min.]</th>
-                                            <th>Comment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
-                                            <tr>
-                                                <th>{{platformTransfer.locationname}}</th>
-                                                <td>{{GetMatlabDateToJSTime(platformTransfer.Tentry1000mWaitingRange)}}</td>
-                                                <td>{{GetMatlabDateToJSTime(platformTransfer.startTime)}}</td>
-                                                <td>{{platformTransfer.DPutilisation}}</td>
-                                                <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayReady)}}</td>
-                                                <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayRetracted)}}</td>
-                                                <td>{{GetMatlabDateToJSTime(platformTransfer.stopTime)}}</td>
-                                                <td>{{platformTransfer.Hs}}</td>
-                                                <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="10" class="text-right">{{platformTransfer.comment}}</td>
-                                            </tr>
-                                        </ng-container>
-                                    </tbody>
-                                </table>
-                        </div>
-                        <div *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
-                            <h2>Turbine Transfers</h2>
-                            <table class="table table-hover table-striped">
-                                <thead>
+            <div *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
+                <div class="card mb-3">
+                    <div class="card-header">Platform docking list</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Enter waiting zone</th>
+                                    <th>Enter Exclusion Zone</th>
+                                    <th>Arrival time platform</th>
+                                    <th>Departure time platform</th>
+                                    <th>Leave Exclusion Zone</th>
+                                    <th>Total duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
                                     <tr>
-                                        <th>Location</th>
-                                        <th>Farm</th>
-                                        <th>Start</th>
-                                        <th>Stop</th>
-                                        <th>Gangway Ready</th>
-                                        <th>Gangway Retracted</th>
-                                        <th>Utilisation</th>
-                                        <th>Hs</th>
-                                        <th>Dp</th>
-                                        <th>Comment</th>
+                                        <th>{{platformTransfer.locationname}}</th>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.Tentry1000mWaitingRange)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.startTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayReady)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayRetracted)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.stopTime)}}</td>
+                                        <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <ng-container *ngFor="let turbineTransfer of sovModel.turbineTransfers">
-                                        <tr>
-                                            <th>{{turbineTransfer.location}}</th>
-                                            <td></td>
-                                            <td>{{GetMatlabDateToJSTime(turbineTransfer.startTime)}}</td>
-                                            <td>{{GetMatlabDateToJSTime(turbineTransfer.stopTime)}}</td>
-                                            <td>{{turbineTransfer.timeGangwayReady}}</td>
-                                            <td>{{turbineTransfer.timeGangwayRetracted}}</td>
-                                            <td></td>
-                                            <td>{{turbineTransfer.Hs}}</td>
-                                            <td>{{turbineTransfer.DPutilisation}}</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="10" class="text-right">{{turbineTransfer.comment}}</td>
-                                        </tr>
-                                    </ng-container>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div *ngIf="sovModel.sovType == SovTypeEnum.Unknown">
-                            <div *ngIf="sovModel.transits.length > 0">
-                                <h2>Transits</h2>
-                                <table class="table table-hover table-striped" >
-                                    <thead>
-                                        <tr>
-                                            <th>From</th>
-                                            <th>To</th>
-                                            <th>Start time</th>
-                                            <th>End time</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let transit of sovModel.transits">
-                                            <td></td>
-                                            <td>{{transit.toName}}</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div *ngIf="sovModel.vessel2vessels.length > 0">
-                                <h2>Vessel 2 vessel</h2>
-                                <table class="table table-hover table-striped" >
-                                    <thead>
-                                        <tr>
-                                            <th>Start</th>
-                                            <th>End</th>
-                                            <th>To vessel</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let vessel2vessel of sovModel.vessel2vessels">
-                                            <td>{{GetMatlabDateToJSTime(vessel2vessel.startTime)}}</td>
-                                            <td>{{GetMatlabDateToJSTime(vessel2vessel.stopTime)}}</td>
-                                            <td>{{vessel2vessel.toVesselname}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>                    
+                                </ng-container>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+            <div *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
+                <div class="card mb-3">
+                    <div class="card-header">Turbine transfers</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Start time</th>
+                                    <th>Stop time</th>
+                                    <th>Duration</th>
+                                    <th>Gangway Utilisation</th>
+                                    <th>Peak gust wind</th>
+                                    <th>Peak heave</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let turbineTransfer of sovModel.turbineTransfers">
+                                    <tr>
+                                        <th>{{turbineTransfer.location}}</th>
+                                        <td>{{GetMatlabDateToJSTime(turbineTransfer.startTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(turbineTransfer.stopTime)}}</td>
+                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
+                                        <td>{{turbineTransfer.gangwayUtilisation}}</td>
+                                        <td>{{turbineTransfer.peakWindGust | number}} m/s</td>
+                                        <td>{{turbineTransfer.peakHeave}} m</td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>                    
                 </div>
             </div>
         </div>
     </div>
     <br />
-    <div class="row">
+    <div class="row" *ngIf="sovModel.stationaryPeriods.length > 0">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
-                <div class="card-header">Other Craft of Operations</div>
+                <div class="card-header">Stationary Periods</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Start time</th>
+                                <th>Stop time</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let stationaryPeriod of sovModel.stationaryPeriods">
+                                <td>{{GetMatlabDateToJSTime(stationaryPeriod.startTime)}}</td>
+                                <td>{{GetMatlabDateToJSTime(stationaryPeriod.stopTime)}}</td>
+                                <td>{{stationaryPeriod.location}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br />
+    </div>
+    <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Gangway usage
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Deployed duration [min]</th>
+                                <th>Ready Duration [min]</th>
+                                <th>Utilisation [%]</th>
+                                <th>Limiter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+                                <tr *ngFor="let platformTransfer of sovModel.platformTransfers">
+                                    <td>{{platformTransfer.locationname}}</td>
+                                    <td>{{GetMatlabDateToJSTime(platformTransfer.aproachTime)}}</td>
+                                    <td>{{GetMatlabDurationToMinutes(platformTransfer.visitDuration)}}</td>
+                                    <td>{{platformTransfer.gangwayUtilisation}}</td>
+                                    <td>-</td>
+                                </tr>
+                            </ng-container>
+                            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+                                <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
+                                    <td>{{turbineTransfer.location}}</td>
+                                    <td>{{GetMatlabDateToJSTime(turbineTransfer.gangwayDeployedDuration)}}</td>
+                                    <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
+                                    <td>{{turbineTransfer.gangwayUtilisation}}</td>
+                                    <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>         
+                </div>
+            </div>
+        </div>
+        <br />
+    </div>
+    <div class="row" *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.vessel2vessels.length > 0">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Vessel Transfers
+                </div>
                 <div class="card-body table-responsive">
                     <table class="table table-hover table-striped">
                         <thead>
@@ -264,97 +273,57 @@
                                 <th>Vessel</th>
                                 <th>Start time</th>
                                 <th>End time</th>
-                                <th>Duration [min.]</th>
-                                <th>Activity</th>
+                                <th>Duration [min]</th>
+                                <th>Peak wind gust [km/hr]</th>
+                                <th>Peak heave [m]</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Vessel X</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Vessel Y</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
+                                <tr>
+                                        <th>{{vessel2vessel.toVesselname}}</th>
+                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.startTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.stopTime)}}</td>
+                                        <td>{{GetMatlabDurationToMinutes(vessel2vessel.duration)}}</td>
+                                        <td>{{vessel2vessel.peakWindGust}}</td>
+                                        <td>{{vessel2vessel.peakWindAvg}}</td>      
+                                    </tr>
+                            </ng-container>
                         </tbody>
-                        <thead>
-                            <tr>
-                                <th>Helicopter</th>
-                                <th>Start time</th>
-                                <th>End time</th>
-                                <th>Duration [min.]</th>
-                                <th>Activity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Helicopter X</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                        <thead>
-                            <tr>
-                                <th>DC</th>
-                                <th>Launch time</th>
-                                <th>Return time</th>
-                                <th>Duration [min.]</th>
-                                <th>Destination</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Hannah</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    </table>         
                 </div>
             </div>
         </div>
     </div>
-    <br />
-    <div class="row">
-        <div class="col-xl-12 col-lg-24">
-            <div class="card mb-3">
-                <div class="card-header">
-                    Chronology of environmental conditions during operations
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped" *ngIf="dataFound; else other_content">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Wind direction/speed</th>
-                                <th>Significant wave height</th>
-                                <th>Maximum wave height</th>
-                                <th>DP current</th>
-                                <th>Wave period</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let transfer of sovModel.conditions">
-                                <th>{{transfer.Time}}</th>
-                                <td>{{transfer.Windspeed}}</td>
-                                <td>{{transfer.WaveHeight}}</td>
-                                <td></td>
-                                <td>{{transfer.DpCurrent}}</td>
-                                <td>{{transfer.WavePeriod}}</td>      
-                            </tr>
-                        </tbody>
-                    </table>         
+    <div *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineActivities.length > 0">
+        <div *ngFor="let vessel2vessel of sovModel.turbineActivities">
+            <div class="row">
+                <div class="col-xl-12 col-lg-24">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <b>Vessel Activity:</b> {{vessel2vessel.toVesselname}}
+                        </div>
+                        <div class="card-body table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Start time</th>
+                                        <th>End time</th>
+                                        <th>Duration [min]</th>
+                                        <th>Turbine</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let activity of vessel2vessel.turbineActivity">
+                                        <td>{{GetMatlabDateToJSTime(activity.startTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(activity.stopTime)}}</td>
+                                        <td>{{activity.durationMinutes}}</td>
+                                        <td>{{activity.location}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -384,9 +353,4 @@
             </div>
         </div>
     </div>
-    <ng-template #other_content>
-        <div class="divContainer">
-            <h3>There is no data available.</h3>
-        </div>
-    </ng-template>
 </div>

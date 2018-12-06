@@ -22,6 +22,8 @@ export class SovreportComponent implements OnInit {
     mapTypeId = "roadmap";
     streetViewControl = false;
 
+    operationsChart;
+    gangwayLimitationsChart;
     chart;
     backgroundcolors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"];
 
@@ -30,8 +32,6 @@ export class SovreportComponent implements OnInit {
 
     //used for comparison in the HTML
     SovTypeEnum = SovType;
-
-    dataFound = false;
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
 
@@ -56,76 +56,95 @@ export class SovreportComponent implements OnInit {
                     if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
                             if(turbineTransfers.length === 0) {
-                                this.dataFound = false;
                                 this.sovModel.sovType = SovType.Unknown;
                             }
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
-                               this.dataFound = true;
                            }
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
-                        this.dataFound = true;
                     }
                 });
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
                     this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                         this.sovModel.transits = transits;
-                        this.sovModel.vessel2vessels = vessel2vessels;
-                        this.dataFound = true;                                
+                        this.sovModel.vessel2vessels = vessel2vessels; 
+                              
+                        var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
+                            return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
+                        });         
+                        vessels2vesselsFiltered.forEach(vessel2vessel => {
+                            this.sovModel.turbineActivities.push(vessel2vessel);
+                        }); 
+
                     });
                 });
+                this.commonService.GetStationaryPeriodsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(stationaryPeriods => {
+                    this.sovModel.stationaryPeriods = stationaryPeriods;       
+                });
+
             }
             this.loaded = true;
 
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
-                this.createOperationalPieChart();
-                this.createworkActivityPieChart();
-                this.createWOWandNoAccessPieChart();
+                this.createOperationalStatsChart();
+
+                if(this.sovModel.sovType == SovType.Platform) {
+                    this.createGangwayLimitationsChart();
+                }
+
                 this.createWeatherLimitDocking1Graph();
                 this.createWeatherLimitDocking2Graph();
                 this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
-                this.CalculateConditions();
-            }, 500);
+            }, 1000);
         });
     }
 
     CalculateDailySummary() {
         let summaryModel = new SummaryModel();
         
-        var sumSailingDuration = this.sovModel.transits.map(transit => transit.transitTimeMinutes).reduce((prev, next) => prev + next);
+        var sumSailingDuration = 0;
+        this.sovModel.transits.forEach(transit => {
+            sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
+        });
         summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
 
-        summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
         summaryModel.NrOfDaughterCraftLaunches = 0;
         summaryModel.NrOfHelicopterVisits = 0;
 
         if(this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType == SovType.Turbine) {
             var turbineTransfers = this.sovModel.turbineTransfers;
             
+            var avgTimeDocking = turbineTransfers.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+
+            summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
+            var avgDurationVesselDocking = this.sovModel.vessel2vessels.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(avgDurationVesselDocking);
+
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         }
         else if(this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType == SovType.Platform) {
             var platformTransfers = this.sovModel.platformTransfers;
+
+            var avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.timeInWaitingZone;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
+
+            var avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.visitDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
+
+            var avgTimeDocking = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.totalDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+
+            var avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.aproachTime;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
             
-            //var maxTimeInWaitingZoneSerial = Math.max.apply(Math, platformTransfers.map(function(o){ return o.Tentry1000mWaitingRange; }));
-            //summaryModel.TimeInWaitingZone = this.datetimeService.MatlabDateToCustomJSTime(maxTimeInWaitingZoneSerial, 'HH:mm');
-            var avgTimeInWaitingZoneSerial = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.Tentry1000mWaitingRange;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDateToCustomJSTime(avgTimeInWaitingZoneSerial, 'HH:mm');
-
-            //var maxTimeInExclusionZoneSerial = Math.max.apply(Math, platformTransfers.map(function(o){ return o.stopTime - o.startTime; }));
-            //summaryModel.TimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(maxTimeInExclusionZoneSerial);
-            var avgTimeInExclusionZoneSerial = platformTransfers.reduce(function(sum, a,i,ar) { sum += (a.stopTime - a.startTime);  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDateToJSTime(avgTimeInExclusionZoneSerial);
-
-            //todo: traveling between platforms
-
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
         }
 
@@ -134,49 +153,48 @@ export class SovreportComponent implements OnInit {
 
     //Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        model.WindSpeedDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust;}));
-        //model.AvgWindSpeedDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.peakWindAvg;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
-            
-        model.HsDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.Hs;}));
-        //model.AvgHsDuringOperations = transfers.reduce(function(sum, a,i,ar) { sum += a.Hs;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0).toFixed(1);
-
-        //var maxTimeDocking = Math.max.apply(Math, transfers.map(function(o){return o.gangwayDeployedDuration;}));
-        //model.TimeDocking = this.datetimeService.MatlabDurationToMinutes(maxTimeDocking);
-        var avgTimeDocking = transfers.reduce(function(sum, a,i,ar) { sum += a.gangwayDeployedDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-        model.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-        
+        model.maxSignificantWaveHeightdDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakHeave;}));  
+        model.maxWindSpeedDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust;}));     
         return model;
-    }
-
-    CalculateConditions() {
-        let conditions: ConditionDuringOperationModel[] = [];
-        this.sovModel.turbineTransfers.forEach(turbineTransfer => {
-            var condition = new ConditionDuringOperationModel(
-                this.datetimeService.MatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm'), turbineTransfer.peakWindGust, turbineTransfer.peakHeave, turbineTransfer.DPutilisation, null
-            );
-            conditions.push(condition);
-        });
-        this.sovModel.conditions = conditions;
     }
 
     GetMatlabDurationToMinutes(serial) {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
 
-    createOperationalPieChart() {
-        this.chart = new Chart("operationalPieChart", {
+    createOperationalStatsChart() {
+
+        var sumSailingDuration = 0;
+        var sumWaitingDuration = 0;
+        var sumExclusionZone = 0;
+
+        this.sovModel.transits.forEach(transit => {
+            sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
+        });
+        this.sovModel.platformTransfers.forEach(platformTransfer => {
+            sumWaitingDuration = sumWaitingDuration + platformTransfer.timeInWaitingZone;
+            sumExclusionZone = sumExclusionZone + platformTransfer.visitDuration;
+        });
+
+        var totalSum = sumSailingDuration + sumWaitingDuration + sumExclusionZone;
+
+        var sailingDurationPerc = ((sumSailingDuration / totalSum) * 100).toFixed(1);
+        var sumWaitingDurationPerc = ((sumWaitingDuration / totalSum) * 100).toFixed(1);
+        var sumExclusionZonePerc = ((sumExclusionZone / totalSum) * 100).toFixed(1);
+
+        this.operationsChart = new Chart("operationalStats", {
             type: "pie",
             data: {
                 datasets: [
                     {
-                        data: [78, 10, 12],
+                        data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
                         backgroundColor: this.backgroundcolors,
                         radius: 8,
                         pointHoverRadius: 10,
                         borderWidth: 1
                     }
                 ],
-                labels: ["Traveling", "Approved", "Docking"]
+                labels: ["Sailing", "Waiting", "Exclusion zone"]
             },
             options: {
                 title: {
@@ -192,61 +210,26 @@ export class SovreportComponent implements OnInit {
         });
     }
 
-    createworkActivityPieChart() {
-        this.chart = new Chart("workActivityPieChart", {
+    createGangwayLimitationsChart() {
+        this.gangwayLimitationsChart = new Chart("gangwayLimitations", {
             type: "pie",
             data: {
                 datasets: [
                     {
-                        data: [24, 43, 33],
+                        data: [24, 43],
                         backgroundColor: this.backgroundcolors,
                         radius: 8,
                         pointHoverRadius: 10,
                         borderWidth: 1
                     }
                 ],
-                labels: ["Working", "WOWeather", "Non-access"]
+                labels: ["Boom angle limited", "Stroke limited"]
             },
             options: {
                 title: {
                     display: true,
                     position: "top",
                     text: "Work activity details",
-                    fontSize: 25
-                },
-                responsive: true,
-                radius: 6,
-                pointHoverRadius: 6
-            }
-        });
-    }
-
-    createWOWandNoAccessPieChart() {
-        this.chart = new Chart("WOWandNoAccessPieChart", {
-            type: "pie",
-            data: {
-                datasets: [
-                    {
-                        data: [39, 6, 33, 18, 4],
-                        backgroundColor: this.backgroundcolors,
-                        radius: 8,
-                        pointHoverRadius: 10,
-                        borderWidth: 1
-                    }
-                ],
-                labels: [
-                    "Wave height",
-                    "Wave period",
-                    "Wind speed",
-                    "Wave #4",
-                    "Wave #5"
-                ]
-            },
-            options: {
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "WOW and no access details",
                     fontSize: 25
                 },
                 responsive: true,
@@ -509,7 +492,13 @@ export class SovreportComponent implements OnInit {
     }
 
     private ResetTransfers() {
-        this.dataFound = false;
         this.sovModel = new SovModel();
+        
+        if(this.operationsChart != undefined) {
+            this.operationsChart.destroy();
+        }
+        if(this.gangwayLimitationsChart != undefined) {
+            this.gangwayLimitationsChart.destroy();
+        }
     }
 }

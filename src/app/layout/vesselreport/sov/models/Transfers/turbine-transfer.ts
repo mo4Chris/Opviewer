@@ -2,7 +2,7 @@ import { Transfer } from "./transfer";
 
 export class TurbineTransfer extends Transfer{
 
-duration: Number;
+duration: number;
 location: String;
 fieldname: String;
 gangwayReadyDuration: String;
