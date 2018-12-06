@@ -19,7 +19,9 @@ const routes: Routes = [
             { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
             { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
             { path: 'users', loadChildren: './users/users.module#UsersModule' },
-            { path: 'usermanagement', loadChildren: './usermanagement/usermanagement.module#UserManagementModule' }
+            { path: 'usermanagement', loadChildren: './usermanagement/usermanagement.module#UserManagementModule' },
+            { path: 'access-denied', loadChildren: './access-denied/access-denied.module#AccessDeniedModule' },
+            { path: 'not-found', loadChildren: './not-found/not-found.module#NotFoundModule' }
         ]
     }
 ];
