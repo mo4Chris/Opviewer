@@ -12,20 +12,20 @@
                         <tr>
                             <th>#</th>
                             <th>Vesselname</th>
-                            <th *ngIf="tokenInfo.userPermission == 'admin'">Client</th>
+                            <!-- <th *ngIf="tokenInfo.userPermission == 'admin'">Client</th> -->
                             <th>mmsi</th>
                             <th>Daily vessel report</th>
-                            <th *ngIf="ScatterplotPermission">Scatterplot</th>
+                            <!-- <th *ngIf="ScatterplotPermission">Scatterplot</th> -->
                         </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let kk of Repdata;let ind = index">
+                            <tr *ngFor="let rd of Repdata;let ind = index">
                                 <td>{{ind + 1}}</td>  
-                                <td>{{kk.nicename}}</td>  
-                                <td *ngIf="tokenInfo.userPermission == 'admin'">{{kk.client}}</td> 
-                                <td>{{kk.mmsi}}</td>
-                                <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(kk.mmsi)"> Daily Vessel Report </a></td>
-                                <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(kk.mmsi)"> Scatterplot </a></td>
+                                <td>{{rd.nicename}}</td>  
+                                <!-- <td *ngIf="tokenInfo.userPermission == 'admin'">{{rd.client}}</td>  -->
+                                <td>{{rd.mmsi}}</td>
+                                <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a></td>
+                                <!-- <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(rd.mmsi)"> Scatterplot </a></td> -->
                             </tr>
                         </tbody>
                     </table>

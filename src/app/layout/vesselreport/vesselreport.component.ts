@@ -45,7 +45,7 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  zoomlvl = 9;
+  zoomlvl = 10;
   latitude;
   longitude;
   mapTypeId = 'roadmap';
