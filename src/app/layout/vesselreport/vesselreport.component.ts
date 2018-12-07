@@ -51,7 +51,7 @@ export class VesselreportComponent implements OnInit {
   vessel;
 
   @ViewChild(CtvreportComponent)
-  private child: CtvreportComponent;
+  private ctvChild: CtvreportComponent;
 
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
@@ -148,12 +148,16 @@ export class VesselreportComponent implements OnInit {
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
-    if(this.vesselObject.vesselType == 'CTV' && this.child != null) {
-        setTimeout(() => this.child.BuildPageWithCurrentInformation(), 1000);
-    }
-    if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != null) {
-      setTimeout(() => this.sovChild.BuildPageWithCurrentInformation(), 1000);
-    }
+    
+    setTimeout(() => {
+        if(this.vesselObject.vesselType == 'CTV' && this.ctvChild != undefined) {
+          setTimeout(() => this.ctvChild.BuildPageWithCurrentInformation(), 1000);
+        }
+
+        if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != undefined) {
+            this.sovChild.BuildPageWithCurrentInformation();
+        }
+    }, 500); 
   }
 
   GetDateAsMatlab(): any {

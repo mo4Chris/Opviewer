@@ -87,7 +87,8 @@ export class SovreportComponent implements OnInit {
                     this.sovModel.stationaryPeriods = stationaryPeriods;       
                 });
             }
-
+            this.loaded = true;
+            
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
                 this.createOperationalStatsChart();
@@ -101,7 +102,6 @@ export class SovreportComponent implements OnInit {
                 this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
                 this.CheckForNullValues();
-                this.loaded = true;
             }, 1000);
         });
     }
