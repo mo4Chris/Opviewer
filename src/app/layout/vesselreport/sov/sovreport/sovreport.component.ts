@@ -18,9 +18,6 @@ export class SovreportComponent implements OnInit {
 
     @Input() vesselObject;
 
-    mapTypeId = "roadmap";
-    streetViewControl = false;
-
     operationsChart;
     gangwayLimitationsChart;
     chart;
@@ -28,6 +25,8 @@ export class SovreportComponent implements OnInit {
 
     loaded = false;
     sovModel: SovModel = new SovModel();
+
+    dateData = [];
 
     operationalChartCalculated = false;
 
@@ -62,34 +61,32 @@ export class SovreportComponent implements OnInit {
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
+                               this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
+                                    this.sovModel.vessel2vessels = vessel2vessels;    
+                                    
+                                    //distinct per vessel activity
+                                    var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
+                                        return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
+                                    });         
+                                    vessels2vesselsFiltered.forEach(vessel2vessel => {
+                                        this.sovModel.turbineActivities.push(vessel2vessel);
+                                    }); 
+                                });                       
                            }
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
-                        this.sovModel.sovType = SovType.Platform;
+                        this.sovModel.sovType = SovType.Platform; 
                     }
                 });
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-                    this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
-                        this.sovModel.transits = transits;
-                        this.sovModel.vessel2vessels = vessel2vessels; 
-                              
-                        var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
-                            return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
-                        });         
-                        vessels2vesselsFiltered.forEach(vessel2vessel => {
-                            this.sovModel.turbineActivities.push(vessel2vessel);
-                        }); 
-
-                    });
+                    this.sovModel.transits = transits;
                 });
                 this.commonService.GetStationaryPeriodsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(stationaryPeriods => {
                     this.sovModel.stationaryPeriods = stationaryPeriods;       
                 });
-
             }
-            this.loaded = true;
 
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
@@ -103,6 +100,8 @@ export class SovreportComponent implements OnInit {
                 this.createWeatherLimitDocking2Graph();
                 this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
+                this.CheckForNullValues();
+                this.loaded = true;
             }, 1000);
         });
     }
@@ -117,6 +116,9 @@ export class SovreportComponent implements OnInit {
         if(sumSailingDuration > 0) {
             summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
             summaryModel.HasSailed = true;
+        }
+        else {
+            summaryModel.HasSailed = false;
         }
         
         summaryModel.NrOfDaughterCraftLaunches = 0;
@@ -166,6 +168,41 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
 
+    CheckForNullValues() {
+
+        if(this.sovModel.sovType == SovType.Turbine && this.sovModel.turbineTransfers.length > 0) {
+            this.sovModel.turbineTransfers = this.ReplaceEmptyColumnValues(this.sovModel.turbineTransfers);
+        }
+        else if(this.sovModel.sovType == SovType.Platform && this.sovModel.platformTransfers.length > 0) {
+            this.sovModel.platformTransfers = this.ReplaceEmptyColumnValues(this.sovModel.platformTransfers);
+        }
+
+        if(this.sovModel.stationaryPeriods.length > 0) {
+            this.sovModel.stationaryPeriods = this.ReplaceEmptyColumnValues(this.sovModel.stationaryPeriods);
+        }
+        if(this.sovModel.transits.length > 0) {
+            this.sovModel.transits = this.ReplaceEmptyColumnValues(this.sovModel.transits);
+        }
+        if(this.sovModel.vessel2vessels.length > 0) {
+            this.sovModel.vessel2vessels = this.ReplaceEmptyColumnValues(this.sovModel.vessel2vessels);
+        }
+        if(this.sovModel.turbineActivities.length > 0) {
+            this.sovModel.turbineActivities = this.ReplaceEmptyColumnValues(this.sovModel.turbineActivities);
+        }
+    }
+
+    private ReplaceEmptyColumnValues(collection: any[]) {
+        var keys = Object.keys(collection[0]);  
+        collection.forEach(transfer => {
+            keys.forEach(key => {
+                if(typeof(transfer[key]) == typeof("")) {
+                    transfer[key] = transfer[key].replace('_NaN_', 'N/a');
+                }
+            });
+        });
+        return collection;
+    }
+
     createOperationalStatsChart() {
 
         var sumSailingDuration = 0;
@@ -190,39 +227,41 @@ export class SovreportComponent implements OnInit {
         }
 
         if(sumSailingDuration > 0 && sumWaitingDuration > 0 && sumExclusionZone > 0) {
-
             this.operationalChartCalculated = true;
             var totalSum = sumSailingDuration + sumWaitingDuration + sumExclusionZone;
             var sailingDurationPerc = ((sumSailingDuration / totalSum) * 100).toFixed(1);
             var sumWaitingDurationPerc = ((sumWaitingDuration / totalSum) * 100).toFixed(1);
             var sumExclusionZonePerc = ((sumExclusionZone / totalSum) * 100).toFixed(1);
 
-            this.operationsChart = new Chart("operationalStats", {
-                type: "pie",
-                data: {
-                    datasets: [
-                        {
-                            data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
-                            backgroundColor: this.backgroundcolors,
-                            radius: 8,
-                            pointHoverRadius: 10,
-                            borderWidth: 1
-                        }
-                    ],
-                    labels: ["Sailing", "Waiting", "Exclusion zone"]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        position: "top",
-                        text: "Operational activity",
-                        fontSize: 25
+
+            setTimeout(() => {
+                this.operationsChart = new Chart("operationalStats", {
+                    type: "pie",
+                    data: {
+                        datasets: [
+                            {
+                                data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
+                                backgroundColor: this.backgroundcolors,
+                                radius: 8,
+                                pointHoverRadius: 10,
+                                borderWidth: 1
+                            }
+                        ],
+                        labels: ["Sailing", "Waiting", "Exclusion zone"]
                     },
-                    responsive: true,
-                    radius: 6,
-                    pointHoverRadius: 6
-                }
-            });
+                    options: {
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Operational activity",
+                            fontSize: 25
+                        },
+                        responsive: true,
+                        radius: 6,
+                        pointHoverRadius: 6
+                    }
+                });
+            }, 500);
         }
     }
 

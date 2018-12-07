@@ -13,6 +13,6 @@ export abstract class Transfer {
     gangwayUtilisation: String;
     peakHeave: string;
     DPutilisation: string;
-    current: String;
-    Hs: number;
+    current: string;
+    Hs: string;
 }
