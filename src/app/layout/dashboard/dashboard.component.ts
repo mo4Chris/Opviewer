@@ -47,6 +47,10 @@ export class DashboardComponent implements OnInit {
         this.infoWindowOpened = infoWindow;
     }
 
+    redirectDailyVesselReport(mmsi) {
+        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    }
+
     getLatestBoatLocationAdmin() {
         this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
         setTimeout(() => {
