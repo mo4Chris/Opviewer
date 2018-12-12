@@ -54,10 +54,10 @@
                 </agm-map>
             </div>
             <div *ngIf="vesselObject.vesselType == 'CTV'">
-                <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-ctvreport>
+                <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
             </div>
             <div *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'">
-                <app-sovreport [vesselObject]="vesselObject" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)"></app-sovreport>
+                <app-sovreport [vesselObject]="vesselObject" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
             </div>
         </div>
     </div>

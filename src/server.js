@@ -202,16 +202,24 @@ var SovTurbineTransfers = new Schema({
 var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
 var SovTransits = new Schema({
+    from: {type: String},
+    fromName: {type: String},
+    to: {type: String},
+    toName: {type: String },
+    day: {type: String},
+    timeString: {type: String},
     dayNum: {type: Number },
     vesselname: {type: String },
     mmsi: {type: Number },
-    toName: {type: String },
+    combineId: { type: Number},
     speedInTransitAvg: {type: Number },
     speedInTransitAvgUnrestricted: {type: String },
+    distancekm: { type: Number},
     transitTimeMinutes: {type: Number },
-    avHeading: {type: Number }
+    avHeading: {type: Number },
+    date: {type: Number}
 });
-var SovTransits = mongo.model('SOV_transitStats', SovTransits, 'SOV_transitStats');
+var SovTransits = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
 
 var vessel2vesselTransfers = new Schema({
     vesselname: {type: String },
@@ -507,7 +515,7 @@ app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
 
-    SovTransits.find({"mmsi": mmsi, "dayNum": { $gte: date, $lt: date + 1 }} , function (err, data) {
+    SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
         if (err) {
             res.send(err);
         } else {

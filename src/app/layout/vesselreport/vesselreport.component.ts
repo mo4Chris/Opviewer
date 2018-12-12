@@ -64,6 +64,22 @@ export class VesselreportComponent implements OnInit {
     setTimeout(() => this.detailZoomlvl = childZoomLvl, 500);
   }
 
+  getLocdata(locData: any[]): void {
+    this.Locdata = locData;
+  }
+
+  getLongitude(longitude: any): void {
+    this.longitude = longitude;
+  }
+
+  getLatitude(latitude: any): void {
+    this.latitude = latitude;
+  }
+
+  getBoatLocationData(boatLocationData: any[]): void {
+    this.boatLocationData = boatLocationData;
+  }
+
   hasSailed(date: NgbDateStruct) {
     return this.dateTimeService.dateHasSailed(date, this.dateData);
   }
@@ -87,6 +103,7 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
+  //Get available data routes on ctv TODO: make compliant with SOV and better naming for function
   getDatesWithTransfers(date) {
     return this.newService
     .getDatesWithValues(date).pipe(
@@ -107,16 +124,16 @@ export class VesselreportComponent implements OnInit {
     return this.calculationService.objectToInt(objectvalue);
   }
 
-    ngOnInit() {
-        if (this.tokenInfo.userPermission === 'admin') {
-            this.newService.GetVessel().subscribe(data => this.vessels = data);
-        } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-                this.vessels = data;
-                
-            });
-        }
-        this.BuildPageWithCurrentInformation();
+  ngOnInit() {
+      if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.GetVessel().subscribe(data => this.vessels = data);
+      } else {
+          this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+              this.vessels = data;
+              
+          });
+      }
+      this.BuildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
@@ -125,20 +142,8 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
-        this.getDatesWithTransfers(this.vesselObject).subscribe(_ => {        
-            this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
-              this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
-                if(data.length !== 0) {
-                    this.Locdata = data, this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]), this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]); 
-                }
-                else {
-                  this.Locdata = [];
-                }             
-                });
-            });
-            this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => this.boatLocationData = data);
-            setTimeout(() => this.showContent = true, 1050);
-        });
+        this.getDatesWithTransfers(this.vesselObject);
+        setTimeout(() => this.showContent = true, 1050);
       } else {
         this.showContent = true;
         this.noPermissionForData = true;

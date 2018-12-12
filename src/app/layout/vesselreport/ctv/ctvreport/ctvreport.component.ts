@@ -13,6 +13,11 @@ export class CtvreportComponent implements OnInit {
     @Output() overviewZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() detailZoomLvl: EventEmitter<number> = new EventEmitter<number>();
 
+    @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
+    @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
+
     @Input() vesselObject; 
     @Input() tokenInfo;
 
@@ -51,6 +56,24 @@ export class CtvreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
       this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
           this.getComments(this.vesselObject).subscribe(_ => {
+            this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
+                this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
+                if(data.length !== 0) {
+                    var Locdata = data;
+                    var latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
+                    var longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
+                    
+                    this.Locdata.emit(Locdata);
+                    this.latitude.emit(latitude);
+                    this.longitude.emit(longitude);
+                    }          
+                });
+                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
+                    var boatLocationData = data;
+
+                    this.boatLocationData.emit(boatLocationData);
+                });   
+            });
             this.getVideoRequests(this.vesselObject).subscribe(_ => {
               this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
                   if (data[0]) {
@@ -58,7 +81,6 @@ export class CtvreportComponent implements OnInit {
                   } else {
                       this.videoBudget = { maxBudget: -1, currentBudget: -1 };
                   }
-
                 this.matchCommentsWithTransfers();
               });
             });

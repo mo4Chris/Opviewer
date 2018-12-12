@@ -16,6 +16,10 @@ export class SovreportComponent implements OnInit {
     @Output() overviewZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() detailZoomLvl: EventEmitter<number> = new EventEmitter<number>();
 
+    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
+    @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
+
     @Input() vesselObject;
 
     operationsChart;
@@ -82,6 +86,16 @@ export class SovreportComponent implements OnInit {
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
                     this.sovModel.transits = transits;
+                    
+                    if(transits.length !== 0) {
+                        var Locdata = transits;
+                        var latitude = parseFloat(transits[0].lat[Math.floor(transits[0].lat.length / 2)]);
+                        var longitude = parseFloat(transits[0].lon[Math.floor(transits[0].lon.length / 2)]);
+
+                        this.Locdata.emit(Locdata);
+                        this.latitude.emit(latitude);
+                        this.longitude.emit(longitude);
+                    }         
                 });
                 this.commonService.GetStationaryPeriodsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(stationaryPeriods => {
                     this.sovModel.stationaryPeriods = stationaryPeriods;       
@@ -113,6 +127,7 @@ export class SovreportComponent implements OnInit {
         this.sovModel.transits.forEach(transit => {
             sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
         });
+
         if(sumSailingDuration > 0) {
             summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
             summaryModel.HasSailed = true;
