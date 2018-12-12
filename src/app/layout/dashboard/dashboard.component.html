@@ -7,7 +7,9 @@
                     <pre>
 <strong style="font-size: 15px;">{{ loc.vesselInformation[loc.vesselInformation.length -1]}}</strong>
 MMSI: {{loc._id}}
-Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
+Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}
+<br>
+<button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(loc._id)" type="button">Go to DPR</button></pre>
      	        </agm-info-window>
              </agm-marker>
         </ng-container>
