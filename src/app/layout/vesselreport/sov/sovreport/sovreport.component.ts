@@ -14,9 +14,7 @@ import { SummaryModel } from "../models/Summary";
 })
 export class SovreportComponent implements OnInit {
 
-    @Output() overviewZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-    @Output() detailZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-
+    @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
@@ -51,8 +49,7 @@ export class SovreportComponent implements OnInit {
     }
 
     BuildPageWithCurrentInformation() {
-        this.overviewZoomLvl.emit(9);
-        this.detailZoomLvl.emit(10);
+        this.mapZoomLvl.emit(8);
         this.ResetTransfers();
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
@@ -73,6 +70,7 @@ export class SovreportComponent implements OnInit {
                                 this.sovModel.sovType = SovType.Unknown;
                             }
                            else {
+                            console.log("is turbine");
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
                                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
@@ -89,6 +87,7 @@ export class SovreportComponent implements OnInit {
                            }
                         });
                     } else {
+                        console.log("is platform");
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform; 
                     }
@@ -170,6 +169,7 @@ export class SovreportComponent implements OnInit {
             var platformTransfers = this.sovModel.platformTransfers;
 
             var avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.timeInWaitingZone;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            console.log(platformTransfers);
             summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
 
             var avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.visitDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
@@ -200,37 +200,49 @@ export class SovreportComponent implements OnInit {
 
     CheckForNullValues() {
 
+        this.sovModel.sovInfo = this.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
+        this.sovModel.summary = this.ReplaceEmptyColumnValues(this.sovModel.summary);
+
         if(this.sovModel.sovType == SovType.Turbine && this.sovModel.turbineTransfers.length > 0) {
-            this.sovModel.turbineTransfers = this.ReplaceEmptyColumnValues(this.sovModel.turbineTransfers);
+            this.sovModel.turbineTransfers.forEach(transfer => {
+                transfer = this.ReplaceEmptyColumnValues(transfer);
+            });
         }
         else if(this.sovModel.sovType == SovType.Platform && this.sovModel.platformTransfers.length > 0) {
-            this.sovModel.platformTransfers = this.ReplaceEmptyColumnValues(this.sovModel.platformTransfers);
+            this.sovModel.platformTransfers.forEach(transfer => {
+                transfer = this.ReplaceEmptyColumnValues(transfer);
+            });
         }
-
         if(this.sovModel.stationaryPeriods.length > 0) {
-            this.sovModel.stationaryPeriods = this.ReplaceEmptyColumnValues(this.sovModel.stationaryPeriods);
+            this.sovModel.stationaryPeriods.forEach(period => {
+                period = this.ReplaceEmptyColumnValues(period);
+            });
         }
         if(this.sovModel.transits.length > 0) {
-            this.sovModel.transits = this.ReplaceEmptyColumnValues(this.sovModel.transits);
+            this.sovModel.transits.forEach(transit => {
+                transit = this.ReplaceEmptyColumnValues(transit);
+            });
         }
         if(this.sovModel.vessel2vessels.length > 0) {
-            this.sovModel.vessel2vessels = this.ReplaceEmptyColumnValues(this.sovModel.vessel2vessels);
+            this.sovModel.vessel2vessels.forEach(vessel2vessel => {
+                vessel2vessel = this.ReplaceEmptyColumnValues(vessel2vessel);
+            });
         }
         if(this.sovModel.turbineActivities.length > 0) {
-            this.sovModel.turbineActivities = this.ReplaceEmptyColumnValues(this.sovModel.turbineActivities);
+            this.sovModel.turbineActivities.forEach(turbineActivity => {
+                turbineActivity = this.ReplaceEmptyColumnValues(turbineActivity);
+            });
         }
     }
 
-    private ReplaceEmptyColumnValues(collection: any[]) {
-        var keys = Object.keys(collection[0]);  
-        collection.forEach(transfer => {
-            keys.forEach(key => {
-                if(typeof(transfer[key]) == typeof("")) {
-                    transfer[key] = transfer[key].replace('_NaN_', 'N/a');
-                }
-            });
+    private ReplaceEmptyColumnValues(resetObject: any) {
+        var keys = Object.keys(resetObject);  
+        keys.forEach(key => {
+            if(typeof(resetObject[key]) == typeof("")) {
+                resetObject[key] = resetObject[key].replace('_NaN_', 'N/a');
+            }
         });
-        return collection;
+        return resetObject;
     }
 
     createOperationalStatsChart() {
@@ -324,257 +336,257 @@ export class SovreportComponent implements OnInit {
         });
     }
 
-    createWeatherLimitDocking1Graph() {
-        this.chart = new Chart("weatherLimitDocking1Graph", {
-            type: "line",
-            data: {
-                labels: [
-                    "15:00",
-                    "16:00",
-                    "17:00",
-                    "18:00",
-                    "19:00",
-                    "20:00",
-                    "21:00"
-                ],
-                datasets: [
-                    {
-                        data: [80, 75, 5, 10, 5, 60, 60],
-                        label: "Wind",
-                        borderColor: "#3e95cd",
-                        fill: false,
-                        steppedLine: true
-                    },
-                    {
-                        data: [100, 90, 25, 25, 10, 75, 80],
-                        label: "DP",
-                        borderColor: "#3cba9f",
-                        fill: false,
-                        steppedLine: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Docking #1",
-                    fontSize: 25
-                },
-                annotation: {
-                    annotations: [
-                        {
-                            type: "line",
-                            drawTime: "afterDatasetsDraw",
-                            id: "average",
-                            mode: "horizontal",
-                            scaleID: "y-axis-0",
-                            value: 30,
-                            borderWidth: 2,
-                            borderColor: "red"
-                        },
-                        {
-                            type: "box",
-                            drawTime: "beforeDatasetsDraw",
-                            id: "region",
-                            xScaleID: "x-axis-0",
-                            yScaleID: "y-axis-0",
-                            xMin: "17:00",
-                            xMax: "20:00",
-                            backgroundColor: "rgba(200,230,201,0.5)"
-                        }
-                    ]
-                },
-                scales: {
-                    xAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Time"
-                            }
-                        }
-                    ],
-                    yAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Utilasation %"
-                            }
-                        }
-                    ]
-                }
-            }
-        });
-    }
+    // createWeatherLimitDocking1Graph() {
+    //     this.chart = new Chart("weatherLimitDocking1Graph", {
+    //         type: "line",
+    //         data: {
+    //             labels: [
+    //                 "15:00",
+    //                 "16:00",
+    //                 "17:00",
+    //                 "18:00",
+    //                 "19:00",
+    //                 "20:00",
+    //                 "21:00"
+    //             ],
+    //             datasets: [
+    //                 {
+    //                     data: [80, 75, 5, 10, 5, 60, 60],
+    //                     label: "Wind",
+    //                     borderColor: "#3e95cd",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 },
+    //                 {
+    //                     data: [100, 90, 25, 25, 10, 75, 80],
+    //                     label: "DP",
+    //                     borderColor: "#3cba9f",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 }
+    //             ]
+    //         },
+    //         options: {
+    //             responsive: true,
+    //             title: {
+    //                 display: true,
+    //                 position: "top",
+    //                 text: "Docking #1",
+    //                 fontSize: 25
+    //             },
+    //             annotation: {
+    //                 annotations: [
+    //                     {
+    //                         type: "line",
+    //                         drawTime: "afterDatasetsDraw",
+    //                         id: "average",
+    //                         mode: "horizontal",
+    //                         scaleID: "y-axis-0",
+    //                         value: 30,
+    //                         borderWidth: 2,
+    //                         borderColor: "red"
+    //                     },
+    //                     {
+    //                         type: "box",
+    //                         drawTime: "beforeDatasetsDraw",
+    //                         id: "region",
+    //                         xScaleID: "x-axis-0",
+    //                         yScaleID: "y-axis-0",
+    //                         xMin: "17:00",
+    //                         xMax: "20:00",
+    //                         backgroundColor: "rgba(200,230,201,0.5)"
+    //                     }
+    //                 ]
+    //             },
+    //             scales: {
+    //                 xAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Time"
+    //                         }
+    //                     }
+    //                 ],
+    //                 yAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Utilasation %"
+    //                         }
+    //                     }
+    //                 ]
+    //             }
+    //         }
+    //     });
+    // }
 
-    createWeatherLimitDocking2Graph() {
-        this.chart = new Chart("weatherLimitDocking2Graph", {
-            type: "line",
-            data: {
-                labels: [
-                    "15:00",
-                    "16:00",
-                    "17:00",
-                    "18:00",
-                    "19:00",
-                    "20:00",
-                    "21:00"
-                ],
-                datasets: [
-                    {
-                        data: [80, 75, 5, 10, 5, 60, 60],
-                        label: "Wind",
-                        borderColor: "#3e95cd",
-                        fill: false,
-                        steppedLine: true
-                    },
-                    {
-                        data: [100, 90, 25, 25, 10, 75, 80],
-                        label: "DP",
-                        borderColor: "#3cba9f",
-                        fill: false,
-                        steppedLine: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Docking #2",
-                    fontSize: 25
-                },
-                annotation: {
-                    annotations: [
-                        {
-                            type: "line",
-                            drawTime: "afterDatasetsDraw",
-                            id: "average",
-                            mode: "horizontal",
-                            scaleID: "y-axis-0",
-                            value: 5,
-                            borderWidth: 2,
-                            borderColor: "red"
-                        },
-                        {
-                            type: "box",
-                            drawTime: "beforeDatasetsDraw",
-                            id: "region",
-                            xScaleID: "x-axis-0",
-                            yScaleID: "y-axis-0",
-                            xMin: "16:00",
-                            xMax: "19:00",
-                            backgroundColor: "rgba(200,230,201,0.5)"
-                        }
-                    ]
-                },
-                scales: {
-                    xAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Time"
-                            }
-                        }
-                    ],
-                    yAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Utilasation %"
-                            }
-                        }
-                    ]
-                }
-            }
-        });
-    }
+    // createWeatherLimitDocking2Graph() {
+    //     this.chart = new Chart("weatherLimitDocking2Graph", {
+    //         type: "line",
+    //         data: {
+    //             labels: [
+    //                 "15:00",
+    //                 "16:00",
+    //                 "17:00",
+    //                 "18:00",
+    //                 "19:00",
+    //                 "20:00",
+    //                 "21:00"
+    //             ],
+    //             datasets: [
+    //                 {
+    //                     data: [80, 75, 5, 10, 5, 60, 60],
+    //                     label: "Wind",
+    //                     borderColor: "#3e95cd",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 },
+    //                 {
+    //                     data: [100, 90, 25, 25, 10, 75, 80],
+    //                     label: "DP",
+    //                     borderColor: "#3cba9f",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 }
+    //             ]
+    //         },
+    //         options: {
+    //             responsive: true,
+    //             title: {
+    //                 display: true,
+    //                 position: "top",
+    //                 text: "Docking #2",
+    //                 fontSize: 25
+    //             },
+    //             annotation: {
+    //                 annotations: [
+    //                     {
+    //                         type: "line",
+    //                         drawTime: "afterDatasetsDraw",
+    //                         id: "average",
+    //                         mode: "horizontal",
+    //                         scaleID: "y-axis-0",
+    //                         value: 5,
+    //                         borderWidth: 2,
+    //                         borderColor: "red"
+    //                     },
+    //                     {
+    //                         type: "box",
+    //                         drawTime: "beforeDatasetsDraw",
+    //                         id: "region",
+    //                         xScaleID: "x-axis-0",
+    //                         yScaleID: "y-axis-0",
+    //                         xMin: "16:00",
+    //                         xMax: "19:00",
+    //                         backgroundColor: "rgba(200,230,201,0.5)"
+    //                     }
+    //                 ]
+    //             },
+    //             scales: {
+    //                 xAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Time"
+    //                         }
+    //                     }
+    //                 ],
+    //                 yAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Utilasation %"
+    //                         }
+    //                     }
+    //                 ]
+    //             }
+    //         }
+    //     });
+    // }
 
-    createWeatherLimitDocking3Graph() {
-        this.chart = new Chart("weatherLimitDocking3Graph", {
-            type: "line",
-            data: {
-                labels: [
-                    "15:00",
-                    "16:00",
-                    "17:00",
-                    "18:00",
-                    "19:00",
-                    "20:00",
-                    "21:00"
-                ],
-                datasets: [
-                    {
-                        data: [80, 75, 5, 10, 5, 60, 60],
-                        label: "Wind",
-                        borderColor: "#3e95cd",
-                        fill: false,
-                        steppedLine: true
-                    },
-                    {
-                        data: [100, 90, 25, 25, 10, 75, 80],
-                        label: "DP",
-                        borderColor: "#3cba9f",
-                        fill: false,
-                        steppedLine: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Docking #3",
-                    fontSize: 25
-                },
-                annotation: {
-                    annotations: [
-                        {
-                            type: "line",
-                            drawTime: "afterDatasetsDraw",
-                            id: "average",
-                            mode: "horizontal",
-                            scaleID: "y-axis-0",
-                            value: 50,
-                            borderWidth: 2,
-                            borderColor: "red"
-                        },
-                        {
-                            type: "box",
-                            drawTime: "beforeDatasetsDraw",
-                            id: "region",
-                            xScaleID: "x-axis-0",
-                            yScaleID: "y-axis-0",
-                            xMin: "19:00",
-                            xMax: "21:00",
-                            backgroundColor: "rgba(200,230,201,0.5)"
-                        }
-                    ]
-                },
-                scales: {
-                    xAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Time"
-                            }
-                        }
-                    ],
-                    yAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Utilasation %"
-                            }
-                        }
-                    ]
-                }
-            }
-        });
-    }
+    // createWeatherLimitDocking3Graph() {
+    //     this.chart = new Chart("weatherLimitDocking3Graph", {
+    //         type: "line",
+    //         data: {
+    //             labels: [
+    //                 "15:00",
+    //                 "16:00",
+    //                 "17:00",
+    //                 "18:00",
+    //                 "19:00",
+    //                 "20:00",
+    //                 "21:00"
+    //             ],
+    //             datasets: [
+    //                 {
+    //                     data: [80, 75, 5, 10, 5, 60, 60],
+    //                     label: "Wind",
+    //                     borderColor: "#3e95cd",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 },
+    //                 {
+    //                     data: [100, 90, 25, 25, 10, 75, 80],
+    //                     label: "DP",
+    //                     borderColor: "#3cba9f",
+    //                     fill: false,
+    //                     steppedLine: true
+    //                 }
+    //             ]
+    //         },
+    //         options: {
+    //             responsive: true,
+    //             title: {
+    //                 display: true,
+    //                 position: "top",
+    //                 text: "Docking #3",
+    //                 fontSize: 25
+    //             },
+    //             annotation: {
+    //                 annotations: [
+    //                     {
+    //                         type: "line",
+    //                         drawTime: "afterDatasetsDraw",
+    //                         id: "average",
+    //                         mode: "horizontal",
+    //                         scaleID: "y-axis-0",
+    //                         value: 50,
+    //                         borderWidth: 2,
+    //                         borderColor: "red"
+    //                     },
+    //                     {
+    //                         type: "box",
+    //                         drawTime: "beforeDatasetsDraw",
+    //                         id: "region",
+    //                         xScaleID: "x-axis-0",
+    //                         yScaleID: "y-axis-0",
+    //                         xMin: "19:00",
+    //                         xMax: "21:00",
+    //                         backgroundColor: "rgba(200,230,201,0.5)"
+    //                     }
+    //                 ]
+    //             },
+    //             scales: {
+    //                 xAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Time"
+    //                         }
+    //                     }
+    //                 ],
+    //                 yAxes: [
+    //                     {
+    //                         scaleLabel: {
+    //                             display: true,
+    //                             labelString: "Utilasation %"
+    //                         }
+    //                     }
+    //                 ]
+    //             }
+    //         }
+    //     });
+    // }
 
     private ResetTransfers() {
         this.sovModel = new SovModel();

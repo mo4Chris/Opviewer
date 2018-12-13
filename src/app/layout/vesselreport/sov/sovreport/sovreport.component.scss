@@ -5,8 +5,8 @@
 .dockingGraph canvas {
     max-height: 450px !important;
 }
-.blank_row
-{
-    height: 10px !important;
-    background-color: #FFFFFF;
+
+.tableSummary td:nth-child(1) {
+    background: gray;
+    color: white;
 }

@@ -11,8 +11,13 @@ export abstract class Transfer {
     peakWindGust: number;
     peakWindAvg: number;
     gangwayUtilisation: String;
+    gangwayUtilisationLimiter: string;
+    gangwayUtilisationTrace: any;
     peakHeave: string;
     DPutilisation: string;
     current: string;
     Hs: string;
+    angleToAsset: number;
+    lon: number;
+    lat: number;
 }

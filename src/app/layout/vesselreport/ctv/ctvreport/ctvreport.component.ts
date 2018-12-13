@@ -10,9 +10,7 @@ import * as jwt_decode from 'jwt-decode';
     styleUrls: ["./ctvreport.component.scss"]
 })
 export class CtvreportComponent implements OnInit {
-    @Output() overviewZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-    @Output() detailZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-
+    @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
@@ -51,8 +49,7 @@ export class CtvreportComponent implements OnInit {
 
     BuildPageWithCurrentInformation() {
         this.videoRequestPermission = this.tokenInfo.userPermission == "admin" || this.tokenInfo.userPermission == "Logistics specialist"; 
-        this.overviewZoomLvl.emit(10);
-        this.detailZoomLvl.emit(11);
+        this.mapZoomLvl.emit(10);
 
       this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transfers => {
           if(transfers.length > 0) {

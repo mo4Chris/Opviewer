@@ -3,9 +3,9 @@ export class SovData {
     dayNum: number;
     vesselname: string;
     mmsi: number;
-    timeBreakdown: string;
+    timeBreakdown: any;
     seCoverageHours: string;
-    distancekm: string;
+    distancekm: any;
     arrivalAtHarbour: string;
     departureFromHarbour: string;
     lon: any[];

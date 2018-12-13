@@ -41,8 +41,7 @@ export class VesselreportComponent implements OnInit {
   showContent = false;
   noPermissionForData = false;
   
-  overviewZoomlvl;
-  detailZoomlvl;
+  mapZoomLvl;
   latitude;
   longitude;
   mapTypeId = 'roadmap';
@@ -57,12 +56,8 @@ export class VesselreportComponent implements OnInit {
   private sovChild: SovreportComponent;
 
   ///////Get variables from child components//////////
-      getOverviewZoomLvl(childZoomLvl: number): void{
-        setTimeout(() => this.overviewZoomlvl = childZoomLvl, 500);
-      }
-
-      getDetailZoomLvl(childZoomLvl: number): void{
-        setTimeout(() => this.detailZoomlvl = childZoomLvl, 500);
+      getMapZoomLvl(mapZoomLvl: number): void{
+        setTimeout(() => this.mapZoomLvl = mapZoomLvl, 500);
       }
 
       getLocdata(locData: any[]): void {

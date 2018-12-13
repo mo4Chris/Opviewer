@@ -4,8 +4,10 @@ export class PlatformTransfers extends Transfer {
 
     timeInWaitingZone: number;
     Tentry1000mWaitingRange: number;
-    locationname: String;
+    locationname: string;
     aproachTime: number;
     visitDuration: number;
     totalDuration: number;
+    distanceToAsset: number;
+    TexitExclusionZone: number;
 }

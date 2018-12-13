@@ -13,23 +13,44 @@
             <div class="card mb-3">
                 <div class="card-header">Daily Summary</div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-responsive tableSummary">
                         <ng-container>
                             <tr>
                                 <td>Departure port</td>
-                                <td>{{sovModel.sovInfo.departureFromHarbour}}</td>
+                                <td> {{sovModel.sovInfo.arrivalAtHarbour}} </td>
                             </tr>
                             <tr>
                                 <td>Sailing duration</td>
                                 <td>{{sovModel.summary.TotalSailDuration}} hours</td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
+                            <tr *ngIf="sovModel.sovInfo.timeBreakdown.hoursAtPlatform != undefined">
+                                <td>At platform</td>
+                                <td>{{sovModel.sovInfo.timeBreakdown.hoursAtPlatform.toFixed(1)}} hours</td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovInfo.timeBreakdown.hoursWaiting != undefined">
+                                <td>Waiting</td>
+                                <td>{{sovModel.sovInfo.timeBreakdown.hoursWaiting.toFixed(1)}} hours</td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovInfo.timeBreakdown.hoursSailing != undefined">
+                                <td>Sailing</td>
+                                <td>{{sovModel.sovInfo.timeBreakdown.hoursSailing.toFixed(1)}} hours</td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovInfo.departureFromHarbour != N/a">
+                                <td>Departure from harbour</td>
+                                <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != N/a">
+                                <td>Arrival at harbour</td>
+                                <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
+                            </tr>
+                            <tr *ngIf="sovModel.sovInfo.distancekm != N/a">
+                                <td>Distance</td>
+                                <td>{{sovModel.sovInfo.distancekm}} km</td>
                             </tr>
                         </ng-container>
                         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
                             <tr>
-                                <th>Number of platforms visited</th>
+                                <td>Number of platforms visited</td>
                                 <td>{{sovModel.platformTransfers.length}}</td>
                             </tr>
                             <tr>
@@ -48,25 +69,17 @@
                                 <td>Average time travelling between assets</td>
                                 <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
-                            </tr>
                         </ng-container>
-
                         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                             <tr>
-                                <th>Number of turbine transfers</th>
+                                <td>Number of turbine transfers</td>
                                 <td>{{sovModel.turbineTransfers.length}}</td>
                             </tr>
                             <tr>
                                 <td>Average time spent docking</td>
                                 <td>{{sovModel.summary.AvgTimeDocking}}</td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
-                            </tr>
                         </ng-container>
-
                         <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                             <tr>
                                 <th>Number of vessels</th>
@@ -76,12 +89,7 @@
                                 <td>Average time spent docking</td>
                                 <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
-                            </tr>
                         </ng-container>
-
-
                         <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
                             <tr>
                                 <th>Number of daughter-craft launches</th>
@@ -91,11 +99,7 @@
                                 <td>DC sailing time</td>
                                 <td></td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
-                            </tr>
                         </ng-container>
-
                         <ng-container *ngIf="sovModel.summary.NrOfHelicopterVisits > 0">
                             <tr>
                                 <th>Number of helicopter visits</th>
@@ -105,11 +109,7 @@
                                 <td>Average time helicopter on deck</td>
                                 <td></td>
                             </tr>
-                            <tr class="blank_row">
-                                <td colspan="2"></td>
-                            </tr>
                         </ng-container>
-
                         <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations > 0">
                             <td>Maximum significant wave height during operations</td>
                             <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}} m</td>
@@ -145,12 +145,12 @@
                             <tbody>
                                 <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
                                     <tr>
-                                        <th>{{platformTransfer.locationname}}</th>
+                                        <th>{{platformTransfer.location}}</th>
                                         <td>{{GetMatlabDateToJSTime(platformTransfer.Tentry1000mWaitingRange)}}</td>
                                         <td>{{GetMatlabDateToJSTime(platformTransfer.startTime)}}</td>
                                         <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayReady)}}</td>
                                         <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayRetracted)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.stopTime)}}</td>
+                                        <td>{{GetMatlabDateToJSTime(platformTransfer.TexitExclusionZone)}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
                                 </ng-container>
