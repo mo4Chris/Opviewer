@@ -1,34 +1,40 @@
 <div [@routerTransition]>
     <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"></app-page-header>
     <div class="row">
-        <div class="col-lg-8" >
+        <div class="col-lg-8">
             <canvas id="canvas">{{myChart}}</canvas>
         </div>
     </div>
-    <div class="card-body table-responsive">
-        <table class="table table-hover table-bordered" *ngIf="loaded">
+    <div class="card-body table-responsive" *ngIf="loaded">
+        <select (change)="setMonth($event.target.value)">
+            <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
+        </select>
+        <table class="table table-hover table-bordered">
             <thead>
-            <tr>
-                <th>Vessel\Date</th>
-                <th *ngFor="let td of turbineWarrenty.Dates;let ind = index">
-                    <span>{{MatlabDateToJSDate(td)}}</span>
-                    <!--<span>{{MatlabDateToJSDate(td)}}</span>-->
-                </th>
-            </tr>
+                <tr>
+                    <th class="smallPadding">Vessel\Date</th>
+                    <ng-container *ngFor="let td of turbineWarrenty.Dates;let ind = index">
+                        <th class="smallPadding" *ngIf="checkDateRange(td)">
+                            <span>{{MatlabDateToJSDate(td)}}</span>
+                        </th>
+                    </ng-container>
+                </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let vessel of turbineWarrenty.sailMatrix;let ind = index">
-                    <ng-container  *ngIf="turbineWarrenty.activeFleet.indexOf(turbineWarrenty.fullFleet[ind])>=0">
-                        <td>{{changeToNicename(turbineWarrenty.fullFleet[ind]) | titlecase}}</td>
-                        <td *ngFor="let sailDay of turbineWarrenty.sailMatrix[ind];" [class.green]="sailDay==1" [class.red]="sailDay==0" [class.yellow]="sailDay==0.5" [class.gray]="sailDay=='_NaN_'" [class.hideColor]="hideText==false">
-                            <span *ngIf="hideText==false && !edit">{{sailDay}}</span>
-                            <select *ngIf="edit">
-                                <option value="NaN" *ngIf="sailDay=='_NaN_'" selected>_NaN_</option>
-                                <option value="0" [selected]="sailDay==0">0</option>
-                                <option value="0.5" [selected]="sailDay==0.5">0.5</option>
-                                <option value="1" [selected]="sailDay==1">1</option>
-                            </select>
-                        </td>
+                    <ng-container *ngIf="turbineWarrenty.activeFleet.indexOf(turbineWarrenty.fullFleet[ind])>=0">
+                        <td class="smallPadding">{{changeToNicename(turbineWarrenty.fullFleet[ind]) | titlecase}}</td>
+                        <ng-container *ngFor="let sailDay of turbineWarrenty.sailMatrix[ind];let i = index">
+                            <td *ngIf="checkDateRange(turbineWarrenty.Dates[i])" [class.green]="sailDay==1" [class.red]="sailDay==0" [class.yellow]="sailDay==0.5" [class.gray]="sailDay=='_NaN_'" [class.hideColor]="hideText==false">
+                                <span *ngIf="hideText==false && !edit">{{getSailDay(sailDay)}}</span>
+                                <select *ngIf="edit">
+                                    <option value="_NaN_" *ngIf="sailDay=='_NaN_'" selected>-</option>
+                                    <option value="0" [selected]="sailDay==0">0</option>
+                                    <option value="0.5" [selected]="sailDay==0.5">0.5</option>
+                                    <option value="1" [selected]="sailDay==1">1</option>
+                                </select>
+                            </td>
+                        </ng-container>
                     </ng-container>
                 </tr>
             </tbody>

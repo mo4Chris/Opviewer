@@ -1,15 +1,31 @@
-td.green{
-    background-color: green;
-}
-td.red{
-    background-color: red;
-}
-td.gray{
-    background-color: gray;
-}
-td.yellow{
-    background-color: yellow;
-}
-td.hideColor {
-    background-color: transparent;
+table {
+    font-size: 12px;
+
+    td {
+        padding: 0 8px;
+        line-height: 48px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.green {
+            background-color: green;
+        }
+
+        &.red {
+            background-color: red;
+        }
+
+        &.gray {
+            background-color: gray;
+        }
+
+        &.yellow {
+            background-color: yellow;
+        }
+
+        &.hideColor {
+            background-color: transparent;
+        }
+    }
 }
