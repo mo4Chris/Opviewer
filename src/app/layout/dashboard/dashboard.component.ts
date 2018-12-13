@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import * as jwt_decode from 'jwt-decode';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import {CommonService} from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
@@ -13,7 +13,7 @@ import { UserService } from '../../shared/services/user.service';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(private newService: CommonService, private route: ActivatedRoute, private userService: UserService) {   }
+    constructor(private newService: CommonService, public router: Router, private route: ActivatedRoute, private userService: UserService) {   }
     LLdata;
     Locdata;
     errData;
@@ -47,16 +47,24 @@ export class DashboardComponent implements OnInit {
         this.infoWindowOpened = infoWindow;
     }
 
+    redirectDailyVesselReport(mmsi) {
+        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    }
+
     getLatestBoatLocationAdmin() {
         this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
         setTimeout(() => {
-            this.getLatestBoatLocationAdmin();
+            if (this.router.url === '/dashboard') {
+                this.getLatestBoatLocationAdmin();
+            }
         }, 60000);
     }
     getLatestBoatLocationCompany(company) {
         this.newService.GetLatestBoatLocationForCompany(company).subscribe(data => this.Locdata = data, err => this.errData = err);
         setTimeout(() => {
-            this.getLatestBoatLocationCompany(company);
+            if (this.router.url === '/dashboard') {
+                this.getLatestBoatLocationCompany(company);
+            }
         }, 60000);
     }
 

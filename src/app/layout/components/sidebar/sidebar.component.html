@@ -6,7 +6,7 @@
         <!--<a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-bar-chart-o"></i>&nbsp;{{ 'Charts' | translate }}
         </a>-->
-        <a [routerLink]="['/tables']" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <a [routerLink]="['/vesselsandreports']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
         <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
@@ -18,6 +18,9 @@
         <a *ngIf="userCreatePermission" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-user-plus"></i>&nbsp;{{ 'Create new user' | translate }}
         </a>
+        <a [routerLink]="['/login']" (click)="onLoggedout()" class="list-group-item">
+            <span><i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }}</span>
+        </a>
         <!-- <a [routerLink]="['/bs-element']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-desktop"></i>&nbsp;{{ 'Bootstrap Element' | translate }}
         </a>
@@ -26,7 +29,7 @@
         </a>
         <a [routerLink]="['/components']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-th-list"></i>&nbsp;{{ 'Component' | translate }}
-        </a>-->
+        </a>
         <div class="header-fields">
             <a (click)="rltAndLtr()" class="list-group-item">
                 <span><i class="fa fa-arrows-h"></i>&nbsp; RTL/LTR</span>
@@ -104,6 +107,6 @@
                     </ul>
                 </li>
             </div>
-        </div>
+        </div> -->
     </div>
 </nav>

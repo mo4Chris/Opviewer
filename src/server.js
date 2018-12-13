@@ -422,7 +422,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Acces denied');
     }
-    let filter = { client: companyName };
+    let filter = { client: companyName, onHire: 1 };
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
