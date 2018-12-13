@@ -23,8 +23,8 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
-  GetSov(mmsi) {
-    return this.get(environment.DB_IP + '/api/getSov/' + mmsi).pipe(
+  GetSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -93,8 +93,8 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
-  GetTransfersForVessel (vessel) {
-    return this.post(environment.DB_IP + '/api/getTransfersForVessel/', vessel).pipe(
+  GetTransfersForVessel(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getTransfersForVessel/' + mmsi + '/' + date).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -116,6 +116,11 @@ export class CommonService {
   getDatesWithValues(vessel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
             map((response: Response) => response.json()));
+  }
+
+  GetDatesShipHasSailedForSov(mmsi) {
+    return this.get(environment.DB_IP + '/api/GetDatesShipHasSailedForSov/' + mmsi).pipe(
+      map((response: Response) => response.json()));
   }
 
   getCommentsForVessel(vessel) {

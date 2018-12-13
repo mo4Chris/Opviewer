@@ -13,12 +13,16 @@ import { SummaryModel } from "../models/Summary";
     styleUrls: ["./sovreport.component.scss"]
 })
 export class SovreportComponent implements OnInit {
+
     @Output() overviewZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() detailZoomLvl: EventEmitter<number> = new EventEmitter<number>();
 
-    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
+    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    locShowContent = false;
 
     @Input() vesselObject;
 
@@ -27,7 +31,6 @@ export class SovreportComponent implements OnInit {
     chart;
     backgroundcolors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"];
 
-    loaded = false;
     sovModel: SovModel = new SovModel();
 
     dateData = [];
@@ -39,24 +42,31 @@ export class SovreportComponent implements OnInit {
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
 
-    ngOnInit() {
-        this.overviewZoomLvl.emit(9);
-        this.detailZoomLvl.emit(10);
-
-        this.BuildPageWithCurrentInformation();
-    }
-
     GetMatlabDateToJSTime(serial) {
         return this.datetimeService.MatlabDateToJSTime(serial);
     }
 
+    ngOnInit() {
+        
+    }
+
     BuildPageWithCurrentInformation() {
+        this.overviewZoomLvl.emit(9);
+        this.detailZoomLvl.emit(10);
         this.ResetTransfers();
-        this.commonService.GetSov(this.vesselObject.mmsi).subscribe(sov => {
+        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
-                this.sovModel.vesselname = sov[0].vesselname;
-                this.sovModel.mmsi = sov[0].mmsi;          
-                this.commonService.GetPlatformTransfers(this.sovModel.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                this.sovModel.sovInfo = sov[0];            
+                var boatlocationData = [];
+                boatlocationData.push(this.sovModel.sovInfo);
+                var latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
+                var longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
+
+                this.latitude.emit(latitude);
+                this.longitude.emit(longitude);
+                this.boatLocationData.emit(boatlocationData);
+                
+                this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
                             if(turbineTransfers.length === 0) {
@@ -85,23 +95,27 @@ export class SovreportComponent implements OnInit {
                 });
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-                    this.sovModel.transits = transits;
-                    
-                    if(transits.length !== 0) {
-                        var Locdata = transits;
-                        var latitude = parseFloat(transits[0].lat[Math.floor(transits[0].lat.length / 2)]);
-                        var longitude = parseFloat(transits[0].lon[Math.floor(transits[0].lon.length / 2)]);
-
-                        this.Locdata.emit(Locdata);
-                        this.latitude.emit(latitude);
-                        this.longitude.emit(longitude);
-                    }         
+                    this.sovModel.transits = transits;                    
                 });
                 this.commonService.GetStationaryPeriodsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(stationaryPeriods => {
                     this.sovModel.stationaryPeriods = stationaryPeriods;       
                 });
+                this.locShowContent = true;
             }
-            this.loaded = true;
+            else {
+                this.locShowContent = false;
+            }
+
+            this.commonService.GetDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
+                for (let _i = 0; _i < dates.length; _i++) {
+                    dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
+                }
+
+                var sailDates = dates;
+                this.sailDates.emit(sailDates);
+            });
+
+            this.showContent.emit(this.locShowContent);
             
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
@@ -111,11 +125,12 @@ export class SovreportComponent implements OnInit {
                     this.createGangwayLimitationsChart();
                 }
 
-                this.createWeatherLimitDocking1Graph();
-                this.createWeatherLimitDocking2Graph();
-                this.createWeatherLimitDocking3Graph();
+                //this.createWeatherLimitDocking1Graph();
+                //this.createWeatherLimitDocking2Graph();
+                //this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
                 this.CheckForNullValues();
+                
             }, 1000);
         });
     }

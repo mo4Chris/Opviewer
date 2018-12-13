@@ -31,15 +31,15 @@ export class VesselreportComponent implements OnInit {
 
   parkNamesData;
   Locdata = [];
-  boatLocationData;
+  boatLocationData = [];
   datePickerValue = this.maxDate;
-  dateData;
+  sailDates = [];
   typeOfLat;
   vessels;
 
   tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
-  public showContent = false;
-  public noPermissionForData = false;
+  showContent = false;
+  noPermissionForData = false;
   
   overviewZoomlvl;
   detailZoomlvl;
@@ -56,32 +56,42 @@ export class VesselreportComponent implements OnInit {
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
 
-  getOverviewZoomLvl(childZoomLvl: number): void{
-    setTimeout(() => this.overviewZoomlvl = childZoomLvl, 500);
-  }
+  ///////Get variables from child components//////////
+      getOverviewZoomLvl(childZoomLvl: number): void{
+        setTimeout(() => this.overviewZoomlvl = childZoomLvl, 500);
+      }
 
-  getDetailZoomLvl(childZoomLvl: number): void{
-    setTimeout(() => this.detailZoomlvl = childZoomLvl, 500);
-  }
+      getDetailZoomLvl(childZoomLvl: number): void{
+        setTimeout(() => this.detailZoomlvl = childZoomLvl, 500);
+      }
 
-  getLocdata(locData: any[]): void {
-    this.Locdata = locData;
-  }
+      getLocdata(locData: any[]): void {
+        this.Locdata = locData;
+      }
 
-  getLongitude(longitude: any): void {
-    this.longitude = longitude;
-  }
+      getLongitude(longitude: any): void {
+        this.longitude = longitude;
+      }
 
-  getLatitude(latitude: any): void {
-    this.latitude = latitude;
-  }
+      getLatitude(latitude: any): void {
+        this.latitude = latitude;
+      }
 
-  getBoatLocationData(boatLocationData: any[]): void {
-    this.boatLocationData = boatLocationData;
-  }
+      getBoatLocationData(boatLocationData: any[]): void {
+        this.boatLocationData = boatLocationData;
+      }
+
+      getDatesHasSailed(sailDates: any[]): void {
+          this.sailDates = sailDates;
+      }
+
+      getShowContent(showContent: boolean): void {
+        setTimeout(() => this.showContent = showContent, 2000);
+      }
+  ///////////////////////////////////////////////////
 
   hasSailed(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.dateData);
+    return this.dateTimeService.dateHasSailed(date, this.sailDates);
   }
 
   getMatlabDateToJSDate(serial) {
@@ -103,23 +113,6 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
-  //Get available data routes on ctv TODO: make compliant with SOV and better naming for function
-  getDatesWithTransfers(date) {
-    return this.newService
-    .getDatesWithValues(date).pipe(
-      map(
-        (dates) => {
-          for (let _i = 0; _i < dates.length; _i++) {
-            dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
-        }
-          this.dateData = dates;
-        }),
-        catchError(error => {
-          console.log('error ' + error);
-          throw error;
-        }));
-  }
-
   objectToInt(objectvalue) {
     return this.calculationService.objectToInt(objectvalue);
   }
@@ -130,7 +123,6 @@ export class VesselreportComponent implements OnInit {
       } else {
           this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
               this.vessels = data;
-              
           });
       }
       this.BuildPageWithCurrentInformation();
@@ -142,10 +134,18 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
-        this.getDatesWithTransfers(this.vesselObject);
-        setTimeout(() => this.showContent = true, 1050);
+
+        setTimeout(() => {
+
+          if(this.vesselObject.vesselType == 'CTV' && this.ctvChild != undefined) {
+              this.ctvChild.BuildPageWithCurrentInformation();
+          }
+  
+          if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != undefined) {
+              this.sovChild.BuildPageWithCurrentInformation();
+          }
+      }, 1000); 
       } else {
-        this.showContent = true;
         this.noPermissionForData = true;
       }
     });
@@ -153,16 +153,7 @@ export class VesselreportComponent implements OnInit {
 
   onChange(event): void {
     this.searchTransfersByNewSpecificDate();
-    
-    setTimeout(() => {
-        if(this.vesselObject.vesselType == 'CTV' && this.ctvChild != undefined) {
-          setTimeout(() => this.ctvChild.BuildPageWithCurrentInformation(), 1000);
-        }
-
-        if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != undefined) {
-            this.sovChild.BuildPageWithCurrentInformation();
-        }
-    }, 500); 
+    this.resetRoutes();
   }
 
   GetDateAsMatlab(): any {
@@ -181,5 +172,12 @@ export class VesselreportComponent implements OnInit {
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
 
     this.BuildPageWithCurrentInformation();
+  }
+
+  resetRoutes() {
+    this.Locdata = [];
+    this.boatLocationData = [];
+    this.longitude = 0;
+    this.latitude = 0;
   }
 }

@@ -17,6 +17,8 @@ export class CtvreportComponent implements OnInit {
     @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
+    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     @Input() vesselObject; 
     @Input() tokenInfo;
@@ -34,8 +36,6 @@ export class CtvreportComponent implements OnInit {
 
     videoRequests;
     videoBudget;
-    
-    dateData;
 
     public showAlert = false;
     alert = { type: "", message: "" };
@@ -46,47 +46,71 @@ export class CtvreportComponent implements OnInit {
     }
 
     ngOnInit() {
+        
+    }
+
+    BuildPageWithCurrentInformation() {
         this.videoRequestPermission = this.tokenInfo.userPermission == "admin" || this.tokenInfo.userPermission == "Logistics specialist"; 
         this.overviewZoomLvl.emit(10);
         this.detailZoomLvl.emit(11);
 
-        this.BuildPageWithCurrentInformation();
-    }
-
-    BuildPageWithCurrentInformation() {
-      this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-          this.getComments(this.vesselObject).subscribe(_ => {
-            this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
-                this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
-                if(data.length !== 0) {
-                    var Locdata = data;
-                    var latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
-                    var longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
-                    
-                    this.Locdata.emit(Locdata);
-                    this.latitude.emit(latitude);
-                    this.longitude.emit(longitude);
-                    }          
+      this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transfers => {
+          if(transfers.length > 0) {
+            this.transferData = transfers;
+            this.getComments(this.vesselObject).subscribe(_ => {
+                this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
+                    this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
+                    if(data.length !== 0) {
+                        var Locdata = data;
+                        var latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
+                        var longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);               
+                        this.Locdata.emit(Locdata);
+                        this.latitude.emit(latitude);
+                        this.longitude.emit(longitude);
+                        }          
+                    });
+                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
+                        var boatLocationData = data;
+                        this.boatLocationData.emit(boatLocationData);
+                    });
+                    this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
+                        var sailDates = data;
+                        this.sailDates.emit(sailDates);
+                    });   
                 });
-                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
-                    var boatLocationData = data;
-
-                    this.boatLocationData.emit(boatLocationData);
-                });   
-            });
-            this.getVideoRequests(this.vesselObject).subscribe(_ => {
-              this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                  if (data[0]) {
-                      this.videoBudget = data[0];
-                  } else {
-                      this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                  }
-                this.matchCommentsWithTransfers();
+                this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                  this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                      if (data[0]) {
+                          this.videoBudget = data[0];
+                      } else {
+                          this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                      }
+                    this.matchCommentsWithTransfers();
+                  });
+                });
               });
-            });
-          });
+
+              setTimeout(() => this.showContent.emit(true), 1000);
+          }
+            else {
+                this.showContent.emit(false);
+            }
       });
     }
+
+    getDatesShipHasSailed(date) {
+        return this.newService.getDatesWithValues(date).pipe( map((dates) => {
+          for (let _i = 0; _i < dates.length; _i++) {
+            dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
+          }
+          return dates;
+              
+          }),
+          catchError(error => {
+            console.log('error ' + error);
+            throw error;
+          }));
+      }
 
     getMatlabDateToJSTime(serial) {
         return this.dateTimeService.MatlabDateToJSTime(serial);
@@ -94,18 +118,6 @@ export class CtvreportComponent implements OnInit {
 
     getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
         return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
-    }
-
-    getTransfersForVessel(vessel) {
-        return this.newService.GetTransfersForVessel(vessel).pipe(
-            map(transfers => {
-                this.transferData = transfers;
-            }),
-            catchError(error => {
-                console.log("error " + error);
-                throw error;
-            })
-        );
     }
 
     getComments(vessel) {

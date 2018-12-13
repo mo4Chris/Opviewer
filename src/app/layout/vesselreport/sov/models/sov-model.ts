@@ -5,10 +5,11 @@ import { Transit } from "./Transfers/Transit";
 import { SovType } from "./SovType";
 import { Vessel2vesselModel } from "./Transfers/Vessel2vessel";
 import { StationaryPeriod } from "./Transfers/StationaryPeriod";
+import { SovData } from "./SovData";
 
 export class SovModel {
-    vesselname: String;
-    mmsi: Number;
+
+    sovInfo: SovData;
 
     sovType: SovType;
 
@@ -23,6 +24,7 @@ export class SovModel {
     stationaryPeriods: StationaryPeriod[];
  
     constructor() {
+        this.sovInfo = new SovData();
         this.summary = new SummaryModel();
 
         this.sovType = SovType.Unknown;

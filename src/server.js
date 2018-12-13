@@ -141,11 +141,17 @@ var videoBudgetSchema = new Schema({
 var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
 var SovModel = new Schema({
+    day: {type: String},
+    dayNum: {type: Number},
     vesselname: { type: String},
-    date: { type: String},
-    mmsi: { Type: Number}
+    mmsi: { Type: Number},
+    timeBreakdown: {type: String},
+    seCoverageHours: {type: String},
+    distancekm: {type: String},
+    arrivalAtHarbour: {type: String},
+    departureFromHarbour: {type: String},
 }, {versionKey: false });
-var SovModel = mongo.model('SOV_generalStats', SovModel, 'SOV_generalStats');
+var SovModel = mongo.model('SOV_general', SovModel, 'SOV_general');
 
 var SovPlatformTransfers = new Schema({
     startTime: { type: Number },
@@ -491,14 +497,15 @@ app.get("/api/getVessel", function (req, res) {
     });
 });
 
-app.get("/api/getSov/:mmsi", function (req, res) {
+app.get("/api/getSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
     let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
 
-    SovModel.find({"mmsi": mmsi} , function (err, data) {
+    SovModel.find({"mmsi": 232008874, "dayNum": date} , function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -515,7 +522,7 @@ app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
 
-    SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
+    SovTransits.find({"mmsi": 232008874, "date": date} , function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -874,13 +881,39 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
-app.post("/api/getTransfersForVessel", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
-        }
+app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
 
-        Transfermodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
+    SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            let dateData = data + '';
+            let arrayOfDates = [];
+            arrayOfDates = dateData.split(",");
+            res.send(arrayOfDates);
+        }
+    });
+});
+
+app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
+
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    console.log(mmsi + '///' + date);
+
+        Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -889,7 +922,6 @@ app.post("/api/getTransfersForVessel", function (req, res) {
             }
         });
     });
-});
 
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {

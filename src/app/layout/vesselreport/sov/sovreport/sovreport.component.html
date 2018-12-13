@@ -1,6 +1,4 @@
-<br /><br />
-<div *ngIf="loaded == true">
-    <h2>{{sovModel.vesselname}}: {{sovModel.mmsi}}</h2>
+<div *ngIf="locShowContent">
     <div class="row">
         <div *ngIf="operationalChartCalculated" class="col-lg-4">
             <canvas id="operationalStats"></canvas>
@@ -19,7 +17,7 @@
                         <ng-container>
                             <tr>
                                 <td>Departure port</td>
-                                <td> - </td>
+                                <td>{{sovModel.sovInfo.departureFromHarbour}}</td>
                             </tr>
                             <tr>
                                 <td>Sailing duration</td>

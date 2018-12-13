@@ -1,117 +1,119 @@
-<br><br>
-<div class="divContainer" *ngIf="transferData?.length > 0">
-  <table class="table table-responsive">
-      <tr>
-          <td class="keyTD">Departure Port</td>
-          <td>6:58</td>
-          <td class="keyTD">Departure Wind Farm</td>
-          <td>15:46</td>
-      </tr>
-      <tr>
-          <td class="keyTD">Arrival wind farm</td>
-          <td>8:57</td>
-          <td class="keyTD">Arrival Port</td>
-          <td>17:39</td>
-      </tr>
-      <tr>
-          <td class="keyTD">Distance Sailed</td>
-          <td>99.1 NM</td>
-          <td class="keyTD">Fuel Consumed</td>
-          <td>n/a Ltr</td>
-      </tr>
-      <tr>
-          <td></td>
-          <td></td>
-          <td class="keyTD">Fuel Economy</td>
-          <td>n/a ltr/nm</td>
-      </tr>
-      <tr>
-          <td class="keyTD">Avg. speed outbound</td>
-          <td>19.9 knots</td>
-          <td class="keyTD">Avg. speed inbound</td>
-          <td>21.8 knots</td>
-      </tr>
-      <tr>
-          <td class="keyTD">Max. speed outbound</td>
-          <td>22.0 knots</td>
-          <td class="keyTD">Max. speed inbound</td>
-          <td>23.7 knots</td>
-      </tr>
-      <tr>
-          <td class="keyTD">MSI outbound</td>
-          <td>17.2%</td>
-          <td class="keyTD">MSI inbound</td>
-          <td>19.7%</td>
-      </tr>
-      <tr>
-          <td class="keyTD">WBV, Technicians</td>
-          <td>0.46 (A8)</td>
-          <td class="keyTD">WBV, Vessel Crew</td>
-          <td>0.69(A8)</td>
-      </tr>
-      <tr>
-          <td class="keyTD">Number of dockings</td>
-          <td>9</td>
-          <td class="keyTD">Average Docking Time</td>
-          <td>00:10:18</td>
-      </tr>
-  </table>
-</div>
-<br><br>
-<div class="divContainer" *ngIf="transferData?.length > 0">
-  <h3>Dockings</h3>
-  <table class="table table-hover table-striped">
-      <thead>
+<div *ngIf="showContent">
+    <br><br>
+    <div class="divContainer" *ngIf="transferData?.length > 0">
+      <table class="table table-responsive">
           <tr>
-              <th>#</th>
-              <th>start time</th>
-              <th>stop time</th>
-              <th>duration</th>
-              <th>score</th>
-              <th>location</th>
-              <th>comment</th>
-              <th>detector</th>
-              <th>save</th>
-              <th *ngIf="videoRequestPermission">video request</th>
+              <td class="keyTD">Departure Port</td>
+              <td>6:58</td>
+              <td class="keyTD">Departure Wind Farm</td>
+              <td>15:46</td>
           </tr>
-      </thead>
-      <tbody>
-          <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
-              <td>{{ind + 1}}</td>  
-              <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
-              <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
-              <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
-              <td>{{transfer_Data.score}}</td> 
-              <td>{{transfer_Data.location}}</td>  
-              <td class="comment">
-                  <span ngbDropdown class="d-inline-block dropdown">
-                      <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
-                          <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
-                      </button>
-                      <span ngbDropdownMenu>
-                          <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
+          <tr>
+              <td class="keyTD">Arrival wind farm</td>
+              <td>8:57</td>
+              <td class="keyTD">Arrival Port</td>
+              <td>17:39</td>
+          </tr>
+          <tr>
+              <td class="keyTD">Distance Sailed</td>
+              <td>99.1 NM</td>
+              <td class="keyTD">Fuel Consumed</td>
+              <td>n/a Ltr</td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+              <td class="keyTD">Fuel Economy</td>
+              <td>n/a ltr/nm</td>
+          </tr>
+          <tr>
+              <td class="keyTD">Avg. speed outbound</td>
+              <td>19.9 knots</td>
+              <td class="keyTD">Avg. speed inbound</td>
+              <td>21.8 knots</td>
+          </tr>
+          <tr>
+              <td class="keyTD">Max. speed outbound</td>
+              <td>22.0 knots</td>
+              <td class="keyTD">Max. speed inbound</td>
+              <td>23.7 knots</td>
+          </tr>
+          <tr>
+              <td class="keyTD">MSI outbound</td>
+              <td>17.2%</td>
+              <td class="keyTD">MSI inbound</td>
+              <td>19.7%</td>
+          </tr>
+          <tr>
+              <td class="keyTD">WBV, Technicians</td>
+              <td>0.46 (A8)</td>
+              <td class="keyTD">WBV, Vessel Crew</td>
+              <td>0.69(A8)</td>
+          </tr>
+          <tr>
+              <td class="keyTD">Number of dockings</td>
+              <td>9</td>
+              <td class="keyTD">Average Docking Time</td>
+              <td>00:10:18</td>
+          </tr>
+      </table>
+    </div>
+    <br><br>
+    <div class="divContainer" *ngIf="transferData?.length > 0">
+      <h3>Dockings</h3>
+      <table class="table table-hover table-striped">
+          <thead>
+              <tr>
+                  <th>#</th>
+                  <th>start time</th>
+                  <th>stop time</th>
+                  <th>duration</th>
+                  <th>score</th>
+                  <th>location</th>
+                  <th>comment</th>
+                  <th>detector</th>
+                  <th>save</th>
+                  <th *ngIf="videoRequestPermission">video request</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
+                  <td>{{ind + 1}}</td>  
+                  <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
+                  <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
+                  <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                  <td>{{transfer_Data.score}}</td> 
+                  <td>{{transfer_Data.location}}</td>  
+                  <td class="comment">
+                      <span ngbDropdown class="d-inline-block dropdown">
+                          <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
+                              <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+                          </button>
+                          <span ngbDropdownMenu>
+                              <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
+                          </span>
                       </span>
-                  </span>
-                  <span *ngIf="transfer_Data.comment == 'Other'">
-                      <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
-                  </span>
-              </td>
-              <td>{{transfer_Data.detector}}</td>
-              <td>
-                  <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
-              </td>
-              <td *ngIf="videoRequestPermission">
-                  <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
-              </td>
-          </tr>
-      </tbody>
-  </table>
-  <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
-</div>
-<div class="videoRequestLoading" *ngIf="videoRequestLoading">
-  <div class="spinner">
-      <div class="bounce1"></div>
-      <div class="bounce2"></div>
-      <div class="bounce3"></div>
-  </div>
+                      <span *ngIf="transfer_Data.comment == 'Other'">
+                          <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
+                      </span>
+                  </td>
+                  <td>{{transfer_Data.detector}}</td>
+                  <td>
+                      <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
+                  </td>
+                  <td *ngIf="videoRequestPermission">
+                      <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+                  </td>
+              </tr>
+          </tbody>
+      </table>
+      <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+    </div>
+    <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+      <div class="spinner">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+      </div>
+    </div>
 </div>

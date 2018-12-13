@@ -1,4 +1,4 @@
-<div *ngIf="showContent">
+<div>
     <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }} </small></h2>
     <div class="col-lg-12">
         <form class="form-inline mb-3">
@@ -53,17 +53,17 @@
                     </agm-polyline>
                 </agm-map>
             </div>
-            <div *ngIf="vesselObject.vesselType == 'CTV'">
-                <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
-            </div>
-            <div *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'">
-                <app-sovreport [vesselObject]="vesselObject" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
-            </div>
+        </div>
+        <div *ngIf="vesselObject.vesselType == 'CTV'">
+            <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
+        </div>
+        <div *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'">
+            <app-sovreport [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (overviewZoomLvl)="getOverviewZoomLvl($event)" (detailZoomLvl)="getDetailZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
         </div>
     </div>
     <ng-template #other_content>
         <div class="divContainer">
-            <h3>There is not data available for the selected day and vessel.</h3>
+            <h3>There is no data available for the selected day and vessel.</h3>
         </div>
     </ng-template>
     <ng-template #noPermission>
