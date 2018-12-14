@@ -162,7 +162,7 @@ var SovPlatformTransfers = new Schema({
     arrivalTimePlatform: { type: Number },
     departureTimePlatform: { type: Number },
     timeInWaitingZone: { type: Number },
-    approachTime: { type: String },
+    approachTime: { type: Number },
     visitDuration: { type: Number },
     totalDuration: { type: Number },
     gangwayDeployedDuration: { type: String },
@@ -230,35 +230,7 @@ var SovTurbineTransfers = new Schema({
     gangwayUtilisationTrace: { type: String },
     positionalStability: { type: String },
     windArray: { type: Object },
-    date: { type: Number },
-
-
-
-
-    // startTime: { type: Number },
-    // stopTime: { type: Number },
-    // vesselname: { type: String },
-    // mmsi: { type: Number },
-    // duration: { type: Number },
-    // location: { type: String },
-    // fieldname: { type: String },
-    // gangwayDeployedDuration: { type: String },
-    // gangwayReadyDuration: { type: String },
-    // timeGangwayDeployed: { type: String },
-    // timeGangwayReady: { type: String },
-    // timeGangwayRetracted: { type: String },
-    // timeGangwayStowed: { type: String },
-    // peakWindGust: { type: Number },
-    // peakWindAvg: { type: Number },
-    // gangwayUtilisation: { type: String },
-    // gangwayUtilisationLimiter: { type: String },
-    // peakHeave: { type: String },
-    // DPutilisation: { type: String },
-    // current: { type: String },
-    // approachTime: { type: String },
-    // Hs: { type: String },
-    // Ts: { type: String },
-    // comment: { type: String }
+    date: { type: Number }
 });
 var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
@@ -282,23 +254,13 @@ var SovTransits = new Schema({
 });
 var SovTransits = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
 
-var vessel2vesselTransfers = new Schema({
-    vesselname: {type: String },
-    mmsi: {type: Number },
-    startTime: {type: Number },
-    stopTime: {type: Number },
-    duration: {type: Number },
-    toVesselname: {type: String },
-    toMMSI: {type: Number },
-    peakWindGust: {type: Number },
-    peakWindAvg: {type: Number },
-    DPutilisation: {type: Number },
-    current: {type: Number },
-    Hs: {type: Number },
-    Ts: {type: Number },
-    date: {type: Number },
+var SovVessel2vesselTransfers = new Schema({
+    transfers: { type: Object },
+    CTVactivity: { type: Object },
+    date: { type: Number },
+    mmsi: { type: Number }
 });
-var vessel2vesselTransfers = mongo.model('vessel2vesselTransfers', vessel2vesselTransfers, 'vessel2vesselTransfers');
+var SovVessel2vesselTransfers = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
 var stationaryPeriods = new Schema({
     vesselname: {type: String },
@@ -598,7 +560,7 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     //let mmsi = 232008874;
     //let date = 737362;
 
-    vessel2vesselTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
+    SovVessel2vesselTransfers.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
         sort: {
             startTime: 'asc'
         }

@@ -1,6 +1,6 @@
 import { SummaryModel } from "./Summary";
-import { PlatformTransfers } from "./Transfers/platform-transfers";
-import { TurbineTransfer } from "./Transfers/turbine-transfer";
+import { PlatformTransfer } from "./Transfers/PlatformTransfer";
+import { TurbineTransfer } from "./Transfers/TurbineTransfer";
 import { Transit } from "./Transfers/Transit";
 import { SovType } from "./SovType";
 import { Vessel2vesselModel } from "./Transfers/Vessel2vessel";
@@ -15,7 +15,7 @@ export class SovModel {
 
     summary: SummaryModel;
     
-    platformTransfers: PlatformTransfers[];
+    platformTransfers: PlatformTransfer[];
     turbineTransfers: TurbineTransfer[];
     transits: Transit[];
     vessel2vessels: Vessel2vesselModel[];

@@ -5,7 +5,7 @@ export class SovData {
     mmsi: number;
     timeBreakdown: any;
     seCoverageHours: string;
-    distancekm: any;
+    distancekm: string;
     arrivalAtHarbour: string;
     departureFromHarbour: string;
     lon: any[];

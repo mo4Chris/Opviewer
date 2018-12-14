@@ -1,13 +1,20 @@
 export class Transit {
-    dayNum: number;
-    vesselname: String;
-    mmsi: number;
-    toName: String;
-    speedInTransitAvg: Number;
-    speedInTransitAvgUnrestricted: String;
-    times: any[];
+    from: string;
+    fromName: string;
+    to: string;
+    toName: string;
+    day: string;
+    timeString: string;
+    dayNum: number
+    vesselname: string;
+    mmsi: number
+    combineId: number;
+    speedInTransitAvg: number
+    speedInTransitAvgUnrestricted: string;
+    distancekm: string;
     transitTimeMinutes: number;
     lon: any[];
     lat: any[];
     avHeading: number;
+    date: number;
 }

@@ -1,5 +1,4 @@
 export class SummaryModel {
-    TotalSailDuration: string;
     TotalSailDistance: string;
     HasSailed: boolean;
     

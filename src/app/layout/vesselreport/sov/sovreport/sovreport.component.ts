@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
 import * as Chart from "chart.js";
 import * as annotation from "chartjs-plugin-annotation";
 import { CommonService } from "../../../../common.service";
-import { SovModel } from "../models/sov-model";
+import { SovModel } from "../models/SovModel";
 import { DatetimeService } from "../../../../supportModules/datetime.service";
 import { SovType } from "../models/SovType";
 import { SummaryModel } from "../models/Summary";
@@ -43,6 +43,10 @@ export class SovreportComponent implements OnInit {
     GetMatlabDateToJSTime(serial) {
         return this.datetimeService.MatlabDateToJSTime(serial);
     }
+    
+    GetMatlabDateToCustomJSTime(serial, format) {
+        return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
+    }
 
     ngOnInit() {
         
@@ -70,7 +74,6 @@ export class SovreportComponent implements OnInit {
                                 this.sovModel.sovType = SovType.Unknown;
                             }
                            else {
-                            console.log("is turbine");
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
                                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
@@ -87,7 +90,6 @@ export class SovreportComponent implements OnInit {
                            }
                         });
                     } else {
-                        console.log("is platform");
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform; 
                     }
@@ -118,7 +120,7 @@ export class SovreportComponent implements OnInit {
             
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
-                this.createOperationalStatsChart();
+
 
                 if(this.sovModel.sovType == SovType.Platform) {
                     this.createGangwayLimitationsChart();
@@ -128,27 +130,16 @@ export class SovreportComponent implements OnInit {
                 //this.createWeatherLimitDocking2Graph();
                 //this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
+
+                this.createOperationalStatsChart();
+
                 this.CheckForNullValues();
-                
             }, 1000);
         });
     }
 
     CalculateDailySummary() {
         let summaryModel = new SummaryModel();
-        
-        var sumSailingDuration = 0;
-        this.sovModel.transits.forEach(transit => {
-            sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
-        });
-
-        if(sumSailingDuration > 0) {
-            summaryModel.TotalSailDuration = this.datetimeService.MinutesToHours(sumSailingDuration);
-            summaryModel.HasSailed = true;
-        }
-        else {
-            summaryModel.HasSailed = false;
-        }
         
         summaryModel.NrOfDaughterCraftLaunches = 0;
         summaryModel.NrOfHelicopterVisits = 0;
@@ -160,8 +151,8 @@ export class SovreportComponent implements OnInit {
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
             summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
-            var avgDurationVesselDocking = this.sovModel.vessel2vessels.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-            summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(avgDurationVesselDocking);
+            // var avgDurationVesselDocking = this.sovModel.vessel2vessels.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            // summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(avgDurationVesselDocking);
 
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         }
@@ -169,7 +160,6 @@ export class SovreportComponent implements OnInit {
             var platformTransfers = this.sovModel.platformTransfers;
 
             var avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.timeInWaitingZone;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-            console.log(platformTransfers);
             summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
 
             var avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.visitDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
@@ -178,7 +168,7 @@ export class SovreportComponent implements OnInit {
             var avgTimeDocking = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.totalDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
-            var avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.aproachTime;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            var avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.approachTime;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
             
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
@@ -245,51 +235,41 @@ export class SovreportComponent implements OnInit {
         return resetObject;
     }
 
+    getDistanceInKm() {
+        return parseFloat(this.sovModel.sovInfo.distancekm).toFixed(1);
+    }
+
     createOperationalStatsChart() {
 
-        var sumSailingDuration = 0;
-        var sumWaitingDuration = 0;
-        var sumExclusionZone = 0;
+        var timeBreakdown = this.sovModel.sovInfo.timeBreakdown;
+        console.log(timeBreakdown);
+        if(timeBreakdown != undefined) {
+            
+            var sailingDuration = timeBreakdown.hoursSailing != undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
+            var waitingDuration = timeBreakdown.hoursWaiting != undefined ? timeBreakdown.hoursWaiting.toFixed(1) : 0;
+            var CTVopsDuration = timeBreakdown.hoursOfCTVops != undefined ? timeBreakdown.hoursOfCTVops.toFixed(1) : 0;           
 
-        this.sovModel.transits.forEach(transit => {
-            sumSailingDuration = sumSailingDuration + transit.transitTimeMinutes;
-        });
+            var platformDuration = timeBreakdown.hoursAtPlatform != undefined ? timeBreakdown.hoursAtPlatform.toFixed(1) : 0;
+            var turbineDuration = timeBreakdown.hoursAtTurbine != undefined ? timeBreakdown.hoursAtTurbine.toFixed(1) : 0;
+    
+            var exclusionZone = platformDuration + turbineDuration;
 
-        if(this.sovModel.sovType == SovType.Platform) {
-            this.sovModel.platformTransfers.forEach(platformTransfer => {
-                sumWaitingDuration = sumWaitingDuration + platformTransfer.timeInWaitingZone;
-                sumExclusionZone = sumExclusionZone + platformTransfer.visitDuration;
-            });
-        }
-        else if(this.sovModel.sovType == SovType.Turbine) {
-            this.sovModel.turbineTransfers.forEach(turbineTransfer => {
-                sumWaitingDuration = sumWaitingDuration + turbineTransfer.gangwayReadyDuration;
-                sumExclusionZone = sumExclusionZone + turbineTransfer.gangwayDeployedDuration;
-            });
-        }
-
-        if(sumSailingDuration > 0 && sumWaitingDuration > 0 && sumExclusionZone > 0) {
             this.operationalChartCalculated = true;
-            var totalSum = sumSailingDuration + sumWaitingDuration + sumExclusionZone;
-            var sailingDurationPerc = ((sumSailingDuration / totalSum) * 100).toFixed(1);
-            var sumWaitingDurationPerc = ((sumWaitingDuration / totalSum) * 100).toFixed(1);
-            var sumExclusionZonePerc = ((sumExclusionZone / totalSum) * 100).toFixed(1);
-
-
+    
             setTimeout(() => {
                 this.operationsChart = new Chart("operationalStats", {
                     type: "pie",
                     data: {
                         datasets: [
                             {
-                                data: [sailingDurationPerc, sumWaitingDurationPerc, sumExclusionZonePerc],
+                                data: [sailingDuration, waitingDuration, exclusionZone, CTVopsDuration],
                                 backgroundColor: this.backgroundcolors,
                                 radius: 8,
                                 pointHoverRadius: 10,
                                 borderWidth: 1
                             }
                         ],
-                        labels: ["Sailing", "Waiting", "Exclusion zone"]
+                        labels: ["Sailing", "Waiting", "Exclusion zone", "CTV operations duration"]
                     },
                     options: {
                         title: {

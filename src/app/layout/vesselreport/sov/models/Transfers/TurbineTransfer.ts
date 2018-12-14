@@ -1,0 +1,37 @@
+export class TurbineTransfer {
+    vesselname: string;
+    mmsi: number;
+    location: string;
+    startTime: number;
+    stopTime: number;
+    duration: number;
+    fieldname: string;
+    gangwayDeployedDuration: number;
+    gangwayReadyDuration: string;
+    timeGangwayDeployed: number;
+    timeGangwayReady: string;
+    timeGangwayRetracted: string;
+    timeGangwayStowed: number;
+    peakWindGust: number;
+    peakWindAvg: string;
+    gangwayUtilisation: string;
+    gangwayUtilisationLimiter: string;
+    alarmsPresent: string;
+    motionsEnvelope: string;
+    peakHeave: string;
+    angleToAsset: number;
+    DPutilisation: string;
+    positionalStabilityRadius: string;
+    current: string;
+    approachTime: string;
+    Hs: string;
+    Ts: string;
+    lon: number;
+    lat: number;
+    paxCntEstimate: string;
+    detector: string;
+    gangwayUtilisationTrace: string;
+    positionalStability: string;
+    windArray: any;
+    date: number;
+}
