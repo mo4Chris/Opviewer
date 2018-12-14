@@ -4,7 +4,6 @@ import { TurbineTransfer } from "./Transfers/TurbineTransfer";
 import { Transit } from "./Transfers/Transit";
 import { SovType } from "./SovType";
 import { Vessel2vesselModel } from "./Transfers/Vessel2vessel";
-import { StationaryPeriod } from "./Transfers/StationaryPeriod";
 import { SovData } from "./SovData";
 
 export class SovModel {
@@ -20,8 +19,6 @@ export class SovModel {
     transits: Transit[];
     vessel2vessels: Vessel2vesselModel[];
     turbineActivities: Vessel2vesselModel[];
-
-    stationaryPeriods: StationaryPeriod[];
  
     constructor() {
         this.sovInfo = new SovData();
@@ -33,7 +30,6 @@ export class SovModel {
         this.vessel2vessels = [];
         this.platformTransfers = [];
         this.turbineTransfers = [];
-        this.stationaryPeriods = [];
         this.turbineActivities = [];
     }
 }

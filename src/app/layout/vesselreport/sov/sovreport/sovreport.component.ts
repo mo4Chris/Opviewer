@@ -43,7 +43,7 @@ export class SovreportComponent implements OnInit {
     GetMatlabDateToJSTime(serial) {
         return this.datetimeService.MatlabDateToJSTime(serial);
     }
-    
+
     GetMatlabDateToCustomJSTime(serial, format) {
         return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
     }
@@ -97,9 +97,6 @@ export class SovreportComponent implements OnInit {
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
                     this.sovModel.transits = transits;                    
-                });
-                this.commonService.GetStationaryPeriodsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(stationaryPeriods => {
-                    this.sovModel.stationaryPeriods = stationaryPeriods;       
                 });
                 this.locShowContent = true;
             }
@@ -201,11 +198,6 @@ export class SovreportComponent implements OnInit {
         else if(this.sovModel.sovType == SovType.Platform && this.sovModel.platformTransfers.length > 0) {
             this.sovModel.platformTransfers.forEach(transfer => {
                 transfer = this.ReplaceEmptyColumnValues(transfer);
-            });
-        }
-        if(this.sovModel.stationaryPeriods.length > 0) {
-            this.sovModel.stationaryPeriods.forEach(period => {
-                period = this.ReplaceEmptyColumnValues(period);
             });
         }
         if(this.sovModel.transits.length > 0) {
