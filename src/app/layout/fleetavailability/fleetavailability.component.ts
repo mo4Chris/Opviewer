@@ -24,11 +24,15 @@ export class FleetavailabilityComponent implements OnInit {
     loaded = false;
     selectedMonth = 'Last 2 weeks';
     availableMonths = [];
+    tempSailDays = [];
+    dateSailDays = 0;
+    totalWeatherDays = 0;
+    missingDays = []
 
     ngOnInit() {
         this.createLineChart();
         this.newService.getTurbineWarranty().subscribe(data => {
-            this.turbineWarrenty = data[3]; //TODO
+            this.turbineWarrenty = data[2]; //TODO
             this.getAvailableMonths();
             this.loaded = true;
         });
@@ -90,12 +94,13 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     saveData() {
+        this.turbineWarrenty.sailMatrix = this.tempSailDays;
         this.edit = false;
     }
 
     MatlabDateToJSDate(serial) {
         var dateInt = moment((serial - 719529) * 864e5);
-        if (this.selectedMonth == 'last 2 weeks') {
+        if (this.selectedMonth == 'Last 2 weeks') {
             return dateInt.format('DD-MM-YYYY');
         } else {
             return dateInt.format('DD');
@@ -158,5 +163,42 @@ export class FleetavailabilityComponent implements OnInit {
 
     setMonth(val) {
         this.selectedMonth = val;
+        this.missingDays = [];
+    }
+
+    updateSailDay(sailDays, i, ind, value) {
+        this.tempSailDays = sailDays;
+        this.tempSailDays[i][ind] = value;
+    }
+
+    addDateSailDay(sd, ind) {
+        if (!this.missingDays[ind]) {
+            this.missingDays[ind] = 0;
+        }
+
+        if (sd != "_NaN_") {
+            this.missingDays[ind]+= (1 - sd);
+            this.dateSailDays += sd;
+        }
+    }
+
+    getDateWeatherDays() {
+        var saildays = this.dateSailDays;
+        this.dateSailDays = 0;
+        var weatherDays = this.turbineWarrenty.numContractedVessels - saildays;
+        this.totalWeatherDays += weatherDays;
+        return weatherDays
+    }
+
+    getTotalWeatherDays() {
+        var total = this.totalWeatherDays;
+        this.totalWeatherDays = 0;
+        return total;
+    }
+
+    getTotalMissingDays(ind) {
+        var total = this.missingDays[ind];
+        this.missingDays[ind] = 0;
+        return total;
     }
 }

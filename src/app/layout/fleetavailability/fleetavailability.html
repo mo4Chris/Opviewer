@@ -9,33 +9,43 @@
         <select (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <table class="table table-hover table-bordered">
+        <table class="table table-hover table-responsive table-bordered">
             <thead>
                 <tr>
-                    <th class="smallPadding">Vessel\Date</th>
-                    <ng-container *ngFor="let td of turbineWarrenty.Dates;let ind = index">
-                        <th class="smallPadding" *ngIf="checkDateRange(td)">
-                            <span>{{MatlabDateToJSDate(td)}}</span>
+                    <th class="smallPadding">Date \ Vessel</th>
+                    <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
+                        <th class="smallPadding">
+                            <span>{{changeToNicename(vessel) | titlecase}}</span>
                         </th>
                     </ng-container>
+                    <th class="smallPadding">
+                        <span>Total weather days</span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let vessel of turbineWarrenty.sailMatrix;let ind = index">
-                    <ng-container *ngIf="turbineWarrenty.activeFleet.indexOf(turbineWarrenty.fullFleet[ind])>=0">
-                        <td class="smallPadding">{{changeToNicename(turbineWarrenty.fullFleet[ind]) | titlecase}}</td>
-                        <ng-container *ngFor="let sailDay of turbineWarrenty.sailMatrix[ind];let i = index">
-                            <td *ngIf="checkDateRange(turbineWarrenty.Dates[i])" [class.green]="sailDay==1" [class.red]="sailDay==0" [class.yellow]="sailDay==0.5" [class.gray]="sailDay=='_NaN_'" [class.hideColor]="hideText==false">
-                                <span *ngIf="hideText==false && !edit">{{getSailDay(sailDay)}}</span>
-                                <select *ngIf="edit">
-                                    <option value="_NaN_" *ngIf="sailDay=='_NaN_'" selected>-</option>
-                                    <option value="0" [selected]="sailDay==0">0</option>
-                                    <option value="0.5" [selected]="sailDay==0.5">0.5</option>
-                                    <option value="1" [selected]="sailDay==1">1</option>
+                <ng-container *ngFor="let date of turbineWarrenty.Dates;let ind = index">
+                    <tr *ngIf="checkDateRange(date)">
+                        <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
+                        <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
+                            <td [class.green]="turbineWarrenty.sailMatrix[i][ind]==1" [class.red]="turbineWarrenty.sailMatrix[i][ind]==0" [class.yellow]="turbineWarrenty.sailMatrix[i][ind]==0.5" [class.gray]="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
+                                <span *ngIf="hideText==false && !edit">{{getSailDay(turbineWarrenty.sailMatrix[i][ind])}}</span>
+                                <select *ngIf="edit" (change)="updateSailDay(turbineWarrenty.sailMatrix, i, ind, $event.target.value)">
+                                    <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" selected>-</option>
+                                    <option value="0" [selected]="turbineWarrenty.sailMatrix[i][ind]==0">0</option>
+                                    <option value="0.5" [selected]="turbineWarrenty.sailMatrix[i][ind]==0.5">0.5</option>
+                                    <option value="1" [selected]="turbineWarrenty.sailMatrix[i][ind]==1">1</option>
                                 </select>
                             </td>
+                            {{addDateSailDay(turbineWarrenty.sailMatrix[i][ind], i)}}
                         </ng-container>
-                    </ng-container>
+                        <td class="smallPadding">{{getDateWeatherDays()}}</td>
+                    </tr>
+                </ng-container>
+                <tr>
+                    <td class="smallPadding">Total weather days</td>
+                    <td class="smallPadding" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;">{{getTotalMissingDays(ind)}}</td>
+                    <td class="smallPadding">{{getTotalWeatherDays()}}</td>
                 </tr>
             </tbody>
         </table>
