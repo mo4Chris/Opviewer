@@ -3,9 +3,8 @@ import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
-import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
     selector: 'app-users',
@@ -14,7 +13,7 @@ import { forEach } from '@angular/router/src/utils/collection';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router ) { }
+    constructor(private newService: CommonService, private _router: Router, private route: ActivatedRoute ) { }
 
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -27,15 +26,36 @@ export class FleetavailabilityComponent implements OnInit {
     tempSailDays = [];
     dateSailDays = 0;
     totalWeatherDays = 0;
-    missingDays = []
-
+    missingDays = [];
+    campaignName;
+    windfield;
+    startDate;
+    
     ngOnInit() {
         this.createLineChart();
-        this.newService.getTurbineWarranty().subscribe(data => {
-            this.turbineWarrenty = data[2]; //TODO
-            this.getAvailableMonths();
+        this.getCampaignName();
+        this.getStartDate();
+        this.getWindfield();
+
+        this.newService.getTurbineWarrantyOne({ campaignName: this.campaignName, windfield: this.windfield, startDate: this.startDate }).subscribe(data => {
+            if (data.data) {
+                this.turbineWarrenty = data.data;
+                this.getAvailableMonths();
+            }
             this.loaded = true;
         });
+    }
+
+    getCampaignName() {
+        this.route.params.subscribe(params => this.campaignName = params.campaignName);
+    }
+
+    getStartDate() {
+        this.route.params.subscribe(params => this.windfield = params.windfield);
+    }
+
+    getWindfield() {
+        this.route.params.subscribe(params => this.startDate = parseFloat(params.startDate));
     }
 
     createLineChart() {
@@ -178,7 +198,7 @@ export class FleetavailabilityComponent implements OnInit {
 
         if (sd != "_NaN_") {
             this.missingDays[ind]+= (1 - sd);
-            this.dateSailDays += sd;
+            this.dateSailDays += parseFloat(sd);
         }
     }
 

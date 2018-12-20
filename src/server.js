@@ -1002,11 +1002,33 @@ app.post("/api/getGeneral", function (req, res) {
 
 app.get("/api/getTurbineWarranty", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin' && token.userPermission !== 'logistics') {
-        return res.status(401).send('Unauthorized request');
-    }
     turbineWarrantymodel.find({}, function (err, data) {
         if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.post("/api/getTurbineWarrantyOne", function (req, res) {
+    let token = verifyToken(req, res);
+    turbineWarrantymodel.find({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            //console.log(data[0]); 
+            res.send({ data: data[0] });
+        }
+    });
+});
+
+app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
+    let token = verifyToken(req, res);
+    turbineWarrantymodel.find({ client: req.body.client }, function (err, data) {
+        if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);

@@ -173,5 +173,15 @@ export class CommonService {
     return this.get(environment.DB_IP + '/api/getTurbineWarranty/').pipe(
         map((response: Response) => response.json()));
   }
+
+  getTurbineWarrantyForCompany(client) {
+    return this.post(environment.DB_IP + '/api/getTurbineWarrantyForCompany/', client).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getTurbineWarrantyOne(warrenty) {
+      return this.post(environment.DB_IP + '/api/getTurbineWarrantyOne/', warrenty).pipe(
+          map((response: Response) => response.json()));
+  }
 }
 
