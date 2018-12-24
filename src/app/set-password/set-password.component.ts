@@ -45,6 +45,7 @@ export class SetPasswordComponent implements OnInit {
     }
 
     ngOnInit() {
+
         if (this.token && this.token != "undefined") {
             this.getUserByToken(this.token);
         } else {
