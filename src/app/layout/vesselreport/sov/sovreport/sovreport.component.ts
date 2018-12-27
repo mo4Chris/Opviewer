@@ -1,4 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild, TemplateRef } from "@angular/core";
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from "chart.js";
 import * as annotation from "chartjs-plugin-annotation";
 import { CommonService } from "../../../../common.service";
@@ -6,6 +7,8 @@ import { SovModel } from "../models/SovModel";
 import { DatetimeService } from "../../../../supportModules/datetime.service";
 import { SovType } from "../models/SovType";
 import { SummaryModel } from "../models/Summary";
+import { CalculationService } from "../../../../supportModules/calculation.service";
+import { Vessel2vesselModel } from "../models/Transfers/vessel2vessel/Vessel2vessel";
 
 @Component({
     selector: "app-sovreport",
@@ -34,11 +37,31 @@ export class SovreportComponent implements OnInit {
     dateData = [];
 
     operationalChartCalculated = false;
+    sovHasLimiters = false;
+
+    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': ""};
+   
 
     //used for comparison in the HTML
     SovTypeEnum = SovType;
 
-    constructor(private commonService: CommonService, private datetimeService: DatetimeService) {}
+    constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
+
+    open(content, lat, lon, vessel2vessel: Vessel2vesselModel) {
+
+        this.vessel2vesselActivityRoute.vessel = vessel2vessel.transfers.vesselname;
+
+        this.vessel2vesselActivityRoute.lat = parseFloat(lat[Math.floor(lat[0].length / 2)]);
+        this.vessel2vesselActivityRoute.lon = parseFloat(lon[Math.floor(lon[0].length / 2)]);
+
+        this.vessel2vesselActivityRoute.latCollection = lat;
+        this.vessel2vesselActivityRoute.lonCollection = lon;
+        this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'});
+    }
+
+    objectToInt(objectvalue) {
+        return this.calculationService.objectToInt(objectvalue);
+    }
 
     GetMatlabDateToJSTime(serial) {
         return this.datetimeService.MatlabDateToJSTime(serial);
@@ -76,17 +99,7 @@ export class SovreportComponent implements OnInit {
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
-                               this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                                    this.sovModel.vessel2vessels = vessel2vessels;    
-                                    
-                                    //distinct per vessel activity
-                                    var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
-                                        return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
-                                    });         
-                                    vessels2vesselsFiltered.forEach(vessel2vessel => {
-                                        this.sovModel.turbineActivities.push(vessel2vessel);
-                                    }); 
-                                });                       
+                                ////// SET GET VESSEL2VESSEL HERE
                            }
                         });
                     } else {
@@ -94,6 +107,19 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.sovType = SovType.Platform; 
                     }
                 });
+
+                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
+                    this.sovModel.vessel2vessels = vessel2vessels;    
+
+
+                    //distinct per vessel activity
+                    // var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
+                    //     return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
+                    // });         
+                    // vessels2vesselsFiltered.forEach(vessel2vessel => {
+                    //     this.sovModel.turbineActivities.push(vessel2vessel);
+                    // }); 
+                });  
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
                     this.sovModel.transits = transits;                    
@@ -118,18 +144,10 @@ export class SovreportComponent implements OnInit {
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
 
-
-                if(this.sovModel.sovType == SovType.Platform) {
-                    this.createGangwayLimitationsChart();
-                }
-
-                //this.createWeatherLimitDocking1Graph();
-                //this.createWeatherLimitDocking2Graph();
-                //this.createWeatherLimitDocking3Graph();
                 this.CalculateDailySummary();
 
                 this.createOperationalStatsChart();
-
+                this.createGangwayLimitationsChart();
                 this.CheckForNullValues();
             }, 1000);
         });
@@ -210,11 +228,11 @@ export class SovreportComponent implements OnInit {
                 vessel2vessel = this.ReplaceEmptyColumnValues(vessel2vessel);
             });
         }
-        if(this.sovModel.turbineActivities.length > 0) {
-            this.sovModel.turbineActivities.forEach(turbineActivity => {
-                turbineActivity = this.ReplaceEmptyColumnValues(turbineActivity);
-            });
-        }
+        // if(this.sovModel.turbineActivities.length > 0) {
+        //     this.sovModel.turbineActivities.forEach(turbineActivity => {
+        //         turbineActivity = this.ReplaceEmptyColumnValues(turbineActivity);
+        //     });
+        // }
     }
 
     private ReplaceEmptyColumnValues(resetObject: any) {
@@ -234,7 +252,6 @@ export class SovreportComponent implements OnInit {
     createOperationalStatsChart() {
 
         var timeBreakdown = this.sovModel.sovInfo.timeBreakdown;
-        console.log(timeBreakdown);
         if(timeBreakdown != undefined) {
             
             var sailingDuration = timeBreakdown.hoursSailing != undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
@@ -280,285 +297,42 @@ export class SovreportComponent implements OnInit {
     }
 
     createGangwayLimitationsChart() {
-        this.gangwayLimitationsChart = new Chart("gangwayLimitations", {
-            type: "pie",
-            data: {
-                datasets: [
-                    {
-                        data: [24, 43],
-                        backgroundColor: this.backgroundcolors,
-                        radius: 8,
-                        pointHoverRadius: 10,
-                        borderWidth: 1
+
+        var strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
+        var boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
+
+        if(strokedLimiterCounter > 0 || boomAngleLimiterCounter > 0) {
+            this.sovHasLimiters = true;
+            setTimeout(() => {
+                this.gangwayLimitationsChart = new Chart("gangwayLimitations", {
+                    type: "pie",
+                    data: {
+                        datasets: [
+                            {
+                                data: [strokedLimiterCounter, boomAngleLimiterCounter],
+                                backgroundColor: this.backgroundcolors,
+                                radius: 8,
+                                pointHoverRadius: 10,
+                                borderWidth: 1
+                            }
+                        ],
+                        labels: ["Stroke limited", "Boom angle limited"]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Gangway Limitations",
+                            fontSize: 25
+                        },
+                        responsive: true,
+                        radius: 6,
+                        pointHoverRadius: 6
                     }
-                ],
-                labels: ["Boom angle limited", "Stroke limited"]
-            },
-            options: {
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Work activity details",
-                    fontSize: 25
-                },
-                responsive: true,
-                radius: 6,
-                pointHoverRadius: 6
-            }
-        });
+                });
+        }, 500);
+        }
     }
-
-    // createWeatherLimitDocking1Graph() {
-    //     this.chart = new Chart("weatherLimitDocking1Graph", {
-    //         type: "line",
-    //         data: {
-    //             labels: [
-    //                 "15:00",
-    //                 "16:00",
-    //                 "17:00",
-    //                 "18:00",
-    //                 "19:00",
-    //                 "20:00",
-    //                 "21:00"
-    //             ],
-    //             datasets: [
-    //                 {
-    //                     data: [80, 75, 5, 10, 5, 60, 60],
-    //                     label: "Wind",
-    //                     borderColor: "#3e95cd",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 },
-    //                 {
-    //                     data: [100, 90, 25, 25, 10, 75, 80],
-    //                     label: "DP",
-    //                     borderColor: "#3cba9f",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 }
-    //             ]
-    //         },
-    //         options: {
-    //             responsive: true,
-    //             title: {
-    //                 display: true,
-    //                 position: "top",
-    //                 text: "Docking #1",
-    //                 fontSize: 25
-    //             },
-    //             annotation: {
-    //                 annotations: [
-    //                     {
-    //                         type: "line",
-    //                         drawTime: "afterDatasetsDraw",
-    //                         id: "average",
-    //                         mode: "horizontal",
-    //                         scaleID: "y-axis-0",
-    //                         value: 30,
-    //                         borderWidth: 2,
-    //                         borderColor: "red"
-    //                     },
-    //                     {
-    //                         type: "box",
-    //                         drawTime: "beforeDatasetsDraw",
-    //                         id: "region",
-    //                         xScaleID: "x-axis-0",
-    //                         yScaleID: "y-axis-0",
-    //                         xMin: "17:00",
-    //                         xMax: "20:00",
-    //                         backgroundColor: "rgba(200,230,201,0.5)"
-    //                     }
-    //                 ]
-    //             },
-    //             scales: {
-    //                 xAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Time"
-    //                         }
-    //                     }
-    //                 ],
-    //                 yAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Utilasation %"
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         }
-    //     });
-    // }
-
-    // createWeatherLimitDocking2Graph() {
-    //     this.chart = new Chart("weatherLimitDocking2Graph", {
-    //         type: "line",
-    //         data: {
-    //             labels: [
-    //                 "15:00",
-    //                 "16:00",
-    //                 "17:00",
-    //                 "18:00",
-    //                 "19:00",
-    //                 "20:00",
-    //                 "21:00"
-    //             ],
-    //             datasets: [
-    //                 {
-    //                     data: [80, 75, 5, 10, 5, 60, 60],
-    //                     label: "Wind",
-    //                     borderColor: "#3e95cd",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 },
-    //                 {
-    //                     data: [100, 90, 25, 25, 10, 75, 80],
-    //                     label: "DP",
-    //                     borderColor: "#3cba9f",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 }
-    //             ]
-    //         },
-    //         options: {
-    //             responsive: true,
-    //             title: {
-    //                 display: true,
-    //                 position: "top",
-    //                 text: "Docking #2",
-    //                 fontSize: 25
-    //             },
-    //             annotation: {
-    //                 annotations: [
-    //                     {
-    //                         type: "line",
-    //                         drawTime: "afterDatasetsDraw",
-    //                         id: "average",
-    //                         mode: "horizontal",
-    //                         scaleID: "y-axis-0",
-    //                         value: 5,
-    //                         borderWidth: 2,
-    //                         borderColor: "red"
-    //                     },
-    //                     {
-    //                         type: "box",
-    //                         drawTime: "beforeDatasetsDraw",
-    //                         id: "region",
-    //                         xScaleID: "x-axis-0",
-    //                         yScaleID: "y-axis-0",
-    //                         xMin: "16:00",
-    //                         xMax: "19:00",
-    //                         backgroundColor: "rgba(200,230,201,0.5)"
-    //                     }
-    //                 ]
-    //             },
-    //             scales: {
-    //                 xAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Time"
-    //                         }
-    //                     }
-    //                 ],
-    //                 yAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Utilasation %"
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         }
-    //     });
-    // }
-
-    // createWeatherLimitDocking3Graph() {
-    //     this.chart = new Chart("weatherLimitDocking3Graph", {
-    //         type: "line",
-    //         data: {
-    //             labels: [
-    //                 "15:00",
-    //                 "16:00",
-    //                 "17:00",
-    //                 "18:00",
-    //                 "19:00",
-    //                 "20:00",
-    //                 "21:00"
-    //             ],
-    //             datasets: [
-    //                 {
-    //                     data: [80, 75, 5, 10, 5, 60, 60],
-    //                     label: "Wind",
-    //                     borderColor: "#3e95cd",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 },
-    //                 {
-    //                     data: [100, 90, 25, 25, 10, 75, 80],
-    //                     label: "DP",
-    //                     borderColor: "#3cba9f",
-    //                     fill: false,
-    //                     steppedLine: true
-    //                 }
-    //             ]
-    //         },
-    //         options: {
-    //             responsive: true,
-    //             title: {
-    //                 display: true,
-    //                 position: "top",
-    //                 text: "Docking #3",
-    //                 fontSize: 25
-    //             },
-    //             annotation: {
-    //                 annotations: [
-    //                     {
-    //                         type: "line",
-    //                         drawTime: "afterDatasetsDraw",
-    //                         id: "average",
-    //                         mode: "horizontal",
-    //                         scaleID: "y-axis-0",
-    //                         value: 50,
-    //                         borderWidth: 2,
-    //                         borderColor: "red"
-    //                     },
-    //                     {
-    //                         type: "box",
-    //                         drawTime: "beforeDatasetsDraw",
-    //                         id: "region",
-    //                         xScaleID: "x-axis-0",
-    //                         yScaleID: "y-axis-0",
-    //                         xMin: "19:00",
-    //                         xMax: "21:00",
-    //                         backgroundColor: "rgba(200,230,201,0.5)"
-    //                     }
-    //                 ]
-    //             },
-    //             scales: {
-    //                 xAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Time"
-    //                         }
-    //                     }
-    //                 ],
-    //                 yAxes: [
-    //                     {
-    //                         scaleLabel: {
-    //                             display: true,
-    //                             labelString: "Utilasation %"
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         }
-    //     });
-    // }
 
     private ResetTransfers() {
         this.sovModel = new SovModel();

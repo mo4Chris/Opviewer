@@ -1,9 +1,4 @@
 <div *ngIf="locShowContent">
-    <div class="row">
-        <div *ngIf="sovModel.sovType == SovTypeEnum.Platform" class="col-lg-4">
-            <canvas id="gangwayLimitations"></canvas>
-        </div>
-    </div>
     <br />
     <div class="row">
         <div class="col-xl-12 col-lg-24">
@@ -104,7 +99,10 @@
                     </div>
                     <div class="col-xl-6" style="display: inline-block">
                         <div *ngIf="operationalChartCalculated">
-                                <canvas id="operationalStats"></canvas>
+                            <canvas id="operationalStats"></canvas>
+                        </div>
+                        <div *ngIf="sovHasLimiters">
+                            <canvas id="gangwayLimitations"></canvas>
                         </div>
                     </div>
                 </div>
@@ -134,11 +132,11 @@
                                 <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
                                     <tr>
                                         <th>{{platformTransfer.location}}</th>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.Tentry1000mWaitingRange)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.startTime)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayReady)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.timeGangwayRetracted)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(platformTransfer.TexitExclusionZone)}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.startTime, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
                                 </ng-container>
@@ -226,7 +224,9 @@
         </div>
         <br />
     </div>
-    <div class="row" *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.vessel2vessels.length > 0">
+
+    <!-- sovModel.sovType == SovTypeEnum.Turbine && -->
+    <div class="row" *ngIf="sovModel.vessel2vessels.length > 0">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
                 <div class="card-header">
@@ -236,7 +236,8 @@
                     <table class="table table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Vessel</th>
+                                <th>From vessel</th>
+                                <th>To vessel</th>
                                 <th>Start time</th>
                                 <th>End time</th>
                                 <th>Duration [min]</th>
@@ -247,13 +248,16 @@
                         <tbody>
                             <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
                                 <tr>
-                                        <th>{{vessel2vessel.toVesselname}}</th>
-                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.startTime)}}</td>
-                                        <td>{{GetMatlabDateToJSTime(vessel2vessel.stopTime)}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(vessel2vessel.duration)}}</td>
-                                        <td>{{vessel2vessel.peakWindGust.toFixed(1)}}</td>
-                                        <td>{{vessel2vessel.peakWindAvg}}</td>      
-                                    </tr>
+                                    <th><a [routerLink]="" (click)="open(content, vessel2vessel.CTVactivity.map.lat, vessel2vessel.CTVactivity.map.lon, vessel2vessel)">{{vessel2vessel.transfers.vesselname}}</a></th>
+                                    <td>{{vessel2vessel.transfers.toVesselname}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(vessel2vessel.transfers.startTime, 'HH:mm')}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(vessel2vessel.transfers.stopTime, 'HH:mm')}}</td>
+                                    <td>{{GetMatlabDurationToMinutes(vessel2vessel.transfers.duration)}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <!-- <td>{{vessel2vessel.transfers.peakWindGust.toFixed(1)}}</td>
+                                    <td>{{vessel2vessel.transfers.peakWindAvg.toFixed(1)}}</td>       -->
+                                </tr>
                             </ng-container>
                         </tbody>
                     </table>         
@@ -261,7 +265,27 @@
             </div>
         </div>
     </div>
-    <div *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineActivities.length > 0">
+
+    <ng-template #content let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">{{vessel2vesselActivityRoute.vessel}} activity</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9" [mapTypeId]="'roadmap'">
+                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                    <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
+                        <agm-polyline-point  [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])" >
+                        </agm-polyline-point>
+                    </ng-container>
+                </agm-polyline>
+            </agm-map>
+        </div>
+    </ng-template>
+
+    <!-- <div *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineActivities.length > 0">
         <div *ngFor="let vessel2vessel of sovModel.turbineActivities">
             <div class="row">
                 <div class="col-xl-12 col-lg-24">
@@ -293,7 +317,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <div class="row">
         <div class="offset-lg-2 col-lg-8">
             <div class="chart-container dockingGraph">
