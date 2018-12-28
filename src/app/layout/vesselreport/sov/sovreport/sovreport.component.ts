@@ -47,7 +47,7 @@ export class SovreportComponent implements OnInit {
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
 
-    open(content, lat, lon, vessel2vessel: Vessel2vesselModel) {
+    openVesselMap(content, lat, lon, vessel2vessel: Vessel2vesselModel) {
 
         this.vessel2vesselActivityRoute.vessel = vessel2vessel.transfers.vesselname;
 
@@ -82,16 +82,26 @@ export class SovreportComponent implements OnInit {
             if (sov.length !== 0) {
                 this.sovModel.sovInfo = sov[0];            
                 var boatlocationData = [];
+
                 boatlocationData.push(this.sovModel.sovInfo);
                 var latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
                 var longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
 
-                this.latitude.emit(latitude);
-                this.longitude.emit(longitude);
-                this.boatLocationData.emit(boatlocationData);
+                if(("" + latitude) != "NaN" && ("" + longitude) != "NaN") {
+                    this.latitude.emit(latitude);
+                    this.longitude.emit(longitude);
+                    this.boatLocationData.emit(boatlocationData);
+                }
                 
                 this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
-                    if (platformTransfers.length === 0) {
+                    //Mongoose confuses platform and turbine with each other. Use the detector column to determine if transfers are turbine
+                    var detector = "";
+                    if (platformTransfers.length > 0) {
+                        detector = platformTransfers[0]["detector"];
+                    }
+
+                    if (platformTransfers.length === 0 || detector == "turbineTransfer") {
+                    
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
                             if(turbineTransfers.length === 0) {
                                 this.sovModel.sovType = SovType.Unknown;
@@ -99,7 +109,19 @@ export class SovreportComponent implements OnInit {
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
-                                ////// SET GET VESSEL2VESSEL HERE
+
+                               //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
+                               this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
+                                this.sovModel.vessel2vessels = vessel2vessels;    
+            
+                                //distinct per vessel activity
+                                // var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
+                                //     return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
+                                // });         
+                                // vessels2vesselsFiltered.forEach(vessel2vessel => {
+                                //     this.sovModel.turbineActivities.push(vessel2vessel);
+                                // }); 
+                            }); 
                            }
                         });
                     } else {
@@ -107,19 +129,6 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.sovType = SovType.Platform; 
                     }
                 });
-
-                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                    this.sovModel.vessel2vessels = vessel2vessels;    
-
-
-                    //distinct per vessel activity
-                    // var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
-                    //     return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
-                    // });         
-                    // vessels2vesselsFiltered.forEach(vessel2vessel => {
-                    //     this.sovModel.turbineActivities.push(vessel2vessel);
-                    // }); 
-                });  
 
                 this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
                     this.sovModel.transits = transits;                    

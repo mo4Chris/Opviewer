@@ -24,18 +24,20 @@
 </div>
 <div *ngIf="noPermissionForData == false; else noPermission">
     <div class="divContainer" *ngIf="showContent == true; else other_content">
-        <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-            <ng-container *ngFor="let parks of Locdata; let i=index" >
-                <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                </agm-circle>
-            </ng-container>
-            <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                    <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                        <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                        </agm-polyline-point>
-                    </ng-container>
-            </agm-polyline>
-        </agm-map>
+        <div *ngIf="showMap; else no_map_available">
+            <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                <ng-container *ngFor="let parks of Locdata; let i=index" >
+                    <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                    </agm-circle>
+                </ng-container>
+                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                        <ng-container *ngFor="let location of boatLocationData; let i = index" >
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
+                            </agm-polyline-point>
+                        </ng-container>
+                </agm-polyline>
+            </agm-map>
+        </div>
     </div>
     <div *ngIf="vesselObject.vesselType == 'CTV'">
         <app-ctvreport [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
@@ -52,5 +54,10 @@
 <ng-template #noPermission>
     <div class="divContainer">
         <h3>You are not allowed to view the boat you requested</h3>
+    </div>
+</ng-template>
+<ng-template #no_map_available>
+    <div class="divContainer">
+        <h3>There is no map available for the selected day and vessel.</h3>
     </div>
 </ng-template>

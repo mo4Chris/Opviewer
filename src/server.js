@@ -558,7 +558,7 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
 
     //TEST DATA
     let mmsi = 232008874;
-    let date = 737212;
+    let date = 737232;
 
     SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, null, {
         sort: {

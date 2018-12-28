@@ -48,6 +48,7 @@ export class VesselreportComponent implements OnInit {
   streetViewControl = false;
 
   vessel;
+  showMap = false;
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -74,6 +75,7 @@ export class VesselreportComponent implements OnInit {
 
       getBoatLocationData(boatLocationData: any[]): void {
         this.boatLocationData = boatLocationData;
+        this.showMap = true;
       }
 
       getDatesHasSailed(sailDates: any[]): void {
@@ -174,5 +176,6 @@ export class VesselreportComponent implements OnInit {
     this.boatLocationData = [];
     this.longitude = 0;
     this.latitude = 0;
+    this.showMap = false;
   }
 }
