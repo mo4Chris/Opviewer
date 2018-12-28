@@ -5,7 +5,7 @@
             <div class="card mb-3">
                 <div class="card-header">Daily Summary {{sovModel.sovType}}</div>
                 <div class="card-body">
-                    <div class="col-xl-6" style="display: inline-block">
+                    <div class="col-xl-6 dailySummary">
                         <table class="table table-responsive tableSummary">
                             <ng-container>
                                 <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
@@ -93,7 +93,7 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="col-xl-6" style="display: inline-block">
+                    <div class="col-xl-6 dailySummary">
                         <div *ngIf="operationalChartCalculated">
                             <canvas id="operationalStats"></canvas>
                         </div>
