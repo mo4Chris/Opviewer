@@ -113,14 +113,6 @@ export class SovreportComponent implements OnInit {
                                //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
                                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
                                 this.sovModel.vessel2vessels = vessel2vessels;    
-            
-                                //distinct per vessel activity
-                                // var vessels2vesselsFiltered = vessel2vessels.filter((obj, pos, arr) => {
-                                //     return arr.map(mapObj => mapObj['toVesselname']).indexOf(obj['toVesselname']) === pos;
-                                // });         
-                                // vessels2vesselsFiltered.forEach(vessel2vessel => {
-                                //     this.sovModel.turbineActivities.push(vessel2vessel);
-                                // }); 
                             }); 
                            }
                         });
@@ -237,11 +229,6 @@ export class SovreportComponent implements OnInit {
                 vessel2vessel = this.ReplaceEmptyColumnValues(vessel2vessel);
             });
         }
-        // if(this.sovModel.turbineActivities.length > 0) {
-        //     this.sovModel.turbineActivities.forEach(turbineActivity => {
-        //         turbineActivity = this.ReplaceEmptyColumnValues(turbineActivity);
-        //     });
-        // }
     }
 
     private ReplaceEmptyColumnValues(resetObject: any) {
