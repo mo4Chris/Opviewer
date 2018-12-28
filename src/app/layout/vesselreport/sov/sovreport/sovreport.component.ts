@@ -339,6 +339,7 @@ export class SovreportComponent implements OnInit {
         }
         if(this.gangwayLimitationsChart != undefined) {
             this.gangwayLimitationsChart.destroy();
+            this.sovHasLimiters = false;
         }
     }
 }
