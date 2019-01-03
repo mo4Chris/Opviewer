@@ -522,7 +522,7 @@ app.get("/api/getSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
 
-    SovModel.find({"mmsi": 232008874, "dayNum": date} , function (err, data) {
+    SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -558,13 +558,9 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
 
     //TEST DATA
     let mmsi = 232008874;
-    let date = 737232;
+    let date = 737404;
 
-    SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, null, {
-        sort: {
-            startTime: 'asc'
-        }
-    }, function (err, data) {
+    SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
         if (err) {
             res.send(err);
         } else {

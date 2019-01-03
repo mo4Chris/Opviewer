@@ -9,6 +9,7 @@ import { SovType } from "../models/SovType";
 import { SummaryModel } from "../models/Summary";
 import { CalculationService } from "../../../../supportModules/calculation.service";
 import { Vessel2vesselModel } from "../models/Transfers/vessel2vessel/Vessel2vessel";
+import { V2vTransfer } from "../models/Transfers/vessel2vessel/V2vTransfer";
 
 @Component({
     selector: "app-sovreport",
@@ -47,15 +48,22 @@ export class SovreportComponent implements OnInit {
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
 
-    openVesselMap(content, lat, lon, vessel2vessel: Vessel2vesselModel) {
+    openVesselMap(content, transfer: V2vTransfer) {
+    //openVesselMap(content, lat, lon, transfer: V2vTransfer) {
 
-        this.vessel2vesselActivityRoute.vessel = vessel2vessel.transfers.vesselname;
+        this.vessel2vesselActivityRoute.vessel = transfer.vesselname;
 
-        this.vessel2vesselActivityRoute.lat = parseFloat(lat[Math.floor(lat[0].length / 2)]);
-        this.vessel2vesselActivityRoute.lon = parseFloat(lon[Math.floor(lon[0].length / 2)]);
+        this.vessel2vesselActivityRoute.lat = parseFloat(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat[Math.floor(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat[0].length / 2)]);
+        this.vessel2vesselActivityRoute.lon = parseFloat(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon[Math.floor(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon[0].length / 2)]);;
 
-        this.vessel2vesselActivityRoute.latCollection = lat;
-        this.vessel2vesselActivityRoute.lonCollection = lon;
+        this.vessel2vesselActivityRoute.latCollection = this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat;
+        this.vessel2vesselActivityRoute.lonCollection = this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon;
+
+        // this.vessel2vesselActivityRoute.lat = parseFloat(lat[Math.floor(lat[0].length / 2)]);
+        // this.vessel2vesselActivityRoute.lon = parseFloat(lon[Math.floor(lon[0].length / 2)]);
+
+        // this.vessel2vesselActivityRoute.latCollection = lat;
+        // this.vessel2vesselActivityRoute.lonCollection = lon;
         this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -78,7 +86,7 @@ export class SovreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.mapZoomLvl.emit(8);
         this.ResetTransfers();
-        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
+        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {           
             if (sov.length !== 0) {
                 this.sovModel.sovInfo = sov[0];            
                 var boatlocationData = [];
@@ -93,16 +101,9 @@ export class SovreportComponent implements OnInit {
                     this.boatLocationData.emit(boatlocationData);
                 }
                 
-                this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
-                    //Mongoose confuses platform and turbine with each other. Use the detector column to determine if transfers are turbine
-                    var detector = "";
-                    if (platformTransfers.length > 0) {
-                        detector = platformTransfers[0]["detector"];
-                    }
-
-                    if (platformTransfers.length === 0 || detector == "turbineTransfer") {
-                    
-                        this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {         
+                 this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                     if (platformTransfers.length === 0) {
+                        this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {        
                             if(turbineTransfers.length === 0) {
                                 this.sovModel.sovType = SovType.Unknown;
                             }
@@ -112,7 +113,7 @@ export class SovreportComponent implements OnInit {
 
                                //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
                                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                                this.sovModel.vessel2vessels = vessel2vessels;    
+                                    this.sovModel.vessel2vessels = vessel2vessels;    
                             }); 
                            }
                         });
@@ -150,7 +151,8 @@ export class SovreportComponent implements OnInit {
                 this.createOperationalStatsChart();
                 this.createGangwayLimitationsChart();
                 this.CheckForNullValues();
-            }, 1000);
+                console.log(this.sovModel.platformTransfers);
+            }, 2000);
         });
     }
 
@@ -195,8 +197,8 @@ export class SovreportComponent implements OnInit {
 
     //Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        model.maxSignificantWaveHeightdDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakHeave;}));  
-        model.maxWindSpeedDuringOperations = Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust;}));     
+        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o){return o.peakHeave;})));  
+        model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o){return o.peakWindGust;})));     
         return model;
     }
 
@@ -209,14 +211,23 @@ export class SovreportComponent implements OnInit {
         this.sovModel.sovInfo = this.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
         this.sovModel.summary = this.ReplaceEmptyColumnValues(this.sovModel.summary);
 
-        if(this.sovModel.sovType == SovType.Turbine && this.sovModel.turbineTransfers.length > 0) {
+        //For number resets to decimal, ONLY specify the ones needed, don't reset time objects
+        if(this.sovModel.sovType == SovType.Turbine) {
             this.sovModel.turbineTransfers.forEach(transfer => {
                 transfer = this.ReplaceEmptyColumnValues(transfer);
+                transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
+                transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
+                transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
+                transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
+                transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
             });
         }
-        else if(this.sovModel.sovType == SovType.Platform && this.sovModel.platformTransfers.length > 0) {
+        else if(this.sovModel.sovType == SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
                 transfer = this.ReplaceEmptyColumnValues(transfer);
+                transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
+                transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
+                transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
         }
         if(this.sovModel.transits.length > 0) {
@@ -226,7 +237,13 @@ export class SovreportComponent implements OnInit {
         }
         if(this.sovModel.vessel2vessels.length > 0) {
             this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-                vessel2vessel = this.ReplaceEmptyColumnValues(vessel2vessel);
+                vessel2vessel.CTVactivity = this.ReplaceEmptyColumnValues(vessel2vessel.CTVactivity);          
+                vessel2vessel.transfers.forEach(transfer => {
+                    transfer = this.ReplaceEmptyColumnValues(transfer);
+                    transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
+                    transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
+                    transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
+                });       
             });
         }
     }
@@ -259,36 +276,38 @@ export class SovreportComponent implements OnInit {
     
             var exclusionZone = platformDuration + turbineDuration;
 
-            this.operationalChartCalculated = true;
+            if(sailingDuration > 0) {
+                this.operationalChartCalculated = true;
     
-            setTimeout(() => {
-                this.operationsChart = new Chart("operationalStats", {
-                    type: "pie",
-                    data: {
-                        datasets: [
-                            {
-                                data: [sailingDuration, waitingDuration, exclusionZone, CTVopsDuration],
-                                backgroundColor: this.backgroundcolors,
-                                radius: 8,
-                                pointHoverRadius: 10,
-                                borderWidth: 1
-                            }
-                        ],
-                        labels: ["Sailing", "Waiting", "Exclusion zone", "CTV operations duration"]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Operational activity",
-                            fontSize: 25
+                setTimeout(() => {
+                    this.operationsChart = new Chart("operationalStats", {
+                        type: "pie",
+                        data: {
+                            datasets: [
+                                {
+                                    data: [sailingDuration, waitingDuration, exclusionZone, CTVopsDuration],
+                                    backgroundColor: this.backgroundcolors,
+                                    radius: 8,
+                                    pointHoverRadius: 10,
+                                    borderWidth: 1
+                                }
+                            ],
+                            labels: ["Sailing", "Waiting", "Exclusion zone", "CTV operations duration"]
                         },
-                        responsive: true,
-                        radius: 6,
-                        pointHoverRadius: 6
-                    }
-                });
-            }, 500);
+                        options: {
+                            title: {
+                                display: true,
+                                position: "top",
+                                text: "Operational activity",
+                                fontSize: 25
+                            },
+                            responsive: true,
+                            radius: 6,
+                            pointHoverRadius: 6
+                        }
+                    });
+                }, 500);
+            }
         }
     }
 
@@ -332,7 +351,6 @@ export class SovreportComponent implements OnInit {
 
     private ResetTransfers() {
         this.sovModel = new SovModel();
-        
         if(this.operationsChart != undefined) {
             this.operationsChart.destroy();
             this.operationalChartCalculated = false;

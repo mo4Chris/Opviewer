@@ -59,7 +59,7 @@
                                     <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Average time spent docking</td>
+                                    <td>Average time spent docking (vessels)</td>
                                     <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
                                 </tr>
                             </ng-container>
@@ -89,7 +89,7 @@
                             </tr>
                             <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{sovModel.summary.maxWindSpeedDuringOperations.toFixed(1)}} km/hour</td>
+                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}} km/hour</td>
                             </tr>
                         </table>
                     </div>
@@ -163,9 +163,9 @@
                                         <th>{{turbineTransfer.location}}</th>
                                         <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
+                                        <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{turbineTransfer.gangwayUtilisation}}</td>
-                                        <td>{{turbineTransfer.peakWindGust.toFixed(1)}} m/s</td>
+                                        <td>{{turbineTransfer.peakWindGust}} m/s</td>
                                         <td>{{turbineTransfer.Hs}}</td>
                                     </tr>
                                 </ng-container>
@@ -198,8 +198,8 @@
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
                                 <tr *ngFor="let platformTransfer of sovModel.platformTransfers">
                                     <th>{{platformTransfer.locationname}}</th>
-                                    <td>{{GetMatlabDurationToMinutes(platformTransfer.gangwayDeployedDuration)}}</td>
-                                    <td>{{GetMatlabDurationToMinutes(platformTransfer.gangwayReadyDuration)}}</td>
+                                    <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
                                     <td>{{platformTransfer.gangwayUtilisation}}</td>
                                     <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
@@ -207,8 +207,8 @@
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
                                 <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
                                     <th>{{turbineTransfer.location}}</th>
-                                    <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayDeployedDuration)}}</td>
-                                    <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
+                                    <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
                                     <td>{{turbineTransfer.gangwayUtilisation}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
@@ -243,14 +243,14 @@
                         </thead>
                         <tbody>
                             <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
-                                <tr>
-                                    <th><a [routerLink]="" (click)="openVesselMap(content, vessel2vessel.CTVactivity.map.lat, vessel2vessel.CTVactivity.map.lon, vessel2vessel)">{{vessel2vessel.transfers.vesselname}}</a></th>
-                                    <td>{{vessel2vessel.transfers.toVesselname}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(vessel2vessel.transfers.startTime, 'HH:mm')}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(vessel2vessel.transfers.stopTime, 'HH:mm')}}</td>
-                                    <td>{{GetMatlabDurationToMinutes(vessel2vessel.transfers.duration)}}</td>
-                                    <td>{{vessel2vessel.transfers.peakWindGust}}</td>
-                                    <td>{{vessel2vessel.transfers.peakWindAvg}}</td>      
+                                <tr *ngFor="let transfer of vessel2vessel.transfers">
+                                    <th><a [routerLink]="" (click)="openVesselMap(content, transfer)">{{transfer.vesselname}}</a></th>
+                                    <td>{{transfer.toVesselname}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                                    <td>{{transfer.duration}} minutes</td>
+                                    <td>{{transfer.peakWindGust}}</td>
+                                    <td>{{transfer.peakWindAvg}}</td>      
                                 </tr>
                             </ng-container>
                         </tbody>

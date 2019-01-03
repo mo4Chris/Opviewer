@@ -10,4 +10,11 @@ export class CalculationService {
   objectToInt(objectvalue) {
     return parseFloat(objectvalue);
   }
+
+  GetDecimalValueForNumber(value: any) {
+    if(typeof(value) == typeof(0)) {
+        value = Math.round(value * 10) / 10;
+    }
+    return value;
+  }
 }
