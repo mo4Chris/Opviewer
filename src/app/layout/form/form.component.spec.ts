@@ -1,6 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormComponent } from './form.component';
+import { PageHeaderModule } from '../../shared';
+import { CommonService } from '../../common.service';
+import { HttpModule } from '@angular/http';
+import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('FormComponent', () => {
     let component: FormComponent;
@@ -9,7 +14,9 @@ describe('FormComponent', () => {
     beforeEach(
         async(() => {
             TestBed.configureTestingModule({
-                declarations: [FormComponent]
+                imports: [BrowserAnimationsModule, PageHeaderModule, HttpModule, RouterTestingModule],
+                declarations: [FormComponent],
+                providers: [CommonService]
             }).compileComponents();
         })
     );

@@ -2,7 +2,7 @@
     <div class="row justify-content-md-center">
         <div class="col-md-4">
             <img src="assets/images/logo.png" width="150px" class="user-avatar" />
-            <h1>BMO Opviewer</h1>
+            <h1>BMO Dataviewer</h1>
             <form role="form" (keyup.enter)="onLoggedin()">
                 <div class="form-content">
                     <div class="form-group">
@@ -12,6 +12,7 @@
                     <div class="form-group">
                         <input type="password" name="password" [(ngModel)]="loginUserData.password" class="form-control input-underline input-lg" id="login_pw" placeholder="Password">
                     </div>
+                    <ngb-alert *ngIf="showAlert" type="danger" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
                 </div>
                 <a class="btn rounded-btn" (click)="onLoggedin()"> Log in </a>&nbsp;
                 

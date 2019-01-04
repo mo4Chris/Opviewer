@@ -1,0 +1,37 @@
+<div [@routerTransition]>
+    <app-page-header [heading]="'Users'" [icon]="'fa-edit'"></app-page-header>
+    <div class="row">
+        <div class="col col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Management
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Username</th>
+                                <th>Permission</th>
+                                <th *ngIf="userPermission == 'admin'">Client</th>
+                                <th>Manage boats</th>
+                                <th>Reset password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user_data of userData; let ind=index">
+                                <td>{{ind + 1}}</td>
+                                <td>{{user_data.username}}</td>
+                                <td>{{user_data.permissions}}</td>
+                                <td *ngIf="userPermission == 'admin'">{{user_data.client}}</td>
+                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage boats</a></td>
+                                <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,47 +1,170 @@
+<div class="videoRequestLoading" *ngIf="RequestLoading">
+<div class="spinner">
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+</div>
 <div *ngIf="showContent">
     <h2 class="text-muted">Vessel report <small> {{ MatlabDateToJSDate(vesselObject.date) }} </small></h2>
-    <div class="col-lg-12">
-        <form class="form-inline mb-3">
+    <div >
+        <form class="form-inline">
             <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
                 <div class="input-group datepicker-input">
-                    <input class="form-control" name="dp" [(ngModel)]="datePickerValue" [maxDate]="maxDate"  ngbDatepicker #d="ngbDatepicker">
-                    <button class="input-group-addon" (click)="d.toggle()" type="button">
+                    <input class="form-control" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
+                    <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+                            <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
+                                {{ date.day }}
+                            </div>
+                        </ng-template>
+
+                    <button class="input-group-addon" (click)="dp.toggle()" type="button">
                         <span class="fa fa-calendar"></span>
                     </button>
                     <div class="form-group">
-                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" required>
-                            <option class="dropdown-item" *ngFor="let vessel of Vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
+                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
+                            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
                         </select>
                     </div>
-                    <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
                 </div>
             </div>
         </form>
     </div>
-    <div class="divContainer" *ngIf="transferData?.length > 0; else other_content">
-        <div class="leftdiv">
-            <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                <ng-container *ngFor="let parks of Locdata; let i=index" >
-                    <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                    </agm-circle>
-                </ng-container>
-                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                    <agm-polyline-point *ngFor="let loc of boatLocationData"  [latitude]="loc.LAT" [longitude]="loc.LON" >
-                    </agm-polyline-point>
-                </agm-polyline>
-            </agm-map>
-        </div>
-        <div class="rightdiv">  
-            <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="11" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [disableDefaultUI]="true" [streetViewControl]="streetViewControl">
-                <ng-container *ngFor="let parks of Locdata; let i=index" >
-                    <agm-circle [fillOpacity]="0.8" [radius]="100" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                    </agm-circle>
-                </ng-container>
-                <agm-polyline [strokeColor]="'#F00'" [strokeWeight]="1.5">
-                    <agm-polyline-point *ngFor="let loc of boatLocationData"  [latitude]="loc.LAT" [longitude]="loc.LON" >
-                    </agm-polyline-point>
-                </agm-polyline>
-            </agm-map>
+    <div *ngIf="noPermissionForData == false; else noPermission">
+        <div class="divContainer" *ngIf="transferData?.length > 0 || routeFound; else other_content">
+            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && routeFound" [type]="'warning'">We were not able to find the requested windpark. Only the route is being displayed. Please contact BMO and provide them with the vessel name and date</ngb-alert>
+            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && !routeFound" [type]="'danger'">We were not able to find any travel data. Please contact BMO and provide them with the vessel name and date</ngb-alert>
+            <div class="row">    
+                <div class="col-lg-6 col-sm-6">
+                    <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                            <ng-container *ngFor="let parks of Locdata; let i=index">
+                                <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
+                                </agm-circle>
+                            </ng-container>
+                        <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                            <ng-container *ngFor="let location of boatLocationData; let i = index">
+                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
+                                </agm-polyline-point>
+                            </ng-container>
+                        </agm-polyline>
+                    </agm-map>
+                </div>
+                <div class="col-lg-6 col-sm-6">
+                    <h3 *ngIf="noTransits">There is no transit data available</h3>
+                    <table class="table table-responsive transitTable">
+                        <tr>
+                            <td class="keyTD">Departure Port</td>
+                            <td>{{MatlabDateToJSTime(general.portDepartureTime)}}</td>
+                            <td class="keyTD">Departure Wind Farm</td>
+                            <td>{{MatlabDateToJSTime(general.departureWindFarmTime)}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">Arrival wind farm</td>
+                            <td>{{MatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
+                            <td class="keyTD">Arrival Port</td>
+                            <td>{{MatlabDateToJSTime(general.portArrivalTime)}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">Distance Sailed</td>
+                            <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
+                            <td class="keyTD">Fuel Consumed</td>
+                            <td>{{roundNumber(general.TotalFuel, 10)}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="keyTD">Fuel Economy</td>
+                            <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">Avg. speed outbound</td>
+                            <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
+                            <td class="keyTD">Avg. speed inbound</td>
+                            <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">Max. speed outbound</td>
+                            <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
+                            <td class="keyTD">Max. speed inbound</td>
+                            <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">MSI outbound</td>
+                            <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
+                            <td class="keyTD">MSI inbound</td>
+                            <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">WBV, Technicians</td>
+                            <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
+                            <td class="keyTD">WBV, Vessel Crew</td>
+                            <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+                        </tr>
+                        <tr>
+                            <td class="keyTD">Number of dockings</td>
+                            <td>{{roundNumber(general.numDockings, 1)}}</td>
+                            <td class="keyTD">Average Docking Time</td>
+                            <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br><br>
+            <!-- <div class="divContainer" *ngIf="transferData?.length > 0">
+                
+            </div> -->
+            <br><br>
+            
+            <div class="divContainer" *ngIf="transferData?.length > 0">
+                <h3>Dockings</h3>
+                <table class="table table-hover table-responsive table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>start time</th>
+                            <th>stop time</th>
+                            <th>duration</th>
+                            <th>score</th>
+                            <th>location</th>
+                            <th>comment</th>
+                            <th>detector</th>
+                            <th>save</th>
+                            <th *ngIf="videoRequestPermission">video request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
+                            <td>{{ind + 1}}</td>  
+                            <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
+                            <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
+                            <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                            <td>{{roundNumber(transfer_Data.score, 10)}}</td> 
+                            <td>{{transfer_Data.location}}</td>  
+                            <td class="comment">
+                                <span ngbDropdown class="d-inline-block dropdown">
+                                    <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
+                                        <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+                                    </button>
+                                    <span ngbDropdownMenu>
+                                        <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
+                                    </span>
+                                </span>
+                                <span *ngIf="transfer_Data.comment == 'Other'">
+                                    <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
+                                </span>
+                            </td>
+                            <td>{{transfer_Data.detector}}</td>
+                            <td>
+                                <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
+                            </td>
+                            <td *ngIf="videoRequestPermission">
+                                <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+            </div>
         </div>
     </div>
     <ng-template #other_content>
@@ -49,93 +172,17 @@
             <h3>There is not data available for the selected day and vessel.</h3>
         </div>
     </ng-template>
-    <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0">
-        <table class="table table-responsive">
-            <tr>
-                <td class="keyTD">Departure Port</td>
-                <td>6:58</td>
-                <td class="keyTD">Departure Wind Farm</td>
-                <td>15:46</td>
-            </tr>
-            <tr>
-                <td class="keyTD">Arrival wind farm</td>
-                <td>8:57</td>
-                <td class="keyTD">Arrival Port</td>
-                <td>17:39</td>
-            </tr>
-            <tr>
-                <td class="keyTD">Distance Sailed</td>
-                <td>99.1 NM</td>
-                <td class="keyTD">Fuel Consumed</td>
-                <td>n/a Ltr</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td class="keyTD">Fuel Economy</td>
-                <td>n/a ltr/nm</td>
-            </tr>
-            <tr>
-                <td class="keyTD">Avg. speed outbound</td>
-                <td>19.9 knots</td>
-                <td class="keyTD">Avg. speed inbound</td>
-                <td>21.8 knots</td>
-            </tr>
-            <tr>
-                <td class="keyTD">Max. speed outbound</td>
-                <td>22.0 knots</td>
-                <td class="keyTD">Max. speed inbound</td>
-                <td>23.7 knots</td>
-            </tr>
-            <tr>
-                <td class="keyTD">MSI outbound</td>
-                <td>17.2%</td>
-                <td class="keyTD">MSI inbound</td>
-                <td>19.7%</td>
-            </tr>
-            <tr>
-                <td class="keyTD">WBV, Technicians</td>
-                <td>0.46 (A8)</td>
-                <td class="keyTD">WBV, Vessel Crew</td>
-                <td>0.69(A8)</td>
-            </tr>
-            <tr>
-                <td class="keyTD">Number of dockings</td>
-                <td>9</td>
-                <td class="keyTD">Average Docking Time</td>
-                <td>00:10:18</td>
-            </tr>
-        </table>
-    </div>
-    <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0">
-        <h3>Dockings</h3>
-        <table class="table table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>start time</th>
-                    <th>stop time</th>
-                    <th>duration</th>
-                    <th>score</th>
-                    <th>location</th>
-                    <th>comment</th>
-                    <th>detector</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let td of transferData;let ind = index">
-                    <td>{{ind + 1}}</td>  
-                    <td>{{ MatlabDateToJSTime(td.startTime)}}</td>
-                    <td>{{ MatlabDateToJSTime(td.stopTime) }}</td>  
-                    <td>{{ MatlabDateToJSTimeDifference(td.stopTime, td.startTime) }}</td>
-                    <td>{{td.score}}</td> 
-                    <td>{{td.location}}</td>  
-                    <td>{{td.comment}}</td> 
-                    <td>{{td.detector}}</td>
-                </tr>
-            </tbody>
-        </table>
+    <ng-template #noPermission>
+        <div class="divContainer">
+            <h3>You are not allowed to view the vessel you requested</h3>
+        </div>
+    </ng-template>  
+</div>
+
+<div class="row">
+    <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
+        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score: {{roundNumber(transfer_Data.score, 10)}}</h3></span>
+        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length == undefined"><h3>Transfer #{{ind + 1}} - location: {{transfer_Data.location}} - status:  {{transfer_Data.detector}}</h3></span>
+        <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
     </div>
 </div>

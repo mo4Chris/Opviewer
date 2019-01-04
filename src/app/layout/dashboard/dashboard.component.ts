@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
-import * as jwt_decode from "jwt-decode";
+import * as jwt_decode from 'jwt-decode';
+import { ActivatedRoute, Router } from '@angular/router';
 
-//Mongo Imports
-import {FormGroup,FormControl,Validators,FormsModule, } from '@angular/forms';
 import {CommonService} from '../../common.service';
-import {Http,Response, Headers, RequestOptions } from '@angular/http';   
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -14,31 +13,24 @@ import {Http,Response, Headers, RequestOptions } from '@angular/http';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(private newService :CommonService) {   }  
+    constructor(private newService: CommonService, public router: Router, private route: ActivatedRoute, private userService: UserService) {   }
     LLdata;
     Locdata;
     errData;
-    
 
-    getDecodedAccessToken(token: string): any {
-        try{
-            return jwt_decode(token);
-        }
-        catch(Error){
-            return null;
-        }
-      }
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+     // Map settings
+     latitude = 52.3702157;
+     longitude = 4.895167;
+     zoomlvl = 6;
+     mapTypeId = 'roadmap';
+     streetViewControl = false;
+     // End map settings
 
-    //Map settings
-    latitude = 52.3702157;
-    longitude = 4.895167;
-    zoomlvl = 6;
-    mapTypeId = "roadmap"
-    streetViewControl = false;    
-    //End map settings
-
-    infoWindowOpened = null;
+     infoWindowOpened = null;
+     showAlert = false;
+     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    alert = {type: '', text: ''}
+    timeout;
 
     filter() {
         this.infoWindowOpened = null;
@@ -52,31 +44,50 @@ export class DashboardComponent implements OnInit {
         if (this.infoWindowOpened !== null) {
             this.infoWindowOpened.close();
         }
-        
-        this.infoWindowOpened = infoWindow;   
+        this.infoWindowOpened = infoWindow;
     }
 
-    getLatestBoatLocationAdmin(){
+    redirectDailyVesselReport(mmsi) {
+        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    }
+
+    getLatestBoatLocationAdmin() {
         this.newService.GetLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
-        setTimeout(()=>{
-            this.getLatestBoatLocationAdmin();
+        setTimeout(() => {
+            if (this.router.url === '/dashboard') {
+                this.getLatestBoatLocationAdmin();
+            }
         }, 60000);
     }
-    getLatestBoatLocationCompany(company){
+    getLatestBoatLocationCompany(company) {
         this.newService.GetLatestBoatLocationForCompany(company).subscribe(data => this.Locdata = data, err => this.errData = err);
-        setTimeout(()=>{
-            this.getLatestBoatLocationCompany(company);
-        }, 60000)
+        setTimeout(() => {
+            if (this.router.url === '/dashboard') {
+                this.getLatestBoatLocationCompany(company);
+            }
+        }, 60000);
     }
 
 
-    ngOnInit() {    
+    ngOnInit() {
         this.newService.GetLatLon().subscribe(data =>  this.LLdata = data);
 
-        if(this.tokenInfo.userPermission == "admin"){
+        if (this.tokenInfo.userPermission === 'admin') {
             this.getLatestBoatLocationAdmin();
         } else {
-            this.getLatestBoatLocationCompany([{"companyName" : this.tokenInfo.userCompany}]);
+            this.getLatestBoatLocationCompany([{'companyName' : this.tokenInfo.userCompany}]);
         }
-      }  
+        this.getAlert();
+      }
+
+      getAlert() {
+          this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message });
+          if (this.alert.type != '' && this.alert.text != '') {
+              clearTimeout(this.timeout);
+              this.showAlert = true;
+              this.timeout = setTimeout(() =>{
+                  this.showAlert = false;
+              }, 10000);
+          }
+      }
 }

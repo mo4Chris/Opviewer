@@ -32,7 +32,10 @@ package-lock.json
 npm-debug.log
 testem.log
 /typings
+.scannerwork
 /src/.scannerwork
+/dist
+/.env
 
 # e2e
 /e2e/*.js
@@ -41,3 +44,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+.vs/
+.vscode/

@@ -1,88 +1,172 @@
-
-import {map} from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Http, Response, Headers } from '@angular/http';
+import { environment } from '../environments/environment';
 
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class CommonService {
 
-  constructor(private http: Http) { }
-
-  loginUser(user) {
-    return this.http.post('http://localhost:8080/api/login/', user).pipe(
-            map((response: Response) => response.json()));
-  }
-
-  registerUser(user) {
-    return this.http.post('http://localhost:8080/api/registerUser/', user).pipe(
-            map((response: Response) => response.json()));
-  }
+    constructor(private http: Http) {  }
 
   saveVessel(vessel) {
-    return this.http.post('http://localhost:8080/api/SaveVessel/', vessel).pipe(
+    return this.post(environment.DB_IP + '/api/saveVessel/', vessel).pipe(
             map((response: Response) => response.json()));
+  }
+
+  saveTransfer(transfer) {
+      return this.post(environment.DB_IP + '/api/saveTransfer/', transfer).pipe(
+          map((response: Response) => response.json()));
   }
 
   GetVessel() {
-    return this.http.get('http://localhost:8080/api/getVessel/').pipe(
+    return this.get(environment.DB_IP + '/api/getVessel/').pipe(
             map((response: Response) => response.json()));
   }
 
   GetVesselsForCompany(client) {
-    return this.http.post('http://localhost:8080/api/getVesselsForCompany/', client).pipe(
+    return this.post(environment.DB_IP + '/api/getVesselsForCompany/', client).pipe(
             map((response: Response) => response.json()));
   }
 
   GetScatter(test) {
-    return this.http.post('http://localhost:8080/api/getScatter/', test).pipe(
+    return this.post(environment.DB_IP + '/api/getScatter/', test).pipe(
             map((response: Response) => response.json()));
   }
 
   GetCompanies() {
-    return this.http.get('http://localhost:8080/api/getCompanies/').pipe(
+    return this.get(environment.DB_IP + '/api/getCompanies/').pipe(
             map((response: Response) => response.json()));
   }
 
   GetDistinctFieldnames(transferdata) {
-    return this.http.post('http://localhost:8080/api/getDistinctFieldnames/', transferdata).pipe(
+    return this.post(environment.DB_IP + '/api/getDistinctFieldnames/', transferdata).pipe(
             map((response: Response) => response.json()));
   }
 
   GetLatLon() {
-    return this.http.get('http://localhost:8080/api/getLatLon/').pipe(
+    return this.get(environment.DB_IP + '/api/getLatLon/').pipe(
             map((response: Response) => response.json()));
   }
 
-   GetLatestBoatLocation() {
-    return this.http.get('http://localhost:8080/api/getLatestBoatLocation/').pipe(
+  GetLatestBoatLocation() {
+    return this.get(environment.DB_IP + '/api/getLatestBoatLocation/').pipe(
             map((response: Response) => response.json()));
   }
 
   GetSpecificPark(park) {
-    return this.http.post('http://localhost:8080/api/GetSpecificPark/', park).pipe(
+    return this.post(environment.DB_IP + '/api/getSpecificPark/', park).pipe(
             map((response: Response) => response.json()));
   }
 
   GetLatestBoatLocationForCompany(company) {
-    return this.http.post('http://localhost:8080/api/getLatestBoatLocationForCompany/', company).pipe(
+    return this.post(environment.DB_IP + '/api/getLatestBoatLocationForCompany/', company).pipe(
             map((response: Response) => response.json()));
   }
 
   GetTransfersForVessel (vessel) {
-    return this.http.post('http://localhost:8080/api/GetTransfersForVessel/', vessel).pipe(
+    return this.post(environment.DB_IP + '/api/getTransfersForVessel/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+
+  getTransfersForVesselByRange (vessel) {
+    return this.post(environment.DB_IP + '/api/getTransfersForVesselByRange/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
   getRouteForBoat(vessel) {
-    return this.http.post('http://localhost:8080/api/getRouteForBoat/', vessel).pipe(
+    return this.post(environment.DB_IP + '/api/getRouteForBoat/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+
+  getCrewRouteForBoat(vessel) {
+    return this.post(environment.DB_IP + '/api/getCrewRouteForBoat/', vessel).pipe(
             map((response: Response) => response.json()));
   }
 
   getDatesWithValues(vessel) {
-    return this.http.post('http://localhost:8080/api/getDatesWithValues/', vessel).pipe(
+    return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
             map((response: Response) => response.json()));
+  }
+
+  getCommentsForVessel(vessel) {
+    return this.post(environment.DB_IP + '/api/getCommentsForVessel/', vessel).pipe(
+            map((response: Response) => response.json()));
+  }
+
+  getUsers() {
+    return this.get(environment.DB_IP + '/api/getUsers/').pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getUsersForCompany(client) {
+    return this.post(environment.DB_IP + '/api/getUsersForCompany/', client).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getUserByUsername(username) {
+    return this.post(environment.DB_IP + '/api/getUserByUsername/', username).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  saveUserBoats(user) {
+    return this.post(environment.DB_IP + '/api/saveUserBoats/', user).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  sendFeedback(feedback) {
+    return this.post(environment.DB_IP + '/api/sendFeedback/', feedback).pipe(
+        map((response: Response) =>  response.json()));
+  }
+
+  get(url) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.get(url, {
+      headers: headers
+    });
+  }
+
+  post(url, data) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.post(url, data, {
+      headers: headers
+    });
+  }
+
+  createAuthorizationHeader(headers: Headers) {
+    headers.append('authorization', localStorage.getItem('token'));
+  }
+
+  validatePermissionToViewData(vessel) {
+    return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  resetPassword(user) {
+    return this.post(environment.DB_IP + '/api/resetPassword/', user).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getVideoRequests(vessel) {
+    return this.post(environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  saveVideoRequest(transfer) {
+    return this.post(environment.DB_IP + '/api/saveVideoRequest/', transfer).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getVideoBudgetByMmsi(mmsi) {
+    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', mmsi).pipe(
+        map((response: Response) => response.json()));
+  }
+
+  getGeneral(vessel) {
+    return this.post(environment.DB_IP + '/api/getGeneral/', vessel).pipe(
+        map((response: Response) => response.json()));
   }
 
 }

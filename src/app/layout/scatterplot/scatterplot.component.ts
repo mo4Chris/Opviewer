@@ -3,11 +3,12 @@ import { CommonService } from '../../common.service';
 
 
 import * as moment from 'moment';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { map, catchError } from 'rxjs/operators';
-
+import {NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-scatterplot',
@@ -18,9 +19,13 @@ export class ScatterplotComponent implements OnInit {
   scatterData;
   scatterDataArray = [];
   scatterDataArrayVessel = [];
+  hoveredDate: NgbDate;
+  fromDate: NgbDate;
+  toDate: NgbDate;
+  modalReference: NgbModalRef;
 
   backgroundcolors = [
-    'rgba(54, 162, 235, 0.4)',
+    'rgba(228, 94, 157 , 0.4)',
     'rgba(255, 99, 132, 0.4)',
     'rgba(255, 206, 86, 0.4)',
     'rgba(75, 192, 192, 0.4)',
@@ -32,7 +37,7 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,255,255,0.4)'
   ];
   bordercolors =  [
-    'rgba(54, 162, 235, 1)',
+    'rgba(228, 94, 157 , 1)',
     'rgba(255,99,132,1)',
     'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
@@ -43,69 +48,90 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,0,255,1)',
     'rgba(0,255,255,1)',
   ];
+  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService) {
+    this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 1);
+    this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
+  }
 
-  constructor(private newService: CommonService, private route: ActivatedRoute) { }
-
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().month() + 1), day: moment().add(-1, 'days').date()};
-  vesselObject = {'date': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormal': this.getJSDateYesterdayYMD()};
+  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
+  vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
 
   datePickerValue = this.maxDate;
   Vessels;
   transferData;
   myChart;
-  showContent = false ;
-  tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+  myDatepicker;
+  showContent = false;
+  noPermissionForData = false;
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
+
+  onDateSelection(date: NgbDate) {
+    if (!this.fromDate && !this.toDate) {
+      this.fromDate = date;
+    } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
+      this.toDate = date;
+    } else {
+      this.toDate = null;
+      this.fromDate = date;
+    }
+  }
+
+  isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
+  isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
+  isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
+
+  openModal(content) {
+    this.modalReference = this.modalService.open(content);
+ }
+
+ closeModal() {
+  this.modalReference.close();
+  }
 
 
   createScatterChart() {
-    this.myChart = new Chart('canvas', {
-      type: 'scatter',
-      data: {
-      datasets: [{
-          data: this.scatterDataArrayVessel[0],
-          backgroundColor: this.backgroundcolors,
-          borderColor: this.bordercolors,
-          radius: 8,
-          pointHoverRadius: 10,
-          borderWidth: 1
-          }]
-      },
-      options: {
-        scaleShowVerticalLines: false,
-        legend: false,
-        responsive: true,
-        radius: 6,
-        pointHoverRadius: 6,
-        scales : {
-          xAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Time'
-            },
-            type: 'time',
-            time: {
-              min: this.MatlabDateToUnixEpoch(this.vesselObject.date),
-              max: this.MatlabDateToUnixEpoch(this.vesselObject.date + 1),
-              unit: 'hour'
-          }
-          }],
-          yAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Impact force [kN]'
+    if (this.scatterDataArrayVessel[0].length > 0) {
+      this.myChart = new Chart('canvas', {
+        type: 'scatter',
+        data: {
+        datasets: [{
+            data: this.scatterDataArrayVessel[0],
+            backgroundColor: this.backgroundcolors,
+            borderColor: this.bordercolors,
+            radius: 8,
+            pointHoverRadius: 10,
+            borderWidth: 1
+            }]
+        },
+        options: {
+          scaleShowVerticalLines: false,
+          legend: false,
+          responsive: true,
+          radius: 6,
+          pointHoverRadius: 6,
+          scales : {
+            xAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Time'
+              },
+              type: 'time',
+              time: {
+                min: this.MatlabDateToUnixEpoch(this.vesselObject.dateMin),
+                max: this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1),
+                unit: 'day'
             }
-          }]
+            }],
+            yAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Impact force [kN]'
+              }
+            }]
+          }
         }
-      }
-    });
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-        return jwt_decode(token);
-    } catch (Error) {
-        return null;
+      });
     }
   }
 
@@ -140,13 +166,21 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.GetVessel().subscribe(data => this.Vessels = data);
-    } else {
-        this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
-    }
-    setTimeout(() => this.showContent = true, 1000);
-    this.setScatterPointsVessel().subscribe();
+    this.noPermissionForData = false;
+      this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
+        this.setScatterPointsVessel().subscribe();
+      } else {
+        this.showContent = true;
+        this.noPermissionForData = true;
+      }
+      if (this.tokenInfo.userPermission === 'admin') {
+        this.newService.GetVessel().subscribe(data => this.Vessels = data);
+      } else {
+          this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
+      }
+      setTimeout(() => this.showContent = true, 1000);
+    });
   }
 
   MatlabDateToUnixEpoch(serial) {
@@ -155,19 +189,32 @@ export class ScatterplotComponent implements OnInit {
   }
 
   searchTransfersByNewSpecificDate() {
-    const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
-    datepickerValueAsMomentDate.format();
-    const momentDateAsIso = moment(datepickerValueAsMomentDate).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-    this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.MatlabDateToJSDateYMD(dateAsMatlab);
+    const minValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
+    const maxpickerValueAsMomentDate = moment(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
+
+    minValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    minValueAsMomentDate.format();
+
+    maxpickerValueAsMomentDate.utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    maxpickerValueAsMomentDate.format();
+
+    const momentMinDateAsIso = moment(minValueAsMomentDate).unix();
+    const dateMinAsMatlab = this.unixEpochtoMatlabDate(momentMinDateAsIso);
+
+    const momentMaxDateAsIso = moment(maxpickerValueAsMomentDate).unix();
+    const dateMaxAsMatlab = this.unixEpochtoMatlabDate(momentMaxDateAsIso);
+
+    this.vesselObject.dateMin = dateMinAsMatlab;
+    this.vesselObject.dateMax = dateMaxAsMatlab;
+
+    this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
+    this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
     this.BuildPageWithCurrentInformation();
   }
 
-  GetTransfersForVessel(vessel) {
+  getTransfersForVesselByRange(vessel) {
      return this.newService
-     .GetTransfersForVessel(vessel).pipe(
+     .getTransfersForVesselByRange(vessel).pipe(
      map(
        (transfers) => {
          this.transferData = transfers;
@@ -179,16 +226,26 @@ export class ScatterplotComponent implements OnInit {
    }
 
   BuildPageWithCurrentInformation() {
-    this.GetTransfersForVessel(this.vesselObject).subscribe(_ => {
-      this.setScatterPointsVessel().subscribe();
-      setTimeout(() => this.showContent = true, 1050);
-      this.myChart.update();
+    this.noPermissionForData = false;
+    this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
+        this.getTransfersForVesselByRange(this.vesselObject).subscribe(_ => {
+          this.setScatterPointsVessel().subscribe();
+          setTimeout(() => this.showContent = true, 1050);
+          if (this.scatterDataArrayVessel[0].length > 0) {
+            this.myChart.update();
+          }
+        });
+      } else {
+        this.showContent = true;
+        this.noPermissionForData = true;
+      }
     });
   }
 
   setScatterPointsVessel() {
     return this.newService
-    .GetTransfersForVessel({'mmsi': this.vesselObject.mmsi, 'date': this.vesselObject.date}).pipe(
+    .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax}).pipe(
     map(
       (scatterData) => {
         const obj = [];
@@ -202,7 +259,6 @@ export class ScatterplotComponent implements OnInit {
           }
         }
         this.scatterDataArrayVessel[0] = (obj);
-        console.log(this.vesselObject.date);
         if (this.myChart == null) {
           this.createScatterChart();
         } else {
