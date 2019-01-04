@@ -2,12 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
-import * as jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
-import * as Chart from 'chart.js';
-import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DatetimeService } from '../../supportModules/datetime.service';
@@ -85,9 +81,6 @@ export class VesselreportComponent implements OnInit {
       getLocdata(locData: any[]): void {
         this.Locdata = locData;
       }
-  getMMSIFromParameter() {
-    let mmsi;
-    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
 
       getLongitude(longitude: any): void {
         this.longitude = longitude;
@@ -126,63 +119,6 @@ export class VesselreportComponent implements OnInit {
     return mmsi;
   }
 
-  getTransfersForVessel(vessel) {
-
-  getTransfersForVessel(vessel) {
-    return this.newService
-    .GetTransfersForVessel(vessel).pipe(
-    map(
-      (transfers) => {
-        this.transferData = transfers;
-      }),
-     catchError(error => {
-        console.log('error ' + error);
-        throw error;
-      }));
-  }
-
-  getComments(vessel) {
-    return this.newService.getCommentsForVessel(vessel).pipe(
-    map(
-      (changed) => {
-        this.commentsChanged = changed;
-      }),
-      catchError(error => {
-        console.log('error ' + error);
-        throw error;
-      }));
-
-    }
-
-  getVideoRequests(vessel) {
-      return this.newService.getVideoRequests(vessel).pipe(
-    map(
-      (requests) => {
-          this.videoRequests = requests;
-      }),
-      catchError(error => {
-        console.log('error ' + error);
-        throw error;
-      }));
-
-  }
-
-  getDatesWithTransfers(date) {
-    return this.newService
-    .getDatesWithValues(date).pipe(
-      map(
-        (dates) => {
-          for (let _i = 0; _i < dates.length; _i++) {
-            dates[_i] = this.JSDateYMDToObjectDate(this.MatlabDateToJSDateYMD(dates[_i]));
-        }
-          this.dateData = dates;
-        }),
-        catchError(error => {
-          console.log('error ' + error);
-          throw error;
-        }));
-  }
-
   objectToInt(objectvalue) {
     return this.calculationService.objectToInt(objectvalue);
   }
@@ -200,7 +136,7 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   BuildPageWithCurrentInformation() {
-    this.resetVesselData();
+    this.resetRoutes();
     this.noPermissionForData = false;
     this.RequestLoading = true;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
@@ -284,7 +220,7 @@ export class VesselreportComponent implements OnInit {
     setTimeout(() => this.RequestLoading = false, 2500);
   }
 
-  onChange(event): void {
+  onChange(): void {
     this.searchTransfersByNewSpecificDate();
     this.resetRoutes();
   }
@@ -316,6 +252,7 @@ export class VesselreportComponent implements OnInit {
     this.routeFound = false;
     this.parkFound = false;
   }
+
   getGeneralStats() {
       this.newService.getGeneral(this.vesselObject).subscribe(general => {
           if (general.data.length > 0 && general.data[0].DPRstats) {
@@ -324,9 +261,9 @@ export class VesselreportComponent implements OnInit {
           } else {
               this.noTransits = true;
               this.general = {};
-      });
-          }
+      }});
   }
+
   roundNumber(number, decimal = 10, addString = '') {
     if (typeof number === 'string' || number instanceof String) {
       return number;
