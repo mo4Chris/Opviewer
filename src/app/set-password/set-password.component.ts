@@ -3,6 +3,9 @@ import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import * as base32 from 'hi-base32';
+import * as bCrypt from 'bcryptjs';
+import * as twoFactor from 'node-2fa';
 
 @Component({
   selector: 'app-set-password',
@@ -45,12 +48,22 @@ export class SetPasswordComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.createBase32SecretCode();
+
+        console.log(twoFactor.verifyToken('EQZGCJBRGASFCQ2SNNDUK4JPN54EK22MGVNEQ42IJVGFAT2IPFIUG6LUPFEEEYKSLFUTMUTSM5AUM2SIOZYEO5LBKI4FU4TZ', '670457'));
 
         if (this.token && this.token != "undefined") {
             this.getUserByToken(this.token);
         } else {
             this.noUser = true;
         }
+    }
+
+    createBase32SecretCode() {
+        const secretString = bCrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+        const secretStringAsBase32 = base32.encode(secretString);
+
+        console.log(secretStringAsBase32);
     }
 
     setUserPassword() {
