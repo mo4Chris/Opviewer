@@ -12,6 +12,7 @@ import { ChartsModule as Ng2Charts } from 'ng2-charts';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
+import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -23,7 +24,7 @@ import {CommonService} from '../../common.service';
         ScatterplotRoutingModule,
         PageHeaderModule],
     declarations: [ScatterplotComponent, ScatterplotComponent],
-    providers: [CommonService],
+    providers: [CommonService, UserService],
     bootstrap: [ScatterplotComponent]
 })
 export class ScatterplotModule {}

@@ -5,11 +5,14 @@
              <agm-marker [latitude]="loc.LAT" [longitude]="loc.LON" (markerClick)="showInfoWindow(infoWindow, i)">
              	<agm-info-window #infoWindow>
                     <pre>
+<strong style="font-size: 15px;">{{ loc.vesselInformation[loc.vesselInformation.length -1]}}</strong>
 MMSI: {{loc._id}}
-Vesselname: {{ loc.vesselInformation[loc.vesselInformation.length -1]}}
-Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}</pre>
+Timestamp: {{loc.TIMESTAMP.toString().replace('T', ' ') }}
+<br>
+<button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(loc._id)" type="button">Go to DPR</button></pre>
      	        </agm-info-window>
              </agm-marker>
         </ng-container>
     </agm-map>
+    <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
 </div>

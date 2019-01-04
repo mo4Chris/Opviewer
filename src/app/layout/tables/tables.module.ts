@@ -13,11 +13,12 @@ import { FormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 import { VesselreportModule } from '../vesselreport/vesselreport.module';
 import { ScatterplotModule } from '../scatterplot/scatterplot.module';
+import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
     imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, VesselreportModule, ScatterplotModule],
     declarations: [TablesComponent, TablesComponent],
-    providers: [CommonService],
+    providers: [CommonService, UserService],
     bootstrap: [TablesComponent]
 })
 export class TablesModule {}

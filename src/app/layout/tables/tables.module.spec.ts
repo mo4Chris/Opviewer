@@ -7,7 +7,7 @@ describe('TablesModule', () => {
     tablesModule = new TablesModule();
   });
 
-  it('should create an instance', () => {
-    expect(tablesModule).toBeTruthy();
-  });
+  // it('should create an instance', () => {
+  //   expect(tablesModule).toBeTruthy();
+  // });
 });

@@ -13,7 +13,8 @@ import { PageHeaderModule, SharedPipesModule } from '../../shared';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { CommonService } from '../../common.service';
+import {CommonService} from '../../common.service';
+import { UserService } from '../../shared/services/user.service';
 
 import { CalculationService } from '../../supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
@@ -32,7 +33,7 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
         PageHeaderModule,
         SharedPipesModule],
     declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
-    providers: [CommonService, CalculationService],
+    providers: [CommonService, CalculationService, UserService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}

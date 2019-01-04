@@ -12,16 +12,14 @@
     display:inline-block;
     margin-left:.5%;
 }
-.submitBtnDate{
-    margin-left: 20px;
-    height: 48px !important;
-}
+
 .dateSelectorModal{
     height: 48px !important;
 }
 .boatSelectDropdown{
     height: 48px !important;
     margin-left: 20px;
+    width: auto !important;
 }
 .keyTD{
     background: gray;
@@ -44,3 +42,9 @@
 .custom-day.faded {
     background-color: rgba(2, 117, 216, 0.5);
 }
+
+.disable-day{
+    background-color: white;
+    color: rgb(225, 225, 225) !important;
+ }
+ 

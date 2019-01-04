@@ -271,6 +271,17 @@ var stationaryPeriods = new Schema({
 });
 var stationaryPeriods = mongo.model('SOV_stationaryPeriods', stationaryPeriods, 'SOV_stationaryPeriods');
 
+var generalSchema = new Schema({
+    mmsi: { type: Number },
+    vesselname: { type: String },
+    date: { type: Number },
+    minutesFloating: { type: Number },
+    minutesInField: { type: Number },
+    distancekm: { type: Number },
+    DPRstats: { type: Object } 
+}, { versionKey: false });
+var generalmodel = mongo.model('general', generalSchema, 'general');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -298,7 +309,9 @@ function validatePermissionToViewData(req, res, callback) {
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
         if (!token.userBoats.find(x => x.mmsi === req.body.mmsi )) {
             return [];
-        }
+        } else {
+            filter.client = token.userCompany;
+        } 
     } else if (token.userPermission !== 'admin') {
         filter.client = token.userCompany;
     }
@@ -368,7 +381,9 @@ app.post("/api/registerUser", function (req, res) {
                             console.log(error);
                             return res.status(401).send('User already exists');
                         } else {
-                            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + user.username;
+
+                            var serveradres = process.env.IP_USER.split(",");
+                            let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
                             let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
                             'If that doesnt work copy the link below <br>' + link;
                             mailTo('Registered user', html, user.username);
@@ -644,7 +659,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Acces denied');
     }
-    let filter = { client: companyName };
+    let filter = { client: companyName, onHire: 1 };
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -958,7 +973,9 @@ app.get("/api/getUsers", function (req, res) {
     Usermodel.find({
 
     }, null, {
-
+        sort: {
+            client: 'asc', permissions: 'asc'
+        }
     }, function (err, data) {
         if (err) {
             res.send(err);
@@ -1171,7 +1188,8 @@ app.post("/api/resetPassword", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            let link = process.env.IP_USER + "/set-password;token=" + randomToken + ";user=" + data.username;
+            let serveradres = process.env.IP_USER.split(',');
+            let link =  serveradres[0] + "/set-password;token=" + randomToken + ";user=" + data.username;
             let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
             'If that doesnt work copy the link below <br>' + link;
             mailTo('Password reset', html, data.username);
@@ -1225,6 +1243,21 @@ app.post("/api/setPassword", function (req, res) {
                 res.send({ data: "Succesfully reset the password" });
             }
         });
+});
+
+app.post("/api/getGeneral", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Acces denied');
+        }
+        generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: data });
+            }
+        });
+    });
 });
 
 app.listen(8080, function () {

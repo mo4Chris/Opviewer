@@ -197,5 +197,11 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', mmsi).pipe(
         map((response: Response) => response.json()));
   }
+
+  getGeneral(vessel) {
+    return this.post(environment.DB_IP + '/api/getGeneral/', vessel).pipe(
+        map((response: Response) => response.json()));
+  }
+
 }
 
