@@ -12,8 +12,13 @@ export class CalculationService {
   }
 
   GetDecimalValueForNumber(value: any) {
-    if(typeof(value) == typeof(0)) {
+    var type = typeof(value);
+    if(type == typeof(0)) {
         value = Math.round(value * 10) / 10;
+    }
+    else if(type == typeof("")) {
+      var num = +value;
+      value = num.toFixed(1);
     }
     return value;
   }

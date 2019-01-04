@@ -220,8 +220,6 @@
         </div>
         <br />
     </div>
-
-    <!-- sovModel.sovType == SovTypeEnum.Turbine && -->
     <div class="row" *ngIf="sovModel.vessel2vessels.length > 0">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
@@ -229,7 +227,7 @@
                     Vessel Transfers
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>From vessel</th>
@@ -243,15 +241,22 @@
                         </thead>
                         <tbody>
                             <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
-                                <tr *ngFor="let transfer of vessel2vessel.transfers">
-                                    <th><a [routerLink]="" (click)="openVesselMap(content, transfer)">{{transfer.vesselname}}</a></th>
-                                    <td>{{transfer.toVesselname}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
-                                    <td>{{transfer.duration}} minutes</td>
-                                    <td>{{transfer.peakWindGust}}</td>
-                                    <td>{{transfer.peakWindAvg}}</td>      
-                                </tr>
+                                <ng-container *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
+                                    <tr>
+                                        <th>{{sovModel.sovInfo.vesselName}}</th>
+                                        <th colspan="6"><a [routerLink]="" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>     
+                                    </tr>
+                                    <ng-container *ngFor="let transfer of object.value">
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td>{{GetMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                                            <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                                            <td>{{transfer.duration}} minutes</td>
+                                            <td>{{transfer.peakWindGust}}</td>
+                                            <td>{{transfer.peakWindAvg}}</td>
+                                        </tr> 
+                                    </ng-container>
+                                </ng-container>
                             </ng-container>
                         </tbody>
                     </table>         
@@ -259,15 +264,36 @@
             </div>
         </div>
     </div>
-
     <ng-template #content let-modal>
         <div class="modal-header">
-            <h4 class="modal-title" id="modal-basic-title">{{vessel2vesselActivityRoute.vessel}} activity</h4>
+            <h4 class="modal-title" id="modal-basic-title">Field: {{vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits[0].fieldname}}</h4>
             <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Start time</th>
+                            <th>End time</th>
+                            <th>Duration [min]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let turbineVisit of this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits">
+                            <tr>
+                                <td>{{turbineVisit.location}}</td>
+                                <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                <td>{{turbineVisit.durationMinutes}} minutes</td>     
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>         
+            </div>
             <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9" [mapTypeId]="'roadmap'">
                 <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                     <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">

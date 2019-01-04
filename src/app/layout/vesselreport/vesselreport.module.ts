@@ -5,7 +5,7 @@ import { AgmCoreModule } from '@agm/core';
 
 import { VesselreportRoutingModule } from './vesselreport-routing.module';
 import { VesselreportComponent } from './vesselreport.component';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule, SharedPipesModule } from '../../shared';
 // import { DatePickerComponent } from './../bs-component/components'
 
 // modules mongoDB
@@ -29,7 +29,8 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
         NgbModule.forRoot(),
         CommonModule,
         VesselreportRoutingModule,
-        PageHeaderModule],
+        PageHeaderModule,
+        SharedPipesModule],
     declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService],
     bootstrap: [VesselreportComponent]

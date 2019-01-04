@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild, TemplateRef } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from "chart.js";
 import * as annotation from "chartjs-plugin-annotation";
@@ -8,8 +8,6 @@ import { DatetimeService } from "../../../../supportModules/datetime.service";
 import { SovType } from "../models/SovType";
 import { SummaryModel } from "../models/Summary";
 import { CalculationService } from "../../../../supportModules/calculation.service";
-import { Vessel2vesselModel } from "../models/Transfers/vessel2vessel/Vessel2vessel";
-import { V2vTransfer } from "../models/Transfers/vessel2vessel/V2vTransfer";
 
 @Component({
     selector: "app-sovreport",
@@ -40,30 +38,30 @@ export class SovreportComponent implements OnInit {
     operationalChartCalculated = false;
     sovHasLimiters = false;
 
-    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': ""};
+    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': "", 'ctvActivityOfTransfer': undefined};
    
-
     //used for comparison in the HTML
     SovTypeEnum = SovType;
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
 
-    openVesselMap(content, transfer: V2vTransfer) {
-    //openVesselMap(content, lat, lon, transfer: V2vTransfer) {
+    openVesselMap(content, vesselname: string, toMMSI: number) {
 
-        this.vessel2vesselActivityRoute.vessel = transfer.vesselname;
+        this.vessel2vesselActivityRoute.vessel = vesselname;
 
-        this.vessel2vesselActivityRoute.lat = parseFloat(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat[Math.floor(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat[0].length / 2)]);
-        this.vessel2vesselActivityRoute.lon = parseFloat(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon[Math.floor(this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon[0].length / 2)]);;
+        this.sovModel.vessel2vessels.forEach(vessel2vessel => {
+            vessel2vessel.CTVactivity.forEach(ctvActivity => {
+                if(ctvActivity.mmsi == toMMSI) {
+                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
+                }
+            });
+        });
 
-        this.vessel2vesselActivityRoute.latCollection = this.sovModel.vessel2vessels[0].CTVactivity[0].map.lat;
-        this.vessel2vesselActivityRoute.lonCollection = this.sovModel.vessel2vessels[0].CTVactivity[0].map.lon;
+        this.vessel2vesselActivityRoute.lat = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[0].length / 2)]);
+        this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
+        this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
+        this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
 
-        // this.vessel2vesselActivityRoute.lat = parseFloat(lat[Math.floor(lat[0].length / 2)]);
-        // this.vessel2vesselActivityRoute.lon = parseFloat(lon[Math.floor(lon[0].length / 2)]);
-
-        // this.vessel2vesselActivityRoute.latCollection = lat;
-        // this.vessel2vesselActivityRoute.lonCollection = lon;
         this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -86,21 +84,15 @@ export class SovreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.mapZoomLvl.emit(8);
         this.ResetTransfers();
-        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {           
-            if (sov.length !== 0) {
+        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {         
+            if (sov.length !== 0) { 
                 this.sovModel.sovInfo = sov[0];            
-                var boatlocationData = [];
+                this.GetVesselRoute();
+                this.GetAvailableRouteDatesForVessel();
 
-                boatlocationData.push(this.sovModel.sovInfo);
-                var latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
-                var longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
+                //Currently transits are not being used, should be removed
+                this.GetTransits();
 
-                if(("" + latitude) != "NaN" && ("" + longitude) != "NaN") {
-                    this.latitude.emit(latitude);
-                    this.longitude.emit(longitude);
-                    this.boatLocationData.emit(boatlocationData);
-                }
-                
                  this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                      if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {        
@@ -113,7 +105,7 @@ export class SovreportComponent implements OnInit {
 
                                //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
                                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                                    this.sovModel.vessel2vessels = vessel2vessels;    
+                                    this.sovModel.vessel2vessels = vessel2vessels; 
                             }); 
                            }
                         });
@@ -123,37 +115,57 @@ export class SovreportComponent implements OnInit {
                     }
                 });
 
-                this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-                    this.sovModel.transits = transits;                    
-                });
+
                 this.locShowContent = true;
             }
             else {
                 this.locShowContent = false;
             }
 
-            this.commonService.GetDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
-                for (let _i = 0; _i < dates.length; _i++) {
-                    dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
-                }
-
-                var sailDates = dates;
-                this.sailDates.emit(sailDates);
-            });
 
             this.showContent.emit(this.locShowContent);
             
+            //Set the timer so data is first collected on time
             setTimeout(() => {
                 Chart.pluginService.register(annotation);
 
                 this.CalculateDailySummary();
-
                 this.createOperationalStatsChart();
                 this.createGangwayLimitationsChart();
                 this.CheckForNullValues();
-                console.log(this.sovModel.platformTransfers);
             }, 2000);
         });
+    }
+
+    GetTransits() {
+        this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
+            this.sovModel.transits = transits;                    
+        });
+    }
+
+    GetAvailableRouteDatesForVessel() {
+        this.commonService.GetDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
+            for (let _i = 0; _i < dates.length; _i++) {
+                dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
+            }
+
+            var sailDates = dates;
+            this.sailDates.emit(sailDates);
+        });
+    }
+
+    GetVesselRoute() {
+        var boatlocationData = [];
+
+        boatlocationData.push(this.sovModel.sovInfo);
+        var latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
+        var longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
+
+        if(("" + latitude) != "NaN" && ("" + longitude) != "NaN") {
+            this.latitude.emit(latitude);
+            this.longitude.emit(longitude);
+            this.boatLocationData.emit(boatlocationData);
+        }
     }
 
     CalculateDailySummary() {
@@ -313,8 +325,8 @@ export class SovreportComponent implements OnInit {
 
     createGangwayLimitationsChart() {
 
-        var strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
-        var boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
+        var strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
+        var boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
 
         if(strokedLimiterCounter > 0 || boomAngleLimiterCounter > 0) {
             this.sovHasLimiters = true;

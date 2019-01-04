@@ -7,7 +7,7 @@ export class TurbineTransfer {
     duration: number;
     fieldname: string;
     gangwayDeployedDuration: number;
-    gangwayReadyDuration: string;
+    gangwayReadyDuration: number;
     timeGangwayDeployed: number;
     timeGangwayReady: string;
     timeGangwayRetracted: string;

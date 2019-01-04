@@ -11,8 +11,8 @@ export class PlatformTransfer {
     approachTime: number;
     visitDuration: number;
     totalDuration: number;
-    gangwayDeployedDuration: string;
-    gangwayReadyDuration: string;
+    gangwayDeployedDuration: number;
+    gangwayReadyDuration: number;
     timeGangwayDeployed: string;
     timeGangwayReady: string;
     timeGangwayRetracted: string;
