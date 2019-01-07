@@ -29,3 +29,20 @@ table {
         }
     }
 }
+
+.btn:first-of-type {
+    margin-right: 30px;
+}
+
+ngb-alert {
+    position: fixed;
+    bottom: 0px;
+}
+
+select {
+    margin-bottom: 15px;
+    height: 48px !important;
+    width: auto;
+    position: relative;
+    flex: 1 1 auto;
+}

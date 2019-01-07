@@ -165,7 +165,8 @@ var turbineWarrantySchema = new Schema({
     Dates: { type: Array },
     sailMatrix: { type: Array },
     currentlyActive: { type: Array },
-    client: { type: String }
+    client: { type: String },
+    updatedSailMatrix: { type: Array }
 }, { versionKey: false });
 var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic'); 
 
@@ -1004,7 +1005,6 @@ app.get("/api/getTurbineWarranty", function (req, res) {
     let token = verifyToken(req, res);
     turbineWarrantymodel.find({}, function (err, data) {
         if (err) {
-            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -1018,7 +1018,10 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            //console.log(data[0]); 
+            //console.log(data[0]);
+            if (token.userPermission !== 'admin' && token.userCompany !== data[0].client) {
+                return res.status(401).send('Acces denied');
+            }
             res.send({ data: data[0] });
         }
     });
@@ -1026,12 +1029,28 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
 
 app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
+        return res.status(401).send('Acces denied');
+    }
     turbineWarrantymodel.find({ client: req.body.client }, function (err, data) {
         if (err) {
-            console.log(err);
             res.send(err);
         } else {
             res.send(data);
+        }
+    });
+});
+
+app.post("/api/setSaildays", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
+        return res.status(401).send('Acces denied');
+    }
+    turbineWarrantymodel.findByIdAndUpdate(req.body._id, { updatedSailMatrix: req.body.sailMatrix }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({ data: "Succesfully updated weatherdays" });
         }
     });
 });

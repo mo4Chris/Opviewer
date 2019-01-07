@@ -28,16 +28,16 @@
                     <tr *ngIf="checkDateRange(date)">
                         <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
-                            <td [class.green]="turbineWarrenty.sailMatrix[i][ind]==1" [class.red]="turbineWarrenty.sailMatrix[i][ind]==0" [class.yellow]="turbineWarrenty.sailMatrix[i][ind]==0.5" [class.gray]="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
-                                <span *ngIf="hideText==false && !edit">{{getSailDay(turbineWarrenty.sailMatrix[i][ind])}}</span>
-                                <select *ngIf="edit" (change)="updateSailDay(turbineWarrenty.sailMatrix, i, ind, $event.target.value)">
-                                    <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" selected>-</option>
-                                    <option value="0" [selected]="turbineWarrenty.sailMatrix[i][ind]==0">0</option>
-                                    <option value="0.5" [selected]="turbineWarrenty.sailMatrix[i][ind]==0.5">0.5</option>
-                                    <option value="1" [selected]="turbineWarrenty.sailMatrix[i][ind]==1">1</option>
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
+                                <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
+                                <select *ngIf="edit" (change)="updateSailDay(i, ind, $event.target.value)">
+                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_'" selected>-</option>
+                                    <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
+                                    <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
+                                    <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
                                 </select>
                             </td>
-                            {{addDateSailDay(turbineWarrenty.sailMatrix[i][ind], i)}}
+                            {{addDateSailDay(sailMatrix[i][ind], i)}}
                         </ng-container>
                         <td class="smallPadding">{{getDateWeatherDays()}}</td>
                     </tr>
@@ -49,8 +49,9 @@
                 </tr>
             </tbody>
         </table>
-        <button (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
-        <button (click)="editData()" *ngIf="!edit">Edit</button>
-        <button (click)="saveData()" *ngIf="edit">Save</button>
+        <button class="btn rounded-btn" (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
+        <button class="btn rounded-btn" (click)="editData()" *ngIf="!edit">Edit</button>
+        <button class="btn rounded-btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
     </div>
+    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
 </div>

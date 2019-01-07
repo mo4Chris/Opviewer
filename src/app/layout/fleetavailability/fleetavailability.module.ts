@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
 import { FleetavailabilityRoutingModule } from './fleetavailability-routing.module';
@@ -11,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, FleetavailabilityRoutingModule, PageHeaderModule],
+    imports: [CommonModule, HttpClientModule, FormsModule, NgbModule.forRoot(), FleetavailabilityRoutingModule, PageHeaderModule],
     declarations: [FleetavailabilityComponent],
     providers: [CommonService],
     bootstrap: [FleetavailabilityComponent]

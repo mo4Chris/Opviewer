@@ -4,6 +4,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { Router, ActivatedRoute } from '@angular/router';
+import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 
 @Component({
@@ -23,63 +24,73 @@ export class FleetavailabilityComponent implements OnInit {
     loaded = false;
     selectedMonth = 'Last 2 weeks';
     availableMonths = [];
-    tempSailDays = [];
+    allMonths = [];
+    sailMatrix = [];
     dateSailDays = 0;
     totalWeatherDays = 0;
     missingDays = [];
-    campaignName;
-    windfield;
-    startDate;
-    
+    params = { campaignName: '', windfield: '', startDate: 0 };
+    saving;
+    alert = { type: '', message: '' };
+    showAlert = false;
+    timeout;
+
     ngOnInit() {
-        this.createLineChart();
         this.getCampaignName();
         this.getStartDate();
         this.getWindfield();
 
-        this.newService.getTurbineWarrantyOne({ campaignName: this.campaignName, windfield: this.windfield, startDate: this.startDate }).subscribe(data => {
+        this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
             if (data.data) {
                 this.turbineWarrenty = data.data;
+                if (!this.turbineWarrenty.sailMatrix[0][0]) {
+                    this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
+                }
+                if (this.turbineWarrenty.updatedSailMatrix[0]) {
+                    this.sailMatrix = this.turbineWarrenty.updatedSailMatrix;
+                } else {
+                    this.sailMatrix = this.turbineWarrenty.sailMatrix;
+                }
                 this.getAvailableMonths();
             }
+            this.createLineChart();
             this.loaded = true;
         });
     }
 
     getCampaignName() {
-        this.route.params.subscribe(params => this.campaignName = params.campaignName);
+        this.route.params.subscribe(params => this.params.campaignName = params.campaignName);
     }
 
     getStartDate() {
-        this.route.params.subscribe(params => this.windfield = params.windfield);
+        this.route.params.subscribe(params => this.params.windfield = params.windfield);
     }
 
     getWindfield() {
-        this.route.params.subscribe(params => this.startDate = parseFloat(params.startDate));
+        this.route.params.subscribe(params => this.params.startDate = parseFloat(params.startDate));
     }
 
     createLineChart() {
           this.myChart = new Chart('canvas', {
             type: 'line',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                labels: this.allMonths,
                 datasets: [{
                     data: [200, 196, 192.5, 133, 111, 107, 105, 101, 75, 0],
                     label: 'Expected start of term',
                     borderColor: 'red',
                     fill: false
-                  }, {
+                }, {
                     data: [null, null, null, 130, 125, 90, 85, 83, 75, -5],
                     label: 'Expected after first 3 months',
                     borderColor: 'blue',
                     fill: false
-                  }, {
+                }, {
                     data: [200, 180, 170, 130],
                     label: 'Recorded weather days',
                     borderColor: 'black',
                     fill: false
-                  }
-                ]
+                }]
               },
               options: {
                   responsive: true,
@@ -106,16 +117,6 @@ export class FleetavailabilityComponent implements OnInit {
                   }
             }
         });
-    }
-
-    editData() {
-        this.edit = true;
-        this.hideText = false;
-    }
-
-    saveData() {
-        this.turbineWarrenty.sailMatrix = this.tempSailDays;
-        this.edit = false;
     }
 
     MatlabDateToJSDate(serial) {
@@ -151,6 +152,7 @@ export class FleetavailabilityComponent implements OnInit {
             if (dateStart < moment()) {
                 this.availableMonths.push(dateStart.format('MMM YYYY'));
             }
+            this.allMonths.push(dateStart.format('MMM YYYY'));
             dateStart.add(1, 'month');
         }
         this.availableMonths.push('Last 2 weeks');
@@ -186,11 +188,6 @@ export class FleetavailabilityComponent implements OnInit {
         this.missingDays = [];
     }
 
-    updateSailDay(sailDays, i, ind, value) {
-        this.tempSailDays = sailDays;
-        this.tempSailDays[i][ind] = value;
-    }
-
     addDateSailDay(sd, ind) {
         if (!this.missingDays[ind]) {
             this.missingDays[ind] = 0;
@@ -220,5 +217,41 @@ export class FleetavailabilityComponent implements OnInit {
         var total = this.missingDays[ind];
         this.missingDays[ind] = 0;
         return total;
+    }
+
+    editData() {
+        this.edit = true;
+        this.hideText = false;
+    }
+
+    saveData() {
+        this.turbineWarrenty.sailMatrix = this.sailMatrix;
+        this.saving = true;
+        this.newService.setSaildays(this.turbineWarrenty).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.edit = false;
+            this.saving = false;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+
+    }
+
+    updateSailDay(i, ind, value) {
+        this.sailMatrix[i][ind] = value;
     }
 }

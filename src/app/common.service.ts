@@ -181,7 +181,12 @@ export class CommonService {
 
   getTurbineWarrantyOne(warrenty) {
       return this.post(environment.DB_IP + '/api/getTurbineWarrantyOne/', warrenty).pipe(
-          map((response: Response) => response.json()));
+        map((response: Response) => response.json()));
+  }
+
+  setSaildays(warrenty) {
+    return this.post(environment.DB_IP + '/api/setSaildays/', warrenty).pipe(
+        map((response: Response) => response.json()));
   }
 }
 
