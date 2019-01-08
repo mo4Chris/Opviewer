@@ -6,7 +6,7 @@
         </div>
     </div>
     <div class="card-body table-responsive" *ngIf="loaded">
-        <select (change)="setMonth($event.target.value)">
+        <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
         <table class="table table-hover table-responsive table-bordered">
@@ -30,7 +30,7 @@
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
                             <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
                                 <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
-                                <select *ngIf="edit" (change)="updateSailDay(i, ind, $event.target.value)">
+                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(i, ind, $event.target.value)">
                                     <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_'" selected>-</option>
                                     <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
                                     <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>

@@ -39,10 +39,14 @@ ngb-alert {
     bottom: 0px;
 }
 
-select {
+.monthSelector {
     margin-bottom: 15px;
     height: 48px !important;
     width: auto;
     position: relative;
     flex: 1 1 auto;
+}
+
+.updateSailDay{
+    width: 100%;
 }
