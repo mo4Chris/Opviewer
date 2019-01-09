@@ -568,12 +568,12 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
-    //let mmsi = parseInt(req.params.mmsi);
-    //let date = req.params.date;
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
 
     //TEST DATA
-    let mmsi = 232008874;
-    let date = 737404;
+    // let mmsi = 232008874;
+    // let date = 737404;
 
     SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
         if (err) {
