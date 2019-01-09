@@ -85,7 +85,7 @@
                   <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
                   <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
                   <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
-                  <td>{{transfer_Data.score}}</td> 
+                  <td>{{roundNumber(transfer_Data.score, 10)}}</td> 
                   <td>{{transfer_Data.location}}</td>  
                   <td class="comment">
                       <span ngbDropdown class="d-inline-block dropdown">
