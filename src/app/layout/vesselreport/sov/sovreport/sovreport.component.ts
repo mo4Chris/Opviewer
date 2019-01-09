@@ -218,15 +218,16 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
 
+    //Properly change undefined values to N/a
+    //For number resets to decimal, ONLY specify the ones needed, don't reset time objects
     CheckForNullValues() {
+        this.sovModel.sovInfo = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
+        this.sovModel.sovInfo.distancekm = this.calculationService.GetDecimalValueForNumber(this.sovModel.sovInfo.distancekm);
+        this.sovModel.summary = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.summary);
 
-        this.sovModel.sovInfo = this.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
-        this.sovModel.summary = this.ReplaceEmptyColumnValues(this.sovModel.summary);
-
-        //For number resets to decimal, ONLY specify the ones needed, don't reset time objects
         if(this.sovModel.sovType == SovType.Turbine) {
             this.sovModel.turbineTransfers.forEach(transfer => {
-                transfer = this.ReplaceEmptyColumnValues(transfer);
+                transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
@@ -236,7 +237,7 @@ export class SovreportComponent implements OnInit {
         }
         else if(this.sovModel.sovType == SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
-                transfer = this.ReplaceEmptyColumnValues(transfer);
+                transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
@@ -244,34 +245,20 @@ export class SovreportComponent implements OnInit {
         }
         if(this.sovModel.transits.length > 0) {
             this.sovModel.transits.forEach(transit => {
-                transit = this.ReplaceEmptyColumnValues(transit);
+                transit = this.calculationService.ReplaceEmptyColumnValues(transit);
             });
         }
         if(this.sovModel.vessel2vessels.length > 0) {
             this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-                vessel2vessel.CTVactivity = this.ReplaceEmptyColumnValues(vessel2vessel.CTVactivity);          
+                vessel2vessel.CTVactivity = this.calculationService.ReplaceEmptyColumnValues(vessel2vessel.CTVactivity);          
                 vessel2vessel.transfers.forEach(transfer => {
-                    transfer = this.ReplaceEmptyColumnValues(transfer);
+                    transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                     transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
                     transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
                     transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
                 });       
             });
         }
-    }
-
-    private ReplaceEmptyColumnValues(resetObject: any) {
-        var keys = Object.keys(resetObject);  
-        keys.forEach(key => {
-            if(typeof(resetObject[key]) == typeof("")) {
-                resetObject[key] = resetObject[key].replace('_NaN_', 'N/a');
-            }
-        });
-        return resetObject;
-    }
-
-    getDistanceInKm() {
-        return parseFloat(this.sovModel.sovInfo.distancekm).toFixed(1);
     }
 
     createOperationalStatsChart() {

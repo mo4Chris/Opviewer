@@ -33,4 +33,14 @@ export class CalculationService {
     }
     return value;
   }
+
+  ReplaceEmptyColumnValues(resetObject: any) {
+    var keys = Object.keys(resetObject);  
+    keys.forEach(key => {
+        if(typeof(resetObject[key]) == typeof("")) {
+            resetObject[key] = resetObject[key].replace('_NaN_', 'N/a');
+        }
+    });
+    return resetObject;
+}
 }

@@ -18,7 +18,7 @@
                                 </tr>
                                 <tr *ngIf="sovModel.sovInfo.distancekm != 'N/a'">
                                     <td>Distance</td>
-                                    <td>{{getDistanceInKm()}} km</td>
+                                    <td>{{sovModel.sovInfo.distancekm}} km</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
@@ -127,7 +127,12 @@
                             <tbody>
                                 <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
                                     <tr>
-                                        <th>{{platformTransfer.locationname}}</th>
+                                        <ng-container *ngIf="platformTransfer.locationname != undefined">
+                                            <th>{{platformTransfer.locationname}}</th>
+                                        </ng-container>
+                                        <ng-container *ngIf="platformTransfer.location != undefined">
+                                            <th>{{platformTransfer.location}}</th>
+                                        </ng-container>
                                         <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform, 'HH:mm')}}</td>
@@ -197,7 +202,12 @@
                         <tbody>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
                                 <tr *ngFor="let platformTransfer of sovModel.platformTransfers">
-                                    <th>{{platformTransfer.locationname}}</th>
+                                    <ng-container *ngIf="platformTransfer.locationname != undefined">
+                                        <th>{{platformTransfer.locationname}}</th>
+                                    </ng-container>
+                                    <ng-container *ngIf="platformTransfer.location != undefined">
+                                        <th>{{platformTransfer.location}}</th>
+                                    </ng-container>
                                     <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
                                     <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
                                     <td>{{platformTransfer.gangwayUtilisation}}</td>
