@@ -12,10 +12,10 @@ agm-map {
     margin-top:1rem;
 }
 
-.boatSelectDropdown {
-    height: 48px !important;
-    margin-left: 20px;
-    width: auto;
+@media only screen and (min-width: 667px) {
+    .boatSelectDropdown {
+        margin-left: 20px;
+    }
 }
 
 
