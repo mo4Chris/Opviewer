@@ -266,7 +266,7 @@
     </div>
     <ng-template #content let-modal>
         <div class="modal-header">
-            <h4 class="modal-title" id="modal-basic-title">Field: {{vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits[0].fieldname}}</h4>
+            <h4 class="modal-title" id="modal-basic-title">Vessel: {{vessel2vesselActivityRoute.vessel}}</h4>
             <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -276,6 +276,7 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
+                            <th>Field</th>
                             <th>Location</th>
                             <th>Start time</th>
                             <th>End time</th>
@@ -283,13 +284,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngFor="let turbineVisit of this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits">
+                        <ng-container *ngFor="let object of (this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
                             <tr>
-                                <td>{{turbineVisit.location}}</td>
-                                <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
-                                <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
-                                <td>{{turbineVisit.durationMinutes}} minutes</td>     
+                                <th colspan="5">{{object.key}}</th>    
                             </tr>
+                            <ng-container *ngFor="let turbineVisit of object.value">
+                                <tr>
+                                    <td></td>
+                                    <td>{{turbineVisit.location}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                    <td>{{turbineVisit.durationMinutes}} minutes</td>     
+                                </tr> 
+                            </ng-container>
                         </ng-container>
                     </tbody>
                 </table>         
