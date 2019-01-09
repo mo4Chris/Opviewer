@@ -11,6 +11,17 @@ export class CalculationService {
     return parseFloat(objectvalue);
   }
 
+  roundNumber(number, decimal = 10, addString = '') {
+    if (typeof number === 'string' || number instanceof String) {
+      return number;
+    }
+    if (!number) {
+      return 'n/a';
+    }
+
+    return (Math.round(number * decimal) / decimal) + addString;
+  }
+
   GetDecimalValueForNumber(value: any) {
     var type = typeof(value);
     if(type == typeof(0)) {

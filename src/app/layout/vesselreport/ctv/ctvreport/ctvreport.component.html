@@ -1,62 +1,65 @@
 <div *ngIf="showContent">
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
-      <table class="table table-responsive tableSummary">
-          <tr>
-              <td>Departure Port</td>
-              <td>6:58</td>
-              <td>Departure Wind Farm</td>
-              <td>15:46</td>
-          </tr>
-          <tr>
-              <td>Arrival wind farm</td>
-              <td>8:57</td>
-              <td>Arrival Port</td>
-              <td>17:39</td>
-          </tr>
-          <tr>
-              <td>Distance Sailed</td>
-              <td>99.1 NM</td>
-              <td>Fuel Consumed</td>
-              <td>n/a Ltr</td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-              <td>Fuel Economy</td>
-              <td>n/a ltr/nm</td>
-          </tr>
-          <tr>
-              <td>Avg. speed outbound</td>
-              <td>19.9 knots</td>
-              <td>Avg. speed inbound</td>
-              <td>21.8 knots</td>
-          </tr>
-          <tr>
-              <td>Max. speed outbound</td>
-              <td>22.0 knots</td>
-              <td>Max. speed inbound</td>
-              <td>23.7 knots</td>
-          </tr>
-          <tr>
-              <td>MSI outbound</td>
-              <td>17.2%</td>
-              <td>MSI inbound</td>
-              <td>19.7%</td>
-          </tr>
-          <tr>
-              <td>WBV, Technicians</td>
-              <td>0.46 (A8)</td>
-              <td>WBV, Vessel Crew</td>
-              <td>0.69(A8)</td>
-          </tr>
-          <tr>
-              <td>Number of dockings</td>
-              <td>9</td>
-              <td>Average Docking Time</td>
-              <td>00:10:18</td>
-          </tr>
-      </table>
+        <div class="col-lg-6 col-sm-6">
+            <h3 *ngIf="noTransits">There is no transit data available</h3>
+            <table class="table table-responsive transitTable">
+                <tr>
+                    <td class="keyTD">Departure Port</td>
+                    <td>{{getMatlabDateToJSTime(general.portDepartureTime)}}</td>
+                    <td class="keyTD">Departure Wind Farm</td>
+                    <td>{{getMatlabDateToJSTime(general.departureWindFarmTime)}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">Arrival wind farm</td>
+                    <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
+                    <td class="keyTD">Arrival Port</td>
+                    <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">Distance Sailed</td>
+                    <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
+                    <td class="keyTD">Fuel Consumed</td>
+                    <td>{{roundNumber(general.TotalFuel, 10)}}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td class="keyTD">Fuel Economy</td>
+                    <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">Avg. speed outbound</td>
+                    <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
+                    <td class="keyTD">Avg. speed inbound</td>
+                    <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">Max. speed outbound</td>
+                    <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
+                    <td class="keyTD">Max. speed inbound</td>
+                    <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">MSI outbound</td>
+                    <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
+                    <td class="keyTD">MSI inbound</td>
+                    <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">WBV, Technicians</td>
+                    <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
+                    <td class="keyTD">WBV, Vessel Crew</td>
+                    <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+                </tr>
+                <tr>
+                    <td class="keyTD">Number of dockings</td>
+                    <td>{{roundNumber(general.numDockings, 1)}}</td>
+                    <td class="keyTD">Average Docking Time</td>
+                    <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+                </tr>
+            </table>
+        </div>
     </div>
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
