@@ -52,6 +52,11 @@ export class CtvreportComponent implements OnInit {
         this.mapZoomLvl.emit(10);
 
       this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transfers => {
+
+        this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
+            this.sailDates.emit(data);
+        });
+
           if(transfers.length > 0) {
             this.transferData = transfers;
             this.getComments(this.vesselObject).subscribe(_ => {
@@ -70,10 +75,7 @@ export class CtvreportComponent implements OnInit {
                         var boatLocationData = data;
                         this.boatLocationData.emit(boatLocationData);
                     });
-                    this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
-                        var sailDates = data;
-                        this.sailDates.emit(sailDates);
-                    });   
+  
                 });
                 this.getVideoRequests(this.vesselObject).subscribe(_ => {
                   this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {

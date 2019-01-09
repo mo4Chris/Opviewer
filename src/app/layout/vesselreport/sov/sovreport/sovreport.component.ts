@@ -84,11 +84,11 @@ export class SovreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.mapZoomLvl.emit(8);
         this.ResetTransfers();
+        this.GetAvailableRouteDatesForVessel();
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {         
             if (sov.length !== 0) { 
                 this.sovModel.sovInfo = sov[0];            
                 this.GetVesselRoute();
-                this.GetAvailableRouteDatesForVessel();
 
                 //Currently transits are not being used, should be removed
                 this.GetTransits();
