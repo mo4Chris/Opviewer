@@ -102,11 +102,6 @@ export class SovreportComponent implements OnInit {
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
-
-                               //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
-                               this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                                    this.sovModel.vessel2vessels = vessel2vessels; 
-                            }); 
                            }
                         });
                     } else {
@@ -114,14 +109,17 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.sovType = SovType.Platform; 
                     }
                 });
-
+        
+                //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
+                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
+                    this.sovModel.vessel2vessels = vessel2vessels; 
+                }); 
 
                 this.locShowContent = true;
             }
             else {
                 this.locShowContent = false;
             }
-
 
             this.showContent.emit(this.locShowContent);
             
