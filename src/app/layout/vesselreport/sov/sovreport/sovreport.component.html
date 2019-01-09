@@ -60,7 +60,7 @@
                                 </tr>
                                 <tr>
                                     <td>Average time spent docking (vessels)</td>
-                                    <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
+                                    <td>{{sovModel.summary.AvgTimeVesselDocking}} minutes</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
@@ -282,6 +282,7 @@
             </button>
         </div>
         <div class="modal-body">
+            <p>Turbines visited by this vessel</p>
             <div class="table-responsive">
                 <table class="table table-hover table-striped">
                     <thead>

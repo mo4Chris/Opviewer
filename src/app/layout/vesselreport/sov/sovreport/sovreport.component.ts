@@ -181,9 +181,19 @@ export class SovreportComponent implements OnInit {
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
             summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
-            // var avgDurationVesselDocking = this.sovModel.vessel2vessels.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
-            // summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(avgDurationVesselDocking);
 
+            //Average time vessel docking
+            let totalVesselDockingDuration = 0;
+            this.sovModel.vessel2vessels.forEach(vessel2vessel => {
+                let totalDockingDurationOfVessel2vessel = 0;
+                vessel2vessel.transfers.forEach(transfer => {
+                    totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
+                });
+                let averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / vessel2vessel.transfers.length;
+                totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
+            });
+            summaryModel.AvgTimeVesselDocking = this.calculationService.GetDecimalValueForNumber(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
+            
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         }
         else if(this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType == SovType.Platform) {
