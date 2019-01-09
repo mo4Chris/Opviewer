@@ -21,7 +21,7 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
 
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService : CalculationService, private dateTimeService : DatetimeService, private userService: UserService) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService) {
 
   }
 
@@ -73,8 +73,8 @@ export class VesselreportComponent implements OnInit {
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
 
-  ///////Get variables from child components//////////
-      getMapZoomLvl(mapZoomLvl: number): void{
+  /////// Get variables from child components//////////
+      getMapZoomLvl(mapZoomLvl: number): void {
         setTimeout(() => this.mapZoomLvl = mapZoomLvl, 500);
       }
 
@@ -145,56 +145,14 @@ export class VesselreportComponent implements OnInit {
 
         setTimeout(() => {
 
-          if(this.vesselObject.vesselType == 'CTV' && this.ctvChild != undefined) {
+          if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
               this.ctvChild.BuildPageWithCurrentInformation();
-        /* this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-          this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
-            this.getComments(this.vesselObject).subscribe(_ => {
-              this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                  if (data[0]) {
-                    this.videoBudget = data[0];
-                  } else {
-                    this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                  }
-                  this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
-                  this.matchCommentsWithTransfers();
-                  this.getGeneralStats();
-                });
-              });
-            });
-          });
-          if (this.transferData.length !== 0) {
-            this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-              this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                if (data[0]) {
-                  this.Locdata = data,
-                  this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]),
-                  this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
-                  this.parkFound = true;
-                } else {
-                  this.parkFound = false;
-                }
-                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
-                  if (data[0]) {
-                  this.boatLocationData = data;
-                  this.routeFound = true;
-                    if (!this.parkFound) {
-                      this.latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]),
-                      this.longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
-                    }
-                  } else {
-                    this.routeFound = false;
-                }
-                });
-              });
-            }); */
           }
-  
-          if((this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV') && this.sovChild != undefined) {
+
+          if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
               this.sovChild.BuildPageWithCurrentInformation();
           }
-      }, 1000); 
+      }, 1000);
           /* setTimeout(() => this.showContent = true, 1050);
 
           // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.

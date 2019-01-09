@@ -1,13 +1,14 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange } from "@angular/core";
-import { CommonService } from "../../../../common.service";
-import { map, catchError } from "rxjs/operators";
-import { DatetimeService } from "../../../../supportModules/datetime.service";
+import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange } from '@angular/core';
+import { CommonService } from '../../../../common.service';
+import { map, catchError } from 'rxjs/operators';
+import { DatetimeService } from '../../../../supportModules/datetime.service';
+import { CalculationService } from '../../../../supportModules/calculation.service';
 import * as jwt_decode from 'jwt-decode';
 
 @Component({
-    selector: "app-ctvreport",
-    templateUrl: "./ctvreport.component.html",
-    styleUrls: ["./ctvreport.component.scss"]
+    selector: 'app-ctvreport',
+    templateUrl: './ctvreport.component.html',
+    styleUrls: ['./ctvreport.component.scss']
 })
 export class CtvreportComponent implements OnInit {
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
@@ -18,7 +19,7 @@ export class CtvreportComponent implements OnInit {
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject; 
+    @Input() vesselObject;
     @Input() tokenInfo;
 
     videoRequestPermission;
@@ -30,25 +31,30 @@ export class CtvreportComponent implements OnInit {
     'Too much wind for craning', 'Trial docking',
     'Transfer of PAX not possible', 'Other'];
     commentsChanged;
-    changedCommentObj = { newComment: "", otherComment: "" };
+    changedCommentObj = { newComment: '', otherComment: '' };
 
     videoRequests;
     videoBudget;
+    noTransits;
+    general = {};
+    XYvars = [];
+    charts = [];
+    vessels;
 
     public showAlert = false;
-    alert = { type: "", message: "" };
+    alert = { type: '', message: '' };
     timeout;
 
-    constructor(private newService: CommonService, private dateTimeService: DatetimeService) {
+    constructor(private newService: CommonService, private calculationService: CalculationService, private dateTimeService: DatetimeService) {
 
     }
 
     ngOnInit() {
-        
+
     }
 
     BuildPageWithCurrentInformation() {
-        this.videoRequestPermission = this.tokenInfo.userPermission == "admin" || this.tokenInfo.userPermission == "Logistics specialist"; 
+        this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
         this.mapZoomLvl.emit(10);
 
       this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transfers => {
@@ -56,44 +62,43 @@ export class CtvreportComponent implements OnInit {
         this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
             this.sailDates.emit(data);
         });
-
-          if(transfers.length > 0) {
+        if (transfers.length > 0) {
             this.transferData = transfers;
             this.getComments(this.vesselObject).subscribe(_ => {
                 this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
                     this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
-                    if(data.length !== 0) {
-                        var Locdata = data;
-                        var latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
-                        var longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);               
+                    if (data.length !== 0) {
+                        const Locdata = data;
+                        const latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
+                        const longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
                         this.Locdata.emit(Locdata);
                         this.latitude.emit(latitude);
                         this.longitude.emit(longitude);
-                        }          
+                        }
                     });
                     this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
-                        var boatLocationData = data;
+                        const boatLocationData = data;
                         this.boatLocationData.emit(boatLocationData);
                     });
-  
+
                 });
                 this.getVideoRequests(this.vesselObject).subscribe(_ => {
                   this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                      if (data[0]) {
-                          this.videoBudget = data[0];
-                      } else {
-                          this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                      }
+                    if (data[0]) {
+                        this.videoBudget = data[0];
+                    } else {
+                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                    }
                     this.matchCommentsWithTransfers();
+                    this.getGeneralStats();
                   });
                 });
               });
 
               setTimeout(() => this.showContent.emit(true), 1000);
-          }
-            else {
-                this.showContent.emit(false);
-            }
+        } else {
+            this.showContent.emit(false);
+        }
       });
     }
 
@@ -103,7 +108,7 @@ export class CtvreportComponent implements OnInit {
             dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
           }
           return dates;
-              
+
           }),
           catchError(error => {
             console.log('error ' + error);
@@ -113,6 +118,10 @@ export class CtvreportComponent implements OnInit {
 
     getMatlabDateToJSTime(serial) {
         return this.dateTimeService.MatlabDateToJSTime(serial);
+    }
+
+    roundNumber(number, decimal = 10, addString = '') {
+        return this.calculationService.roundNumber(number, decimal = 10, addString = '');
     }
 
     getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
@@ -125,7 +134,7 @@ export class CtvreportComponent implements OnInit {
                 this.commentsChanged = changed;
             }),
             catchError(error => {
-                console.log("error " + error);
+                console.log('error ' + error);
                 throw error;
             })
         );
@@ -137,7 +146,7 @@ export class CtvreportComponent implements OnInit {
                 this.videoRequests = requests;
             }),
             catchError(error => {
-                console.log("error " + error);
+                console.log('error ' + error);
                 throw error;
             })
         );
@@ -171,36 +180,47 @@ export class CtvreportComponent implements OnInit {
         }
     }
 
+    getGeneralStats() {
+        this.newService.getGeneral(this.vesselObject).subscribe(general => {
+            if (general.data.length > 0 && general.data[0].DPRstats) {
+                this.noTransits = false;
+                this.general = general.data[0].DPRstats;
+            } else {
+                this.noTransits = true;
+                this.general = {};
+        }});
+    }
+
     matchVideoRequestWithTransfer(transfer) {
         let vid;
         if (!this.videoRequests) {
-            vid = { text: "Not requested", disabled: false };
+            vid = { text: 'Not requested', disabled: false };
             return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
         }
         vid = this.videoRequests.find(x => x.videoPath === transfer.videoPath);
         if (vid) {
             vid.disabled = false;
-            vid.text = "Not requested";
+            vid.text = 'Not requested';
             if (vid.active) {
-                vid.text = "Requested";
+                vid.text = 'Requested';
             }
             if (
-                vid.status === "denied" ||
-                vid.status === "delivered" ||
-                vid.status === "pending collection"
+                vid.status === 'denied' ||
+                vid.status === 'delivered' ||
+                vid.status === 'pending collection'
             ) {
                 vid.text =
                     vid.status[0].toUpperCase() +
                     vid.status.substr(1).toLowerCase();
-                vid.status = vid.status.replace(" ", "_");
+                vid.status = vid.status.replace(' ', '_');
                 vid.disabled = true;
             }
             return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
         } else if (transfer.videoAvailable) {
-            vid = { text: "Not requested", disabled: false };
+            vid = { text: 'Not requested', disabled: false };
             return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
         } else {
-            vid = { text: "Unavailable", disabled: true };
+            vid = { text: 'Unavailable', disabled: true };
             return vid;
         }
     }
@@ -217,11 +237,11 @@ export class CtvreportComponent implements OnInit {
                 ) {
                     vid.disabled = true;
                     if (
-                        vid.status !== "denied" &&
-                        vid.status !== "delivered" &&
-                        vid.status !== "pending collection"
+                        vid.status !== 'denied' &&
+                        vid.status !== 'delivered' &&
+                        vid.status !== 'pending collection'
                     ) {
-                        vid.text = "Not enough budget";
+                        vid.text = 'Not enough budget';
                     }
                 }
             }
@@ -238,12 +258,12 @@ export class CtvreportComponent implements OnInit {
             if (this.videoBudget.currentBudget < 0) {
                 this.videoBudget.currentBudget = 0;
             }
-            if (transferData.video_requested.text == "Not requested") {
-                transferData.video_requested.text = "Requested";
+            if (transferData.video_requested.text === 'Not requested') {
+                transferData.video_requested.text = 'Requested';
                 this.videoBudget.currentBudget +=
                     transferData.videoDurationMinutes;
             } else {
-                transferData.video_requested.text = "Not requested";
+                transferData.video_requested.text = 'Not requested';
                 this.videoBudget.currentBudget -=
                     transferData.videoDurationMinutes;
             }
@@ -253,12 +273,12 @@ export class CtvreportComponent implements OnInit {
                 .saveVideoRequest(transferData)
                 .pipe(
                     map(res => {
-                        this.alert.type = "success";
+                        this.alert.type = 'success';
                         this.alert.message = res.data;
                         transferData.formChanged = false;
                     }),
                     catchError(error => {
-                        this.alert.type = "danger";
+                        this.alert.type = 'danger';
                         this.alert.message = error;
                         throw error;
                     })
@@ -287,8 +307,8 @@ export class CtvreportComponent implements OnInit {
     }
 
     saveComment(transferData) {
-      if (transferData.comment !== "Other") {
-          transferData.commentChanged.otherComment = "";
+      if (transferData.comment !== 'Other') {
+          transferData.commentChanged.otherComment = '';
       }
       transferData.commentDate = Date.now();
       transferData.userID = this.tokenInfo.userID;
@@ -296,12 +316,12 @@ export class CtvreportComponent implements OnInit {
           .saveTransfer(transferData)
           .pipe(
               map(res => {
-                  this.alert.type = "success";
+                  this.alert.type = 'success';
                   this.alert.message = res.data;
                   transferData.formChanged = false;
               }),
               catchError(error => {
-                  this.alert.type = "danger";
+                  this.alert.type = 'danger';
                   this.alert.message = error;
                   throw error;
               })
