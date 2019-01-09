@@ -1,63 +1,68 @@
-<div *ngIf="showContent">
-    <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0">
-      <table class="table table-responsive tableSummary">
-          <tr>
-              <td>Departure Port</td>
-              <td>6:58</td>
-              <td>Departure Wind Farm</td>
-              <td>15:46</td>
-          </tr>
-          <tr>
-              <td>Arrival wind farm</td>
-              <td>8:57</td>
-              <td>Arrival Port</td>
-              <td>17:39</td>
-          </tr>
-          <tr>
-              <td>Distance Sailed</td>
-              <td>99.1 NM</td>
-              <td>Fuel Consumed</td>
-              <td>n/a Ltr</td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-              <td>Fuel Economy</td>
-              <td>n/a ltr/nm</td>
-          </tr>
-          <tr>
-              <td>Avg. speed outbound</td>
-              <td>19.9 knots</td>
-              <td>Avg. speed inbound</td>
-              <td>21.8 knots</td>
-          </tr>
-          <tr>
-              <td>Max. speed outbound</td>
-              <td>22.0 knots</td>
-              <td>Max. speed inbound</td>
-              <td>23.7 knots</td>
-          </tr>
-          <tr>
-              <td>MSI outbound</td>
-              <td>17.2%</td>
-              <td>MSI inbound</td>
-              <td>19.7%</td>
-          </tr>
-          <tr>
-              <td>WBV, Technicians</td>
-              <td>0.46 (A8)</td>
-              <td>WBV, Vessel Crew</td>
-              <td>0.69(A8)</td>
-          </tr>
-          <tr>
-              <td>Number of dockings</td>
-              <td>9</td>
-              <td>Average Docking Time</td>
-              <td>00:10:18</td>
-          </tr>
-      </table>
+<div class="col-lg-6">
+        <div *ngIf="transferData?.length > 0">
+            <br><br>
+            <table class="table table-responsive tableSummary">
+                <tr>
+                    <td>Departure Port</td>
+                    <td>6:58</td>
+                    <td>Departure Wind Farm</td>
+                    <td>15:46</td>
+                </tr>
+                <tr>
+                    <td>Arrival wind farm</td>
+                    <td>8:57</td>
+                    <td>Arrival Port</td>
+                    <td>17:39</td>
+                </tr>
+                <tr>
+                    <td>Distance Sailed</td>
+                    <td>99.1 NM</td>
+                    <td>Fuel Consumed</td>
+                    <td>n/a Ltr</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Fuel Economy</td>
+                    <td>n/a ltr/nm</td>
+                </tr>
+                <tr>
+                    <td>Avg. speed outbound</td>
+                    <td>19.9 knots</td>
+                    <td>Avg. speed inbound</td>
+                    <td>21.8 knots</td>
+                </tr>
+                <tr>
+                    <td>Max. speed outbound</td>
+                    <td>22.0 knots</td>
+                    <td>Max. speed inbound</td>
+                    <td>23.7 knots</td>
+                </tr>
+                <tr>
+                    <td>MSI outbound</td>
+                    <td>17.2%</td>
+                    <td>MSI inbound</td>
+                    <td>19.7%</td>
+                </tr>
+                <tr>
+                    <td>WBV, Technicians</td>
+                    <td>0.46 (A8)</td>
+                    <td>WBV, Vessel Crew</td>
+                    <td>0.69(A8)</td>
+                </tr>
+                <tr>
+                    <td>Number of dockings</td>
+                    <td>9</td>
+                    <td>Average Docking Time</td>
+                    <td>00:10:18</td>
+                </tr>
+            </table>
+        </div>
     </div>
+
+<div *ngIf="showContent">
+
+
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
       <h3>Dockings</h3>

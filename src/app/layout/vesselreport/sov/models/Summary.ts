@@ -8,13 +8,13 @@ export class SummaryModel {
     AvgTimeTravelingToPlatforms: string;
 
     NrOfHelicopterVisits: number;
-    AvgTimeHelicopterDocking: string;
+    AvgTimeHelicopterDocking: number;
 
     NrOfVesselTransfers: number;
-    AvgTimeVesselDocking: string;
+    AvgTimeVesselDocking: number;
 
     NrOfDaughterCraftLaunches: number;
-    AvgTimeDaughterCraftDocking: string;
+    AvgTimeDaughterCraftDocking: number;
 
     maxSignificantWaveHeightdDuringOperations: number;
     maxWindSpeedDuringOperations: number;
