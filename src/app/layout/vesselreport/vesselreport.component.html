@@ -1,57 +1,66 @@
 <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }} </small></h2>
-    <div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
-        <div class="form-group">
-            <div class="input-group datepicker-input">
-                <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
-                <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
-                        <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
-                            {{ date.day }}
-                        </div>
-                </ng-template>
-                <button class="input-group-addon" (click)="dp.toggle()" type="button">
-                    <span class="fa fa-calendar"></span>
-                </button>
-            </div>
-        </div>
-        <div class="form-group">
-            <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
-                <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
-            </select>
+<div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
+    <div class="form-group">
+        <div class="input-group datepicker-input">
+            <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
+            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+                    <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
+                        {{ date.day }}
+                    </div>
+            </ng-template>
+            <button class="input-group-addon" (click)="dp.toggle()" type="button">
+                <span class="fa fa-calendar"></span>
+            </button>
         </div>
     </div>
-<div *ngIf="noPermissionForData == false; else noPermission">
-    <div class="divContainer" *ngIf="showContent == true; else other_content">
-        <div *ngIf="showMap; else no_map_available">
-            <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                <ng-container *ngFor="let parks of Locdata; let i=index" >
-                    <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
-                    </agm-circle>
-                </ng-container>
-                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                        <ng-container *ngFor="let location of boatLocationData; let i = index" >
-                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
-                            </agm-polyline-point>
-                        </ng-container>
-                </agm-polyline>
-            </agm-map>
-        </div>
+    <div class="form-group">
+        <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
+            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
+        </select>
     </div>
-    
-    <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
-    <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
 </div>
-<ng-template #other_content>
-    <div class="divContainer">
-        <h3>There is no data available for the selected day and vessel.</h3>
+<br>
+<div class="loader" *ngIf="!loaded">
+    <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
     </div>
-</ng-template>
-<ng-template #noPermission>
-    <div class="divContainer">
-        <h3>You are not allowed to view the vessel you requested</h3>
+</div>
+<div [hidden]="!loaded">
+    <div *ngIf="noPermissionForData == false; else noPermission">
+        <div class="divContainer" *ngIf="showContent == true; else other_content">
+            <div *ngIf="showMap; else no_map_available">
+                <agm-map [latitude]="latitude" [longitude]="longitude"  [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let parks of Locdata; let i=index" >
+                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])" >
+                        </agm-circle>
+                    </ng-container>
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                            <ng-container *ngFor="let location of boatLocationData; let i = index" >
+                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index"  [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])" >
+                                </agm-polyline-point>
+                            </ng-container>
+                    </agm-polyline>
+                </agm-map>
+            </div>
+        </div> 
+        <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
+        <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
     </div>
-</ng-template>
-<ng-template #no_map_available>
-    <div class="divContainer">
-        <h3>There is no map available for the selected day and vessel.</h3>
-    </div>
-</ng-template>
+    <ng-template #other_content>
+        <div class="divContainer">
+            <h3>There is no data available for the selected day and vessel.</h3>
+        </div>
+    </ng-template>
+    <ng-template #noPermission>
+        <div class="divContainer">
+            <h3>You are not allowed to view the vessel you requested</h3>
+        </div>
+    </ng-template>
+    <ng-template #no_map_available>
+        <div class="divContainer">
+            <h3>There is no map available for the selected day and vessel.</h3>
+        </div>
+    </ng-template>
+</div>
