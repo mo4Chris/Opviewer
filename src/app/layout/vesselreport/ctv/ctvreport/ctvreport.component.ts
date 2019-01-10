@@ -46,7 +46,6 @@ export class CtvreportComponent implements OnInit {
     charts = [];
     vessels;
     noPermissionForData;
-    RequestLoading;
     vessel;
     dateData;
 
@@ -64,7 +63,6 @@ export class CtvreportComponent implements OnInit {
 
     BuildPageWithCurrentInformation() {
         this.noPermissionForData = false;
-        this.RequestLoading = true;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
         this.mapZoomLvl.emit(10);
 
@@ -87,39 +85,38 @@ export class CtvreportComponent implements OnInit {
                       // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
                       this.matchCommentsWithTransfers();
                       this.getGeneralStats();
+                        });
                     });
-                  });
                 });
-            });
+                });
               if (this.transferData.length !== 0) {
                 this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                   this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                    if (data[0]) {
-                      this.Locdata.emit(data),
-                      this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
-                      this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
-                      this.parkFound.emit(true);
+                    if (data.length > 0) {
+                        this.Locdata.emit(data),
+                        this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
+                        this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
+                        this.parkFound.emit(true);
                     } else {
-                      this.parkFound.emit(false);
+                        this.parkFound.emit(false);
                     }
-                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(_data => {
-                      if (_data[0]) {
-                      const boatLocationData = _data;
-                      this.boatLocationData.emit(boatLocationData);
-                      this.routeFound.emit(true);
-                        if (!this.parkFound) {
-                            this.latitude.emit(parseFloat(data[0].lat[Math.floor(_data[0].lat.length / 2)])),
-                            this.longitude.emit(parseFloat(data[0].lon[Math.floor(_data[0].lon.length / 2)]));
+                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
+                        if (routeData.length > 0) {
+                            const boatLocationData = routeData;
+                            this.boatLocationData.emit(boatLocationData);
+                            this.routeFound.emit(true);
+                                if (!this.parkFound) {
+                                    this.latitude.emit(parseFloat(data[0].lat[Math.floor(routeData[0].lat.length / 2)])),
+                                    this.longitude.emit(parseFloat(data[0].lon[Math.floor(routeData[0].lon.length / 2)]));
+                                }
+                        } else {
+                            this.routeFound.emit(false);
                         }
-                      } else {
-                        this.routeFound.emit(false);
-                    }
                     });
-                  });
+                });
                 });
               }
-              setTimeout(() => this.showContent.emit(true), 1050);
-
+              
               // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
               if (this.charts.length <= 0) {
                 setTimeout(() => this.createSlipgraphs(), 10);
@@ -136,14 +133,14 @@ export class CtvreportComponent implements OnInit {
                 }
               }
             });
-          } else {
+            this.showContent.emit(true);
+        } else {
             this.showContent.emit(false);
             this.noPermissionForData = true;
           }
         });
-        setTimeout(() => this.RequestLoading = false, 2500);
-        setTimeout(() => this.loaded.emit(true), 5000);
-      }
+        setTimeout(() => this.loaded.emit(true), 2000);
+    }
 
     createSlipgraphs() {
         this.charts = [];

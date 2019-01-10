@@ -63,7 +63,7 @@ export class VesselreportComponent implements OnInit {
 
   /////// Get variables from child components//////////
       getMapZoomLvl(mapZoomLvl: number): void {
-        setTimeout(() => this.mapZoomLvl = mapZoomLvl, 500);
+        this.mapZoomLvl = mapZoomLvl
       }
 
       getLocdata(locData: any[]): void {
@@ -88,7 +88,7 @@ export class VesselreportComponent implements OnInit {
       }
 
       getShowContent(showContent: boolean): void {
-        setTimeout(() => this.showContent = showContent, 2000);
+        this.showContent = showContent
       }
 
       isLoaded(loaded: boolean): void {
@@ -133,14 +133,11 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
-
         setTimeout(() => {
-
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
               this.ctvChild.BuildPageWithCurrentInformation();
           }
-
-          if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
+          else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
               this.sovChild.BuildPageWithCurrentInformation();
           }
         }, 1000);
