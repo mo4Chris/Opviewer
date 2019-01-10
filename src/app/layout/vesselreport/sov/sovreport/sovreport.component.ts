@@ -110,7 +110,6 @@ export class SovreportComponent implements OnInit {
                     }
                 });
         
-                //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
                 this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
                     this.sovModel.vessel2vessels = vessel2vessels; 
                 }); 

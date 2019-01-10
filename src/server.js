@@ -571,10 +571,6 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
 
-    //TEST DATA
-    // let mmsi = 232008874;
-    // let date = 737404;
-
     SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
         if (err) {
             res.send(err);
@@ -591,10 +587,6 @@ app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
     }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    //TEST DATA
-    //let mmsi = 244090781;
-    //let date = 737366;
 
     stationaryPeriods.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
         sort: {
@@ -616,10 +608,6 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-    
-    //TEST DATA
-    //let mmsi = 232008874;
-    //let date = 737199;
 
     SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
         if (err) {
