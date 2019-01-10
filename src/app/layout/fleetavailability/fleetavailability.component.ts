@@ -4,6 +4,7 @@ import { CommonService } from '../../common.service';
 import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 
@@ -14,7 +15,7 @@ import * as moment from 'moment';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router, private route: ActivatedRoute ) { }
+    constructor(private newService: CommonService, private modalService: NgbModal, private _router: Router, private route: ActivatedRoute ) { }
 
     tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -34,31 +35,56 @@ export class FleetavailabilityComponent implements OnInit {
     alert = { type: '', message: '' };
     showAlert = false;
     timeout;
+    modalReference: NgbModalRef;
     totalWeatherDaysPerMonth = [];
     forecastAfterRecorded = [];
     forecastFromStart = [];
+    existingVessels;
+    sailDaysChanged = [];
 
     ngOnInit() {
         this.getCampaignName();
         this.getStartDate();
         this.getWindfield();
+        this.buildData(true);
+    }
 
+    buildData(init = false) {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
             if (data.data) {
                 this.turbineWarrenty = data.data;
                 if (!this.turbineWarrenty.sailMatrix[0][0]) {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
-                if (this.turbineWarrenty.updatedSailMatrix[0]) {
-                    this.sailMatrix = this.turbineWarrenty.updatedSailMatrix;
-                } else {
-                    this.sailMatrix = this.turbineWarrenty.sailMatrix;
-                }
-                this.getAvailableMonths();
             }
-            this.getGraphData();
-            this.createLineChart();
-            this.loaded = true;
+            if (data.sailDayChanged[0]) {
+                for (var i = 0; i < this.turbineWarrenty.sailMatrix.length; i++) {
+                    for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
+                        for (var k = 0; k < data.sailDayChanged.length; k++) {
+                            if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
+                                this.turbineWarrenty.sailMatrix[i][j] = data.sailDayChanged[k].newValue;
+                            }
+                        }
+                    }
+                }
+            }
+            this.sailMatrix = this.turbineWarrenty.sailMatrix;
+            if (init) {
+                this.getAvailableMonths();
+                this.getGraphData();
+                this.createLineChart();
+                if (this.tokenInfo.userPermission == "admin") {
+                    this.newService.GetVessel().subscribe(data => {
+                        this.existingVessels = data;
+                        this.loaded = true;
+                    });
+                } else {
+                    this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+                        this.existingVessels = data;
+                        this.loaded = true;
+                    });
+                }
+            }
         });
     }
 
@@ -235,9 +261,8 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     saveData() {
-        this.turbineWarrenty.sailMatrix = this.sailMatrix;
         this.saving = true;
-        this.newService.setSaildays(this.turbineWarrenty).pipe(
+        this.newService.setSaildays(this.sailDaysChanged).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -253,7 +278,9 @@ export class FleetavailabilityComponent implements OnInit {
             clearTimeout(this.timeout);
             this.showAlert = true;
             this.edit = false;
+            this.sailDaysChanged = [];
             this.saving = false;
+            this.buildData();
             this.timeout = setTimeout(() => {
                 this.showAlert = false;
             }, 7000);
@@ -261,8 +288,20 @@ export class FleetavailabilityComponent implements OnInit {
 
     }
 
-    updateSailDay(i, ind, value) {
-        this.sailMatrix[i][ind] = value;
+    updateSailDay(date, vessel, newValue, i, ind) {
+        if (!this.sailDaysChanged.filter(x => x.date == date && x.vessel == vessel).length) {
+            this.sailDaysChanged.push({
+                vessel: vessel,
+                date: date,
+                fleetID: this.turbineWarrenty._id,
+                oldValue: this.sailMatrix[i][ind],
+                newValue: newValue,
+                userID: this.tokenInfo.userID
+            });
+        } else {
+            var index = this.sailDaysChanged.findIndex((x => x.date == date && x.vessel == vessel));
+            this.sailDaysChanged[index].newValue = newValue;
+        }
     }
 
     getGraphData() {
@@ -285,7 +324,7 @@ export class FleetavailabilityComponent implements OnInit {
             this.totalWeatherDaysPerMonth[i] = target;
             this.forecastAfterRecorded[i] = null;
         }
-        console.log(this.totalWeatherDaysPerMonth); //TODO NaN value aant einde en januari erin doen
+        //console.log(this.totalWeatherDaysPerMonth); //TODO NaN value aant einde en januari erin doen
 
         //forecast
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1] = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 2]);
@@ -299,5 +338,17 @@ export class FleetavailabilityComponent implements OnInit {
             target = target - forecastWeatherdays;
             this.forecastFromStart[i + 1] = target;
         }
+    }
+
+    openModal(content) {
+        this.modalReference = this.modalService.open(content);
+    }
+
+    closeModal() {
+        this.modalReference.close();
+    }
+
+    addVessel() {
+        this.closeModal();
     }
 }

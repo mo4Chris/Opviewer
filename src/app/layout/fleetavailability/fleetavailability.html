@@ -9,6 +9,36 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
+        <span><button class="btn addVessel" (click)="openModal(content)">Add vessel</button></span>
+        <ng-template #content let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title">Add vessel</h4>
+                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-content">
+                        <input type="radio" name="typeVessel" value="existingVessel" id="existingVessel"><label for="existingVessel"> Existing vessel</label>
+                        <input type="radio" name="typeVessel" value="newVessel" id="newVessel"><label for="newVessel"> New Vessel</label>
+                        <div class="form-group">
+                            Existing vessel
+                            <select name="existingVessel">
+                                <option></option>
+                                <option *ngFor="let existingVessel of existingVessels">{{existingVessel.nicename}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            New vessel
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
+            </div>
+        </ng-template>
         <table class="table table-hover table-responsive table-bordered">
             <thead>
                 <tr>
@@ -30,8 +60,8 @@
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
                             <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
                                 <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
-                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(i, ind, $event.target.value)">
-                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_'" selected>-</option>
+                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
+                                    <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
                                     <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
                                     <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
                                     <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
@@ -49,9 +79,9 @@
                 </tr>
             </tbody>
         </table>
-        <button class="btn rounded-btn" (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
-        <button class="btn rounded-btn" (click)="editData()" *ngIf="!edit">Edit</button>
-        <button class="btn rounded-btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
+        <button class="btn" (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
+        <button class="btn" (click)="editData()" *ngIf="!edit">Edit</button>
+        <button class="btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
     </div>
     <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
 </div>

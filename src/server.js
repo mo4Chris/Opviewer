@@ -165,10 +165,20 @@ var turbineWarrantySchema = new Schema({
     Dates: { type: Array },
     sailMatrix: { type: Array },
     currentlyActive: { type: Array },
-    client: { type: String },
-    updatedSailMatrix: { type: Array }
+    client: { type: String }
 }, { versionKey: false });
-var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic'); 
+var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic');
+
+var sailDayChangedSchema = new Schema({
+    vessel: { type: String },
+    date: { type: Number },
+    changeDate: { type: Number },
+    fleetID: { type: String },
+    oldValue: { type: String },
+    newValue: { type: String },
+    userID: { type: String }
+}, { versionKey: false });
+var sailDayChangedmodel = mongo.model('sailDayChanged', sailDayChangedSchema, 'sailDayChanged');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -1003,6 +1013,9 @@ app.post("/api/getGeneral", function (req, res) {
 
 app.get("/api/getTurbineWarranty", function (req, res) {
     let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
     turbineWarrantymodel.find({}, function (err, data) {
         if (err) {
             res.send(err);
@@ -1018,11 +1031,17 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            //console.log(data[0]);
             if (token.userPermission !== 'admin' && token.userCompany !== data[0].client) {
                 return res.status(401).send('Acces denied');
             }
-            res.send({ data: data[0] });
+            sailDayChangedmodel.find({ fleetID: data[0]._id }, function (err, _data) {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send({ data: data[0], sailDayChanged: _data });
+                }
+            });
         }
     });
 });
@@ -1046,13 +1065,22 @@ app.post("/api/setSaildays", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Acces denied');
     }
-    turbineWarrantymodel.findByIdAndUpdate(req.body._id, { updatedSailMatrix: req.body.sailMatrix }, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send({ data: "Succesfully updated weatherdays" });
+    
+    for (var i = 0; i < req.body.length; i++) {
+        if (req.body[i].newValue + '' === req.body[i].oldValue + '') {
+            continue;
         }
-    });
+        var sailDayChanged = new sailDayChangedmodel();
+        sailDayChanged.vessel = req.body[i].vessel;
+        sailDayChanged.date = req.body[i].date;
+        sailDayChanged.fleetID = req.body[i].fleetID;
+        sailDayChanged.oldValue = req.body[i].oldValue;
+        sailDayChanged.newValue = req.body[i].newValue;
+        sailDayChanged.userID = req.body[i].userID;
+        sailDayChanged.changeDate = Date.now();
+        sailDayChanged.save();
+    }
+    return res.send({ data: "Succesfully updated weatherdays" });
 });
 
 app.listen(8080, function () {
