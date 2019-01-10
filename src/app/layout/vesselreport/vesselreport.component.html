@@ -46,7 +46,7 @@
             </div>
         </div> 
         <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-ctvreport>
-        <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
+        <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)" (latitude)="getLatitude($event)" (longitude)="getLongitude($event)"></app-sovreport>
     </div>
     <ng-template #other_content>
         <div class="divContainer">

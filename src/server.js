@@ -702,6 +702,26 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
     });
 });
 
+app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            let fieldnameData = data + '';
+            let arrayOfFields = [];
+            arrayOfFields = fieldnameData.split(",");
+            res.send(arrayOfFields);
+        }
+    });
+});
+
 //TO DO beschrijvende naam
 app.get("/api/getLatLon", function (req, res) {
     LatLonmodel.find({}, function (err, data) {
