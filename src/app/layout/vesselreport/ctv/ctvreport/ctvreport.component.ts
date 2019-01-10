@@ -3,7 +3,6 @@ import { CommonService } from '../../../../common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
-import * as jwt_decode from 'jwt-decode';
 
 @Component({
     selector: 'app-ctvreport',
@@ -333,13 +332,5 @@ export class CtvreportComponent implements OnInit {
                   this.showAlert = false;
               }, 7000);
           });
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-        return jwt_decode(token);
-    } catch (Error) {
-        return null;
-    }
   }
 }
