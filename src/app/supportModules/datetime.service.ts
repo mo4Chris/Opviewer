@@ -9,10 +9,10 @@ export class DatetimeService {
 
   constructor() { }
 
-  //Only use for dates that have duration, dates that contain day, month and year should not be used by this.
+  // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   MatlabDurationToMinutes(serial) {
     const minutes = moment.duration(serial, 'minutes');
-    const format = minutes.minutes() + " minutes";
+    const format = minutes.minutes() + ' minutes';
     return format;
   }
 

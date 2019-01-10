@@ -103,10 +103,8 @@ export class CtvreportComponent implements OnInit {
                       this.parkFound.emit(false);
                     }
                     this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(_data => {
-                        console.log(_data);
                       if (_data[0]) {
                       const boatLocationData = _data;
-                      console.log(this.boatLocationData);
                       this.boatLocationData.emit(boatLocationData);
                       this.routeFound.emit(true);
                         if (!this.parkFound) {
@@ -139,11 +137,12 @@ export class CtvreportComponent implements OnInit {
               }
             });
           } else {
-            this.showContent.emit(true);
+            this.showContent.emit(false);
             this.noPermissionForData = true;
           }
         });
         setTimeout(() => this.RequestLoading = false, 2500);
+        setTimeout(() => this.loaded.emit(true), 5000);
       }
 
     createSlipgraphs() {
