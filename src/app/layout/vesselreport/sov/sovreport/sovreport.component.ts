@@ -158,8 +158,7 @@ export class SovreportComponent implements OnInit {
         }
 
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
-            this.commonService.GetSpecificPark({'park' : data}).subscribe(data => {
-                console.log(data);
+            this.commonService.GetSpecificPark({'park' : data}).subscribe(data => { 
                 if (data.length !== 0) {
                     const locdata = data;
                     this.Locdata.emit(locdata);
