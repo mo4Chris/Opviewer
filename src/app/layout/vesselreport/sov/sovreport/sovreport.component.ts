@@ -18,37 +18,35 @@ export class SovreportComponent implements OnInit {
 
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
-    locShowContent = false;
-
     @Input() vesselObject;
 
+    sovModel: SovModel = new SovModel();
+    
+    //used for comparison in the HTML
+    SovTypeEnum = SovType;
+
+    locShowContent = false;
+    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': "", 'ctvActivityOfTransfer': undefined};
+
+    //Charts
     operationsChart;
     gangwayLimitationsChart;
+    operationalChartCalculated = false;
+    sovHasLimiters = false;
     chart;
     backgroundcolors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"];
 
-    sovModel: SovModel = new SovModel();
-
-    dateData = [];
-
-    operationalChartCalculated = false;
-    sovHasLimiters = false;
-
-    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': "", 'ctvActivityOfTransfer': undefined};
-   
-    //used for comparison in the HTML
-    SovTypeEnum = SovType;
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
 
         this.vessel2vesselActivityRoute.vessel = vesselname;
-
         this.sovModel.vessel2vessels.forEach(vessel2vessel => {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
                 if(ctvActivity.mmsi == toMMSI) {
@@ -56,12 +54,10 @@ export class SovreportComponent implements OnInit {
                 }
             });
         });
-
         this.vessel2vesselActivityRoute.lat = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[0].length / 2)]);
         this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
         this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
         this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
-
         this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -78,12 +74,12 @@ export class SovreportComponent implements OnInit {
     }
 
     ngOnInit() {
-        
+        Chart.pluginService.register(annotation);
     }
 
     BuildPageWithCurrentInformation() {
-        this.mapZoomLvl.emit(8);
         this.ResetTransfers();
+        this.mapZoomLvl.emit(8);
         this.GetAvailableRouteDatesForVessel();
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {         
             if (sov.length !== 0) { 
@@ -102,11 +98,6 @@ export class SovreportComponent implements OnInit {
                            else {
                                this.sovModel.turbineTransfers = turbineTransfers;
                                this.sovModel.sovType = SovType.Turbine;
-
-                               //IMPORTANT!!! server.js is currently using parameters for testing. Set to given body parameters.
-                               this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
-                                    this.sovModel.vessel2vessels = vessel2vessels; 
-                            }); 
                            }
                         });
                     } else {
@@ -114,26 +105,26 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.sovType = SovType.Platform; 
                     }
                 });
-
+        
+                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {  
+                    this.sovModel.vessel2vessels = vessel2vessels; 
+                }); 
 
                 this.locShowContent = true;
+
+                //Set the timer so data is first collected on time
+                setTimeout(() => {
+                    this.CalculateDailySummary();
+                    this.createOperationalStatsChart();
+                    this.createGangwayLimitationsChart();
+                    this.CheckForNullValues();
+                }, 2000);
             }
             else {
                 this.locShowContent = false;
             }
 
-
             this.showContent.emit(this.locShowContent);
-            
-            //Set the timer so data is first collected on time
-            setTimeout(() => {
-                Chart.pluginService.register(annotation);
-
-                this.CalculateDailySummary();
-                this.createOperationalStatsChart();
-                this.createGangwayLimitationsChart();
-                this.CheckForNullValues();
-            }, 2000);
         });
     }
 
@@ -148,24 +139,32 @@ export class SovreportComponent implements OnInit {
             for (let _i = 0; _i < dates.length; _i++) {
                 dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
             }
-
-            var sailDates = dates;
+            let sailDates = dates;
             this.sailDates.emit(sailDates);
         });
     }
 
     GetVesselRoute() {
-        var boatlocationData = [];
+        let boatlocationData = [];
 
         boatlocationData.push(this.sovModel.sovInfo);
-        var latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
-        var longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
+        let latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
+        let longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
 
         if(("" + latitude) != "NaN" && ("" + longitude) != "NaN") {
             this.latitude.emit(latitude);
             this.longitude.emit(longitude);
             this.boatLocationData.emit(boatlocationData);
         }
+
+        this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
+            this.commonService.GetSpecificPark({'park' : data}).subscribe(data => { 
+                if (data.length !== 0) {
+                    const locdata = data;
+                    this.Locdata.emit(locdata);
+                }
+            });
+        });
     }
 
     CalculateDailySummary() {
@@ -175,9 +174,9 @@ export class SovreportComponent implements OnInit {
         summaryModel.NrOfHelicopterVisits = 0;
 
         if(this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType == SovType.Turbine) {
-            var turbineTransfers = this.sovModel.turbineTransfers;
+            let turbineTransfers = this.sovModel.turbineTransfers;
             
-            var avgTimeDocking = turbineTransfers.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            let avgTimeDocking = turbineTransfers.reduce(function(sum, a,i,ar) { sum += a.duration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
             summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
@@ -197,18 +196,18 @@ export class SovreportComponent implements OnInit {
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         }
         else if(this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType == SovType.Platform) {
-            var platformTransfers = this.sovModel.platformTransfers;
+            let platformTransfers = this.sovModel.platformTransfers;
 
-            var avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.timeInWaitingZone;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            let avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.timeInWaitingZone;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
 
-            var avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.visitDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            let avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.visitDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
 
-            var avgTimeDocking = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.totalDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            let avgTimeDocking = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.totalDuration;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
-            var avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.approachTime;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
+            let avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a,i,ar) { sum += a.approachTime;  return i==ar.length-1?(ar.length==0?0:sum/ar.length):sum},0);
             summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
             
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
@@ -273,17 +272,17 @@ export class SovreportComponent implements OnInit {
 
     createOperationalStatsChart() {
 
-        var timeBreakdown = this.sovModel.sovInfo.timeBreakdown;
+        let timeBreakdown = this.sovModel.sovInfo.timeBreakdown;
         if(timeBreakdown != undefined) {
             
-            var sailingDuration = timeBreakdown.hoursSailing != undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
-            var waitingDuration = timeBreakdown.hoursWaiting != undefined ? timeBreakdown.hoursWaiting.toFixed(1) : 0;
-            var CTVopsDuration = timeBreakdown.hoursOfCTVops != undefined ? timeBreakdown.hoursOfCTVops.toFixed(1) : 0;           
+            let sailingDuration = timeBreakdown.hoursSailing != undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
+            let waitingDuration = timeBreakdown.hoursWaiting != undefined ? timeBreakdown.hoursWaiting.toFixed(1) : 0;
+            let CTVopsDuration = timeBreakdown.hoursOfCTVops != undefined ? timeBreakdown.hoursOfCTVops.toFixed(1) : 0;           
 
-            var platformDuration = timeBreakdown.hoursAtPlatform != undefined ? timeBreakdown.hoursAtPlatform.toFixed(1) : 0;
-            var turbineDuration = timeBreakdown.hoursAtTurbine != undefined ? timeBreakdown.hoursAtTurbine.toFixed(1) : 0;
+            let platformDuration = timeBreakdown.hoursAtPlatform != undefined ? timeBreakdown.hoursAtPlatform.toFixed(1) : 0;
+            let turbineDuration = timeBreakdown.hoursAtTurbine != undefined ? timeBreakdown.hoursAtTurbine.toFixed(1) : 0;
     
-            var exclusionZone = platformDuration + turbineDuration;
+            let exclusionZone = platformDuration + turbineDuration;
 
             if(sailingDuration > 0) {
                 this.operationalChartCalculated = true;
@@ -322,8 +321,8 @@ export class SovreportComponent implements OnInit {
 
     createGangwayLimitationsChart() {
 
-        var strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
-        var boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
+        let strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
+        let boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
 
         if(strokedLimiterCounter > 0 || boomAngleLimiterCounter > 0) {
             this.sovHasLimiters = true;

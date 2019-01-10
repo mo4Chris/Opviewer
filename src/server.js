@@ -568,12 +568,8 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
-    //let mmsi = parseInt(req.params.mmsi);
-    //let date = req.params.date;
-
-    //TEST DATA
-    let mmsi = 232008874;
-    let date = 737404;
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
 
     SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
         if (err) {
@@ -591,10 +587,6 @@ app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
     }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    //TEST DATA
-    //let mmsi = 244090781;
-    //let date = 737366;
 
     stationaryPeriods.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
         sort: {
@@ -616,10 +608,6 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-    
-    //TEST DATA
-    //let mmsi = 232008874;
-    //let date = 737199;
 
     SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
         if (err) {
@@ -711,6 +699,26 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
                 res.send(arrayOfFields);
             }
         });
+    });
+});
+
+app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            let fieldnameData = data + '';
+            let arrayOfFields = [];
+            arrayOfFields = fieldnameData.split(",");
+            res.send(arrayOfFields);
+        }
     });
 });
 

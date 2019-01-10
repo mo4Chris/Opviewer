@@ -524,12 +524,4 @@ export class CtvreportComponent implements OnInit {
               }, 7000);
           });
   }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-        return jwt_decode(token);
-    } catch (Error) {
-        return null;
-    }
-  }
 }

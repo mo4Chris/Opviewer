@@ -73,6 +73,11 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
+  GetSovDistinctFieldnames(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
+            map((response: Response) => response.json()));
+  }
+
   GetLatLon() {
     return this.get(environment.DB_IP + '/api/getLatLon/').pipe(
             map((response: Response) => response.json()));

@@ -65,7 +65,7 @@ export class VesselreportComponent implements OnInit {
   routeFound = false;
   noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-  RequestLoading = true;
+  loaded = false;
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -138,7 +138,6 @@ export class VesselreportComponent implements OnInit {
   BuildPageWithCurrentInformation() {
     this.resetRoutes();
     this.noPermissionForData = false;
-    this.RequestLoading = true;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
@@ -175,12 +174,16 @@ export class VesselreportComponent implements OnInit {
         this.noPermissionForData = true;
       }
     });
-    setTimeout(() => this.RequestLoading = false, 2500);
+    setTimeout(() => this.loaded = true, 3000);
   }
 
   onChange(): void {
-    this.searchTransfersByNewSpecificDate();
     this.resetRoutes();
+    const dateAsMatlab = this.GetDateAsMatlab();
+    this.vesselObject.date = dateAsMatlab;
+    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
+
+    this.BuildPageWithCurrentInformation();
   }
 
   GetDateAsMatlab(): any {
@@ -193,14 +196,6 @@ export class VesselreportComponent implements OnInit {
     return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
   }
 
-  searchTransfersByNewSpecificDate() {
-    const dateAsMatlab = this.GetDateAsMatlab();
-    this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
-
-    this.BuildPageWithCurrentInformation();
-  }
-
   resetRoutes() {
     this.Locdata = [];
     this.boatLocationData = [];
@@ -209,6 +204,7 @@ export class VesselreportComponent implements OnInit {
     this.showMap = false;
     this.routeFound = false;
     this.parkFound = false;
+    this.loaded = false;
   }
 
   getGeneralStats() {
