@@ -34,13 +34,8 @@ export class VesselreportComponent implements OnInit {
   boatLocationData = [];
   datePickerValue = this.maxDate;
   sailDates = [];
-  typeOfLat;
   vessels;
-  videoRequests;
-  videoBudget;
   general = {};
-  XYvars = [];
-  charts = [];
 
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public showContent = false;
@@ -51,15 +46,8 @@ export class VesselreportComponent implements OnInit {
   longitude;
   mapTypeId = 'roadmap';
   streetViewControl = false;
-  commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-    'Incident', 'Embarkation', 'Vessel2Vessel',
-    'Too much wind for craning', 'Trial docking',
-    'Transfer of PAX not possible', 'Other'];
-  commentsChanged;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
-  timeout;
-  vessel;
   showMap = false;
   parkFound = false;
   routeFound = false;
