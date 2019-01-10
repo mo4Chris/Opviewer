@@ -65,6 +65,7 @@ export class CtvreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.noPermissionForData = false;
         this.RequestLoading = true;
+        this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
         this.mapZoomLvl.emit(10);
 
         this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
