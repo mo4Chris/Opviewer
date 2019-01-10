@@ -17,7 +17,7 @@ export class CtvreportComponent implements OnInit {
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
-
+    @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
     @Input() tokenInfo;
 
@@ -98,6 +98,7 @@ export class CtvreportComponent implements OnInit {
         } else {
             this.showContent.emit(false);
         }
+        setTimeout(() => this.loaded.emit(true), 1000);
       });
     }
 

@@ -23,6 +23,7 @@ export class SovreportComponent implements OnInit {
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
 
     sovModel: SovModel = new SovModel();
@@ -118,6 +119,7 @@ export class SovreportComponent implements OnInit {
                     this.createOperationalStatsChart();
                     this.createGangwayLimitationsChart();
                     this.CheckForNullValues();
+                    this.loaded.emit(true);
                 }, 2000);
             }
             else {
