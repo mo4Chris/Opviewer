@@ -102,6 +102,10 @@ export class VesselreportComponent implements OnInit {
       getShowContent(showContent: boolean): void {
         setTimeout(() => this.showContent = showContent, 2000);
       }
+
+      isLoaded(loaded: boolean): void {
+        this.loaded = loaded;
+      }
   ///////////////////////////////////////////////////
 
   hasSailed(date: NgbDateStruct) {
@@ -174,7 +178,6 @@ export class VesselreportComponent implements OnInit {
         this.noPermissionForData = true;
       }
     });
-    setTimeout(() => this.loaded = true, 3000);
   }
 
   onChange(): void {

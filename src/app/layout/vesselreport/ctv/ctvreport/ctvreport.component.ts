@@ -20,6 +20,7 @@ export class CtvreportComponent implements OnInit {
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
