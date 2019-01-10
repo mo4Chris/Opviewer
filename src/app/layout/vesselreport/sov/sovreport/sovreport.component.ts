@@ -74,6 +74,10 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
     }
 
+    GetDecimalValueForNumber(value, endpoint) {
+        return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+    }
+
     ngOnInit() {
         Chart.pluginService.register(annotation);
     }
@@ -217,7 +221,7 @@ export class SovreportComponent implements OnInit {
 
     // Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o) {return o.peakHeave; })));
+        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o) {return o.Hs; })));
         model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o) {return o.peakWindGust; })));
         return model;
     }
@@ -239,6 +243,7 @@ export class SovreportComponent implements OnInit {
                 transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
+                transfer.gangwayUtilisation = this.calculationService.GetDecimalValueForNumber(transfer.gangwayUtilisation);
                 transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
                 transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
             });

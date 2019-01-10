@@ -22,14 +22,20 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any) {
+  GetDecimalValueForNumber(value: any, endpoint:string = null) {
     var type = typeof(value);
     if(type == typeof(0)) {
         value = Math.round(value * 10) / 10;
+        if(endpoint != null) {
+          value = value + endpoint;
+        }
     }
-    else if(type == typeof("")) {
+    else if(type == typeof("") && value != "NaN") {
       var num = +value;
       value = num.toFixed(1);
+      if(endpoint != null) {
+        value = value + endpoint;
+      }
     }
     return value;
   }

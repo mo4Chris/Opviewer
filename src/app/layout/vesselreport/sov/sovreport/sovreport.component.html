@@ -17,7 +17,7 @@
                                     <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
                                 </tr>
                                 <tr *ngIf="sovModel.sovInfo.distancekm != 'N/a'">
-                                    <td>Distance</td>
+                                    <td>Distance sailed</td>
                                     <td>{{sovModel.sovInfo.distancekm}} km</td>
                                 </tr>
                             </ng-container>
@@ -45,7 +45,7 @@
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                                 <tr>
-                                    <td>Number of turbine transfers</td>
+                                    <td>Number of turbine visits</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
                                 <tr>
@@ -169,7 +169,7 @@
                                         <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineTransfer.duration}} minutes</td>
-                                        <td>{{turbineTransfer.gangwayUtilisation}}</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{turbineTransfer.peakWindGust}} m/s</td>
                                         <td>{{turbineTransfer.Hs}}</td>
                                     </tr>
@@ -210,7 +210,7 @@
                                     </ng-container>
                                     <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
                                     <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
-                                    <td>{{platformTransfer.gangwayUtilisation}}</td>
+                                    <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
                             </ng-container>
@@ -219,7 +219,7 @@
                                     <th>{{turbineTransfer.location}}</th>
                                     <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
                                     <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
-                                    <td>{{turbineTransfer.gangwayUtilisation}}</td>
+                                    <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
                             </ng-container>
