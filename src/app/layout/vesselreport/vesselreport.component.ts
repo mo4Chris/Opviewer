@@ -155,25 +155,7 @@ export class VesselreportComponent implements OnInit {
           if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
               this.sovChild.BuildPageWithCurrentInformation();
           }
-      }, 1000);
-          /* setTimeout(() => this.showContent = true, 1050);
-
-          // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
-          if (this.charts.length <= 0) {
-            setTimeout(() => this.createSlipgraphs(), 10);
-          } else {
-            if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
-                for (let i = 0; i < this.charts.length; i++) {
-                  this.charts[i].destroy();
-                }
-                setTimeout(() => this.createSlipgraphs(), 10);
-              } else {
-                for (let i = 0; i < this.charts.length; i++) {
-                  this.charts[i].destroy();
-                }
-            }
-          }
-        }); */
+        }, 1000);
       } else {
         this.noPermissionForData = true;
       }

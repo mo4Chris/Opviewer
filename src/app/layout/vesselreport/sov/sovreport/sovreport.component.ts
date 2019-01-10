@@ -88,7 +88,7 @@ export class SovreportComponent implements OnInit {
                 this.GetVesselRoute();
 
                 //Currently transits are not being used, should be removed
-                this.GetTransits();
+                //this.GetTransits();
 
                  this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                      if (platformTransfers.length === 0) {
