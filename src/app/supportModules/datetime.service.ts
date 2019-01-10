@@ -26,6 +26,11 @@ export class DatetimeService {
     return dateInt;
   }
 
+  MatlabDateToUnixEpoch(serial) {
+    const time_info = moment((serial - 719529) * 864e5);
+    return time_info;
+  }
+
   MatlabDateToJSDateYMD(serial) {
     const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
     return datevar;

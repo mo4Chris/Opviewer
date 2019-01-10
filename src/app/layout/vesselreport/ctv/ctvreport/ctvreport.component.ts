@@ -4,6 +4,8 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import * as jwt_decode from 'jwt-decode';
+import * as Chart from 'chart.js';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
 @Component({
     selector: 'app-ctvreport',
@@ -18,6 +20,8 @@ export class CtvreportComponent implements OnInit {
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     @Input() vesselObject;
     @Input() tokenInfo;
@@ -40,6 +44,10 @@ export class CtvreportComponent implements OnInit {
     XYvars = [];
     charts = [];
     vessels;
+    noPermissionForData;
+    RequestLoading;
+    vessel;
+    dateData;
 
     public showAlert = false;
     alert = { type: '', message: '' };
@@ -50,57 +58,239 @@ export class CtvreportComponent implements OnInit {
     }
 
     ngOnInit() {
-
+        Chart.pluginService.register(ChartAnnotation);
     }
 
     BuildPageWithCurrentInformation() {
+        this.noPermissionForData = false;
+        this.RequestLoading = true;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
         this.mapZoomLvl.emit(10);
-
-      this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transfers => {
 
         this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
             this.sailDates.emit(data);
         });
-        if (transfers.length > 0) {
-            this.transferData = transfers;
-            this.getComments(this.vesselObject).subscribe(_ => {
-                this.newService.GetDistinctFieldnames({'mmsi' : this.vesselObject.mmsi, 'date' : this.vesselObject.date}).subscribe(data => {
-                    this.newService.GetSpecificPark({'park' : data}).subscribe(data => {
-                    if (data.length !== 0) {
-                        const Locdata = data;
-                        const latitude = parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)]);
-                        const longitude = parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]);
-                        this.Locdata.emit(Locdata);
-                        this.latitude.emit(latitude);
-                        this.longitude.emit(longitude);
-                        }
-                    });
-                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(data => {
-                        const boatLocationData = data;
-                        this.boatLocationData.emit(boatLocationData);
-                    });
 
-                });
-                this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                  this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                    if (data[0]) {
+        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+          if (validatedValue.length === 1) {
+            this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
+                this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
+                this.getComments(this.vesselObject).subscribe(_ => {
+                  this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                      if (data[0]) {
                         this.videoBudget = data[0];
-                    } else {
+                      } else {
                         this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                    }
-                    this.matchCommentsWithTransfers();
-                    this.getGeneralStats();
+                      }
+                      // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
+                      this.matchCommentsWithTransfers();
+                      this.getGeneralStats();
+                    });
                   });
                 });
-              });
+            });
+              if (this.transferData.length !== 0) {
+                this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
+                  this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
+                    if (data[0]) {
+                      this.Locdata.emit(data),
+                      this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
+                      this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
+                      this.parkFound.emit(true);
+                    } else {
+                      this.parkFound.emit(false);
+                    }
+                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(_data => {
+                        console.log(_data);
+                      if (_data[0]) {
+                      const boatLocationData = _data;
+                      console.log(this.boatLocationData);
+                      this.boatLocationData.emit(boatLocationData);
+                      this.routeFound.emit(true);
+                        if (!this.parkFound) {
+                            this.latitude.emit(parseFloat(data[0].lat[Math.floor(_data[0].lat.length / 2)])),
+                            this.longitude.emit(parseFloat(data[0].lon[Math.floor(_data[0].lon.length / 2)]));
+                        }
+                      } else {
+                        this.routeFound.emit(false);
+                    }
+                    });
+                  });
+                });
+              }
+              setTimeout(() => this.showContent.emit(true), 1050);
 
-              setTimeout(() => this.showContent.emit(true), 1000);
-        } else {
-            this.showContent.emit(false);
+              // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
+              if (this.charts.length <= 0) {
+                setTimeout(() => this.createSlipgraphs(), 10);
+              } else {
+                if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+                    for (let i = 0; i < this.charts.length; i++) {
+                      this.charts[i].destroy();
+                    }
+                    setTimeout(() => this.createSlipgraphs(), 10);
+                  } else {
+                    for (let i = 0; i < this.charts.length; i++) {
+                      this.charts[i].destroy();
+                    }
+                }
+              }
+            });
+          } else {
+            this.showContent.emit(true);
+            this.noPermissionForData = true;
+          }
+        });
+        setTimeout(() => this.RequestLoading = false, 2500);
+      }
+
+    createSlipgraphs() {
+        this.charts = [];
+        if (this.transferData.length > 0 && this.transferData[0].slipGraph !== undefined && this.transferData[0].slipGraph.slipX.length > 0) {
+          const array = [];
+          for (let i = 0; i < this.transferData.length; i++) {
+            const line = {
+              type: 'line',
+              data: {
+                datasets: this.XYvars[i]
+              },
+              options: {
+                scaleShowVerticalLines: false,
+                legend: false,
+                tooltips: false,
+                responsive: true,
+                elements: {
+                  point:
+                    { radius: 0 },
+                  line:
+                    { tension: 0 }
+                },
+                  animation: {
+                    duration: 0,
+                  },
+                  hover: {
+                      animationDuration: 0,
+                  },
+                  responsiveAnimationDuration: 0,
+                scales: {
+                  xAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Time'
+                    },
+                    type: 'time'
+                  }],
+                  yAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Slip (m)'
+                    }
+                  }]
+                },
+                annotation: {
+                  annotations: [
+                    {
+                      type: 'line',
+                      drawTime: 'afterDatasetsDraw',
+                      id: 'average',
+                      mode: 'horizontal',
+                      scaleID: 'y-axis-0',
+                      value: this.transferData[0].slipGraph.slipLimit,
+                      borderWidth: 2,
+                      borderColor: 'red'
+                    }
+                  ]
+                },
+              },
+            };
+            array.push(line);
+          }
+          this.createCharts(array);
         }
-      });
-    }
+      }
+
+      getTransfersForVessel(vessel) {
+
+        let isTransfering = false;
+        const responseTimes = [];
+
+        return this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
+            map(
+              (transfers) => {
+                this.transferData = transfers;
+                if (transfers !== 0) {
+                  this.XYvars = [];
+                  const XYTempvars = [];
+                  for (let i = 0; i < transfers.length; i++) {
+                    if (transfers[i].slipGraph !== undefined) {
+                      XYTempvars.push([]);
+                      responseTimes.push([]);
+                      for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
+
+                        XYTempvars[i].push({ x: this.dateTimeService.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
+
+                        if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
+                          responseTimes[i].push(_i);
+                          isTransfering = true;
+                        } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
+                          responseTimes[i].push(_i);
+                          isTransfering = false;
+                        }
+                      }
+                    }
+                  }
+                  for (let i = 0; i < transfers.length; i++) {
+                    this.XYvars.push([]);
+
+                    if ( responseTimes.length !== 0) {
+                      for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
+                        let pointColor;
+                        pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
+                        const BorderColor = 'rgba(0, 0, 0, 0)';
+
+                        this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
+                        if (_i === 0) {
+                          this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
+                        } else if (_i === responseTimes[i].length) {
+                          this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
+                        } else {
+                          this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                        }
+                      }
+                    }
+                  }
+                }
+              }),
+            catchError(error => {
+              console.log('error ' + error);
+              throw error;
+            }));
+      }
+
+
+      createCharts(lineData) {
+        for (let j = 0; j < lineData.length; j++) {
+          const tempChart = new Chart('canvas' + j, lineData[j]);
+          this.charts.push(tempChart);
+        }
+      }
+
+      getDatesWithTransfers(date) {
+        return this.newService
+          .getDatesWithValues(date).pipe(
+            map(
+              (dates) => {
+                for (let _i = 0; _i < dates.length; _i++) {
+                  dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
+                }
+                this.dateData = dates;
+              }),
+            catchError(error => {
+              console.log('error ' + error);
+              throw error;
+            }));
+      }
 
     getDatesShipHasSailed(date) {
         return this.newService.getDatesWithValues(date).pipe( map((dates) => {
