@@ -116,22 +116,22 @@ export class SovreportComponent implements OnInit {
                 }); 
 
                 this.locShowContent = true;
+
+                //Set the timer so data is first collected on time
+                setTimeout(() => {
+                    Chart.pluginService.register(annotation);
+
+                    this.CalculateDailySummary();
+                    this.createOperationalStatsChart();
+                    this.createGangwayLimitationsChart();
+                    this.CheckForNullValues();
+                }, 2000);
             }
             else {
                 this.locShowContent = false;
             }
 
             this.showContent.emit(this.locShowContent);
-            
-            //Set the timer so data is first collected on time
-            setTimeout(() => {
-                Chart.pluginService.register(annotation);
-
-                this.CalculateDailySummary();
-                this.createOperationalStatsChart();
-                this.createGangwayLimitationsChart();
-                this.CheckForNullValues();
-            }, 2000);
         });
     }
 
