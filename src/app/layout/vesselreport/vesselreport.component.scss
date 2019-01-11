@@ -11,55 +11,22 @@ agm-map {
     min-height: 200px;
     margin-top:1rem;
 }
-.leftdiv {
-    width: 49%;
-    display:inline-block;
-    margin-right:.5%;
+
+@media only screen and (min-width: 667px) {
+    .boatSelectDropdown {
+        margin-left: 20px;
+    }
 }
-.rightdiv {
-    width:49%;
-    display:inline-block;
-    margin-left:.5%;
-}
-.boatSelectDropdown {
-    height: 48px !important;
-    margin-left: 20px;
-    width: auto;
-}
-.keyTD {
-    background: gray;
-    color: white;
-}
-.otherComment {
-    width: auto;
-    display: inline-block;
-    margin: 0 10px;
-    width: 157px;
-}
-.commentOptions {
-    width: 250px;
-    text-align: left;
-}
-td.comment {
-    width: 300px
-}
-.commentButton {
-    width: 213px;
+
+.ctvMap {
     display: inline-block;
 }
+
 ngb-alert {
     position: fixed;
     bottom: 0px;
 }
-.videoRequest{
-    min-width: 216px;
-}
-.delivered {
-    background-color: #298a00;
-}
-.denied {
-    background-color: #b60000;
-}
+
 .pending_collection {
     background-color: #f98a00;
 }
@@ -93,4 +60,10 @@ ngb-alert {
 .noMapDataAlert {
     position: relative;
     width: 99%;
+}
+
+.loader {
+    position: fixed;
+    left: 50%;
+    top: 50%;
 }

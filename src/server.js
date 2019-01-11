@@ -140,6 +140,137 @@ var videoBudgetSchema = new Schema({
 }, { versionKey: false });
 var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
 
+var SovModel = new Schema({
+    day: {type: String},
+    dayNum: {type: Number},
+    vesselname: { type: String},
+    mmsi: { Type: Number},
+    timeBreakdown: {type: Object},
+    seCoverageHours: {type: String},
+    distancekm: {type: String},
+    arrivalAtHarbour: {type: String},
+    departureFromHarbour: {type: String},
+}, {versionKey: false });
+var SovModel = mongo.model('SOV_general', SovModel, 'SOV_general');
+
+var SovPlatformTransfers = new Schema({
+    vesselname: { type: String },
+    mmsi: { type: Number },
+    locationname: { type: String },
+    Tentry1000mWaitingRange: { type: Number },
+    TentryExclusionZone: { type: Number },
+    arrivalTimePlatform: { type: Number },
+    departureTimePlatform: { type: Number },
+    timeInWaitingZone: { type: Number },
+    approachTime: { type: Number },
+    visitDuration: { type: Number },
+    totalDuration: { type: Number },
+    gangwayDeployedDuration: { type: String },
+    gangwayReadyDuration: { type: String },
+    timeGangwayDeployed: { type: String },
+    timeGangwayReady: { type: String },
+    timeGangwayRetracted: { type: String },
+    timeGangwayStowed: { type: String },
+    peakWindGust: { type: String },
+    peakWindAvg: { type: String },
+    windArray: { type: Object },
+    gangwayUtilisation: { type: String },
+    gangwayUtilisationTrace: { type: Object },
+    gangwayUtilisationLimiter: { type: String }, 
+    alarmsPresent: { type: String },
+    motionsEnvelope: { type: String },
+    peakHeave: { type: String },
+    DPutilisation: { type: String },
+    positionalStability: { type: String },
+    positionalStabilityRadius: { type: String },
+    current: { type: String },
+    Hs: { type: String },
+    angleToAsset: { type: Number },
+    distanceToAsset: { type: Number },
+    lon: { type: Number },
+    lat: { type: Number },
+    paxCntEstimate: { type: String },
+    TexitExclusionZone: { type: Number },
+    date: { type: Number }
+}, {versionKey: false });
+var SovPlatformTransfers = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
+
+var SovTurbineTransfers = new Schema({
+    vesselname: { type: String },
+    mmsi: { type: Number },
+    location: { type: String },
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    duration: { type: Number },
+    fieldname: { type: String },
+    gangwayDeployedDuration: { type: Number },
+    gangwayReadyDuration: { type: String },
+    timeGangwayDeployed: { type: Number },
+    timeGangwayReady: { type: String },
+    timeGangwayRetracted: { type: String },
+    timeGangwayStowed: { type: Number },
+    peakWindGust: { type: Number },
+    peakWindAvg: { type: String },
+    gangwayUtilisation: { type: String },
+    gangwayUtilisationLimiter: { type: String },
+    alarmsPresent: { type: String },
+    motionsEnvelope: { type: String },
+    peakHeave: { type: String },
+    angleToAsset: { type: Number },
+    DPutilisation: { type: String },
+    positionalStabilityRadius: { type: String },
+    current: { type: String },
+    approachTime: { type: String },
+    Hs: { type: String },
+    Ts: { type: String },
+    lon: { type: Number },
+    lat: { type: Number },
+    paxCntEstimate: { type: String },
+    detector: { type: String },
+    gangwayUtilisationTrace: { type: String },
+    positionalStability: { type: String },
+    windArray: { type: Object },
+    date: { type: Number }
+});
+var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
+
+var SovTransits = new Schema({
+    from: {type: String},
+    fromName: {type: String},
+    to: {type: String},
+    toName: {type: String },
+    day: {type: String},
+    timeString: {type: String},
+    dayNum: {type: Number },
+    vesselname: {type: String },
+    mmsi: {type: Number },
+    combineId: { type: Number},
+    speedInTransitAvg: {type: Number },
+    speedInTransitAvgUnrestricted: {type: String },
+    distancekm: { type: Number},
+    transitTimeMinutes: {type: Number },
+    avHeading: {type: Number },
+    date: {type: Number}
+});
+var SovTransits = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
+
+var SovVessel2vesselTransfers = new Schema({
+    transfers: { type: Object },
+    CTVactivity: { type: Object },
+    date: { type: Number },
+    mmsi: { type: Number }
+});
+var SovVessel2vesselTransfers = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
+
+var stationaryPeriods = new Schema({
+    vesselname: {type: String },
+    mmsi: {type: Number },
+    startTime: { type: Number },
+    stopTime: { type: Number },
+    location: { type: String }
+});
+var stationaryPeriods = mongo.model('SOV_stationaryPeriods', stationaryPeriods, 'SOV_stationaryPeriods');
+
 var generalSchema = new Schema({
     mmsi: { type: Number },
     vesselname: { type: String },
@@ -398,6 +529,118 @@ app.get("/api/getVessel", function (req, res) {
     });
 });
 
+app.get("/api/getSov/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    stationaryPeriods.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
+        sort: {
+            startTime: 'asc'
+        }
+    }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+    
+    SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
+    null, {
+        sort: {
+            startTime: 'asc'
+        }
+    },
+     function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
 app.post("/api/getVesselsForCompany", function (req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
@@ -456,6 +699,26 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
                 res.send(arrayOfFields);
             }
         });
+    });
+});
+
+app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            let fieldnameData = data + '';
+            let arrayOfFields = [];
+            arrayOfFields = fieldnameData.split(",");
+            res.send(arrayOfFields);
+        }
     });
 });
 
@@ -654,20 +917,43 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
-app.post("/api/getTransfersForVessel", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
-        }
+app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+    let mmsi = parseInt(req.params.mmsi);
 
-        Transfermodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
+    SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            let dateData = data + '';
+            let arrayOfDates = [];
+            arrayOfDates = dateData.split(",");
+            res.send(arrayOfDates);
+        }
+    });
+});
+
+app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
+
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Acces denied');
+    }
+
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+
+    Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
     });
 });
 
