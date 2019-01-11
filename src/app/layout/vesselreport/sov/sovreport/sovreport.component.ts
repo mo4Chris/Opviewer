@@ -32,7 +32,7 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = {'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined};
+    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined };
 
     // Charts
     operationsChart;
@@ -43,7 +43,7 @@ export class SovreportComponent implements OnInit {
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
 
-    constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) {}
+    constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
 
@@ -59,7 +59,7 @@ export class SovreportComponent implements OnInit {
         this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
         this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
         this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
-        this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'});
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
     }
 
     objectToInt(objectvalue) {
@@ -94,15 +94,15 @@ export class SovreportComponent implements OnInit {
                 // Currently transits are not being used, should be removed
                 // this.GetTransits();
 
-                 this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
-                     if (platformTransfers.length === 0) {
+                this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                    if (platformTransfers.length === 0) {
                         this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
                             if (turbineTransfers.length === 0) {
                                 this.sovModel.sovType = SovType.Unknown;
                             } else {
-                               this.sovModel.turbineTransfers = turbineTransfers;
-                               this.sovModel.sovType = SovType.Turbine;
-                           }
+                                this.sovModel.turbineTransfers = turbineTransfers;
+                                this.sovModel.sovType = SovType.Turbine;
+                            }
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
@@ -162,7 +162,7 @@ export class SovreportComponent implements OnInit {
         }
 
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
-            this.commonService.GetSpecificPark({'park' : data}).subscribe(data => {
+            this.commonService.GetSpecificPark({ 'park': data }).subscribe(data => {
                 if (data.length !== 0) {
                     const locdata = data;
                     this.Locdata.emit(locdata);
@@ -180,7 +180,7 @@ export class SovreportComponent implements OnInit {
         if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
             const turbineTransfers = this.sovModel.turbineTransfers;
 
-            const avgTimeDocking = turbineTransfers.reduce(function(sum, a, i, ar) { sum += a.duration;  return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeDocking = turbineTransfers.reduce(function (sum, a, i, ar) { sum += a.duration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
             summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
@@ -201,16 +201,16 @@ export class SovreportComponent implements OnInit {
         } else if (this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType === SovType.Platform) {
             const platformTransfers = this.sovModel.platformTransfers;
 
-            const avgTimeInWaitingZone = platformTransfers.reduce(function(sum, a, i, ar) { sum += a.timeInWaitingZone;  return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeInWaitingZone = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.timeInWaitingZone; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
 
-            const avgTimeInExclusionZone = platformTransfers.reduce(function(sum, a, i, ar) { sum += a.visitDuration;  return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeInExclusionZone = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.visitDuration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
 
-            const avgTimeDocking = platformTransfers.reduce(function(sum, a, i, ar) { sum += a.totalDuration;  return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeDocking = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.totalDuration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
-            const avgTimeTravelingToPlatforms = platformTransfers.reduce(function(sum, a, i, ar) { sum += a.approachTime;  return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeTravelingToPlatforms = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.approachTime; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
 
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
@@ -221,8 +221,8 @@ export class SovreportComponent implements OnInit {
 
     // Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o) {return o.Hs; })));
-        model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function(o) {return o.peakWindGust; })));
+        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.Hs; })));
+        model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
         return model;
     }
 
@@ -325,7 +325,7 @@ export class SovreportComponent implements OnInit {
     createGangwayLimitationsChart() {
 
         const strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
-        const boomAngleLimiterCounter  = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
+        const boomAngleLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
 
         if (strokedLimiterCounter > 0 || boomAngleLimiterCounter > 0) {
             this.sovHasLimiters = true;
@@ -356,7 +356,7 @@ export class SovreportComponent implements OnInit {
                         pointHoverRadius: 6
                     }
                 });
-        }, 500);
+            }, 500);
         }
     }
 

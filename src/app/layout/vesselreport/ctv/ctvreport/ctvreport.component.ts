@@ -32,9 +32,9 @@ export class CtvreportComponent implements OnInit {
 
     transferData;
     commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-    'Incident', 'Embarkation', 'Vessel2Vessel',
-    'Too much wind for craning', 'Trial docking',
-    'Transfer of PAX not possible', 'Other'];
+        'Incident', 'Embarkation', 'Vessel2Vessel',
+        'Too much wind for craning', 'Trial docking',
+        'Transfer of PAX not possible', 'Other'];
     commentsChanged;
     changedCommentObj = { newComment: '', otherComment: '' };
 
@@ -71,73 +71,73 @@ export class CtvreportComponent implements OnInit {
         });
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
-          if (validatedValue.length === 1) {
-            this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
-                this.getComments(this.vesselObject).subscribe(_ => {
-                  this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                    this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                      if (data[0]) {
-                        this.videoBudget = data[0];
-                      } else {
-                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                      }
-                      // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
-                      this.matchCommentsWithTransfers();
-                      this.getGeneralStats();
+            if (validatedValue.length === 1) {
+                this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
+                    this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
+                        this.getComments(this.vesselObject).subscribe(_ => {
+                            this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                                    if (data[0]) {
+                                        this.videoBudget = data[0];
+                                    } else {
+                                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                                    }
+                                    // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
+                                    this.matchCommentsWithTransfers();
+                                    this.getGeneralStats();
+                                });
+                            });
                         });
                     });
-                });
-                });
-              if (this.transferData.length !== 0) {
-                this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-                  this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                    if (data.length > 0) {
-                        this.Locdata.emit(data),
-                        this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
-                        this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
-                        this.parkFound.emit(true);
-                    } else {
-                        this.parkFound.emit(false);
-                    }
-                    this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-                        if (routeData.length > 0) {
-                            const boatLocationData = routeData;
-                            this.boatLocationData.emit(boatLocationData);
-                            this.routeFound.emit(true);
-                                if (!this.parkFound) {
-                                    this.latitude.emit(parseFloat(data[0].lat[Math.floor(routeData[0].lat.length / 2)])),
-                                    this.longitude.emit(parseFloat(data[0].lon[Math.floor(routeData[0].lon.length / 2)]));
+                    if (this.transferData.length !== 0) {
+                        this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
+                            this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
+                                if (data.length > 0) {
+                                    this.Locdata.emit(data),
+                                        this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
+                                        this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
+                                    this.parkFound.emit(true);
+                                } else {
+                                    this.parkFound.emit(false);
                                 }
+                                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
+                                    if (routeData.length > 0) {
+                                        const boatLocationData = routeData;
+                                        this.boatLocationData.emit(boatLocationData);
+                                        this.routeFound.emit(true);
+                                        if (!this.parkFound) {
+                                            this.latitude.emit(parseFloat(data[0].lat[Math.floor(routeData[0].lat.length / 2)])),
+                                                this.longitude.emit(parseFloat(data[0].lon[Math.floor(routeData[0].lon.length / 2)]));
+                                        }
+                                    } else {
+                                        this.routeFound.emit(false);
+                                    }
+                                });
+                            });
+                        });
+                    }
+
+                    // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
+                    if (this.charts.length <= 0) {
+                        setTimeout(() => this.createSlipgraphs(), 10);
+                    } else {
+                        if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+                            for (let i = 0; i < this.charts.length; i++) {
+                                this.charts[i].destroy();
+                            }
+                            setTimeout(() => this.createSlipgraphs(), 10);
                         } else {
-                            this.routeFound.emit(false);
+                            for (let i = 0; i < this.charts.length; i++) {
+                                this.charts[i].destroy();
+                            }
                         }
-                    });
-                });
-                });
-              }
-              
-              // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
-              if (this.charts.length <= 0) {
-                setTimeout(() => this.createSlipgraphs(), 10);
-              } else {
-                if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
-                    for (let i = 0; i < this.charts.length; i++) {
-                      this.charts[i].destroy();
                     }
-                    setTimeout(() => this.createSlipgraphs(), 10);
-                  } else {
-                    for (let i = 0; i < this.charts.length; i++) {
-                      this.charts[i].destroy();
-                    }
-                }
-              }
-            });
-            this.showContent.emit(true);
-        } else {
-            this.showContent.emit(false);
-            this.noPermissionForData = true;
-          }
+                });
+                this.showContent.emit(true);
+            } else {
+                this.showContent.emit(false);
+                this.noPermissionForData = true;
+            }
         });
         setTimeout(() => this.loaded.emit(true), 2000);
     }
@@ -145,163 +145,163 @@ export class CtvreportComponent implements OnInit {
     createSlipgraphs() {
         this.charts = [];
         if (this.transferData.length > 0 && this.transferData[0].slipGraph !== undefined && this.transferData[0].slipGraph.slipX.length > 0) {
-          const array = [];
-          for (let i = 0; i < this.transferData.length; i++) {
-            const line = {
-              type: 'line',
-              data: {
-                datasets: this.XYvars[i]
-              },
-              options: {
-                scaleShowVerticalLines: false,
-                legend: false,
-                tooltips: false,
-                responsive: true,
-                elements: {
-                  point:
-                    { radius: 0 },
-                  line:
-                    { tension: 0 }
-                },
-                  animation: {
-                    duration: 0,
-                  },
-                  hover: {
-                      animationDuration: 0,
-                  },
-                  responsiveAnimationDuration: 0,
-                scales: {
-                  xAxes: [{
-                    scaleLabel: {
-                      display: true,
-                      labelString: 'Time'
+            const array = [];
+            for (let i = 0; i < this.transferData.length; i++) {
+                const line = {
+                    type: 'line',
+                    data: {
+                        datasets: this.XYvars[i]
                     },
-                    type: 'time'
-                  }],
-                  yAxes: [{
-                    scaleLabel: {
-                      display: true,
-                      labelString: 'Slip (m)'
-                    }
-                  }]
-                },
-                annotation: {
-                  annotations: [
-                    {
-                      type: 'line',
-                      drawTime: 'afterDatasetsDraw',
-                      id: 'average',
-                      mode: 'horizontal',
-                      scaleID: 'y-axis-0',
-                      value: this.transferData[0].slipGraph.slipLimit,
-                      borderWidth: 2,
-                      borderColor: 'red'
-                    }
-                  ]
-                },
-              },
-            };
-            array.push(line);
-          }
-          this.createCharts(array);
+                    options: {
+                        scaleShowVerticalLines: false,
+                        legend: false,
+                        tooltips: false,
+                        responsive: true,
+                        elements: {
+                            point:
+                                { radius: 0 },
+                            line:
+                                { tension: 0 }
+                        },
+                        animation: {
+                            duration: 0,
+                        },
+                        hover: {
+                            animationDuration: 0,
+                        },
+                        responsiveAnimationDuration: 0,
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Time'
+                                },
+                                type: 'time'
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Slip (m)'
+                                }
+                            }]
+                        },
+                        annotation: {
+                            annotations: [
+                                {
+                                    type: 'line',
+                                    drawTime: 'afterDatasetsDraw',
+                                    id: 'average',
+                                    mode: 'horizontal',
+                                    scaleID: 'y-axis-0',
+                                    value: this.transferData[0].slipGraph.slipLimit,
+                                    borderWidth: 2,
+                                    borderColor: 'red'
+                                }
+                            ]
+                        },
+                    },
+                };
+                array.push(line);
+            }
+            this.createCharts(array);
         }
-      }
+    }
 
-      getTransfersForVessel(vessel) {
+    getTransfersForVessel(vessel) {
 
         let isTransfering = false;
         const responseTimes = [];
 
         return this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
             map(
-              (transfers) => {
-                this.transferData = transfers;
-                if (transfers !== 0) {
-                  this.XYvars = [];
-                  const XYTempvars = [];
-                  for (let i = 0; i < transfers.length; i++) {
-                    if (transfers[i].slipGraph !== undefined) {
-                      XYTempvars.push([]);
-                      responseTimes.push([]);
-                      for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
+                (transfers) => {
+                    this.transferData = transfers;
+                    if (transfers !== 0) {
+                        this.XYvars = [];
+                        const XYTempvars = [];
+                        for (let i = 0; i < transfers.length; i++) {
+                            if (transfers[i].slipGraph !== undefined) {
+                                XYTempvars.push([]);
+                                responseTimes.push([]);
+                                for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
 
-                        XYTempvars[i].push({ x: this.dateTimeService.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
+                                    XYTempvars[i].push({ x: this.dateTimeService.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
 
-                        if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
-                          responseTimes[i].push(_i);
-                          isTransfering = true;
-                        } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
-                          responseTimes[i].push(_i);
-                          isTransfering = false;
+                                    if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
+                                        responseTimes[i].push(_i);
+                                        isTransfering = true;
+                                    } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
+                                        responseTimes[i].push(_i);
+                                        isTransfering = false;
+                                    }
+                                }
+                            }
                         }
-                      }
-                    }
-                  }
-                  for (let i = 0; i < transfers.length; i++) {
-                    this.XYvars.push([]);
+                        for (let i = 0; i < transfers.length; i++) {
+                            this.XYvars.push([]);
 
-                    if ( responseTimes.length !== 0) {
-                      for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++, _j++) {
-                        let pointColor;
-                        pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
-                        const BorderColor = 'rgba(0, 0, 0, 0)';
+                            if (responseTimes.length !== 0) {
+                                for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++ , _j++) {
+                                    let pointColor;
+                                    pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
+                                    const BorderColor = 'rgba(0, 0, 0, 0)';
 
-                        this.XYvars[i].push({data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0});
-                        if (_i === 0) {
-                          this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
-                        } else if (_i === responseTimes[i].length) {
-                          this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
-                        } else {
-                          this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                                    this.XYvars[i].push({ data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0 });
+                                    if (_i === 0) {
+                                        this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
+                                    } else if (_i === responseTimes[i].length) {
+                                        this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
+                                    } else {
+                                        this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
+                                    }
+                                }
+                            }
                         }
-                      }
                     }
-                  }
-                }
-              }),
+                }),
             catchError(error => {
-              console.log('error ' + error);
-              throw error;
+                console.log('error ' + error);
+                throw error;
             }));
-      }
+    }
 
 
-      createCharts(lineData) {
+    createCharts(lineData) {
         for (let j = 0; j < lineData.length; j++) {
-          const tempChart = new Chart('canvas' + j, lineData[j]);
-          this.charts.push(tempChart);
+            const tempChart = new Chart('canvas' + j, lineData[j]);
+            this.charts.push(tempChart);
         }
-      }
+    }
 
-      getDatesWithTransfers(date) {
+    getDatesWithTransfers(date) {
         return this.newService
-          .getDatesWithValues(date).pipe(
-            map(
-              (dates) => {
-                for (let _i = 0; _i < dates.length; _i++) {
-                  dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
-                }
-                this.dateData = dates;
-              }),
-            catchError(error => {
-              console.log('error ' + error);
-              throw error;
-            }));
-      }
+            .getDatesWithValues(date).pipe(
+                map(
+                    (dates) => {
+                        for (let _i = 0; _i < dates.length; _i++) {
+                            dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
+                        }
+                        this.dateData = dates;
+                    }),
+                catchError(error => {
+                    console.log('error ' + error);
+                    throw error;
+                }));
+    }
 
     getDatesShipHasSailed(date) {
-        return this.newService.getDatesWithValues(date).pipe( map((dates) => {
-          for (let _i = 0; _i < dates.length; _i++) {
-            dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
-          }
-          return dates;
+        return this.newService.getDatesWithValues(date).pipe(map((dates) => {
+            for (let _i = 0; _i < dates.length; _i++) {
+                dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
+            }
+            return dates;
 
-          }),
-          catchError(error => {
-            console.log('error ' + error);
-            throw error;
-          }));
-      }
+        }),
+            catchError(error => {
+                console.log('error ' + error);
+                throw error;
+            }));
+    }
 
     getMatlabDateToJSTime(serial) {
         return this.dateTimeService.MatlabDateToJSTime(serial);
@@ -375,7 +375,8 @@ export class CtvreportComponent implements OnInit {
             } else {
                 this.noTransits = true;
                 this.general = {};
-        }});
+            }
+        });
     }
 
     matchVideoRequestWithTransfer(transfer) {
@@ -494,31 +495,31 @@ export class CtvreportComponent implements OnInit {
     }
 
     saveComment(transferData) {
-      if (transferData.comment !== 'Other') {
-          transferData.commentChanged.otherComment = '';
-      }
-      transferData.commentDate = Date.now();
-      transferData.userID = this.tokenInfo.userID;
-      this.newService
-          .saveTransfer(transferData)
-          .pipe(
-              map(res => {
-                  this.alert.type = 'success';
-                  this.alert.message = res.data;
-                  transferData.formChanged = false;
-              }),
-              catchError(error => {
-                  this.alert.type = 'danger';
-                  this.alert.message = error;
-                  throw error;
-              })
-          )
-          .subscribe(_ => {
-              clearTimeout(this.timeout);
-              this.showAlert = true;
-              this.timeout = setTimeout(() => {
-                  this.showAlert = false;
-              }, 7000);
-          });
-  }
+        if (transferData.comment !== 'Other') {
+            transferData.commentChanged.otherComment = '';
+        }
+        transferData.commentDate = Date.now();
+        transferData.userID = this.tokenInfo.userID;
+        this.newService
+            .saveTransfer(transferData)
+            .pipe(
+                map(res => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                    transferData.formChanged = false;
+                }),
+                catchError(error => {
+                    this.alert.type = 'danger';
+                    this.alert.message = error;
+                    throw error;
+                })
+            )
+            .subscribe(_ => {
+                clearTimeout(this.timeout);
+                this.showAlert = true;
+                this.timeout = setTimeout(() => {
+                    this.showAlert = false;
+                }, 7000);
+            });
+    }
 }

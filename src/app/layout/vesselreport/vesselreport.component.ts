@@ -25,9 +25,9 @@ export class VesselreportComponent implements OnInit {
 
   }
 
-  maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
+  maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = {'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': ''};
+  vesselObject = { 'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': '' };
 
   parkNamesData;
   Locdata = [];
@@ -62,38 +62,38 @@ export class VesselreportComponent implements OnInit {
   private sovChild: SovreportComponent;
 
   /////// Get variables from child components//////////
-      getMapZoomLvl(mapZoomLvl: number): void {
-        this.mapZoomLvl = mapZoomLvl
-      }
+  getMapZoomLvl(mapZoomLvl: number): void {
+    this.mapZoomLvl = mapZoomLvl
+  }
 
-      getLocdata(locData: any[]): void {
-        this.Locdata = locData;
-      }
+  getLocdata(locData: any[]): void {
+    this.Locdata = locData;
+  }
 
-      getLongitude(longitude: any): void {
-        this.longitude = longitude;
-      }
+  getLongitude(longitude: any): void {
+    this.longitude = longitude;
+  }
 
-      getLatitude(latitude: any): void {
-        this.latitude = latitude;
-      }
+  getLatitude(latitude: any): void {
+    this.latitude = latitude;
+  }
 
-      getBoatLocationData(boatLocationData: any[]): void {
-        this.boatLocationData = boatLocationData;
-        this.showMap = true;
-      }
+  getBoatLocationData(boatLocationData: any[]): void {
+    this.boatLocationData = boatLocationData;
+    this.showMap = true;
+  }
 
-      getDatesHasSailed(sailDates: any[]): void {
-          this.sailDates = sailDates;
-      }
+  getDatesHasSailed(sailDates: any[]): void {
+    this.sailDates = sailDates;
+  }
 
-      getShowContent(showContent: boolean): void {
-        this.showContent = showContent
-      }
+  getShowContent(showContent: boolean): void {
+    this.showContent = showContent;
+  }
 
-      isLoaded(loaded: boolean): void {
-        this.loaded = loaded;
-      }
+  isLoaded(loaded: boolean): void {
+    this.loaded = loaded;
+  }
   ///////////////////////////////////////////////////
 
   hasSailed(date: NgbDateStruct) {
@@ -106,7 +106,7 @@ export class VesselreportComponent implements OnInit {
 
   getMMSIFromParameter() {
     let mmsi;
-    this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
+    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
 
     return mmsi;
   }
@@ -116,14 +116,14 @@ export class VesselreportComponent implements OnInit {
   }
 
   ngOnInit() {
-      if (this.tokenInfo.userPermission === 'admin') {
-          this.newService.GetVessel().subscribe(data => this.vessels = data);
-      } else {
-          this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-              this.vessels = data;
-          });
-      }
-      this.BuildPageWithCurrentInformation();
+    if (this.tokenInfo.userPermission === 'admin') {
+      this.newService.GetVessel().subscribe(data => this.vessels = data);
+    } else {
+      this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+        this.vessels = data;
+      });
+    }
+    this.BuildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
@@ -135,10 +135,9 @@ export class VesselreportComponent implements OnInit {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
-              this.ctvChild.BuildPageWithCurrentInformation();
-          }
-          else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
-              this.sovChild.BuildPageWithCurrentInformation();
+            this.ctvChild.BuildPageWithCurrentInformation();
+          } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
+            this.sovChild.BuildPageWithCurrentInformation();
           }
         }, 1000);
       } else {
@@ -178,24 +177,14 @@ export class VesselreportComponent implements OnInit {
   }
 
   getGeneralStats() {
-      this.newService.getGeneral(this.vesselObject).subscribe(general => {
-          if (general.data.length > 0 && general.data[0].DPRstats) {
-              this.noTransits = false;
-              this.general = general.data[0].DPRstats;
-          } else {
-              this.noTransits = true;
-              this.general = {};
-      }});
-  }
-
-  roundNumber(number, decimal = 10, addString = '') {
-    if (typeof number === 'string' || number instanceof String) {
-      return number;
-    }
-    if (!number) {
-      return 'n/a';
-    }
-
-    return (Math.round(number * decimal) / decimal) + addString;
+    this.newService.getGeneral(this.vesselObject).subscribe(general => {
+      if (general.data.length > 0 && general.data[0].DPRstats) {
+        this.noTransits = false;
+        this.general = general.data[0].DPRstats;
+      } else {
+        this.noTransits = true;
+        this.general = {};
+      }
+    });
   }
 }

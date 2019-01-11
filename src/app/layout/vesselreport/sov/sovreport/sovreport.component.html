@@ -133,11 +133,16 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,
+                                            'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,
+                                            'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,
+                                            'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,
+                                            'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,
+                                            'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
                                 </ng-container>
@@ -176,7 +181,7 @@
                                 </ng-container>
                             </tbody>
                         </table>
-                    </div>                    
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,7 +229,7 @@
                                 </tr>
                             </ng-container>
                         </tbody>
-                    </table>         
+                    </table>
                 </div>
             </div>
         </div>
@@ -255,7 +260,7 @@
                                 <ng-container *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
                                     <tr>
                                         <th>{{sovModel.sovInfo.vesselName}}</th>
-                                        <th colspan="6"><a [routerLink]="" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>     
+                                        <th colspan="6"><a [routerLink]="" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>
                                     </tr>
                                     <ng-container *ngFor="let transfer of object.value">
                                         <tr>
@@ -265,12 +270,12 @@
                                             <td>{{transfer.duration}} minutes</td>
                                             <td>{{transfer.peakWindGust}}</td>
                                             <td>{{transfer.peakWindAvg}}</td>
-                                        </tr> 
+                                        </tr>
                                     </ng-container>
                                 </ng-container>
                             </ng-container>
                         </tbody>
-                    </table>         
+                    </table>
                 </div>
             </div>
         </div>
@@ -298,7 +303,7 @@
                     <tbody>
                         <ng-container *ngFor="let object of (this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
                             <tr>
-                                <th colspan="5">{{object.key}}</th>    
+                                <th colspan="5">{{object.key}}</th>
                             </tr>
                             <ng-container *ngFor="let turbineVisit of object.value">
                                 <tr>
@@ -306,17 +311,18 @@
                                     <td>{{turbineVisit.location}}</td>
                                     <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
                                     <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
-                                    <td>{{turbineVisit.durationMinutes}} minutes</td>     
-                                </tr> 
+                                    <td>{{turbineVisit.durationMinutes}} minutes</td>
+                                </tr>
                             </ng-container>
                         </ng-container>
                     </tbody>
-                </table>         
+                </table>
             </div>
-            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9" [mapTypeId]="'roadmap'">
+            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9"
+                [mapTypeId]="'roadmap'">
                 <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                     <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
-                        <agm-polyline-point  [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])" >
+                        <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
                         </agm-polyline-point>
                     </ng-container>
                 </agm-polyline>
