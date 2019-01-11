@@ -354,12 +354,8 @@ export class CtvreportComponent implements OnInit {
                     this.transferData[i]._id ===
                     this.commentsChanged[j].idTransfer
                 ) {
-                    this.transferData[i].commentChanged = this.commentsChanged[
-                        j
-                    ];
-                    this.transferData[i].comment = this.commentsChanged[
-                        j
-                    ].newComment;
+                    this.transferData[i].commentChanged = this.commentsChanged[j];
+                    this.transferData[i].comment = this.commentsChanged[j].newComment;
                     this.transferData[i].showCommentChanged = true;
                     this.commentsChanged.splice(j, 1);
                 }
@@ -397,9 +393,7 @@ export class CtvreportComponent implements OnInit {
                 vid.status === 'delivered' ||
                 vid.status === 'pending collection'
             ) {
-                vid.text =
-                    vid.status[0].toUpperCase() +
-                    vid.status.substr(1).toLowerCase();
+                vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
                 vid.status = vid.status.replace(' ', '_');
                 vid.disabled = true;
             }
@@ -452,8 +446,7 @@ export class CtvreportComponent implements OnInit {
                     transferData.videoDurationMinutes;
             } else {
                 transferData.video_requested.text = 'Not requested';
-                this.videoBudget.currentBudget -=
-                    transferData.videoDurationMinutes;
+                this.videoBudget.currentBudget -= transferData.videoDurationMinutes;
             }
             transferData.maxBudget = this.videoBudget.maxBudget;
             transferData.currentBudget = this.videoBudget.currentBudget;
@@ -474,9 +467,7 @@ export class CtvreportComponent implements OnInit {
                 .subscribe(_ => {
                     this.getVideoRequests(this.vesselObject).subscribe(_ => {
                         for (let i = 0; i < this.transferData.length; i++) {
-                            this.transferData[
-                                i
-                            ].video_requested = this.matchVideoRequestWithTransfer(
+                            this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(
                                 this.transferData[i]
                             );
                         }
