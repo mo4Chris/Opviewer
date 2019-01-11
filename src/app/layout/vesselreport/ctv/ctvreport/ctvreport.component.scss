@@ -1,0 +1,77 @@
+agm-map {
+    height: 400px;
+}
+
+.divContainer {
+    width:100%;
+    min-height: 200px;
+}
+.boatSelectDropdown {
+    height: 48px !important;
+    margin-left: 20px;
+}
+
+.transitTable td:nth-child(1), .transitTable td:nth-child(3), .transitTable td:nth-child(5), .transitTable td:nth-child(7) {
+    background: gray;
+    color: white;
+}
+
+.otherComment {
+    width: auto;
+    display: inline-block;
+    margin: 0 10px;
+    width: 157px;
+}
+.commentOptions {
+    width: 250px;
+    text-align: left;
+}
+td.comment {
+    width: 300px
+}
+.commentButton {
+    width: 213px;
+    display: inline-block;
+}
+ngb-alert {
+    position: fixed;
+    bottom: 0px;
+}
+.videoRequest{
+    min-width: 216px;
+}
+.delivered {
+    background-color: #298a00;
+}
+.denied {
+    background-color: #b60000;
+}
+.pending_collection {
+    background-color: #f98a00;
+}
+:disabled {
+    opacity: 0.4;
+}
+.videoRequestLoading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.4);
+    z-index: 1050;
+}
+.custom-day {
+    text-align:center;
+    line-height: 2rem;
+    background-color:rgb(245, 245, 245);
+}
+
+.has-sailed{
+    background-color:rgb(198, 233, 255);
+}
+
+.disable-day{
+   background-color: white;
+   color: rgb(225, 225, 225) !important;
+}
