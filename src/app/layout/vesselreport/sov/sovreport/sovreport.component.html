@@ -133,16 +133,11 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,
-                                            'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,
-                                            'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,
-                                            'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,
-                                            'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,
-                                            'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
                                 </ng-container>
