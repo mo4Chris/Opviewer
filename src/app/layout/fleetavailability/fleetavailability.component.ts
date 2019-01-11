@@ -7,6 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
     selector: 'app-users',
@@ -15,9 +16,9 @@ import * as moment from 'moment';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private modalService: NgbModal, private _router: Router, private route: ActivatedRoute ) { }
+    constructor(private newService: CommonService, private modalService: NgbModal, private _router: Router, private route: ActivatedRoute, private userService: UserService ) { }
 
-    tokenInfo = this.getDecodedAccessToken(localStorage.getItem('token'));
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
     hideText = false;
     edit = false;
@@ -73,7 +74,7 @@ export class FleetavailabilityComponent implements OnInit {
                 this.getAvailableMonths();
                 this.getGraphData();
                 this.createLineChart();
-                if (this.tokenInfo.userPermission == "admin") {
+                if (this.tokenInfo.userPermission == 'admin') {
                     this.newService.GetVessel().subscribe(data => {
                         this.existingVessels = data;
                         this.loaded = true;
@@ -104,11 +105,11 @@ export class FleetavailabilityComponent implements OnInit {
           this.myChart = new Chart('canvas', {
             type: 'line',
             data: {
-                labels: this.allMonths,
+                //labels: this.allMonths,
                 datasets: [{
-                    data: this.forecastFromStart,
-                    label: 'Expected from start of term',
-                    borderColor: 'green',
+                    data: this.totalWeatherDaysPerMonth,
+                    label: 'Recorded weather days',
+                    borderColor: 'black',
                     fill: false
                 }, {
                     data: this.forecastAfterRecorded,
@@ -116,9 +117,9 @@ export class FleetavailabilityComponent implements OnInit {
                     borderColor: 'red',
                     fill: false
                 }, {
-                    data: this.totalWeatherDaysPerMonth,
-                    label: 'Recorded weather days',
-                    borderColor: 'black',
+                    data: this.forecastFromStart,
+                    label: 'Expected from start of term',
+                    borderColor: 'green',
                     fill: false
                 }]
               },
@@ -128,7 +129,7 @@ export class FleetavailabilityComponent implements OnInit {
                       point:
                           { radius: 0 },
                       line:
-                          { tension: 0 }
+                          { tension: 0.5 }
                   },
                   animation: {
                       duration: 0,
@@ -142,6 +143,15 @@ export class FleetavailabilityComponent implements OnInit {
                           stacked: false,
                           ticks: {
                               suggestedMin: 0
+                          }
+                      }],
+                      xAxes: [{
+                          type: 'time',
+                          time: {
+                              unit: 'month',
+                              displayFormats: {
+                                  month: 'MMM YYYY'
+                              }
                           }
                       }]
                   }
@@ -166,31 +176,22 @@ export class FleetavailabilityComponent implements OnInit {
         return name.replace(/_/g, ' ');
     }
 
-    getDecodedAccessToken(token: string): any {
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
-    }
-
     getAvailableMonths() {
         var dateStart = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
         var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
 
         var i = 1;
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+            this.allMonths.push(dateStart.format('MMM YYYY'));
             if (dateStart < moment()) {
                 this.availableMonths.push(dateStart.format('MMM YYYY'));
-                if (dateStart.format('M') != moment().format('M')) {
-                    this.totalWeatherDaysPerMonth[i] = 0;
-                }
+                dateStart.add(1, 'month');
+                this.totalWeatherDaysPerMonth[i] = { x: moment(dateStart), y: 0 };
+            } else {
+                dateStart.add(1, 'month');
             }
-            this.allMonths.push(dateStart.format('MMM YYYY'));
-            dateStart.add(1, 'month');
             i++;
         }
-
         this.availableMonths.push('Last 2 weeks');
         this.availableMonths.reverse();
     }
@@ -229,7 +230,7 @@ export class FleetavailabilityComponent implements OnInit {
             this.missingDays[ind] = 0;
         }
 
-        if (sd != "_NaN_") {
+        if (sd != '_NaN_') {
             this.missingDays[ind]+= (1 - sd);
             this.dateSailDays += parseFloat(sd);
         }
@@ -305,38 +306,48 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getGraphData() {
-
         //recorded weather days
         var target = this.turbineWarrenty.weatherDayTarget;
-        this.totalWeatherDaysPerMonth[0] = target;
+        this.totalWeatherDaysPerMonth[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: target };
         for (var i = 0; i < this.turbineWarrenty.Dates.length; i++) {
-            var index = this.allMonths.indexOf(this.MatLabDateToMoment(this.turbineWarrenty.Dates[i]).format('MMM YYYY')) + 1;
-            this.totalWeatherDaysPerMonth[index] = parseFloat(this.totalWeatherDaysPerMonth[index]) + this.turbineWarrenty.numContractedVessels;
+            if (this.totalWeatherDaysPerMonth[i] && this.totalWeatherDaysPerMonth[i].y) {
+                this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) + this.turbineWarrenty.numContractedVessels;
+            } else {
+                this.totalWeatherDaysPerMonth[i] = { x: this.MatLabDateToMoment(this.turbineWarrenty.Dates[i]), y: this.turbineWarrenty.numContractedVessels };
+            }
             for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
                 if (this.sailMatrix[j][i] != '_NaN_') {
-                    this.totalWeatherDaysPerMonth[index] = parseFloat(this.totalWeatherDaysPerMonth[index]) - parseFloat(this.sailMatrix[j][i]);
+                    this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
             }
         }
         this.forecastAfterRecorded[0] = null;
-        for (var i = 1; i < this.totalWeatherDaysPerMonth.length - 1; i++) {
-            target = target - this.totalWeatherDaysPerMonth[i];
-            this.totalWeatherDaysPerMonth[i] = target;
-            this.forecastAfterRecorded[i] = null;
+        for (var i = 1; i < this.totalWeatherDaysPerMonth.length; i++) {
+            target = target - this.totalWeatherDaysPerMonth[i].y;
+            this.totalWeatherDaysPerMonth[i].y = target;
+            this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
         }
-        //console.log(this.totalWeatherDaysPerMonth); //TODO NaN value aant einde en januari erin doen
 
         //forecast
-        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1] = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 2]);
-        this.forecastFromStart[0] = this.turbineWarrenty.weatherDayTarget;
+        var dateForecast = this.MatLabDateToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
+        var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
+
+        this.forecastAfterRecorded[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null }
+        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
+        while (dateEnd > dateForecast) {
+            var index = this.allMonths.indexOf(dateForecast.format('MMM YYYY'));
+            var forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
+            this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
+            dateForecast.add(1, 'days');
+        }
+        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(1, 'days')
+        
+        this.forecastFromStart[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
         target = this.turbineWarrenty.weatherDayTarget;
-        for (var i = 0; i < this.turbineWarrenty.weatherDayForecast.length; i++) {
-            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[i][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
-            if (typeof this.forecastAfterRecorded[i+1] == 'undefined') {
-                this.forecastAfterRecorded.push(this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1] - forecastWeatherdays);
-            }
+        for (var i = 1; i < this.allMonths.length; i++) {
+            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[i-1][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
-            this.forecastFromStart[i + 1] = target;
+            this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
     }
 
