@@ -266,13 +266,11 @@ export class FleetavailabilityComponent implements OnInit {
         this.newService.setSaildays(this.sailDaysChanged).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.setAlert('success', res.data);
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.setAlert('danger', error._body);
                 throw error;
             })
         ).subscribe(_ => {
@@ -365,31 +363,35 @@ export class FleetavailabilityComponent implements OnInit {
         } else {
             vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
         }
-        /*if (vesselToAdd.vessel) {
-
-        }*/
+        if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel)>=0) {
+            this.setAlert('danger', 'Vessel already in fleet', true);
+            return;
+        }
         this.newService.addVesselToFleet(vesselToAdd).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.setAlert('success', res.data, true);
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error._body;
-                this.showAlert = true;
-                this.closeModal();
+                this.setAlert('danger', error._body, true);
                 throw error;
             })
         ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.closeModal();
             this.vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
         });
+    }
+
+    setAlert(type, msg, closeModal = false) {
+        clearTimeout(this.timeout);
+        this.alert.type = type;
+        this.alert.message = msg;
+        this.showAlert = true;
+        if (closeModal) {
+            this.closeModal();
+        }
+        this.timeout = setTimeout(() => {
+            this.showAlert = false;
+        }, 7000);
     }
 }

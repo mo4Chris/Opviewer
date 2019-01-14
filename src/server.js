@@ -318,7 +318,8 @@ var vesselsToAddToFleetSchema = new Schema({
     campaignName: { type: String },
     windfield: { type: String },
     startDate: { type: Number },
-    status: { type: String }
+    status: { type: String },
+    username: { type: String }
 }, { versionKey: false });
 var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddToFleetSchema, 'vesselsToAddToFleet');
 
@@ -452,7 +453,7 @@ app.post("/api/login", function (req, res) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
                     } else*/ //Has to be implemented when test phase is over
                     if (bcrypt.compareSync(userData.password, user.password)) {
-                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
+                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats, username: user.username };
                         let token = jwt.sign(payload, 'secretKey');
                         return res.status(200).send({ token });
                     } else {
@@ -1397,6 +1398,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
                 vesselToAdd.windfield = req.body.windfield;
                 vesselToAdd.dateAdded = Date.now();
                 vesselToAdd.status = "TODO";
+                vesselToAdd.username = token.username;
                 if (isNaN(req.body.vessel)) {
                     vesselToAdd.vesselname = req.body.vessel;
                 } else {
