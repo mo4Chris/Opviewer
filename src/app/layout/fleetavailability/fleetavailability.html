@@ -20,22 +20,26 @@
             <div class="modal-body">
                 <form>
                     <div class="form-content">
-                        <input type="radio" name="typeVessel" value="existingVessel" id="existingVessel"><label for="existingVessel"> Existing vessel</label>
-                        <input type="radio" name="typeVessel" value="newVessel" id="newVessel"><label for="newVessel"> New Vessel</label>
-                        <div class="form-group">
+                        <select class="form-control" name="type" [(ngModel)]="vesselToAdd.type">
+                            <option value="existing">Existing vessel</option>
+                            <option value="new">New vessel</option>
+                        </select>
+                        <div class="form-group" *ngIf="vesselToAdd.type=='existing'">
                             Existing vessel
-                            <select name="existingVessel">
-                                <option></option>
-                                <option *ngFor="let existingVessel of existingVessels">{{existingVessel.nicename}}</option>
+                            <select name="existingVessel" class="form-control" [(ngModel)]="vesselToAdd.existingVesselValue">
+                                <option [value]=""></option>
+                                <option *ngFor="let existingVessel of existingVessels" [value]="existingVessel.nicename">{{existingVessel.nicename}}</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" *ngIf="vesselToAdd.type=='new'">
                             New vessel
+                            <input name="newVessel" class="form-control" placeholder="Mmsi or Vessel name"  [(ngModel)]="vesselToAdd.newVesselValue" />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
+                This could take up to a day to procces
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>

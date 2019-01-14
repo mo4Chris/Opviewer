@@ -35,7 +35,7 @@ table {
 }
 
 .addVessel {
-    margin-left:25px;
+    margin-left: 25px;
 }
 
 ngb-alert {
@@ -51,6 +51,23 @@ ngb-alert {
     flex: 1 1 auto;
 }
 
-.updateSailDay{
+.updateSailDay {
     width: 100%;
+}
+
+.modal-body {
+    select:first-of-type {
+        margin-bottom: 10px;
+    }
+}
+
+.modal-footer {
+    display: block;
+    justify-content: unset;
+    line-height: 38px;
+
+    button {
+        float: right;
+        margin: 0;
+    }
 }

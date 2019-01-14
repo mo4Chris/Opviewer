@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
-import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +15,7 @@ import { UserService } from '../../shared/services/user.service';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private modalService: NgbModal, private _router: Router, private route: ActivatedRoute, private userService: UserService ) { }
+    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute, private userService: UserService) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -42,6 +41,7 @@ export class FleetavailabilityComponent implements OnInit {
     forecastFromStart = [];
     existingVessels;
     sailDaysChanged = [];
+    vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
 
     ngOnInit() {
         this.getCampaignName();
@@ -102,7 +102,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     createLineChart() {
-          this.myChart = new Chart('canvas', {
+        this.myChart = new Chart('canvas', {
             type: 'line',
             data: {
                 //labels: this.allMonths,
@@ -122,39 +122,39 @@ export class FleetavailabilityComponent implements OnInit {
                     borderColor: 'green',
                     fill: false
                 }]
-              },
-              options: {
-                  responsive: true,
-                  elements: {
-                      point:
-                          { radius: 0 },
-                      line:
-                          { tension: 0.5 }
-                  },
-                  animation: {
-                      duration: 0,
-                  },
-                  hover: {
-                      animationDuration: 0,
-                  },
-                  responsiveAnimationDuration: 0,
-                  scales: {
-                      yAxes: [{
-                          stacked: false,
-                          ticks: {
-                              suggestedMin: 0
-                          }
-                      }],
-                      xAxes: [{
-                          type: 'time',
-                          time: {
-                              unit: 'month',
-                              displayFormats: {
-                                  month: 'MMM YYYY'
-                              }
-                          }
-                      }]
-                  }
+            },
+            options: {
+                responsive: true,
+                elements: {
+                    point:
+                        { radius: 0 },
+                    line:
+                        { tension: 0 }
+                },
+                animation: {
+                    duration: 0,
+                },
+                hover: {
+                    animationDuration: 0,
+                },
+                responsiveAnimationDuration: 0,
+                scales: {
+                    yAxes: [{
+                        stacked: false,
+                        ticks: {
+                            suggestedMin: 0
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            displayFormats: {
+                                month: 'MMM YYYY'
+                            }
+                        }
+                    }]
+                }
             }
         });
     }
@@ -231,7 +231,7 @@ export class FleetavailabilityComponent implements OnInit {
         }
 
         if (sd != '_NaN_') {
-            this.missingDays[ind]+= (1 - sd);
+            this.missingDays[ind] += (1 - sd);
             this.dateSailDays += parseFloat(sd);
         }
     }
@@ -321,7 +321,6 @@ export class FleetavailabilityComponent implements OnInit {
                 }
             }
         }
-        this.forecastAfterRecorded[0] = null;
         for (var i = 1; i < this.totalWeatherDaysPerMonth.length; i++) {
             target = target - this.totalWeatherDaysPerMonth[i].y;
             this.totalWeatherDaysPerMonth[i].y = target;
@@ -340,12 +339,12 @@ export class FleetavailabilityComponent implements OnInit {
             this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
             dateForecast.add(1, 'days');
         }
-        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(1, 'days')
-        
+        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(1, 'days').subtract(1, 'hour');
+
         this.forecastFromStart[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
         target = this.turbineWarrenty.weatherDayTarget;
         for (var i = 1; i < this.allMonths.length; i++) {
-            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[i-1][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
+            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[i - 1][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
@@ -360,6 +359,37 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     addVessel() {
-        this.closeModal();
+        var vesselToAdd = { vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
+        if (this.vesselToAdd.type == 'existing') {
+            vesselToAdd.vessel = this.vesselToAdd.existingVesselValue;
+        } else {
+            vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
+        }
+        /*if (vesselToAdd.vessel) {
+
+        }*/
+        this.newService.addVesselToFleet(vesselToAdd).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error._body;
+                this.showAlert = true;
+                this.closeModal();
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.closeModal();
+            this.vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
     }
 }

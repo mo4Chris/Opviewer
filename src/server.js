@@ -311,6 +311,17 @@ var sailDayChangedSchema = new Schema({
 }, { versionKey: false });
 var sailDayChangedmodel = mongo.model('sailDayChanged', sailDayChangedSchema, 'sailDayChanged');
 
+var vesselsToAddToFleetSchema = new Schema({
+    mmsi: { type: Number },
+    vesselname: { type: String },
+    dateAdded: { type: Number },
+    campaignName: { type: String },
+    windfield: { type: String },
+    startDate: { type: Number },
+    status: { type: String }
+}, { versionKey: false });
+var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddToFleetSchema, 'vesselsToAddToFleet');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -1348,9 +1359,6 @@ app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
 
 app.post("/api/setSaildays", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
-        return res.status(401).send('Acces denied');
-    }
     
     for (var i = 0; i < req.body.length; i++) {
         if (req.body[i].newValue + '' === req.body[i].oldValue + '') {
@@ -1367,6 +1375,45 @@ app.post("/api/setSaildays", function (req, res) {
         sailDayChanged.save();
     }
     return res.send({ data: "Succesfully updated weatherdays" });
+});
+
+app.post("/api/addVesselToFleet", function (req, res) {
+    let token = verifyToken(req, res);
+
+    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield };
+    if (isNaN(req.body.vessel)) {
+        filter.vesselname = req.body.vessel;
+    } else {
+        filter.mmsi = req.body.vessel;
+    }
+    vesselsToAddToFleetmodel.find(filter, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (data.length === 0) {
+                var vesselToAdd = new vesselsToAddToFleetmodel();
+                vesselToAdd.campaignName = req.body.campaignName;
+                vesselToAdd.startDate = req.body.startDate;
+                vesselToAdd.windfield = req.body.windfield;
+                vesselToAdd.dateAdded = Date.now();
+                vesselToAdd.status = "TODO";
+                if (isNaN(req.body.vessel)) {
+                    vesselToAdd.vesselname = req.body.vessel;
+                } else {
+                    vesselToAdd.mmsi = req.body.vessel;
+                }
+                vesselToAdd.save(function (err, data) {
+                    if (err) {
+                        return res.send(err);
+                    } else {
+                        return res.send({ data: "Vessel added to fleet (could take up to a day to procces)" });
+                    }
+                });
+            } else {
+                return res.status(400).send('Vessel is already being proccesed to be added');
+            }
+        }
+    });
 });
 
 app.listen(8080, function () {

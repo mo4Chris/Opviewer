@@ -227,5 +227,10 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/setSaildays/', warrenty).pipe(
         map((response: Response) => response.json()));
   }
+
+  addVesselToFleet(vessel) {
+    return this.post(environment.DB_IP + '/api/addVesselToFleet/', vessel).pipe(
+        map((response: Response) => response.json()));
+  }
 }
 
