@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as Chart from 'chart.js';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 import { UserService } from '../../shared/services/user.service';
+import { DialogService } from '../../dialog.service';
 
 @Component({
     selector: 'app-users',
@@ -15,7 +16,7 @@ import { UserService } from '../../shared/services/user.service';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute, private userService: UserService) { }
+    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute, private userService: UserService, public dialogService: DialogService) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -357,7 +358,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     addVessel() {
-        var vesselToAdd = { vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
+        var vesselToAdd = { client: this.turbineWarrenty.client, vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
         if (this.vesselToAdd.type == 'existing') {
             vesselToAdd.vessel = this.vesselToAdd.existingVesselValue;
         } else {
@@ -393,5 +394,12 @@ export class FleetavailabilityComponent implements OnInit {
         this.timeout = setTimeout(() => {
             this.showAlert = false;
         }, 7000);
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: any) {
+        if (this.sailDaysChanged.length>0) {
+            $event.returnValue = true;
+        }
     }
 }

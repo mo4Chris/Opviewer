@@ -319,7 +319,8 @@ var vesselsToAddToFleetSchema = new Schema({
     windfield: { type: String },
     startDate: { type: Number },
     status: { type: String },
-    username: { type: String }
+    username: { type: String },
+    client: { type: String }
 }, { versionKey: false });
 var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddToFleetSchema, 'vesselsToAddToFleet');
 
@@ -1380,8 +1381,10 @@ app.post("/api/setSaildays", function (req, res) {
 
 app.post("/api/addVesselToFleet", function (req, res) {
     let token = verifyToken(req, res);
-
-    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield };
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
+        return res.status(401).send('Acces denied');
+    }
+    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield, status: "TODO" };
     if (isNaN(req.body.vessel)) {
         filter.vesselname = req.body.vessel;
     } else {
@@ -1399,6 +1402,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
                 vesselToAdd.dateAdded = Date.now();
                 vesselToAdd.status = "TODO";
                 vesselToAdd.username = token.username;
+                vesselToAdd.client = req.body.client;
                 if (isNaN(req.body.vessel)) {
                     vesselToAdd.vesselname = req.body.vessel;
                 } else {
@@ -1408,11 +1412,11 @@ app.post("/api/addVesselToFleet", function (req, res) {
                     if (err) {
                         return res.send(err);
                     } else {
-                        return res.send({ data: "Vessel added to fleet (could take up to a day to procces)" });
+                        return res.send({ data: "Vessel added to fleet (could take up to a day to process)" });
                     }
                 });
             } else {
-                return res.status(400).send('Vessel is already being proccesed to be added');
+                return res.status(400).send('Vessel is already being processed to be added');
             }
         }
     });
