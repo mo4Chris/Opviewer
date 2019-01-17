@@ -25,6 +25,7 @@ export class SovreportComponent implements OnInit {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
+    @Input() mapPixelWidth;
 
     sovModel: SovModel = new SovModel();
 
@@ -84,7 +85,6 @@ export class SovreportComponent implements OnInit {
 
     BuildPageWithCurrentInformation() {
         this.ResetTransfers();
-        this.mapZoomLvl.emit(8);
         this.GetAvailableRouteDatesForVessel();
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
@@ -152,13 +152,45 @@ export class SovreportComponent implements OnInit {
         const boatlocationData = [];
 
         boatlocationData.push(this.sovModel.sovInfo);
-        const latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
-        const longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
 
-        if (('' + latitude) !== 'NaN' && ('' + longitude) !== 'NaN') {
+        function latRad(lat) {
+            var sin = Math.sin(lat * Math.PI / 180);
+            var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+            return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+        }
+    
+        function zoom(mapPx, worldPx, fraction) {
+            return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
+        }
+
+        if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') { 
+
+            var maxLatitude = this.calculationService.GetMaxValueInMultipleDimensionArray(this.sovModel.sovInfo.lat);
+            var maxLongitude = this.calculationService.GetMaxValueInMultipleDimensionArray(this.sovModel.sovInfo.lon);
+            var minLatitude = this.calculationService.GetMinValueInMultipleDimensionArray(this.sovModel.sovInfo.lat);
+            var minLongitude = this.calculationService.GetMinValueInMultipleDimensionArray(this.sovModel.sovInfo.lon);
+
+            const latitude = (minLatitude + maxLatitude) / 2;
+            const longitude = (minLongitude + maxLongitude) / 2;
+
             this.latitude.emit(latitude);
             this.longitude.emit(longitude);
             this.boatLocationData.emit(boatlocationData);
+
+            var WORLD_DIM = { height: 256, width: 256 };
+            var ZOOM_MAX = 21;
+            var mapPixelWidth = this.mapPixelWidth;
+        
+            var latFraction = (latRad(maxLatitude) - latRad(minLatitude)) / Math.PI;
+        
+            var lngDiff = maxLongitude - minLongitude;
+            var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+        
+            //height of agm map
+            var latZoom = zoom(440, WORLD_DIM.height, latFraction);
+            var lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
+            var zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
+            this.mapZoomLvl.emit(zoomLevel);
         }
 
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {

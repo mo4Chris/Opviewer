@@ -49,4 +49,12 @@ export class CalculationService {
     });
     return resetObject;
 }
+
+  GetMaxValueInMultipleDimensionArray(array){
+    return Math.max(...array.map(e => Array.isArray(e) ? this.GetMaxValueInMultipleDimensionArray(e) : e));
+  }
+
+  GetMinValueInMultipleDimensionArray(array){
+    return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
+  }
 }

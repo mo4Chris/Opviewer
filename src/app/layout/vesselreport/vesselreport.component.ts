@@ -54,6 +54,7 @@ export class VesselreportComponent implements OnInit {
   noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   loaded = false;
+  mapPixelWidth = 0;
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -63,7 +64,7 @@ export class VesselreportComponent implements OnInit {
 
   /////// Get variables from child components//////////
   getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl
+    this.mapZoomLvl = mapZoomLvl;
   }
 
   getLocdata(locData: any[]): void {
@@ -133,17 +134,26 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
+        let map = document.getElementById('routeMap');
+        if(map != null) {
+          this.mapPixelWidth = map.offsetWidth;
+        }
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
             this.ctvChild.BuildPageWithCurrentInformation();
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
             this.sovChild.BuildPageWithCurrentInformation();
           }
+
         }, 1000);
       } else {
         this.noPermissionForData = true;
       }
     });
+  }
+
+  ngAfterViewInit() {
+
   }
 
   onChange(): void {

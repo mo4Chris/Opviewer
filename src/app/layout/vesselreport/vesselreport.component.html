@@ -31,6 +31,7 @@
         <div class="bounce3"></div>
     </div>
 </div>
+<div id="routeMap" style="width: 100%">
 <div [hidden]="!loaded">
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="showContent == true; else other_content">
@@ -58,7 +59,7 @@
             (latitude)="getLatitude($event)" (longitude)="getLongitude($event)">
         </app-ctvreport>
         <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (loaded)="isLoaded($event)"
-            [vesselObject]="vesselObject" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
+            [vesselObject]="vesselObject" [mapPixelWidth]="mapPixelWidth" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)"
             (latitude)="getLatitude($event)" (longitude)="getLongitude($event)">
         </app-sovreport>
@@ -78,4 +79,5 @@
             <h3>There is no map available for the selected day and vessel.</h3>
         </div>
     </ng-template>
+</div>
 </div>
