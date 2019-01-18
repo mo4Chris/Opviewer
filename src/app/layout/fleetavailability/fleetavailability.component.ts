@@ -43,6 +43,10 @@ export class FleetavailabilityComponent implements OnInit {
     existingVessels;
     sailDaysChanged = [];
     vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
+    openListing = '';
+    activeListings = [];
+    maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
+    datePickerValue = [];
 
     ngOnInit() {
         this.getCampaignName();
@@ -55,12 +59,14 @@ export class FleetavailabilityComponent implements OnInit {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
             if (data.data) {
                 this.turbineWarrenty = data.data;
-                if (!this.turbineWarrenty.sailMatrix[0][0]) {
+                if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
+
             }
             if (data.sailDayChanged[0]) {
                 for (var i = 0; i < this.turbineWarrenty.sailMatrix.length; i++) {
+                    this.datePickerValue[i] = [[null, null]];
                     for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
                         for (var k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
@@ -231,7 +237,7 @@ export class FleetavailabilityComponent implements OnInit {
             this.missingDays[ind] = 0;
         }
 
-        if (sd != '_NaN_') {
+        if (sd != '_NaN_' && sd >= 0) {
             this.missingDays[ind] += (1 - sd);
             this.dateSailDays += parseFloat(sd);
         }
@@ -326,24 +332,27 @@ export class FleetavailabilityComponent implements OnInit {
             this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
         }
 
-        //forecast
+        //forecast after recorded
         var dateForecast = this.MatLabDateToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
         var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
 
         this.forecastAfterRecorded[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null }
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
         while (dateEnd > dateForecast) {
-            var index = this.allMonths.indexOf(dateForecast.format('MMM YYYY'));
+            var index = parseInt(dateForecast.format('M')) - 1;
             var forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
             this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
             dateForecast.add(1, 'days');
         }
-        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(1, 'days').subtract(1, 'hour');
+        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(23, 'hour');
 
+        //forecast from start
         this.forecastFromStart[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
         target = this.turbineWarrenty.weatherDayTarget;
         for (var i = 1; i < this.allMonths.length; i++) {
-            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[i - 1][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
+            var index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
+            console.log(index);
+            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
@@ -364,7 +373,7 @@ export class FleetavailabilityComponent implements OnInit {
         } else {
             vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
         }
-        if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel)>=0) {
+        if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
             this.setAlert('danger', 'Vessel already in fleet', true);
             return;
         }
@@ -398,8 +407,35 @@ export class FleetavailabilityComponent implements OnInit {
 
     @HostListener('window:beforeunload', ['$event'])
     unloadNotification($event: any) {
-        if (this.sailDaysChanged.length>0) {
+        if (this.sailDaysChanged.length > 0) {
             $event.returnValue = true;
         }
+    }
+
+    setActive() {
+        this.closeModal();
+    }
+
+    isOpen(vessel) {
+        return this.openListing == vessel;
+    }
+
+    openActiveListings(vessel) {
+        if (this.openListing != vessel) {
+            this.openListing = vessel;
+        } else {
+            this.openListing = '';
+        }
+    }
+
+    getActiveListings() {
+        if (this.activeListings == []) {
+            console.log('test');
+            this.activeListings[0] = '';
+        }
+    }
+
+    onChange(): void {
+
     }
 }

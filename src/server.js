@@ -324,6 +324,14 @@ var vesselsToAddToFleetSchema = new Schema({
 }, { versionKey: false });
 var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddToFleetSchema, 'vesselsToAddToFleet');
 
+var activeListingsSchema = new Schema({
+    vesselname: { type: String },
+    dateStart: { type: Number },
+    dateEnd: { type: Number },
+    fleetID: { type: String }
+}, { versionKey: false });
+var activeListingsModel = mongo.model('activeListings', activeListingsSchema, 'activeListings');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -588,7 +596,7 @@ app.get("/api/getSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
+app.get("/api/getTransitsForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
@@ -605,7 +613,7 @@ app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
+app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
@@ -622,7 +630,7 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
+app.get("/api/getStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
@@ -959,7 +967,7 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
-app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+app.get("/api/getDatesShipHasSailedForSov/:mmsi", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
@@ -1418,6 +1426,22 @@ app.post("/api/addVesselToFleet", function (req, res) {
             } else {
                 return res.status(400).send('Vessel is already being processed to be added');
             }
+        }
+    });
+});
+
+app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
+    let token = verifyToken(req, res);
+    let fleetID = req.params.fleetID;
+    let client = req.params.client;
+    if (token.userPermission !== 'admin' && token.client !== client) {
+        return res.status(401).send('Acces denied');
+    }
+    activeListingsModel.find({ fleetID: fleetID }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
         }
     });
 });

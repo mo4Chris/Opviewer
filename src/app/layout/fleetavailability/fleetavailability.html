@@ -9,8 +9,8 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <span><button class="btn addVessel" (click)="openModal(content)">Add vessel</button></span>
-        <ng-template #content let-modal>
+        <span><button class="btn addVessel" (click)="openModal(addVessel)">Add vessel</button></span>
+        <ng-template #addVessel let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Add vessel</h4>
                 <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -33,17 +33,70 @@
                         </div>
                         <div class="form-group" *ngIf="vesselToAdd.type=='new'">
                             New vessel
-                            <input name="newVessel" class="form-control" placeholder="Mmsi or Vessel name"  [(ngModel)]="vesselToAdd.newVesselValue" />
+                            <input name="newVessel" class="form-control" placeholder="Mmsi or Vessel name" [(ngModel)]="vesselToAdd.newVesselValue" />
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                This could take up to a day to procces
+                Changes could take up to a day to process
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <table class="table table-hover table-responsive table-bordered">
+        <span><button class="btn addVessel" (click)="getActiveListings();openModal(setActive);">Set active</button></span>
+        <ng-template #setActive let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title">Set active</h4>
+                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet; let i = index">
+                        <tr (click)="openActiveListings(vessel)" class="pointer">
+                            <td><span class="arrow" [class.arrow-down]="!isOpen(vessel)" [class.arrow-up]="isOpen(vessel)"></span><span class="vesselname">{{changeToNicename(vessel) | titlecase}}</span></td>
+                        </tr>
+                        <ng-container *ngIf="isOpen(vessel)">
+                            <tr class="subRow">
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
+                                                   [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue"
+                                                   (ngModelChange)="onChange($event)" [dayTemplate]="customDay">
+                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
+                                                         let-disabled="disabled" let-focused="focused">
+                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
+                                                     [class.text-muted]="disabled">
+                                                    {{ date.day }}
+                                                </div>
+                                            </ng-template>
+                                            <button class="input-group-addon" (click)="dp.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Get active listings for {{vessel}} -->
+                            <!-- Lege active listing -->
+                        </ng-container>
+                    </ng-container>
+                </table>
+            </div>
+            <div class="modal-footer">
+                Changes could take up to a day to process
+                <button type="button" class="btn btn-primary" (click)="setActive()">Submit</button>
+            </div>
+        </ng-template>
+        <span class="table-legenda">
+            <span class="exampleBox gray" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">-</span>&nbsp;</span> not processed
+            <span class="exampleBox red" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">0</span>&nbsp;</span> didn't sail
+            <span class="exampleBox yellow" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">0.5</span>&nbsp;</span> half sailing day
+            <span class="exampleBox green" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">1</span>&nbsp;</span> full sailing day
+        </span>
+        <table class="table table-hover table-responsive table-bordered sailMatrix">
             <thead>
                 <tr>
                     <th class="smallPadding">Date \ Vessel</th>
@@ -83,7 +136,7 @@
                 </tr>
             </tbody>
         </table>
-        <button class="btn" (click)="hideText=!hideText" [disabled]="edit">Toggle color</button>
+        <button class="btn" (click)="hideText=!hideText" [disabled]="edit || saving">Toggle color</button>
         <button class="btn" (click)="editData()" *ngIf="!edit">Edit</button>
         <button class="btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
     </div>
