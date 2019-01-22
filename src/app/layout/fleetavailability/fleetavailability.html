@@ -1,6 +1,6 @@
 <div [@routerTransition]>
     <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"></app-page-header>
-    <div class="row">
+    <div class="row" *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist' || tokenInfo.userPermission == 'Marine controller'">
         <div class="col-lg-8">
             <canvas id="canvas">{{myChart}}</canvas>
         </div>
@@ -9,7 +9,7 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <span><button class="btn addVessel" (click)="openModal(addVessel)">Add vessel</button></span>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(addVessel)">Add vessel</button></span>
         <ng-template #addVessel let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Add vessel</h4>
@@ -43,7 +43,7 @@
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <span><button class="btn addVessel" (click)="getActiveListings();openModal(setActive);">Set active</button></span>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="getActiveListings(); openModal(setActive)">Set active</button></span>
         <ng-template #setActive let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Set active</h4>
@@ -63,7 +63,7 @@
                                     <div class="form-group">
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
-                                                   [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue"
+                                                   [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue[i]"
                                                    (ngModelChange)="onChange($event)" [dayTemplate]="customDay">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                                                          let-disabled="disabled" let-focused="focused">
@@ -139,6 +139,7 @@
         <button class="btn" (click)="hideText=!hideText" [disabled]="edit || saving">Toggle color</button>
         <button class="btn" (click)="editData()" *ngIf="!edit">Edit</button>
         <button class="btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
+        <button class="btn cancel" (click)="cancelData()" *ngIf="edit" [disabled]="saving">Cancel</button>
     </div>
     <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
 </div>

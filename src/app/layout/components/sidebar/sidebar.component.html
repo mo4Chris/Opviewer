@@ -12,7 +12,7 @@
         <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-edit"></i>&nbsp;{{ 'Users' | translate }}
         </a>
-        <a *ngIf="userCreatePermission" [routerLink]="['/fleets']" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <a [routerLink]="['/fleets']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-ship"></i>&nbsp;{{ 'Fleetavailability' | translate }}
         </a>
         <a *ngIf="userCreatePermission" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" class="list-group-item">

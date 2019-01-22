@@ -30,8 +30,14 @@ table.sailMatrix {
     background-color: transparent;
 }
 
-.btn:first-of-type {
-    margin-right: 25px;
+.btn {
+    &:first-of-type {
+        margin-right: 25px;
+    }
+
+    &.cancel {
+        margin-left: 25px;
+    }
 }
 
 ngb-alert {

@@ -66,7 +66,7 @@ export class FleetavailabilityComponent implements OnInit {
             }
             if (data.sailDayChanged[0]) {
                 for (var i = 0; i < this.turbineWarrenty.sailMatrix.length; i++) {
-                    this.datePickerValue[i] = [[null, null]];
+                    this.datePickerValue[i] = null;
                     for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
                         for (var k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
@@ -109,61 +109,67 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     createLineChart() {
-        this.myChart = new Chart('canvas', {
-            type: 'line',
-            data: {
-                //labels: this.allMonths,
-                datasets: [{
-                    data: this.totalWeatherDaysPerMonth,
-                    label: 'Recorded weather days',
-                    borderColor: 'black',
-                    fill: false
-                }, {
-                    data: this.forecastAfterRecorded,
-                    label: 'Expected after current recorded weather days',
-                    borderColor: 'red',
-                    fill: false
-                }, {
-                    data: this.forecastFromStart,
-                    label: 'Expected from start of term',
-                    borderColor: 'green',
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                elements: {
-                    point:
-                        { radius: 0 },
-                    line:
-                        { tension: 0 }
-                },
-                animation: {
-                    duration: 0,
-                },
-                hover: {
-                    animationDuration: 0,
-                },
-                responsiveAnimationDuration: 0,
-                scales: {
-                    yAxes: [{
-                        stacked: false,
-                        ticks: {
-                            suggestedMin: 0
-                        }
-                    }],
-                    xAxes: [{
-                        type: 'time',
-                        time: {
-                            unit: 'month',
-                            displayFormats: {
-                                month: 'MMM YYYY'
-                            }
-                        }
+        if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
+            this.myChart = new Chart('canvas', {
+                type: 'line',
+                data: {
+                    //labels: this.allMonths,
+                    datasets: [{
+                        data: this.totalWeatherDaysPerMonth,
+                        label: 'Recorded weather days',
+                        borderColor: 'black',
+                        fill: false
+                    }, {
+                        data: this.forecastAfterRecorded,
+                        label: 'Expected after current recorded weather days',
+                        borderColor: 'red',
+                        fill: false
+                    }, {
+                        data: this.forecastFromStart,
+                        label: 'Expected from start of term',
+                        borderColor: 'green',
+                        fill: false
                     }]
+                },
+                options: {
+                    responsive: true,
+                    elements: {
+                        point:
+                            { radius: 0 },
+                        line:
+                            { tension: 0 }
+                    },
+                    animation: {
+                        duration: 0,
+                    },
+                    hover: {
+                        animationDuration: 0,
+                    },
+                    responsiveAnimationDuration: 0,
+                    scales: {
+                        yAxes: [{
+                            stacked: false,
+                            ticks: {
+                                suggestedMin: 0
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Weather days remaining in twa'
+                            }
+                        }],
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MMM YYYY'
+                                }
+                            }
+                        }]
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     MatlabDateToJSDate(serial) {
@@ -187,17 +193,14 @@ export class FleetavailabilityComponent implements OnInit {
         var dateStart = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
         var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
 
-        var i = 1;
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
             this.allMonths.push(dateStart.format('MMM YYYY'));
             if (dateStart < moment()) {
                 this.availableMonths.push(dateStart.format('MMM YYYY'));
                 dateStart.add(1, 'month');
-                this.totalWeatherDaysPerMonth[i] = { x: moment(dateStart), y: 0 };
             } else {
                 dateStart.add(1, 'month');
             }
-            i++;
         }
         this.availableMonths.push('Last 2 weeks');
         this.availableMonths.reverse();
@@ -268,6 +271,11 @@ export class FleetavailabilityComponent implements OnInit {
         this.hideText = false;
     }
 
+    cancelData() {
+        this.sailDaysChanged = [];
+        this.edit = false;
+    }
+
     saveData() {
         this.saving = true;
         this.newService.setSaildays(this.sailDaysChanged).pipe(
@@ -313,24 +321,26 @@ export class FleetavailabilityComponent implements OnInit {
     getGraphData() {
         //recorded weather days
         var target = this.turbineWarrenty.weatherDayTarget;
-        this.totalWeatherDaysPerMonth[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: target };
         for (var i = 0; i < this.turbineWarrenty.Dates.length; i++) {
-            if (this.totalWeatherDaysPerMonth[i] && this.totalWeatherDaysPerMonth[i].y) {
-                this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) + this.turbineWarrenty.numContractedVessels;
-            } else {
-                this.totalWeatherDaysPerMonth[i] = { x: this.MatLabDateToMoment(this.turbineWarrenty.Dates[i]), y: this.turbineWarrenty.numContractedVessels };
+            var x = this.MatLabDateToMoment(this.turbineWarrenty.Dates[i]);
+            if (i == 0) {
+                x.add(9, 'hour');
             }
+            this.totalWeatherDaysPerMonth[i] = { x: x, y: this.turbineWarrenty.numContractedVessels };
             for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
                 if (this.sailMatrix[j][i] != '_NaN_') {
                     this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
             }
         }
-        for (var i = 1; i < this.totalWeatherDaysPerMonth.length; i++) {
+        for (var i = 0; i < this.totalWeatherDaysPerMonth.length; i++) {
             target = target - this.totalWeatherDaysPerMonth[i].y;
             this.totalWeatherDaysPerMonth[i].y = target;
             this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
         }
+        this.totalWeatherDaysPerMonth.reverse();
+        this.totalWeatherDaysPerMonth.push({ x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget });
+        this.totalWeatherDaysPerMonth.reverse();
 
         //forecast after recorded
         var dateForecast = this.MatLabDateToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
@@ -351,7 +361,6 @@ export class FleetavailabilityComponent implements OnInit {
         target = this.turbineWarrenty.weatherDayTarget;
         for (var i = 1; i < this.allMonths.length; i++) {
             var index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
-            console.log(index);
             var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
@@ -367,29 +376,31 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     addVessel() {
-        var vesselToAdd = { client: this.turbineWarrenty.client, vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
-        if (this.vesselToAdd.type == 'existing') {
-            vesselToAdd.vessel = this.vesselToAdd.existingVesselValue;
-        } else {
-            vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
+        if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
+            var vesselToAdd = { client: this.turbineWarrenty.client, vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
+            if (this.vesselToAdd.type == 'existing') {
+                vesselToAdd.vessel = this.vesselToAdd.existingVesselValue;
+            } else {
+                vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
+            }
+            if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
+                this.setAlert('danger', 'Vessel already in fleet', true);
+                return;
+            }
+            this.newService.addVesselToFleet(vesselToAdd).pipe(
+                map(
+                    (res) => {
+                        this.setAlert('success', res.data, true);
+                    }
+                ),
+                catchError(error => {
+                    this.setAlert('danger', error._body, true);
+                    throw error;
+                })
+            ).subscribe(_ => {
+                this.vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
+            });
         }
-        if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
-            this.setAlert('danger', 'Vessel already in fleet', true);
-            return;
-        }
-        this.newService.addVesselToFleet(vesselToAdd).pipe(
-            map(
-                (res) => {
-                    this.setAlert('success', res.data, true);
-                }
-            ),
-            catchError(error => {
-                this.setAlert('danger', error._body, true);
-                throw error;
-            })
-        ).subscribe(_ => {
-            this.vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
-        });
     }
 
     setAlert(type, msg, closeModal = false) {
@@ -413,7 +424,9 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     setActive() {
-        this.closeModal();
+        if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
+            this.closeModal();
+        }
     }
 
     isOpen(vessel) {
@@ -429,9 +442,8 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getActiveListings() {
-        if (this.activeListings == []) {
-            console.log('test');
-            this.activeListings[0] = '';
+        if (!this.activeListings || this.activeListings.length <= 0) {
+            this.newService.getActiveListingsForFleet(this.turbineWarrenty.fleetID, this.turbineWarrenty.client).subscribe(data => this.activeListings = data);
         }
     }
 
