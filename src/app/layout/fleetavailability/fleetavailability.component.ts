@@ -44,9 +44,13 @@ export class FleetavailabilityComponent implements OnInit {
     sailDaysChanged = [];
     vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
     openListing = '';
-    activeListings = [];
-    maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
-    datePickerValue = [];
+    activeListings
+    datePickerValue = [[]];
+    activeChanged = [];
+    listings = [];
+    startDate;
+    stopDate;
+    changing = false;
 
     ngOnInit() {
         this.getCampaignName();
@@ -62,11 +66,13 @@ export class FleetavailabilityComponent implements OnInit {
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
-
+                var date = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
+                this.startDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
+                var date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
+                this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
             }
             if (data.sailDayChanged[0]) {
                 for (var i = 0; i < this.turbineWarrenty.sailMatrix.length; i++) {
-                    this.datePickerValue[i] = null;
                     for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
                         for (var k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
@@ -154,7 +160,7 @@ export class FleetavailabilityComponent implements OnInit {
                             },
                             scaleLabel: {
                                 display: true,
-                                labelString: 'Weather days remaining in twa'
+                                labelString: 'Weather days remaining in TWA'
                             }
                         }],
                         xAxes: [{
@@ -328,6 +334,7 @@ export class FleetavailabilityComponent implements OnInit {
             }
             this.totalWeatherDaysPerMonth[i] = { x: x, y: this.turbineWarrenty.numContractedVessels };
             for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
+                this.datePickerValue[j] = [null];
                 if (this.sailMatrix[j][i] != '_NaN_') {
                     this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
@@ -346,15 +353,15 @@ export class FleetavailabilityComponent implements OnInit {
         var dateForecast = this.MatLabDateToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
         var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
 
-        this.forecastAfterRecorded[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null }
+        this.forecastAfterRecorded[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
-        while (dateEnd > dateForecast) {
+        while (dateEnd >= dateForecast) {
             var index = parseInt(dateForecast.format('M')) - 1;
             var forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
             this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
             dateForecast.add(1, 'days');
         }
-        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.add(23, 'hour');
+        this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.subtract(1, 'hour');
 
         //forecast from start
         this.forecastFromStart[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
@@ -429,6 +436,38 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
+    onChange($event, vessel, dateIsStart): void {
+        this.changing = true;
+        var vesselnumber = this.turbineWarrenty.fullFleet.findIndex(x => x == vessel);
+        var newActiveListing = {
+            vesselname: vessel,
+            fleetID: this.turbineWarrenty._id,
+            dateStart: null,
+            dateEnd: null
+        };
+        if (dateIsStart) {
+            newActiveListing.dateStart = $event;
+        } else {
+            newActiveListing.dateEnd = $event;
+        }
+        this.listings[vesselnumber].push(newActiveListing);
+        this.datePickerValue[vesselnumber] = [{}, {}];
+        this.activeChanged[vesselnumber] = false;
+        this.timeout = setTimeout(() => {
+            this.changing = false;
+        }, 10);
+    }
+
+    isNew(i) {
+        return this.activeChanged[i];
+    }
+
+    setNotNew(i) {
+        if (!this.changing) {
+            this.activeChanged[i] = true;
+        }
+    }
+
     isOpen(vessel) {
         return this.openListing == vessel;
     }
@@ -442,12 +481,16 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getActiveListings() {
-        if (!this.activeListings || this.activeListings.length <= 0) {
-            this.newService.getActiveListingsForFleet(this.turbineWarrenty.fleetID, this.turbineWarrenty.client).subscribe(data => this.activeListings = data);
-        }
-    }
-
-    onChange(): void {
-
+        this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client).subscribe(data => {
+            this.activeListings = data;
+            for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
+                this.listings[i] = [];
+                for (var j = 0; j < this.activeListings.length; j++) {
+                    if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname) {
+                        this.listings[i].push(this.activeListings[j]);
+                    }
+                }
+            }
+        });
     }
 }

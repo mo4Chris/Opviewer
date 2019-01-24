@@ -9,8 +9,8 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(addVessel)">Add vessel</button></span>
-        <ng-template #addVessel let-modal>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(addVesselModal)">Add vessel</button></span>
+        <ng-template #addVesselModal let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Add vessel</h4>
                 <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -43,8 +43,8 @@
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="getActiveListings(); openModal(setActive)">Set active</button></span>
-        <ng-template #setActive let-modal>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="getActiveListings(); openModal(setActiveModal)">Set active</button></span>
+        <ng-template #setActiveModal let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Set active</h4>
                 <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -55,16 +55,32 @@
                 <table>
                     <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet; let i = index">
                         <tr (click)="openActiveListings(vessel)" class="pointer">
-                            <td><span class="arrow" [class.arrow-down]="!isOpen(vessel)" [class.arrow-up]="isOpen(vessel)"></span><span class="vesselname">{{changeToNicename(vessel) | titlecase}}</span></td>
+                            <td>
+                                <span class="arrow" [class.arrow-down]="!isOpen(vessel)" [class.arrow-up]="isOpen(vessel)"></span>
+                                <span class="vesselname">{{changeToNicename(vessel) | titlecase}}</span>
+                            </td>
                         </tr>
                         <ng-container *ngIf="isOpen(vessel)">
-                            <tr class="subRow">
+                            <tr *ngFor="let listing of listings[i]" class="subRow">
                                 <td>
                                     <div class="form-group">
                                         <div class="input-group datepicker-input">
-                                            <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
-                                                   [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue[i]"
-                                                   (ngModelChange)="onChange($event)" [dayTemplate]="customDay">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start date" readonly (click)="dpStart.toggle()">
+                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
+                                                    {{ date.day }}
+                                                </div>
+                                            </ng-template>
+                                            <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End date" readonly (click)="dpEnd.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                                                          let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
@@ -72,7 +88,44 @@
                                                     {{ date.day }}
                                                 </div>
                                             </ng-template>
-                                            <button class="input-group-addon" (click)="dp.toggle()" type="button">
+                                            <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="subRow">
+                                <td (click)="setNotNew(i)" [class.new]="!isNew(i)">
+                                    <span class="addActive">+</span>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][0]"
+                                                   (ngModelChange)="onChange($event, vessel, true)" placeholder="Start date" readonly (click)="dpStart.toggle()">
+                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
+                                                    {{ date.day }}
+                                                </div>
+                                            </ng-template>
+                                            <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][1]"
+                                                   (ngModelChange)="onChange($event, vessel, false)" placeholder="End date" readonly (click)="dpEnd.toggle()">
+                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
+                                                         let-disabled="disabled" let-focused="focused">
+                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
+                                                     [class.text-muted]="disabled">
+                                                    {{ date.day }}
+                                                </div>
+                                            </ng-template>
+                                            <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
                                                 <span class="fa fa-calendar"></span>
                                             </button>
                                         </div>
@@ -80,7 +133,6 @@
                                 </td>
                             </tr>
                             <!-- Get active listings for {{vessel}} -->
-                            <!-- Lege active listing -->
                         </ng-container>
                     </ng-container>
                 </table>

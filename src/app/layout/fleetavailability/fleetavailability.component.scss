@@ -103,12 +103,39 @@ ngb-alert {
         }
 
         tr {
+            &.subRow td {
+                padding-left: 45px;
+
+                &.new {
+                    .addActive {
+                        display: inline-block;
+                    }
+
+                    * {
+                        opacity: .7;
+                    }
+                }
+            }
+
+            .addActive {
+                text-align: center;
+                width: 45px;
+                margin-left: -45px;
+                display: none;
+                line-height: 50px;
+                cursor: pointer;
+            }
+
             .form-group {
-                width: 40%;
+                width: 45%;
                 display: inline-block;
 
                 &:first-of-type {
-                    margin-right: 20%;
+                    margin-right: 10%;
+                }
+
+                .form-control[readonly] {
+                    background-color: white;
                 }
             }
         }

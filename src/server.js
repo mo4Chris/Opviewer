@@ -326,8 +326,8 @@ var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddTo
 
 var activeListingsSchema = new Schema({
     vesselname: { type: String },
-    dateStart: { type: Number },
-    dateEnd: { type: Number },
+    dateStart: { type: Object },
+    dateEnd: { type: Object },
     fleetID: { type: String }
 }, { versionKey: false });
 var activeListingsModel = mongo.model('activeListings', activeListingsSchema, 'activeListings');
@@ -1395,8 +1395,10 @@ app.post("/api/addVesselToFleet", function (req, res) {
     filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield, status: "TODO" };
     if (isNaN(req.body.vessel)) {
         filter.vesselname = req.body.vessel;
-    } else {
+    } else if (req.body.vessel) {
         filter.mmsi = req.body.vessel;
+    } else {
+        return res.status(400).send('No vessel entered');
     }
     vesselsToAddToFleetmodel.find(filter, function (err, data) {
         if (err) {
