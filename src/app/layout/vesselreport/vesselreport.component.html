@@ -1,4 +1,4 @@
-<h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }} </small></h2>
+<h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
 <div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
     <div class="form-group">
         <div class="input-group datepicker-input">
@@ -36,13 +36,20 @@
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="showContent == true; else other_content">
             <div *ngIf="showMap; else no_map_available">
-                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId"
-                    [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let parks of Locdata; let i=index">
-                        <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index"
-                            [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
-                        </agm-circle>
+                <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
+                    <b>Warning!</b> no route found for the selected day and vessel.
+                </div>
+                <div *ngIf="vesselObject.vesselType == 'CTV' && !parkFound" class="alert alert-warning" role="alert">
+                    <b>Warning!</b> no parks found for the selected day and vessel.
+                </div>
+                <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
+                    <b>Info,</b> parks were found but have not been visited by ship.
+                </div>
+                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let turbinePark of turbineLocations; let i=index">
+                        <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
                     </ng-container>
+                    
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let location of boatLocationData; let i = index">
                             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
@@ -54,14 +61,14 @@
             </div>
         </div>
         <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
-            [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
-            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)"
-            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)">
+            [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
+            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)" (parkFound)="getParkFound($event)">
         </app-ctvreport>
         <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (loaded)="isLoaded($event)"
             [vesselObject]="vesselObject" [mapPixelWidth]="mapPixelWidth" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
-            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (Locdata)="getLocdata($event)"
-            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)">
+            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)">
         </app-sovreport>
     </div>
     <ng-template #other_content>

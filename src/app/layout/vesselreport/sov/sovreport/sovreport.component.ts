@@ -18,12 +18,13 @@ export class SovreportComponent implements OnInit {
 
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
-    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
     @Input() mapPixelWidth;
 
@@ -89,8 +90,7 @@ export class SovreportComponent implements OnInit {
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
                 this.sovModel.sovInfo = sov[0];
-                this.GetVesselRoute();
-
+                
                 // Currently transits are not being used, should be removed
                 // this.GetTransits();
 
@@ -108,6 +108,7 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                     }
+                    this.GetVesselRoute();
                 });
 
                 this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
@@ -150,54 +151,37 @@ export class SovreportComponent implements OnInit {
 
     GetVesselRoute() {
         const boatlocationData = [];
-
         boatlocationData.push(this.sovModel.sovInfo);
 
-        function latRad(lat) {
-            var sin = Math.sin(lat * Math.PI / 180);
-            var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
-            return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
-        }
-    
-        function zoom(mapPx, worldPx, fraction) {
-            return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
-        }
+        if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') {
 
-        if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') { 
+            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, this.sovModel.sovInfo.lat, this.sovModel.sovInfo.lon);
 
-            var maxLatitude = this.calculationService.GetMaxValueInMultipleDimensionArray(this.sovModel.sovInfo.lat);
-            var maxLongitude = this.calculationService.GetMaxValueInMultipleDimensionArray(this.sovModel.sovInfo.lon);
-            var minLatitude = this.calculationService.GetMinValueInMultipleDimensionArray(this.sovModel.sovInfo.lat);
-            var minLongitude = this.calculationService.GetMinValueInMultipleDimensionArray(this.sovModel.sovInfo.lon);
-
-            const latitude = (minLatitude + maxLatitude) / 2;
-            const longitude = (minLongitude + maxLongitude) / 2;
-
-            this.latitude.emit(latitude);
-            this.longitude.emit(longitude);
             this.boatLocationData.emit(boatlocationData);
-
-            var WORLD_DIM = { height: 256, width: 256 };
-            var ZOOM_MAX = 21;
-            var mapPixelWidth = this.mapPixelWidth;
-        
-            var latFraction = (latRad(maxLatitude) - latRad(minLatitude)) / Math.PI;
-        
-            var lngDiff = maxLongitude - minLongitude;
-            var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
-        
-            //height of agm map
-            var latZoom = zoom(440, WORLD_DIM.height, latFraction);
-            var lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
-            var zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
-            this.mapZoomLvl.emit(zoomLevel);
+            this.latitude.emit(mapProperties.avgLatitude);
+            this.longitude.emit(mapProperties.avgLongitude);
+            this.mapZoomLvl.emit(mapProperties.zoomLevel);
+            this.routeFound.emit(true);
+        }
+        else {
+            this.routeFound.emit(false);
         }
 
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
-            this.commonService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                if (data.length !== 0) {
-                    const locdata = data;
-                    this.Locdata.emit(locdata);
+            this.commonService.GetSpecificPark({ 'park': data }).subscribe(locdata => {
+                if (locdata.length !== 0) {
+                    let transfers = [];
+                    let sovType = 'Unknown';
+                    if(this.sovModel.sovType == SovType.Platform) {
+                        transfers = this.sovModel.platformTransfers;
+                        sovType = 'Platform';
+                    }
+                    else if(this.sovModel.sovType == SovType.Turbine) {
+                        transfers = this.sovModel.turbineTransfers;
+                        sovType = 'Turbine';
+                    }
+                    let locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
+                    this.turbineLocationData.emit(locationData);
                 }
             });
         });
