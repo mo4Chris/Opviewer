@@ -2,6 +2,6 @@ export enum Usertype {
     
     LogisticsSpecialist = "Logistics specialist",
     MarineController = "Marine controller",
-    Vesselmaster = "Vesselmaster",
+    Vesselmaster = "Vessel master",
     Admin = "admin"
 }
