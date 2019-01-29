@@ -18,7 +18,6 @@ import { Usertype } from '../../shared/enums/UserType';
 export class DashboardComponent implements OnInit {
     constructor(public router: Router, private route: ActivatedRoute, private userService: UserService) {   }
     locationData;
-    errData;
 
     // Map settings
     latitude = 52.3702157;
@@ -55,26 +54,6 @@ export class DashboardComponent implements OnInit {
     }
     ///////////////////////////////
 
-
-    filter() {
-        this.infoWindowOpened = null;
-    }
-
-    showInfoWindow(infoWindow) {
-        if (this.infoWindowOpened === infoWindow) {
-            return;
-        }
-
-        if (this.infoWindowOpened !== null) {
-            this.infoWindowOpened.close();
-        }
-        this.infoWindowOpened = infoWindow;
-    }
-
-    redirectDailyVesselReport(mmsi) {
-        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
-    }
-
     ngOnInit() {
         setTimeout(() => {
             switch(this.tokenInfo.userPermission) { 
@@ -99,14 +78,33 @@ export class DashboardComponent implements OnInit {
         this.getAlert();
       }
 
-      getAlert() {
-          this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message });
-          if (this.alert.type != '' && this.alert.text != '') {
-              clearTimeout(this.timeout);
-              this.showAlert = true;
-              this.timeout = setTimeout(() =>{
-                  this.showAlert = false;
-              }, 10000);
-          }
-      }
+    filter() {
+        this.infoWindowOpened = null;
+    }
+
+    showInfoWindow(infoWindow) {
+        if (this.infoWindowOpened === infoWindow) {
+            return;
+        }
+
+        if (this.infoWindowOpened !== null) {
+            this.infoWindowOpened.close();
+        }
+        this.infoWindowOpened = infoWindow;
+    }
+
+    redirectDailyVesselReport(mmsi) {
+        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    }
+
+    getAlert() {
+        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message });
+        if (this.alert.type != '' && this.alert.text != '') {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() =>{
+                this.showAlert = false;
+            }, 10000);
+        }
+    }
 }
