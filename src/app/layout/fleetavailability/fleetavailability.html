@@ -43,7 +43,7 @@
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="getActiveListings(); openModal(setActiveModal)">Set active</button></span>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(setActiveModal, {size: 'lg'}, true)">Set active</button></span>
         <ng-template #setActiveModal let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Set active</h4>
@@ -58,6 +58,7 @@
                             <td>
                                 <span class="arrow" [class.arrow-down]="!isOpen(vessel)" [class.arrow-up]="isOpen(vessel)"></span>
                                 <span class="vesselname">{{changeToNicename(vessel) | titlecase}}</span>
+                                <span *ngIf="turbineWarrenty.activeFleet.indexOf(vessel) > -1" class="active">Active</span>
                             </td>
                         </tr>
                         <ng-container *ngIf="isOpen(vessel)">
@@ -93,6 +94,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <span class="deleteActive" (click)="deleteListing(listing, i)">-</span>
                                 </td>
                             </tr>
                             <tr class="subRow">
@@ -132,7 +134,6 @@
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Get active listings for {{vessel}} -->
                         </ng-container>
                     </ng-container>
                 </table>

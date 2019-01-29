@@ -44,7 +44,6 @@ let transporter = nodemailer.createTransport({
 //##################   Models   ###########################
 //#########################################################
 
-
 var Schema = mongo.Schema;
 
 var userSchema = new Schema({
@@ -1443,7 +1442,91 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(data);
+            var activeVessels = [];
+            for (var i = 0; i < data.length; i++) {
+                if (Date.now() > data[i].dateStart && Date.now() < data[i].dateEnd && data[i].dateStart < data[i].dateEnd) {
+                    if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
+                        activeVessels.push(data[i].vesselname);
+                    }
+                } else if (Date.now() > data[i].dateStart && !data[i].dateEnd) {
+                    if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
+                        activeVessels.push(data[i].vesselname);
+                    }
+                } else if (Date.now() < data[i].dateEnd && !data[i].dateStart) {
+                    if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
+                        activeVessels.push(data[i].vesselname);
+                    }
+                }
+            }
+            turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function (err, twa) {
+                if (err) {
+                    return res.status(401).send('Something went went wrong with getting the active listings');
+                } else {
+                    return res.send({ data: data, twa: twa });
+                }
+            });
+        }
+    });
+});
+
+app.post("/api/setActiveListings", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.client !== client) {
+        return res.status(401).send('Acces denied');
+    }
+    var listings = req.body.listings;
+    var activeVessels = [];
+    var fleetID;
+    var listingsToDelete = req.body.listingsToDelete;
+    for (var ind = 0; ind < listingsToDelete.length; ind++) {
+        activeListingsModel.remove({ _id: listingsToDelete[ind]._id }, function (err) {
+            if (err) {
+                return res.status(401).send('Something went went wrong with updating one or more listing');
+            }
+        });
+    }
+    for (var i = 0; i < listings.length; i++) {
+        for (var j = 0; j < listings[i].length; j++) {
+            var listing = listings[i][j];
+            fleetID = listing.fleetID;
+            if (Date.now() > listing.dateStart && Date.now() < listing.dateEnd && listing.dateStart < listing.dateEnd) {
+                if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
+                    activeVessels.push(listing.vesselname);
+                }
+            } else if (Date.now() > listing.dateStart && !listing.dateEnd) {
+                if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
+                    activeVessels.push(listing.vesselname);
+                }
+            } else if (Date.now() < listing.dateEnd && !listing.dateStart) {
+                if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
+                    activeVessels.push(listing.vesselname);
+                }
+            }
+            if (listing._id) {
+                activeListingsModel.findByIdAndUpdate(listing._id, { $set: listing }, function (err, data) {
+                    if (err) {
+                        return res.status(401).send('Something went went wrong with updating one or more listing');
+                    }
+                });
+            } else {
+                var activeListing = new activeListingsModel();
+                activeListing.vesselname = listing.vesselname;
+                activeListing.dateStart = listing.dateStart;
+                activeListing.dateEnd = listing.dateEnd;
+                activeListing.fleetID = listing.fleetID;
+                activeListing.save(function (err, data) {
+                    if (err) {
+                        return res.status(401).send('Something went went wrong with updating one or more listing');
+                    }
+                });
+            }
+        }
+    }
+    turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function (err, data) {
+        if (err) {
+            return res.status(401).send('Something went went wrong with updating one or more listing');
+        } else {
+            return res.send({ data: "Active listings edited (could take up to a day to process)", twa: data });
         }
     });
 });

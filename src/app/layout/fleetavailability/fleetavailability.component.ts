@@ -44,13 +44,14 @@ export class FleetavailabilityComponent implements OnInit {
     sailDaysChanged = [];
     vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
     openListing = '';
-    activeListings
+    activeListings;
     datePickerValue = [[]];
     activeChanged = [];
     listings = [];
     startDate;
     stopDate;
     changing = false;
+    listingsToDelete = [];
 
     ngOnInit() {
         this.getCampaignName();
@@ -63,12 +64,13 @@ export class FleetavailabilityComponent implements OnInit {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
             if (data.data) {
                 this.turbineWarrenty = data.data;
+                this.getActiveListings();
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
                 var date = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
                 this.startDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
-                var date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
+                date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
                 this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
             }
             if (data.sailDayChanged[0]) {
@@ -295,15 +297,10 @@ export class FleetavailabilityComponent implements OnInit {
                 throw error;
             })
         ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
             this.edit = false;
             this.sailDaysChanged = [];
             this.saving = false;
             this.buildData();
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
         });
 
     }
@@ -374,8 +371,11 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
-    openModal(content) {
-        this.modalReference = this.modalService.open(content);
+    openModal(content, settings, activeListingsModal = false) {
+        if (activeListingsModal) {
+            this.getActiveListings();
+        }
+        this.modalReference = this.modalService.open(content, settings);
     }
 
     closeModal() {
@@ -432,7 +432,27 @@ export class FleetavailabilityComponent implements OnInit {
 
     setActive() {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
-            this.closeModal();
+            for (var i = 0; i < this.listings.length; i++) {
+                for (var j = 0; j < this.listings[i].length; j++) {
+                    this.listings[i][j].dateStart = moment(this.listings[i][j].dateStart.year + '-' + this.listings[i][j].dateStart.month + '-' + this.listings[i][j].dateStart.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                    this.listings[i][j].dateEnd = moment(this.listings[i][j].dateEnd.year + '-' + this.listings[i][j].dateEnd.month + '-' + this.listings[i][j].dateEnd.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                }
+            }
+            this.newService.setActiveListings({ listings: this.listings, listingsToDelete: this.listingsToDelete }).pipe(
+                map(
+                    (res) => {
+                        this.turbineWarrenty.activeFleet = res.twa.activeFleet;
+                        this.setAlert('success', res.data, true);
+                    }
+                ),
+                catchError(error => {
+                    this.setAlert('danger', error._body, true);
+                    throw error;
+                })
+            ).subscribe(_ => {
+                this.getActiveListings();
+                this.openListing = '';
+            });
         }
     }
 
@@ -481,16 +501,32 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getActiveListings() {
+        this.openListing = '';
+        this.listingsToDelete = [];
         this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client).subscribe(data => {
-            this.activeListings = data;
+            this.activeListings = data.data;
+            this.turbineWarrenty.activeFleet = data.twa.activeFleet;
             for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
                 this.listings[i] = [];
                 for (var j = 0; j < this.activeListings.length; j++) {
                     if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname) {
+                        var date = moment(this.activeListings[j].dateStart);
+                        this.activeListings[j].dateStart = { year: date.year(), month: (date.month() + 1), day: date.date() };
+                        date = moment(this.activeListings[j].dateEnd);
+                        this.activeListings[j].dateEnd = { year: date.year(), month: (date.month() + 1), day: date.date() };
                         this.listings[i].push(this.activeListings[j]);
                     }
                 }
             }
         });
+    }
+
+    deleteListing(deleteItem, vesselnumber) {
+        this.listings[vesselnumber].forEach((item, index) => {
+            if (item === deleteItem) this.listings[vesselnumber].splice(index, 1);
+        });
+        if (deleteItem._id) {
+            this.listingsToDelete.push(deleteItem);
+        }
     }
 }
