@@ -828,8 +828,8 @@ app.post("/api/getCrewRouteForBoat", function (req, res) {
     });
 });
 
-app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
-    let companyName = req.body[0].companyName;
+app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
+    let companyName = req.params.company;
     let companyMmsi = [];
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
@@ -891,7 +891,6 @@ app.post("/api/getLatestBoatLocationForCompany", function (req, res) {
                     res.send(err);
                 } else {
                     res.send(data);
-
                 }
             });
         }
