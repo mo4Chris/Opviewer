@@ -98,10 +98,6 @@ export class VesselreportComponent implements OnInit {
     let vesselType = turbineLocationData.vesselType;
     let turbines: any[] = new Array<any>();
 
-    console.log("transfers");
-    console.log(transfers);
-    console.log("turbineLocations");
-    console.log(locationData);
     if(locationData.length > 0 && transfers.length > 0) {
       locationData.forEach(turbineLocation => {
         for(let index = 0; index < turbineLocation.lat.length; index++) {
@@ -116,7 +112,7 @@ export class VesselreportComponent implements OnInit {
               transferName = transfers[transferIndex].location;
             }
 
-            if(turbineLocation.name[index][0] == transferName) {
+            if(turbineLocation.name[index] == transferName) {
               turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
               turbineIsVisited = true;
               this.transferVisitedAtLeastOneTurbine = true;
