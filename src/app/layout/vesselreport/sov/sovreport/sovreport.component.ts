@@ -8,6 +8,7 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
+import { TurbineLocation } from '../../models/TurbineLocation';
 
 @Component({
     selector: 'app-sovreport',
@@ -34,7 +35,8 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined };
+    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
+    turbineLocations = new Array<any>();
 
     // Charts
     operationsChart;
@@ -44,6 +46,13 @@ export class SovreportComponent implements OnInit {
     chart;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
+    iconMarkerSailedBy = {
+        url: '../../../../assets/images/turbine.png',
+        scaledSize: {
+          width: 20,
+          height: 20
+        }
+      }
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
@@ -54,9 +63,27 @@ export class SovreportComponent implements OnInit {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === toMMSI) {
                     this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
+                    if(typeof(Array) == typeof(ctvActivity.turbineVisits)) {
+                        this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
+                    }
                 }
             });
         });
+
+        if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
+            this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
+            this.turbineLocations.forEach(turbineLocationData => {
+                for(let index = 0; index < turbineLocationData.lat.length; index++) {
+                    let transferName = turbineVisit.location; 
+                    if(turbineLocationData.name[index][0] == transferName) {
+                        //this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], this.iconMarkerSailedBy, true));     
+                    }
+                }
+                });
+            });
+        }
+
+
         this.vessel2vesselActivityRoute.lat = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[0].length / 2)]);
         this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
         this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
@@ -170,6 +197,7 @@ export class SovreportComponent implements OnInit {
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
             this.commonService.GetSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
+                    this.turbineLocations = locdata;
                     let transfers = [];
                     let sovType = 'Unknown';
                     if(this.sovModel.sovType == SovType.Platform) {

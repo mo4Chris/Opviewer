@@ -12,6 +12,8 @@ import { UserService } from '../../shared/services/user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
+import { from } from 'rxjs';
+import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vesselreport',
@@ -57,9 +59,18 @@ export class VesselreportComponent implements OnInit {
   loaded = false;
   mapPixelWidth = 0;
 
-  turbineLocations: TurbineLocation[] = new Array<TurbineLocation>();
+  turbineLocations: Array<TurbineLocation[]> = new Array<TurbineLocation[]>();
+  infoWindowOpened = null;
 
   iconMarkerSailedBy = {
+    url: '../../assets/images/blue_marker.png',
+    scaledSize: {
+      width: 20,
+      height: 20
+    },
+  }
+
+  iconMarker = {
     url: '../../assets/images/turbine.png',
     scaledSize: {
       width: 20,
@@ -80,30 +91,67 @@ export class VesselreportComponent implements OnInit {
 
   getTurbineLocationData(turbineLocationData: any): void {
 
+
     let locationData = turbineLocationData.turbineLocations;
     let transfers = turbineLocationData.transfers;
     let type = turbineLocationData.type;
     let vesselType = turbineLocationData.vesselType;
+    let turbines: any[] = new Array<any>();
 
+    console.log("transfers");
+    console.log(transfers);
+    console.log("turbineLocations");
+    console.log(locationData);
     if(locationData.length > 0 && transfers.length > 0) {
-      locationData.forEach(turbineLocationData => {
-        for(let index = 0; index < turbineLocationData.lat.length; index++) {
-          transfers.forEach(transfer => {
+      locationData.forEach(turbineLocation => {
+        for(let index = 0; index < turbineLocation.lat.length; index++) {
+          let turbineIsVisited = false;
+          for(let transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
             let transferName = "";
-            if(vesselType == 'SOV') {
-              type == 'Turbine' ? transferName = transfer.location : transferName = transfer.locationname;
+            if(vesselType == 'SOV' && type != 'Turbine') {
+              //Platform has different property name
+              transferName = transfers[transferIndex].locationname;
             }
-            else if(vesselType == 'CTV') {
-              transferName = transfer.location;
+            else {
+              transferName = transfers[transferIndex].location;
             }
 
-            if(turbineLocationData.name[index][0] == transferName) {
-              this.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], true));
-              this.transferVisitedAtLeastOneTurbine = true;      
+            if(turbineLocation.name[index][0] == transferName) {
+              turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
+              turbineIsVisited = true;
+              this.transferVisitedAtLeastOneTurbine = true;
+              continue;    
             }
-          });
+          }
+          //Reached the end, turbine has not been visited
+          if(!turbineIsVisited) {
+            turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
+          }
         }
-      });
+        });
+    }
+      
+      const source = from(turbines);
+      const groupedTurbines = source.pipe(
+        groupBy(turbine => turbine.latitude),
+        mergeMap(group => group.pipe(toArray()))
+      );
+      groupedTurbines.subscribe(val => this.turbineLocations.push(val));
+  }
+
+
+  onMouseOver(infoWindow, gm) {
+    if (gm.lastOpen != null) {
+      gm.lastOpen.close();
+    }
+
+    gm.lastOpen = infoWindow;
+    infoWindow.open();
+  }
+
+  onMouseOut(infoWindow) {
+    if(infoWindow != null) {
+      infoWindow.close();
     }
   }
 
@@ -158,6 +206,14 @@ export class VesselreportComponent implements OnInit {
 
   objectToInt(objectvalue) {
     return this.calculationService.objectToInt(objectvalue);
+  }
+
+  GetMatlabDateToCustomJSTime(serial, format) {
+    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
+  }
+
+  GetDecimalValueForNumber(value, endpoint) {
+    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
   }
 
   ngOnInit() {
@@ -220,7 +276,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   resetRoutes() {
-    this.turbineLocations = new Array<TurbineLocation>();
+    this.turbineLocations = new Array<TurbineLocation[]>();
     this.boatLocationData = [];
     this.longitude = 0;
     this.latitude = 0;

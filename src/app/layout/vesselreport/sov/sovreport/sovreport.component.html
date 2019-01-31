@@ -296,25 +296,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngFor="let object of (this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
-                            <tr>
-                                <th colspan="5">{{object.key}}</th>
-                            </tr>
-                            <ng-container *ngFor="let turbineVisit of object.value">
+                        <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
+                            <ng-container *ngFor="let object of (vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
                                 <tr>
-                                    <td></td>
-                                    <td>{{turbineVisit.location}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
-                                    <td>{{turbineVisit.durationMinutes}} minutes</td>
+                                    <th colspan="5">{{object.key}}</th>
                                 </tr>
+                                <ng-container *ngFor="let turbineVisit of object.value">
+                                    <tr>
+                                        <td></td>
+                                        <td>{{turbineVisit.location}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                        <td>{{turbineVisit.durationMinutes}} minutes</td>
+                                    </tr>
+                                </ng-container>
                             </ng-container>
                         </ng-container>
+                        <ng-template #noTurbinesVisited>
+                            <tr>
+                                <td colspan="5">There were no turbines visited by this vessel</td>
+                            </tr>
+                        </ng-template>
                     </tbody>
                 </table>
             </div>
-            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9"
-                [mapTypeId]="'roadmap'">
+            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9" [mapTypeId]="'roadmap'">
+
+                <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
+                    <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                </ng-container>
+
                 <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                     <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
                         <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">

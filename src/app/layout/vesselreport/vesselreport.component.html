@@ -45,11 +45,28 @@
                 <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
                     <b>Info,</b> parks were found but have not been visited by ship.
                 </div>
-                <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let turbinePark of turbineLocations; let i=index">
-                        <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let turbineParkPerLocation of turbineLocations; let i=index">
+                        <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
+                            <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
+                            [iconUrl]="iconMarkerSailedBy" (mouseOver)="onMouseOver(infoWindow, gm)" (mouseOut)="onMouseOut(infoWindow)">      
+                            <agm-info-window #infoWindow>
+                                    <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }}</strong>
+                                    <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
+                                        <pre>
+                                            Start: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+                                            Stop: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+                                            Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+                                        </pre>
+                                    </ng-container>
+                               </agm-info-window>
+                           </agm-marker>
+                        </ng-container>
+                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
+                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
+                                <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
+                        </ng-container>
                     </ng-container>
-                    
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let location of boatLocationData; let i = index">
                             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"

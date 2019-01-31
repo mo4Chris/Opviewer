@@ -91,7 +91,6 @@ export class CtvreportComponent implements OnInit {
                     if (this.transferData.length !== 0) {
                         this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                             this.newService.GetSpecificPark({ 'park': data }).subscribe(locData => {
-                                console.log(locData);
                                 if (locData.length > 0) {
 
                                     let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
