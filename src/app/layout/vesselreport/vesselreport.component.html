@@ -46,7 +46,7 @@
                     <b>Info,</b> parks were found but have not been visited by ship.
                 </div>
                 <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                    <ng-container *ngFor="let turbineParkPerLocation of turbineLocations; let i=index">
+                    <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
                              (mouseOver)="onMouseOver(infoWindow, gm)">      
@@ -73,6 +73,11 @@
                                 [longitude]="objectToInt(location.lon[i])">
                             </agm-polyline-point>
                         </ng-container>
+                    </agm-polyline>
+                    <agm-polyline [strokeColor]="'#00368e'" [strokeWeight]="1">
+                        <agm-polyline-point *ngFor="let parkBoundaryLatitude of vesselTurbines.parkBoundaryLatitudes; let i = index" [latitude]="parkBoundaryLatitude"
+                            [longitude]="vesselTurbines.parkBoundaryLongitudes[i]">
+                        </agm-polyline-point>
                     </agm-polyline>
                 </agm-map>
             </div>

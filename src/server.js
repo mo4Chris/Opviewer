@@ -7,7 +7,8 @@ var nodemailer = require('nodemailer');
 
 require('dotenv').config({path:__dirname+'/./../.env'});
 
-var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
+
+var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", function (err, response) {
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -262,14 +263,23 @@ var SovVessel2vesselTransfers = new Schema({
 });
 var SovVessel2vesselTransfers = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
-var stationaryPeriods = new Schema({
-    vesselname: {type: String },
-    mmsi: {type: Number },
-    startTime: { type: Number },
-    stopTime: { type: Number },
-    location: { type: String }
-});
-var stationaryPeriods = mongo.model('SOV_stationaryPeriods', stationaryPeriods, 'SOV_stationaryPeriods');
+var SovCycleTimes = new Schema({
+    startTime: {type: String},
+    durationMinutes: { type: Number },
+    fieldname: {type: String},
+    fromTurbine: {type: String},
+    toTurbine: {type: String},
+    sailedDistanceNM: { type: Number },
+    turbineDistanceNM: { type: Number },
+    avgSpeedKts: { type: Number },
+    avgMovingSpeedKts: { type: Number },
+    maxSpeedKts: { type: Number },
+    transferTimeMins: { type: Number },
+    movingSpeedAbove5ktsPerc: { type: Number },
+    date:{ type: Number },
+    mmsi: { type: Number }
+})
+var SovCycleTimes = mongo.model('SOV_cycleTimes', SovCycleTimes, 'SOV_cycleTimes');
 
 var generalSchema = new Schema({
     mmsi: { type: Number },
@@ -580,19 +590,15 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetStationaryPeriodsForSov/:mmsi/:date", function (req, res) {
+app.get("/api/GetCycleTimesForSov/:mmsi/:date", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Acces denied');
     }
     let mmsi = parseInt(req.params.mmsi);
-    let date = req.params.date;
+    let date = parseInt(req.params.date);
 
-    stationaryPeriods.find({"mmsi": mmsi, "startTime": { $gte: date, $lt: date + 1 }}, null, {
-        sort: {
-            startTime: 'asc'
-        }
-    }, function (err, data) {
+    SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
         if (err) {
             res.send(err);
         } else {

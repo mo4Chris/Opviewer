@@ -15,6 +15,7 @@ import { TurbineLocation } from './models/TurbineLocation';
 import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
+import { VesselTurbines } from './models/VesselTurbines';
 
 @Component({
   selector: 'app-vesselreport',
@@ -61,8 +62,7 @@ export class VesselreportComponent implements OnInit {
   turbinesLoaded = true; //getTurbineLocationData is not always triggered
   mapPixelWidth = 0;
 
-  turbineLocations: Array<TurbineLocation[]> = new Array<TurbineLocation[]>();
-  infoWindowOpened = null;
+  vesselTurbines: VesselTurbines = new VesselTurbines();
 
   iconMarker = {
     url: '../../assets/images/turbineIcon.png',
@@ -120,6 +120,8 @@ export class VesselreportComponent implements OnInit {
             turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
           }
         }
+        this.vesselTurbines.parkBoundaryLatitudes.push(...turbineLocation.outlineLatCoordinates);
+        this.vesselTurbines.parkBoundaryLongitudes.push(...turbineLocation.outlineLonCoordinates);
         });
     }
       
@@ -128,7 +130,7 @@ export class VesselreportComponent implements OnInit {
         groupBy(turbine => turbine.latitude),
         mergeMap(group => group.pipe(toArray()))
       );
-      groupedTurbines.subscribe(val => this.turbineLocations.push(val));
+      groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val));
 
       setTimeout(() => {
         this.turbinesLoaded = true;
@@ -265,7 +267,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   resetRoutes() {
-    this.turbineLocations = new Array<TurbineLocation[]>();
+    this.vesselTurbines = new VesselTurbines();
     this.boatLocationData = [];
     this.longitude = 0;
     this.latitude = 0;

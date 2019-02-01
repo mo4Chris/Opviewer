@@ -38,8 +38,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  GetStationaryPeriodsForSov(mmsi, date) {
-    return this.get(environment.DB_IP + '/api/GetStationaryPeriodsForSov/' + mmsi + '/' + date).pipe(
+  GetCycleTimesForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetCycleTimesForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 

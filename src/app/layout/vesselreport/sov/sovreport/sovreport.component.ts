@@ -36,7 +36,7 @@ export class SovreportComponent implements OnInit {
 
     locShowContent = false;
     vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
-    turbineLocations = new Array<any>();
+    //turbineLocations = new Array<any>();
 
     // Charts
     operationsChart;
@@ -109,7 +109,7 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
     }
 
-    GetDecimalValueForNumber(value, endpoint) {
+    GetDecimalValueForNumber(value, endpoint = null) {
         return this.calculationService.GetDecimalValueForNumber(value, endpoint);
     }
 
@@ -147,6 +147,9 @@ export class SovreportComponent implements OnInit {
                 this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
                 });
+                this.commonService.GetCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
+                    this.sovModel.cycleTimes = cycleTimes;
+                });
 
                 this.locShowContent = true;
 
@@ -160,6 +163,7 @@ export class SovreportComponent implements OnInit {
                 }, 2000);
             } else {
                 this.locShowContent = false;
+                this.loaded.emit(true);
             }
 
             this.showContent.emit(this.locShowContent);
@@ -202,7 +206,7 @@ export class SovreportComponent implements OnInit {
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
             this.commonService.GetSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
-                    this.turbineLocations = locdata;
+                    //this.turbineLocations = locdata;
                     let transfers = [];
                     let sovType = 'Unknown';
                     if(this.sovModel.sovType == SovType.Platform) {

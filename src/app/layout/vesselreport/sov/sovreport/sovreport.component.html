@@ -264,7 +264,7 @@
                                             <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{transfer.duration}} minutes</td>
                                             <td>{{transfer.peakWindGust}}</td>
-                                            <td>{{transfer.peakWindAvg}}</td>
+                                            <td>{{transfer.peakHeave.toFixed(2)}}</td>
                                         </tr>
                                     </ng-container>
                                 </ng-container>
@@ -335,4 +335,47 @@
             </div>
         </div>
     </ng-template>
+    <div class="row" *ngIf="sovModel.cycleTimes.length > 0">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Cycle Times
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>From turbine</th>
+                                <th>To turbine</th>
+                                <th colspan="2">Start time</th>
+                                <th>Duration</th>
+                                <th>Sailed distance</th>
+                                <th>Turbine distance</th>
+                                <th>Average speed</th>
+                                <th>Maximum speed</th>
+                                <th>Transfer time</th>
+                                <th>Moving speed above 5 kts/s</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let cycleTime of sovModel.cycleTimes">
+                                <tr>
+                                    <th>{{cycleTime.fromTurbine}}</th>
+                                    <th>{{cycleTime.toTurbine}}</th>
+                                    <td colspan="2">{{cycleTime.startTime}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.maxSpeedKts)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.movingSpeedAbove5ktsPerc)}}</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
