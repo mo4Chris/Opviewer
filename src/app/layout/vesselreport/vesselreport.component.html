@@ -47,12 +47,8 @@
                 </div>
                 <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let turbineParkPerLocation of turbineLocations; let i=index">
-                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
-                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
-                                <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
-                        </ng-container>
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
-                            <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
+                            <agm-marker [zIndex]="2" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
                              (mouseOver)="onMouseOver(infoWindow, gm)" (mouseOut)="onMouseOut(infoWindow)">      
                             <agm-info-window #infoWindow>
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }}</strong>
@@ -65,6 +61,10 @@
                                     </ng-container>
                                </agm-info-window>
                            </agm-marker>
+                        </ng-container>
+                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
+                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
+                            <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
                         </ng-container>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
