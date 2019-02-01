@@ -28,7 +28,6 @@ export class DashboardComponent implements OnInit {
     streetViewControl = false;
     // End map settings
 
-    infoWindowOpened = null;
     showAlert = false;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     alert = {type: '', text: ''}
@@ -82,10 +81,6 @@ export class DashboardComponent implements OnInit {
         }, 1000);
         this.getAlert();
       }
-
-    filter() {
-        this.infoWindowOpened = null;
-    }
 
     redirectDailyVesselReport(mmsi) {
         this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
