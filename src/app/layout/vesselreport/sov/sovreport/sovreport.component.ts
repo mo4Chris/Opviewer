@@ -35,7 +35,7 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
+    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
     turbineLocations = new Array<any>();
 
     // Charts
@@ -58,6 +58,8 @@ export class SovreportComponent implements OnInit {
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
 
+
+
         this.vessel2vesselActivityRoute.vessel = vesselname;
         this.sovModel.vessel2vessels.forEach(vessel2vessel => {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
@@ -70,22 +72,26 @@ export class SovreportComponent implements OnInit {
             });
         });
 
-        if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
-            this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
-            this.turbineLocations.forEach(turbineLocationData => {
-                for(let index = 0; index < turbineLocationData.lat.length; index++) {
-                    let transferName = turbineVisit.location; 
-                    if(turbineLocationData.name[index][0] == transferName) {
-                        //this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], this.iconMarkerSailedBy, true));     
-                    }
-                }
-                });
-            });
-        }
+        //Set up for turbines locations view on map
+        // if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
+        //     this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
+        //     this.turbineLocations.forEach(turbineLocationData => {
+        //         for(let index = 0; index < turbineLocationData.lat.length; index++) {
+        //             let transferName = turbineVisit.location; 
+        //             if(turbineLocationData.name[index][0] == transferName) {
+        //                 //this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], this.iconMarkerSailedBy, true));     
+        //             }
+        //         }
+        //         });
+        //     });
+        // }
 
+        let map = document.getElementById('routeMap');
+        const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
+        this.vessel2vesselActivityRoute.lat = mapProperties.avgLatitude;
+        this.vessel2vesselActivityRoute.lon = mapProperties.avgLongitude;
+        this.vessel2vesselActivityRoute.zoomLevel = mapProperties.zoomLevel;
 
-        this.vessel2vesselActivityRoute.lat = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[0].length / 2)]);
-        this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
         this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
         this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
@@ -183,7 +189,6 @@ export class SovreportComponent implements OnInit {
         if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') {
 
             const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, this.sovModel.sovInfo.lat, this.sovModel.sovInfo.lon);
-
             this.boatLocationData.emit(boatlocationData);
             this.latitude.emit(mapProperties.avgLatitude);
             this.longitude.emit(mapProperties.avgLongitude);

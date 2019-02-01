@@ -320,19 +320,19 @@
                     </tbody>
                 </table>
             </div>
-            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9" [mapTypeId]="'roadmap'">
-
-                <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
-                    <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
-                </ng-container>
-
-                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                    <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
-                        <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
-                        </agm-polyline-point>
+            <div id="routeMap">
+                <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'">
+                    <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
+                        <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
                     </ng-container>
-                </agm-polyline>
-            </agm-map>
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                        <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
+                            <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
+                            </agm-polyline-point>
+                        </ng-container>
+                    </agm-polyline>
+                </agm-map>
+            </div>
         </div>
     </ng-template>
 </div>
