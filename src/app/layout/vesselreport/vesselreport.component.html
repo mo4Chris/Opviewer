@@ -49,7 +49,7 @@
                     <ng-container *ngFor="let turbineParkPerLocation of turbineLocations; let i=index">
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
-                             (mouseOver)="onMouseOver(infoWindow, gm)" (mouseOut)="onMouseOut(infoWindow)">      
+                             (mouseOver)="onMouseOver(infoWindow, gm)">      
                             <agm-info-window #infoWindow>
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }}</strong>
                                     <ng-container *ngFor="let turbinePark of turbineParkPerLocation">

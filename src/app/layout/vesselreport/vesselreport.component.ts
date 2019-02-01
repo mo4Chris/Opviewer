@@ -132,10 +132,6 @@ export class VesselreportComponent implements OnInit {
     this.eventService.OpenAgmInfoWindow(infoWindow, gm);
   }
 
-  onMouseOut(infoWindow) {
-    this.eventService.CloseAgmInfoWindow(infoWindow);
-  }
-
   getMapZoomLvl(mapZoomLvl: number): void {
     this.mapZoomLvl = mapZoomLvl;
   }
