@@ -94,7 +94,7 @@ export class CommonService {
   }
 
   GetLatestBoatLocationForCompany(company) {
-    return this.post(environment.DB_IP + '/api/getLatestBoatLocationForCompany/', company).pipe(
+    return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
             map((response: Response) => response.json()));
   }
 
