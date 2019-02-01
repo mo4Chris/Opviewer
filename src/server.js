@@ -7,7 +7,7 @@ var nodemailer = require('nodemailer');
 
 require('dotenv').config({path:__dirname+'/./../.env'});
 
-var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
+var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", function (err, response) {
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -327,7 +327,11 @@ var activeListingsSchema = new Schema({
     vesselname: { type: String },
     dateStart: { type: Object },
     dateEnd: { type: Object },
-    fleetID: { type: String }
+    fleetID: { type: String },
+    listingID: { type: String },
+    deleted: { type: Boolean },
+    dateChanged: { type: Number },
+    user: { type: String }
 }, { versionKey: false });
 var activeListingsModel = mongo.model('activeListings', activeListingsSchema, 'activeListings');
 
@@ -1443,16 +1447,27 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
             res.send(err);
         } else {
             var activeVessels = [];
+            var currentDate = new Date();
             for (var i = 0; i < data.length; i++) {
-                if (Date.now() > data[i].dateStart && Date.now() < data[i].dateEnd && data[i].dateStart < data[i].dateEnd) {
+                var startDate = new Date(data[i].dateStart);
+                startDate.setDate(startDate.getDate() - 1);
+                var endDate = new Date(data[i].dateEnd);
+                endDate.setDate(endDate.getDate() + 1);
+                if (data[i].deleted) {
+                    continue;
+                } else if (!data[i].dateStart && !data[i].dateEnd) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
-                } else if (Date.now() > data[i].dateStart && !data[i].dateEnd) {
+                } else if (currentDate.valueOf() > startDate.valueOf() && currentDate.valueOf() < endDate.valueOf() && data[i].dateStart < data[i].dateEnd) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
-                } else if (Date.now() < data[i].dateEnd && !data[i].dateStart) {
+                } else if (currentDate.valueOf() > startDate.valueOf() && !data[i].dateEnd) {
+                    if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
+                        activeVessels.push(data[i].vesselname);
+                    }
+                } else if (currentDate.valueOf() < endDate.valueOf() && !data[i].dateStart) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
@@ -1477,49 +1492,53 @@ app.post("/api/setActiveListings", function (req, res) {
     var listings = req.body.listings;
     var activeVessels = [];
     var fleetID;
-    var listingsToDelete = req.body.listingsToDelete;
-    for (var ind = 0; ind < listingsToDelete.length; ind++) {
-        activeListingsModel.remove({ _id: listingsToDelete[ind]._id }, function (err) {
-            if (err) {
-                return res.status(401).send('Something went went wrong with updating one or more listing');
-            }
-        });
-    }
+    var currentDate = new Date();
     for (var i = 0; i < listings.length; i++) {
         for (var j = 0; j < listings[i].length; j++) {
             var listing = listings[i][j];
-            fleetID = listing.fleetID;
-            if (Date.now() > listing.dateStart && Date.now() < listing.dateEnd && listing.dateStart < listing.dateEnd) {
+            var startDate = new Date(listing.dateStart);
+            startDate.setDate(startDate.getDate() - 1);
+            var endDate = new Date(listing.dateEnd);
+            endDate.setDate(endDate.getDate() + 1);
+            activeListing = new activeListingsModel();
+            activeListing.vesselname = listing.vesselname;
+            activeListing.fleetID = listing.fleetID;
+            activeListing.dateChanged = Date.now();
+            activeListing.user = token.username;
+            if (listing.deleted) {
+                activeListing.deleted = listing.deleted;
+            } else if (!listing.dateStart && !listing.dateEnd) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
-            } else if (Date.now() > listing.dateStart && !listing.dateEnd) {
+            } else if (currentDate.valueOf() > startDate.valueOf() && currentDate.valueOf() < endDate.valueOf() && listing.dateStart < listing.dateEnd) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
-            } else if (Date.now() < listing.dateEnd && !listing.dateStart) {
+            } else if (currentDate.valueOf() > startDate.valueOf() && !listing.dateEnd) {
+                if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
+                    activeVessels.push(listing.vesselname);
+                }
+            } else if (currentDate.valueOf() < endDate.valueOf() && !listing.dateStart) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
             }
-            if (listing._id) {
-                activeListingsModel.findByIdAndUpdate(listing._id, { $set: listing }, function (err, data) {
-                    if (err) {
-                        return res.status(401).send('Something went went wrong with updating one or more listing');
-                    }
-                });
-            } else {
-                var activeListing = new activeListingsModel();
-                activeListing.vesselname = listing.vesselname;
+            if (!listing.deleted) {
+                activeListing.deleted = false;
                 activeListing.dateStart = listing.dateStart;
                 activeListing.dateEnd = listing.dateEnd;
-                activeListing.fleetID = listing.fleetID;
-                activeListing.save(function (err, data) {
-                    if (err) {
-                        return res.status(401).send('Something went went wrong with updating one or more listing');
-                    }
-                });
             }
+            if (!listing.newListing) {
+                activeListing.listingID = listing.listingID;
+            } else {
+                activeListing.listingID = new mongo.Types.ObjectId();
+            }
+            activeListing.save(function (err, data) {
+                if (err) {
+                    return res.status(401).send('Something went went wrong with updating one or more listing');
+                }
+            });
         }
     }
     turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function (err, data) {

@@ -43,7 +43,7 @@ export class FleetavailabilityComponent implements OnInit {
     existingVessels;
     sailDaysChanged = [];
     vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
-    openListing = '';
+    openListing = [''];
     activeListings;
     datePickerValue = [[]];
     activeChanged = [];
@@ -51,7 +51,8 @@ export class FleetavailabilityComponent implements OnInit {
     startDate;
     stopDate;
     changing = false;
-    listingsToDelete = [];
+    errorListing = [[]];
+    numberNewListings = 0;
 
     ngOnInit() {
         this.getCampaignName();
@@ -432,16 +433,43 @@ export class FleetavailabilityComponent implements OnInit {
 
     setActive() {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
-            for (var i = 0; i < this.listings.length; i++) {
-                for (var j = 0; j < this.listings[i].length; j++) {
-                    this.listings[i][j].dateStart = moment(this.listings[i][j].dateStart.year + '-' + this.listings[i][j].dateStart.month + '-' + this.listings[i][j].dateStart.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
-                    this.listings[i][j].dateEnd = moment(this.listings[i][j].dateEnd.year + '-' + this.listings[i][j].dateEnd.month + '-' + this.listings[i][j].dateEnd.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+            this.openListing = [''];
+            var stopSetActive = false;
+            for (var i = 0; i < this.activeChanged.length; i++) {
+                for (var j = 0; j < this.activeChanged[i].length; j++) {
+                    var start, end;
+                    if (this.activeChanged[i][j].dateStart) {
+                        start = moment(this.activeChanged[i][j].dateStart.year + '-' + this.activeChanged[i][j].dateStart.month + '-' + this.activeChanged[i][j].dateStart.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                    }
+                    if (this.activeChanged[i][j].dateEnd) {
+                        end = moment(this.activeChanged[i][j].dateEnd.year + '-' + this.activeChanged[i][j].dateEnd.month + '-' + this.activeChanged[i][j].dateEnd.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                    }
+                    if (this.activeChanged[i][j].dateStart && this.activeChanged[i][j].dateEnd) {
+                        if (start > end) {
+                            this.errorListing[i][j] = true;
+                            if (!(this.openListing.indexOf(this.turbineWarrenty.fullFleet[i]) > -1)) {
+                                this.openListing.push(this.turbineWarrenty.fullFleet[i]);
+                            }
+                            stopSetActive = true;
+                        }
+                    }
+                    if (this.activeChanged[i][j].dateStart && !stopSetActive) {
+                        this.activeChanged[i][j].dateStart = start;
+                    }
+                    if (this.activeChanged[i][j].dateEnd && !stopSetActive) {
+                        this.activeChanged[i][j].dateEnd = end;
+                    }
                 }
             }
-            this.newService.setActiveListings({ listings: this.listings, listingsToDelete: this.listingsToDelete }).pipe(
+            if (stopSetActive) {
+                return;
+            }
+            this.newService.setActiveListings({ listings: this.activeChanged }).pipe(
                 map(
                     (res) => {
-                        this.turbineWarrenty.activeFleet = res.twa.activeFleet;
+                        if (res.twa) {
+                            this.turbineWarrenty.activeFleet = res.twa.activeFleet;
+                        }
                         this.setAlert('success', res.data, true);
                     }
                 ),
@@ -451,19 +479,33 @@ export class FleetavailabilityComponent implements OnInit {
                 })
             ).subscribe(_ => {
                 this.getActiveListings();
-                this.openListing = '';
+                this.openListing = [''];
             });
+        } else {
+            this.setAlert('danger', 'You are not authorised to perform this action', true);
         }
     }
 
-    onChange($event, vessel, dateIsStart): void {
+    onChange(listing, vesselnumber) {
+        var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
+        if (index < 0) {
+            this.activeChanged[vesselnumber].push(listing);
+        } else {
+            this.activeChanged[vesselnumber][index] = listing;
+        }
+    }
+
+    onChangeNew($event, vessel, dateIsStart): void {
         this.changing = true;
+        this.numberNewListings++;
         var vesselnumber = this.turbineWarrenty.fullFleet.findIndex(x => x == vessel);
         var newActiveListing = {
             vesselname: vessel,
             fleetID: this.turbineWarrenty._id,
             dateStart: null,
-            dateEnd: null
+            dateEnd: null,
+            listingID: this.numberNewListings,
+            newListing: true
         };
         if (dateIsStart) {
             newActiveListing.dateStart = $event;
@@ -471,52 +513,78 @@ export class FleetavailabilityComponent implements OnInit {
             newActiveListing.dateEnd = $event;
         }
         this.listings[vesselnumber].push(newActiveListing);
+        this.activeChanged.push(newActiveListing);
         this.datePickerValue[vesselnumber] = [{}, {}];
-        this.activeChanged[vesselnumber] = false;
         this.timeout = setTimeout(() => {
             this.changing = false;
         }, 10);
     }
 
-    isNew(i) {
-        return this.activeChanged[i];
-    }
-
     setNotNew(i) {
         if (!this.changing) {
-            this.activeChanged[i] = true;
+            this.numberNewListings++;
+            var newActiveListing = {
+                vesselname: this.turbineWarrenty.fullFleet[i],
+                fleetID: this.turbineWarrenty._id,
+                dateStart: null,
+                dateEnd: null,
+                listingID: this.numberNewListings,
+                newListing: true
+            };
+            this.listings[i].push(newActiveListing);
+            this.activeChanged[i].push(newActiveListing);
         }
     }
 
     isOpen(vessel) {
-        return this.openListing == vessel;
+        return this.openListing.indexOf(vessel) > -1;
     }
 
     openActiveListings(vessel) {
-        if (this.openListing != vessel) {
-            this.openListing = vessel;
+        if (!(this.openListing.indexOf(vessel) > -1)) {
+            this.openListing = [vessel];
         } else {
-            this.openListing = '';
+            this.openListing = [''];
         }
     }
 
     getActiveListings() {
-        this.openListing = '';
-        this.listingsToDelete = [];
+        this.openListing = [''];
         this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client).subscribe(data => {
             this.activeListings = data.data;
+            this.activeListings.sort(function (listing1, listing2) { return listing1.dateStart - listing2.dateStart });
             this.turbineWarrenty.activeFleet = data.twa.activeFleet;
             for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
                 this.listings[i] = [];
+                this.errorListing[i] = [];
+                this.activeChanged[i] = [];
+                var deletedListings = [];
                 for (var j = 0; j < this.activeListings.length; j++) {
-                    if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname) {
+                    if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname && deletedListings.indexOf(this.activeListings[j].listingID) < 0) {
                         var date = moment(this.activeListings[j].dateStart);
                         this.activeListings[j].dateStart = { year: date.year(), month: (date.month() + 1), day: date.date() };
                         date = moment(this.activeListings[j].dateEnd);
                         this.activeListings[j].dateEnd = { year: date.year(), month: (date.month() + 1), day: date.date() };
-                        this.listings[i].push(this.activeListings[j]);
+                        var index = this.listings[i].findIndex(x => x.listingID == this.activeListings[j].listingID);
+                        if (!this.activeListings[j].deleted) {
+                            if (index > -1) {
+                                if (this.activeListings[j].dateChanged >= this.listings[i][index].dateChanged) {
+                                    this.listings[i][index] = this.activeListings[j];
+                                }
+                            } else {
+                                this.listings[i].push(this.activeListings[j]);
+                            }
+                        } else {
+                            deletedListings.push(this.activeListings[j].listingID);
+                            if (index > -1) {
+                                this.listings[i].splice(index, 1);
+                            }
+                        }
                     }
                 }
+                this.listings[i].forEach((item, index) => {
+                    this.errorListing[i][index] = false;
+                });
             }
         });
     }
@@ -525,8 +593,18 @@ export class FleetavailabilityComponent implements OnInit {
         this.listings[vesselnumber].forEach((item, index) => {
             if (item === deleteItem) this.listings[vesselnumber].splice(index, 1);
         });
-        if (deleteItem._id) {
-            this.listingsToDelete.push(deleteItem);
+        if (deleteItem.listingID) {
+            deleteItem.deleted = true;
+            var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == deleteItem.listingID);
+            if (!deleteItem.newListing) {
+                if (index > -1) {
+                    this.activeChanged[vesselnumber][index] = deleteItem;
+                } else {
+                    this.activeChanged[vesselnumber].push(deleteItem);
+                }
+            } else {
+                this.activeChanged[vesselnumber].splice(index, 1);
+            }
         }
     }
 }

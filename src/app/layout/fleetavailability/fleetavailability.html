@@ -9,7 +9,8 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(addVesselModal)">Add vessel</button></span>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                      (click)="openModal(addVesselModal)">Add vessel</button></span>
         <ng-template #addVesselModal let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Add vessel</h4>
@@ -43,11 +44,22 @@
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel" (click)="openModal(setActiveModal, {size: 'lg'}, true)">Set active</button></span>
+        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                      (click)="openModal(setActiveModal, {size: 'lg'}, true)">Set active</button></span>
         <ng-template #setActiveModal let-modal>
-            <div class="modal-header">
+            <div class="modal-header setActiveHeader">
                 <h4 class="modal-title">Set active</h4>
-                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                <ng-template #popTitle>Help</ng-template>
+                <ng-template #popContent class="helpContent">
+                    <br />
+                    Here you can set the active days of a vessel and set which vessel is currently active.
+                    A vessel is active if the current date falls within an active period.
+                    Leave the starting date empty to set it as the start of the campaign;
+                    Leave the end date empty to set it as the end of the campaign.
+                    <!--These will be updated if the campaign is extended.-->
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" [ngbPopover]="popContent" [popoverTitle]="popTitle" placement="left" popoverClass="helpPopup">?</button>
+                <button type="button" class="close closeBtn" aria-label="Close" (click)="closeModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -62,12 +74,12 @@
                             </td>
                         </tr>
                         <ng-container *ngIf="isOpen(vessel)">
-                            <tr *ngFor="let listing of listings[i]" class="subRow">
-                                <td>
-                                    <div class="form-group">
+                            <tr *ngFor="let listing of listings[i]; let ind = index" class="subRow">
+                                <td [class.errorListing]="errorListing[i][ind]">
+                                    <div class="form-group" [class.firstSubRow]="ind==0">
                                         <div class="input-group datepicker-input">
-                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
-                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start date" readonly (click)="dpStart.toggle()">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate" (ngModelChange)="onChange(listing, i)" 
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
                                                     {{ date.day }}
@@ -80,8 +92,8 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="input-group datepicker-input">
-                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
-                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End date" readonly (click)="dpEnd.toggle()">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate" (ngModelChange)="onChange(listing, i)" 
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                                                          let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
@@ -95,16 +107,17 @@
                                         </div>
                                     </div>
                                     <span class="deleteActive" (click)="deleteListing(listing, i)">-</span>
+                                    <div *ngIf="errorListing[i][ind]" class="errorListingMsg">The start date can't be after the end date</div>
                                 </td>
                             </tr>
                             <tr class="subRow">
-                                <td (click)="setNotNew(i)" [class.new]="!isNew(i)">
-                                    <span class="addActive">+</span>
-                                    <div class="form-group">
+                                <td class="new">
+                                    <span class="addActive" (click)="setNotNew(i)" >+</span>
+                                    <div class="form-group" [class.firstSubRow]="listings[i].length<=0">
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][0]"
-                                                   (ngModelChange)="onChange($event, vessel, true)" placeholder="Start date" readonly (click)="dpStart.toggle()">
+                                                   (ngModelChange)="onChangeNew($event, vessel, true)" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
                                                     {{ date.day }}
@@ -119,7 +132,7 @@
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][1]"
-                                                   (ngModelChange)="onChange($event, vessel, false)" placeholder="End date" readonly (click)="dpEnd.toggle()">
+                                                   (ngModelChange)="onChangeNew($event, vessel, false)" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                                                          let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
@@ -168,7 +181,8 @@
                     <tr *ngIf="checkDateRange(date)">
                         <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
-                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0"
+                                [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
                                 <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
                                 <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
                                     <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>

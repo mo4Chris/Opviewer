@@ -58,6 +58,32 @@ ngb-alert {
     margin-right: 25px;
 }
 
+.setActiveHeader {
+    .helpBtn {
+        margin: 0 0 0 auto;
+        padding: 0;
+        border-radius: 13px;
+        width: 26px;
+        height: 26px;
+        color: #427ded;
+        border-color: #427ded;
+
+        &:active, &:hover {
+            background-color: #427ded;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+        }
+    }
+
+    .closeBtn {
+        margin: -1rem -1rem 0 0;
+    }
+}
+
 .modal-body {
     select:first-of-type {
         margin-bottom: 10px;
@@ -114,13 +140,19 @@ ngb-alert {
                 padding-left: 45px;
 
                 &.new {
-                    .addActive {
-                        display: inline-block;
+                    input, button {
+                        opacity: .4;
                     }
+                }
 
-                    * {
-                        opacity: .7;
-                    }
+                &.errorListing input {
+                    border-color: red;
+                }
+
+                .errorListingMsg {
+                    color: red;
+                    margin-top: -.7rem;
+                    margin-bottom: 1rem;
                 }
 
                 .deleteActive {
@@ -129,39 +161,45 @@ ngb-alert {
                     font-size: 1.5rem;
                     line-height: 25px;
                     cursor: pointer;
-                    color: transparent;
+                    text-indent: 100%;
+                    white-space: nowrap;
+                    overflow: hidden;
                     background-image: url("/assets/images/delete.png");
                     background-position: center;
                     background-repeat: no-repeat;
                     background-size: contain;
                 }
-            }
 
-            .addActive {
-                text-align: center;
-                width: 45px;
-                margin-left: -45px;
-                display: none;
-                line-height: 50px;
-                cursor: pointer;
-                font-size: 1.5rem;
-                opacity: 1 !important;
-                font-weight: bolder;
-            }
+                .firstSubRow {
+                    margin-top: 1rem;
+                }
 
-            .form-group {
-                display: inline-block;
-
-                input, button {
+                .addActive {
+                    text-align: center;
+                    width: 45px;
+                    margin-left: -45px;
+                    display: inline-block;
+                    line-height: 50px;
                     cursor: pointer;
+                    font-size: 1.5rem;
+                    opacity: 1 !important;
+                    font-weight: bolder;
                 }
 
-                &:first-of-type {
-                    margin-right: 50px;
-                }
+                .form-group {
+                    display: inline-block;
 
-                .form-control[readonly] {
-                    background-color: white;
+                    input, button {
+                        cursor: pointer;
+                    }
+
+                    &:first-of-type {
+                        margin-right: 50px;
+                    }
+
+                    .form-control[readonly] {
+                        background-color: white;
+                    }
                 }
             }
         }
