@@ -14,6 +14,7 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
 import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
+import { EventService } from '../../supportModules/event.service';
 
 @Component({
   selector: 'app-vesselreport',
@@ -24,7 +25,7 @@ import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService, private eventService: EventService) {
 
   }
 
@@ -57,24 +58,17 @@ export class VesselreportComponent implements OnInit {
   noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   loaded = false;
+  turbinesLoaded = true; //getTurbineLocationData is not always triggered
   mapPixelWidth = 0;
 
   turbineLocations: Array<TurbineLocation[]> = new Array<TurbineLocation[]>();
   infoWindowOpened = null;
 
-  iconMarkerSailedBy = {
-    url: '../../assets/images/blue_marker.png',
-    scaledSize: {
-      width: 20,
-      height: 20
-    },
-  }
-
   iconMarker = {
-    url: '../../assets/images/turbine.png',
+    url: '../../assets/images/turbineIcon.png',
     scaledSize: {
-      width: 20,
-      height: 20
+      width: 5,
+      height: 5
     }
   }
 
@@ -84,14 +78,8 @@ export class VesselreportComponent implements OnInit {
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
 
-  /////// Get variables from child components//////////
-  getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl;
-  }
-
   getTurbineLocationData(turbineLocationData: any): void {
-
-
+    this.turbinesLoaded = false;
     let locationData = turbineLocationData.turbineLocations;
     let transfers = turbineLocationData.transfers;
     let type = turbineLocationData.type;
@@ -133,22 +121,23 @@ export class VesselreportComponent implements OnInit {
         mergeMap(group => group.pipe(toArray()))
       );
       groupedTurbines.subscribe(val => this.turbineLocations.push(val));
+
+      setTimeout(() => {
+        this.turbinesLoaded = true;
+      }, 1500);
   }
 
-
+  //Handle events and get variables from child components//////////
   onMouseOver(infoWindow, gm) {
-    if (gm.lastOpen != null) {
-      gm.lastOpen.close();
-    }
-
-    gm.lastOpen = infoWindow;
-    infoWindow.open();
+    this.eventService.OpenAgmInfoWindow(infoWindow, gm);
   }
 
   onMouseOut(infoWindow) {
-    if(infoWindow != null) {
-      infoWindow.close();
-    }
+    this.eventService.CloseAgmInfoWindow(infoWindow);
+  }
+
+  getMapZoomLvl(mapZoomLvl: number): void {
+    this.mapZoomLvl = mapZoomLvl;
   }
 
   getLongitude(longitude: any): void {

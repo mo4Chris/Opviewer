@@ -8,6 +8,7 @@ import { LogisticsSpecialistComponent } from './components/users/logistics-speci
 import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
 import { Usertype } from '../../shared/enums/UserType';
+import { EventService } from '../../supportModules/event.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -16,7 +17,7 @@ import { Usertype } from '../../shared/enums/UserType';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(public router: Router, private route: ActivatedRoute, private userService: UserService) {   }
+    constructor(public router: Router, private route: ActivatedRoute, private userService: UserService, private eventService: EventService) {   }
     locationData;
 
     // Map settings
@@ -52,6 +53,10 @@ export class DashboardComponent implements OnInit {
     getLocationData(locationData: any[]): void {
         this.locationData = locationData;
     }
+
+    onMouseOver(infoWindow, gm) {
+        this.eventService.OpenAgmInfoWindow(infoWindow, gm);
+    }
     ///////////////////////////////
 
     ngOnInit() {
@@ -80,17 +85,6 @@ export class DashboardComponent implements OnInit {
 
     filter() {
         this.infoWindowOpened = null;
-    }
-
-    showInfoWindow(infoWindow) {
-        if (this.infoWindowOpened === infoWindow) {
-            return;
-        }
-
-        if (this.infoWindowOpened !== null) {
-            this.infoWindowOpened.close();
-        }
-        this.infoWindowOpened = infoWindow;
     }
 
     redirectDailyVesselReport(mmsi) {

@@ -24,7 +24,7 @@
     </div>
 </div>
 <br>
-<div class="loader" *ngIf="!loaded">
+<div class="loader" *ngIf="!loaded || !turbinesLoaded">
     <div class="spinner">
         <div class="bounce1"></div>
         <div class="bounce2"></div>
@@ -32,7 +32,7 @@
     </div>
 </div>
 <div id="routeMap" style="width: 100%">
-<div [hidden]="!loaded">
+<div [hidden]="!loaded || !turbinesLoaded">
     <div *ngIf="noPermissionForData == false; else noPermission">
         <div class="divContainer" *ngIf="showContent == true; else other_content">
             <div *ngIf="showMap; else no_map_available">
@@ -47,8 +47,12 @@
                 </div>
                 <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
                     <ng-container *ngFor="let turbineParkPerLocation of turbineLocations; let i=index">
+                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
+                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
+                                <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
+                        </ng-container>
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
-                            <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
+                            <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
                              (mouseOver)="onMouseOver(infoWindow, gm)" (mouseOut)="onMouseOut(infoWindow)">      
                             <agm-info-window #infoWindow>
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }}</strong>
@@ -61,10 +65,6 @@
                                     </ng-container>
                                </agm-info-window>
                            </agm-marker>
-                        </ng-container>
-                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
-                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
-                                <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
                         </ng-container>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
