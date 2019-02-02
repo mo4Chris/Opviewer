@@ -75,8 +75,8 @@ export class VesselreportComponent implements OnInit {
   visitedIconMarker = {
     url: '../../assets/images/visitedTurbineIcon.png',
     scaledSize: {
-      width: 20,
-      height: 20
+      width: 10,
+      height: 10
     }
   }
 

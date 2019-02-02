@@ -105,7 +105,7 @@ export class CtvreportComponent implements OnInit {
                                         let latitudes = [];
                                         let longitudes = [];
                             
-                                        for(var i = 0; i < routeData.length; i++)
+                                        for(let i = 0; i < routeData.length; i++)
                                         {
                                             latitudes = latitudes.concat(routeData[i].lat);
                                             longitudes = longitudes.concat(routeData[i].lon);
