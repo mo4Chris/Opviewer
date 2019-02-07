@@ -17,7 +17,8 @@ export class LoginComponent implements OnInit {
     showAlert = false;
     loginUserData = {
         username: '',
-        password: ''
+        password: '',
+        confirm2fa: ''
     };
 
     constructor(public router: Router, private _auth: AuthService) {}

@@ -63,7 +63,7 @@ export class VesselreportComponent implements OnInit {
 
   /////// Get variables from child components//////////
   getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl
+    this.mapZoomLvl = mapZoomLvl;
   }
 
   getLocdata(locData: any[]): void {

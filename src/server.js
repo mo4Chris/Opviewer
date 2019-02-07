@@ -4,10 +4,13 @@ var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
+var twoFactor = require('node-2fa');
 
 require('dotenv').config({path:__dirname+'/./../.env'});
 
-var db = mongo.connect("mongodb://tcwchris:geheim123@ds125288.mlab.com:25288/bmo_database", function (err, response) {
+
+
+var db = mongo.connect("mongodb://tcwchris:geheim123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", function (err, response) {
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -53,7 +56,8 @@ var userSchema = new Schema({
     permissions: { type: String },
     client: { type: String },
     boats: { type: Array },
-    token: { type: String }
+    token: { type: String },
+    secret2fa: { type: String },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -374,7 +378,8 @@ app.post("/api/registerUser", function (req, res) {
                         "token": randomToken,
                         "permissions": userData.permissions,
                         "client": userData.client,
-                        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
+                        "secret2fa": "",
+                        "password": bcrypt.hashSync("hanspasswordtocheck", 10), //password shouldn't be set when test phase is over
                     });
                     user.save((error, registeredUser) => {
                         if (error) {
@@ -414,7 +419,16 @@ app.post("/api/login", function (req, res) {
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
-                        return res.status(200).send({ token });
+                        if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
+                            return res.status(200).send({ token });
+                        } else {
+                            
+                            if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
+                                return res.status(200).send({ token });
+                            } else{
+                                return res.status(401).send('2fa is incorrect');
+                            }
+                        }
                     } else {
                         return res.status(401).send('Password is incorrect');
                     }
@@ -475,6 +489,27 @@ app.post("/api/saveTransfer", function (req, res) {
             }
         });
     });
+});
+
+app.post("/api/get2faExistence", function (req, res){
+    let userEmail = req.body.userEmail;
+
+    Usermodel.findOne({ username: userEmail},
+        function (err, user) {
+            // if (err) {
+            //     res.send(err);
+            // } else {
+                if (!user) {
+                    return res.status(401).send('User does not exist');
+                } else {
+                    if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
+                        res.send({secret2fa: ""});
+                    } else {
+                        res.send(user.secret2fa);
+                    }
+                }
+            // }
+        });
 });
 
 app.post("/api/getCommentsForVessel", function (req, res) {
@@ -1243,7 +1278,8 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), $unset: { token: 1} },
+    console.log("secret= " + req.body.secret2fa);
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1}},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1256,7 +1292,7 @@ app.post("/api/setPassword", function (req, res) {
 app.post("/api/getGeneral", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
             if (err) {

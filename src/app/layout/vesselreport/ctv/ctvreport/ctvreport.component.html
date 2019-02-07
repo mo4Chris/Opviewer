@@ -1,4 +1,78 @@
 <div *ngIf="showContent">
+     <ng-template #content let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Update up/down</h4>
+            <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form >
+                <div class="form-content">
+                    <div class="row">  
+                        <div class="col-lg-4">
+                            <h4>PAX/NOK up</h4>
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" id="ex1" value="3" type="number">
+                        </div>
+                        <div class="col-lg-4">
+                            <h4>PAX/NOK down</h4>
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" id="ex1" value="7" type="number">
+                        </div>
+                    </div>
+                    <div class="row">  
+                        <div class="col-lg-4">
+                            <h4>PAX/NOK nr</h4>
+                            <input class="form-control" id="ex3" type="text">
+                        </div>
+                        <div class="col-lg-2">
+                            <h4>&zwnj;</h4>
+                            <button class="btn btn-primary submitBtnDate" type="button">add to list</button>
+                        </div>
+                        <div class="col-lg-4">
+                            <h4>PAX/NOK nr</h4>
+                            <input class="form-control" id="ex3" type="text">
+                        </div>
+                        <div class="col-lg-2">
+                            <h4>&zwnj;</h4>
+                            <button class="btn btn-primary submitBtnDate" type="button">add to list</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">  
+                            <div class="col-lg-6">
+                                <textarea class="form-control" rows="6" id="comment"></textarea>
+                            </div>
+                            
+                            <div class="col-lg-6">
+                                <textarea class="form-control" rows="6" id="comment"></textarea>
+                            </div>
+                        </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <h4>Cargo up</h4>
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" id="ex1" value="0" type="number">
+                        </div>
+                        <div class="col-lg-4">
+                            <h4>Cargo down</h4>
+                        </div>
+                        <div class="col-lg-2">
+                            <input class="form-control" id="ex1" value="0" type="number">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="sendFeedback()">Update up/down data</button>
+        </div>
+    </ng-template>
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
         <h3 *ngIf="noTransits">There is no transit data available</h3>
@@ -61,8 +135,11 @@
                     <th>duration</th>
                     <th>score</th>
                     <th>location</th>
+                    <th>pax </th>
+                    <th>cargo </th>
                     <th>comment</th>
                     <th>detector</th>
+                    <th>alter up/down</th>
                     <th>save</th>
                     <th *ngIf="videoRequestPermission">video request</th>
                 </tr>
@@ -75,6 +152,8 @@
                     <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
+                    <td>{{transfer_Data.paxUp}} &#8593;<br>{{transfer_Data.paxDown}} &#8595;</td>
+                    <td>{{transfer_Data.cargoUp}} &#8593;<br>{{transfer_Data.cargoDown}} &#8595;</td>
                     <td class="comment">
                         <span ngbDropdown class="d-inline-block dropdown">
                             <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
@@ -89,7 +168,10 @@
                                 class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true" />
                         </span>
                     </td>
-                    <td>{{transfer_Data.detector}}</td>
+                     <td>{{transfer_Data.detector}}</td>
+                    <td>
+                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="openModal(content)" type="button">up/down</button>
+                    </td>
                     <td>
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>

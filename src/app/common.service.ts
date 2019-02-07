@@ -208,5 +208,10 @@ export class CommonService {
         map((response: Response) => response.json()));
   }
 
+  get2faExistence(user) {
+    return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
+      map((response: Response) => response.json()));
+  }
+
 }
 
