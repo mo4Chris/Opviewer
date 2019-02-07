@@ -56,7 +56,6 @@ export class SetPasswordComponent implements OnInit {
 
     ngOnInit() {
         this.checkIf2faSecretExists();
-        this.initiate2fa = true;
 
         if (this.token && this.token !== 'undefined') {
             this.getUserByToken(this.token);
@@ -76,8 +75,10 @@ export class SetPasswordComponent implements OnInit {
         this.newService.get2faExistence({userEmail: this.getUsernameFromParameter()}).subscribe(data => {
             console.log(data);
             if ( data.secret2fa === '' ) {
+                this.initiate2fa = true;
                 this.createBase32SecretCode();
             } else {
+                this.initiate2fa = false;
                 this.secretAsBase32 = data;
             }
         });
