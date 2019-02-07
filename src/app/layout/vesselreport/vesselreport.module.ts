@@ -19,6 +19,7 @@ import { UserService } from '../../shared/services/user.service';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
+import { EventService } from '../../supportModules/event.service';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -33,7 +34,7 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
         PageHeaderModule,
         SharedPipesModule],
     declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
-    providers: [CommonService, CalculationService, UserService],
+    providers: [CommonService, CalculationService, UserService, EventService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}

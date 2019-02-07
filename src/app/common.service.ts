@@ -38,8 +38,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  GetStationaryPeriodsForSov(mmsi, date) {
-    return this.get(environment.DB_IP + '/api/GetStationaryPeriodsForSov/' + mmsi + '/' + date).pipe(
+  GetCycleTimesForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetCycleTimesForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -94,7 +94,7 @@ export class CommonService {
   }
 
   GetLatestBoatLocationForCompany(company) {
-    return this.post(environment.DB_IP + '/api/getLatestBoatLocationForCompany/', company).pipe(
+    return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
             map((response: Response) => response.json()));
   }
 

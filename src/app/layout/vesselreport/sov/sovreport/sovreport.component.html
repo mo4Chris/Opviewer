@@ -264,7 +264,7 @@
                                             <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{transfer.duration}} minutes</td>
                                             <td>{{transfer.peakWindGust}}</td>
-                                            <td>{{transfer.peakWindAvg}}</td>
+                                            <td>{{transfer.peakHeave.toFixed(2)}}</td>
                                         </tr>
                                     </ng-container>
                                 </ng-container>
@@ -296,32 +296,86 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngFor="let object of (this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
-                            <tr>
-                                <th colspan="5">{{object.key}}</th>
-                            </tr>
-                            <ng-container *ngFor="let turbineVisit of object.value">
+                        <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
+                            <ng-container *ngFor="let object of (vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
                                 <tr>
-                                    <td></td>
-                                    <td>{{turbineVisit.location}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
-                                    <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
-                                    <td>{{turbineVisit.durationMinutes}} minutes</td>
+                                    <th colspan="5">{{object.key}}</th>
                                 </tr>
+                                <ng-container *ngFor="let turbineVisit of object.value">
+                                    <tr>
+                                        <td></td>
+                                        <td>{{turbineVisit.location}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                        <td>{{turbineVisit.durationMinutes}} minutes</td>
+                                    </tr>
+                                </ng-container>
                             </ng-container>
                         </ng-container>
+                        <ng-template #noTurbinesVisited>
+                            <tr>
+                                <td colspan="5">There were no turbines visited by this vessel</td>
+                            </tr>
+                        </ng-template>
                     </tbody>
                 </table>
             </div>
-            <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="9"
-                [mapTypeId]="'roadmap'">
-                <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                    <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
-                        <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
-                        </agm-polyline-point>
+            <div id="routeMap">
+                <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'">
+                    <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
+                        <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
                     </ng-container>
-                </agm-polyline>
-            </agm-map>
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                        <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
+                            <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
+                            </agm-polyline-point>
+                        </ng-container>
+                    </agm-polyline>
+                </agm-map>
+            </div>
         </div>
     </ng-template>
+    <div class="row" *ngIf="sovModel.cycleTimes.length > 0">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Cycle Times
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>From turbine</th>
+                                <th>To turbine</th>
+                                <th colspan="2">Start time</th>
+                                <th>Duration</th>
+                                <th>Sailed distance</th>
+                                <th>Turbine distance</th>
+                                <th>Average speed</th>
+                                <th>Maximum speed</th>
+                                <th>Transfer time</th>
+                                <th>Moving speed above 5 kts/s</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let cycleTime of sovModel.cycleTimes">
+                                <tr>
+                                    <th>{{cycleTime.fromTurbine}}</th>
+                                    <th>{{cycleTime.toTurbine}}</th>
+                                    <td colspan="2">{{cycleTime.startTime}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.maxSpeedKts)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.movingSpeedAbove5ktsPerc)}}</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

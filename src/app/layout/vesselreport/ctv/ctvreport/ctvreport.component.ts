@@ -16,7 +16,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 export class CtvreportComponent implements OnInit {
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
-    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
@@ -27,6 +27,7 @@ export class CtvreportComponent implements OnInit {
 
     @Input() vesselObject;
     @Input() tokenInfo;
+    @Input() mapPixelWidth;
 
     videoRequestPermission;
     videoRequestLoading = false;
@@ -74,7 +75,6 @@ export class CtvreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-        this.mapZoomLvl.emit(10);
 
         this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
             this.sailDates.emit(data);
@@ -101,32 +101,42 @@ export class CtvreportComponent implements OnInit {
                     });
                     if (this.transferData.length !== 0) {
                         this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-                            this.newService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                                if (data.length > 0) {
-                                    this.Locdata.emit(data),
-                                        this.latitude.emit(parseFloat(data[0].lat[Math.floor(data[0].lat.length / 2)])),
-                                        this.longitude.emit(parseFloat(data[0].lon[Math.floor(data[0].lon.length / 2)]));
+                            this.newService.GetSpecificPark({ 'park': data }).subscribe(locData => {
+                                if (locData.length > 0) {
+
+                                    let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
+
+                                    this.turbineLocationData.emit(locationData),
                                     this.parkFound.emit(true);
                                 } else {
                                     this.parkFound.emit(false);
                                 }
                                 this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-                                    if (routeData.length > 0) {
+                                    if (routeData.length > 0) {                                 
+                                        let latitudes = [];
+                                        let longitudes = [];
+                            
+                                        for(let i = 0; i < routeData.length; i++)
+                                        {
+                                            latitudes = latitudes.concat(routeData[i].lat);
+                                            longitudes = longitudes.concat(routeData[i].lon);
+                                        }
+
+                                        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
                                         const boatLocationData = routeData;
                                         this.boatLocationData.emit(boatLocationData);
+                                        this.latitude.emit(mapProperties.avgLatitude);
+                                        this.longitude.emit(mapProperties.avgLongitude);
+                                        this.mapZoomLvl.emit(mapProperties.zoomLevel);
                                         this.routeFound.emit(true);
-                                        if (!this.parkFound) {
-                                            this.latitude.emit(parseFloat(data[0].lat[Math.floor(routeData[0].lat.length / 2)])),
-                                                this.longitude.emit(parseFloat(data[0].lon[Math.floor(routeData[0].lon.length / 2)]));
-                                        }
                                     } else {
                                         this.routeFound.emit(false);
+                                        this.mapZoomLvl.emit(10);
                                     }
                                 });
                             });
                         });
                     }
-
                     // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
                     if (this.charts.length <= 0) {
                         setTimeout(() => this.createSlipgraphs(), 10);
