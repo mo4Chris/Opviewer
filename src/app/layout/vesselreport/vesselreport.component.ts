@@ -11,6 +11,11 @@ import { UserService } from '../../shared/services/user.service';
 
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
+import { TurbineLocation } from './models/TurbineLocation';
+import { from } from 'rxjs';
+import { groupBy, mergeMap, toArray } from 'rxjs/operators';
+import { EventService } from '../../supportModules/event.service';
+import { VesselTurbines } from './models/VesselTurbines';
 
 @Component({
   selector: 'app-vesselreport',
@@ -21,7 +26,7 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
 
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService) {
+  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService, private eventService: EventService) {
 
   }
 
@@ -30,7 +35,6 @@ export class VesselreportComponent implements OnInit {
   vesselObject = { 'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': '' };
 
   parkNamesData;
-  Locdata = [];
   boatLocationData = [];
   datePickerValue = this.maxDate;
   sailDates = [];
@@ -51,9 +55,30 @@ export class VesselreportComponent implements OnInit {
   showMap = false;
   parkFound = false;
   routeFound = false;
+  transferVisitedAtLeastOneTurbine = false;
   noTransits = true;
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   loaded = false;
+  turbinesLoaded = true; //getTurbineLocationData is not always triggered
+  mapPixelWidth = 0;
+
+  vesselTurbines: VesselTurbines = new VesselTurbines();
+
+  iconMarker = {
+    url: '../../assets/images/turbineIcon.png',
+    scaledSize: {
+      width: 5,
+      height: 5
+    }
+  }
+
+  visitedIconMarker = {
+    url: '../../assets/images/visitedTurbineIcon.png',
+    scaledSize: {
+      width: 10,
+      height: 10
+    }
+  }
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -61,13 +86,64 @@ export class VesselreportComponent implements OnInit {
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
 
-  /////// Get variables from child components//////////
-  getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl
+  getTurbineLocationData(turbineLocationData: any): void {
+    this.turbinesLoaded = false;
+    let locationData = turbineLocationData.turbineLocations;
+    let transfers = turbineLocationData.transfers;
+    let type = turbineLocationData.type;
+    let vesselType = turbineLocationData.vesselType;
+    let turbines: any[] = new Array<any>();
+
+    if(locationData.length > 0 && transfers.length > 0) {
+      locationData.forEach(turbineLocation => {
+        for(let index = 0; index < turbineLocation.lat.length; index++) {
+          let turbineIsVisited = false;
+          for(let transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
+            let transferName = "";
+            if(vesselType == 'SOV' && type != 'Turbine') {
+              //Platform has different property name
+              transferName = transfers[transferIndex].locationname;
+            }
+            else {
+              transferName = transfers[transferIndex].location;
+            }
+
+            if(turbineLocation.name[index] == transferName) {
+              turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
+              turbineIsVisited = true;
+              this.transferVisitedAtLeastOneTurbine = true;
+              continue;    
+            }
+          }
+          //Reached the end, turbine has not been visited
+          if(!turbineIsVisited) {
+            turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
+          }
+        }
+        this.vesselTurbines.parkBoundaryLatitudes.push(...turbineLocation.outlineLatCoordinates);
+        this.vesselTurbines.parkBoundaryLongitudes.push(...turbineLocation.outlineLonCoordinates);
+        });
+    }
+      
+      const source = from(turbines);
+      const groupedTurbines = source.pipe(
+        groupBy(turbine => turbine.latitude),
+        mergeMap(group => group.pipe(toArray()))
+      );
+      groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val));
+
+      setTimeout(() => {
+        this.turbinesLoaded = true;
+      }, 1500);
   }
 
-  getLocdata(locData: any[]): void {
-    this.Locdata = locData;
+  //Handle events and get variables from child components//////////
+  onMouseOver(infoWindow, gm) {
+    this.eventService.OpenAgmInfoWindow(infoWindow, gm);
+  }
+
+  getMapZoomLvl(mapZoomLvl: number): void {
+    this.mapZoomLvl = mapZoomLvl;
   }
 
   getLongitude(longitude: any): void {
@@ -89,6 +165,14 @@ export class VesselreportComponent implements OnInit {
 
   getShowContent(showContent: boolean): void {
     this.showContent = showContent;
+  }
+
+  getRouteFound(routeFound: boolean): void {
+    this.routeFound = routeFound;
+  }
+
+  getParkFound(parkFound: boolean): void {
+    this.parkFound = parkFound;
   }
 
   isLoaded(loaded: boolean): void {
@@ -115,6 +199,14 @@ export class VesselreportComponent implements OnInit {
     return this.calculationService.objectToInt(objectvalue);
   }
 
+  GetMatlabDateToCustomJSTime(serial, format) {
+    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
+  }
+
+  GetDecimalValueForNumber(value, endpoint) {
+    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+  }
+
   ngOnInit() {
     if (this.tokenInfo.userPermission === 'admin') {
       this.newService.GetVessel().subscribe(data => this.vessels = data);
@@ -133,17 +225,26 @@ export class VesselreportComponent implements OnInit {
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
+        let map = document.getElementById('routeMap');
+        if(map != null) {
+          this.mapPixelWidth = map.offsetWidth;
+        }
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
             this.ctvChild.BuildPageWithCurrentInformation();
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
             this.sovChild.BuildPageWithCurrentInformation();
           }
+
         }, 1000);
       } else {
         this.noPermissionForData = true;
       }
     });
+  }
+
+  ngAfterViewInit() {
+
   }
 
   onChange(): void {
@@ -166,13 +267,14 @@ export class VesselreportComponent implements OnInit {
   }
 
   resetRoutes() {
-    this.Locdata = [];
+    this.vesselTurbines = new VesselTurbines();
     this.boatLocationData = [];
     this.longitude = 0;
     this.latitude = 0;
     this.showMap = false;
     this.routeFound = false;
     this.parkFound = false;
+    this.transferVisitedAtLeastOneTurbine = false;
     this.loaded = false;
   }
 

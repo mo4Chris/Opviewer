@@ -8,6 +8,7 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
+import { TurbineLocation } from '../../models/TurbineLocation';
 
 @Component({
     selector: 'app-sovreport',
@@ -18,13 +19,15 @@ export class SovreportComponent implements OnInit {
 
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
-    @Output() Locdata: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
+    @Input() mapPixelWidth;
 
     sovModel: SovModel = new SovModel();
 
@@ -32,7 +35,8 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'vessel': '', 'ctvActivityOfTransfer': undefined };
+    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
+    //turbineLocations = new Array<any>();
 
     // Charts
     operationsChart;
@@ -42,21 +46,52 @@ export class SovreportComponent implements OnInit {
     chart;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
+    iconMarkerSailedBy = {
+        url: '../../../../assets/images/turbine.png',
+        scaledSize: {
+          width: 20,
+          height: 20
+        }
+      }
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
+
+
 
         this.vessel2vesselActivityRoute.vessel = vesselname;
         this.sovModel.vessel2vessels.forEach(vessel2vessel => {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === toMMSI) {
                     this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
+                    if(typeof(Array) == typeof(ctvActivity.turbineVisits)) {
+                        this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
+                    }
                 }
             });
         });
-        this.vessel2vesselActivityRoute.lat = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat[0].length / 2)]);
-        this.vessel2vesselActivityRoute.lon = parseFloat(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[Math.floor(this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon[0].length / 2)]);
+
+        //Set up for turbines locations view on map
+        // if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
+        //     this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
+        //     this.turbineLocations.forEach(turbineLocationData => {
+        //         for(let index = 0; index < turbineLocationData.lat.length; index++) {
+        //             let transferName = turbineVisit.location; 
+        //             if(turbineLocationData.name[index][0] == transferName) {
+        //                 //this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], this.iconMarkerSailedBy, true));     
+        //             }
+        //         }
+        //         });
+        //     });
+        // }
+
+        let map = document.getElementById('routeMap');
+        const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
+        this.vessel2vesselActivityRoute.lat = mapProperties.avgLatitude;
+        this.vessel2vesselActivityRoute.lon = mapProperties.avgLongitude;
+        this.vessel2vesselActivityRoute.zoomLevel = mapProperties.zoomLevel;
+
         this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
         this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
@@ -74,7 +109,7 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
     }
 
-    GetDecimalValueForNumber(value, endpoint) {
+    GetDecimalValueForNumber(value, endpoint = null) {
         return this.calculationService.GetDecimalValueForNumber(value, endpoint);
     }
 
@@ -84,13 +119,11 @@ export class SovreportComponent implements OnInit {
 
     BuildPageWithCurrentInformation() {
         this.ResetTransfers();
-        this.mapZoomLvl.emit(8);
         this.GetAvailableRouteDatesForVessel();
         this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
                 this.sovModel.sovInfo = sov[0];
-                this.GetVesselRoute();
-
+                
                 // Currently transits are not being used, should be removed
                 // this.GetTransits();
 
@@ -108,10 +141,14 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                     }
+                    this.GetVesselRoute();
                 });
 
                 this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
+                });
+                this.commonService.GetCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
+                    this.sovModel.cycleTimes = cycleTimes;
                 });
 
                 this.locShowContent = true;
@@ -126,6 +163,7 @@ export class SovreportComponent implements OnInit {
                 }, 2000);
             } else {
                 this.locShowContent = false;
+                this.loaded.emit(true);
             }
 
             this.showContent.emit(this.locShowContent);
@@ -150,22 +188,37 @@ export class SovreportComponent implements OnInit {
 
     GetVesselRoute() {
         const boatlocationData = [];
-
         boatlocationData.push(this.sovModel.sovInfo);
-        const latitude = parseFloat(this.sovModel.sovInfo.lat[Math.floor(this.sovModel.sovInfo.lat[0].length / 2)]);
-        const longitude = parseFloat(this.sovModel.sovInfo.lon[Math.floor(this.sovModel.sovInfo.lon[0].length / 2)]);
 
-        if (('' + latitude) !== 'NaN' && ('' + longitude) !== 'NaN') {
-            this.latitude.emit(latitude);
-            this.longitude.emit(longitude);
+        if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') {
+
+            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, this.sovModel.sovInfo.lat, this.sovModel.sovInfo.lon);
             this.boatLocationData.emit(boatlocationData);
+            this.latitude.emit(mapProperties.avgLatitude);
+            this.longitude.emit(mapProperties.avgLongitude);
+            this.mapZoomLvl.emit(mapProperties.zoomLevel);
+            this.routeFound.emit(true);
+        }
+        else {
+            this.routeFound.emit(false);
         }
 
         this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
-            this.commonService.GetSpecificPark({ 'park': data }).subscribe(data => {
-                if (data.length !== 0) {
-                    const locdata = data;
-                    this.Locdata.emit(locdata);
+            this.commonService.GetSpecificPark({ 'park': data }).subscribe(locdata => {
+                if (locdata.length !== 0) {
+                    //this.turbineLocations = locdata;
+                    let transfers = [];
+                    let sovType = 'Unknown';
+                    if(this.sovModel.sovType == SovType.Platform) {
+                        transfers = this.sovModel.platformTransfers;
+                        sovType = 'Platform';
+                    }
+                    else if(this.sovModel.sovType == SovType.Turbine) {
+                        transfers = this.sovModel.turbineTransfers;
+                        sovType = 'Turbine';
+                    }
+                    let locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
+                    this.turbineLocationData.emit(locationData);
                 }
             });
         });
