@@ -116,10 +116,12 @@ var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
 var CommentsChangedSchema = new Schema({
     mmsi: { type: Number },
+    oldComment: { type: String },
     newComment: { type: String },
     idTransfer: { type: String },
     otherComment: { type: String },
     userID: { type: String },
+    processed: { type: String },
     date: { type: Number }
 }, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
@@ -483,11 +485,13 @@ app.post("/api/saveTransfer", function (req, res) {
             return res.status(401).send('Acces denied');
         }
         var comment = new CommentsChangedmodel();
+        comment.oldComment = req.body.oldComment;
         comment.newComment = req.body.comment;
         comment.otherComment = req.body.commentChanged.otherComment;
         comment.idTransfer = req.body._id;
         comment.date = req.body.commentDate;
         comment.mmsi = req.body.mmsi;
+        comment.processed = null;
         comment.userID = req.body.userID;
         comment.save(function (err, data) {
             if (err) {
@@ -573,110 +577,121 @@ app.get("/api/getVessel", function (req, res) {
 });
 
 app.get("/api/getSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+        SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        })
     });
 });
 
 app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
+    
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/GetCycleTimesForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = parseInt(req.params.date);
-
-    SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+        SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
+        }
     
-    SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
-    null, {
-        sort: {
-            startTime: 'asc'
-        }
-    },
-     function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
-        }
+        SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
+        null, {
+            sort: {
+                startTime: 'asc'
+            }
+        },
+         function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
@@ -686,7 +701,10 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Acces denied');
     }
-    let filter = { client: companyName, onHire: 1 };
+    let filter = { client: companyName };
+    if(!req.body[0].notHired) {
+        filter.onHire = 1;
+    }
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -742,22 +760,24 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
 });
 
 app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            let fieldnameData = data + '';
-            let arrayOfFields = [];
-            arrayOfFields = fieldnameData.split(",");
-            res.send(arrayOfFields);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                let fieldnameData = data + '';
+                let arrayOfFields = [];
+                arrayOfFields = fieldnameData.split(",");
+                res.send(arrayOfFields);
+            }
+        });
     });
 });
 
@@ -956,42 +976,45 @@ app.post("/api/getDatesWithValues", function (req, res) {
 });
 
 app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
-
-    SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            let dateData = data + '';
-            let arrayOfDates = [];
-            arrayOfDates = dateData.split(",");
-            res.send(arrayOfDates);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                let dateData = data + '';
+                let arrayOfDates = [];
+                arrayOfDates = dateData.split(",");
+                res.send(arrayOfDates);
+            }
+        });
     });
 });
 
 app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
-
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
-
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+
+        Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 

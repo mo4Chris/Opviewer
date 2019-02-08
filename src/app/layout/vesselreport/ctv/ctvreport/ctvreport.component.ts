@@ -361,6 +361,7 @@ export class CtvreportComponent implements OnInit {
 
     matchCommentsWithTransfers() {
         for (let i = 0; i < this.transferData.length; i++) {
+            this.transferData[i].oldComment = this.transferData[i].comment;
             this.transferData[i].showCommentChanged = false;
             this.transferData[i].commentChanged = this.changedCommentObj;
             this.transferData[i].formChanged = false;

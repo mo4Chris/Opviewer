@@ -5,6 +5,6 @@
 
 export const environment = {
   production: false,
-  Server_IP: 'http://localhost:4200',
-  DB_IP: 'http://localhost:8080'
+  Server_IP: 'http://192.168.100.55:4200',
+  DB_IP: 'http://192.168.100.55:8080'
 };
