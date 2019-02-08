@@ -420,9 +420,9 @@ app.post("/api/registerUser", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin") {
         if (token.userPermission === "Logistics specialist" && token.userCompany !== userData.client) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         } else if (token.userPermission !== "Logistics specialist") {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
     }
     Usermodel.findOne({ username: userData.email },
@@ -492,7 +492,7 @@ app.post("/api/saveVessel", function (req, res) {
     let token = verifyToken(req, res);
     if (req.body.mode === "Save") {
         if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         vessel.save(function (err, data) {
             if (err) {
@@ -504,7 +504,7 @@ app.post("/api/saveVessel", function (req, res) {
     }
     else {
         if (token.userPermission !== "admin") {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address },
             function (err, data) {
@@ -522,7 +522,7 @@ app.post("/api/saveVessel", function (req, res) {
 app.post("/api/saveTransfer", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         var comment = new CommentsChangedmodel();
         comment.newComment = req.body.comment;
@@ -544,7 +544,7 @@ app.post("/api/saveTransfer", function (req, res) {
 app.post("/api/getCommentsForVessel", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         CommentsChangedmodel.aggregate([
             {
@@ -576,7 +576,7 @@ app.post("/api/getCommentsForVessel", function (req, res) {
 app.get("/api/getVessel", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Vesselmodel.find({
 
@@ -599,7 +599,7 @@ app.get("/api/getSov/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovModel.find({ "mmsi": mmsi, "dayNum": date }, function (err, data) {
             if (err) {
@@ -617,7 +617,7 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovTransits.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
@@ -635,7 +635,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovVessel2vesselTransfers.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
@@ -653,7 +653,7 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovCycleTimes.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
@@ -671,7 +671,7 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovPlatformTransfers.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
@@ -689,7 +689,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovTurbineTransfers.find({ "mmsi": mmsi, "date": date },
             null, {
@@ -711,7 +711,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     let filter = { client: companyName };
     if (!req.body[0].notHired) {
@@ -739,7 +739,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
 app.get("/api/getCompanies", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Vesselmodel.find().distinct('client', function (err, data) {
         if (err) {
@@ -756,7 +756,7 @@ app.get("/api/getCompanies", function (req, res) {
 app.post("/api/getDistinctFieldnames", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date }).distinct('fieldname', function (err, data) {
             if (err) {
@@ -777,7 +777,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
             if (err) {
@@ -819,7 +819,7 @@ app.post("/api/getSpecificPark", function (req, res) {
 app.get("/api/getLatestBoatLocation", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     boatLocationmodel.aggregate([
         {
@@ -863,7 +863,7 @@ app.get("/api/getLatestBoatLocation", function (req, res) {
 app.post("/api/getRouteForBoat", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         boatLocationmodel.find({
             "TIMESTAMP": { $regex: req.body.dateNormal, $options: 'i' },
@@ -882,7 +882,7 @@ app.post("/api/getRouteForBoat", function (req, res) {
 app.post("/api/getCrewRouteForBoat", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         boatCrewLocationmodel.find({
             "date": req.body.date,
@@ -903,7 +903,7 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
     let companyMmsi = [];
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Vesselmodel.find({ client: companyName }, function (err, data) {
         if (err) {
@@ -970,7 +970,7 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
 app.post("/api/getDatesWithValues", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         Transfermodel.find({ mmsi: req.body.mmsi }).distinct('date', function (err, data) {
             if (err) {
@@ -991,7 +991,7 @@ app.get("/api/getDatesShipHasSailedForSov/:mmsi", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
             if (err) {
@@ -1013,7 +1013,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
             if (err) {
@@ -1029,7 +1029,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         Transfermodel.find({ mmsi: req.body.mmsi, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
             if (err) {
@@ -1045,7 +1045,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
 app.get("/api/getUsers", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Usermodel.find({
 
@@ -1066,10 +1066,10 @@ app.post("/api/getUsersForCompany", function (req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     if (token.userPermission === "Logistics specialist" && token.userCompany !== companyName) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Usermodel.find({
         client: companyName,
@@ -1088,7 +1088,7 @@ app.post("/api/getUsersForCompany", function (req, res) {
 app.post("/api/getUserByUsername", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Usermodel.find({
         username: req.body.username
@@ -1099,7 +1099,7 @@ app.post("/api/getUserByUsername", function (req, res) {
                 res.send(err);
             } else {
                 if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-                    return res.status(401).send('Acces denied');
+                    return res.status(401).send('Access denied');
                 } else {
                     res.send(data);
                 }
@@ -1116,9 +1116,9 @@ app.post("/api/validatePermissionToViewData", function (req, res) {
 app.post("/api/saveUserBoats", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { boats: req.body.boats },
         function (err, data) {
@@ -1133,7 +1133,7 @@ app.post("/api/saveUserBoats", function (req, res) {
 app.post("/api/getVideoRequests", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         videoRequestedmodel.aggregate([
             {
@@ -1165,7 +1165,7 @@ app.post("/api/getVideoRequests", function (req, res) {
 app.post("/api/getVideoBudgetByMmsi", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         videoBudgetmodel.find({
             mmsi: req.body.mmsi
@@ -1203,7 +1203,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
 app.post("/api/saveVideoRequest", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         var videoRequest = new videoRequestedmodel();
         videoRequest.mmsi = req.body.mmsi;
@@ -1254,9 +1254,9 @@ app.post("/api/saveVideoRequest", function (req, res) {
 app.post("/api/resetPassword", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
     randomToken = randomToken.replace(/\//gi, '8');
@@ -1325,7 +1325,7 @@ app.post("/api/setPassword", function (req, res) {
 app.post("/api/getGeneral", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
             if (err) {
@@ -1340,7 +1340,7 @@ app.post("/api/getGeneral", function (req, res) {
 app.get("/api/getTurbineWarranty", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     turbineWarrantymodel.find({}, function (err, data) {
         if (err) {
@@ -1358,7 +1358,7 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
             res.send(err);
         } else {
             if (token.userPermission !== 'admin' && token.userCompany !== data[0].client) {
-                return res.status(401).send('Acces denied');
+                return res.status(401).send('Access denied');
             }
             sailDayChangedmodel.find({ fleetID: data[0]._id }, function (err, _data) {
                 if (err) {
@@ -1375,7 +1375,7 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
 app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     turbineWarrantymodel.find({ client: req.body.client }, function (err, data) {
         if (err) {
@@ -1409,7 +1409,7 @@ app.post("/api/setSaildays", function (req, res) {
 app.post("/api/addVesselToFleet", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield, status: "TODO" };
     if (isNaN(req.body.vessel)) {
@@ -1456,7 +1456,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
     let fleetID = req.params.fleetID;
     let client = req.params.client;
     if (token.userPermission !== 'admin' && token.userCompany !== client) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     activeListingsModel.find({ fleetID: fleetID }, function (err, data) {
         if (err) {
@@ -1503,7 +1503,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
 app.post("/api/setActiveListings", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.client !== client) {
-        return res.status(401).send('Acces denied');
+        return res.status(401).send('Access denied');
     }
     var listings = req.body.listings;
     var activeVessels = [];

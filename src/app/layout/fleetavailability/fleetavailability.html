@@ -162,8 +162,11 @@
                 <tr>
                     <th class="smallPadding">Date \ Vessel</th>
                     <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
-                        <th class="smallPadding">
-                            <span>{{changeToNicename(vessel) | titlecase}}</span>
+                        <th class="smallPadding" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
+                            <span [attr.placement]="!turbineWarrenty.activeFleet.includes(vessel) ? 'top' : null"
+                                  [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is not active' : null">
+                                {{changeToNicename(vessel) | titlecase}}
+                            </span>
                         </th>
                     </ng-container>
                     <th class="smallPadding">
@@ -176,15 +179,21 @@
                     <tr *ngIf="checkDateRange(date)">
                         <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
-                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0"
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)"
                                 [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
-                                <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
-                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
-                                    <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
-                                    <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
-                                    <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
-                                    <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
-                                </select>
+                                <ng-template #tipContent>
+                                    Vessel is {{turbineWarrenty.activeFleet.includes(turbineWarrenty.fullFleet[i]) ? "active" : "not active"}}<br />
+                                    And {{sailMatrix[i][ind] == 0 ? "didn't sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "wasn't processed"}}
+                                </ng-template>
+                                <div placement="top" [ngbTooltip]="tipContent">
+                                    <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
+                                    <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
+                                        <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
+                                        <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
+                                        <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
+                                        <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
+                                    </select>
+                                </div>
                             </td>
                             {{addDateSailDay(sailMatrix[i][ind], i)}}
                         </ng-container>
@@ -193,7 +202,10 @@
                 </ng-container>
                 <tr>
                     <td class="smallPadding">Total weather days</td>
-                    <td class="smallPadding" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;">{{getTotalMissingDays(ind)}}</td>
+                    <td class="smallPadding totals" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;"
+                        [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
+                        {{getTotalMissingDays(ind)}}
+                    </td>
                     <td class="smallPadding">{{getTotalWeatherDays()}}</td>
                 </tr>
             </tbody>

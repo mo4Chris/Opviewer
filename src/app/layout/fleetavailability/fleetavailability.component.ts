@@ -102,6 +102,7 @@ export class FleetavailabilityComponent implements OnInit {
                 }
             }
             this.sailMatrix = this.turbineWarrenty.sailMatrix;
+            this.orderSailMatrixByActive();
             if (init) {
                 this.getAvailableMonths();
                 this.getGraphData();
@@ -617,5 +618,23 @@ export class FleetavailabilityComponent implements OnInit {
                 this.activeChanged[vesselnumber].splice(index, 1);
             }
         }
+    }
+    
+    orderSailMatrixByActive() {
+        let active = this.turbineWarrenty.activeFleet;
+        let sorted = { fleet: [], sailMatrix: [] };
+        for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
+            if (active.includes(this.turbineWarrenty.fullFleet[i])) {
+                sorted.fleet.push(this.turbineWarrenty.fullFleet[i]);
+                this.turbineWarrenty.fullFleet.splice(i, 1);
+                sorted.sailMatrix.push(this.sailMatrix[i]);
+                this.sailMatrix.splice(i, 1);
+                i--;
+            }
+        }
+        sorted.fleet = sorted.fleet.concat(this.turbineWarrenty.fullFleet);
+        sorted.sailMatrix = sorted.sailMatrix.concat(this.turbineWarrenty.sailMatrix);
+        this.turbineWarrenty.fullFleet = sorted.fleet;
+        this.sailMatrix = sorted.sailMatrix;
     }
 }
