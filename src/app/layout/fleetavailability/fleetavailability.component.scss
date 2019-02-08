@@ -19,11 +19,11 @@ table.sailMatrix {
 }
 
 .red {
-    background-color: red;
+    background-color: rgb(234, 67, 53);
 }
 
 .gray {
-    background-color: gray;
+    background-color: #868e96;
 }
 
 .yellow {
@@ -47,6 +47,7 @@ table.sailMatrix {
 ngb-alert {
     position: fixed;
     bottom: 0px;
+    z-index: 1100;
 }
 
 .monthSelector {

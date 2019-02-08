@@ -22,15 +22,13 @@
                 <form>
                     <div class="form-content">
                         <select class="form-control" name="type" [(ngModel)]="vesselToAdd.type">
-                            <option value="existing">Existing vessel</option>
+                            <option value="existing">Vessel in our BMO database</option>
                             <option value="new">New vessel</option>
                         </select>
                         <div class="form-group" *ngIf="vesselToAdd.type=='existing'">
-                            Existing vessel
-                            <select name="existingVessel" class="form-control" [(ngModel)]="vesselToAdd.existingVesselValue">
-                                <option [value]=""></option>
-                                <option *ngFor="let existingVessel of existingVessels" [value]="existingVessel.nicename">{{existingVessel.nicename}}</option>
-                            </select>
+                            Vessel in our BMO database
+                            <input type="text" class="form-control" [ngbTypeahead]="search" (focus)="focus$.next($event.target.value)"
+                                   #instance="ngbTypeahead" [(ngModel)]="vesselToAdd.existingVesselValue" name="existingVessel" />
                         </div>
                         <div class="form-group" *ngIf="vesselToAdd.type=='new'">
                             New vessel

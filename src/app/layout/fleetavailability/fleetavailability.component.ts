@@ -1,10 +1,12 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as Chart from 'chart.js';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { map, catchError } from 'rxjs/operators';
+import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
+import { map, catchError, debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment';
 import { UserService } from '../../shared/services/user.service';
 import { DialogService } from '../../dialog.service';
@@ -54,6 +56,20 @@ export class FleetavailabilityComponent implements OnInit {
     errorListing = [[]];
     numberNewListings = 0;
 
+    @ViewChild('instance') instance: NgbTypeahead;
+    focus$ = new Subject<string>();
+    click$ = new Subject<string>();
+
+    search = (text$: Observable<string>) => {
+        const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+        const inputFocus$ = this.focus$;
+
+        return merge(debouncedText$, inputFocus$).pipe(
+            map(term => (term === '' ? this.existingVessels
+                : this.existingVessels.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, this.existingVessels.length))
+        );
+    }
+
     ngOnInit() {
         this.getCampaignName();
         this.getStartDate();
@@ -92,7 +108,7 @@ export class FleetavailabilityComponent implements OnInit {
                 this.createLineChart();
                 if (this.tokenInfo.userPermission == 'admin') {
                     this.newService.GetVessel().subscribe(data => {
-                        this.existingVessels = data;
+                        this.existingVessels = data.map(v => v.nicename);
                         this.loaded = true;
                     });
                 } else {
@@ -122,7 +138,6 @@ export class FleetavailabilityComponent implements OnInit {
             this.myChart = new Chart('canvas', {
                 type: 'line',
                 data: {
-                    //labels: this.allMonths,
                     datasets: [{
                         data: this.totalWeatherDaysPerMonth,
                         label: 'Recorded weather days',
