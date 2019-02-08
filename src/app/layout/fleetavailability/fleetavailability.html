@@ -9,8 +9,12 @@
         <select class="monthSelector" (change)="setMonth($event.target.value)">
             <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
         </select>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
-                      (click)="openModal(addVesselModal)">Add vessel</button></span>
+        <span>
+            <button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                    (click)="openModal(addVesselModal)">
+                Add vessel
+            </button>
+        </span>
         <ng-template #addVesselModal let-modal>
             <div class="modal-header">
                 <h4 class="modal-title">Add vessel</h4>
@@ -21,19 +25,8 @@
             <div class="modal-body">
                 <form>
                     <div class="form-content">
-                        <select class="form-control" name="type" [(ngModel)]="vesselToAdd.type">
-                            <option value="existing">Vessel in our BMO database</option>
-                            <option value="new">New vessel</option>
-                        </select>
-                        <div class="form-group" *ngIf="vesselToAdd.type=='existing'">
-                            Vessel in our BMO database
-                            <input type="text" class="form-control" [ngbTypeahead]="search" (focus)="focus$.next($event.target.value)"
-                                   #instance="ngbTypeahead" [(ngModel)]="vesselToAdd.existingVesselValue" name="existingVessel" />
-                        </div>
-                        <div class="form-group" *ngIf="vesselToAdd.type=='new'">
-                            New vessel
-                            <input name="newVessel" class="form-control" placeholder="Mmsi or Vessel name" [(ngModel)]="vesselToAdd.newVesselValue" />
-                        </div>
+                        <input type="text" class="form-control" [ngbTypeahead]="search" (focus)="focus$.next($event.target.value)"
+                               #instance="ngbTypeahead" [(ngModel)]="vesselToAdd" name="vesselToAdd" />
                     </div>
                 </form>
             </div>
@@ -42,8 +35,12 @@
                 <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
             </div>
         </ng-template>
-        <span><button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
-                      (click)="openModal(setActiveModal, {size: 'lg'}, true)">Set active</button></span>
+        <span>
+            <button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                    (click)="openModal(setActiveModal, {size: 'lg'}, true)">
+                Set active
+            </button>
+        </span>
         <ng-template #setActiveModal let-modal>
             <div class="modal-header setActiveHeader">
                 <h4 class="modal-title">Set active</h4>
@@ -76,7 +73,7 @@
                                 <td [class.errorListing]="errorListing[i][ind]">
                                     <div class="form-group" [class.firstSubRow]="ind==0">
                                         <div class="input-group datepicker-input">
-                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate" (ngModelChange)="onChange(listing, i)" 
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
                                                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
@@ -90,7 +87,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="input-group datepicker-input">
-                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate" (ngModelChange)="onChange(listing, i)" 
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
                                             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                                                          let-disabled="disabled" let-focused="focused">
@@ -110,7 +107,7 @@
                             </tr>
                             <tr class="subRow">
                                 <td class="new">
-                                    <span class="addActive" (click)="setNotNew(i)" >+</span>
+                                    <span class="addActive" (click)="setNotNew(i)">+</span>
                                     <div class="form-group" [class.firstSubRow]="listings[i].length<=0">
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"

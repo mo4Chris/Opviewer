@@ -44,7 +44,7 @@ export class FleetavailabilityComponent implements OnInit {
     forecastFromStart = [];
     existingVessels;
     sailDaysChanged = [];
-    vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
+    vesselToAdd = '';
     openListing = [''];
     activeListings;
     datePickerValue = [[]];
@@ -112,8 +112,8 @@ export class FleetavailabilityComponent implements OnInit {
                         this.loaded = true;
                     });
                 } else {
-                    this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-                        this.existingVessels = data;
+                    this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
+                        this.existingVessels = data.map(v => v.nicename);
                         this.loaded = true;
                     });
                 }
@@ -401,11 +401,7 @@ export class FleetavailabilityComponent implements OnInit {
     addVessel() {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
             var vesselToAdd = { client: this.turbineWarrenty.client, vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
-            if (this.vesselToAdd.type == 'existing') {
-                vesselToAdd.vessel = this.vesselToAdd.existingVesselValue;
-            } else {
-                vesselToAdd.vessel = this.vesselToAdd.newVesselValue;
-            }
+            vesselToAdd.vessel = this.vesselToAdd;
             if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
                 this.setAlert('danger', 'Vessel already in fleet', true);
                 return;
@@ -421,7 +417,7 @@ export class FleetavailabilityComponent implements OnInit {
                     throw error;
                 })
             ).subscribe(_ => {
-                this.vesselToAdd = { type: 'existing', newVesselValue: '', existingVesselValue: '' };
+                this.vesselToAdd = '';
             });
         }
     }
