@@ -18,6 +18,10 @@ import {
 } from './components';
 import { StatModule } from '../../shared';
 import { UserService } from '../../shared/services/user.service';
+import { AdminComponent } from './components/users/admin/admin.component';
+import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
+import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
+import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
 
 @NgModule({
     imports: [
@@ -37,9 +41,13 @@ import { UserService } from '../../shared/services/user.service';
         DashboardComponent,
         TimelineComponent,
         NotificationComponent,
-        ChatComponent
+        ChatComponent,
+        AdminComponent,
+        LogisticsSpecialistComponent,
+        MarineControllerComponent,
+        VesselMasterComponent
     ],
-    providers: [CommonService, UserService],
+    providers: [UserService],
     bootstrap: [DashboardComponent]
 })
 export class DashboardModule {
