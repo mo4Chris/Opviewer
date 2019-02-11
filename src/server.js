@@ -4,6 +4,7 @@ var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
+var twoFactor = require('node-2fa');
 
 require('dotenv').config({path:__dirname+'/./../.env'});
 
@@ -54,7 +55,8 @@ var userSchema = new Schema({
     permissions: { type: String },
     client: { type: String },
     boats: { type: Array },
-    token: { type: String }
+    token: { type: String },
+    secret2fa: { type: String },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -114,10 +116,12 @@ var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
 
 var CommentsChangedSchema = new Schema({
     mmsi: { type: Number },
+    oldComment: { type: String },
     newComment: { type: String },
     idTransfer: { type: String },
     otherComment: { type: String },
     userID: { type: String },
+    processed: { type: String },
     date: { type: Number }
 }, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
@@ -384,7 +388,8 @@ app.post("/api/registerUser", function (req, res) {
                         "token": randomToken,
                         "permissions": userData.permissions,
                         "client": userData.client,
-                        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
+                        "secret2fa": "",
+                        "password": bcrypt.hashSync("hanspasswordtocheck", 10), //password shouldn't be set when test phase is over
                     });
                     user.save((error, registeredUser) => {
                         if (error) {
@@ -424,7 +429,16 @@ app.post("/api/login", function (req, res) {
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats };
                         let token = jwt.sign(payload, 'secretKey');
-                        return res.status(200).send({ token });
+                        if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
+                            return res.status(200).send({ token });
+                        } else {
+                            
+                            if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
+                                return res.status(200).send({ token });
+                            } else{
+                                return res.status(401).send('2fa is incorrect');
+                            }
+                        }
                     } else {
                         return res.status(401).send('Password is incorrect');
                     }
@@ -471,11 +485,13 @@ app.post("/api/saveTransfer", function (req, res) {
             return res.status(401).send('Acces denied');
         }
         var comment = new CommentsChangedmodel();
+        comment.oldComment = req.body.oldComment;
         comment.newComment = req.body.comment;
         comment.otherComment = req.body.commentChanged.otherComment;
         comment.idTransfer = req.body._id;
         comment.date = req.body.commentDate;
         comment.mmsi = req.body.mmsi;
+        comment.processed = null;
         comment.userID = req.body.userID;
         comment.save(function (err, data) {
             if (err) {
@@ -485,6 +501,27 @@ app.post("/api/saveTransfer", function (req, res) {
             }
         });
     });
+});
+
+app.post("/api/get2faExistence", function (req, res){
+    let userEmail = req.body.userEmail;
+
+    Usermodel.findOne({ username: userEmail},
+        function (err, user) {
+            // if (err) {
+            //     res.send(err);
+            // } else {
+                if (!user) {
+                    return res.status(401).send('User does not exist');
+                } else {
+                    if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
+                        res.send({secret2fa: ""});
+                    } else {
+                        res.send(user.secret2fa);
+                    }
+                }
+            // }
+        });
 });
 
 app.post("/api/getCommentsForVessel", function (req, res) {
@@ -540,110 +577,121 @@ app.get("/api/getVessel", function (req, res) {
 });
 
 app.get("/api/getSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+        SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        })
     });
 });
 
 app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
+    
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/GetCycleTimesForSov/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = parseInt(req.params.date);
-
-    SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+        SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
 app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
+        }
     
-    SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
-    null, {
-        sort: {
-            startTime: 'asc'
-        }
-    },
-     function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
-        }
+        SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
+        null, {
+            sort: {
+                startTime: 'asc'
+            }
+        },
+         function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
@@ -653,7 +701,10 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Acces denied');
     }
-    let filter = { client: companyName, onHire: 1 };
+    let filter = { client: companyName };
+    if(!req.body[0].notHired) {
+        filter.onHire = 1;
+    }
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -709,22 +760,24 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
 });
 
 app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            let fieldnameData = data + '';
-            let arrayOfFields = [];
-            arrayOfFields = fieldnameData.split(",");
-            res.send(arrayOfFields);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                let fieldnameData = data + '';
+                let arrayOfFields = [];
+                arrayOfFields = fieldnameData.split(",");
+                res.send(arrayOfFields);
+            }
+        });
     });
 });
 
@@ -923,42 +976,45 @@ app.post("/api/getDatesWithValues", function (req, res) {
 });
 
 app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
     let mmsi = parseInt(req.params.mmsi);
-
-    SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            let dateData = data + '';
-            let arrayOfDates = [];
-            arrayOfDates = dateData.split(",");
-            res.send(arrayOfDates);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+        SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                let dateData = data + '';
+                let arrayOfDates = [];
+                arrayOfDates = dateData.split(",");
+                res.send(arrayOfDates);
+            }
+        });
     });
 });
 
 app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
-
-    let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Acces denied');
-    }
-
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
-
-    Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            res.send(data);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated){
+        if(validated.length < 1){
+            return res.status(401).send('Access denied');
         }
+
+
+        Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
     });
 });
 
@@ -1248,7 +1304,8 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), $unset: { token: 1} },
+    console.log("secret= " + req.body.secret2fa);
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1}},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1261,7 +1318,7 @@ app.post("/api/setPassword", function (req, res) {
 app.post("/api/getGeneral", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Acces denied');
+            return res.status(401).send('Access denied');
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
             if (err) {

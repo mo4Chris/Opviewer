@@ -3,6 +3,8 @@ import { CommonService } from '../../../../common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
@@ -48,13 +50,22 @@ export class CtvreportComponent implements OnInit {
     noPermissionForData;
     vessel;
     dateData;
+    modalReference: NgbModalRef;
 
     public showAlert = false;
     alert = { type: '', message: '' };
     timeout;
 
-    constructor(private newService: CommonService, private calculationService: CalculationService, private dateTimeService: DatetimeService) {
+    constructor(private newService: CommonService, private calculationService: CalculationService, private modalService: NgbModal, private dateTimeService: DatetimeService) {
 
+    }
+
+    openModal(content) {
+        this.modalReference = this.modalService.open(content, { size: 'lg' });
+     }
+
+     closeModal() {
+        this.modalReference.close();
     }
 
     ngOnInit() {
@@ -350,6 +361,7 @@ export class CtvreportComponent implements OnInit {
 
     matchCommentsWithTransfers() {
         for (let i = 0; i < this.transferData.length; i++) {
+            this.transferData[i].oldComment = this.transferData[i].comment;
             this.transferData[i].showCommentChanged = false;
             this.transferData[i].commentChanged = this.changedCommentObj;
             this.transferData[i].formChanged = false;
