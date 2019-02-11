@@ -4,6 +4,22 @@
         <div class="col-lg-8">
             <canvas id="canvas">{{myChart}}</canvas>
         </div>
+        <div *ngIf="loaded" class="col-lg-4">
+            <table class="table table-responsive graphStats">
+                <tr>
+                    <td>Current remaining weather days</td>
+                    <td>{{totalWeatherDaysPerMonth[totalWeatherDaysPerMonth.length - 1].y}} days</td>
+                </tr>
+                <tr>
+                    <td>Expected end after current weather days</td>
+                    <td>{{forecastAfterRecorded[forecastAfterRecorded.length - 1].y | number:'1.0-1'}} days</td>
+                </tr>
+                <tr>
+                    <td>Expected end from start of term</td>
+                    <td>{{forecastFromStart[forecastFromStart.length - 1].y | number:'1.0-1'}} days</td>
+                </tr>
+            </table>
+        </div>
     </div>
     <div class="card-body table-responsive" *ngIf="loaded">
         <select class="monthSelector" (change)="setMonth($event.target.value)">
@@ -185,15 +201,15 @@
                                     Vessel is {{turbineWarrenty.activeFleet.includes(turbineWarrenty.fullFleet[i]) ? "active" : "not active"}}<br />
                                     And {{sailMatrix[i][ind] == 0 ? "didn't sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "wasn't processed"}}
                                 </ng-template>
-                                <div placement="top" [ngbTooltip]="tipContent">
+                                <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
                                     <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
-                                    <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
-                                        <option value="_NaN_" *ngIf="turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
-                                        <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
-                                        <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
-                                        <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
-                                    </select>
                                 </div>
+                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
+                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
+                                    <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
+                                    <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
+                                    <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
+                                </select>
                             </td>
                             {{addDateSailDay(sailMatrix[i][ind], i)}}
                         </ng-container>

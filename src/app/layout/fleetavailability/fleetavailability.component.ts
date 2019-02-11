@@ -157,6 +157,19 @@ export class FleetavailabilityComponent implements OnInit {
                     }]
                 },
                 options: {
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                                var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += Math.round(tooltipItem.yLabel * 100) / 100;
+                                return label;
+                            }
+                        }
+                    },
                     responsive: true,
                     elements: {
                         point:
@@ -401,8 +414,7 @@ export class FleetavailabilityComponent implements OnInit {
 
     addVessel() {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
-            var vesselToAdd = { client: this.turbineWarrenty.client, vessel: '', campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
-            vesselToAdd.vessel = this.vesselToAdd;
+            const vesselToAdd = { client: this.turbineWarrenty.client, vessel: this.vesselToAdd, campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
             if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
                 this.setAlert('danger', 'Vessel already in fleet', true);
                 return;
