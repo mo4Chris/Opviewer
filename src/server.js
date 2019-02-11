@@ -1566,6 +1566,20 @@ app.post("/api/setActiveListings", function (req, res) {
     });
 });
 
+app.post("/api/getVesselsToAddToFleet", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Access denied');
+    }
+    vesselsToAddToFleetmodel.find({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
 });

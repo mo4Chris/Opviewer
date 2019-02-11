@@ -243,5 +243,9 @@ export class CommonService {
         map((response: Response) => response.json()));
   }
 
+  getVesselsToAddToFleet(fleet) {
+    return this.post(environment.DB_IP + '/api/getVesselsToAddToFleet/', fleet).pipe(
+        map((response: Response) => response.json()));
+  }
 }
 

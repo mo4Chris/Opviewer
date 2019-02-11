@@ -1,0 +1,68 @@
+<div [@routerTransition]>
+    <app-page-header [heading]="'Fleet log'" [icon]="'fa-ship'"></app-page-header>
+    <select class="form-control selectType" name="selectType" [(ngModel)]="type" (change)="buildData()">
+        <option class="dropdown-item" value="Sail days changed">Sail days changed</option>
+        <option class="dropdown-item" value="Active listings">Active listings</option>
+        <option class="dropdown-item" value="Vessels to add">Vessels to add</option>
+    </select>
+    <select class="form-control selectMonth" [(ngModel)]="selectedMonth" (change)="buildData()">
+        <option *ngFor="let date of availableMonths;let i = index">{{date}}</option>
+    </select>
+    <table class="table table-hover table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date changed</th>
+                <th>Vessel</th>
+                <ng-container *ngIf="type=='Sail days changed'">
+                    <th>Date</th>
+                    <th>Old value</th>
+                    <th>New value</th>
+                </ng-container>
+                <ng-container *ngIf="type=='Active listings'">
+                    <th>Date Start</th>
+                    <th>Date end</th>
+                    <th>Deleted</th>
+                </ng-container>
+                <ng-container *ngIf="type=='Vessels to add'">
+                    <th>mmsi</th>
+                    <th>status</th>
+                    <th>client</th>
+                </ng-container>
+                <th>User</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let edit of edits;let ind = index">
+                <td>{{ind + 1}}</td>
+                <ng-container *ngIf="type=='Sail days changed' && !loading">
+                    <td>{{valueToDate(edit.changeDate)}}</td>
+                    <td>{{changeToNicename(edit.vessel) | titlecase}}</td>
+                    <td>{{getMatlabDateToJSDate(edit.date)}}</td>
+                    <td>{{edit.oldValue}}</td>
+                    <td>{{edit.newValue}}</td>
+                    <td>{{getUsername(edit.userID)}}</td>
+                </ng-container>
+                <ng-container *ngIf="type=='Active listings' && !loading">
+                    <td>{{valueToDate(edit.dateChanged)}}</td>
+                    <td>{{changeToNicename(edit.vesselname) | titlecase}}</td>
+                    <td>{{valueToDate(edit.dateStart)}}</td>
+                    <td>{{valueToDate(edit.dateEnd)}}</td>
+                    <td>{{edit.deleted}}</td>
+                    <td>{{edit.user}}</td>
+                </ng-container>
+                <ng-container *ngIf="type=='Vessels to add' && !loading">
+                    <td>{{valueToDate(edit.dateAdded)}}</td>
+                    <td>{{changeToNicename(edit.vesselname)}}</td>
+                    <td>{{changeToNicename(edit.mmsi)}}</td>
+                    <td>{{edit.status}}</td>
+                    <td>{{changeToNicename(edit.client)}}</td>
+                    <td>{{edit.username}}</td>
+                </ng-container>
+            </tr>
+            <tr *ngIf="noData">
+                <td colspan="7" class="noData">No data Found!</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

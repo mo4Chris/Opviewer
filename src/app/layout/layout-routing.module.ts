@@ -16,6 +16,7 @@ const routes: Routes = [
             { path: 'grid', loadChildren: './grid/grid.module#GridModule' },
             { path: 'vesselreport', loadChildren: './vesselreport/vesselreport.module#VesselreportModule' },
             { path: 'fleets', loadChildren: './fleets/fleets.module#FleetsModule' },
+            { path: 'fleet-log', loadChildren: './fleet-log/fleet-log.module#FleetLogModule' },
             { path: 'fleetavailability', loadChildren: './fleetavailability/fleetavailability.module#FleetavailabilityModule' },
             { path: 'scatterplot', loadChildren: './scatterplot/scatterplot.module#ScatterplotModule' },
             { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },

@@ -10,6 +10,7 @@
                 <th>Start date</th>
                 <th>Stop date</th>
                 <th>Fleet availability</th>
+                <th>Log</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
                 <td>{{MatlabDateToJSDate(fleet.startDate)}}</td>
                 <td>{{MatlabDateToJSDate(fleet.stopDate)}}</td>
                 <td><a class="btn rounded-btn" (click)="redirectFleetAvailability(fleet.campaignName, fleet.windfield, fleet.startDate)"> Fleet availability </a></td>
+                <td><a class="btn rounded-btn" (click)="redirectFleetLog(fleet.campaignName, fleet.windfield, fleet.startDate)" *ngIf="tokenInfo.userPermission == 'admin'"> Log </a></td>
             </tr>
         </tbody>
     </table>

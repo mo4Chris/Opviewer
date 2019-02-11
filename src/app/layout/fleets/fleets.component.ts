@@ -34,6 +34,10 @@ export class FleetsComponent implements OnInit {
         this._router.navigate(['fleetavailability', { campaignName: campaignName, windfield: windfield, startDate: startDate }]);
     }
 
+    redirectFleetLog(campaignName, windfield, startDate) {
+        this._router.navigate(['fleet-log', { campaignName: campaignName, windfield: windfield, startDate: startDate }]);
+    }
+
     humanize(str) {
         var frags = str.split('_');
         for (var i = 0; i < frags.length; i++) {

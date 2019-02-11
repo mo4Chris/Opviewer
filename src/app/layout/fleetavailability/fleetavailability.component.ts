@@ -5,7 +5,7 @@ import * as Chart from 'chart.js';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
-import { map, catchError, debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { map, catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment';
 import { UserService } from '../../shared/services/user.service';
