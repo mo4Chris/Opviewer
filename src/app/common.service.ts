@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 
-
 @Injectable()
 export class CommonService {
 
@@ -22,6 +21,36 @@ export class CommonService {
   GetVessel() {
     return this.get(environment.DB_IP + '/api/getVessel/').pipe(
             map((response: Response) => response.json()));
+  }
+
+  GetSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getSov/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetTransitsForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetTransitsForSov/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetVessel2vesselsForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetVessel2vesselForSov/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetCycleTimesForSov(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/GetCycleTimesForSov/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetPlatformTransfers(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getPlatformTransfers/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  GetTurbineTransfers(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getTurbineTransfers/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
   }
 
   GetVesselsForCompany(client) {
@@ -44,6 +73,11 @@ export class CommonService {
             map((response: Response) => response.json()));
   }
 
+  GetSovDistinctFieldnames(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
+            map((response: Response) => response.json()));
+  }
+
   GetLatLon() {
     return this.get(environment.DB_IP + '/api/getLatLon/').pipe(
             map((response: Response) => response.json()));
@@ -60,12 +94,12 @@ export class CommonService {
   }
 
   GetLatestBoatLocationForCompany(company) {
-    return this.post(environment.DB_IP + '/api/getLatestBoatLocationForCompany/', company).pipe(
+    return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
             map((response: Response) => response.json()));
   }
 
-  GetTransfersForVessel (vessel) {
-    return this.post(environment.DB_IP + '/api/getTransfersForVessel/', vessel).pipe(
+  GetTransfersForVessel(mmsi, date) {
+    return this.get(environment.DB_IP + '/api/getTransfersForVessel/' + mmsi + '/' + date).pipe(
             map((response: Response) => response.json()));
   }
 
@@ -87,6 +121,11 @@ export class CommonService {
   getDatesWithValues(vessel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
             map((response: Response) => response.json()));
+  }
+
+  GetDatesShipHasSailedForSov(mmsi) {
+    return this.get(environment.DB_IP + '/api/GetDatesShipHasSailedForSov/' + mmsi).pipe(
+      map((response: Response) => response.json()));
   }
 
   getCommentsForVessel(vessel) {
@@ -167,6 +206,11 @@ export class CommonService {
   getGeneral(vessel) {
     return this.post(environment.DB_IP + '/api/getGeneral/', vessel).pipe(
         map((response: Response) => response.json()));
+  }
+
+  get2faExistence(user) {
+    return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
+      map((response: Response) => response.json()));
   }
 
 }

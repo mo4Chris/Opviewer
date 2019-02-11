@@ -15,7 +15,7 @@
   "dependencies": {
     "@agm/core": "^1.0.0-beta.3",
     "@agm/snazzy-info-window": "^1.0.0-beta.2",
-    "@angular-devkit/build-angular": "~0.10.0",
+    "@angular-devkit/build-angular": "^0.12.3",
     "@angular/animations": "7.0.4",
     "@angular/common": "^7.0.4",
     "@angular/compiler": "7.0.4",
@@ -35,16 +35,20 @@
     "body-parser": "^1.18.2",
     "chart.js": "^2.7.2",
     "chartjs-plugin-annotation": "^0.5.7",
+    "classlist.js": "^1.1.20150312",
     "core-js": "^2.5.4",
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "font-awesome": "^4.7.0",
+    "hi-base32": "^0.5.0",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "mongoose": "^5.3.12",
     "morgan": "^1.9.0",
     "ng-multiselect-dropdown": "^0.2.1",
     "ng2-charts": "^1.6.0",
+    "ngx-qrcode2": "0.0.9",
+    "node-2fa": "^1.1.2",
     "nodemailer": "^4.6.8",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
@@ -77,6 +81,6 @@
     "ts-node": "~7.0.1",
     "tslint": "~5.11.0",
     "typescript": "^3.1.6",
-    "webpack-dev-server": "^3.1.5"
+    "webpack-dev-server": "^3.1.14"
   }
 }

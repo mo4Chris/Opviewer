@@ -5,7 +5,7 @@ import { AgmCoreModule } from '@agm/core';
 
 import { VesselreportRoutingModule } from './vesselreport-routing.module';
 import { VesselreportComponent } from './vesselreport.component';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule, SharedPipesModule } from '../../shared';
 // import { DatePickerComponent } from './../bs-component/components'
 
 // modules mongoDB
@@ -15,6 +15,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {CommonService} from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
+
+import { CalculationService } from '../../supportModules/calculation.service';
+import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
+import { SovreportComponent } from './sov/sovreport/sovreport.component';
+import { EventService } from '../../supportModules/event.service';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -26,9 +31,10 @@ import { UserService } from '../../shared/services/user.service';
         NgbModule.forRoot(),
         CommonModule,
         VesselreportRoutingModule,
-        PageHeaderModule],
-    declarations: [VesselreportComponent, VesselreportComponent],
-    providers: [CommonService, UserService],
+        PageHeaderModule,
+        SharedPipesModule],
+    declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
+    providers: [CommonService, CalculationService, UserService, EventService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}

@@ -1,188 +1,112 @@
-<div class="videoRequestLoading" *ngIf="RequestLoading">
-<div class="spinner">
-    <div class="bounce1"></div>
-    <div class="bounce2"></div>
-    <div class="bounce3"></div>
-</div>
-</div>
-<div *ngIf="showContent">
-    <h2 class="text-muted">Vessel report <small> {{ MatlabDateToJSDate(vesselObject.date) }} </small></h2>
-    <div >
-        <form class="form-inline">
-            <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
-                <div class="input-group datepicker-input">
-                    <input class="form-control" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue" (ngModelChange)="onChange($event)" [dayTemplate]="customDay" >
-                    <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
-                            <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
-                                {{ date.day }}
-                            </div>
-                        </ng-template>
-
-                    <button class="input-group-addon" (click)="dp.toggle()" type="button">
-                        <span class="fa fa-calendar"></span>
-                    </button>
-                    <div class="form-group">
-                        <select class="form-control boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
-                            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
-                        </select>
-                    </div>
+<h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
+<div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
+    <div class="form-group">
+        <div class="input-group datepicker-input">
+            <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
+                [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue"
+                (ngModelChange)="onChange($event)" [dayTemplate]="customDay">
+            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
+                let-disabled="disabled" let-focused="focused">
+                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
+                    [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
+                    {{ date.day }}
                 </div>
-            </div>
-        </form>
+            </ng-template>
+            <button class="input-group-addon" (click)="dp.toggle()" type="button">
+                <span class="fa fa-calendar"></span>
+            </button>
+        </div>
     </div>
+    <div class="form-group">
+        <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
+            <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
+        </select>
+    </div>
+</div>
+<br>
+<div class="loader" *ngIf="!loaded || !turbinesLoaded">
+    <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+</div>
+<div id="routeMap" style="width: 100%">
+<div [hidden]="!loaded || !turbinesLoaded">
     <div *ngIf="noPermissionForData == false; else noPermission">
-        <div class="divContainer" *ngIf="transferData?.length > 0 || routeFound; else other_content">
-            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && routeFound" [type]="'warning'">We were not able to find the requested windpark. Only the route is being displayed. Please contact BMO and provide them with the vessel name and date</ngb-alert>
-            <ngb-alert class="noMapDataAlert" *ngIf="!parkFound && !routeFound" [type]="'danger'">We were not able to find any travel data. Please contact BMO and provide them with the vessel name and date</ngb-alert>
-            <div class="row">    
-                <div class="col-lg-6 col-sm-6">
-                    <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
-                            <ng-container *ngFor="let parks of Locdata; let i=index">
-                                <agm-circle [radius]="200" [fillOpacity]="0.8" *ngFor="let geo of parks.lat; let i = index" [latitude]="objectToInt(geo)" [longitude]="objectToInt(parks.lon[i])">
-                                </agm-circle>
-                            </ng-container>
-                        <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                            <ng-container *ngFor="let location of boatLocationData; let i = index">
-                                <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)" [longitude]="objectToInt(location.lon[i])">
-                                </agm-polyline-point>
-                            </ng-container>
-                        </agm-polyline>
-                    </agm-map>
+        <div class="divContainer" *ngIf="showContent == true; else other_content">
+            <div *ngIf="showMap; else no_map_available">
+                <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
+                    <b>Warning!</b> no route found for the selected day and vessel.
                 </div>
-                <div class="col-lg-6 col-sm-6">
-                    <h3 *ngIf="noTransits">There is no transit data available</h3>
-                    <table class="table table-responsive transitTable">
-                        <tr>
-                            <td class="keyTD">Departure Port</td>
-                            <td>{{MatlabDateToJSTime(general.portDepartureTime)}}</td>
-                            <td class="keyTD">Departure Wind Farm</td>
-                            <td>{{MatlabDateToJSTime(general.departureWindFarmTime)}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">Arrival wind farm</td>
-                            <td>{{MatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
-                            <td class="keyTD">Arrival Port</td>
-                            <td>{{MatlabDateToJSTime(general.portArrivalTime)}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">Distance Sailed</td>
-                            <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
-                            <td class="keyTD">Fuel Consumed</td>
-                            <td>{{roundNumber(general.TotalFuel, 10)}}</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="keyTD">Fuel Economy</td>
-                            <td>{{roundNumber(general.FuelEcon, 10)}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">Avg. speed outbound</td>
-                            <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
-                            <td class="keyTD">Avg. speed inbound</td>
-                            <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">Max. speed outbound</td>
-                            <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
-                            <td class="keyTD">Max. speed inbound</td>
-                            <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">MSI outbound</td>
-                            <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
-                            <td class="keyTD">MSI inbound</td>
-                            <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">WBV, Technicians</td>
-                            <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
-                            <td class="keyTD">WBV, Vessel Crew</td>
-                            <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
-                        </tr>
-                        <tr>
-                            <td class="keyTD">Number of dockings</td>
-                            <td>{{roundNumber(general.numDockings, 1)}}</td>
-                            <td class="keyTD">Average Docking Time</td>
-                            <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
-                        </tr>
-                    </table>
+                <div *ngIf="vesselObject.vesselType == 'CTV' && !parkFound" class="alert alert-warning" role="alert">
+                    <b>Warning!</b> no parks found for the selected day and vessel.
                 </div>
-            </div>
-            <br><br>
-            <!-- <div class="divContainer" *ngIf="transferData?.length > 0">
-                
-            </div> -->
-            <br><br>
-            
-            <div class="divContainer" *ngIf="transferData?.length > 0">
-                <h3>Dockings</h3>
-                <table class="table table-hover table-responsive table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>start time</th>
-                            <th>stop time</th>
-                            <th>duration</th>
-                            <th>score</th>
-                            <th>location</th>
-                            <th>comment</th>
-                            <th>detector</th>
-                            <th>save</th>
-                            <th *ngIf="videoRequestPermission">video request</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
-                            <td>{{ind + 1}}</td>  
-                            <td>{{MatlabDateToJSTime(transfer_Data.startTime)}}</td>
-                            <td>{{MatlabDateToJSTime(transfer_Data.stopTime)}}</td>  
-                            <td>{{MatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
-                            <td>{{roundNumber(transfer_Data.score, 10)}}</td> 
-                            <td>{{transfer_Data.location}}</td>  
-                            <td class="comment">
-                                <span ngbDropdown class="d-inline-block dropdown">
-                                    <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
-                                        <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
-                                    </button>
-                                    <span ngbDropdownMenu>
-                                        <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
-                                    </span>
-                                </span>
-                                <span *ngIf="transfer_Data.comment == 'Other'">
-                                    <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text" class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true"  />
-                                </span>
-                            </td>
-                            <td>{{transfer_Data.detector}}</td>
-                            <td>
-                                <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
-                            </td>
-                            <td *ngIf="videoRequestPermission">
-                                <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+                <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
+                    <b>Info,</b> parks were found but have not been visited by ship.
+                </div>
+                <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                    <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
+                        <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
+                            <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
+                             (mouseOver)="onMouseOver(infoWindow, gm)">      
+                            <agm-info-window #infoWindow>
+                                    <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} transfers</strong>
+                                    <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
+                                        <pre>
+Start: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+Stop: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+                                        </pre>
+                                    </ng-container>
+                               </agm-info-window>
+                           </agm-marker>
+                        </ng-container>
+                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
+                        <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
+                            <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
+                        </ng-container>
+                    </ng-container>
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                        <ng-container *ngFor="let location of boatLocationData; let i = index">
+                            <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
+                                [longitude]="objectToInt(location.lon[i])">
+                            </agm-polyline-point>
+                        </ng-container>
+                    </agm-polyline>
+                    <agm-polyline [strokeColor]="'#00368e'" [strokeWeight]="1">
+                        <agm-polyline-point *ngFor="let parkBoundaryLatitude of vesselTurbines.parkBoundaryLatitudes; let i = index" [latitude]="parkBoundaryLatitude"
+                            [longitude]="vesselTurbines.parkBoundaryLongitudes[i]">
+                        </agm-polyline-point>
+                    </agm-polyline>
+                </agm-map>
             </div>
         </div>
+        <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
+            [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
+            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)" (parkFound)="getParkFound($event)">
+        </app-ctvreport>
+        <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (loaded)="isLoaded($event)"
+            [vesselObject]="vesselObject" [mapPixelWidth]="mapPixelWidth" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
+            (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)">
+        </app-sovreport>
     </div>
     <ng-template #other_content>
         <div class="divContainer">
-            <h3>There is not data available for the selected day and vessel.</h3>
+            <h3>There is no data available for the selected day and vessel.</h3>
         </div>
     </ng-template>
     <ng-template #noPermission>
         <div class="divContainer">
             <h3>You are not allowed to view the vessel you requested</h3>
         </div>
-    </ng-template>  
+    </ng-template>
+    <ng-template #no_map_available>
+        <div class="divContainer">
+            <h3>There is no map available for the selected day and vessel.</h3>
+        </div>
+    </ng-template>
 </div>
-
-<div class="row">
-    <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
-        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0"><h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score: {{roundNumber(transfer_Data.score, 10)}}</h3></span>
-        <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length == undefined"><h3>Transfer #{{ind + 1}} - location: {{transfer_Data.location}} - status:  {{transfer_Data.detector}}</h3></span>
-        <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
-    </div>
 </div>
