@@ -55,6 +55,7 @@ export class FleetavailabilityComponent implements OnInit {
     changing = false;
     errorListing = [[]];
     numberNewListings = 0;
+    activeListingsLoaded = false;
 
     @ViewChild('instance') instance: NgbTypeahead;
     focus$ = new Subject<string>();
@@ -273,12 +274,12 @@ export class FleetavailabilityComponent implements OnInit {
         this.missingDays = [];
     }
 
-    addDateSailDay(sd, ind) {
+    addDateSailDay(sd, ind, date) {
         if (!this.missingDays[ind]) {
             this.missingDays[ind] = 0;
         }
 
-        if (sd != '_NaN_' && sd >= 0) {
+        if (sd != '_NaN_' && sd >= 0 && this.getIsActiveForDay(this.turbineWarrenty.fullFleet[ind], date)) {
             this.missingDays[ind] += (1 - sd);
             this.dateSailDays += parseFloat(sd);
         }
@@ -610,6 +611,7 @@ export class FleetavailabilityComponent implements OnInit {
                     this.errorListing[i][index] = false;
                 });
             }
+            this.activeListingsLoaded = true;
         });
     }
 
@@ -618,6 +620,9 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getIsActiveForDay(vessel, date) {
+        if (!this.activeListingsLoaded) {
+            return true;
+        }
         let listings = this.activeListings.filter(x => x.vesselname == vessel);
         let dat = this.MatLabDateToMoment(date);
         for (var i = 0; i < listings.length; i++) {
