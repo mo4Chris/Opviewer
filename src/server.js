@@ -1500,7 +1500,34 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== client) {
         return res.status(401).send('Access denied');
     }
-    activeListingsModel.find({ fleetID: fleetID }, function (err, data) {
+    activeListingsModel.aggregate([
+        // each Object is an aggregation.
+        {
+            $group: {
+                _id: '$listingID',
+                dateChanged: { $last: '$dateChanged' },
+                vesselname: { $last: '$vesselname' },
+                dateStart: { $last: '$dateStart' },
+                dateEnd: { $last: '$dateEnd' },
+                fleetID: { $last: '$fleetID' },
+                deleted: { $last: '$deleted' },
+                listingID: { $last: '$listingID' },
+                user: { $last: '$user' } 
+            }
+        }, {
+            $project: {
+                _id: '$listingID',
+                dateChanged: '$dateChanged',
+                vesselname: '$vesselname',
+                dateStart: '$dateStart',
+                dateEnd: '$dateEnd',
+                fleetID: '$fleetID',
+                deleted: '$deleted',
+                listingID: '$listingID',
+                user: '$user' 
+            }
+        }
+    ]).exec(function (err, data) {
         if (err) {
             res.send(err);
         } else {

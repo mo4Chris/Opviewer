@@ -163,7 +163,6 @@
                 </table>
             </div>
             <div class="modal-footer">
-                Changes could take up to a day to process
                 <button type="button" class="btn btn-primary" (click)="setActive()">Submit</button>
             </div>
         </ng-template>
@@ -180,7 +179,7 @@
                     <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
                         <th class="smallPadding" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                             <span [attr.placement]="!turbineWarrenty.activeFleet.includes(vessel) ? 'top' : null"
-                                  [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is not active' : null">
+                                  [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is currently not active' : null">
                                 {{changeToNicename(vessel) | titlecase}}
                             </span>
                         </th>
@@ -195,11 +194,11 @@
                     <tr *ngIf="checkDateRange(date)">
                         <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
-                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)"
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!getIsActiveForDay(vessel, date)"
                                 [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
                                 <ng-template #tipContent>
-                                    Vessel is {{turbineWarrenty.activeFleet.includes(turbineWarrenty.fullFleet[i]) ? "active" : "not active"}}<br />
-                                    And {{sailMatrix[i][ind] == 0 ? "didn't sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "wasn't processed"}}
+                                    Vessel is {{getIsActiveForDay(vessel, date) ? "active" : "not active"}}<br />
+                                    and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}
                                 </ng-template>
                                 <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
                                     <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>

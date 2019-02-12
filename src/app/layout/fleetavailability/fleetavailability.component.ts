@@ -463,10 +463,10 @@ export class FleetavailabilityComponent implements OnInit {
                 for (var j = 0; j < this.activeChanged[i].length; j++) {
                     var start, end;
                     if (this.activeChanged[i][j].dateStart) {
-                        start = moment(this.activeChanged[i][j].dateStart.year + '-' + this.activeChanged[i][j].dateStart.month + '-' + this.activeChanged[i][j].dateStart.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                        start = this.convertObjectToMoment(this.activeChanged[i][j].dateStart.year, this.activeChanged[i][j].dateStart.month, this.activeChanged[i][j].dateStart.day).add(1, 'hour').valueOf();
                     }
                     if (this.activeChanged[i][j].dateEnd) {
-                        end = moment(this.activeChanged[i][j].dateEnd.year + '-' + this.activeChanged[i][j].dateEnd.month + '-' + this.activeChanged[i][j].dateEnd.day, 'YYYY-MM-DD').add(1, 'hour').valueOf();
+                        end = this.convertObjectToMoment(this.activeChanged[i][j].dateEnd.year, this.activeChanged[i][j].dateEnd.month, this.activeChanged[i][j].dateEnd.day).add(1, 'hour').valueOf();
                     }
                     if (this.activeChanged[i][j].dateStart && this.activeChanged[i][j].dateEnd) {
                         if (start > end) {
@@ -611,6 +611,38 @@ export class FleetavailabilityComponent implements OnInit {
                 });
             }
         });
+    }
+
+    convertObjectToMoment(year, month, day) {
+        return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
+    }
+
+    getIsActiveForDay(vessel, date) {
+        let listings = this.activeListings.filter(x => x.vesselname == vessel);
+        let dat = this.MatLabDateToMoment(date);
+        for (var i = 0; i < listings.length; i++) {
+            if (listings[i].deleted) {
+                continue;
+            }
+            let start;
+            if (listings[i].dateStart.year != 'NaN') {
+                start = this.convertObjectToMoment(listings[i].dateStart.year, listings[i].dateStart.month, listings[i].dateStart.day).add(1, 'hour').valueOf();
+            }
+            let end;
+            if (listings[i].dateEnd.year != 'NaN') {
+                end = this.convertObjectToMoment(listings[i].dateEnd.year, listings[i].dateEnd.month, listings[i].dateEnd.day).add(1, 'hour').valueOf();
+            }
+            if (!start && !end) {
+                return true;
+            } else if (!start && dat <= end) {
+                return true;
+            } else if (!end && dat >= start) {
+                return true;
+            } else if (dat >= start && dat <= end) {
+                return true;
+            }
+        }
+        return false;
     }
 
     deleteListing(deleteItem, vesselnumber) {
