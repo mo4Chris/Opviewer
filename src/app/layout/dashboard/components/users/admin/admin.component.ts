@@ -10,7 +10,7 @@ export class AdminComponent implements OnInit {
 
   @Input() tokenInfo;
   @Output() locationData: EventEmitter<any[]> = new EventEmitter<any[]>();
-  
+
   constructor(private newService: CommonService) { }
 
   ngOnInit() {
