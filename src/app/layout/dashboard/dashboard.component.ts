@@ -92,7 +92,10 @@ export class DashboardComponent implements OnInit {
         }, 1000);
         setTimeout(() => {
             this.eventService.CloseLatestAgmInfoWindow();
-            this.getLocations();
+
+            if (this.router.url === '/dashboard') {
+                this.getLocations();
+            }
         }, 60000);
     }
 
