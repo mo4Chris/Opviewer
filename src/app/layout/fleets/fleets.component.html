@@ -10,7 +10,7 @@
                 <th>Start date</th>
                 <th>Stop date</th>
                 <th>Fleet availability</th>
-                <th>Log</th>
+                <th *ngIf="tokenInfo.userPermission == 'admin'">Log</th>
             </tr>
         </thead>
         <tbody>

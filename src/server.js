@@ -1571,7 +1571,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
 
 app.post("/api/setActiveListings", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin' && token.client !== client) {
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Access denied');
     }
     var listings = req.body.listings;

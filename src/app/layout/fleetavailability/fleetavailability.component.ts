@@ -489,7 +489,7 @@ export class FleetavailabilityComponent implements OnInit {
             if (stopSetActive) {
                 return;
             }
-            this.newService.setActiveListings({ listings: this.activeChanged }).pipe(
+            this.newService.setActiveListings({ listings: this.activeChanged, client: this.turbineWarrenty.client }).pipe(
                 map(
                     (res) => {
                         if (res.twa) {

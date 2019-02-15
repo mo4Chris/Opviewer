@@ -184,7 +184,7 @@
                             </span>
                         </th>
                     </ng-container>
-                    <th class="smallPadding">
+                    <th class="smallPadding dateWeatherDays">
                         <span>Total weather days</span>
                     </th>
                 </tr>
@@ -212,16 +212,16 @@
                             </td>
                             {{addDateSailDay(sailMatrix[i][ind], i, date)}}
                         </ng-container>
-                        <td class="smallPadding">{{getDateWeatherDays()}}</td>
+                        <td class="smallPadding dateWeatherDays">{{getDateWeatherDays()}}</td>
                     </tr>
                 </ng-container>
                 <tr>
-                    <td class="smallPadding">Total weather days</td>
+                    <td class="smallPadding totals">Total weather days</td>
                     <td class="smallPadding totals" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;"
                         [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                         {{getTotalMissingDays(ind)}}
                     </td>
-                    <td class="smallPadding">{{getTotalWeatherDays()}}</td>
+                    <td class="smallPadding totals dateWeatherDays">{{getTotalWeatherDays()}}</td>
                 </tr>
             </tbody>
         </table>
