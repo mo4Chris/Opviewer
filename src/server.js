@@ -1569,6 +1569,21 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
     });
 });
 
+app.get("/api/getAllActiveListingsForFleet/:fleetID", function (req, res) {
+    let token = verifyToken(req, res);
+    let fleetID = req.params.fleetID;
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Access denied');
+    }
+    activeListingsModel.find({ fleetID: fleetID }, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
 app.post("/api/setActiveListings", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {

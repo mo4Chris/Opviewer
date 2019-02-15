@@ -1,5 +1,23 @@
 table.sailMatrix {
     font-size: 12px;
+    text-align: center;
+
+    .dateWeatherDays, .totals, .dates, th {
+        font-weight: 900;
+        font-size: 14px;
+    }
+
+    .dateWeatherDays {
+        border-left-width: 3px;
+    }
+
+    .totals {
+        border-top-width: 3px;
+    }
+
+    .dates {
+        border-right-width: 3px;
+    }
 
     td {
         padding: 0 8px;
@@ -7,23 +25,36 @@ table.sailMatrix {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: initial;
 
         > div {
             width: 100%;
             height: 48px;
+
+            .isEdited {
+                display: inline-block;
+                float: right;
+                line-height: 25px;
+            }
+
+            > span {
+                text-align: center;
+                display: inline-block;
+                width: 100%;
+            }
         }
 
         .updateSailDay {
             width: 100%;
         }
+
+        &.cellEdited {
+            background-image: linear-gradient( to top right, transparent calc(50% - 4px), white calc(50% - 3px), white calc(50% + 3px), transparent calc(50% + 4px) );
+        }
     }
 
-    .dateWeatherDays {
-        border-left-width: 2px;
-    }
-
-    .totals {
-        border-top-width: 2px;
+    th {
+        border-bottom-width: 3px;
     }
 }
 
@@ -61,10 +92,12 @@ table.sailMatrix {
 
 .hideColor {
     background-color: transparent;
+    border: 1px solid #dee2e6 !important;
+    background-image: none !important;
 }
 
 .inActive.hideColor, th.inActive, .totals.inActive {
-    background-color: rgba(0, 0, 0, .075);
+    background-color: rgba(0, 0, 0, .35);
 }
 
 .btn {

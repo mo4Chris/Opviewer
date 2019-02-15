@@ -238,6 +238,11 @@ export class CommonService {
         map((response: Response) => response.json()));
   }
 
+  getAllActiveListingsForFleet(fleetID) {
+    return this.get(environment.DB_IP + '/api/getAllActiveListingsForFleet/' + fleetID).pipe(
+        map((response: Response) => response.json()));
+  }
+
   setActiveListings(listings) {
     return this.post(environment.DB_IP + '/api/setActiveListings/', listings).pipe(
         map((response: Response) => response.json()));

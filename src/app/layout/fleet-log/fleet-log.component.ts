@@ -145,8 +145,8 @@ export class FleetLogComponent implements OnInit {
     }
 
     getActiveListings() {
-        this.newService.getActiveListingsForFleet(this.fleetId, this.fleetClient).subscribe(data => {
-            this.activeListings = data.data;
+        this.newService.getAllActiveListingsForFleet(this.fleetId).subscribe(data => {
+            this.activeListings = data;
             this.activeListings.reverse();
             this.getValidData();
             this.loading = false;

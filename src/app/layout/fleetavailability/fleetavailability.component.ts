@@ -82,7 +82,6 @@ export class FleetavailabilityComponent implements OnInit {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
             if (data.data) {
                 this.turbineWarrenty = data.data;
-                this.getActiveListings();
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
@@ -91,32 +90,29 @@ export class FleetavailabilityComponent implements OnInit {
                 date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
                 this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
             }
+            this.orderSailMatrixByActive();
+            this.sailMatrix = this.turbineWarrenty.sailMatrix.map(x => Object.assign({}, x));
             if (data.sailDayChanged[0]) {
-                for (var i = 0; i < this.turbineWarrenty.sailMatrix.length; i++) {
+                for (var i = 0; i < this.sailMatrix.length; i++) {
                     for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
                         for (var k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
-                                this.turbineWarrenty.sailMatrix[i][j] = data.sailDayChanged[k].newValue;
+                                this.sailMatrix[i][j] = data.sailDayChanged[k].newValue;
                             }
                         }
                     }
                 }
             }
-            this.sailMatrix = this.turbineWarrenty.sailMatrix;
-            this.orderSailMatrixByActive();
+            this.getActiveListings();
             if (init) {
                 this.getAvailableMonths();
-                this.getGraphData();
-                this.createLineChart();
                 if (this.tokenInfo.userPermission == 'admin') {
                     this.newService.GetVessel().subscribe(data => {
                         this.existingVessels = data.map(v => v.nicename);
-                        this.loaded = true;
                     });
                 } else {
                     this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
                         this.existingVessels = data.map(v => v.nicename);
-                        this.loaded = true;
                     });
                 }
             }
@@ -363,7 +359,7 @@ export class FleetavailabilityComponent implements OnInit {
             this.totalWeatherDaysPerMonth[i] = { x: x, y: this.turbineWarrenty.numContractedVessels };
             for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
                 this.datePickerValue[j] = [null];
-                if (this.sailMatrix[j][i] != '_NaN_') {
+                if (this.sailMatrix[j][i] != '_NaN_' && this.getIsActiveForDay(this.turbineWarrenty.fullFleet[j], this.turbineWarrenty.Dates[i])) {
                     this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
             }
@@ -400,6 +396,8 @@ export class FleetavailabilityComponent implements OnInit {
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
+        this.loaded = true;
+        this.createLineChart();
     }
 
     openModal(content, settings, activeListingsModal = false) {
@@ -611,7 +609,12 @@ export class FleetavailabilityComponent implements OnInit {
                     this.errorListing[i][index] = false;
                 });
             }
-            this.activeListingsLoaded = true;
+            if (this.activeListingsLoaded == false) {
+                this.activeListingsLoaded = true;
+                this.getGraphData();
+            } else {
+                this.activeListingsLoaded = true;
+            }
         });
     }
 
@@ -635,7 +638,7 @@ export class FleetavailabilityComponent implements OnInit {
             }
             let end;
             if (listings[i].dateEnd.year != 'NaN') {
-                end = this.convertObjectToMoment(listings[i].dateEnd.year, listings[i].dateEnd.month, listings[i].dateEnd.day).add(1, 'hour').valueOf();
+                end = this.convertObjectToMoment(listings[i].dateEnd.year, listings[i].dateEnd.month, listings[i].dateEnd.day).add(22, 'hour').valueOf();
             }
             if (!start && !end) {
                 return true;
@@ -676,14 +679,14 @@ export class FleetavailabilityComponent implements OnInit {
             if (active.includes(this.turbineWarrenty.fullFleet[i])) {
                 sorted.fleet.push(this.turbineWarrenty.fullFleet[i]);
                 this.turbineWarrenty.fullFleet.splice(i, 1);
-                sorted.sailMatrix.push(this.sailMatrix[i]);
-                this.sailMatrix.splice(i, 1);
+                sorted.sailMatrix.push(this.turbineWarrenty.sailMatrix[i]);
+                this.turbineWarrenty.sailMatrix.splice(i, 1);
                 i--;
             }
         }
         sorted.fleet = sorted.fleet.concat(this.turbineWarrenty.fullFleet);
         sorted.sailMatrix = sorted.sailMatrix.concat(this.turbineWarrenty.sailMatrix);
         this.turbineWarrenty.fullFleet = sorted.fleet;
-        this.sailMatrix = sorted.sailMatrix;
+        this.turbineWarrenty.sailMatrix = sorted.sailMatrix;
     }
 }

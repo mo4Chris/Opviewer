@@ -4,7 +4,7 @@
         <div class="col-lg-8">
             <canvas id="canvas">{{myChart}}</canvas>
         </div>
-        <div *ngIf="loaded" class="col-lg-4">
+        <div *ngIf="loaded && activeListingsLoaded" class="col-lg-4">
             <table class="table table-responsive graphStats">
                 <tr>
                     <td>Current remaining weather days</td>
@@ -175,7 +175,7 @@
         <table class="table table-hover table-responsive table-bordered sailMatrix">
             <thead>
                 <tr>
-                    <th class="smallPadding">Date \ Vessel</th>
+                    <th class="smallPadding dates">Date \ Vessel</th>
                     <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
                         <th class="smallPadding" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                             <span [attr.placement]="!turbineWarrenty.activeFleet.includes(vessel) ? 'top' : null"
@@ -192,19 +192,23 @@
             <tbody>
                 <ng-container *ngFor="let date of turbineWarrenty.Dates;let ind = index">
                     <tr *ngIf="checkDateRange(date)">
-                        <td class="smallPadding">{{MatlabDateToJSDate(date)}}</td>
+                        <td class="smallPadding dates">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
                             <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!getIsActiveForDay(vessel, date)"
-                                [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false">
+                                [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false"
+                                [class.cellEdited]="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind]">
                                 <ng-template #tipContent>
                                     Vessel is {{getIsActiveForDay(vessel, date) ? "active" : "not active"}}<br />
                                     and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}
                                 </ng-template>
                                 <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
+                                    <div *ngIf="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind] && hideText==false && !edit">
+                                        <span class="isEdited">*</span>
+                                    </div>
                                     <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
                                 </div>
                                 <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
-                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
+                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_' || turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
                                     <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
                                     <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
                                     <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
@@ -216,7 +220,7 @@
                     </tr>
                 </ng-container>
                 <tr>
-                    <td class="smallPadding totals">Total weather days</td>
+                    <td class="smallPadding totals dates">Total weather days</td>
                     <td class="smallPadding totals" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;"
                         [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                         {{getTotalMissingDays(ind)}}
