@@ -122,7 +122,7 @@ export class FleetLogComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        var dateStart = moment('2010-01-01');
+        var dateStart = moment('2018-01-01');
         var dateEnd = moment();
 
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {

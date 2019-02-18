@@ -56,6 +56,7 @@ export class FleetavailabilityComponent implements OnInit {
     errorListing = [[]];
     numberNewListings = 0;
     activeListingsLoaded = false;
+    isActive = [[]];
 
     @ViewChild('instance') instance: NgbTypeahead;
     focus$ = new Subject<string>();
@@ -90,6 +91,7 @@ export class FleetavailabilityComponent implements OnInit {
                 date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
                 this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
             }
+            this.getActiveListings();
             this.orderSailMatrixByActive();
             this.sailMatrix = this.turbineWarrenty.sailMatrix.map(x => Object.assign({}, x));
             if (data.sailDayChanged[0]) {
@@ -103,7 +105,6 @@ export class FleetavailabilityComponent implements OnInit {
                     }
                 }
             }
-            this.getActiveListings();
             if (init) {
                 this.getAvailableMonths();
                 if (this.tokenInfo.userPermission == 'admin') {
@@ -274,8 +275,7 @@ export class FleetavailabilityComponent implements OnInit {
         if (!this.missingDays[ind]) {
             this.missingDays[ind] = 0;
         }
-
-        if (sd != '_NaN_' && sd >= 0 && this.getIsActiveForDay(this.turbineWarrenty.fullFleet[ind], date)) {
+        if (sd != '_NaN_' && sd >= 0 && this.isActive[ind][this.turbineWarrenty.Dates.findIndex(x => x == date)]) {
             this.missingDays[ind] += (1 - sd);
             this.dateSailDays += parseFloat(sd);
         }
@@ -359,7 +359,7 @@ export class FleetavailabilityComponent implements OnInit {
             this.totalWeatherDaysPerMonth[i] = { x: x, y: this.turbineWarrenty.numContractedVessels };
             for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
                 this.datePickerValue[j] = [null];
-                if (this.sailMatrix[j][i] != '_NaN_' && this.getIsActiveForDay(this.turbineWarrenty.fullFleet[j], this.turbineWarrenty.Dates[i])) {
+                if (this.sailMatrix[j][i] != '_NaN_' && this.isActive[j][i]) {
                     this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
             }
@@ -605,9 +605,27 @@ export class FleetavailabilityComponent implements OnInit {
                         }
                     }
                 }
-                this.listings[i].forEach((item, index) => {
-                    this.errorListing[i][index] = false;
-                });
+                this.isActive[i] = [];
+                for (var k = 0; k < this.listings[i].length; k++) {
+                    let item = this.listings[i][k];
+                    for (var l = 0; l < this.turbineWarrenty.sailMatrix[i].length; l++) {
+                        if (item.deleted) {
+                            continue;
+                        }
+                        let dat = this.MatLabDateToMoment(this.turbineWarrenty.Dates[l]);
+                        let start;
+                        if (item.dateStart.year != 'NaN') {
+                            start = this.convertObjectToMoment(item.dateStart.year, item.dateStart.month, item.dateStart.day).add(1, 'hour').valueOf();
+                        }
+                        let end;
+                        if (item.dateEnd.year != 'NaN') {
+                            end = this.convertObjectToMoment(item.dateEnd.year, item.dateEnd.month, item.dateEnd.day).add(22, 'hour').valueOf();
+                        }
+                        if (!start && !end || !start && dat <= end || !end && dat >= start || dat >= start && dat <= end) {
+                            this.isActive[i][l] = true;
+                        }
+                    }
+                }
             }
             if (this.activeListingsLoaded == false) {
                 this.activeListingsLoaded = true;
@@ -620,37 +638,6 @@ export class FleetavailabilityComponent implements OnInit {
 
     convertObjectToMoment(year, month, day) {
         return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
-    }
-
-    getIsActiveForDay(vessel, date) {
-        if (!this.activeListingsLoaded) {
-            return true;
-        }
-        let listings = this.activeListings.filter(x => x.vesselname == vessel);
-        let dat = this.MatLabDateToMoment(date);
-        for (var i = 0; i < listings.length; i++) {
-            if (listings[i].deleted) {
-                continue;
-            }
-            let start;
-            if (listings[i].dateStart.year != 'NaN') {
-                start = this.convertObjectToMoment(listings[i].dateStart.year, listings[i].dateStart.month, listings[i].dateStart.day).add(1, 'hour').valueOf();
-            }
-            let end;
-            if (listings[i].dateEnd.year != 'NaN') {
-                end = this.convertObjectToMoment(listings[i].dateEnd.year, listings[i].dateEnd.month, listings[i].dateEnd.day).add(22, 'hour').valueOf();
-            }
-            if (!start && !end) {
-                return true;
-            } else if (!start && dat <= end) {
-                return true;
-            } else if (!end && dat >= start) {
-                return true;
-            } else if (dat >= start && dat <= end) {
-                return true;
-            }
-        }
-        return false;
     }
 
     deleteListing(deleteItem, vesselnumber) {

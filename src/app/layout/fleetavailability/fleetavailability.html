@@ -194,12 +194,13 @@
                     <tr *ngIf="checkDateRange(date)">
                         <td class="smallPadding dates">{{MatlabDateToJSDate(date)}}</td>
                         <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
-                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!getIsActiveForDay(vessel, date)"
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!isActive[i][ind]"
                                 [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false"
                                 [class.cellEdited]="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind]">
                                 <ng-template #tipContent>
-                                    Vessel is {{getIsActiveForDay(vessel, date) ? "active" : "not active"}}<br />
-                                    and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}
+                                    Vessel is {{isActive[i][ind] ? "active" : "not active"}}<br />
+                                    and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}<br />
+                                    {{sailMatrix[i][ind] == turbineWarrenty.sailMatrix[i][ind] ? "" : "*changed value"}}
                                 </ng-template>
                                 <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
                                     <div *ngIf="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind] && hideText==false && !edit">
