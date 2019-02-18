@@ -1503,6 +1503,10 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
     activeListingsModel.aggregate([
         // each Object is an aggregation.
         {
+            $match: {
+                fleetID: fleetID
+            }
+        }, {
             $group: {
                 _id: '$listingID',
                 dateChanged: { $last: '$dateChanged' },
@@ -1591,7 +1595,7 @@ app.post("/api/setActiveListings", function (req, res) {
     }
     var listings = req.body.listings;
     var activeVessels = [];
-    var fleetID;
+    var fleetID = req.body.fleetID;
     var currentDate = new Date();
     for (var i = 0; i < listings.length; i++) {
         for (var j = 0; j < listings[i].length; j++) {

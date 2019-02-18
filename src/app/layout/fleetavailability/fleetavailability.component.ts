@@ -55,7 +55,6 @@ export class FleetavailabilityComponent implements OnInit {
     changing = false;
     errorListing = [[]];
     numberNewListings = 0;
-    activeListingsLoaded = false;
     isActive = [[]];
 
     @ViewChild('instance') instance: NgbTypeahead;
@@ -91,7 +90,7 @@ export class FleetavailabilityComponent implements OnInit {
                 date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
                 this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
             }
-            this.getActiveListings();
+            this.getActiveListings(init);
             this.orderSailMatrixByActive();
             this.sailMatrix = this.turbineWarrenty.sailMatrix.map(x => Object.assign({}, x));
             if (data.sailDayChanged[0]) {
@@ -487,7 +486,7 @@ export class FleetavailabilityComponent implements OnInit {
             if (stopSetActive) {
                 return;
             }
-            this.newService.setActiveListings({ listings: this.activeChanged, client: this.turbineWarrenty.client }).pipe(
+            this.newService.setActiveListings({ listings: this.activeChanged, client: this.turbineWarrenty.client, fleetID: this.turbineWarrenty._id }).pipe(
                 map(
                     (res) => {
                         if (res.twa) {
@@ -571,7 +570,7 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
-    getActiveListings() {
+    getActiveListings(init = false) {
         this.openListing = [''];
         this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client).subscribe(data => {
             this.activeListings = data.data;
@@ -627,11 +626,8 @@ export class FleetavailabilityComponent implements OnInit {
                     }
                 }
             }
-            if (this.activeListingsLoaded == false) {
-                this.activeListingsLoaded = true;
+            if (init) {
                 this.getGraphData();
-            } else {
-                this.activeListingsLoaded = true;
             }
         });
     }
