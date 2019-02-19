@@ -213,6 +213,10 @@ ngb-alert {
                     }
                 }
 
+                &:not(.new) input {
+                    width: 225px;
+                }
+
                 &.errorListing input {
                     border-color: red;
                 }
@@ -261,6 +265,10 @@ ngb-alert {
                         cursor: pointer;
                     }
 
+                    .clear {
+                        color: red;
+                    }
+
                     &:first-of-type {
                         margin-right: 50px;
                     }
@@ -282,6 +290,10 @@ ngb-alert {
     button {
         float: right;
         margin: 0;
+
+        &:nth-child(2) {
+            margin-right: 1.5rem;
+        }
     }
 }
 

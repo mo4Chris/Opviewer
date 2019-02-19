@@ -10,6 +10,7 @@ import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment';
 import { UserService } from '../../shared/services/user.service';
 import { DialogService } from '../../dialog.service';
+import { DatetimeService } from '../../supportModules/datetime.service';
 
 @Component({
     selector: 'app-users',
@@ -18,7 +19,8 @@ import { DialogService } from '../../dialog.service';
     animations: [routerTransition()]
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute, private userService: UserService, public dialogService: DialogService) { }
+    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute,
+        private dateTimeService: DatetimeService, private userService: UserService, public dialogService: DialogService) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -85,10 +87,10 @@ export class FleetavailabilityComponent implements OnInit {
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
-                var date = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
-                this.startDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
-                date = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
-                this.stopDate = { year: date.year(), month: (date.month() + 1), day: date.date() };
+                var date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
+                this.startDate = this.convertMomentToObject(date);
+                date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+                this.stopDate = this.convertMomentToObject(date);
             }
             this.getActiveListings(init);
             this.orderSailMatrixByActive();
@@ -208,7 +210,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     MatlabDateToJSDate(serial) {
-        var dateInt = moment((serial - 719529) * 864e5);
+        var dateInt = this.dateTimeService.MatlabDateToUnixEpoch(serial);
         if (this.selectedMonth == 'Last 2 weeks') {
             return dateInt.format('DD-MM-YYYY');
         } else {
@@ -216,8 +218,16 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
-    MatLabDateToMoment(serial) {
-        return moment((serial - 719529) * 864e5);
+    convertObjectToMoment(year, month, day) {
+        return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
+    }
+
+    convertMomentToObject(date, addMonth = true) {
+        let obj = { year: date.year(), month: date.month(), day: date.date() };
+        if (addMonth) {
+            obj.month++;
+        }
+        return obj;
     }
 
     changeToNicename(name) {
@@ -225,8 +235,8 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        var dateStart = this.MatLabDateToMoment(this.turbineWarrenty.startDate);
-        var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
+        var dateStart = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
+        var dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
             this.allMonths.push(dateStart.format('MMM YYYY'));
@@ -242,7 +252,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     checkDateRange(Date) {
-        var date = this.MatLabDateToMoment(Date);
+        var date = this.dateTimeService.MatlabDateToUnixEpoch(Date);
         if (this.selectedMonth != 'Last 2 weeks') {
             var stopDate = moment('01 ' + this.selectedMonth, 'DD MMM YYYY');
             if (date.month() == stopDate.month() && date.year() == stopDate.year()) {
@@ -351,7 +361,7 @@ export class FleetavailabilityComponent implements OnInit {
         //recorded weather days
         var target = this.turbineWarrenty.weatherDayTarget;
         for (var i = 0; i < this.turbineWarrenty.Dates.length; i++) {
-            var x = this.MatLabDateToMoment(this.turbineWarrenty.Dates[i]);
+            var x = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[i]);
             if (i == 0) {
                 x.add(9, 'hour');
             }
@@ -369,14 +379,14 @@ export class FleetavailabilityComponent implements OnInit {
             this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
         }
         this.totalWeatherDaysPerMonth.reverse();
-        this.totalWeatherDaysPerMonth.push({ x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget });
+        this.totalWeatherDaysPerMonth.push({ x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget });
         this.totalWeatherDaysPerMonth.reverse();
 
         //forecast after recorded
-        var dateForecast = this.MatLabDateToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
-        var dateEnd = this.MatLabDateToMoment(this.turbineWarrenty.stopDate);
+        var dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
+        var dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
-        this.forecastAfterRecorded[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
+        this.forecastAfterRecorded[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
         while (dateEnd >= dateForecast) {
             var index = parseInt(dateForecast.format('M')) - 1;
@@ -387,7 +397,7 @@ export class FleetavailabilityComponent implements OnInit {
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.subtract(1, 'hour');
 
         //forecast from start
-        this.forecastFromStart[0] = { x: this.MatLabDateToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
+        this.forecastFromStart[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
         target = this.turbineWarrenty.weatherDayTarget;
         for (var i = 1; i < this.allMonths.length; i++) {
             var index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
@@ -453,12 +463,13 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
-    setActive() {
+    setActive(closeModal = true) {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
             this.openListing = [''];
             var stopSetActive = false;
             for (var i = 0; i < this.activeChanged.length; i++) {
                 for (var j = 0; j < this.activeChanged[i].length; j++) {
+                    this.errorListing[i][j] = false;
                     var start, end;
                     if (this.activeChanged[i][j].dateStart) {
                         start = this.convertObjectToMoment(this.activeChanged[i][j].dateStart.year, this.activeChanged[i][j].dateStart.month, this.activeChanged[i][j].dateStart.day).add(1, 'hour').valueOf();
@@ -475,15 +486,23 @@ export class FleetavailabilityComponent implements OnInit {
                             stopSetActive = true;
                         }
                     }
-                    if (this.activeChanged[i][j].dateStart && !stopSetActive) {
+                    if (this.activeChanged[i][j].dateStart) {
                         this.activeChanged[i][j].dateStart = start;
                     }
-                    if (this.activeChanged[i][j].dateEnd && !stopSetActive) {
+                    if (this.activeChanged[i][j].dateEnd) {
                         this.activeChanged[i][j].dateEnd = end;
                     }
                 }
             }
             if (stopSetActive) {
+                this.activeChanged.forEach((items, index) => {
+                    if (items instanceof Array) {
+                        items.forEach((item, ind) => {
+                            item.dateStart = this.convertMomentToObject(moment(item.dateStart));
+                            item.dateEnd = this.convertMomentToObject(moment(item.dateEnd));
+                        });
+                    }
+                });
                 return;
             }
             this.newService.setActiveListings({ listings: this.activeChanged, client: this.turbineWarrenty.client, fleetID: this.turbineWarrenty._id }).pipe(
@@ -492,11 +511,11 @@ export class FleetavailabilityComponent implements OnInit {
                         if (res.twa) {
                             this.turbineWarrenty.activeFleet = res.twa.activeFleet;
                         }
-                        this.setAlert('success', res.data, true);
+                        this.setAlert('success', res.data, closeModal);
                     }
                 ),
                 catchError(error => {
-                    this.setAlert('danger', error._body, true);
+                    this.setAlert('danger', error._body, closeModal);
                     throw error;
                 })
             ).subscribe(_ => {
@@ -504,12 +523,26 @@ export class FleetavailabilityComponent implements OnInit {
                 this.openListing = [''];
             });
         } else {
-            this.setAlert('danger', 'You are not authorised to perform this action', true);
+            this.setAlert('danger', 'You are not authorised to perform this action', closeModal);
         }
     }
 
     onChange(listing, vesselnumber) {
         var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
+        if (index < 0) {
+            this.activeChanged[vesselnumber].push(listing);
+        } else {
+            this.activeChanged[vesselnumber][index] = listing;
+        }
+    }
+
+    onClear(listing, vesselnumber, isDateStart) {
+        var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
+        if (isDateStart) {
+            listing.dateStart = null;
+        } else {
+            listing.dateEnd = null;
+        }
         if (index < 0) {
             this.activeChanged[vesselnumber].push(listing);
         } else {
@@ -584,9 +617,9 @@ export class FleetavailabilityComponent implements OnInit {
                 for (var j = 0; j < this.activeListings.length; j++) {
                     if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname && deletedListings.indexOf(this.activeListings[j].listingID) < 0) {
                         var date = moment(this.activeListings[j].dateStart);
-                        this.activeListings[j].dateStart = { year: date.year(), month: (date.month() + 1), day: date.date() };
+                        this.activeListings[j].dateStart = this.convertMomentToObject(date);
                         date = moment(this.activeListings[j].dateEnd);
-                        this.activeListings[j].dateEnd = { year: date.year(), month: (date.month() + 1), day: date.date() };
+                        this.activeListings[j].dateEnd = this.convertMomentToObject(date);
                         var index = this.listings[i].findIndex(x => x.listingID == this.activeListings[j].listingID);
                         if (!this.activeListings[j].deleted) {
                             if (index > -1) {
@@ -611,7 +644,7 @@ export class FleetavailabilityComponent implements OnInit {
                         if (item.deleted) {
                             continue;
                         }
-                        let dat = this.MatLabDateToMoment(this.turbineWarrenty.Dates[l]);
+                        let dat = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[l]);
                         let start;
                         if (item.dateStart.year != 'NaN') {
                             start = this.convertObjectToMoment(item.dateStart.year, item.dateStart.month, item.dateStart.day).add(1, 'hour').valueOf();
@@ -631,11 +664,7 @@ export class FleetavailabilityComponent implements OnInit {
             }
         });
     }
-
-    convertObjectToMoment(year, month, day) {
-        return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
-    }
-
+    
     deleteListing(deleteItem, vesselnumber) {
         this.listings[vesselnumber].forEach((item, index) => {
             if (item === deleteItem) this.listings[vesselnumber].splice(index, 1);

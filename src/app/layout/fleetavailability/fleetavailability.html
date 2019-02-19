@@ -91,11 +91,9 @@
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
-                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
-                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
-                                                    {{ date.day }}
-                                                </div>
-                                            </ng-template>
+                                            <button class="input-group-addon" (click)="onClear(listing, i, true)" type="button" [ngbTooltip]="'Set to start of campaign'">
+                                                <span class="fa fa-eraser clear"></span>
+                                            </button>
                                             <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
                                                 <span class="fa fa-calendar"></span>
                                             </button>
@@ -105,13 +103,9 @@
                                         <div class="input-group datepicker-input">
                                             <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
-                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
-                                                         let-disabled="disabled" let-focused="focused">
-                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
-                                                     [class.text-muted]="disabled">
-                                                    {{ date.day }}
-                                                </div>
-                                            </ng-template>
+                                            <button class="input-group-addon" (click)="onClear(listing, i, false)" type="button" [ngbTooltip]="'Set to end of campaign'">
+                                                <span class="fa fa-eraser clear"></span>
+                                            </button>
                                             <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
                                                 <span class="fa fa-calendar"></span>
                                             </button>
@@ -129,11 +123,6 @@
                                             <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][0]"
                                                    (ngModelChange)="onChangeNew($event, vessel, true)" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
-                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
-                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled" [class.text-muted]="disabled">
-                                                    {{ date.day }}
-                                                </div>
-                                            </ng-template>
                                             <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
                                                 <span class="fa fa-calendar"></span>
                                             </button>
@@ -144,13 +133,6 @@
                                             <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
                                                    [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][1]"
                                                    (ngModelChange)="onChangeNew($event, vessel, false)" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
-                                            <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
-                                                         let-disabled="disabled" let-focused="focused">
-                                                <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
-                                                     [class.text-muted]="disabled">
-                                                    {{ date.day }}
-                                                </div>
-                                            </ng-template>
                                             <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
                                                 <span class="fa fa-calendar"></span>
                                             </button>
@@ -163,7 +145,8 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" (click)="setActive()">Submit</button>
+                <button type="button" class="btn btn-primary" (click)="setActive()">Save and close</button>
+                <button type="button" class="btn" (click)="setActive(false)">Save</button>
             </div>
         </ng-template>
         <span class="table-legenda">
