@@ -30,6 +30,8 @@ export class FleetLogComponent implements OnInit {
     availableMonths = [];
     selectedMonth;
     noData = true;
+    sortedData;
+    sort = { active: '', isAsc: true };
 
     ngOnInit() {
         if (this.tokenInfo.userPermission != 'admin') {
@@ -185,4 +187,48 @@ export class FleetLogComponent implements OnInit {
         }
         this.noData = (!this.edits[0]);
     }
+
+    sortData(sort) {
+        this.sort = sort;
+        const data = this.edits.slice();
+        if (!sort.active || sort.isAsc === '') {
+            this.sortedData = data;
+            return;
+        }
+
+        this.sortedData = data.sort((a, b) => {
+            const isAsc = sort.isAsc;
+            switch (sort.active) {
+                case 'changeDate': return compare(a.changeDate, b.changeDate, isAsc);
+                case 'vessel': return compare(a.vessel, b.vessel, isAsc);
+                case 'date': return compare(a.date, b.date, isAsc);
+                case 'oldValue': return compare(a.oldValue, b.oldValue, isAsc);
+                case 'newValue': return compare(a.newValue, b.newValue, isAsc);
+                case 'userID': return compare(this.getUsername(a.userID), this.getUsername(b.userID), isAsc);
+                case 'dateChanged': return compare(a.dateChanged, b.dateChanged, isAsc);
+                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
+                case 'dateStart': return compare(a.dateStart, b.dateStart, isAsc);
+                case 'dateEnd': return compare(a.dateEnd, b.dateEnd, isAsc);
+                case 'deleted': return compare(a.deleted, b.deleted, isAsc);
+                case 'user': return compare(a.user, b.user, isAsc);
+                case 'dateAdded': return compare(a.dateAdded, b.dateAdded, isAsc);
+                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
+                case 'mmsi': return compare(a.mmsi, b.mmsi, isAsc);
+                case 'status': return compare(a.status, b.status, isAsc);
+                case 'client': return compare(a.client, b.client, isAsc);
+                case 'username': return compare(a.username, b.username, isAsc);
+                default: return 0;
+            }
+        });
+        this.edits = this.sortedData;
+    }
+}
+
+function compare(a: number | string, b: number | string, isAsc: boolean) {
+    if (!a) {
+        return -1 * (isAsc ? 1 : -1);
+    } else if (!b) {
+        return 1 * (isAsc ? 1 : -1);
+    }
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
 }

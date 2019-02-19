@@ -12,24 +12,30 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>Date changed</th>
-                <th>Vessel</th>
                 <ng-container *ngIf="type=='Sail days changed'">
-                    <th>Date</th>
-                    <th>Old value</th>
-                    <th>New value</th>
+                    <th (click)="sortData({active: 'changeDate', isAsc: sort.active=='changeDate'?!sort.isAsc:true})">Date changed</th>
+                    <th (click)="sortData({active: 'vessel', isAsc: sort.active=='vessel'?!sort.isAsc:true})">Vessel</th>
+                    <th (click)="sortData({active: 'date', isAsc: sort.active=='date'?!sort.isAsc:true})">Date</th>
+                    <th (click)="sortData({active: 'oldValue', isAsc: sort.active=='oldValue'?!sort.isAsc:true})">Old value</th>
+                    <th (click)="sortData({active: 'newValue', isAsc: sort.active=='newValue'?!sort.isAsc:true})">New value</th>
+                    <th (click)="sortData({active: 'userID', isAsc: sort.active=='userID'?!sort.isAsc:true})">User</th>
                 </ng-container>
                 <ng-container *ngIf="type=='Active listings'">
-                    <th>Date Start</th>
-                    <th>Date end</th>
-                    <th>Deleted</th>
+                    <th (click)="sortData({active: 'dateChanged', isAsc: sort.active=='dateChanged'?!sort.isAsc:true})">Date changed</th>
+                    <th (click)="sortData({active: 'vesselname', isAsc: sort.active=='vesselname'?!sort.isAsc:true})">Vessel</th>
+                    <th (click)="sortData({active: 'dateStart', isAsc: sort.active=='dateStart'?!sort.isAsc:true})">Date Start</th>
+                    <th (click)="sortData({active: 'dateEnd', isAsc: sort.active=='dateEnd'?!sort.isAsc:true})">Date end</th>
+                    <th (click)="sortData({active: 'deleted', isAsc: sort.active=='deleted'?!sort.isAsc:true})">Deleted</th>
+                    <th (click)="sortData({active: 'user', isAsc: sort.active=='user'?!sort.isAsc:true})">User</th>
                 </ng-container>
                 <ng-container *ngIf="type=='Vessels to add'">
-                    <th>mmsi</th>
-                    <th>status</th>
-                    <th>client</th>
+                    <th (click)="sortData({active: 'dateAdded', isAsc: sort.active=='dateAdded'?!sort.isAsc:true})">Date changed</th>
+                    <th (click)="sortData({active: 'vesselname', isAsc: sort.active=='vesselname'?!sort.isAsc:true})">Vessel</th>
+                    <th (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">mmsi</th>
+                    <th (click)="sortData({active: 'status', isAsc: sort.active=='status'?!sort.isAsc:true})">status</th>
+                    <th (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">client</th>
+                    <th (click)="sortData({active: 'username', isAsc: sort.active=='username'?!sort.isAsc:true})">User</th>
                 </ng-container>
-                <th>User</th>
             </tr>
         </thead>
         <tbody>

@@ -438,12 +438,12 @@ app.post("/api/registerUser", function (req, res) {
                     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
                     randomToken = randomToken.replace(/\//gi, '8');
                     let user = new Usermodel({
-                        "username": userData.email,
+                        "username": userData.email.toLowerCase(),
                         "token": randomToken,
                         "permissions": userData.permissions,
                         "client": userData.client,
                         "secret2fa": "",
-                        "password": bcrypt.hashSync("hanspasswordtocheck", 10), //password shouldn't be set when test phase is over
+                        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
                     });
                     user.save((error, registeredUser) => {
                         if (error) {
@@ -469,7 +469,7 @@ app.post("/api/registerUser", function (req, res) {
 app.post("/api/login", function (req, res) {
     let userData = req.body;
 
-    Usermodel.findOne({ username: userData.username },
+    Usermodel.findOne({ username: userData.username.toLowerCase() },
         function (err, user) {
             if (err) {
                 res.send(err);
