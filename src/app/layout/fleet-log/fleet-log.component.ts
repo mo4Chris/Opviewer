@@ -6,6 +6,7 @@ import { UserService } from '../../shared/services/user.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import * as moment from 'moment';
+import { StringMutationService } from '../../shared/services/stringMutation.service';
 
 @Component({
     selector: 'app-fleet-log',
@@ -14,7 +15,7 @@ import * as moment from 'moment';
     animations: [routerTransition()]
 })
 export class FleetLogComponent implements OnInit {
-    constructor(private newService: CommonService, private userService: UserService, private _router: Router, private route: ActivatedRoute, private dateTimeService: DatetimeService) { }
+    constructor(private stringMutationService: StringMutationService, private newService: CommonService, private userService: UserService, private _router: Router, private route: ActivatedRoute, private dateTimeService: DatetimeService) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     params = { campaignName: '', windfield: '', startDate: 0 };
@@ -88,11 +89,7 @@ export class FleetLogComponent implements OnInit {
     }
 
     valueToDate(date) {
-        if (date) {
-            return moment(date).format('DD-MM-YYYY');
-        } else {
-            return '-';
-        }
+        return this.dateTimeService.valueToDate(date);
     }
 
     getMatlabDateToJSDate(serial) {
@@ -100,18 +97,11 @@ export class FleetLogComponent implements OnInit {
     }
 
     MatLabDateToMoment(serial) {
-        return moment((serial - 719529) * 864e5);
+        return this.dateTimeService.MatlabDateToUnixEpoch(serial);
     }
 
     changeToNicename(name) {
-        if (name && name != '') {
-            if (isNaN(name)) {
-                return name.replace(/_/g, ' ');
-            }
-            return name;
-        } else {
-            return '-';
-        }
+        return this.stringMutationService.changeToNicename(name);
     }
 
     getUsername(id) {
@@ -124,8 +114,8 @@ export class FleetLogComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        var dateStart = moment('2018-01-01');
-        var dateEnd = moment();
+        let dateStart = moment('2018-01-01');
+        const dateEnd = moment();
 
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
             this.availableMonths.push(dateStart.format('YYYY MMM'));
@@ -167,25 +157,25 @@ export class FleetLogComponent implements OnInit {
     getValidData() {
         this.edits = [];
         if (this.type == "Sail days changed") {
-            for (var i = 0; i < this.sailDayChanged.length; i++) {
-                if (moment(this.sailDayChanged[i].changeDate).format('YYYY MMM') == this.selectedMonth) {
-                    this.edits.push(this.sailDayChanged[i]);
-                }
+            for (let i = 0; i < this.sailDayChanged.length; i++) {
+                this.formatDate(this.sailDayChanged[i], this.sailDayChanged[i].changeDate);
             }
         } else if (this.type == "Active listings") {
-            for (var i = 0; i < this.activeListings.length; i++) {
-                if (moment(this.activeListings[i].dateChanged).format('YYYY MMM') == this.selectedMonth) {
-                    this.edits.push(this.activeListings[i]);
-                }
+            for (let i = 0; i < this.activeListings.length; i++) {
+                this.formatDate(this.activeListings[i], this.activeListings[i].dateChanged);
             }
         } else {
-            for (var i = 0; i < this.vesselsToAdd.length; i++) {
-                if (moment(this.vesselsToAdd[i].dateAdded).format('YYYY MMM') == this.selectedMonth) {
-                    this.edits.push(this.vesselsToAdd[i]);
-                }
+            for (let i = 0; i < this.vesselsToAdd.length; i++) {
+                this.formatDate(this.vesselsToAdd[i], this.vesselsToAdd[i].dateAdded);
             }
         }
         this.noData = (!this.edits[0]);
+    }
+    
+    formatDate(data, date) {
+        if (moment(date).format('YYYY MMM') == this.selectedMonth) {
+            this.edits.push(data);
+        }
     }
 
     sortData(sort) {

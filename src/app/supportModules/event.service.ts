@@ -10,7 +10,7 @@ export class EventService {
 
   OpenAgmInfoWindow(infoWindow, gm) {
     if (this.previous) {
-      this.CloseLatestAgmInfoWindow();
+      this.closeLatestAgmInfoWindow();
     }
     this.previous = infoWindow;
 
@@ -25,7 +25,7 @@ export class EventService {
     }
   }
 
-  CloseLatestAgmInfoWindow() {
+  closeLatestAgmInfoWindow() {
     if (this.previous !== undefined) {
       this.previous.close();
       this.previous = undefined;

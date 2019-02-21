@@ -214,9 +214,9 @@
             </tbody>
         </table>
         <button class="btn" (click)="hideText=!hideText" [disabled]="edit || saving">Toggle color</button>
-        <button class="btn" (click)="editData()" *ngIf="!edit">Edit</button>
-        <button class="btn" (click)="saveData()" *ngIf="edit" [disabled]="saving">Save</button>
-        <button class="btn cancel" (click)="cancelData()" *ngIf="edit" [disabled]="saving">Cancel</button>
+        <button class="btn" (click)="setEditDataFlag()" *ngIf="!edit">Edit</button>
+        <button class="btn" (click)="saveSailDaysChanged()" *ngIf="edit" [disabled]="saving">Save</button>
+        <button class="btn cancel" (click)="cancelSailDaysEdit()" *ngIf="edit" [disabled]="saving">Cancel</button>
     </div>
     <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
 </div>

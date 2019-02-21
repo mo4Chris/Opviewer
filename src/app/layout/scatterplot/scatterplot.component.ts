@@ -209,7 +209,7 @@ export class ScatterplotComponent implements OnInit {
 
     this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
     this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
-    this.BuildPageWithCurrentInformation();
+    this.buildPageWithCurrentInformation();
   }
 
   getTransfersForVesselByRange(vessel) {
@@ -225,7 +225,7 @@ export class ScatterplotComponent implements OnInit {
        }));
    }
 
-  BuildPageWithCurrentInformation() {
+  buildPageWithCurrentInformation() {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length === 1) {

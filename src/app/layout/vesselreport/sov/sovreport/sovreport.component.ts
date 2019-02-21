@@ -105,7 +105,7 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDateToJSTime(serial);
     }
 
-    GetMatlabDateToCustomJSTime(serial, format) {
+    getMatlabDateToCustomJSTime(serial, format) {
         return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
     }
 
@@ -117,7 +117,7 @@ export class SovreportComponent implements OnInit {
         Chart.pluginService.register(annotation);
     }
 
-    BuildPageWithCurrentInformation() {
+    buildPageWithCurrentInformation() {
         this.ResetTransfers();
         this.GetAvailableRouteDatesForVessel();
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {

@@ -11,7 +11,7 @@ export class UserService {
     constructor(public router: Router) { }
 
     getDecodedAccessToken(token: string): any {
-        var decoded = jwt_decode(token);
+        const decoded = jwt_decode(token);
         if(decoded.expires){
             const expires = moment.utc(decoded.expires);
             if(moment().valueOf() > expires.valueOf()){

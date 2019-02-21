@@ -64,7 +64,7 @@ export class CtvreportComponent implements OnInit {
         this.modalReference = this.modalService.open(content, { size: 'lg' });
      }
 
-     closeModal() {
+    closeModal() {
         this.modalReference.close();
     }
 
@@ -72,7 +72,7 @@ export class CtvreportComponent implements OnInit {
         Chart.pluginService.register(ChartAnnotation);
     }
 
-    BuildPageWithCurrentInformation() {
+    buildPageWithCurrentInformation() {
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 

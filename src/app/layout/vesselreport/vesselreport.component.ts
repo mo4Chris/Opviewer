@@ -199,7 +199,7 @@ export class VesselreportComponent implements OnInit {
     return this.calculationService.objectToInt(objectvalue);
   }
 
-  GetMatlabDateToCustomJSTime(serial, format) {
+  getMatlabDateToCustomJSTime(serial, format) {
     return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
   }
 
@@ -215,11 +215,11 @@ export class VesselreportComponent implements OnInit {
         this.vessels = data;
       });
     }
-    this.BuildPageWithCurrentInformation();
+    this.buildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
-  BuildPageWithCurrentInformation() {
+  buildPageWithCurrentInformation() {
     this.resetRoutes();
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
@@ -231,9 +231,9 @@ export class VesselreportComponent implements OnInit {
         }
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
-            this.ctvChild.BuildPageWithCurrentInformation();
+            this.ctvChild.buildPageWithCurrentInformation();
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
-            this.sovChild.BuildPageWithCurrentInformation();
+            this.sovChild.buildPageWithCurrentInformation();
           }
 
         }, 1000);
@@ -249,14 +249,14 @@ export class VesselreportComponent implements OnInit {
 
   onChange(): void {
     this.resetRoutes();
-    const dateAsMatlab = this.GetDateAsMatlab();
+    const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
 
-    this.BuildPageWithCurrentInformation();
+    this.buildPageWithCurrentInformation();
   }
 
-  GetDateAsMatlab(): any {
+  getDateAsMatlab(): any {
     const datepickerValueAsMomentDate = moment(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     datepickerValueAsMomentDate.format();

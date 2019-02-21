@@ -69,29 +69,29 @@ export class DashboardComponent implements OnInit {
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
                 case Usertype.Admin: {
-                    this.adminComponent.GetLocations();
-                    this.eventService.CloseLatestAgmInfoWindow();
+                    this.adminComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.LogisticsSpecialist: {
-                    this.logisticsSpecialistComponent.GetLocations();
-                    this.eventService.CloseLatestAgmInfoWindow();
+                    this.logisticsSpecialistComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.MarineController: {
-                    this.marineControllerComponent.GetLocations();
-                    this.eventService.CloseLatestAgmInfoWindow();
+                    this.marineControllerComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.Vesselmaster: {
-                    this.vesselMasterComponent.GetLocations();
-                    this.eventService.CloseLatestAgmInfoWindow();
+                    this.vesselMasterComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
             }
         }, 1000);
         setTimeout(() => {
-            this.eventService.CloseLatestAgmInfoWindow();
+            this.eventService.closeLatestAgmInfoWindow();
 
             if (this.router.url === '/dashboard') {
                 this.getLocations();

@@ -67,13 +67,6 @@ var VesselsSchema = new Schema({
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
-var ScatterSchema = new Schema({
-    name: { type: String },
-    timestamp: { type: String },
-    mmsi: { type: Number }
-}, { versionKey: false });
-var Scattermodel = mongo.model('placeholder_scatter', ScatterSchema, 'placeholder_scatter');
-
 var TransferSchema = new Schema({
     mmsi: { type: Number },
     vesselname: { type: String },
@@ -90,12 +83,6 @@ var TransferSchema = new Schema({
     videoDurationMinutes: { type: Number }
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
-
-var LatLonSchema = new Schema({
-    filename: { type: String },
-    SiteName: { type: String }
-}, { versionKey: false });
-var LatLonmodel = mongo.model('turbineLocations2', LatLonSchema, 'turbineLocations2');
 
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
@@ -837,17 +824,6 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
                 res.send(arrayOfFields);
             }
         });
-    });
-});
-
-//TO DO beschrijvende naam
-app.get("/api/getLatLon", function (req, res) {
-    LatLonmodel.find({}, function (err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(data);
-        }
     });
 });
 

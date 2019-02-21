@@ -87,7 +87,7 @@ export class FleetavailabilityComponent implements OnInit {
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
                 }
-                var date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
+                let date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
                 this.startDate = this.convertMomentToObject(date);
                 date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
                 this.stopDate = this.convertMomentToObject(date);
@@ -96,9 +96,9 @@ export class FleetavailabilityComponent implements OnInit {
             this.orderSailMatrixByActive();
             this.sailMatrix = this.turbineWarrenty.sailMatrix.map(x => Object.assign({}, x));
             if (data.sailDayChanged[0]) {
-                for (var i = 0; i < this.sailMatrix.length; i++) {
-                    for (var j = 0; j < this.turbineWarrenty.Dates.length; j++) {
-                        for (var k = 0; k < data.sailDayChanged.length; k++) {
+                for (let i = 0; i < this.sailMatrix.length; i++) {
+                    for (let j = 0; j < this.turbineWarrenty.Dates.length; j++) {
+                        for (let k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
                                 this.sailMatrix[i][j] = data.sailDayChanged[k].newValue;
                             }
@@ -159,8 +159,7 @@ export class FleetavailabilityComponent implements OnInit {
                     tooltips: {
                         callbacks: {
                             label: function (tooltipItem, data) {
-                                var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
+                                let label = data.datasets[tooltipItem.datasetIndex].label || '';
                                 if (label) {
                                     label += ': ';
                                 }
@@ -210,24 +209,15 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     MatlabDateToJSDate(serial) {
-        var dateInt = this.dateTimeService.MatlabDateToUnixEpoch(serial);
-        if (this.selectedMonth == 'Last 2 weeks') {
-            return dateInt.format('DD-MM-YYYY');
-        } else {
-            return dateInt.format('DD');
-        }
+        return this.dateTimeService.MatlabDateToJSDate(serial, this.selectedMonth);
     }
 
     convertObjectToMoment(year, month, day) {
-        return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
+        return this.dateTimeService.convertObjectToMoment(year, month, day);
     }
 
     convertMomentToObject(date, addMonth = true) {
-        let obj = { year: date.year(), month: date.month(), day: date.date() };
-        if (addMonth) {
-            obj.month++;
-        }
-        return obj;
+        return this.dateTimeService.convertMomentToObject(date, addMonth);
     }
 
     changeToNicename(name) {
@@ -235,8 +225,8 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        var dateStart = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
-        var dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+        let dateStart = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
+        let dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
             this.allMonths.push(dateStart.format('MMM YYYY'));
@@ -252,14 +242,14 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     checkDateRange(Date) {
-        var date = this.dateTimeService.MatlabDateToUnixEpoch(Date);
+        let date = this.dateTimeService.MatlabDateToUnixEpoch(Date);
         if (this.selectedMonth != 'Last 2 weeks') {
-            var stopDate = moment('01 ' + this.selectedMonth, 'DD MMM YYYY');
+            const stopDate = moment('01 ' + this.selectedMonth, 'DD MMM YYYY');
             if (date.month() == stopDate.month() && date.year() == stopDate.year()) {
                 return true;
             }
         } else {
-            var lastTwoWeeks = this.turbineWarrenty.Dates.slice(Math.max(this.turbineWarrenty.Dates.length - 14, 1));
+            const lastTwoWeeks = this.turbineWarrenty.Dates.slice(Math.max(this.turbineWarrenty.Dates.length - 14, 1));
             if (lastTwoWeeks.indexOf(Date) > -1) {
                 return true;
             }
@@ -291,36 +281,36 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getDateWeatherDays() {
-        var saildays = this.dateSailDays;
+        const saildays = this.dateSailDays;
         this.dateSailDays = 0;
-        var weatherDays = this.turbineWarrenty.numContractedVessels - saildays;
+        const weatherDays = this.turbineWarrenty.numContractedVessels - saildays;
         this.totalWeatherDays += weatherDays;
         return weatherDays
     }
 
     getTotalWeatherDays() {
-        var total = this.totalWeatherDays;
+        const total = this.totalWeatherDays;
         this.totalWeatherDays = 0;
         return total;
     }
 
     getTotalMissingDays(ind) {
-        var total = this.missingDays[ind];
+        const total = this.missingDays[ind];
         this.missingDays[ind] = 0;
         return total;
     }
 
-    editData() {
+    setEditDataFlag() {
         this.edit = true;
         this.hideText = false;
     }
 
-    cancelData() {
+    cancelSailDaysEdit() {
         this.sailDaysChanged = [];
         this.edit = false;
     }
 
-    saveData() {
+    saveSailDaysChanged() {
         this.saving = true;
         this.newService.setSaildays(this.sailDaysChanged).pipe(
             map(
@@ -352,28 +342,28 @@ export class FleetavailabilityComponent implements OnInit {
                 userID: this.tokenInfo.userID
             });
         } else {
-            var index = this.sailDaysChanged.findIndex((x => x.date == date && x.vessel == vessel));
+            const index = this.sailDaysChanged.findIndex((x => x.date == date && x.vessel == vessel));
             this.sailDaysChanged[index].newValue = newValue;
         }
     }
 
     getGraphData() {
         //recorded weather days
-        var target = this.turbineWarrenty.weatherDayTarget;
-        for (var i = 0; i < this.turbineWarrenty.Dates.length; i++) {
-            var x = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[i]);
+        let target = this.turbineWarrenty.weatherDayTarget;
+        for (let i = 0; i < this.turbineWarrenty.Dates.length; i++) {
+            let x = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[i]);
             if (i == 0) {
                 x.add(9, 'hour');
             }
             this.totalWeatherDaysPerMonth[i] = { x: x, y: this.turbineWarrenty.numContractedVessels };
-            for (var j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
+            for (let j = 0; j < this.turbineWarrenty.fullFleet.length; j++) {
                 this.datePickerValue[j] = [null];
                 if (this.sailMatrix[j][i] != '_NaN_' && this.isActive[j][i]) {
                     this.totalWeatherDaysPerMonth[i].y = parseFloat(this.totalWeatherDaysPerMonth[i].y) - parseFloat(this.sailMatrix[j][i]);
                 }
             }
         }
-        for (var i = 0; i < this.totalWeatherDaysPerMonth.length; i++) {
+        for (let i = 0; i < this.totalWeatherDaysPerMonth.length; i++) {
             target = target - this.totalWeatherDaysPerMonth[i].y;
             this.totalWeatherDaysPerMonth[i].y = target;
             this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
@@ -383,14 +373,14 @@ export class FleetavailabilityComponent implements OnInit {
         this.totalWeatherDaysPerMonth.reverse();
 
         //forecast after recorded
-        var dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
-        var dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+        let dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
+        const dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
         this.forecastAfterRecorded[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
         while (dateEnd >= dateForecast) {
-            var index = parseInt(dateForecast.format('M')) - 1;
-            var forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
+            const index = parseInt(dateForecast.format('M')) - 1;
+            const forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
             this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
             dateForecast.add(1, 'days');
         }
@@ -399,9 +389,9 @@ export class FleetavailabilityComponent implements OnInit {
         //forecast from start
         this.forecastFromStart[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
         target = this.turbineWarrenty.weatherDayTarget;
-        for (var i = 1; i < this.allMonths.length; i++) {
-            var index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
-            var forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
+        for (let i = 1; i < this.allMonths.length; i++) {
+            const index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
+            const forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
@@ -466,11 +456,11 @@ export class FleetavailabilityComponent implements OnInit {
     setActive(closeModal = true) {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
             this.openListing = [''];
-            var stopSetActive = false;
-            for (var i = 0; i < this.activeChanged.length; i++) {
-                for (var j = 0; j < this.activeChanged[i].length; j++) {
+            let stopSetActive = false;
+            for (let i = 0; i < this.activeChanged.length; i++) {
+                for (let j = 0; j < this.activeChanged[i].length; j++) {
                     this.errorListing[i][j] = false;
-                    var start, end;
+                    let start, end;
                     if (this.activeChanged[i][j].dateStart) {
                         start = this.convertObjectToMoment(this.activeChanged[i][j].dateStart.year, this.activeChanged[i][j].dateStart.month, this.activeChanged[i][j].dateStart.day).add(1, 'hour').valueOf();
                     }
@@ -505,7 +495,7 @@ export class FleetavailabilityComponent implements OnInit {
                 });
                 return;
             }
-            var params = { 
+            const params = { 
                 listings: this.activeChanged, 
                 client: this.turbineWarrenty.client, 
                 fleetID: this.turbineWarrenty._id,
@@ -534,7 +524,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     onChange(listing, vesselnumber) {
-        var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
+        const index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
         if (index < 0) {
             this.activeChanged[vesselnumber].push(listing);
         } else {
@@ -543,7 +533,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     onClear(listing, vesselnumber, isDateStart) {
-        var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
+        const index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == listing.listingID);
         if (isDateStart) {
             listing.dateStart = null;
         } else {
@@ -559,8 +549,8 @@ export class FleetavailabilityComponent implements OnInit {
     onChangeNew($event, vessel, dateIsStart): void {
         this.changing = true;
         this.numberNewListings++;
-        var vesselnumber = this.turbineWarrenty.fullFleet.findIndex(x => x == vessel);
-        var newActiveListing = {
+        const vesselnumber = this.turbineWarrenty.fullFleet.findIndex(x => x == vessel);
+        let newActiveListing = {
             vesselname: vessel,
             fleetID: this.turbineWarrenty._id,
             dateStart: null,
@@ -584,7 +574,7 @@ export class FleetavailabilityComponent implements OnInit {
     setNotNew(i) {
         if (!this.changing) {
             this.numberNewListings++;
-            var newActiveListing = {
+            const newActiveListing = {
                 vesselname: this.turbineWarrenty.fullFleet[i],
                 fleetID: this.turbineWarrenty._id,
                 dateStart: null,
@@ -616,18 +606,18 @@ export class FleetavailabilityComponent implements OnInit {
             this.activeListings = data.data;
             this.activeListings.sort(function (listing1, listing2) { return listing1.dateStart - listing2.dateStart });
             this.turbineWarrenty.activeFleet = data.twa.activeFleet;
-            for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
+            for (let i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
                 this.listings[i] = [];
                 this.errorListing[i] = [];
                 this.activeChanged[i] = [];
-                var deletedListings = [];
-                for (var j = 0; j < this.activeListings.length; j++) {
+                let deletedListings = [];
+                for (let j = 0; j < this.activeListings.length; j++) {
                     if (this.turbineWarrenty.fullFleet[i] == this.activeListings[j].vesselname && deletedListings.indexOf(this.activeListings[j].listingID) < 0) {
-                        var date = moment(this.activeListings[j].dateStart);
+                        let date = moment(this.activeListings[j].dateStart);
                         this.activeListings[j].dateStart = this.convertMomentToObject(date);
                         date = moment(this.activeListings[j].dateEnd);
                         this.activeListings[j].dateEnd = this.convertMomentToObject(date);
-                        var index = this.listings[i].findIndex(x => x.listingID == this.activeListings[j].listingID);
+                        const index = this.listings[i].findIndex(x => x.listingID == this.activeListings[j].listingID);
                         if (!this.activeListings[j].deleted) {
                             if (index > -1) {
                                 if (this.activeListings[j].dateChanged >= this.listings[i][index].dateChanged) {
@@ -645,9 +635,9 @@ export class FleetavailabilityComponent implements OnInit {
                     }
                 }
                 this.isActive[i] = [];
-                for (var k = 0; k < this.listings[i].length; k++) {
+                for (let k = 0; k < this.listings[i].length; k++) {
                     let item = this.listings[i][k];
-                    for (var l = 0; l < this.turbineWarrenty.sailMatrix[i].length; l++) {
+                    for (let l = 0; l < this.turbineWarrenty.sailMatrix[i].length; l++) {
                         if (item.deleted) {
                             continue;
                         }
@@ -678,7 +668,7 @@ export class FleetavailabilityComponent implements OnInit {
         });
         if (deleteItem.listingID) {
             deleteItem.deleted = true;
-            var index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == deleteItem.listingID);
+            const index = this.activeChanged[vesselnumber].findIndex(x => x.listingID == deleteItem.listingID);
             if (!deleteItem.newListing) {
                 if (index > -1) {
                     this.activeChanged[vesselnumber][index] = deleteItem;
@@ -694,7 +684,7 @@ export class FleetavailabilityComponent implements OnInit {
     orderSailMatrixByActive() {
         let active = this.turbineWarrenty.activeFleet;
         let sorted = { fleet: [], sailMatrix: [] };
-        for (var i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
+        for (let i = 0; i < this.turbineWarrenty.fullFleet.length; i++) {
             if (active.includes(this.turbineWarrenty.fullFleet[i])) {
                 sorted.fleet.push(this.turbineWarrenty.fullFleet[i]);
                 this.turbineWarrenty.fullFleet.splice(i, 1);

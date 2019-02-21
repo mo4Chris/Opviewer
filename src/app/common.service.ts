@@ -58,11 +58,6 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getScatter(test) { //gebruiken we niet meer?
-    return this.post(environment.DB_IP + '/api/getScatter/', test).pipe(
-      map((response: Response) => response.json()));
-  }
-
   getCompanies() {
     return this.get(environment.DB_IP + '/api/getCompanies/').pipe(
       map((response: Response) => response.json()));
@@ -75,11 +70,6 @@ export class CommonService {
 
   getSovDistinctFieldnames(mmsi, date) {
     return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  getLatLon() { //gebruiken we niet meer?
-    return this.get(environment.DB_IP + '/api/getLatLon/').pipe(
       map((response: Response) => response.json()));
   }
 
