@@ -14,7 +14,6 @@ export class UserService {
         var decoded = jwt_decode(token);
         if(decoded.expires){
             const expires = moment.utc(decoded.expires);
-            console.log(expires);
             if(moment().valueOf() > expires.valueOf()){
                 localStorage.removeItem('token');
                 this.router.navigate(['/login']);
