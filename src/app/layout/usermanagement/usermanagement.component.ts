@@ -58,7 +58,7 @@ export class UserManagementComponent implements OnInit {
                     }
                 }
             }
-            this.newService.getVesselsForCompany([{ client: data[0].client }]).subscribe(data => { this.boats = data; });
+            this.newService.getVesselsForCompany([{ client: data[0].client, notHired: 1 }]).subscribe(data => { this.boats = data; });
             this.user = data[0];
             this.multiSelectSettings.singleSelection = (data[0].permissions == "Vessel master")
         });

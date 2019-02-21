@@ -505,7 +505,13 @@ export class FleetavailabilityComponent implements OnInit {
                 });
                 return;
             }
-            this.newService.setActiveListings({ listings: this.activeChanged, client: this.turbineWarrenty.client, fleetID: this.turbineWarrenty._id }).pipe(
+            var params = { 
+                listings: this.activeChanged, 
+                client: this.turbineWarrenty.client, 
+                fleetID: this.turbineWarrenty._id,
+                stopDate: this.convertObjectToMoment(this.stopDate.year, this.stopDate.month, this.stopDate.day).valueOf()
+            }
+            this.newService.setActiveListings(params).pipe(
                 map(
                     (res) => {
                         if (res.twa) {
@@ -605,7 +611,8 @@ export class FleetavailabilityComponent implements OnInit {
 
     getActiveListings(init = false) {
         this.openListing = [''];
-        this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client).subscribe(data => {
+        const stop = this.convertObjectToMoment(this.stopDate.year, this.stopDate.month, this.stopDate.day).valueOf();
+        this.newService.getActiveListingsForFleet(this.turbineWarrenty._id, this.turbineWarrenty.client, stop).subscribe(data => {
             this.activeListings = data.data;
             this.activeListings.sort(function (listing1, listing2) { return listing1.dateStart - listing2.dateStart });
             this.turbineWarrenty.activeFleet = data.twa.activeFleet;

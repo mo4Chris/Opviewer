@@ -478,9 +478,17 @@ app.post("/api/login", function (req, res) {
                 } else {
                     /*if (!user.password) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
-                    } else*/ //Has to be implemented when test phase is over
+                    } else*/ //Has to be implemented when user doesn't have a default password
                     if (bcrypt.compareSync(userData.password, user.password)) {
-                        let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats, username: user.username };
+                        const expireDate = new Date();
+                        let payload = { 
+                            userID: user._id, 
+                            userPermission: user.permissions, 
+                            userCompany: user.client, 
+                            userBoats: user.boats, 
+                            username: user.username,
+                            expires: expireDate.setMonth(expireDate.getMonth()+1).valueOf()
+                        };
                         let token = jwt.sign(payload, 'secretKey');
                         if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
                             return res.status(200).send({ token });
@@ -1491,15 +1499,15 @@ app.post("/api/addVesselToFleet", function (req, res) {
     });
 });
 
-app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
+app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (req, res) {
     let token = verifyToken(req, res);
     let fleetID = req.params.fleetID;
     let client = req.params.client;
+    let stopDate = req.params.stopDate;
     if (token.userPermission !== 'admin' && token.userCompany !== client) {
         return res.status(401).send('Access denied');
     }
     activeListingsModel.aggregate([
-        // each Object is an aggregation.
         {
             $match: {
                 fleetID: fleetID
@@ -1534,7 +1542,10 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
             res.send(err);
         } else {
             var activeVessels = [];
-            var currentDate = new Date();
+            var currentDate = new Date().valueOf();
+            if(stopDate < currentDate) {
+                currentDate = stopDate
+            }
             for (var i = 0; i < data.length; i++) {
                 var startDate = new Date(data[i].dateStart);
                 startDate.setDate(startDate.getDate() - 1);
@@ -1546,15 +1557,15 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
-                } else if (currentDate.valueOf() > startDate.valueOf() && currentDate.valueOf() < endDate.valueOf() && data[i].dateStart < data[i].dateEnd) {
+                } else if (currentDate > startDate.valueOf() && currentDate < endDate.valueOf() && data[i].dateStart < data[i].dateEnd) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
-                } else if (currentDate.valueOf() > startDate.valueOf() && !data[i].dateEnd) {
+                } else if (currentDate > startDate.valueOf() && !data[i].dateEnd) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
-                } else if (currentDate.valueOf() < endDate.valueOf() && !data[i].dateStart) {
+                } else if (currentDate < endDate.valueOf() && !data[i].dateStart) {
                     if (!(activeVessels.indexOf(data[i].vesselname) > -1)) {
                         activeVessels.push(data[i].vesselname);
                     }
@@ -1591,10 +1602,14 @@ app.post("/api/setActiveListings", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Access denied');
     }
-    var listings = req.body.listings;
-    var activeVessels = [];
-    var fleetID = req.body.fleetID;
-    var currentDate = new Date();
+    let listings = req.body.listings;
+    let activeVessels = [];
+    let fleetID = req.body.fleetID;
+    let currentDate = new Date().valueOf();
+    let stopDate = req.body.stopDate;
+    if(stopDate < currentDate) {
+        currentDate = stopDate
+    }
     for (var i = 0; i < listings.length; i++) {
         for (var j = 0; j < listings[i].length; j++) {
             var listing = listings[i][j];
@@ -1613,15 +1628,15 @@ app.post("/api/setActiveListings", function (req, res) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
-            } else if (currentDate.valueOf() > startDate.valueOf() && currentDate.valueOf() < endDate.valueOf() && listing.dateStart < listing.dateEnd) {
+            } else if (currentDate > startDate.valueOf() && currentDate < endDate.valueOf() && listing.dateStart < listing.dateEnd) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
-            } else if (currentDate.valueOf() > startDate.valueOf() && !listing.dateEnd) {
+            } else if (currentDate > startDate.valueOf() && !listing.dateEnd) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
-            } else if (currentDate.valueOf() < endDate.valueOf() && !listing.dateStart) {
+            } else if (currentDate < endDate.valueOf() && !listing.dateStart) {
                 if (!(activeVessels.indexOf(listing.vesselname) > -1)) {
                     activeVessels.push(listing.vesselname);
                 }
@@ -1647,7 +1662,7 @@ app.post("/api/setActiveListings", function (req, res) {
         if (err) {
             return res.status(401).send('Something went went wrong with updating one or more listing');
         } else {
-            return res.send({ data: "Active listings edited (could take up to a day to process)", twa: data });
+            return res.send({ data: "Active listings edited", twa: data });
         }
     });
 });
