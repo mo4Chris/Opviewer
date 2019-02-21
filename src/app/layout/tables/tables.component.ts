@@ -21,9 +21,9 @@ export class TablesComponent implements OnInit {
 
     ngOnInit() {
         if(this.tokenInfo.userPermission == "admin"){
-            this.newService.GetVessel().subscribe(data => this.Repdata = data)
+            this.newService.getVessel().subscribe(data => this.Repdata = data)
         } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data );
+            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data );
         }
     }
 

@@ -64,7 +64,7 @@ export class CtvreportComponent implements OnInit {
         this.modalReference = this.modalService.open(content, { size: 'lg' });
      }
 
-     closeModal() {
+    closeModal() {
         this.modalReference.close();
     }
 
@@ -72,7 +72,7 @@ export class CtvreportComponent implements OnInit {
         Chart.pluginService.register(ChartAnnotation);
     }
 
-    BuildPageWithCurrentInformation() {
+    buildPageWithCurrentInformation() {
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
@@ -100,8 +100,8 @@ export class CtvreportComponent implements OnInit {
                         });
                     });
                     if (this.transferData.length !== 0) {
-                        this.newService.GetDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-                            this.newService.GetSpecificPark({ 'park': data }).subscribe(locData => {
+                        this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
+                            this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
                                 if (locData.length > 0) {
 
                                     let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
@@ -232,7 +232,7 @@ export class CtvreportComponent implements OnInit {
         let isTransfering = false;
         const responseTimes = [];
 
-        return this.newService.GetTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
+        return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
             map(
                 (transfers) => {
                     this.transferData = transfers;

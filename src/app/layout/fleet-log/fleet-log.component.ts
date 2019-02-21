@@ -1,0 +1,224 @@
+import { Component, OnInit } from '@angular/core';
+import { routerTransition } from '../../router.animations';
+import { ActivatedRoute } from '@angular/router';
+import { CommonService } from '../../common.service';
+import { UserService } from '../../shared/services/user.service';
+import { Router } from '../../../../node_modules/@angular/router';
+import { DatetimeService } from '../../supportModules/datetime.service';
+import * as moment from 'moment';
+import { StringMutationService } from '../../shared/services/stringMutation.service';
+
+@Component({
+    selector: 'app-fleet-log',
+    templateUrl: './fleet-log.html',
+    styleUrls: ['./fleet-log.component.scss'],
+    animations: [routerTransition()]
+})
+export class FleetLogComponent implements OnInit {
+    constructor(private stringMutationService: StringMutationService, private newService: CommonService, private userService: UserService, private _router: Router, private route: ActivatedRoute, private dateTimeService: DatetimeService) { }
+
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    params = { campaignName: '', windfield: '', startDate: 0 };
+    edits;
+    fleetId;
+    fleetClient;
+    type = "Sail days changed";
+    sailDayChanged;
+    activeListings;
+    vesselsToAdd;
+    users;
+    loading = true;
+    availableMonths = [];
+    selectedMonth;
+    noData = true;
+    sortedData;
+    sort = { active: '', isAsc: true };
+
+    ngOnInit() {
+        if (this.tokenInfo.userPermission != 'admin') {
+            this._router.navigate(['access-denied']);
+        }
+        this.getCampaignName();
+        this.getStartDate();
+        this.getWindfield();
+        this.getUsers();
+        this.getAvailableMonths();
+        this.buildData(true);
+    }
+
+    buildData(init = false) {
+        this.loading = true;
+        if (this.type == "Sail days changed") {
+            if (!this.sailDayChanged) {
+                this.getSailDayChanged();
+            } else {
+                this.getValidData();
+                this.loading = false;
+            }
+        } else if (this.type == "Active listings") {
+            if (!this.activeListings) {
+                this.getActiveListings();
+            } else {
+                this.getValidData();
+                this.loading = false;
+            }
+        } else {
+            if (!this.vesselsToAdd) {
+                this.getVesselsToAddToFleet();
+            } else {
+                this.getValidData();
+                this.loading = false;
+            }
+        }
+    }
+
+    getCampaignName() {
+        this.route.params.subscribe(params => this.params.campaignName = params.campaignName);
+    }
+
+    getStartDate() {
+        this.route.params.subscribe(params => this.params.windfield = params.windfield);
+    }
+
+    getWindfield() {
+        this.route.params.subscribe(params => this.params.startDate = parseFloat(params.startDate));
+    }
+
+    getUsers() {
+        this.newService.getUsers().subscribe(data => this.users = data);
+    }
+
+    valueToDate(date) {
+        return this.dateTimeService.valueToDate(date);
+    }
+
+    getMatlabDateToJSDate(serial) {
+        return this.dateTimeService.MatlabDateToJSDate(serial);
+    }
+
+    MatLabDateToMoment(serial) {
+        return this.dateTimeService.MatlabDateToUnixEpoch(serial);
+    }
+
+    changeToNicename(name) {
+        return this.stringMutationService.changeToNicename(name);
+    }
+
+    getUsername(id) {
+        if (this.users) {
+            let user = this.users.find(x => x._id == id);
+            return user.username;
+        } else {
+            return id;
+        }
+    }
+
+    getAvailableMonths() {
+        let dateStart = moment('2018-01-01');
+        const dateEnd = moment();
+
+        while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+            this.availableMonths.push(dateStart.format('YYYY MMM'));
+            dateStart.add(1, 'month');
+        }
+        this.availableMonths.reverse();
+        this.selectedMonth = dateEnd.format('YYYY MMM');
+    }
+
+    getSailDayChanged() {
+        this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
+            this.sailDayChanged = data.sailDayChanged;
+            this.sailDayChanged.reverse();
+            this.fleetId = data.data._id;
+            this.fleetClient = data.data.client;
+            this.getValidData();
+            this.loading = false;
+        });
+    }
+
+    getActiveListings() {
+        this.newService.getAllActiveListingsForFleet(this.fleetId).subscribe(data => {
+            this.activeListings = data;
+            this.activeListings.reverse();
+            this.getValidData();
+            this.loading = false;
+        });
+    }
+
+    getVesselsToAddToFleet() {
+        this.newService.getVesselsToAddToFleet({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
+            this.vesselsToAdd = data;
+            this.vesselsToAdd.reverse();
+            this.getValidData();
+            this.loading = false;
+        });
+    }
+
+    getValidData() {
+        this.edits = [];
+        if (this.type == "Sail days changed") {
+            for (let i = 0; i < this.sailDayChanged.length; i++) {
+                this.formatDate(this.sailDayChanged[i], this.sailDayChanged[i].changeDate);
+            }
+        } else if (this.type == "Active listings") {
+            for (let i = 0; i < this.activeListings.length; i++) {
+                this.formatDate(this.activeListings[i], this.activeListings[i].dateChanged);
+            }
+        } else {
+            for (let i = 0; i < this.vesselsToAdd.length; i++) {
+                this.formatDate(this.vesselsToAdd[i], this.vesselsToAdd[i].dateAdded);
+            }
+        }
+        this.noData = (!this.edits[0]);
+    }
+    
+    formatDate(data, date) {
+        if (moment(date).format('YYYY MMM') == this.selectedMonth) {
+            this.edits.push(data);
+        }
+    }
+
+    sortData(sort) {
+        this.sort = sort;
+        const data = this.edits.slice();
+        if (!sort.active || sort.isAsc === '') {
+            this.sortedData = data;
+            return;
+        }
+
+        this.sortedData = data.sort((a, b) => {
+            const isAsc = sort.isAsc;
+            switch (sort.active) {
+                case 'changeDate': return compare(a.changeDate, b.changeDate, isAsc);
+                case 'vessel': return compare(a.vessel, b.vessel, isAsc);
+                case 'date': return compare(a.date, b.date, isAsc);
+                case 'oldValue': return compare(a.oldValue, b.oldValue, isAsc);
+                case 'newValue': return compare(a.newValue, b.newValue, isAsc);
+                case 'userID': return compare(this.getUsername(a.userID), this.getUsername(b.userID), isAsc);
+                case 'dateChanged': return compare(a.dateChanged, b.dateChanged, isAsc);
+                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
+                case 'dateStart': return compare(a.dateStart, b.dateStart, isAsc);
+                case 'dateEnd': return compare(a.dateEnd, b.dateEnd, isAsc);
+                case 'deleted': return compare(a.deleted, b.deleted, isAsc);
+                case 'user': return compare(a.user, b.user, isAsc);
+                case 'dateAdded': return compare(a.dateAdded, b.dateAdded, isAsc);
+                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
+                case 'mmsi': return compare(a.mmsi, b.mmsi, isAsc);
+                case 'status': return compare(a.status, b.status, isAsc);
+                case 'client': return compare(a.client, b.client, isAsc);
+                case 'username': return compare(a.username, b.username, isAsc);
+                default: return 0;
+            }
+        });
+        this.edits = this.sortedData;
+    }
+}
+
+function compare(a: number | string, b: number | string, isAsc: boolean) {
+    if (!a) {
+        return -1 * (isAsc ? 1 : -1);
+    } else if (!b) {
+        return 1 * (isAsc ? 1 : -1);
+    }
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+}

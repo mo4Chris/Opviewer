@@ -17,8 +17,8 @@ export class LogisticsSpecialistComponent implements OnInit {
 
   }
 
-  GetLocations() {
-    this.newService.GetLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+  getLocations() {
+    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }

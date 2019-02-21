@@ -17,8 +17,8 @@ export class AdminComponent implements OnInit {
 
   }
 
-  GetLocations() {
-    this.newService.GetLatestBoatLocation().subscribe( boatLocationData => {
+  getLocations() {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }

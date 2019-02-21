@@ -1,0 +1,222 @@
+<div [@routerTransition]>
+    <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"></app-page-header>
+    <div class="row" *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist' || tokenInfo.userPermission == 'Marine controller'">
+        <div class="col-lg-8">
+            <canvas id="canvas">{{myChart}}</canvas>
+        </div>
+        <div *ngIf="loaded" class="col-lg-4">
+            <table class="table table-responsive graphStats">
+                <tr>
+                    <td>Current remaining weather days</td>
+                    <td>{{totalWeatherDaysPerMonth[totalWeatherDaysPerMonth.length - 1].y}} days</td>
+                </tr>
+                <tr>
+                    <td>Expected end after current weather days</td>
+                    <td>{{forecastAfterRecorded[forecastAfterRecorded.length - 1].y | number:'1.0-1'}} days</td>
+                </tr>
+                <tr>
+                    <td>Expected end from start of term</td>
+                    <td>{{forecastFromStart[forecastFromStart.length - 1].y | number:'1.0-1'}} days</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="card-body table-responsive" *ngIf="loaded">
+        <select class="monthSelector" (change)="setMonth($event.target.value)">
+            <option *ngFor="let date of availableMonths" [value]="date" [selected]="selectedMonth==date">{{date}}</option>
+        </select>
+        <span>
+            <button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                    (click)="openModal(addVesselModal)">
+                Add vessel
+            </button>
+        </span>
+        <ng-template #addVesselModal let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title">Add vessel</h4>
+                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-content">
+                        <input type="text" class="form-control" [ngbTypeahead]="search" (focus)="focus$.next($event.target.value)"
+                               #instance="ngbTypeahead" [(ngModel)]="vesselToAdd" name="vesselToAdd" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                Changes could take up to a day to process
+                <button type="button" class="btn btn-primary" (click)="addVessel()">Submit</button>
+            </div>
+        </ng-template>
+        <span>
+            <button *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist'" class="btn addVessel"
+                    (click)="openModal(setActiveModal, {size: 'lg'}, true)">
+                Set active
+            </button>
+        </span>
+        <ng-template #setActiveModal let-modal>
+            <div class="modal-header setActiveHeader">
+                <h4 class="modal-title">Set active</h4>
+                <ng-template #popTitle>Help</ng-template>
+                <ng-template #popContent class="helpContent">
+                    <br />
+                    Here you can set the active days of a vessel and set which vessel is currently active.
+                    A vessel is active if the current date falls within an active period.
+                    Leave the starting date empty to set it as the start of the campaign;
+                    Leave the end date empty to set it as the end of the campaign.
+                    <!--These will be updated if the campaign is extended.-->
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" [ngbPopover]="popContent" [popoverTitle]="popTitle" placement="left" popoverClass="helpPopup">?</button>
+                <button type="button" class="close closeBtn" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet; let i = index">
+                        <tr (click)="openActiveListings(vessel)" class="pointer">
+                            <td>
+                                <span class="arrow" [class.arrow-down]="!isOpen(vessel)" [class.arrow-up]="isOpen(vessel)"></span>
+                                <span class="vesselname">{{changeToNicename(vessel) | titlecase}}</span>
+                                <span *ngIf="turbineWarrenty.activeFleet.indexOf(vessel) > -1" class="active">Active</span>
+                            </td>
+                        </tr>
+                        <ng-container *ngIf="isOpen(vessel)">
+                            <tr *ngFor="let listing of listings[i]; let ind = index" class="subRow">
+                                <td [class.errorListing]="errorListing[i][ind]">
+                                    <div class="form-group" [class.firstSubRow]="ind==0">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateStart" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
+                                            <button class="input-group-addon" (click)="onClear(listing, i, true)" type="button" [ngbTooltip]="'Set to start of campaign'">
+                                                <span class="fa fa-eraser clear"></span>
+                                            </button>
+                                            <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate" (ngModelChange)="onChange(listing, i)"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="listing.dateEnd" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
+                                            <button class="input-group-addon" (click)="onClear(listing, i, false)" type="button" [ngbTooltip]="'Set to end of campaign'">
+                                                <span class="fa fa-eraser clear"></span>
+                                            </button>
+                                            <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="deleteActive" (click)="deleteListing(listing, i)">-</span>
+                                    <div *ngIf="errorListing[i][ind]" class="errorListingMsg">The start date can't be after the end date</div>
+                                </td>
+                            </tr>
+                            <tr class="subRow">
+                                <td class="new">
+                                    <span class="addActive" (click)="setNotNew(i)">+</span>
+                                    <div class="form-group" [class.firstSubRow]="listings[i].length<=0">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][0]"
+                                                   (ngModelChange)="onChangeNew($event, vessel, true)" placeholder="Start of campaign" readonly (click)="dpStart.toggle()">
+                                            <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group datepicker-input">
+                                            <input class="form-control form-control-lg" ngbDatepicker #dpEnd="ngbDatepicker" name="dpEnd" [minDate]="startDate"
+                                                   [displayMonths]='1' [maxDate]="stopDate" [(ngModel)]="datePickerValue[i][1]"
+                                                   (ngModelChange)="onChangeNew($event, vessel, false)" placeholder="End of campaign" readonly (click)="dpEnd.toggle()">
+                                            <button class="input-group-addon" (click)="dpEnd.toggle()" type="button">
+                                                <span class="fa fa-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="setActive()">Save and close</button>
+                <button type="button" class="btn" (click)="setActive(false)">Save</button>
+            </div>
+        </ng-template>
+        <span class="table-legenda">
+            <span class="exampleBox gray" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">-</span>&nbsp;</span> not processed
+            <span class="exampleBox red" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">0</span>&nbsp;</span> didn't sail
+            <span class="exampleBox yellow" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">0.5</span>&nbsp;</span> half sailing day
+            <span class="exampleBox green" [class.hideColor]="hideText==false"><span *ngIf="hideText==false">1</span>&nbsp;</span> full sailing day
+        </span>
+        <table class="table table-hover table-responsive table-bordered sailMatrix">
+            <thead>
+                <tr>
+                    <th class="smallPadding dates">Date \ Vessel</th>
+                    <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
+                        <th class="smallPadding" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
+                            <span [attr.placement]="!turbineWarrenty.activeFleet.includes(vessel) ? 'top' : null"
+                                  [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is currently not active' : null">
+                                {{changeToNicename(vessel) | titlecase}}
+                            </span>
+                        </th>
+                    </ng-container>
+                    <th class="smallPadding dateWeatherDays">
+                        <span>Total weather days</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let date of turbineWarrenty.Dates;let ind = index">
+                    <tr *ngIf="checkDateRange(date)">
+                        <td class="smallPadding dates">{{MatlabDateToJSDate(date)}}</td>
+                        <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
+                            <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!isActive[i][ind]"
+                                [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false"
+                                [class.cellEdited]="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind]">
+                                <ng-template #tipContent>
+                                    Vessel is {{isActive[i][ind] ? "active" : "not active"}}<br />
+                                    and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}<br />
+                                    {{sailMatrix[i][ind] == turbineWarrenty.sailMatrix[i][ind] ? "" : "*changed value"}}
+                                </ng-template>
+                                <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
+                                    <div *ngIf="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind] && hideText==false && !edit">
+                                        <span class="isEdited">*</span>
+                                    </div>
+                                    <span *ngIf="hideText==false && !edit">{{getSailDay(sailMatrix[i][ind])}}</span>
+                                </div>
+                                <select class="updateSailDay" *ngIf="edit" (change)="updateSailDay(date, vessel, $event.target.value, i, ind)">
+                                    <option value="_NaN_" *ngIf="sailMatrix[i][ind]=='_NaN_' || turbineWarrenty.sailMatrix[i][ind]=='_NaN_'" [selected]="sailMatrix[i][ind]=='_NaN_'">-</option>
+                                    <option value="0" [selected]="sailMatrix[i][ind]==0">0</option>
+                                    <option value="0.5" [selected]="sailMatrix[i][ind]==0.5">0.5</option>
+                                    <option value="1" [selected]="sailMatrix[i][ind]==1">1</option>
+                                </select>
+                            </td>
+                            {{addDateSailDay(sailMatrix[i][ind], i, date)}}
+                        </ng-container>
+                        <td class="smallPadding dateWeatherDays">{{getDateWeatherDays()}}</td>
+                    </tr>
+                </ng-container>
+                <tr>
+                    <td class="smallPadding totals dates">Total weather days</td>
+                    <td class="smallPadding totals" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;"
+                        [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
+                        {{getTotalMissingDays(ind)}}
+                    </td>
+                    <td class="smallPadding totals dateWeatherDays">{{getTotalWeatherDays()}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn" (click)="hideText=!hideText" [disabled]="edit || saving">Toggle color</button>
+        <button class="btn" (click)="setEditDataFlag()" *ngIf="!edit">Edit</button>
+        <button class="btn" (click)="saveSailDaysChanged()" *ngIf="edit" [disabled]="saving">Save</button>
+        <button class="btn cancel" (click)="cancelSailDaysEdit()" *ngIf="edit" [disabled]="saving">Cancel</button>
+    </div>
+    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+</div>
