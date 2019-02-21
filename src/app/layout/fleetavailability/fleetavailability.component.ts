@@ -109,11 +109,11 @@ export class FleetavailabilityComponent implements OnInit {
             if (init) {
                 this.getAvailableMonths();
                 if (this.tokenInfo.userPermission == 'admin') {
-                    this.newService.GetVessel().subscribe(data => {
+                    this.newService.getVessel().subscribe(data => {
                         this.existingVessels = data.map(v => v.nicename);
                     });
                 } else {
-                    this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
+                    this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
                         this.existingVessels = data.map(v => v.nicename);
                     });
                 }

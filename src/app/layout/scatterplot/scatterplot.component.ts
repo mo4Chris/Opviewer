@@ -175,9 +175,9 @@ export class ScatterplotComponent implements OnInit {
         this.noPermissionForData = true;
       }
       if (this.tokenInfo.userPermission === 'admin') {
-        this.newService.GetVessel().subscribe(data => this.Vessels = data);
+        this.newService.getVessel().subscribe(data => this.Vessels = data);
       } else {
-          this.newService.GetVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
+          this.newService.getVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
       }
       setTimeout(() => this.showContent = true, 1000);
     });

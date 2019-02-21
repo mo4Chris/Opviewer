@@ -209,9 +209,9 @@ export class VesselreportComponent implements OnInit {
 
   ngOnInit() {
     if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.GetVessel().subscribe(data => this.vessels = data);
+      this.newService.getVessel().subscribe(data => this.vessels = data);
     } else {
-      this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+      this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
         this.vessels = data;
       });
     }

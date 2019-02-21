@@ -8,14 +8,13 @@ var twoFactor = require('node-2fa');
 
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
-
-var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", function (err, response) {
+mongo.set('useFindAndModify', false);
+var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", { useNewUrlParser: true }, function (err, response) {
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
 
 var app = express();
-app.use(bodyParser());
 app.use(bodyParser.json({ limit: '5mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -35,7 +34,7 @@ app.use(function (req, res, next) {
 let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: (process.env.EMAIL_PORT == 465),
+    secure: (process.env.EMAIL_PORT === 465),
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -156,7 +155,7 @@ var SovModel = new Schema({
     arrivalAtHarbour: { type: String },
     departureFromHarbour: { type: String },
 }, { versionKey: false });
-var SovModel = mongo.model('SOV_general', SovModel, 'SOV_general');
+var SovModelmodel = mongo.model('SOV_general', SovModel, 'SOV_general');
 
 var SovPlatformTransfers = new Schema({
     vesselname: { type: String },
@@ -198,7 +197,7 @@ var SovPlatformTransfers = new Schema({
     TexitExclusionZone: { type: Number },
     date: { type: Number }
 }, { versionKey: false });
-var SovPlatformTransfers = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
+var SovPlatformTransfersmodel = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
 
 var SovTurbineTransfers = new Schema({
     vesselname: { type: String },
@@ -237,7 +236,7 @@ var SovTurbineTransfers = new Schema({
     windArray: { type: Object },
     date: { type: Number }
 });
-var SovTurbineTransfers = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
+var SovTurbineTransfersmodel = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
 var SovTransits = new Schema({
     from: { type: String },
@@ -257,7 +256,7 @@ var SovTransits = new Schema({
     avHeading: { type: Number },
     date: { type: Number }
 });
-var SovTransits = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
+var SovTransitsmodel = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
 
 var SovVessel2vesselTransfers = new Schema({
     transfers: { type: Object },
@@ -265,7 +264,7 @@ var SovVessel2vesselTransfers = new Schema({
     date: { type: Number },
     mmsi: { type: Number }
 });
-var SovVessel2vesselTransfers = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
+var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
 var SovCycleTimes = new Schema({
     startTime: { type: String },
@@ -283,7 +282,7 @@ var SovCycleTimes = new Schema({
     date: { type: Number },
     mmsi: { type: Number }
 })
-var SovCycleTimes = mongo.model('SOV_cycleTimes', SovCycleTimes, 'SOV_cycleTimes');
+var SovCycleTimesmodel = mongo.model('SOV_cycleTimes', SovCycleTimes, 'SOV_cycleTimes');
 
 var generalSchema = new Schema({
     mmsi: { type: Number },
@@ -483,13 +482,13 @@ app.post("/api/login", function (req, res) {
                     if (bcrypt.compareSync(userData.password, user.password)) {
                         let payload = { userID: user._id, userPermission: user.permissions, userCompany: user.client, userBoats: user.boats, username: user.username };
                         let token = jwt.sign(payload, 'secretKey');
-                        if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
+                        if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
                             return res.status(200).send({ token });
                         } else {
-                            
+
                             if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
                                 return res.status(200).send({ token });
-                            } else{
+                            } else {
                                 return res.status(401).send('2fa is incorrect');
                             }
                         }
@@ -557,23 +556,23 @@ app.post("/api/saveTransfer", function (req, res) {
     });
 });
 
-app.post("/api/get2faExistence", function (req, res){
+app.post("/api/get2faExistence", function (req, res) {
     let userEmail = req.body.userEmail;
 
-    Usermodel.findOne({ username: userEmail},
+    Usermodel.findOne({ username: userEmail },
         function (err, user) {
             // if (err) {
             //     res.send(err);
             // } else {
-                if (!user) {
-                    return res.status(401).send('User does not exist');
+            if (!user) {
+                return res.status(401).send('User does not exist');
+            } else {
+                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                    res.send({ secret2fa: "" });
                 } else {
-                    if (user.secret2fa == undefined || user.secret2fa == "" || user.secret2fa == {}) {
-                        res.send({secret2fa: ""});
-                    } else {
-                        res.send(user.secret2fa);
-                    }
+                    res.send(user.secret2fa);
                 }
+            }
             // }
         });
 });
@@ -634,31 +633,11 @@ app.get("/api/getSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovModel.find({"mmsi": mmsi, "dayNum": date} , function (err, data) {
-            if (err) {
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        })
-    });
-});
-
-app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
-    
-    let mmsi = parseInt(req.params.mmsi);
-    let date = req.params.date;
-    req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
-            return res.status(401).send('Access denied');
-        }
-
-        SovTransits.find({"mmsi": mmsi, "date": date} , function (err, data) {
+        SovModelmodel.find({ "mmsi": mmsi, "dayNum": date }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -668,16 +647,16 @@ app.get("/api/GetTransitsForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
+app.get("/api/getTransitsForSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
 
-        SovVessel2vesselTransfers.find({"mmsi": mmsi, "date": date}, function (err, data) {
+        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -687,16 +666,35 @@ app.get("/api/GetVessel2vesselForSov/:mmsi/:date", function (req, res) {
     });
 });
 
-app.get("/api/GetCycleTimesForSov/:mmsi/:date", function (req, res) {
+app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        SovVessel2vesselTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.get("/api/getCycleTimesForSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = parseInt(req.params.date);
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
 
-        SovCycleTimes.find({"mmsi": mmsi, "date": date}, function (err, data) {
+        SovCycleTimesmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -710,11 +708,11 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovPlatformTransfers.find({"mmsi": mmsi, "date": date} , function (err, data) {
+        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -728,24 +726,24 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-    
-        SovTurbineTransfers.find({"mmsi": mmsi, "date": date}, 
-        null, {
-            sort: {
-                startTime: 'asc'
-            }
-        },
-         function (err, data) {
-            if (err) {
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
+
+        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date },
+            null, {
+                sort: {
+                    startTime: 'asc'
+                }
+            },
+            function (err, data) {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            });
     });
 });
 
@@ -817,11 +815,11 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovTurbineTransfers.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -1031,11 +1029,11 @@ app.post("/api/getDatesWithValues", function (req, res) {
 app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovTransits.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+        SovPlatformTransfersmodel.find({ mmsi: mmsi }).distinct('date', function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1053,8 +1051,8 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     let date = req.params.date;
     req.body.mmsi = mmsi;
-    validatePermissionToViewData(req, res, function(validated){
-        if(validated.length < 1){
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
         Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
@@ -1354,7 +1352,7 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1}},
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1516,7 +1514,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
                 fleetID: { $last: '$fleetID' },
                 deleted: { $last: '$deleted' },
                 listingID: { $last: '$listingID' },
-                user: { $last: '$user' } 
+                user: { $last: '$user' }
             }
         }, {
             $project: {
@@ -1528,7 +1526,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client", function (req, res) {
                 fleetID: '$fleetID',
                 deleted: '$deleted',
                 listingID: '$listingID',
-                user: '$user' 
+                user: '$user'
             }
         }
     ]).exec(function (err, data) {
@@ -1669,5 +1667,5 @@ app.post("/api/getVesselsToAddToFleet", function (req, res) {
 });
 
 app.listen(8080, function () {
-    console.log('Example app listening on port 8080!');
+    console.log('BMO Dataviewer listening on port 8080!');
 });

@@ -120,16 +120,16 @@ export class SovreportComponent implements OnInit {
     BuildPageWithCurrentInformation() {
         this.ResetTransfers();
         this.GetAvailableRouteDatesForVessel();
-        this.commonService.GetSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
+        this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0) {
                 this.sovModel.sovInfo = sov[0];
                 
                 // Currently transits are not being used, should be removed
                 // this.GetTransits();
 
-                this.commonService.GetPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
-                        this.commonService.GetTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
+                        this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
                             if (turbineTransfers.length === 0) {
                                 this.sovModel.sovType = SovType.Unknown;
                             } else {
@@ -141,13 +141,13 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                     }
-                    this.GetVesselRoute();
+                    this.getVesselRoute();
                 });
 
-                this.commonService.GetVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
+                this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
                 });
-                this.commonService.GetCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
+                this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
                 });
 
@@ -171,13 +171,13 @@ export class SovreportComponent implements OnInit {
     }
 
     GetTransits() {
-        this.commonService.GetTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
+        this.commonService.getTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
             this.sovModel.transits = transits;
         });
     }
 
     GetAvailableRouteDatesForVessel() {
-        this.commonService.GetDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
+        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
             for (let _i = 0; _i < dates.length; _i++) {
                 dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
             }
@@ -186,7 +186,7 @@ export class SovreportComponent implements OnInit {
         });
     }
 
-    GetVesselRoute() {
+    getVesselRoute() {
         const boatlocationData = [];
         boatlocationData.push(this.sovModel.sovInfo);
 
@@ -203,8 +203,8 @@ export class SovreportComponent implements OnInit {
             this.routeFound.emit(false);
         }
 
-        this.commonService.GetSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
-            this.commonService.GetSpecificPark({ 'park': data }).subscribe(locdata => {
+        this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
+            this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
                     //this.turbineLocations = locdata;
                     let transfers = [];
