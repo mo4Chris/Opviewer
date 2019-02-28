@@ -138,6 +138,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getUserClientById(user, client) {
+    return this.get(environment.DB_IP + '/api/getUserClientById/' + user + '/' + client).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveUserBoats(user) {
     return this.post(environment.DB_IP + '/api/saveUserBoats/', user).pipe(
       map((response: Response) => response.json()));

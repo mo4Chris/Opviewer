@@ -1131,6 +1131,24 @@ app.post("/api/getUserByUsername", function (req, res) {
         });
 });
 
+app.get("/api/getUserClientById/:id/:client", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userCompany != req.params.client) {
+        return res.status(401).send('Access denied');
+    }
+    const id = req.params.id.split(",").filter(function (el) { return el != null && el != '' });
+    if(!id[0]){
+        return res.send('No id given');
+    }
+    Usermodel.find({_id: id}, ['_id', 'client'], function(err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
 app.post("/api/validatePermissionToViewData", function (req, res) {
     validatePermissionToViewData(req, res, function (data) {
         res.send(data);
