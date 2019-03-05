@@ -189,24 +189,24 @@ export class FleetLogComponent implements OnInit {
         this.sortedData = data.sort((a, b) => {
             const isAsc = sort.isAsc;
             switch (sort.active) {
-                case 'changeDate': return compare(a.changeDate, b.changeDate, isAsc);
-                case 'vessel': return compare(a.vessel, b.vessel, isAsc);
-                case 'date': return compare(a.date, b.date, isAsc);
-                case 'oldValue': return compare(a.oldValue, b.oldValue, isAsc);
-                case 'newValue': return compare(a.newValue, b.newValue, isAsc);
-                case 'userID': return compare(this.getUsername(a.userID), this.getUsername(b.userID), isAsc);
-                case 'dateChanged': return compare(a.dateChanged, b.dateChanged, isAsc);
-                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
-                case 'dateStart': return compare(a.dateStart, b.dateStart, isAsc);
-                case 'dateEnd': return compare(a.dateEnd, b.dateEnd, isAsc);
-                case 'deleted': return compare(a.deleted, b.deleted, isAsc);
-                case 'user': return compare(a.user, b.user, isAsc);
-                case 'dateAdded': return compare(a.dateAdded, b.dateAdded, isAsc);
-                case 'vesselname': return compare(a.vesselname, b.vesselname, isAsc);
-                case 'mmsi': return compare(a.mmsi, b.mmsi, isAsc);
-                case 'status': return compare(a.status, b.status, isAsc);
-                case 'client': return compare(a.client, b.client, isAsc);
-                case 'username': return compare(a.username, b.username, isAsc);
+                case 'changeDate': return this.stringMutationService.compare(a.changeDate, b.changeDate, isAsc);
+                case 'vessel': return this.stringMutationService.compare(a.vessel, b.vessel, isAsc);
+                case 'date': return this.stringMutationService.compare(a.date, b.date, isAsc);
+                case 'oldValue': return this.stringMutationService.compare(a.oldValue, b.oldValue, isAsc);
+                case 'newValue': return this.stringMutationService.compare(a.newValue, b.newValue, isAsc);
+                case 'userID': return this.stringMutationService.compare(this.getUsername(a.userID), this.getUsername(b.userID), isAsc);
+                case 'dateChanged': return this.stringMutationService.compare(a.dateChanged, b.dateChanged, isAsc);
+                case 'vesselname': return this.stringMutationService.compare(a.vesselname, b.vesselname, isAsc);
+                case 'dateStart': return this.stringMutationService.compare(a.dateStart, b.dateStart, isAsc);
+                case 'dateEnd': return this.stringMutationService.compare(a.dateEnd, b.dateEnd, isAsc);
+                case 'deleted': return this.stringMutationService.compare(a.deleted, b.deleted, isAsc);
+                case 'user': return this.stringMutationService.compare(a.user, b.user, isAsc);
+                case 'dateAdded': return this.stringMutationService.compare(a.dateAdded, b.dateAdded, isAsc);
+                case 'vesselname': return this.stringMutationService.compare(a.vesselname, b.vesselname, isAsc);
+                case 'mmsi': return this.stringMutationService.compare(a.mmsi, b.mmsi, isAsc);
+                case 'status': return this.stringMutationService.compare(a.status, b.status, isAsc);
+                case 'client': return this.stringMutationService.compare(a.client, b.client, isAsc);
+                case 'username': return this.stringMutationService.compare(a.username, b.username, isAsc);
                 default: return 0;
             }
         });
@@ -214,11 +214,4 @@ export class FleetLogComponent implements OnInit {
     }
 }
 
-function compare(a: number | string, b: number | string, isAsc: boolean) {
-    if (!a) {
-        return -1 * (isAsc ? 1 : -1);
-    } else if (!b) {
-        return 1 * (isAsc ? 1 : -1);
-    }
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-}
+

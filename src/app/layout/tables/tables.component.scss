@@ -7,15 +7,39 @@
     font-size: 14px;
     line-height: 25px;
     padding: 0 5px;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &:visited {
+        color: rgba(66, 125, 237, 1);
+        border: 2px solid rgba(66, 125, 237, 1);
+        outline: none;
+    }
 }
-.rounded-btn:hover,
-.rounded-btn:focus,
-.rounded-btn:active,
-.rounded-btn:visited {
-    color: rgba(66, 125, 237, 1);
-    border: 2px solid rgba(66, 125, 237, 1);
-    outline: none;
-}
-a{
+
+a {
     color:rgb(255,255,255);
+}
+
+.card-header {
+    padding: .4rem 1rem;
+
+    .tableTitle {
+        float: left;
+        line-height: 38px;
+    }
+
+    .search {
+        float: right;
+        max-width: 300px;
+    }
+}
+
+th:not(:first-child):not(:last-child) {
+    cursor: pointer;
+}
+
+i.hidden {
+    visibility: hidden;
 }

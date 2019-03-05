@@ -22,4 +22,13 @@ export class StringMutationService {
         }
         return '-';
     }
+
+    compare(a: number | string, b: number | string, isAsc: boolean) {
+        if (!a) {
+            return -1 * (isAsc ? 1 : -1);
+        } else if (!b) {
+            return 1 * (isAsc ? 1 : -1);
+        }
+        return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+    }
 }

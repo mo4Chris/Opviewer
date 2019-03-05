@@ -84,6 +84,12 @@ var TransferSchema = new Schema({
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
+var LatLonSchema = new Schema({
+    filename: { type: String },
+    SiteName: { type: String }
+}, { versionKey: false });
+var LatLonmodel = mongo.model('turbineLocations2', LatLonSchema, 'turbineLocations2');
+
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
