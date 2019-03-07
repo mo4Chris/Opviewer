@@ -1023,7 +1023,7 @@ app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovPlatformTransfersmodel.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }).distinct('dayNum', function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
