@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as Chart from 'chart.js';
@@ -11,16 +11,20 @@ import * as moment from 'moment';
 import { UserService } from '../../shared/services/user.service';
 import { DialogService } from '../../dialog.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
+import { CalculationService } from '../../supportModules/calculation.service';
+import { StringMutationService } from '../../shared/services/stringMutation.service';
 
 @Component({
     selector: 'app-users',
     templateUrl: './fleetavailability.html',
     styleUrls: ['./fleetavailability.component.scss'],
-    animations: [routerTransition()]
+    animations: [routerTransition()],
+    encapsulation: ViewEncapsulation.None,
 })
 export class FleetavailabilityComponent implements OnInit {
     constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute,
-        private dateTimeService: DatetimeService, private userService: UserService, public dialogService: DialogService) { }
+        private dateTimeService: DatetimeService, private userService: UserService, public dialogService: DialogService,
+        private calculationService: CalculationService, private stringMutationService: StringMutationService) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;
@@ -58,6 +62,7 @@ export class FleetavailabilityComponent implements OnInit {
     errorListing = [[]];
     numberNewListings = 0;
     isActive = [[]];
+    changedUsers = [];
 
     @ViewChild('instance') instance: NgbTypeahead;
     focus$ = new Subject<string>();
@@ -97,14 +102,26 @@ export class FleetavailabilityComponent implements OnInit {
             this.sailMatrix = this.turbineWarrenty.sailMatrix.map(x => Object.assign({}, x));
             if (data.sailDayChanged[0]) {
                 for (let i = 0; i < this.sailMatrix.length; i++) {
+                    this.changedUsers[i] = [];
                     for (let j = 0; j < this.turbineWarrenty.Dates.length; j++) {
                         for (let k = 0; k < data.sailDayChanged.length; k++) {
                             if (this.turbineWarrenty.Dates[j] == data.sailDayChanged[k].date && this.turbineWarrenty.fullFleet[i] == data.sailDayChanged[k].vessel) {
+                                this.changedUsers[i][j] = data.sailDayChanged[k].userID;
                                 this.sailMatrix[i][j] = data.sailDayChanged[k].newValue;
                             }
                         }
                     }
                 }
+                this.newService.getUserClientById(this.changedUsers, this.turbineWarrenty.client).subscribe(_data => {
+                    let changed = [];
+                    this.changedUsers.forEach(function(items, index){
+                        changed[index] = [];
+                        items.forEach(function(item, ind){
+                            changed[index][ind] = _data[_data.findIndex(x => x._id == item)];
+                        });
+                    });
+                    this.changedUsers = changed;
+                });
             }
             if (init) {
                 this.getAvailableMonths();
@@ -140,19 +157,19 @@ export class FleetavailabilityComponent implements OnInit {
                 data: {
                     datasets: [{
                         data: this.totalWeatherDaysPerMonth,
-                        label: 'Recorded weather days',
+                        label: 'Actual weather days',
                         borderColor: 'black',
-                        fill: false
+                        backgroundColor: '#00000000'
                     }, {
                         data: this.forecastAfterRecorded,
-                        label: 'Expected after current recorded weather days',
+                        label: 'Predicted weather days',
                         borderColor: 'red',
-                        fill: false
+                        backgroundColor: '#00000000'
                     }, {
                         data: this.forecastFromStart,
-                        label: 'Expected from start of term',
+                        label: 'Original prediction',
                         borderColor: 'green',
-                        fill: false
+                        backgroundColor: '#00000000'
                     }]
                 },
                 options: {
@@ -221,7 +238,11 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     changeToNicename(name) {
-        return name.replace(/_/g, ' ');
+        return this.stringMutationService.changeToNicename(name);
+    }
+
+    roundNumber(number, decimal = 10, addString = ''){
+        return this.calculationService.roundNumber(number, decimal, addString);
     }
 
     getAvailableMonths() {
@@ -369,11 +390,14 @@ export class FleetavailabilityComponent implements OnInit {
             this.forecastAfterRecorded[i] = { x: this.totalWeatherDaysPerMonth[i].x, y: null };
         }
         this.totalWeatherDaysPerMonth.reverse();
-        this.totalWeatherDaysPerMonth.push({ x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget });
+        this.totalWeatherDaysPerMonth.push({ 
+            x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), 
+            y: this.turbineWarrenty.weatherDayTarget 
+        });
         this.totalWeatherDaysPerMonth.reverse();
 
         //forecast after recorded
-        let dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length, 'days');
+        let dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length - 1, 'days');
         const dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
         this.forecastAfterRecorded[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
@@ -387,11 +411,16 @@ export class FleetavailabilityComponent implements OnInit {
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x = this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].x.subtract(1, 'hour');
 
         //forecast from start
-        this.forecastFromStart[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: this.turbineWarrenty.weatherDayTarget }
+        this.forecastFromStart[0] = { 
+            x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), 
+            y: this.turbineWarrenty.weatherDayTarget 
+        };
         target = this.turbineWarrenty.weatherDayTarget;
         for (let i = 1; i < this.allMonths.length; i++) {
             const index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
-            const forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels * moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
+            const forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * 
+                this.turbineWarrenty.numContractedVessels *
+                moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
             this.forecastFromStart[i] = { x: moment(this.allMonths[i], 'MMM YYYY'), y: target };
         }
@@ -410,9 +439,15 @@ export class FleetavailabilityComponent implements OnInit {
         this.modalReference.close();
     }
 
-    addVessel() {
+    addVessel(closeModal = true) {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
-            const vesselToAdd = { client: this.turbineWarrenty.client, vessel: this.vesselToAdd, campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate };
+            const vesselToAdd = { 
+                client: this.turbineWarrenty.client, 
+                vessel: this.vesselToAdd, 
+                campaignName: this.params.campaignName, 
+                windfield: this.params.windfield, 
+                startDate: this.params.startDate 
+            };
             if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
                 this.setAlert('danger', 'Vessel already in fleet', true);
                 return;
@@ -420,11 +455,11 @@ export class FleetavailabilityComponent implements OnInit {
             this.newService.addVesselToFleet(vesselToAdd).pipe(
                 map(
                     (res) => {
-                        this.setAlert('success', res.data, true);
+                        this.setAlert('success', res.data, closeModal);
                     }
                 ),
                 catchError(error => {
-                    this.setAlert('danger', error._body, true);
+                    this.setAlert('danger', error._body, closeModal);
                     throw error;
                 })
             ).subscribe(_ => {
@@ -462,10 +497,12 @@ export class FleetavailabilityComponent implements OnInit {
                     this.errorListing[i][j] = false;
                     let start, end;
                     if (this.activeChanged[i][j].dateStart) {
-                        start = this.convertObjectToMoment(this.activeChanged[i][j].dateStart.year, this.activeChanged[i][j].dateStart.month, this.activeChanged[i][j].dateStart.day).add(1, 'hour').valueOf();
+                        start = this.convertObjectToMoment(this.activeChanged[i][j].dateStart.year, this.activeChanged[i][j].dateStart.month, 
+                            this.activeChanged[i][j].dateStart.day).add(1, 'hour').valueOf();
                     }
                     if (this.activeChanged[i][j].dateEnd) {
-                        end = this.convertObjectToMoment(this.activeChanged[i][j].dateEnd.year, this.activeChanged[i][j].dateEnd.month, this.activeChanged[i][j].dateEnd.day).add(1, 'hour').valueOf();
+                        end = this.convertObjectToMoment(this.activeChanged[i][j].dateEnd.year, this.activeChanged[i][j].dateEnd.month, 
+                            this.activeChanged[i][j].dateEnd.day).add(1, 'hour').valueOf();
                     }
                     if (this.activeChanged[i][j].dateStart && this.activeChanged[i][j].dateEnd) {
                         if (start > end) {

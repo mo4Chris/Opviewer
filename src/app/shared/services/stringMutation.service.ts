@@ -7,22 +7,28 @@ export class StringMutationService {
 
     constructor() { }
 
-    changeToNicename(name) {
+    changeToNicename(name, capitalize = false) {
         if (name && name != '') {
             if (isNaN(name)) {
-                return name.replace(/_/g, ' ');
+                let frags = name.split('_');
+                if(capitalize){
+                    for (let i = 0; i < frags.length; i++) {
+                        frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+                    }
+                }
+                return frags.join(' ');
             }
             return name;
-        } else {
-            return '-';
         }
+        return '-';
     }
 
-    humanize(str) {
-        let frags = str.split('_');
-        for (let i = 0; i < frags.length; i++) {
-            frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+    compare(a: number | string, b: number | string, isAsc: boolean) {
+        if (!a) {
+            return -1 * (isAsc ? 1 : -1);
+        } else if (!b) {
+            return 1 * (isAsc ? 1 : -1);
         }
-        return frags.join(' ');
+        return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
     }
 }

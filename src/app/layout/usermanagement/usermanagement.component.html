@@ -6,7 +6,7 @@
         <tr *ngIf="tokenInfo.userPermission=='admin'"><td>Client:</td> <td>{{user.client}}</td></tr>
     </table>
     <div class="multiSelectDiv">
-        <ng-multiselect-dropdown [placeholder]="'Select boat'"
+        <ng-multiselect-dropdown [placeholder]="'Select vessel'"
                                  [data]="boats"
                                  [(ngModel)]="user.boats"
                                  [settings]="multiSelectSettings">

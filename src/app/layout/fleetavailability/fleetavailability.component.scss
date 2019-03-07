@@ -33,7 +33,6 @@ table.sailMatrix {
             height: 48px;
 
             .isEdited {
-                display: inline-block;
                 float: right;
                 line-height: 25px;
             }
@@ -48,15 +47,15 @@ table.sailMatrix {
         .updateSailDay {
             width: 100%;
         }
-
-        &.cellEdited {
-            background-image: linear-gradient( to top right, transparent calc(50% - 4px), white calc(50% - 3px), white calc(50% + 3px), transparent calc(50% + 4px) );
-        }
     }
 
     th {
         border-bottom-width: 3px;
     }
+}
+
+.cellEdited {
+    background-image: linear-gradient( to top right, transparent calc(50% - 4px), white calc(50% - 3px), white calc(50% + 3px), transparent calc(50% + 4px) );
 }
 
 .green {
@@ -111,7 +110,7 @@ table.sailMatrix {
     }
 }
 
-ngb-alert {
+ngb-alert.alert {
     position: fixed;
     bottom: 0px;
     z-index: 1100;
@@ -126,27 +125,38 @@ ngb-alert {
     margin-right: 25px;
 }
 
-.setActiveHeader {
-    .helpBtn {
-        margin: 0 0 0 auto;
-        padding: 0;
-        border-radius: 13px;
-        width: 26px;
-        height: 26px;
-        color: #427ded;
-        border-color: #427ded;
+.helpBtn {
+    margin: 0 !important;
+    padding: 0;
+    border-radius: 13px;
+    width: 26px;
+    height: 26px;
+    color: #427ded;
+    border-color: #427ded;
+    float: right;
 
-        &:active, &:hover {
-            background-color: #427ded;
-            color: white;
-            box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
-        }
-
-        &:focus {
-            box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
-        }
+    &:active, &:hover {
+        background-color: #427ded;
+        color: white;
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
     }
 
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+    }
+
+    &.totalsHelpBtn {
+        color: white;
+        border-color: white;
+    }
+
+    &.addVesselHelp {
+        right: 60px;
+        position: absolute;
+    }
+}
+
+.setActiveHeader {
     .closeBtn {
         margin: -1rem -1rem 0 0;
     }
@@ -196,7 +206,6 @@ ngb-alert {
 
                 .active {
                     float: right;
-                    display: inline-block;
                     margin-right: 20px;
                     color: green;
                 }
@@ -309,7 +318,7 @@ ngb-alert {
         margin-left: 30px;
         border: 0 !important;
 
-        &.gray {
+        &:first-child {
             margin-left: 0;
         }
     }
@@ -320,10 +329,41 @@ ngb-alert {
 
     td {
         display: block;
+        min-width: 300px;
 
         &:first-child {
             background: gray;
             color: white;
+        }
+
+        &.negative {
+            color: red;
+            font-weight: 900;
+        }
+    }
+}
+
+.sailMatrixTitle {
+    display: inline-block;
+    margin-top: 2rem;
+
+    .helpBtn {
+        margin: 4px 0 0 1rem !important;
+    }
+}
+
+.customModal > div {
+    max-width: 1250px;
+    
+    .row > div:first-child {
+        border-right: 1px solid #e9ecef;
+    }
+
+    .modal-footer {
+        overflow: hidden;
+
+        .btn:first-child {
+            margin-right: .25rem;
         }
     }
 }

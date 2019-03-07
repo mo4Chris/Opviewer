@@ -39,6 +39,6 @@ export class FleetsComponent implements OnInit {
     }
 
     humanize(str) {
-        return this.stringMutationService.humanize(str);  
+        return this.stringMutationService.changeToNicename(str, true);  
     }
 }

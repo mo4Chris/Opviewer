@@ -84,6 +84,12 @@ var TransferSchema = new Schema({
 }, { versionKey: false });
 var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
+var LatLonSchema = new Schema({
+    filename: { type: String },
+    SiteName: { type: String }
+}, { versionKey: false });
+var LatLonmodel = mongo.model('turbineLocations2', LatLonSchema, 'turbineLocations2');
+
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -1017,7 +1023,7 @@ app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovPlatformTransfersmodel.find({ mmsi: mmsi }).distinct('date', function (err, data) {
+        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }).distinct('dayNum', function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1129,6 +1135,24 @@ app.post("/api/getUserByUsername", function (req, res) {
                 }
             }
         });
+});
+
+app.get("/api/getUserClientById/:id/:client", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userCompany != req.params.client) {
+        return res.status(401).send('Access denied');
+    }
+    const id = req.params.id.split(",").filter(function (el) { return el != null && el != '' });
+    if(!id[0]){
+        return res.send('No id given');
+    }
+    Usermodel.find({_id: id}, ['_id', 'client'], function(err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
 });
 
 app.post("/api/validatePermissionToViewData", function (req, res) {
