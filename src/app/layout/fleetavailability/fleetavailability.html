@@ -1,39 +1,65 @@
 <div [@routerTransition]>
     <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"
-    [title]="params.campaignName + ', ' + changeToNicename(params.windfield) + ', ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
+    [title]="'| ' + changeToNicename(params.windfield) + ' | ' + params.campaignName + ' | ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
     <div class="row" *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist' || tokenInfo.userPermission == 'Marine controller'">
         <div class="col-lg-8">
             <canvas id="canvas">{{myChart}}</canvas>
         </div>
         <div *ngIf="loaded" class="col-lg-4">
             <table class="table table-responsive graphStats">
-                <tr>
-                    <td>
-                        Remaining weather days
-                        <ng-template #popContent class="helpContent">
-                            Values which originate from graph.
-                        </ng-template>
-                        <button type="button" class="btn btn-outline-secondary helpBtn totalsHelpBtn" [autoClose]="true" 
-                            [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
-                    </td>
+
+                <ng-template #remainingWeatherDays class="helpContent">
+                    Weather days remaining at this moment.
+                </ng-template>
+                <tr [ngbTooltip]="remainingWeatherDays" placement="top">
+                    <td>Remaining weather days</td>
                     <td [class.negative]="totalWeatherDaysPerMonth[totalWeatherDaysPerMonth.length - 1].y<0">{{totalWeatherDaysPerMonth[totalWeatherDaysPerMonth.length - 1].y}} days</td>
                 </tr>
-                <tr>
+
+                <ng-template #predictedEnd class="helpContent">
+                    Expected weather days remaining using actual data.
+                    </ng-template>
+                <tr [ngbTooltip]="predictedEnd" placement="top">
                     <td>Predicted end of campaign</td>
                     <td [class.negative]="forecastAfterRecorded[forecastAfterRecorded.length - 1].y<0">{{roundNumber(forecastAfterRecorded[forecastAfterRecorded.length - 1].y, 2)}} days</td>
                 </tr>
-                <tr>
+
+                <ng-template #originalPrediction class="helpContent">
+                    Expected weather days remaining at start of season.
+                </ng-template>
+                <tr [ngbTooltip]="originalPrediction" placement="top">
                     <td>Original prediction</td>
                     <td [class.negative]="forecastFromStart[forecastFromStart.length - 1].y<0">{{roundNumber(forecastFromStart[forecastFromStart.length - 1].y, 2)}} days</td>
                 </tr>
+
+                <ng-template #weatherDayTarget class="helpContent">
+                    Total number of weather days in contract.
+                </ng-template>
+                <tr [ngbTooltip]="weatherDayTarget" placement="top">
+                    <td>Weather day target</td>
+                    <td>{{turbineWarrenty.weatherDayTarget}}</td>
+                </tr>
+
+                <ng-template #numContractedVessels class="helpContent">
+                    Number of vessel active each day in contract.
+                </ng-template>
+                <tr [ngbTooltip]="numContractedVessels" placement="top">
+                    <td>Number of contracted vessels</td>
+                    <td>{{turbineWarrenty.numContractedVessels}}</td>
+                </tr>
+                
             </table>
         </div>
     </div>
     <h3 class="sailMatrixTitle">
         Sail matrix
         <ng-template #popContent class="helpContent">
-            Table of vessels, dates and if the vessels sailed on those dates.<br>
-            Look at the legend to know what the different values mean.
+            Table describing deployment for varius vessels in the fleet.
+            By default, BMO fills this table with data from the VMMS systems on board of the vessels.
+            These values can be adjusted using the 'edit' button in the bottom left.
+            The white cells indicate that the vessel is assigned to this campaign.
+            Assignment can be changed by using the 'edit fleet' button below.
+            Here you can also assign new vessels.
         </ng-template>
         <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
             [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
@@ -144,8 +170,8 @@
                     <div class="modal-header">
                         <h4 class="modal-title">Add vessel</h4>
                         <ng-template #popAddContent class="helpContent">
-                            You can add vessels to your fleet here.
-                            You can also enter vessels which are not in the dropdown with names OR mmsi.
+                            Here you can add vessels to your fleet.
+                            this can be done via vessel name or mmsi.
                             Changes could take up to a day to process.
                         </ng-template>
                         <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
@@ -183,7 +209,7 @@
                     <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index">
                         <th class="smallPadding" [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                             <span [attr.placement]="!turbineWarrenty.activeFleet.includes(vessel) ? 'top' : null"
-                                  [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is currently not active' : null">
+                                    [ngbTooltip]="!turbineWarrenty.activeFleet.includes(vessel) ? 'Vessel is currently not part of active fleet' : null">
                                 {{changeToNicename(vessel) | titlecase}}
                             </span>
                         </th>

@@ -17,7 +17,6 @@ export class TablesComponent implements OnInit {
     Repdata;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     ScatterplotPermission = (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist');
-    valbutton = "Save";
     filter = [];
     sortedData;
     sort = { active: '', isAsc: true };
@@ -39,20 +38,14 @@ export class TablesComponent implements OnInit {
     }
 
     applyFilter(filterValue: string) {
-        filterValue = filterValue.trim(); // Remove whitespace
-        filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
-        let filter = [];
-        if(filterValue == ''){
+        filterValue = filterValue.trim();
+        filterValue = filterValue.toLowerCase();
+        if(filterValue == '') {
             this.filter = this.Repdata;
             this.sortData(this.sort);
             return
         }
-        this.Repdata.forEach(function(element, index) {
-            if(element.nicename.toLowerCase().includes(filterValue) || (element.mmsi+'').includes(filterValue)) {
-                filter.push(element);
-            }
-        });
-        this.filter = filter;
+        this.filter = this.Repdata.filter(s => s.nicename.toLowerCase().includes(filterValue) || (s.mmsi+'').includes(filterValue));
         this.sortData(this.sort);
     }
 
