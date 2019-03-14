@@ -9,7 +9,14 @@ import { RouterModule } from '@angular/router';
 export class PageHeaderComponent implements OnInit {
     @Input() heading: string;
     @Input() icon: string;
-    constructor() {}
+    @Input() title: string;
+    constructor() { }
 
-    ngOnInit() {}
+    ngOnInit() {
+        if(this.title){
+            this.title = this.heading + ' ' + this.title;
+        } else {
+            this.title = this.heading;
+        }
+    }
 }

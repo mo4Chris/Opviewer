@@ -133,11 +133,11 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
                                     </tr>
                                 </ng-container>
@@ -166,8 +166,8 @@
                                 <ng-container *ngFor="let turbineTransfer of sovModel.turbineTransfers">
                                     <tr>
                                         <th>{{turbineTransfer.location}}</th>
-                                        <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{turbineTransfer.peakWindGust}} m/s</td>
@@ -260,8 +260,8 @@
                                     <ng-container *ngFor="let transfer of object.value">
                                         <tr>
                                             <td colspan="2"></td>
-                                            <td>{{GetMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
-                                            <td>{{GetMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                                            <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                                            <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{transfer.duration}} minutes</td>
                                             <td>{{transfer.peakWindGust}}</td>
                                             <td>{{transfer.peakHeave.toFixed(2)}}</td>
@@ -305,8 +305,8 @@
                                     <tr>
                                         <td></td>
                                         <td>{{turbineVisit.location}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineVisit.durationMinutes}} minutes</td>
                                     </tr>
                                 </ng-container>

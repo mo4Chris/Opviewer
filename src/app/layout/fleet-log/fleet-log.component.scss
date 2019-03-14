@@ -1,0 +1,23 @@
+.selectType, .selectMonth {
+    width: auto;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.selectMonth {
+    margin-left: 1rem;
+}
+
+table {
+    td, th {
+        padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+    }
+
+    th:not(:first-child) {
+        cursor: pointer;
+    }
+
+    i.hidden {
+        visibility: hidden;
+    }
+}

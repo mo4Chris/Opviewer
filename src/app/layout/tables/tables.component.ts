@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
-import * as jwt_decode from "jwt-decode";
  
 import { Router } from '../../../../node_modules/@angular/router';
 import { UserService } from '../../shared/services/user.service';
+import { StringMutationService } from '../../shared/services/stringMutation.service';
 
 @Component({
     selector: 'app-tables',
@@ -13,17 +13,19 @@ import { UserService } from '../../shared/services/user.service';
     animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router, private userService: UserService ) { }
+    constructor(private stringMutationService: StringMutationService, private newService: CommonService, private _router: Router, private userService: UserService ) { }
     Repdata;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     ScatterplotPermission = (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist');
-    valbutton = "Save";
+    filter = [];
+    sortedData;
+    sort = { active: '', isAsc: true };
 
     ngOnInit() {
         if(this.tokenInfo.userPermission == "admin"){
-            this.newService.GetVessel().subscribe(data => this.Repdata = data)
+            this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
         } else {
-            this.newService.GetVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Repdata = data );
+            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
         }
     }
 
@@ -35,20 +37,34 @@ export class TablesComponent implements OnInit {
         this._router.navigate(['scatterplot', {boatmmsi: mmsi}]);
     }
 
-    onSave = function (vessel, isValid: boolean) {
-        vessel.mode = this.valbutton;
-        this.newService.saveVessel(vessel)
-            .subscribe(data => {
-                alert(data.data);
-
-                this.ngOnInit();
-            }
-                , error => this.errorMessage = error)
+    applyFilter(filterValue: string) {
+        filterValue = filterValue.trim();
+        filterValue = filterValue.toLowerCase();
+        if(filterValue == '') {
+            this.filter = this.Repdata;
+            this.sortData(this.sort);
+            return
+        }
+        this.filter = this.Repdata.filter(s => s.nicename.toLowerCase().includes(filterValue) || (s.mmsi+'').includes(filterValue));
+        this.sortData(this.sort);
     }
-    edit = function (kk) {
-        this.id = kk._id;
-        this.name = kk.name;
-        this.address = kk.address;
-        this.valbutton = "Update";
+
+    sortData(sort) {
+        this.sort = sort;
+        const data = this.filter.slice();
+        if (!sort.active || sort.isAsc === '') {
+            this.filter = data;
+            return;
+        }
+
+        this.filter = data.sort((a, b) => {
+            const isAsc = sort.isAsc;
+            switch (sort.active) {
+                case 'nicename': return this.stringMutationService.compare(a.nicename.toLowerCase(), b.nicename.toLowerCase(), isAsc);
+                case 'mmsi': return this.stringMutationService.compare(a.mmsi, b.mmsi, isAsc);
+                case 'client': return this.stringMutationService.compare(a.client.toLowerCase(), b.client.toLowerCase(), isAsc);
+                default: return 0;
+            }
+        });
     }
 }

@@ -30,8 +30,9 @@ export class DashboardComponent implements OnInit {
 
     showAlert = false;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    alert = {type: '', text: ''}
+    alert = {type: '', text: ''};
     timeout;
+    infoWindowOld;
 
     // used for comparison in the HTML
     userType = Usertype;
@@ -54,44 +55,60 @@ export class DashboardComponent implements OnInit {
     }
 
     onMouseOver(infoWindow, gm) {
+        this.infoWindowOld = infoWindow;
         this.eventService.OpenAgmInfoWindow(infoWindow, gm);
     }
     ///////////////////////////////
 
     ngOnInit() {
-        setTimeout(() => {
-            switch(this.tokenInfo.userPermission) { 
-                case Usertype.Admin: { 
-                    this.adminComponent.GetLocations();
-                    break; 
-                }
-                case Usertype.LogisticsSpecialist: { 
-                    this.logisticsSpecialistComponent.GetLocations();
-                    break; 
-                }
-                case Usertype.MarineController: { 
-                    this.marineControllerComponent.GetLocations();
-                    break; 
-                }
-                case Usertype.Vesselmaster: { 
-                    this.vesselMasterComponent.GetLocations();
-                    break; 
-                } 
-            }
-        }, 1000);
+        this.getLocations();
         this.getAlert();
       }
+
+    getLocations() {
+        setTimeout(() => {
+            switch (this.tokenInfo.userPermission) {
+                case Usertype.Admin: {
+                    this.adminComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
+                    break;
+                }
+                case Usertype.LogisticsSpecialist: {
+                    this.logisticsSpecialistComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
+                    break;
+                }
+                case Usertype.MarineController: {
+                    this.marineControllerComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
+                    break;
+                }
+                case Usertype.Vesselmaster: {
+                    this.vesselMasterComponent.getLocations();
+                    this.eventService.closeLatestAgmInfoWindow();
+                    break;
+                }
+            }
+        }, 1000);
+        setTimeout(() => {
+            this.eventService.closeLatestAgmInfoWindow();
+
+            if (this.router.url === '/dashboard') {
+                this.getLocations();
+            }
+        }, 60000);
+    }
 
     redirectDailyVesselReport(mmsi) {
         this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
     }
 
     getAlert() {
-        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message });
-        if (this.alert.type != '' && this.alert.text != '') {
+        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message; });
+        if (this.alert.type !== '' && this.alert.text !== '') {
             clearTimeout(this.timeout);
             this.showAlert = true;
-            this.timeout = setTimeout(() =>{
+            this.timeout = setTimeout(() => {
                 this.showAlert = false;
             }, 10000);
         }

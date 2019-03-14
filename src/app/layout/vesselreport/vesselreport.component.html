@@ -54,8 +54,8 @@
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} transfers</strong>
                                     <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
                                         <pre>
-Start: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
-Stop: {{GetMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
 Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
                                         </pre>
                                     </ng-container>
