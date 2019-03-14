@@ -571,7 +571,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
                     res.send({ secret2fa: "" });
                 } else {
-                    res.send(user.secret2fa);
+                    res.send({ secret2fa: user.secret2fa });
                 }
             }
             // }

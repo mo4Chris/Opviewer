@@ -47,7 +47,7 @@ export class DatetimeService {
   }
 
   unixEpochtoMatlabDate(epochDate) {
-    const matlabTime = ((epochDate / 864e2) + 719530);
+    const matlabTime = ((epochDate / 864e2) + 719529);
     return matlabTime;
   }
 
@@ -60,7 +60,7 @@ export class DatetimeService {
   }
 
   getMatlabDateYesterday() {
-    const matlabValueYesterday = moment().add(-2, 'days');
+    const matlabValueYesterday = moment().add(-1, 'days');
     matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
 
