@@ -11,9 +11,21 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Username</th>
-                                <th>Permission</th>
-                                <th *ngIf="userPermission == 'admin'">Client</th>
+                                <th (click)="sortData({active: 'username', isAsc: sort.active=='username'?!sort.isAsc:true})">
+                                        Username
+                                    <i class="fa" [class.hidden]="sort.active!='username'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
+                                <th (click)="sortData({active: 'permissions', isAsc: sort.active=='permissions'?!sort.isAsc:true})">
+                                        Permission
+                                    <i class="fa" [class.hidden]="sort.active!='permissions'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
+                                <th *ngIf="userPermission == 'admin'" (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
+                                        Client
+                                    <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
                                 <th>Manage vessels</th>
                                 <th>Reset password</th>
                             </tr>
@@ -24,7 +36,7 @@
                                 <td>{{user_data.username}}</td>
                                 <td>{{user_data.permissions}}</td>
                                 <td *ngIf="userPermission == 'admin'">{{user_data.client}}</td>
-                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage vessels</a></td>
+                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage boats</a></td>
                                 <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
                             </tr>
                         </tbody>
