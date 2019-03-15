@@ -243,11 +243,8 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
-  ngAfterViewInit() {
-
-  }
-
   onChange(): void {
+    this.eventService.closeLatestAgmInfoWindow();
     this.resetRoutes();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
