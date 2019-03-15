@@ -8,3 +8,4 @@ export const environment = {
   Server_IP: 'http://localhost:4200',
   DB_IP: 'http://localhost:8080'
 };
+ 
