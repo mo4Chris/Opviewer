@@ -316,7 +316,9 @@ var turbineWarrantyRequestSchema = new Schema({
     numContractedVessels: { type: Number }, 
     campaignName: { type: String },
     weatherDayTarget: { type: Number },
-    limitHs: { type: Number }
+    limitHs: { type: Number },
+    user: { type: String },
+    requestTime: { type: Number }
 }, { versionKey: false });
 var turbineWarrantyRequestmodel = mongo.model('TurbineWarrenty_Request', turbineWarrantyRequestSchema, 'TurbineWarrenty_Request');
 
@@ -1725,12 +1727,15 @@ app.post("/api/saveFleetRequest", function (req, res) {
     request.campaignName = req.body.campaignName;
     request.weatherDayTarget = req.body.weatherDayTarget;
     request.limitHs = req.body.limitHs;
+    request.user = token.username;
+    request.requestTime = req.body.requestTime;
     request.save(function(err,data) {
         if (err) {
             return res.send(err);
         } else {
             startDate = new Date(request.startDate);
             stopDate = new Date(request.stopDate);
+            requestTime = new Date(request.requestTime);
             let html = 'A campaing has been requested, the data for the campaign: <br>'+
             "Campaign name: " + request.campaignName + " <br>" +
             "Windfield: " + request.windfield + " <br>" +
@@ -1741,8 +1746,10 @@ app.post("/api/saveFleetRequest", function (req, res) {
             "Stop date: " + stopDate.toISOString().slice(0,10) + " <br>" +
             "Number of contracted vessels: " + request.numContractedVessels + " <br>" +
             "Weather day target: " + request.weatherDayTarget + " <br>" +
-            "Limit Hs: " + request.limitHs;
-            mailTo('Campaign requested', html, "BMO");
+            "Limit Hs: " + request.limitHs + " <br>" + 
+            "Username: " + request.user + " <br>" +
+            "Request time: " + requestTime.toISOString().slice(0,10);
+            mailTo('Campaign requested', html, "BMO Offshore");
             return res.send({ data: 'Request succesfully made' });
         }
     });

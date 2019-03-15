@@ -5,6 +5,7 @@ import { UserService } from '../../shared/services/user.service';
 import { Router } from '@angular/router';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { catchError, map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Component({
     selector: 'app-fleet-request',
@@ -45,7 +46,8 @@ export class FleetRequestComponent implements OnInit {
         weatherDayTarget: null,
         jsTime: { startDate: 0, stopDate: 0 },
         validFields: [],
-        limitHs: null
+        limitHs: null,
+        requestTime: null
     };
 
     selectVesselsSettings = {
@@ -81,7 +83,7 @@ export class FleetRequestComponent implements OnInit {
         }
     }
 
-    saveRequest() { //todo check of request juist is ingevult
+    saveRequest() {
         this.emptyRequired.campaignName = !this.request.campaignName;
         this.emptyRequired.windfield = !this.request.windfield;
         this.emptyRequired.startDate = !this.request.startDate.year || !this.request.startDate.month || !this.request.startDate.day;
@@ -98,6 +100,7 @@ export class FleetRequestComponent implements OnInit {
         }
         this.request.jsTime.startDate = this.dateTimeService.convertObjectToMoment(this.request.startDate.year, this.request.startDate.month, this.request.startDate.day).valueOf();
         this.request.jsTime.stopDate = this.dateTimeService.convertObjectToMoment(this.request.stopDate.year, this.request.stopDate.month, this.request.stopDate.day).valueOf();
+        this.request.requestTime = moment().valueOf();
         this.newService.saveFleetRequest(this.request).pipe(
             map(
                 (res) => {
