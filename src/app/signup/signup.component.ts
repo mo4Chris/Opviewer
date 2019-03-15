@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {CommonService} from '../common.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
-import * as jwt_decode from 'jwt-decode';
 import { UserService } from '../shared/services/user.service';
 
 
@@ -63,10 +61,14 @@ export class SignupComponent implements OnInit {
     ngOnInit() {
         if (this.userPermission !== 'admin') {
             if (this.userPermission !== 'Logistics specialist') {
-                this.router.navigate(['/access-denied']);
+                if(this.userPermission !== 'Contract manager') {
+                    this.permissions = ['Contract manager'];
+                } else {
+                    this.router.navigate(['/access-denied']);
+                }
             }
         } else {
-            this.permissions = this.permissions.concat(['Logistics specialist', 'admin']);
+            this.permissions = this.permissions.concat(['Logistics specialist', 'Contract manager', 'admin']);
             this.newService.getCompanies().subscribe(data => this.businessNames = data);
         }
     }

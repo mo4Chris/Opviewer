@@ -34,7 +34,7 @@ app.use(function (req, res, next) {
 let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: (process.env.EMAIL_PORT === 465),
+    secure: (process.env.EMAIL_PORT == 465),
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -382,14 +382,16 @@ function verifyToken(req, res) {
 function validatePermissionToViewData(req, res, callback) {
     let token = verifyToken(req, res);
     let filter = { mmsi: req.body.mmsi };
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
         if (!token.userBoats.find(x => x.mmsi === req.body.mmsi)) {
             return [];
         } else {
             filter.client = token.userCompany;
         }
-    } else if (token.userPermission !== 'admin') {
+    } else if (token.userPermission === "Logistics specialist") {
         filter.client = token.userCompany;
+    } else if (token.userPermission === "Contract manager") {
+        // TODO
     }
     Vesselmodel.find(filter, function (err, data) {
         if (err) {
@@ -1432,11 +1434,11 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
         if (err) {
             res.send(err);
         } else {
-            if (token.userPermission !== 'admin' && token.userCompany !== data[0].client) {
-                return res.status(401).send('Access denied');
-            }
             if (!data) {
                 return res.send({ err: "No TWA found" });
+            }
+            if (token.userPermission !== 'admin' && token.userCompany !== data.client) {
+                return res.status(401).send('Access denied');
             }
             sailDayChangedmodel.find({ fleetID: data._id }, function (err, _data) {
                 if (err) {

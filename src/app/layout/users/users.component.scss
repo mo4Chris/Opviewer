@@ -26,3 +26,11 @@ ngb-alert {
     position: fixed;
     bottom: 0px;
 }
+
+th:not(:first-child):not(:nth-last-of-type(-n+2)) {
+    cursor: pointer;
+}
+
+i.hidden {
+    visibility: hidden;
+}
