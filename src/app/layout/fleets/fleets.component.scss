@@ -22,3 +22,26 @@
 a {
     color: rgb(255,255,255);
 }
+
+h4 {
+    margin-bottom: 1rem;
+
+    &:not(:first-of-type) {
+        margin-top: 3rem;
+    }
+
+    &:first-of-type {
+        float: left;
+    }
+}
+
+.requestCampaign {
+    float: right;
+    margin-right: 1rem;
+}
+
+ngb-alert.alert {
+    position: fixed;
+    bottom: 0px;
+    z-index: 1100;
+}

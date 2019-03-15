@@ -306,6 +306,22 @@ var turbineWarrantySchema = new Schema({
 }, { versionKey: false });
 var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic');
 
+var turbineWarrantyRequestSchema = new Schema({
+    fullFleet: { type: Array }, 
+    activeFleet: { type: Array }, 
+    client: { type: String }, 
+    windfield: { type: String }, 
+    startDate: { type: Number }, 
+    stopDate: { type: Number }, 
+    numContractedVessels: { type: Number }, 
+    campaignName: { type: String },
+    weatherDayTarget: { type: Number },
+    limitHs: { type: Number },
+    user: { type: String },
+    requestTime: { type: Number }
+}, { versionKey: false });
+var turbineWarrantyRequestmodel = mongo.model('TurbineWarrenty_Request', turbineWarrantyRequestSchema, 'TurbineWarrenty_Request');
+
 var sailDayChangedSchema = new Schema({
     vessel: { type: String },
     date: { type: Number },
@@ -473,26 +489,37 @@ app.post("/api/login", function (req, res) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
                     } else*/ //Has to be implemented when user doesn't have a default password
                     if (bcrypt.compareSync(userData.password, user.password)) {
-                        const expireDate = new Date();
-                        let payload = { 
-                            userID: user._id, 
-                            userPermission: user.permissions, 
-                            userCompany: user.client, 
-                            userBoats: user.boats, 
-                            username: user.username,
-                            expires: expireDate.setMonth(expireDate.getMonth()+1).valueOf()
-                        };
-                        let token = jwt.sign(payload, 'secretKey');
-                        if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
-                            return res.status(200).send({ token });
-                        } else {
-
-                            if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
-                                return res.status(200).send({ token });
-                            } else {
-                                return res.status(401).send('2fa is incorrect');
-                            }
+                        let filter;
+                        if(user.permissions !== 'admin') {
+                            filter = { client: user.client };
                         }
+                        turbineWarrantymodel.find(filter, function (err, data) {
+                            if (err) {
+                                res.send(err);
+                            } else {
+                                const expireDate = new Date();
+                                let payload = { 
+                                    userID: user._id, 
+                                    userPermission: user.permissions, 
+                                    userCompany: user.client, 
+                                    userBoats: user.boats, 
+                                    username: user.username,
+                                    expires: expireDate.setMonth(expireDate.getMonth()+1).valueOf(),
+                                    hasCampaigns: data.length >= 1
+                                };
+                                let token = jwt.sign(payload, 'secretKey');
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                                    return res.status(200).send({ token });
+                                } else {
+
+                                    if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
+                                        return res.status(200).send({ token });
+                                    } else {
+                                        return res.status(401).send('2fa is incorrect');
+                                    }
+                                }
+                            }
+                        });
                     } else {
                         return res.status(401).send('Password is incorrect');
                     }
@@ -1401,19 +1428,22 @@ app.get("/api/getTurbineWarranty", function (req, res) {
 
 app.post("/api/getTurbineWarrantyOne", function (req, res) {
     let token = verifyToken(req, res);
-    turbineWarrantymodel.find({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+    turbineWarrantymodel.findOne({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
             if (token.userPermission !== 'admin' && token.userCompany !== data[0].client) {
                 return res.status(401).send('Access denied');
             }
-            sailDayChangedmodel.find({ fleetID: data[0]._id }, function (err, _data) {
+            if (!data) {
+                return res.send({ err: "No TWA found" });
+            }
+            sailDayChangedmodel.find({ fleetID: data._id }, function (err, _data) {
                 if (err) {
                     console.log(err);
-                    res.send(err);
+                    return res.send(err);
                 } else {
-                    res.send({ data: data[0], sailDayChanged: _data });
+                    return res.send({ data: data, sailDayChanged: _data });
                 }
             });
         }
@@ -1451,7 +1481,7 @@ app.post("/api/setSaildays", function (req, res) {
         sailDayChanged.changeDate = Date.now();
         sailDayChanged.save();
     }
-    return res.send({ data: "Succesfully updated weatherdays" });
+    return res.send({ data: "Succesfully updated weather days" });
 });
 
 app.post("/api/addVesselToFleet", function (req, res) {
@@ -1677,6 +1707,50 @@ app.post("/api/getVesselsToAddToFleet", function (req, res) {
             res.send(err);
         } else {
             res.send(data);
+        }
+    });
+});
+
+app.post("/api/saveFleetRequest", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin' && token.userPermission !== 'Logistics specialist') {
+        return res.status(401).send('Access denied');
+    }
+    request = new turbineWarrantyRequestmodel();
+    request.fullFleet = req.body.boats; 
+    request.activeFleet = req.body.boats; 
+    request.client = req.body.client;
+    request.windfield = req.body.windfield;
+    request.startDate = req.body.jsTime.startDate; 
+    request.stopDate = req.body.jsTime.stopDate;
+    request.numContractedVessels = req.body.numContractedVessels; 
+    request.campaignName = req.body.campaignName;
+    request.weatherDayTarget = req.body.weatherDayTarget;
+    request.limitHs = req.body.limitHs;
+    request.user = token.username;
+    request.requestTime = req.body.requestTime;
+    request.save(function(err,data) {
+        if (err) {
+            return res.send(err);
+        } else {
+            startDate = new Date(request.startDate);
+            stopDate = new Date(request.stopDate);
+            requestTime = new Date(request.requestTime);
+            let html = 'A campaing has been requested, the data for the campaign: <br>'+
+            "Campaign name: " + request.campaignName + " <br>" +
+            "Windfield: " + request.windfield + " <br>" +
+            "Client: " + request.client + " <br>" +
+            "Fullfleet: " + request.fullFleet + " <br>" +
+            "Activefleet: " + request.activeFleet + " <br>" +
+            "Start date: " + startDate.toISOString().slice(0,10) + " <br>" +
+            "Stop date: " + stopDate.toISOString().slice(0,10) + " <br>" +
+            "Number of contracted vessels: " + request.numContractedVessels + " <br>" +
+            "Weather day target: " + request.weatherDayTarget + " <br>" +
+            "Limit Hs: " + request.limitHs + " <br>" + 
+            "Username: " + request.user + " <br>" +
+            "Request time: " + requestTime.toISOString().slice(0,10);
+            mailTo('Campaign requested', html, "BMO Offshore");
+            return res.send({ data: 'Request succesfully made' });
         }
     });
 });
