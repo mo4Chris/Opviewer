@@ -9,8 +9,8 @@
         <a [routerLink]="['/vesselsandreports']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
-        <a [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-ship"></i>&nbsp;{{ 'Fleet availability' | translate }}
+        <a [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" class="list-group-item" *ngIf="tokenInfo.hasCampaigns">
+            <i class="fa fa-fw fa-ship"></i>&nbsp;{{ 'Campaigns' | translate }}
         </a>
         <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-edit"></i>&nbsp;{{ 'Users' | translate }}

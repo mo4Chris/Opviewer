@@ -3,7 +3,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetLogComponent } from './fleet-log.component';
 
-describe('UsersComponent', () => {
+describe('FleetLogComponent', () => {
     let component: FleetLogComponent;
     let fixture: ComponentFixture<FleetLogComponent>;
 

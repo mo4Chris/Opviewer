@@ -13,6 +13,7 @@ import { DialogService } from '../../dialog.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
 @Component({
     selector: 'app-users',
@@ -63,6 +64,7 @@ export class FleetavailabilityComponent implements OnInit {
     numberNewListings = 0;
     isActive = [[]];
     changedUsers = [];
+    noData = false;
 
     @ViewChild('instance') instance: NgbTypeahead;
     focus$ = new Subject<string>();
@@ -79,6 +81,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     ngOnInit() {
+        Chart.pluginService.register(ChartAnnotation);
         this.getCampaignName();
         this.getStartDate();
         this.getWindfield();
@@ -87,7 +90,7 @@ export class FleetavailabilityComponent implements OnInit {
 
     buildData(init = false) {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
-            if (data.data) {
+            if (data.data!=null) {
                 this.turbineWarrenty = data.data;
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
@@ -96,6 +99,9 @@ export class FleetavailabilityComponent implements OnInit {
                 this.startDate = this.convertMomentToObject(date);
                 date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
                 this.stopDate = this.convertMomentToObject(date);
+            } else {
+                this.noData = data.err;
+                return;
             }
             this.getActiveListings(init);
             this.orderSailMatrixByActive();
@@ -142,11 +148,11 @@ export class FleetavailabilityComponent implements OnInit {
         this.route.params.subscribe(params => this.params.campaignName = params.campaignName);
     }
 
-    getStartDate() {
+    getWindfield() {
         this.route.params.subscribe(params => this.params.windfield = params.windfield);
     }
 
-    getWindfield() {
+    getStartDate() {
         this.route.params.subscribe(params => this.params.startDate = parseFloat(params.startDate));
     }
 
@@ -219,6 +225,21 @@ export class FleetavailabilityComponent implements OnInit {
                                 }
                             }
                         }]
+                    },
+                    annotation: {
+                        annotations: [
+                            {
+                                type: 'line',
+                                drawTime: 'afterDatasetsDraw',
+                                id: 'average',
+                                mode: 'horizontal',
+                                scaleID: 'y-axis-0',
+                                value: 0,
+                                borderWidth: 2,
+                                borderColor: 'gray',
+                                borderDash: [10, 5]
+                            }
+                        ]
                     }
                 }
             });
@@ -270,7 +291,7 @@ export class FleetavailabilityComponent implements OnInit {
                 return true;
             }
         } else {
-            const lastTwoWeeks = this.turbineWarrenty.Dates.slice(Math.max(this.turbineWarrenty.Dates.length - 14, 1));
+            const lastTwoWeeks = this.turbineWarrenty.Dates.slice(Math.max(this.turbineWarrenty.Dates.length - 14, 0));
             if (lastTwoWeeks.indexOf(Date) > -1) {
                 return true;
             }

@@ -1,0 +1,86 @@
+<div [@routerTransition] *ngIf="boats">
+    <app-page-header [heading]="'Campaign request'" [icon]="'fa-ship'"></app-page-header>
+    <div class="form">
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.campaignName"> 
+            Campaign name: *
+            <input class="form-control" type="text" [(ngModel)]="request.campaignName">
+        </div>
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.windfield"> 
+            Windfield: *
+            <input class="form-control" type="text" [(ngModel)]="request.windfield">
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-2" [class.emptyRequired]="emptyRequired.startDate">
+                Start date: *
+                <div class="input-group datepicker-input">
+                    <input class="form-control form-control-lg" ngbDatepicker #dpStart="ngbDatepicker" name="dpStart"
+                        [displayMonths]='1' [(ngModel)]="request.startDate" readonly (click)="dpStart.toggle()">
+                    <button class="input-group-addon" (click)="dpStart.toggle()" type="button">
+                        <span class="fa fa-calendar"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group col-lg-2" [class.emptyRequired]="emptyRequired.stopDate">
+                Stop date: *
+                <div class="input-group datepicker-input">
+                    <input class="form-control form-control-lg" ngbDatepicker #dpStop="ngbDatepicker" name="dpStop"
+                        [displayMonths]='1' [(ngModel)]="request.stopDate" readonly (click)="dpStop.toggle()">
+                    <button class="input-group-addon" (click)="dpStop.toggle()" type="button">
+                        <span class="fa fa-calendar"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.numContractedVessels">  
+            Number of contracted vessels: *
+            <input class="form-control" type="number" min="0" [(ngModel)]="request.numContractedVessels">
+        </div>
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.weatherDayTarget">
+            Weather day target: * 
+            <input class="form-control" type="number" min="0" [(ngModel)]="request.weatherDayTarget">
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.boats"> 
+                Boats to add to campaign: *
+                <div class="multiSelectDiv">
+                    <ng-multiselect-dropdown [placeholder]="'Select vessel'"
+                        [data]="boats"
+                        [(ngModel)]="request.boats"
+                        [settings]="selectVesselsSettings">
+                    </ng-multiselect-dropdown>
+                </div>
+            </div>
+            <div class="col-lg-1 helpDiv">
+                <ng-template #popAddContent class="helpContent">
+                    These are the vessels in our system, other vessels can be added in the campaign.
+                    You have to add atleast one vessel
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
+                    [ngbPopover]="popAddContent" placement="right" popoverClass="helpPopup" container="body">?</button>
+            </div>
+        </div>
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.client" *ngIf="this.tokenInfo.userPermission == 'admin'"> 
+            Client: *
+            <div class="multiSelectDiv">
+                <ng-multiselect-dropdown [placeholder]="'Select client'"
+                    [data]="companies"
+                    [(ngModel)]="request.client"
+                    [settings]="selectClientSettings">
+                </ng-multiselect-dropdown>
+            </div>
+        </div>
+        <div class="form-group col-lg-4">
+            Limit Hs:
+            <input class="form-control" type="number" min="0" [(ngModel)]="request.limitHs">
+        </div>
+        <div class="submitBtnDiv">
+            <div class="buttons">
+                <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveRequest()" type="button">Save</button>
+                <button class="btn btn-lg second" (click)="cancelRequest()" type="button">Cancel</button>
+            </div>
+            * required fields
+        </div>
+        
+    </div>
+    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+</div>

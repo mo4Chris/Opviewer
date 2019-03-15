@@ -252,5 +252,10 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
       map((response: Response) => response.json()));
   }
+
+  saveFleetRequest(request) {
+    return this.post(environment.DB_IP + '/api/saveFleetRequest', request).pipe(
+      map((response: Response) => response.json()));
+  }
 }
 

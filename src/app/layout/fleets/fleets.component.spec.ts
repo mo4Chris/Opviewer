@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FleetsComponent } from './fleets.component';
 import { CommonService } from '../../common.service';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +19,9 @@ describe('UsersComponent', () => {
                 PageHeaderModule,
                 HttpModule,
                 RouterTestingModule,
-                BrowserAnimationsModule],
+                BrowserAnimationsModule,
+                NgbModule.forRoot()
+            ],
             declarations: [FleetsComponent],
             providers: [CommonService]
         })
