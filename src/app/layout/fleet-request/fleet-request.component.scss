@@ -8,6 +8,15 @@
         }
     }
 
+    .weatherDayTarget{
+        overflow: hidden;
+
+        > * {
+            float: left;
+            width: 50%;
+        }
+    }
+
     .form-control[readonly] {
         background-color: white;
         cursor: pointer;
