@@ -23,10 +23,17 @@ export class FleetsComponent implements OnInit {
     timeout;
     alert = { type: '', message: '' };
     showAlert = false;
+    companies = [];
+    selectedCompany = this.tokenInfo.userCompany;
+
+    log(input) {
+        console.log(input);
+    }
 
     ngOnInit() {
         this.getMsg();
         if (this.tokenInfo.userPermission === 'admin') {
+            this.newService.getCompanies().subscribe(data => this.companies = data);
             this.newService.getTurbineWarranty().subscribe(data => this.fleets = data);
         } else {
             this.newService.getTurbineWarrantyForCompany({ client: this.tokenInfo.userCompany }).subscribe(data => { 
