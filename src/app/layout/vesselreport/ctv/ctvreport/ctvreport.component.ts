@@ -115,8 +115,7 @@ export class CtvreportComponent implements OnInit {
                                     if (routeData.length > 0) {
                                         let latitudes = [];
                                         let longitudes = [];
-                                        console.log(routeData);
-                            
+
                                         for(let i = 0; i < routeData.length; i++)
                                         {
                                             latitudes = latitudes.concat(routeData[i].lat);
@@ -134,8 +133,7 @@ export class CtvreportComponent implements OnInit {
                                         this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
                                         let latitudes = [];
                                         let longitudes = [];
-                                        console.log(transitrouteData);
-                            
+
                                         for(let i = 0; i < transitrouteData.length; i++)
                                         {
                                             latitudes = latitudes.concat(transitrouteData[i].lat);
@@ -166,7 +164,14 @@ export class CtvreportComponent implements OnInit {
                     if (this.charts.length <= 0) {
                         setTimeout(() => this.createSlipgraphs(), 10);
                     } else {
-                        if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+                        let deleteCharts = false;
+                        for (let i = 0; i < this.transferData.length; i++) {
+                            if (typeof this.transferData[i] !== 'undefined' && typeof this.transferData[i].slipGraph !== 'undefined' && typeof this.transferData[i].slipGraph.slipX !== 'undefined' && this.transferData[i].slipGraph.slipX.length > 0) {
+                                deleteCharts = true;
+                                break;
+                                }
+                        }
+                        if (deleteCharts) {
                             for (let i = 0; i < this.charts.length; i++) {
                                 this.charts[i].destroy();
                             }
@@ -191,7 +196,7 @@ export class CtvreportComponent implements OnInit {
         this.charts = [];
         let createCharts = false;
         for (let i = 0; i < this.transferData.length; i++) {
-            if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length) {
+            if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length > 0) {
                 createCharts = true;
                 break;
                 }
