@@ -189,9 +189,17 @@ export class CtvreportComponent implements OnInit {
 
     createSlipgraphs() {
         this.charts = [];
-        if (this.transferData.length > 0 && this.transferData[0].slipGraph !== undefined && this.transferData[0].slipGraph.slipX.length > 0) {
+        let createCharts = false;
+        for (let i = 0; i < this.transferData.length; i++) {
+            if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length) {
+                createCharts = true;
+                break;
+                }
+          }
+        if (this.transferData.length > 0 && createCharts) {
             const array = [];
             for (let i = 0; i < this.transferData.length; i++) {
+
                 const line = {
                     type: 'line',
                     data: {
