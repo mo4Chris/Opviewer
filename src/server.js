@@ -88,7 +88,7 @@ var LatLonSchema = new Schema({
     filename: { type: String },
     SiteName: { type: String }
 }, { versionKey: false });
-var LatLonmodel = mongo.model('turbineLocations2', LatLonSchema, 'turbineLocations2');
+var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
@@ -97,6 +97,16 @@ var boatCrewLocationSchema = new Schema({
     mmsi: { type: Number }
 }, { versionKey: false });
 var boatCrewLocationmodel = mongo.model('crew', boatCrewLocationSchema, 'crew');
+
+var transitSchema = new Schema({
+    vesselname: { type: String },
+    nicename: { type: String },
+    client: { type: String },
+    mmsi: { type: Number },
+    lat: {type: Array },
+    lon: {type: Array}
+}, { versionKey: false });
+var transitsmodel = mongo.model('transits', transitSchema, 'transits');
 
 var boatLocationSchema = new Schema({
     vesselname: { type: String },
@@ -951,6 +961,26 @@ app.post("/api/getCrewRouteForBoat", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/getTransitsRouteForBoat", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        transitsmodel.find({
+            "date": req.body.date,
+            "mmsi": req.body.mmsi
+        }, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                
                 res.send(data);
             }
         });
