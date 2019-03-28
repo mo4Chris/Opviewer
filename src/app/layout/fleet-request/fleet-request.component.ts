@@ -44,6 +44,7 @@ export class FleetRequestComponent implements OnInit {
         numContractedVessels: null, 
         campaignName: '',
         weatherDayTarget: null,
+        weatherDayTargetType: 'Per vessel',
         jsTime: { startDate: 0, stopDate: 0 },
         validFields: [],
         limitHs: null,
