@@ -62,7 +62,7 @@ export class CtvreportComponent implements OnInit {
 
     openModal(content) {
         this.modalReference = this.modalService.open(content, { size: 'lg' });
-     }
+    }
 
     closeModal() {
         this.modalReference.close();
@@ -107,7 +107,7 @@ export class CtvreportComponent implements OnInit {
                                     let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
 
                                     this.turbineLocationData.emit(locationData),
-                                    this.parkFound.emit(true);
+                                        this.parkFound.emit(true);
                                 } else {
                                     this.parkFound.emit(false);
                                 }
@@ -116,8 +116,7 @@ export class CtvreportComponent implements OnInit {
                                         let latitudes = [];
                                         let longitudes = [];
 
-                                        for(let i = 0; i < routeData.length; i++)
-                                        {
+                                        for (let i = 0; i < routeData.length; i++) {
                                             latitudes = latitudes.concat(routeData[i].lat);
                                             longitudes = longitudes.concat(routeData[i].lon);
                                         }
@@ -135,11 +134,10 @@ export class CtvreportComponent implements OnInit {
                                             let longitudes = [];
 
                                             if (transitrouteData.length > 0) {
-                                                for(let i = 0; i < transitrouteData.length; i++)
-                                            {
-                                                latitudes = latitudes.concat(transitrouteData[i].lat);
-                                                longitudes = longitudes.concat(transitrouteData[i].lon);
-                                            }
+                                                for (let i = 0; i < transitrouteData.length; i++) {
+                                                    latitudes = latitudes.concat(transitrouteData[i].lat);
+                                                    longitudes = longitudes.concat(transitrouteData[i].lon);
+                                                }
 
                                                 const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
                                                 const boatLocationData = transitrouteData;
@@ -150,8 +148,8 @@ export class CtvreportComponent implements OnInit {
                                                 this.routeFound.emit(true);
 
                                             } else {
-                                            this.routeFound.emit(false);
-                                            this.mapZoomLvl.emit(10);
+                                                this.routeFound.emit(false);
+                                                this.mapZoomLvl.emit(10);
                                             }
                                         });
 
@@ -169,7 +167,7 @@ export class CtvreportComponent implements OnInit {
                             if (typeof this.transferData[i] !== 'undefined' && typeof this.transferData[i].slipGraph !== 'undefined' && typeof this.transferData[i].slipGraph.slipX !== 'undefined' && this.transferData[i].slipGraph.slipX.length > 0) {
                                 deleteCharts = true;
                                 break;
-                                }
+                            }
                         }
                         if (deleteCharts) {
                             for (let i = 0; i < this.charts.length; i++) {
@@ -199,8 +197,8 @@ export class CtvreportComponent implements OnInit {
             if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length > 0) {
                 createCharts = true;
                 break;
-                }
-          }
+            }
+        }
         if (this.transferData.length > 0 && createCharts) {
             const array = [];
             for (let i = 0; i < this.transferData.length; i++) {
