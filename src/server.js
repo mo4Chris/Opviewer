@@ -120,6 +120,7 @@ var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema,
 
 var videoRequestedSchema = new Schema({
     requestID: { type: Number },
+    username: { type: String },
     mmsi: { type: Number },
     videoPath: { type: String },
     vesselname: { type: String },
@@ -316,11 +317,12 @@ var turbineWarrantyRequestSchema = new Schema({
     numContractedVessels: { type: Number }, 
     campaignName: { type: String },
     weatherDayTarget: { type: Number },
+    weatherDayTargetType: { type: String },
     limitHs: { type: Number },
     user: { type: String },
     requestTime: { type: Number }
 }, { versionKey: false });
-var turbineWarrantyRequestmodel = mongo.model('TurbineWarrenty_Request', turbineWarrantyRequestSchema, 'TurbineWarrenty_Request');
+var turbineWarrantyRequestmodel = mongo.model('TurbineWarranty_Request', turbineWarrantyRequestSchema, 'TurbineWarranty_Request');
 
 var sailDayChangedSchema = new Schema({
     vessel: { type: String },
@@ -1282,6 +1284,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
         if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
             return res.status(401).send('Access denied');
         }
+        let token = verifyToken(req, res);
         var videoRequest = new videoRequestedmodel();
         videoRequest.mmsi = req.body.mmsi;
         videoRequest.videoPath = req.body.videoPath;
@@ -1289,6 +1292,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
         videoRequest.date = Date.now();
         videoRequest.active = req.body.video_requested.text === "Requested" ? true : false;
         videoRequest.status = '';
+        videoRequest.username = token.username;
         videoRequest.save(function (err, data) {
             if (err) {
                 return res.send(err);
@@ -1728,6 +1732,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
     request.numContractedVessels = req.body.numContractedVessels; 
     request.campaignName = req.body.campaignName;
     request.weatherDayTarget = req.body.weatherDayTarget;
+    request.weatherDayTargetType = req.body.weatherDayTargetType;
     request.limitHs = req.body.limitHs;
     request.user = token.username;
     request.requestTime = req.body.requestTime;
@@ -1747,7 +1752,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
             "Start date: " + startDate.toISOString().slice(0,10) + " <br>" +
             "Stop date: " + stopDate.toISOString().slice(0,10) + " <br>" +
             "Number of contracted vessels: " + request.numContractedVessels + " <br>" +
-            "Weather day target: " + request.weatherDayTarget + " <br>" +
+            "Weather day target: " + request.weatherDayTarget + " "+ request.weatherDayTargetType +" <br>" +
             "Limit Hs: " + request.limitHs + " <br>" + 
             "Username: " + request.user + " <br>" +
             "Request time: " + requestTime.toISOString().slice(0,10);

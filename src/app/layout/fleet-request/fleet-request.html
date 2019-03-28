@@ -1,9 +1,19 @@
 <div [@routerTransition] *ngIf="boats">
     <app-page-header [heading]="'Campaign request'" [icon]="'fa-ship'"></app-page-header>
     <div class="form">
-        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.campaignName"> 
-            Campaign name: *
-            <input class="form-control" type="text" [(ngModel)]="request.campaignName">
+        <div class="row">
+            <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.campaignName"> 
+                Campaign name: *
+                <input class="form-control" type="text" [(ngModel)]="request.campaignName">
+            </div>
+            <div class="col-lg-1 helpDiv">
+                <ng-template #formHelp class="helpContent">
+                    Please fill in the form to request a new campaign.
+                    After it is validated by BMO Offshore, it will be added to your list of campaigns.
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
+                    [ngbPopover]="formHelp" placement="right" popoverClass="helpPopup" container="body">?</button>
+            </div>
         </div>
         <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.windfield"> 
             Windfield: *
@@ -37,11 +47,17 @@
         </div>
         <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.weatherDayTarget">
             Weather day target: * 
-            <input class="form-control" type="number" min="0" [(ngModel)]="request.weatherDayTarget">
+            <div class="weatherDayTarget">
+                <input class="form-control" type="number" min="0" [(ngModel)]="request.weatherDayTarget">
+                <select name="weatherdayType" class="form-control" [(ngModel)]="request.weatherDayTargetType">
+                    <option value="Per vessel">Per vessel</option>
+                    <option value="Total">Total</option>
+                </select>
+            </div>
         </div>
         <div class="row">
             <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.boats"> 
-                Boats to add to campaign: *
+                Vessels to add to campaign: *
                 <div class="multiSelectDiv">
                     <ng-multiselect-dropdown [placeholder]="'Select vessel'"
                         [data]="boats"
@@ -52,15 +68,14 @@
             </div>
             <div class="col-lg-1 helpDiv">
                 <ng-template #popAddContent class="helpContent">
-                    These are the vessels in our system, other vessels can be added in the campaign.
-                    You have to add atleast one vessel
+                    Select at least one vessel belonging to your company with a VMMS system. More vessels can be added later.
                 </ng-template>
                 <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
                     [ngbPopover]="popAddContent" placement="right" popoverClass="helpPopup" container="body">?</button>
             </div>
         </div>
-        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.client" *ngIf="this.tokenInfo.userPermission == 'admin'"> 
-            Client: *
+        <div class="form-group col-lg-4" [class.emptyRequired]="emptyRequired.client" *ngIf="tokenInfo.userPermission == 'admin'"> 
+            Client: (this field is admin only) *
             <div class="multiSelectDiv">
                 <ng-multiselect-dropdown [placeholder]="'Select client'"
                     [data]="companies"
@@ -69,9 +84,19 @@
                 </ng-multiselect-dropdown>
             </div>
         </div>
-        <div class="form-group col-lg-4">
-            Limit Hs:
-            <input class="form-control" type="number" min="0" [(ngModel)]="request.limitHs">
+        <div class="row">
+            <div class="form-group col-lg-4">
+                Limit Hs:
+                <input class="form-control" type="number" min="0" [(ngModel)]="request.limitHs">
+            </div>
+            <div class="col-lg-1 helpDiv">
+                <ng-template #limitHsHelp class="helpContent">
+                    This will be used by BMO Offshore to make an estimate for the weather day distribution over the year.
+                    This may be left empty if it is the same as previous campaigns at this site.
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
+                    [ngbPopover]="limitHsHelp" placement="right" popoverClass="helpPopup" container="body">?</button>
+            </div>
         </div>
         <div class="submitBtnDiv">
             <div class="buttons">

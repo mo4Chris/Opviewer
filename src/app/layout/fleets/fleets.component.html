@@ -2,6 +2,11 @@
     <app-page-header [heading]="'Campaigns'" [icon]="'fa-ship'"></app-page-header>
 
     <h4>Current campaigns</h4>
+    <div class="col-lg-2 align-left" *ngIf="tokenInfo.userPermission == 'admin'">
+        <select class="form-control" [(ngModel)]="selectedCompany">
+            <option *ngFor="let company of companies" [value]="company">{{company}}</option>
+        </select>
+    </div>
     <div class="requestCampaign"><a class="btn rounded-btn" (click)="redirectFleetRequest()"> Request campaign </a></div>
     <table class="table table-hover table-striped">
         <thead>
@@ -18,7 +23,7 @@
         </thead>
         <tbody>
             <tr *ngFor="let fleet of fleets;let ind = index">
-                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()>getNewMoment()">
+                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()>getNewMoment() && selectedCompany==fleet.client">
                     <td>{{ind + 1}}</td>
                     <td>{{humanize(fleet.campaignName)}}</td>
                     <td *ngIf="tokenInfo.userPermission == 'admin'">{{fleet.client}}</td>
@@ -49,7 +54,7 @@
         </thead>
         <tbody>
             <tr *ngFor="let fleet of fleets;let ind = index">
-                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()<=getNewMoment()">
+                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()<=getNewMoment() && selectedCompany==fleet.client">
                     <td>{{ind + 1}}</td>
                     <td>{{humanize(fleet.campaignName)}}</td>
                     <td *ngIf="tokenInfo.userPermission == 'admin'">{{fleet.client}}</td>
