@@ -131,31 +131,31 @@ export class CtvreportComponent implements OnInit {
                                         this.routeFound.emit(true);
                                     } else {
                                         this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
-                                        let latitudes = [];
-                                        let longitudes = [];
+                                            let latitudes = [];
+                                            let longitudes = [];
 
-                                        for(let i = 0; i < transitrouteData.length; i++)
-                                        {
-                                            latitudes = latitudes.concat(transitrouteData[i].lat);
-                                            longitudes = longitudes.concat(transitrouteData[i].lon);
-                                        }
+                                            if (transitrouteData.length > 0) {
+                                                for(let i = 0; i < transitrouteData.length; i++)
+                                            {
+                                                latitudes = latitudes.concat(transitrouteData[i].lat);
+                                                longitudes = longitudes.concat(transitrouteData[i].lon);
+                                            }
 
-                                        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                                        const boatLocationData = transitrouteData;
-                                        this.boatLocationData.emit(boatLocationData);
-                                        this.latitude.emit(mapProperties.avgLatitude);
-                                        this.longitude.emit(mapProperties.avgLongitude);
-                                        this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                                        this.routeFound.emit(true);
+                                                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                                                const boatLocationData = transitrouteData;
+                                                this.boatLocationData.emit(boatLocationData);
+                                                this.latitude.emit(mapProperties.avgLatitude);
+                                                this.longitude.emit(mapProperties.avgLongitude);
+                                                this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                                                this.routeFound.emit(true);
+
+                                            } else {
+                                            this.routeFound.emit(false);
+                                            this.mapZoomLvl.emit(10);
+                                            }
                                         });
-                                        if (routeData.length = 0) {
 
-
-                                        } else {
-                                        this.routeFound.emit(false);
-                                        this.mapZoomLvl.emit(10);
                                     }
-                                }
                                 });
                             });
                         });
