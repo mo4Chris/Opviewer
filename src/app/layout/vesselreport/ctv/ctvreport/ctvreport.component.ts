@@ -62,7 +62,7 @@ export class CtvreportComponent implements OnInit {
 
     openModal(content) {
         this.modalReference = this.modalService.open(content, { size: 'lg' });
-     }
+    }
 
     closeModal() {
         this.modalReference.close();
@@ -107,17 +107,16 @@ export class CtvreportComponent implements OnInit {
                                     let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
 
                                     this.turbineLocationData.emit(locationData),
-                                    this.parkFound.emit(true);
+                                        this.parkFound.emit(true);
                                 } else {
                                     this.parkFound.emit(false);
                                 }
                                 this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-                                    if (routeData.length > 0) {                                 
+                                    if (routeData.length > 0) {
                                         let latitudes = [];
                                         let longitudes = [];
-                            
-                                        for(let i = 0; i < routeData.length; i++)
-                                        {
+
+                                        for (let i = 0; i < routeData.length; i++) {
                                             latitudes = latitudes.concat(routeData[i].lat);
                                             longitudes = longitudes.concat(routeData[i].lon);
                                         }
@@ -130,8 +129,30 @@ export class CtvreportComponent implements OnInit {
                                         this.mapZoomLvl.emit(mapProperties.zoomLevel);
                                         this.routeFound.emit(true);
                                     } else {
-                                        this.routeFound.emit(false);
-                                        this.mapZoomLvl.emit(10);
+                                        this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
+                                            let latitudes = [];
+                                            let longitudes = [];
+
+                                            if (transitrouteData.length > 0) {
+                                                for (let i = 0; i < transitrouteData.length; i++) {
+                                                    latitudes = latitudes.concat(transitrouteData[i].lat);
+                                                    longitudes = longitudes.concat(transitrouteData[i].lon);
+                                                }
+
+                                                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                                                const boatLocationData = transitrouteData;
+                                                this.boatLocationData.emit(boatLocationData);
+                                                this.latitude.emit(mapProperties.avgLatitude);
+                                                this.longitude.emit(mapProperties.avgLongitude);
+                                                this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                                                this.routeFound.emit(true);
+
+                                            } else {
+                                                this.routeFound.emit(false);
+                                                this.mapZoomLvl.emit(10);
+                                            }
+                                        });
+
                                     }
                                 });
                             });
@@ -141,7 +162,14 @@ export class CtvreportComponent implements OnInit {
                     if (this.charts.length <= 0) {
                         setTimeout(() => this.createSlipgraphs(), 10);
                     } else {
-                        if (typeof this.transferData[0] !== 'undefined' && typeof this.transferData[0].slipGraph !== 'undefined' && typeof this.transferData[0].slipGraph.slipX !== 'undefined' && this.transferData[0].slipGraph.slipX.length > 0) {
+                        let deleteCharts = false;
+                        for (let i = 0; i < this.transferData.length; i++) {
+                            if (typeof this.transferData[i] !== 'undefined' && typeof this.transferData[i].slipGraph !== 'undefined' && typeof this.transferData[i].slipGraph.slipX !== 'undefined' && this.transferData[i].slipGraph.slipX.length > 0) {
+                                deleteCharts = true;
+                                break;
+                            }
+                        }
+                        if (deleteCharts) {
                             for (let i = 0; i < this.charts.length; i++) {
                                 this.charts[i].destroy();
                             }
@@ -164,9 +192,17 @@ export class CtvreportComponent implements OnInit {
 
     createSlipgraphs() {
         this.charts = [];
-        if (this.transferData.length > 0 && this.transferData[0].slipGraph !== undefined && this.transferData[0].slipGraph.slipX.length > 0) {
+        let createCharts = false;
+        for (let i = 0; i < this.transferData.length; i++) {
+            if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length > 0) {
+                createCharts = true;
+                break;
+            }
+        }
+        if (this.transferData.length > 0 && createCharts) {
             const array = [];
             for (let i = 0; i < this.transferData.length; i++) {
+
                 const line = {
                     type: 'line',
                     data: {
