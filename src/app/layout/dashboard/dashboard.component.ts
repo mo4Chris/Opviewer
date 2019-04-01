@@ -21,9 +21,9 @@ export class DashboardComponent implements OnInit {
     locationData;
 
     // Map settings
-    latitude = 52.3702157;
+    latitude = 54.3702157;
     longitude = 4.895167;
-    zoomlvl = 6;
+    zoomlvl = 5.5;
     mapTypeId = 'roadmap';
     streetViewControl = false;
     // End map settings
@@ -100,6 +100,7 @@ export class DashboardComponent implements OnInit {
     }
 
     redirectDailyVesselReport(mmsi) {
+        this.eventService.closeLatestAgmInfoWindow();
         this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
     }
 

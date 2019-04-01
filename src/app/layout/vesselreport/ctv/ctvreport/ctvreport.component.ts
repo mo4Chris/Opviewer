@@ -132,12 +132,12 @@ export class CtvreportComponent implements OnInit {
                                         this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
                                             let latitudes = [];
                                             let longitudes = [];
-
                                             if (transitrouteData.length > 0) {
                                                 for (let i = 0; i < transitrouteData.length; i++) {
                                                     latitudes = latitudes.concat(transitrouteData[i].lat);
                                                     longitudes = longitudes.concat(transitrouteData[i].lon);
                                                 }
+                                                console.log(latitudes);
 
                                                 const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
                                                 const boatLocationData = transitrouteData;
@@ -446,9 +446,7 @@ export class CtvreportComponent implements OnInit {
                 vid.text = 'Requested';
             }
             if (
-                vid.status === 'denied' ||
-                vid.status === 'delivered' ||
-                vid.status === 'pending collection'
+                vid.status !== ''
             ) {
                 vid.text = vid.status[0].toUpperCase() + vid.status.substr(1).toLowerCase();
                 vid.status = vid.status.replace(' ', '_');

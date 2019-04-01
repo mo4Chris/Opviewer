@@ -982,8 +982,19 @@ app.post("/api/getTransitsRouteForBoat", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                
-                res.send(data);
+                let lat = [];
+                let lon = [];
+
+                for (let i = 0; i < data.length; i++) {
+                    for (let j = 0; j < data[i].lat.length; j++) {
+                        if(data[i].lat[j][0] != "_NaN_"){
+                            lat.push(data[i].lat[j][0]);
+                            lon.push(data[i].lon[j][0]);
+                        }
+                    }
+                }
+
+                res.send([{"lat": lat, "lon":lon}]);
             }
         });
     });

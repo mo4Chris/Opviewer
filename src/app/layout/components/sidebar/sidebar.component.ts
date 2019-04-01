@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as jwt_decode from "jwt-decode";
 import { UserService } from '../../../shared/services/user.service';
+import { EventService } from '../../../supportModules/event.service';
 
 @Component({
     selector: 'app-sidebar',
@@ -17,7 +18,7 @@ export class SidebarComponent {
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userCreatePermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
 
-    constructor(private translate: TranslateService, public router: Router, private userService: UserService) {
+    constructor(private translate: TranslateService, public router: Router, private userService: UserService, private eventService: EventService) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de']);
         this.translate.setDefaultLang('en');
         const browserLang = this.translate.getBrowserLang();
@@ -66,6 +67,7 @@ export class SidebarComponent {
     }
 
     onLoggedout() {
+        this.eventService.closeLatestAgmInfoWindow();
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
     }

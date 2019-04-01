@@ -78,7 +78,7 @@ export class SetPasswordComponent implements OnInit {
                 this.createBase32SecretCode();
             } else {
                 this.initiate2fa = false;
-                this.secretAsBase32 = data;
+                this.secretAsBase32 = data.secret2fa;
             }
         });
     }
