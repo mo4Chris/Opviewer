@@ -45,7 +45,7 @@
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                                 <tr>
-                                    <td>Number of turbine visits</td>
+                                    <td>Number of gangway transfers</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
                                 <tr>
@@ -55,7 +55,7 @@
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                                 <tr>
-                                    <td>Number of vessels</td>
+                                    <td>Number of CTV vessel to vessel transfers</td>
                                     <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
                                 <tr>
@@ -154,10 +154,10 @@
                             <thead>
                                 <tr>
                                     <th>Location</th>
-                                    <th>Start time</th>
-                                    <th>Stop time</th>
-                                    <th>Duration</th>
-                                    <th>Gangway Utilisation</th>
+                                    <th>Safety zone entry</th>
+                                    <th>Safety zone exit</th>
+                                    <th>Duration in safety zone</th>
+                                    <th>Gangway Capacity</th>
                                     <th>Peak gust wind</th>
                                     <th>Hs</th>
                                 </tr>
@@ -170,7 +170,7 @@
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-                                        <td>{{turbineTransfer.peakWindGust}} m/s</td>
+                                        <td>{{turbineTransfer.peakWindGust}} Km/h</td>
                                         <td>{{turbineTransfer.Hs}}</td>
                                     </tr>
                                 </ng-container>
@@ -192,8 +192,10 @@
                     <table class="table table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Platform</th>
+                                <th>Location</th>
                                 <th>Deployed duration [min]</th>
+                                <th>Gangway ready</th>
+                                <th>Gangway disengaged</th>
                                 <th>Ready Duration [min]</th>
                                 <th>Utilisation [%]</th>
                                 <th>Limiter</th>
@@ -208,7 +210,8 @@
                                     <ng-container *ngIf="platformTransfer.location != undefined">
                                         <th>{{platformTransfer.location}}</th>
                                     </ng-container>
-                                    <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
+                                    <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
                                     <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
                                     <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
@@ -218,6 +221,8 @@
                                 <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
                                     <th>{{turbineTransfer.location}}</th>
                                     <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}</td>
+                                    <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
                                     <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
                                     <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
