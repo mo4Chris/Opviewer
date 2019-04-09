@@ -137,7 +137,6 @@ export class CtvreportComponent implements OnInit {
                                                     latitudes = latitudes.concat(transitrouteData[i].lat);
                                                     longitudes = longitudes.concat(transitrouteData[i].lon);
                                                 }
-                                                console.log(latitudes);
 
                                                 const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
                                                 const boatLocationData = transitrouteData;
