@@ -1328,6 +1328,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
         let token = verifyToken(req, res);
         var videoRequest = new videoRequestedmodel();
         videoRequest.mmsi = req.body.mmsi;
+        videoRequest.requestID = req.body._id;
         videoRequest.videoPath = req.body.videoPath;
         videoRequest.vesselname = req.body.vesselname;
         videoRequest.date = Date.now();
