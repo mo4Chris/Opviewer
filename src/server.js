@@ -754,7 +754,13 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
+        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date },
+        null, {
+            sort: {
+                arrivalTimePlatform: 'asc'
+            }
+        }, 
+        function (err, data) {
             if (err) {
                 res.send(err);
             } else {

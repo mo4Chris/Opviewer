@@ -42,8 +42,12 @@ export class DatetimeService {
   }
 
   MatlabDateToCustomJSTime(serial, format) {
-    const time_info = moment((serial - 719529) * 864e5).format(format);
-    return time_info;
+    if (serial !== '_NaN_' && serial !== undefined) {
+      const time_info = moment((serial - 719529) * 864e5).format(format);
+      return time_info;
+    } else {
+      return "N/a";
+    }
   }
 
   unixEpochtoMatlabDate(epochDate) {

@@ -133,7 +133,7 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
+                                        <td >{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
@@ -203,20 +203,22 @@
                         </thead>
                         <tbody>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
-                                <tr *ngFor="let platformTransfer of sovModel.platformTransfers">
-                                    <ng-container *ngIf="platformTransfer.locationname != undefined">
-                                        <th>{{platformTransfer.locationname}}</th>
-                                    </ng-container>
-                                    <ng-container *ngIf="platformTransfer.location != undefined">
-                                        <th>{{platformTransfer.location}}</th>
-                                    </ng-container>
-                                    <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
-                                    <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
-                                    <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
-                                    <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
-                                    <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
-                                    <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
-                                </tr>
+                                <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
+                                    <tr *ngIf="platformTransfer.gangwayDeployedDuration != 'NaN'">
+                                        <ng-container *ngIf="platformTransfer.locationname != undefined">
+                                            <th>{{platformTransfer.locationname}}</th>
+                                        </ng-container>
+                                        <ng-container *ngIf="platformTransfer.location != undefined">
+                                            <th>{{platformTransfer.location}}</th>
+                                        </ng-container>
+                                        <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
+                                        <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
+                                        <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
+                                    </tr>
+                                </ng-container>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
                                 <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
