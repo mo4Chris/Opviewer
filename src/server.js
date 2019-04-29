@@ -314,7 +314,7 @@ var turbineWarrantySchema = new Schema({
     sailMatrix: { type: Array },
     currentlyActive: { type: Array },
     client: { type: String },
-    lastUpdated: { type: Number },
+    lastUpdated: { type: Number }
 }, { versionKey: false });
 var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic');
 
