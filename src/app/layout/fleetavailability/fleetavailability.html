@@ -19,7 +19,7 @@
 
                     <ng-template #predictedEnd class="helpContent">
                         Expected weather days remaining using actual data.
-                        </ng-template>
+                    </ng-template>
                     <tr [ngbTooltip]="predictedEnd" placement="top">
                         <td>Predicted end of campaign</td>
                         <td [class.negative]="forecastAfterRecorded[forecastAfterRecorded.length - 1].y<0">{{roundNumber(forecastAfterRecorded[forecastAfterRecorded.length - 1].y, 2)}} days</td>
@@ -48,7 +48,15 @@
                         <td>Number of contracted vessels</td>
                         <td>{{turbineWarrenty.numContractedVessels}}</td>
                     </tr>
-                    
+
+                    <ng-template #syncTooltip class="helpContent">
+                        Time since last synchronized to BMO processing server.
+                    </ng-template>
+                    <tr [ngbTooltip]="syncTooltip" placement="top">
+                        <td>Last updated</td>
+                        <td>{{MatlabDateToJSDateTime(turbineWarrenty.lastUpdated)}}</td>
+                    </tr>
+
                 </table>
             </div>
         </div>
