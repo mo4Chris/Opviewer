@@ -1,4 +1,5 @@
 <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
+<!-- Date picker vessel reports-->
 <div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
     <div class="form-group">
         <div class="input-group datepicker-input">
@@ -23,6 +24,7 @@
         </select>
     </div>
 </div>
+<!-- Plotting map-->
 <br>
 <div class="loader" *ngIf="!loaded || !turbinesLoaded">
     <div class="spinner">
@@ -45,13 +47,14 @@
                 <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
                     <b>Info,</b> parks were found but have not been visited by ship.
                 </div>
-                <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl">
+                <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [gestureHandling]="cooperative" [streetViewControl]="streetViewControl" [scrollwheel]="null">
                     <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
+                        <!--Drawing turbines-->
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
-                             (mouseOver)="onMouseOver(infoWindow, gm)">      
-                            <agm-info-window #infoWindow>
-                                    <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} transfers</strong>
+                                        (mouseOver)="onMouseOver(infoWindow, gm)">
+                                <agm-info-window #infoWindow>
+                                    <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
                                     <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
                                         <pre>
 Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
@@ -59,38 +62,58 @@ Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
 Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
                                         </pre>
                                     </ng-container>
-                               </agm-info-window>
-                           </agm-marker>
+                                </agm-info-window>
+                            </agm-marker>
                         </ng-container>
                         <!-- Need 2 cases of markers in order to display info only on visited turbines -->
                         <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
-                            <agm-marker  [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
+                            <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker"></agm-marker>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngFor="let platformList of platformLocations.turbineLocations; let i=index">
+                        <!--Drawing platforms-->
+                        <ng-container *ngIf="platformList[0].shipHasSailedBy">
+                            <agm-marker [zIndex]="2" [iconUrl]="visitedPlatformMarker" [latitude]="objectToInt(platformList[0].latitude)" [longitude]="objectToInt(platformList[0].longitude)"
+                            (mouseOver)="onMouseOver(infoWindow, gm)"> 
+                                <agm-info-window #infoWindow>
+                                    <strong style="font-size: 15px;">{{ platformList[0].location }} Platform transfers</strong>
+                                    <ng-container *ngFor="let turbinePark of platformList">
+                                        <pre>
+Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+                                        </pre>
+                                    </ng-container>
+                                </agm-info-window>
+                            </agm-marker>
+                        </ng-container>
+                        <!-- Need 2 cases of markers in order to display info only on visited platforms - Maybe this will be changed -->
+                        <ng-container *ngIf="!platformList.shipHasSailedBy && false">
+                            <agm-marker [latitude]="objectToInt(platformList.latitude)" [longitude]="objectToInt(platformList.longitude)" [iconUrl]="platformMarker"></agm-marker>
                         </ng-container>
                     </ng-container>
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let location of boatLocationData; let i = index">
                             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" [latitude]="objectToInt(loc)"
-                                [longitude]="objectToInt(location.lon[i])">
+                                                [longitude]="objectToInt(location.lon[i])">
                             </agm-polyline-point>
                         </ng-container>
-                    </agm-polyline>
-                    <agm-polyline [strokeColor]="'#00368e'" [strokeWeight]="1">
-                        <agm-polyline-point *ngFor="let parkBoundaryLatitude of vesselTurbines.parkBoundaryLatitudes; let i = index" [latitude]="parkBoundaryLatitude"
-                            [longitude]="vesselTurbines.parkBoundaryLongitudes[i]">
-                        </agm-polyline-point>
                     </agm-polyline>
                 </agm-map>
             </div>
         </div>
+        <!-- No idea -->
         <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
             [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
-            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)" (parkFound)="getParkFound($event)">
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)" (parkFound)="getParkFound($event)"
+            (platformLocationData)="getPlatformLocationData($event)">
         </app-ctvreport>
         <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (loaded)="isLoaded($event)"
             [vesselObject]="vesselObject" [mapPixelWidth]="mapPixelWidth" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
-            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)">
+            (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)"
+            (platformLocationData)="getPlatformLocationData($event)">
         </app-sovreport>
     </div>
     <ng-template #other_content>

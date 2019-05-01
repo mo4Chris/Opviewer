@@ -83,6 +83,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getPlatformLocations(src_name) {
+    return this.post(environment.DB_IP + '/api/getPlatformLocations/', 'Northsea_offshore_oilgas_platform_coordinates').pipe(
+      map((response: Response) => response.json()));
+  }
+
   getLatestBoatLocationForCompany(company) {
     return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));

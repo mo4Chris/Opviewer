@@ -90,6 +90,12 @@ var LatLonSchema = new Schema({
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
+var PlatformLocationSchema = new Schema({
+    filename: { type: String },
+    SiteName: { type: String }
+}, { versionKey: false });
+var PlatformLocationmodel = mongo.model('platformLocations', PlatformLocationSchema, 'platformLocations');
+
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -878,6 +884,19 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
                 res.send(arrayOfFields);
             }
         });
+    });
+});
+
+app.post("/api/getPlatformLocations", function (req, res) {
+    PlatformLocationmodel.find({
+        filename: req.body.Name
+    }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
     });
 });
 

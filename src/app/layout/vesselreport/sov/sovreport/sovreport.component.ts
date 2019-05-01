@@ -20,6 +20,7 @@ export class SovreportComponent implements OnInit {
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
+    @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
@@ -46,13 +47,15 @@ export class SovreportComponent implements OnInit {
     chart;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
+    /* Appears to no longer be in use
     iconMarkerSailedBy = {
         url: '../../../../assets/images/turbine.png',
         scaledSize: {
           width: 20,
           height: 20
         }
-      }
+    }
+    */
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
@@ -202,7 +205,7 @@ export class SovreportComponent implements OnInit {
         else {
             this.routeFound.emit(false);
         }
-
+        // Loads in relevant turbine data for visited parks
         this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
             this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
@@ -221,6 +224,24 @@ export class SovreportComponent implements OnInit {
                     this.turbineLocationData.emit(locationData);
                 }
             });
+        });
+        // Loads in relevant data for visited platforms
+        this.commonService.getPlatformLocations('').subscribe(locdata => {
+            if (locdata.length !== 0) {
+                //this.turbineLocations = locdata;
+                let transfers = [];
+                let sovType = 'Unknown';
+                if(this.sovModel.sovType == SovType.Platform) {
+                    transfers = this.sovModel.platformTransfers;
+                    sovType = 'Platform';
+                }
+                else if(this.sovModel.sovType == SovType.Turbine) {
+                    transfers = this.sovModel.platformTransfers;
+                    sovType = 'Turbine';
+                }
+                let locationData = {'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
+                this.platformLocationData.emit(locationData);
+            }
         });
     }
 
