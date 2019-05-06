@@ -84,7 +84,8 @@ export class CommonService {
   }
 
   getPlatformLocations(src_name) {
-    return this.post(environment.DB_IP + '/api/getPlatformLocations/', 'Northsea_offshore_oilgas_platform_coordinates').pipe(
+
+    return this.post(environment.DB_IP + '/api/getPlatformLocations/', {Name: "Northsea_offshore_oilgas_platform_coordinates"}).pipe(
       map((response: Response) => response.json()));
   }
 

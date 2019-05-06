@@ -50,7 +50,7 @@
                     </tr>
 
                     <ng-template #syncTooltip class="helpContent">
-                        Time since last synchronized to BMO processing server.
+                        Time since last synchronized with BMO processing server.
                     </ng-template>
                     <tr [ngbTooltip]="syncTooltip" placement="top">
                         <td>Last updated</td>
@@ -223,7 +223,10 @@
                                 </span>
                             </th>
                         </ng-container>
-                        <th class="smallPadding dateWeatherDays">
+                        <ng-template #totalWeatherDays class="helpContent">
+                            Number of contracted vessels minus number of worked days
+                        </ng-template>
+                        <th [ngbTooltip]="totalWeatherDays" placement="top" container="body" class="smallPadding dateWeatherDays">
                             <span>Total weather days</span>
                         </th>
                     </tr>
@@ -260,7 +263,10 @@
                         </tr>
                     </ng-container>
                     <tr>
-                        <td class="smallPadding totals dates">Total weather days</td>
+                        <ng-template #totalWeatherDaysMontly class="helpContent">
+                            Total number of days of not sailing
+                        </ng-template>
+                        <td class="smallPadding totals dates" [ngbTooltip]="totalWeatherDaysMontly" placement="top" container="body">Total weather days</td>
                         <td class="smallPadding totals" *ngFor="let vessel of turbineWarrenty.fullFleet;let ind = index;"
                             [class.inActive]="!turbineWarrenty.activeFleet.includes(vessel)">
                             {{getTotalMissingDays(ind)}}

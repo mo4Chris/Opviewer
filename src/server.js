@@ -164,6 +164,9 @@ var SovModel = new Schema({
     distancekm: { type: String },
     arrivalAtHarbour: { type: String },
     departureFromHarbour: { type: String },
+    lon: { type: Array },
+    lat: { type: Array },
+    time: { type: Array }
 }, { versionKey: false });
 var SovModelmodel = mongo.model('SOV_general', SovModel, 'SOV_general');
 

@@ -16,7 +16,7 @@
                                     <td>Arrival at harbour</td>
                                     <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
                                 </tr>
-                                <tr *ngIf="sovModel.sovInfo.distancekm != 'N/a'">
+                                <tr *ngIf="!(sovModel.sovInfo.distancekm == 'NaN' || sovModel.sovInfo.distancekm == 'N/a')">
                                     <td>Distance sailed</td>
                                     <td>{{sovModel.sovInfo.distancekm}} km</td>
                                 </tr>
@@ -64,7 +64,7 @@
                                 <tr>
 
                                     <ng-template #helpNumV2VTransfers class="helpContent">
-                                        Number of unique CTV vessels to which transfers were performed
+                                        Total number of transfers between this SOV and other CTVs. 
                                     </ng-template>
                                     <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of CTV vessel to vessel transfers</td>
                                     <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
@@ -132,7 +132,12 @@
                                     <th>Arrival time platform</th>
                                     <th>Departure time platform</th>
                                     <th>Leave Exclusion Zone</th>
-                                    <th>Total duration</th>
+                                    <ng-template #helpTotalTimePlatformTransfers class="helpContent">
+                                        Time from 1000m waiting range until leaving platform
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</th>
+                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Hs [m]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -150,6 +155,8 @@
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust)}}</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
                             </tbody>
@@ -167,13 +174,16 @@
                                     <th>Location</th>
                                     <th>Safety zone entry</th>
                                     <th>Safety zone exit</th>
-                                    <th>Duration in safety zone</th>
+                                    <ng-template #helpDurationSafetyZone class="helpContent">
+                                        Minutes between entering safety zone, performing the transfer, and once again leaving the safety zone
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpDurationSafetyZone" placement="top" container="body">Duration in safety zone</th>
                                     <ng-template #helpGangwayUtil class="helpContent">
                                         Performance of gangway relative to its performance limitations.
                                     </ng-template>
                                     <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity [%]</th>
                                     <th>Peak gust wind [km/h]</th>
-                                    <th>Hs</th>
+                                    <th>Hs [m]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -184,7 +194,7 @@
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-                                        <td>{{turbineTransfer.peakWindGust}}</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -207,10 +217,19 @@
                         <thead>
                             <tr>
                                 <th>Location</th>
-                                <th>Gangway ready</th>
+                                <ng-template #helpGangwayReady class="helpContent">
+                                    Starttime indicating the gangway is attached and ready for transfers
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready</th>
                                 <th>Gangway disengaged</th>
-                                <th>Ready duration [mns]</th>
-                                <th>Deployed duration [mns]</th>
+                                <ng-template #helpGangwayReadyDuaration class="helpContent">
+                                    Duration for which gangway is attached and ready for transfer
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration [mns]</th>
+                                <ng-template #helpGangwayReadyDeployed class="helpContent">
+                                    Duration for which the gangway was used active this tranfer, not just ready to tranfers
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">Deployed duration [mns]</th>
                                 <ng-template #helpGangwayUtil class="helpContent">
                                     Performance of gangway relative to its performance limitations.
                                 </ng-template>
@@ -282,7 +301,7 @@
                                 <ng-container *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
                                     <tr>
                                         <th>{{sovModel.sovInfo.vesselName}}</th>
-                                        <th colspan="6"><a [routerLink]="" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>
+                                        <th colspan="6"><a href="javascript:void(0)" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>
                                     </tr>
                                     <ng-container *ngFor="let transfer of object.value">
                                         <tr>
@@ -350,10 +369,27 @@
         </div>
         <div class="modal-body">
             <div id="routeMap">
+                <!-- Drawing popup map for CTV transfers-->
                 <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'" [streetViewControl]=false>
                     <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
-                        <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                        <ng-container *ngIf="turbinePark.location==''; else hasVisited">
+                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                        </ng-container>
+                        <ng-template #hasVisited>
+                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerNotVisited" [markerClickable]="false"></agm-marker>
+                            <!-- <agm-info-window #infoWindow>
+                                <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
+                                <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
+                                    <pre>
+Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+                                    </pre>
+                                </ng-container>
+                            </agm-info-window> -->
+                        </ng-template>
                     </ng-container>
+                    
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
                             <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
@@ -394,7 +430,7 @@
                                 <tr>
                                     <th>{{cycleTime.fromTurbine}}</th>
                                     <th>{{cycleTime.toTurbine}}</th>
-                                    <td colspan="2">{{cycleTime.startTime}}</td>
+                                    <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>

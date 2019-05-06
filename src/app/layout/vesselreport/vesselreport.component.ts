@@ -133,7 +133,7 @@ export class VesselreportComponent implements OnInit {
               continue;    
             }
           }
-          //Reached the end, turbine has not been visited
+          //Reached the end, platform has not been visited
           if(!turbineIsVisited) {
             turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
           }
@@ -162,6 +162,7 @@ export class VesselreportComponent implements OnInit {
     let type = platformLocationData.type;
     let vesselType = platformLocationData.vesselType;
     let platforms: any[] = new Array<any>();
+
     if (locationData.length > 0 && transfers.length > 0) {
       locationData.forEach(turbineLocation => {
         for (let index = 0; index < turbineLocation.lat.length; index++) {
