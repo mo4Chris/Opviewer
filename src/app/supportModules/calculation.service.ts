@@ -11,9 +11,9 @@ export class CalculationService {
     return parseFloat(objectvalue);
   }
 
-  roundNumber(number, decimal = 10, addString = '') {
+  roundNumber(number, decimal = 10, addString:string = '') {
     if (typeof number === 'string' || number instanceof String) {
-      return number;
+      return number + addString;
     }
     if (!number) {
       return 'n/a';
@@ -23,20 +23,23 @@ export class CalculationService {
   }
 
   GetDecimalValueForNumber(value: any, endpoint:string = null) {
-    let type = typeof(value);
-    if(type == typeof(0)) {
-        value = Math.round(value * 10) / 10;
-        if(endpoint != null) {
-          value = value + endpoint;
-        }
-    }
-    else if(type == typeof("") && value != "NaN") {
-      let num = +value;
-      value = num.toFixed(1);
-      if(endpoint != null) {
-        value = value + endpoint;
+      let type = typeof (value);
+      if (type == "number") {
+          value = Math.round(value * 10) / 10;
+          if (endpoint != null) {
+              value = value + endpoint;
+          }
       }
-    }
+      else if (type == "string" && value != "NaN") {
+          let num = +value;
+          value = num.toFixed(1);
+          if (endpoint != null) {
+              value = value + endpoint;
+          }
+      }
+      else if (type == "undefined"){
+          value = NaN;
+      }
     return value;
   }
 
