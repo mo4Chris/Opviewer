@@ -11,9 +11,9 @@ export class CalculationService {
     return parseFloat(objectvalue);
   }
 
-  roundNumber(number, decimal = 10, addString = '') {
+  roundNumber(number, decimal = 10, addString:string = '') {
     if (typeof number === 'string' || number instanceof String) {
-      return number;
+      return number + addString;
     }
     if (!number) {
       return 'n/a';

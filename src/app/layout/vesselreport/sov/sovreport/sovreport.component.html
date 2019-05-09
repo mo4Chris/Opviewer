@@ -377,16 +377,6 @@
                         </ng-container>
                         <ng-template #hasVisited>
                             <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerNotVisited" [markerClickable]="false"></agm-marker>
-                            <!-- <agm-info-window #infoWindow>
-                                <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
-                                <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
-                                    <pre>
-Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
-Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
-Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
-                                    </pre>
-                                </ng-container>
-                            </agm-info-window> -->
                         </ng-template>
                     </ng-container>
                     
