@@ -124,4 +124,13 @@ export class DatetimeService {
       return '-';
     }
   }
+
+  hoursSinceMoment(dateString){
+    if (dateString){
+      const dur = moment().diff(moment.parseZone(dateString + "+00:00"))
+      return moment.duration(dur).asHours()
+    } else{
+      return null
+    }
+  }
 }

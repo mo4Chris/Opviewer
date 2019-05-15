@@ -1,23 +1,41 @@
 <div [@routerTransition]>
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
-    <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
-        <ng-container *ngFor="let location of locationData; let i=index" >
-             <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" >
-             	<agm-info-window #infoWindow>
-                    <pre>
+    <div class="divContainer" fxFlex="100">
+        <agm-map *ngIf="true" #gm [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
+            <ng-container *ngFor="let location of locationData; let i=index" >
+                <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" [iconUrl]="location.markerIcon">
+                    <agm-info-window #infoWindow [disableAutoPan]="true">
+                        <pre>
 <strong style="font-size: 15px;">{{ location.vesselInformation[location.vesselInformation.length -1]}}</strong>
 MMSI: {{location._id}}
 Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}
 <br>
 <button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(location._id)" type="button">Go to DPR</button>
-                    </pre>
-     	        </agm-info-window>
-             </agm-marker>
-        </ng-container>
-    </agm-map>
+                        </pre>
+                    </agm-info-window>
+                </agm-marker>
+            </ng-container>
+            <agm-marker-cluster>
+                <div *ngFor="let field of parkLocations">
+                    <agm-marker [latitude]="field.centroid.lat" [longitude]="field.centroid.lon" [iconUrl]="iconWindfield" [markerClickable]="false"></agm-marker>
+                </div>
+            </agm-marker-cluster>
+            <div *ngFor="let harbour of harbourLocations">
+                <agm-marker [latitude]="harbour.centroid.lat" [longitude]="harbour.centroid.lon" [iconUrl]="iconHarbour" [markerClickable]="false"></agm-marker>
+            </div>
+            <agm-data-layer>
 
-    <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
+            </agm-data-layer>
+        </agm-map>
+        <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
+        <div id="mapLegendID" class="mapLegend">
+            <h2> 
+                Legend
+            </h2>
+        </div>
+    </div>
 </div>
+
 
 <!-- Currently, children are only used for one-way binding. When filled with content. Move to content above. -->
 <div *ngIf="tokenInfo.userPermission == userType.Admin">

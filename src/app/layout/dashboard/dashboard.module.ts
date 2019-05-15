@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NgbCarouselModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
+import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +35,7 @@ import { VesselMasterComponent } from './components/users/vessel-master/vessel-m
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
+        AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,
         StatModule
     ],
