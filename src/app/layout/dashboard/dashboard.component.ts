@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit {
     zoomlvl = 6.0;
     mapTypeId = 'roadmap';
     streetViewControl = false;
+    clustererImagePath = '../assets/clusterer/m';
     // End map settings
     mapLegend: mapLegend = new mapLegend([]);
     legendLoaded = false;

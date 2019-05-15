@@ -15,14 +15,14 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}
                     </agm-info-window>
                 </agm-marker>
             </ng-container>
-            <agm-marker-cluster>
+            <agm-marker-cluster [imagePath]=clustererImagePath>
                 <div *ngFor="let field of parkLocations">
                     <agm-marker [latitude]="field.centroid.lat" [longitude]="field.centroid.lon" [iconUrl]="iconWindfield" [markerClickable]="false"></agm-marker>
                 </div>
-            </agm-marker-cluster>
-            <div *ngFor="let harbour of harbourLocations">
-                <agm-marker [latitude]="harbour.centroid.lat" [longitude]="harbour.centroid.lon" [iconUrl]="iconHarbour" [markerClickable]="false"></agm-marker>
-            </div>
+            </agm-marker-cluster >
+                <div *ngFor="let harbour of harbourLocations">
+                    <agm-marker [latitude]="harbour.centroid.lat" [longitude]="harbour.centroid.lon" [iconUrl]="iconHarbour" [markerClickable]="false"></agm-marker>
+                </div>
             <agm-data-layer>
 
             </agm-data-layer>

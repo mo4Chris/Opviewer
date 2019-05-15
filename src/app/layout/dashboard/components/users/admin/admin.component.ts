@@ -12,14 +12,20 @@ export class AdminComponent implements OnInit {
   @Output() locationData: EventEmitter<any[]> = new EventEmitter<any[]>();
 
   constructor(private newService: CommonService) { }
+  numberActiveUsers = 0
+  activeUsers = [{user: '', client: ''}]
 
   ngOnInit() {
-
+    this.getActiveUsers();
   }
 
   getLocations() {
     this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
+  }
+
+  getActiveUsers(){
+    this.numberActiveUsers = 1;
   }
 }
