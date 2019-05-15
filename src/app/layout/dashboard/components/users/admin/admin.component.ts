@@ -10,6 +10,7 @@ export class AdminComponent implements OnInit {
 
   @Input() tokenInfo;
   @Output() locationData: EventEmitter<any[]> = new EventEmitter<any[]>();
+  @Output() zoominfo: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private newService: CommonService) { }
   numberActiveUsers = 0
@@ -17,6 +18,10 @@ export class AdminComponent implements OnInit {
 
   ngOnInit() {
     this.getActiveUsers();
+    
+    setTimeout(() => {
+      this.setZoomLevel();;
+  });
   }
 
   getLocations() {
@@ -27,5 +32,14 @@ export class AdminComponent implements OnInit {
 
   getActiveUsers(){
     this.numberActiveUsers = 1;
+  }
+  
+  setZoomLevel() {
+    const zoominfo = {
+      latitude: 55,
+      longitude: 0.1,
+      zoomlvl: 5.5
+    }
+    this.zoominfo.emit(zoominfo)
   }
 }

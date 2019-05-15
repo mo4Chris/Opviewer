@@ -12,6 +12,7 @@ import { Usertype } from '../../shared/enums/UserType';
 import { EventService } from '../../supportModules/event.service'; 
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service'
+import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 
 
 @Component({
@@ -25,12 +26,19 @@ export class DashboardComponent implements OnInit {
     locationData;
 
     // Map settings
-    latitude = 55;
-    longitude = 0;
-    zoomlvl = 6.0;
+    zoominfo = {
+        longitude: 0,
+        latitude: 0,
+        zoomlvl: 7
+    }
     mapTypeId = 'roadmap';
     streetViewControl = false;
-    clustererImagePath = '../assets/clusterer/m';
+    clusterStylePark: ClusterStyle[];
+    clustererImagePathPark: string;
+    clusterStyleVessels: ClusterStyle[];
+    clustererImagePathVessels: string;
+    clustererMaxZoom;
+    clustererGridSize;
     // End map settings
     mapLegend: mapLegend = new mapLegend([]);
     legendLoaded = false;
@@ -74,7 +82,12 @@ export class DashboardComponent implements OnInit {
             width: 25,
             height: 25
         }
-      )
+    )
+    
+    iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
+        '../assets/clusterer/m1.png', 
+        'Cluster of vessels'
+    )
 
     // used for comparison in the HTML
     userType = Usertype;
@@ -108,6 +121,10 @@ export class DashboardComponent implements OnInit {
                 });
     }
 
+    getZoominfo(zoominfo: any): void {
+        this.zoominfo = zoominfo
+    }
+
     onMouseOver(infoWindow, gm) {
         this.infoWindowOld = infoWindow;
         this.eventService.OpenAgmInfoWindow(infoWindow, gm);
@@ -115,12 +132,13 @@ export class DashboardComponent implements OnInit {
     ///////////////////////////////
 
     ngOnInit() {
-        this.getLocations();
         this.getAlert();
-      }
+        this.getLocations();
+    }
 
     getLocations() {
         this.makeLegend();
+        // this.adminComponent.setZoomLevel();
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
                 case Usertype.Admin: {
@@ -156,6 +174,41 @@ export class DashboardComponent implements OnInit {
 
     makeLegend(){
         if (!this.legendLoaded){
+            this.clustererMaxZoom = 9;
+            this.clustererGridSize = 25;
+            this.clustererImagePathPark = "../assets/clusterer/turbine";
+            this.clusterStylePark = [
+                {
+                    url:'../assets/clusterer/turbine1.png', 
+                    textSize: 20, 
+                    height: 48,
+                    width: 48,
+                    anchor: [1, 1],
+                },
+                {
+                    url:'../assets/clusterer/turbine2.png', 
+                    textSize: 20,
+                    height: 48,
+                    width: 48,
+                    anchor: [1, 1],
+                    textColor: '#000',
+                }
+            ]
+            this.clustererImagePathVessels = "../assets/clusterer/turbine";
+            this.clusterStyleVessels = [
+                {
+                    url:'../assets/clusterer/m1.png', 
+                    textSize: 20, 
+                    height: 53,
+                    width: 52
+                },
+                {
+                    url:'../assets/clusterer/m1.png', 
+                    textSize: 20,
+                    height: 56,
+                    width: 55
+                }
+            ]
             const parkLocations = this.commonService.getParkLocations();
             parkLocations.forEach(field => {
                 this.parkLocations = field;
@@ -165,6 +218,7 @@ export class DashboardComponent implements OnInit {
                 this.harbourLocations = harbour;
             })
 
+            this.mapLegend.add(this.iconVesselCluster);
             this.mapLegend.add(this.iconMarkerLive);
             this.mapLegend.add(this.iconMarkerHours);
             this.mapLegend.add(this.iconMarkerOld);
