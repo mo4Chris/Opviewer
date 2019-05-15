@@ -16,7 +16,7 @@
                                     <td>Arrival at harbour</td>
                                     <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
                                 </tr>
-                                <tr *ngIf="sovModel.sovInfo.distancekm != 'N/a'">
+                                <tr *ngIf="!(sovModel.sovInfo.distancekm == 'NaN' || sovModel.sovInfo.distancekm == 'N/a')">
                                     <td>Distance sailed</td>
                                     <td>{{sovModel.sovInfo.distancekm}} km</td>
                                 </tr>
@@ -35,7 +35,11 @@
                                     <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Average time spent docking</td>
+
+                                    <ng-template #helpAvgDockingTime class="helpContent">
+                                        Average time spend from entering exclusion zone until leaving the platform.
+                                    </ng-template>
+                                    <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">Average time spent docking</td>
                                     <td>{{sovModel.summary.AvgTimeDocking}}</td>
                                 </tr>
                                 <tr>
@@ -49,17 +53,24 @@
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Average time spent docking</td>
+                                    <ng-template #helpAvgDockingTime2 class="helpContent">
+                                        Average time spend from entering exclusion zone until leaving the platform.
+                                    </ng-template>
+                                    <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time spent docking</td>
                                     <td>{{sovModel.summary.AvgTimeDocking}}</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                                 <tr>
-                                    <td>Number of CTV vessel to vessel transfers</td>
+
+                                    <ng-template #helpNumV2VTransfers class="helpContent">
+                                        Total number of transfers between this SOV and other CTVs. 
+                                    </ng-template>
+                                    <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of CTV vessel to vessel transfers</td>
                                     <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Average time spent docking (vessels)</td>
+                                    <td >Average time spent docking (vessels)</td>
                                     <td>{{sovModel.summary.AvgTimeVesselDocking}} minutes</td>
                                 </tr>
                             </ng-container>
@@ -89,7 +100,7 @@
                             </tr>
                             <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}} km/hour</td>
+                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}} km/h</td>
                             </tr>
                         </table>
                     </div>
@@ -121,7 +132,12 @@
                                     <th>Arrival time platform</th>
                                     <th>Departure time platform</th>
                                     <th>Leave Exclusion Zone</th>
-                                    <th>Total duration</th>
+                                    <ng-template #helpTotalTimePlatformTransfers class="helpContent">
+                                        Time from 1000m waiting range until leaving platform
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</th>
+                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Hs [m]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -139,6 +155,8 @@
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust)}}</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
                             </tbody>
@@ -156,10 +174,16 @@
                                     <th>Location</th>
                                     <th>Safety zone entry</th>
                                     <th>Safety zone exit</th>
-                                    <th>Duration in safety zone</th>
-                                    <th>Gangway Capacity</th>
-                                    <th>Peak gust wind</th>
-                                    <th>Hs</th>
+                                    <ng-template #helpDurationSafetyZone class="helpContent">
+                                        Minutes between entering safety zone, performing the transfer, and once again leaving the safety zone
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpDurationSafetyZone" placement="top" container="body">Duration in safety zone</th>
+                                    <ng-template #helpGangwayUtil class="helpContent">
+                                        Performance of gangway relative to its performance limitations.
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity [%]</th>
+                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Hs [m]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -170,7 +194,7 @@
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-                                        <td>{{turbineTransfer.peakWindGust}} Km/h</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -193,13 +217,27 @@
                         <thead>
                             <tr>
                                 <th>Location</th>
-                                <th>Deployed duration [min]</th>
-                                <th>Gangway ready</th>
+                                <ng-template #helpGangwayReady class="helpContent">
+                                    Starttime indicating the gangway is attached and ready for transfers
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready</th>
                                 <th>Gangway disengaged</th>
-                                <th>Ready Duration [min]</th>
-                                <th>Utilisation [%]</th>
-                                <th>Limiter</th>
-                            </tr>
+                                <ng-template #helpGangwayReadyDuaration class="helpContent">
+                                    Duration for which gangway is attached and ready for transfer
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration [mns]</th>
+                                <ng-template #helpGangwayReadyDeployed class="helpContent">
+                                    Duration for which the gangway was used active this tranfer, not just ready to tranfers
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">Deployed duration [mns]</th>
+                                <ng-template #helpGangwayUtil class="helpContent">
+                                    Performance of gangway relative to its performance limitations.
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity [%]</th>
+                                <ng-template #helpGangwayLimiter class="helpContent">
+                                    Indicates which part is the most limiting parameter for gangway utilisation.
+                                </ng-template>
+                                <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
                         </thead>
                         <tbody>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
@@ -211,10 +249,10 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
                                         <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
+                                        <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
                                     </tr>
@@ -223,10 +261,10 @@
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
                                 <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
                                     <th>{{turbineTransfer.location}}</th>
-                                    <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
                                     <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
+                                    <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
                                     <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
@@ -253,8 +291,8 @@
                                 <th>To vessel</th>
                                 <th>Start time</th>
                                 <th>End time</th>
-                                <th>Duration [min]</th>
-                                <th>Peak wind gust [km/hr]</th>
+                                <th>Duration [mns]</th>
+                                <th>Peak wind gust [km/h]</th>
                                 <th>Peak heave [m]</th>
                             </tr>
                         </thead>
@@ -263,7 +301,7 @@
                                 <ng-container *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
                                     <tr>
                                         <th>{{sovModel.sovInfo.vesselName}}</th>
-                                        <th colspan="6"><a [routerLink]="" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>
+                                        <th colspan="6"><a href="javascript:void(0)" (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a></th>
                                     </tr>
                                     <ng-container *ngFor="let transfer of object.value">
                                         <tr>
@@ -272,7 +310,7 @@
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{transfer.duration}} minutes</td>
                                             <td>{{transfer.peakWindGust}}</td>
-                                            <td>{{transfer.peakHeave.toFixed(2)}}</td>
+                                            <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
                                     </ng-container>
                                 </ng-container>
@@ -290,7 +328,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers">
             <p>Turbines visited by this vessel</p>
             <div class="table-responsive">
                 <table class="table table-hover table-striped">
@@ -300,7 +338,7 @@
                             <th>Location</th>
                             <th>Start time</th>
                             <th>End time</th>
-                            <th>Duration [min]</th>
+                            <th>Duration [mns]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -328,11 +366,20 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="modal-body">
             <div id="routeMap">
-                <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'">
+                <!-- Drawing popup map for CTV transfers-->
+                <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'" [streetViewControl]=false>
                     <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
-                        <agm-marker  [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                        <ng-container *ngIf="turbinePark.location==''; else hasVisited">
+                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
+                        </ng-container>
+                        <ng-template #hasVisited>
+                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerNotVisited" [markerClickable]="false"></agm-marker>
+                        </ng-template>
                     </ng-container>
+                    
                     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
                         <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
                             <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
@@ -357,12 +404,15 @@
                                 <th>To turbine</th>
                                 <th colspan="2">Start time</th>
                                 <th>Duration</th>
-                                <th>Sailed distance</th>
-                                <th>Turbine distance</th>
-                                <th>Average speed</th>
-                                <th>Maximum speed</th>
-                                <th>Transfer time</th>
-                                <th>Moving speed above 5 kts/s</th>
+                                <th>Sailed distance [nm]</th>
+                                <th>Turbine distance [nm]</th>
+                                <th>Average speed [kts]</th>
+                                <th>Maximum speed [kts]</th>
+                                <th>Transfer time [mns]</th>
+                                <ng-template #helpCycleAbove5Knots class="helpContent">
+                                    Percentage of time spend travelling above 5 knots.
+                                </ng-template>
+                                <th [ngbTooltip]="helpCycleAbove5Knots" placement="top" container="body">Speed above 5 kts</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -370,14 +420,14 @@
                                 <tr>
                                     <th>{{cycleTime.fromTurbine}}</th>
                                     <th>{{cycleTime.toTurbine}}</th>
-                                    <td colspan="2">{{cycleTime.startTime}}</td>
+                                    <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.maxSpeedKts)}}</td>
-                                    <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins)}}</td>
-                                    <td>{{GetDecimalValueForNumber(cycleTime.movingSpeedAbove5ktsPerc)}}</td>
+                                    <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins, ' minutes')}}</td>
+                                    <td>{{GetDecimalValueForNumber(100 * cycleTime.movingSpeedAbove5ktsPerc, '%')}}</td>
                                 </tr>
                             </ng-container>
                         </tbody>

@@ -11,7 +11,12 @@ export class TurbineLocation {
         this.location = location;
         if(transfer != null && location != "") {
             this.shipHasSailedBy = true;
-            this.transfer = new TurbineLocationTransfer(transfer.startTime, transfer.stopTime, transfer.duration);
+            if(transfer.duration !== undefined && transfer.duration !== ''){
+                this.transfer = new TurbineLocationTransfer(transfer.startTime, transfer.stopTime, transfer.duration);
+            }
+            else if(transfer.arrivalTimePlatform !== undefined && transfer.arrivalTimePlatform !== ''){
+                this.transfer = new TurbineLocationTransfer(transfer.arrivalTimePlatform, transfer.departureTimePlatform, transfer.visitDuration);
+            }
         }
     }
 }

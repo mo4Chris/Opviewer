@@ -1,6 +1,6 @@
 <div [@routerTransition]>
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
-    <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl">
+    <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
         <ng-container *ngFor="let location of locationData; let i=index" >
              <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" >
              	<agm-info-window #infoWindow>

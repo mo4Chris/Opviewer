@@ -20,6 +20,7 @@ export class SovreportComponent implements OnInit {
     @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
     @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
     @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
+    @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
@@ -36,7 +37,7 @@ export class SovreportComponent implements OnInit {
 
     locShowContent = false;
     vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
-    //turbineLocations = new Array<any>();
+    turbineLocations = new Array<any>();
 
     // Charts
     operationsChart;
@@ -47,12 +48,20 @@ export class SovreportComponent implements OnInit {
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
     iconMarkerSailedBy = {
-        url: '../../../../assets/images/turbine.png',
+        url: '../../../../assets/images/visitedTurbineIcon.png',
         scaledSize: {
-          width: 20,
-          height: 20
+          width: 10,
+          height: 10
         }
-      }
+    }
+    
+    iconMarkerNotVisited = {
+        url: '../../../../assets/images/turbineIcon.png',
+        scaledSize: {
+          width: 10,
+          height: 10
+        }
+    }
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
@@ -65,7 +74,7 @@ export class SovreportComponent implements OnInit {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === toMMSI) {
                     this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
-                    if(typeof(Array) == typeof(ctvActivity.turbineVisits)) {
+                    if("object" == typeof(ctvActivity.turbineVisits)) {
                         this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
                     }
                 }
@@ -73,18 +82,24 @@ export class SovreportComponent implements OnInit {
         });
 
         //Set up for turbines locations view on map
-        // if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
-        //     this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
-        //     this.turbineLocations.forEach(turbineLocationData => {
-        //         for(let index = 0; index < turbineLocationData.lat.length; index++) {
-        //             let transferName = turbineVisit.location; 
-        //             if(turbineLocationData.name[index][0] == transferName) {
-        //                 //this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocationData.lat[index][0], turbineLocationData.lon[index][0], this.iconMarkerSailedBy, true));     
-        //             }
-        //         }
-        //         });
-        //     });
-        // }
+        if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
+            this.turbineLocations.forEach(turbineLocation => {
+                for(let index = 0; index < turbineLocation.lat.length; index++) {
+                    let isVisited = false;
+                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
+                        if(turbineLocation.name[index] == turbineVisit.location) {
+                            isVisited = true
+                            return
+                        }
+                    });
+                    if (isVisited){
+                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
+                    }else{
+                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
+                    }
+                };
+            });
+        }
 
         let map = document.getElementById('routeMap');
         const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
@@ -121,7 +136,7 @@ export class SovreportComponent implements OnInit {
         this.ResetTransfers();
         this.GetAvailableRouteDatesForVessel();
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
-            if (sov.length !== 0) {
+            if (sov.length !== 0 && sov[0].seCoverageSpanHours != "_NaN_") {
                 this.sovModel.sovInfo = sov[0];
                 
                 // Currently transits are not being used, should be removed
@@ -202,7 +217,7 @@ export class SovreportComponent implements OnInit {
         else {
             this.routeFound.emit(false);
         }
-
+        // Loads in relevant turbine data for visited parks
         this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
             this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
@@ -218,9 +233,23 @@ export class SovreportComponent implements OnInit {
                         sovType = 'Turbine';
                     }
                     let locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
+                    this.turbineLocations = locationData.turbineLocations;
                     this.turbineLocationData.emit(locationData);
                 }
             });
+        });
+        // Loads in relevant data for visited platforms
+        this.commonService.getPlatformLocations('').subscribe(locdata => {
+            if (locdata.length !== 0) {
+                //this.turbineLocations = locdata;
+                const transfers = this.sovModel.platformTransfers;
+                // /const sovType = 'Platform';
+                let locationData = {'turbineLocations': locdata, 'transfers': transfers, 'type': 'Platforms', 'vesselType': 'SOV' };
+                this.platformLocationData.emit(locationData);
+            }
+            else{
+                console.log('Request to get platform locations returned 0 results!')
+            }
         });
     }
 
@@ -236,18 +265,20 @@ export class SovreportComponent implements OnInit {
             const avgTimeDocking = turbineTransfers.reduce(function (sum, a, i, ar) { sum += a.duration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
-            summaryModel.NrOfVesselTransfers = this.sovModel.vessel2vessels.length;
 
             // Average time vessel docking
             let totalVesselDockingDuration = 0;
+            let nmrVesselTransfers = 0;
             this.sovModel.vessel2vessels.forEach(vessel2vessel => {
                 let totalDockingDurationOfVessel2vessel = 0;
                 vessel2vessel.transfers.forEach(transfer => {
                     totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
+                    nmrVesselTransfers += 1;
                 });
                 const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / vessel2vessel.transfers.length;
                 totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
             });
+            summaryModel.NrOfVesselTransfers = nmrVesselTransfers;
             summaryModel.AvgTimeVesselDocking = this.calculationService.GetDecimalValueForNumber(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
@@ -340,7 +371,7 @@ export class SovreportComponent implements OnInit {
 
             const exclusionZone = platformDuration + turbineDuration;
 
-            if (sailingDuration > 0) {
+            if (sailingDuration > 0 || waitingDuration > 0) {
                 this.operationalChartCalculated = true;
 
                 setTimeout(() => {
