@@ -129,7 +129,7 @@ var CommentsChangedSchema = new Schema({
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
 
 var videoRequestedSchema = new Schema({
-    requestID: { type: Number },
+    requestID: Schema.Types.ObjectId,
     username: { type: String },
     mmsi: { type: Number },
     videoPath: { type: String },

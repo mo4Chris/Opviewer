@@ -1,5 +1,5 @@
 <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
-<div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
+<div class="form-inline">
     <div class="form-group">
         <div class="input-group datepicker-input">
             <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="form-group">
-        <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange($event)" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
+        <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi" (change)="onChange()" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
             <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
         </select>
     </div>
