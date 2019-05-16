@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
@@ -17,6 +17,8 @@ import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
+import { AgmMap } from '@agm/core';
+import { MapTypeId } from '@agm/core/services/google-maps-types';
 
 @Component({
   selector: 'app-vesselreport',
@@ -46,9 +48,12 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  mapZoomLvl;
-  latitude;
-  longitude;
+  googleMap
+  zoominfo = {
+    mapZoomLvl: null,
+    latitude: null,
+    longitude: null,
+  }
   mapTypeId = 'roadmap';
   streetViewControl = false;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
@@ -209,15 +214,15 @@ export class VesselreportComponent implements OnInit {
   }
 
   getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl;
+    this.zoominfo.mapZoomLvl = mapZoomLvl;
   }
 
   getLongitude(longitude: any): void {
-    this.longitude = longitude;
+    this.zoominfo.longitude = longitude;
   }
 
   getLatitude(latitude: any): void {
-    this.latitude = latitude;
+    this.zoominfo.latitude = latitude;
   }
 
   getBoatLocationData(boatLocationData: any[]): void {
@@ -295,13 +300,14 @@ export class VesselreportComponent implements OnInit {
         if(map != null) {
           this.mapPixelWidth = map.offsetWidth;
         }
+        //ToDo clear timeout when data is loaded
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
             this.ctvChild.buildPageWithCurrentInformation();
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
             this.sovChild.buildPageWithCurrentInformation();
           }
-
+          this.buildGoogleMap()
         }, 1000);
       } else {
         this.noPermissionForData = true;
@@ -333,8 +339,8 @@ export class VesselreportComponent implements OnInit {
     this.vesselTurbines = new VesselTurbines();
     this.platformLocations = new VesselPlatforms();
     this.boatLocationData = [];
-    this.longitude = 0;
-    this.latitude = 0;
+    this.zoominfo.longitude = 0;
+    this.zoominfo.latitude = 0;
     this.showMap = false;
     this.routeFound = false;
     this.parkFound = false;
@@ -353,4 +359,104 @@ export class VesselreportComponent implements OnInit {
       }
     });
   }
+
+  buildGoogleMap(){
+    const mapRef = document.getElementById('mainVesselMap');
+    this.googleMap = new google.maps.Map(
+      mapRef,
+    {
+      zoom: this.zoominfo.mapZoomLvl,
+      center: {lat:this.zoominfo.latitude,lng:this.zoominfo.longitude},
+      gestureHandling: 'cooperative',
+      mapTypeId: google.maps.MapTypeId[this.mapTypeId],
+      streetViewControl: this.streetViewControl,
+    })
+    // Drawing turbines
+    this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
+      if (turbineParkLocation[0].shipHasSailedBy){
+        console.log('Hi')
+        this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
+      }
+    })
+  }
+
+  addMarkerToGoogleMap(markerIcon, lon, lat, info=null){
+    var marker = new google.maps.Marker({
+      position:{
+        lat: lat,
+        lng: lon
+      }
+    }
+    )
+    if (info){
+      var contentString = '<pre><br>' + 
+        "Start: " + info.startTime + '<br>' +
+        "Stop: " + info.stopTime + '<br>' + 
+        "Duration: " + info.duration + 
+        '</pre>';
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+      marker.addListener('mouseover', function (){
+        this.onMouseOver(this.googleMap, marker)
+      });
+    }
+    marker.setMap(this.googleMap);
+  }
 }
+
+// <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
+// <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
+//     <!--Drawing turbines-->
+//     <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
+//         <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
+//                     (mouseOver)="onMouseOver(infoWindow, gm)">
+//             <agm-info-window #infoWindow [disableAutoPan]="true"> 
+//                 <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
+//                 <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
+//                     <ng-container *ngIf="turbinePark.transfer" >
+//                         <pre>
+// Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+// Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+// Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+//                         </pre>
+//                     </ng-container>
+//                 </ng-container>
+//             </agm-info-window>
+//         </agm-marker>
+//     </ng-container>
+//     <!-- Need 2 cases of markers in order to display info only on visited turbines -->
+//     <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
+//         <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker" [markerClickable]="false"></agm-marker>
+//     </ng-container>
+// </ng-container>
+// <ng-container *ngFor="let platformList of platformLocations.turbineLocations; let i=index">
+//     <!--Drawing platforms-->
+//     <ng-container *ngIf="platformList[0].shipHasSailedBy">
+//         <agm-marker [zIndex]="2" [iconUrl]="visitedPlatformMarker" [latitude]="objectToInt(platformList[0].latitude)" [longitude]="objectToInt(platformList[0].longitude)" 
+//         (mouseOver)="onMouseOver(infoWindow, gm)">
+//             <agm-info-window #infoWindow  [disableAutoPan]="true">
+//                 <strong style="font-size: 15px;">{{ platformList[0].location }} Platform transfers</strong>
+//                 <ng-container *ngFor="let turbinePark of platformList">
+//                     <ng-container *ngIf="turbinePark.transfer">
+//                         <pre>
+// Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
+// Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
+// Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
+//                             </pre>
+//                         </ng-container>
+//                     </ng-container>
+//                 </agm-info-window>
+//             </agm-marker>
+//         </ng-container>
+//     </ng-container>
+//     <!-- Drawing the actual route-->
+//     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5" [clickable]="false">
+//         <ng-container *ngFor="let location of boatLocationData; let i = index">
+//             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" 
+//                                 [latitude]="objectToInt(loc)"
+//                                 [longitude]="objectToInt(location.lon[i])">
+//             </agm-polyline-point>
+//         </ng-container>
+//     </agm-polyline>
+// </agm-map>

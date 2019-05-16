@@ -47,13 +47,14 @@
                 <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
                     <b>Info,</b> parks were found but have not been visited by ship.
                 </div>
-                <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
+                <agm-map class="mainVesselMap"></agm-map>
+                <!-- <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
                     <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
-                        <!--Drawing turbines-->
+                        
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
                                         (mouseOver)="onMouseOver(infoWindow, gm)">
-                                <agm-info-window #infoWindow>  [disableAutoPan]="true"
+                                <agm-info-window #infoWindow [disableAutoPan]="true"> 
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
                                     <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
                                         <ng-container *ngIf="turbinePark.transfer" >
@@ -67,13 +68,11 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                                 </agm-info-window>
                             </agm-marker>
                         </ng-container>
-                        <!-- Need 2 cases of markers in order to display info only on visited turbines -->
                         <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker" [markerClickable]="false"></agm-marker>
                         </ng-container>
                     </ng-container>
                     <ng-container *ngFor="let platformList of platformLocations.turbineLocations; let i=index">
-                        <!--Drawing platforms-->
                         <ng-container *ngIf="platformList[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedPlatformMarker" [latitude]="objectToInt(platformList[0].latitude)" [longitude]="objectToInt(platformList[0].longitude)" 
                             (mouseOver)="onMouseOver(infoWindow, gm)">
@@ -92,8 +91,7 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                             </agm-marker>
                         </ng-container>
                     </ng-container>
-                    <!-- Drawing the actual route-->
-                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
+                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5" [clickable]="false">
                         <ng-container *ngFor="let location of boatLocationData; let i = index">
                             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" 
                                                 [latitude]="objectToInt(loc)"
@@ -101,7 +99,7 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                             </agm-polyline-point>
                         </ng-container>
                     </agm-polyline>
-                </agm-map>
+                </agm-map> -->
             </div>
         </div>
         <!-- No idea -->
