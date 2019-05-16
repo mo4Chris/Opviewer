@@ -162,6 +162,7 @@ var SovModel = new Schema({
     dayNum: { type: Number },
     vesselname: { type: String },
     mmsi: { Type: Number },
+    weatherConditions: { type: Object },
     timeBreakdown: { type: Object },
     seCoverageHours: { type: String },
     distancekm: { type: String },

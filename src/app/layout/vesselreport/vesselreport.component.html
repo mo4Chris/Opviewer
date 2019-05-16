@@ -53,10 +53,10 @@
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
                                         (mouseOver)="onMouseOver(infoWindow, gm)">
-                                <agm-info-window #infoWindow>
+                                <agm-info-window #infoWindow>  [disableAutoPan]="true"
                                     <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
                                     <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
-                                        <ng-container *ngIf="turbinePark.transfer">
+                                        <ng-container *ngIf="turbinePark.transfer" >
                                             <pre>
 Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
 Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
@@ -77,7 +77,7 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                         <ng-container *ngIf="platformList[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedPlatformMarker" [latitude]="objectToInt(platformList[0].latitude)" [longitude]="objectToInt(platformList[0].longitude)" 
                             (mouseOver)="onMouseOver(infoWindow, gm)">
-                                <agm-info-window #infoWindow>
+                                <agm-info-window #infoWindow  [disableAutoPan]="true">
                                     <strong style="font-size: 15px;">{{ platformList[0].location }} Platform transfers</strong>
                                     <ng-container *ngFor="let turbinePark of platformList">
                                         <ng-container *ngIf="turbinePark.transfer">
@@ -90,10 +90,6 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                                     </ng-container>
                                 </agm-info-window>
                             </agm-marker>
-                        </ng-container>
-                        <!-- Need 2 cases of markers in order to display info only on visited platforms - Maybe this will be changed -->
-                        <ng-container *ngIf="!platformList.shipHasSailedBy && false">
-                            <agm-marker [latitude]="objectToInt(platformList.latitude)" [longitude]="objectToInt(platformList.longitude)" [iconUrl]="platformMarker"></agm-marker>
                         </ng-container>
                     </ng-container>
                     <!-- Drawing the actual route-->

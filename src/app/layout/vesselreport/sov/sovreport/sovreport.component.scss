@@ -19,3 +19,12 @@ agm-map {
     display: inline-block;
     vertical-align: top;
 }
+
+.weatherOverview{
+    display: inline-block;
+    align-self: center;
+    width: 90%;
+    canvas{
+        position: relative;
+    }
+}

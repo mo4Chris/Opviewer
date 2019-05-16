@@ -9,6 +9,7 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
+import moment = require('moment');
 
 @Component({
     selector: 'app-sovreport',
@@ -43,6 +44,7 @@ export class SovreportComponent implements OnInit {
     operationsChart;
     gangwayLimitationsChart;
     operationalChartCalculated = false;
+    weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
     chart;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
@@ -138,10 +140,6 @@ export class SovreportComponent implements OnInit {
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours != "_NaN_") {
                 this.sovModel.sovInfo = sov[0];
-                
-                // Currently transits are not being used, should be removed
-                // this.GetTransits();
-
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
@@ -173,6 +171,7 @@ export class SovreportComponent implements OnInit {
                     this.CalculateDailySummary();
                     this.createOperationalStatsChart();
                     this.createGangwayLimitationsChart();
+                    this.createWeatherOverviewChart();
                     this.CheckForNullValues();
                     this.loaded.emit(true);
                 }, 2000);
@@ -441,6 +440,166 @@ export class SovreportComponent implements OnInit {
                     }
                 });
             }, 500);
+        }
+    }
+
+    createWeatherOverviewChart() {
+
+        let weather =  this.sovModel.sovInfo.weatherConditions;
+        if (weather !== undefined) {
+            //const sailingDuration = timeBreakdown.hoursSailing !== undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
+            let hasData = false;
+            let timeStamps = Array();
+            weather.time.forEach((timeObj, index) =>{
+                timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
+                });
+            let Hs = Array();
+            let Tp = Array();
+            let waveDirection = Array();
+            let windGust = Array();
+            let windAvg  = Array();
+            let chartTitle;
+
+            if (weather.wavesource == "_NaN_"){
+                //chartTitle = 'Weather overview';
+                chartTitle = '';
+            }else{
+                chartTitle = [
+                    //'Weather overview', 
+                    'Source:' + weather.wavesource];
+            }
+
+            if (weather.waveHs[0] && typeof(weather.waveHs[0]) == "number"){
+                weather.waveHs.forEach((val, index) => {
+                    Hs[index] = {
+                        x:timeStamps[index],
+                        y:val
+                    };
+                });
+            }
+            if (weather.waveTp[0] && typeof(weather.waveTp[0]) == "number"){
+                weather.waveTp.forEach((val, index) => {
+                    Tp[index] = {
+                        x:timeStamps[index],
+                        y:val
+                    };
+                });
+            }
+            if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) == "number"){
+                weather.waveDirection.forEach((val, index) => {
+                    waveDirection[index] = {
+                        x:timeStamps[index],
+                        y:val
+                    };
+                });
+            }
+            if (weather.windGust[0] && typeof(weather.windGust[0]) == "number"){
+                weather.windGust.forEach((val, index) => {
+                    windGust[index] = {
+                        x:timeStamps[index],
+                        y:val
+                    };
+                });
+            }
+            if (weather.windAvg[0] && typeof(weather.windAvg[0]) == "number"){
+                weather.windAvg.forEach((val, index) => {
+                    windAvg[index] = {
+                        x:timeStamps[index],
+                        y:val
+                    };
+                });
+            }
+
+            if (timeStamps.length > 0) {
+                this.weatherOverviewChartCalculated = true;
+                setTimeout(() => {
+                    this.operationsChart = new Chart('weatherOverview', {
+                        type: 'line',
+                        data: {
+                            datasets: [
+                                {
+                                    data: Hs,
+                                    pointHoverRadius: 10,
+                                    backgroundColor: 'blue',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    label: "Hs (m)"
+                                },
+                                {
+                                    data: Tp,
+                                    pointHoverRadius: 10,
+                                    backgroundColor: 'red',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    label: "Tp (s)"
+                                },
+                                {
+                                    data: waveDirection,
+                                    pointHoverRadius: 10,
+                                    backgroundColor: 'green',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    label: "Wave direction (deg)"
+                                },
+                                {
+                                    data: windGust,
+                                    pointHoverRadius: 10,
+                                    backgroundColor: 'magenta',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    label: "Wind gust (m/s)"
+                                },
+                                {
+                                    data: windAvg,
+                                    pointHoverRadius: 10,
+                                    backgroundColor: 'yellow',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    label: "Wind average (m/s)"
+                                }
+                            ],
+                            // labels: timeStamps
+                        },
+                        options: {
+                            title: {
+                                display: true,
+                                position: 'top',
+                                text: chartTitle,
+                                fontSize: 25
+                            },
+                            responsive: true,
+                            animation: {
+                                duration: 0
+                            },
+                            hover: {
+                                animationDuration: 0
+                            },
+                            responsiveAnimationDuration: 0,
+                            
+                            scales : {
+                                xAxes: [{
+                                  scaleLabel: {
+                                    display: true,
+                                    labelString: 'Local time'
+                                  },
+                                  type: 'time',
+                                  time: {
+                                    min: this.datetimeService.MatlabDateToUnixEpoch(weather.time[0]),
+                                    max: this.datetimeService.MatlabDateToUnixEpoch(weather.time[-1]),
+                                    unit: 'hour'
+                                }
+                                }],
+                                yAxes: [{
+                                  scaleLabel: {
+                                    display: false,
+                                    labelString: 'Various'
+                                  }
+                                }]
+                              }
+                        }
+                    });
+                }, 800);
+            }
         }
     }
 
