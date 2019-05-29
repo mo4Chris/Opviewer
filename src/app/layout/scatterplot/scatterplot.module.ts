@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { ScatterplotRoutingModule } from './scatterplot-routing.module';
 import { ScatterplotComponent } from './scatterplot.component';
 import { PageHeaderModule } from '../../shared';
-import { ChartsModule as Ng2Charts } from 'ng2-charts';
 
 // modules mongoDB
 
@@ -13,12 +12,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {CommonService} from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
     imports: [ HttpClientModule,
-        Ng2Charts,
         FormsModule,
         NgbModule.forRoot(),
+        NgMultiSelectDropDownModule.forRoot(),
         ReactiveFormsModule,
         CommonModule,
         ScatterplotRoutingModule,

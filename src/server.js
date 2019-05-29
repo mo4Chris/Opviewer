@@ -1139,14 +1139,58 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: req.body.mmsi, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        Transfermodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
             } else {
+                // console.log(data);
                 res.send(data);
             }
         });
+
+
+        // Transfermodel.find({ mmsi: [235095774,235108711], date: { $gte: req.body.dateMin, $lte: req.body.dateMax }}, testObj , function (err, data) {
+        //     if (err) {
+        //         console.log(err);
+        //         res.send(err);
+        //     } else {
+        //         for (var i = 0; i < data.length; i++) {
+        //             if(data[i].mmsi == 235095774){ 
+        //                 dataArray.push(data[i]);
+        //             } else {
+        //                 dataArray[1].push(data[i]);
+        //             }
+        //         }
+        //         //console.log(data);
+        //         res.send(dataArray);
+        //     }
+        // });
     });
 });
 
@@ -1235,6 +1279,7 @@ app.get("/api/getUserClientById/:id/:client", function (req, res) {
 
 app.post("/api/validatePermissionToViewData", function (req, res) {
     validatePermissionToViewData(req, res, function (data) {
+        console.log(data);
         res.send(data);
     });
 });

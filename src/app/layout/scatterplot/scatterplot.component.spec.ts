@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { ScatterplotRoutingModule } from './scatterplot-routing.module';
 import { PageHeaderModule } from '../../shared';
 import { CommonService } from '../../common.service';
-import { ChartsModule as Ng2Charts } from 'ng2-charts';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
@@ -19,7 +18,6 @@ describe('ScatterplotComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        Ng2Charts,
         FormsModule,
         NgbModule.forRoot(),
         ReactiveFormsModule,

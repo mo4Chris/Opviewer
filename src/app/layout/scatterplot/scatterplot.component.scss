@@ -19,6 +19,7 @@
 .boatSelectDropdown{
     height: 48px !important;
     margin-left: 20px;
+    margin-right:20px;
     width: auto !important;
 }
 .keyTD{
@@ -48,3 +49,8 @@
     color: rgb(225, 225, 225) !important;
  }
  
+ .multiSelectDiv {
+    width: 35%;
+    min-width: 300px;
+    margin-right:20px;
+}
