@@ -62,7 +62,6 @@ export class VesselreportComponent implements OnInit {
     latitude: null,
     longitude: null,
   }
-  //@ViewChild(AgmMap) googleMap: AgmMap;
   googleMap: google.maps.Map
 
   streetViewControl = false;
@@ -219,10 +218,6 @@ export class VesselreportComponent implements OnInit {
  
 
   //Handle events and get variables from child components//////////
-  onMouseOver(infoWindow, gm) {
-    this.eventService.OpenAgmInfoWindow(infoWindow, gm);
-  }
-
   getMapZoomLvl(mapZoomLvl: number): void {
     this.zoominfo.mapZoomLvl = mapZoomLvl;
   }
@@ -321,9 +316,6 @@ export class VesselreportComponent implements OnInit {
       } else {
         this.noPermissionForData = true;
       }
-      // setTimeout(() => {
-      //   this.buildGoogleMap()
-      // }, 2000);
     });
   }
 
@@ -375,6 +367,7 @@ export class VesselreportComponent implements OnInit {
   buildGoogleMap(googleMap){
     console.log('Building google map')
     this.googleMap = googleMap
+
     // drawing route
     this.boatLocationData.forEach(vessel=>{
       new google.maps.Polyline({
@@ -385,30 +378,40 @@ export class VesselreportComponent implements OnInit {
         strokeWeight: 1.5
       })
     })
-     
-    // Drawing turbines
-    this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
-      if (turbineParkLocation[0].shipHasSailedBy){
-        console.log('Hi')
-        this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer, turbineParkLocation[0].location)
-      }
-      else{
-        this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
-      }
-    })
+    // ToDo need to add a proper event emitter when location data is loaded
+    setTimeout(()=>{
+      // Drawing turbines
+      this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
+          if (turbineParkLocation[0].shipHasSailedBy){
+            this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer, turbineParkLocation[0].location, 5)
+          }
+          else{
+            this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
+          }
+        })
+      // Drawing platforms  
+      this.platformLocations.turbineLocations.forEach(platform => {
+        if (platform[0].shipHasSailedBy){
+          this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform[0].transfer, platform[0].location, 5)
+        }else if (false){
+          // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard
+          this.addMarkerToGoogleMap(this.platformMarker, platform[0].longitude, platform[0].latitude)
+        }
+
+      })
+    }, 500);
   }
 
-  addMarkerToGoogleMap(markerIcon, lon, lat, info=null, location = null){
+  addMarkerToGoogleMap(markerIcon, lon, lat, info=null, location = null, zIndex = 2){
     const markerPosition = {lat: lat, lng: lon}
     const mymarker = new google.maps.Marker({
       position: markerPosition,
       draggable: false,
       icon: markerIcon,
       map: this.googleMap,
-      zIndex: 2
+      zIndex: zIndex
     })
     if (info){
-      console.log(info)
       const contentString = 
         '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
         '<pre><br>' + 
@@ -418,77 +421,15 @@ export class VesselreportComponent implements OnInit {
         '</pre>';
       const infowindow = new google.maps.InfoWindow({
         content: contentString,
-        disableAutoPan: true
+        disableAutoPan: true,
       });
       // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
+      const openInfoWindow = (marker, infowindow) =>{
+        this.eventService.OpenAgmInfoWindow(infowindow, [], this.googleMap, marker)
+      };
       mymarker.addListener('mouseover', function (){
-        infowindow.open(this.googleMap, mymarker)
+        openInfoWindow(mymarker, infowindow);
       })
     }
   }
 }
-
-interface marker {
-	lat: number;
-	lng: number;
-	label?: string;
-  draggable: boolean;
-  mouseOverContent: any;
-}
-
-
-// <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
-// <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
-//     <!--Drawing turbines-->
-//     <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
-//         <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
-//                     (mouseOver)="onMouseOver(infoWindow, gm)">
-//             <agm-info-window #infoWindow [disableAutoPan]="true"> 
-//                 <strong style="font-size: 15px;">{{ turbineParkPerLocation[0].location }} Turbine transfers</strong>
-//                 <ng-container *ngFor="let turbinePark of turbineParkPerLocation">
-//                     <ng-container *ngIf="turbinePark.transfer" >
-//                         <pre>
-// Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
-// Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
-// Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
-//                         </pre>
-//                     </ng-container>
-//                 </ng-container>
-//             </agm-info-window>
-//         </agm-marker>
-//     </ng-container>
-//     <!-- Need 2 cases of markers in order to display info only on visited turbines -->
-//     <ng-container *ngIf="!turbineParkPerLocation[0].shipHasSailedBy">
-//         <agm-marker [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)" [iconUrl]="iconMarker" [markerClickable]="false"></agm-marker>
-//     </ng-container>
-// </ng-container>
-// <ng-container *ngFor="let platformList of platformLocations.turbineLocations; let i=index">
-//     <!--Drawing platforms-->
-//     <ng-container *ngIf="platformList[0].shipHasSailedBy">
-//         <agm-marker [zIndex]="2" [iconUrl]="visitedPlatformMarker" [latitude]="objectToInt(platformList[0].latitude)" [longitude]="objectToInt(platformList[0].longitude)" 
-//         (mouseOver)="onMouseOver(infoWindow, gm)">
-//             <agm-info-window #infoWindow  [disableAutoPan]="true">
-//                 <strong style="font-size: 15px;">{{ platformList[0].location }} Platform transfers</strong>
-//                 <ng-container *ngFor="let turbinePark of platformList">
-//                     <ng-container *ngIf="turbinePark.transfer">
-//                         <pre>
-// Start: {{getMatlabDateToCustomJSTime(turbinePark.transfer.startTime, 'HH:mm')}}
-// Stop: {{getMatlabDateToCustomJSTime(turbinePark.transfer.stopTime, 'HH:mm')}}
-// Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}}
-//                             </pre>
-//                         </ng-container>
-//                     </ng-container>
-//                 </agm-info-window>
-//             </agm-marker>
-//         </ng-container>
-//     </ng-container>
-//     <!-- Drawing the actual route-->
-//     <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5" [clickable]="false">
-//         <ng-container *ngFor="let location of boatLocationData; let i = index">
-//             <agm-polyline-point *ngFor="let loc of location.lat; let i = index" 
-//                                 [latitude]="objectToInt(loc)"
-//                                 [longitude]="objectToInt(location.lon[i])">
-//             </agm-polyline-point>
-//         </ng-container>
-//     </agm-polyline>
-// </agm-map>
