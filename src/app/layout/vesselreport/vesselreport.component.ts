@@ -365,7 +365,6 @@ export class VesselreportComponent implements OnInit {
   }
 
   buildGoogleMap(googleMap){
-    console.log('Building google map')
     this.googleMap = googleMap
 
     // drawing route
