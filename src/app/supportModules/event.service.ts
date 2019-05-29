@@ -9,6 +9,8 @@ export class EventService {
   constructor() { }
 
   OpenAgmInfoWindow(infoWindow, gm) {
+    console.log(infoWindow)
+    console.log(gm)
     if (this.previous) {
       this.closeLatestAgmInfoWindow();
     }

@@ -9,7 +9,6 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
-import moment = require('moment');
 
 @Component({
     selector: 'app-sovreport',

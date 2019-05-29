@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
 import * as moment from 'moment';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DatetimeService } from '../../supportModules/datetime.service';
@@ -17,19 +17,27 @@ import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
-import { AgmMap } from '@agm/core';
-import { MapTypeId } from '@agm/core/services/google-maps-types';
+import { LonlatService } from '../../supportModules/lonlat.service';
 
 @Component({
   selector: 'app-vesselreport',
   templateUrl: './vesselreport.component.html',
   styleUrls: ['./vesselreport.component.scss'],
-  animations: [routerTransition()]
+  animations: [routerTransition()],
 })
+
 
 export class VesselreportComponent implements OnInit {
 
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService, private eventService: EventService) {
+  constructor(public router: Router, 
+    private newService: CommonService, 
+    private route: ActivatedRoute, 
+    private calculationService: CalculationService, 
+    private dateTimeService: DatetimeService, 
+    private userService: UserService, 
+    private eventService: EventService,
+    private lonlatService: LonlatService
+    ) {
 
   }
 
@@ -48,13 +56,15 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  googleMap
+
   zoominfo = {
     mapZoomLvl: null,
     latitude: null,
     longitude: null,
   }
-  mapTypeId = 'roadmap';
+  //@ViewChild(AgmMap) googleMap: AgmMap;
+  googleMap: google.maps.Map
+
   streetViewControl = false;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
@@ -307,11 +317,13 @@ export class VesselreportComponent implements OnInit {
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
             this.sovChild.buildPageWithCurrentInformation();
           }
-          this.buildGoogleMap()
         }, 1000);
       } else {
         this.noPermissionForData = true;
       }
+      // setTimeout(() => {
+      //   this.buildGoogleMap()
+      // }, 2000);
     });
   }
 
@@ -360,50 +372,70 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
-  buildGoogleMap(){
-    const mapRef = document.getElementById('mainVesselMap');
-    this.googleMap = new google.maps.Map(
-      mapRef,
-    {
-      zoom: this.zoominfo.mapZoomLvl,
-      center: {lat:this.zoominfo.latitude,lng:this.zoominfo.longitude},
-      gestureHandling: 'cooperative',
-      mapTypeId: google.maps.MapTypeId[this.mapTypeId],
-      streetViewControl: this.streetViewControl,
+  buildGoogleMap(googleMap){
+    console.log('Building google map')
+    this.googleMap = googleMap
+    // drawing route
+    this.boatLocationData.forEach(vessel=>{
+      new google.maps.Polyline({
+        clickable: false,
+        map: this.googleMap,
+        path: this.lonlatService.lonlatarrayToLatLngArray(vessel),
+        strokeColor: '#FF0000',
+        strokeWeight: 1.5
+      })
     })
+     
     // Drawing turbines
     this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
       if (turbineParkLocation[0].shipHasSailedBy){
         console.log('Hi')
-        this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
+        this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer, turbineParkLocation[0].location)
+      }
+      else{
+        this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
       }
     })
   }
 
-  addMarkerToGoogleMap(markerIcon, lon, lat, info=null){
-    var marker = new google.maps.Marker({
-      position:{
-        lat: lat,
-        lng: lon
-      }
-    }
-    )
+  addMarkerToGoogleMap(markerIcon, lon, lat, info=null, location = null){
+    const markerPosition = {lat: lat, lng: lon}
+    const mymarker = new google.maps.Marker({
+      position: markerPosition,
+      draggable: false,
+      icon: markerIcon,
+      map: this.googleMap,
+      zIndex: 2
+    })
     if (info){
-      var contentString = '<pre><br>' + 
+      console.log(info)
+      const contentString = 
+        '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
+        '<pre><br>' + 
         "Start: " + info.startTime + '<br>' +
         "Stop: " + info.stopTime + '<br>' + 
         "Duration: " + info.duration + 
         '</pre>';
-      var infowindow = new google.maps.InfoWindow({
-        content: contentString
+      const infowindow = new google.maps.InfoWindow({
+        content: contentString,
+        disableAutoPan: true
       });
-      marker.addListener('mouseover', function (){
-        this.onMouseOver(this.googleMap, marker)
-      });
+      // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
+      mymarker.addListener('mouseover', function (){
+        infowindow.open(this.googleMap, mymarker)
+      })
     }
-    marker.setMap(this.googleMap);
   }
 }
+
+interface marker {
+	lat: number;
+	lng: number;
+	label?: string;
+  draggable: boolean;
+  mouseOverContent: any;
+}
+
 
 // <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
 // <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">

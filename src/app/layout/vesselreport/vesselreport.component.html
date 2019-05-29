@@ -47,9 +47,19 @@
                 <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
                     <b>Info,</b> parks were found but have not been visited by ship.
                 </div>
-                <agm-map class="mainVesselMap"></agm-map>
-                <!-- <agm-map #gm [scrollwheel]='null' [scaleControl] ="true" [latitude]="latitude" [longitude]="longitude" [zoom]="mapZoomLvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'">
-                    <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
+                <!-- <agm-map class="mainVesselMap"></agm-map> -->
+                <agm-map id='googleMap' #gm 
+                    [scrollwheel]='null' 
+                    [scaleControl] ="true" 
+                    [latitude]="zoominfo.latitude" 
+                    [longitude]="zoominfo.longitude" 
+                    [zoom]="zoominfo.mapZoomLvl" 
+                    [mapTypeId]="'roadmap'" 
+                    [streetViewControl]="streetViewControl" 
+                    [gestureHandling]="'cooperative'"
+                    (mapReady)="buildGoogleMap($event)"
+                    >
+                    <!-- <ng-container *ngFor="let turbineParkPerLocation of vesselTurbines.turbineLocations; let i=index">
                         
                         <ng-container *ngIf="turbineParkPerLocation[0].shipHasSailedBy">
                             <agm-marker [zIndex]="2" [iconUrl]="visitedIconMarker" [latitude]="objectToInt(turbineParkPerLocation[0].latitude)" [longitude]="objectToInt(turbineParkPerLocation[0].longitude)"
@@ -98,8 +108,8 @@ Duration: {{GetDecimalValueForNumber(turbinePark.transfer.duration, ' minutes')}
                                                 [longitude]="objectToInt(location.lon[i])">
                             </agm-polyline-point>
                         </ng-container>
-                    </agm-polyline>
-                </agm-map> -->
+                    </agm-polyline> -->
+                </agm-map>
             </div>
         </div>
         <!-- No idea -->
