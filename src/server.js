@@ -90,6 +90,12 @@ var LatLonSchema = new Schema({
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
+var PlatformLocationSchema = new Schema({
+    filename: { type: String },
+    SiteName: { type: String }
+}, { versionKey: false });
+var PlatformLocationmodel = mongo.model('platformLocations', PlatformLocationSchema, 'platformLocations');
+
 var boatCrewLocationSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -129,7 +135,7 @@ var CommentsChangedSchema = new Schema({
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
 
 var videoRequestedSchema = new Schema({
-    requestID: { type: Number },
+    requestID: Schema.Types.ObjectId,
     username: { type: String },
     mmsi: { type: Number },
     videoPath: { type: String },
@@ -158,6 +164,9 @@ var SovModel = new Schema({
     distancekm: { type: String },
     arrivalAtHarbour: { type: String },
     departureFromHarbour: { type: String },
+    lon: { type: Array },
+    lat: { type: Array },
+    time: { type: Array }
 }, { versionKey: false });
 var SovModelmodel = mongo.model('SOV_general', SovModel, 'SOV_general');
 
@@ -313,7 +322,8 @@ var turbineWarrantySchema = new Schema({
     Dates: { type: Array },
     sailMatrix: { type: Array },
     currentlyActive: { type: Array },
-    client: { type: String }
+    client: { type: String },
+    lastUpdated: { type: Number }
 }, { versionKey: false });
 var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic');
 
@@ -877,6 +887,19 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
                 res.send(arrayOfFields);
             }
         });
+    });
+});
+
+app.post("/api/getPlatformLocations", function (req, res) {
+    PlatformLocationmodel.find({
+        filename: req.body.Name
+    }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
     });
 });
 

@@ -4,6 +4,9 @@
         <h3 *ngIf="noTransits">There is no transit data available</h3>
         <table class="table table-responsive transitTable">
             <tr>
+                <ng-template #tooltip_speedknots class="helpContent">
+                    Speed in knots
+                </ng-template>
                 <td>Departure Port</td>
                 <td>{{getMatlabDateToJSTime(general.portDepartureTime)}}</td>
                 <td>Departure Wind Farm</td>
@@ -15,13 +18,13 @@
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
-                <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' knots')}}</td>
+                <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' kts')}}</td>
                 <td>Avg. speed inbound</td>
-                <td>{{roundNumber(general.AvgSpeedInbound, 10, ' knots')}}</td>
+                <td>{{roundNumber(general.AvgSpeedInbound, 10, ' kts')}}</td>
                 <td>Max. speed outbound</td>
-                <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' knots')}}</td>
+                <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' kts')}}</td>
                 <td>Max. speed inbound</td>
-                <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' knots')}}</td>
+                <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
             </tr>
             <tr>
                 <td>MSI outbound</td>

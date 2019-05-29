@@ -16,6 +16,7 @@ import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
+import { VesselPlatforms } from './models/VesselTurbines';
 
 @Component({
   selector: 'app-vesselreport',
@@ -60,9 +61,11 @@ export class VesselreportComponent implements OnInit {
   videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
   loaded = false;
   turbinesLoaded = true; //getTurbineLocationData is not always triggered
+  platformsLoaded = true;
   mapPixelWidth = 0;
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
+  platformLocations: VesselPlatforms = new VesselPlatforms();
 
   iconMarker = {
     url: '../../assets/images/turbineIcon.png',
@@ -74,6 +77,21 @@ export class VesselreportComponent implements OnInit {
 
   visitedIconMarker = {
     url: '../../assets/images/visitedTurbineIcon.png',
+    scaledSize: {
+      width: 10,
+      height: 10
+    }
+  }
+
+  platformMarker = {
+    url: '../../assets/images/oil-platform.png',
+    scaledSize: {
+      width: 10,
+      height: 10
+    }
+  }
+  visitedPlatformMarker = {
+    url: '../../assets/images/visitedPlatform.png',
     scaledSize: {
       width: 10,
       height: 10
@@ -115,7 +133,7 @@ export class VesselreportComponent implements OnInit {
               continue;    
             }
           }
-          //Reached the end, turbine has not been visited
+          //Reached the end, platform has not been visited
           if(!turbineIsVisited) {
             turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
           }
@@ -125,17 +143,65 @@ export class VesselreportComponent implements OnInit {
         });
     }
       
-      const source = from(turbines);
-      const groupedTurbines = source.pipe(
-        groupBy(turbine => turbine.latitude),
-        mergeMap(group => group.pipe(toArray()))
-      );
-      groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val));
+    const source = from(turbines);
+    const groupedTurbines = source.pipe(
+    groupBy(turbine => turbine.latitude),
+    mergeMap(group => group.pipe(toArray()))
+    );
+    groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val));
 
-      setTimeout(() => {
-        this.turbinesLoaded = true;
-      }, 1500);
+    setTimeout(() => {
+    this.turbinesLoaded = true;
+    }, 1500);
   }
+
+  getPlatformLocationData(platformLocationData: any): void {
+    this.platformsLoaded = false;
+    let locationData = platformLocationData.turbineLocations;
+    let transfers = platformLocationData.transfers;
+    let type = platformLocationData.type;
+    let vesselType = platformLocationData.vesselType;
+    let platforms: any[] = new Array<any>();
+
+    if (locationData.length > 0 && transfers.length > 0) {
+      locationData.forEach(turbineLocation => {
+        for (let index = 0; index < turbineLocation.lat.length; index++) {
+          let platformIsVisited = false;
+          for (let transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
+            let transferName = "";
+            if (vesselType == 'SOV' && type != 'Turbine') {
+              //Platform has different property name
+              transferName = transfers[transferIndex].locationname;
+            }
+            else {
+              transferName = transfers[transferIndex].location;
+            }
+            if (turbineLocation.name[index] == transferName) {
+
+              platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
+              platformIsVisited = true;
+              this.transferVisitedAtLeastOneTurbine = true;
+              continue;
+            }
+          }
+          //Reached the end, turbine has not been visited
+          if (!platformIsVisited) {
+            platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
+          }
+        }
+      });
+    }
+    const source = from(platforms);
+    const groupedTurbines = source.pipe(
+      groupBy(platforms => platforms.latitude),
+      mergeMap(group => group.pipe(toArray()))
+    );
+    groupedTurbines.subscribe(val => this.platformLocations.turbineLocations.push(val));
+    setTimeout(() => {
+        this.platformsLoaded = true;
+    }, 1500);
+  }
+ 
 
   //Handle events and get variables from child components//////////
   onMouseOver(infoWindow, gm) {
@@ -265,6 +331,7 @@ export class VesselreportComponent implements OnInit {
 
   resetRoutes() {
     this.vesselTurbines = new VesselTurbines();
+    this.platformLocations = new VesselPlatforms();
     this.boatLocationData = [];
     this.longitude = 0;
     this.latitude = 0;
