@@ -366,15 +366,51 @@ export class VesselreportComponent implements OnInit {
 
   buildGoogleMap(googleMap){
     this.googleMap = googleMap
-
     // drawing route
+    const lineSymbol = {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+    };
     this.boatLocationData.forEach(vessel=>{
       new google.maps.Polyline({
         clickable: false,
         map: this.googleMap,
         path: this.lonlatService.lonlatarrayToLatLngArray(vessel),
         strokeColor: '#FF0000',
-        strokeWeight: 1.5
+        strokeWeight: 1.5,
+        icons: [{
+          icon: lineSymbol,
+          offset: '0.5%'
+        },{
+          icon: lineSymbol,
+          offset: '10%'
+        },{
+          icon: lineSymbol,
+          offset: '20%'
+        },{
+          icon: lineSymbol,
+          offset: '30%'
+        },{
+          icon: lineSymbol,
+          offset: '40%'
+        },{
+          icon: lineSymbol,
+          offset: '50%'
+        },{
+          icon: lineSymbol,
+          offset: '60%'
+        },{
+          icon: lineSymbol,
+          offset: '70%'
+        },{
+          icon: lineSymbol,
+          offset: '80%'
+        },{
+          icon: lineSymbol,
+          offset: '90%'
+        },{
+          icon: lineSymbol,
+          offset: '100%'
+        }],
       })
     })
     // ToDo need to add a proper event emitter when location data is loaded
