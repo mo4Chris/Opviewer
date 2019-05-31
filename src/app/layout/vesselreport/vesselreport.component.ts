@@ -429,7 +429,7 @@ export class VesselreportComponent implements OnInit {
         if (platform[0].shipHasSailedBy){
           this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform[0].transfer, platform[0].location, 5)
         }else if (false){
-          // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard
+          // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
           this.addMarkerToGoogleMap(this.platformMarker, platform[0].longitude, platform[0].latitude)
         }
 
@@ -450,9 +450,9 @@ export class VesselreportComponent implements OnInit {
       const contentString = 
         '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
         '<pre><br>' + 
-        "Start: " + info.startTime + '<br>' +
-        "Stop: " + info.stopTime + '<br>' + 
-        "Duration: " + info.duration + 
+        "Start: " + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+        "Stop: " + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' + 
+        "Duration: " + this.dateTimeService.MatlabDurationToMinutes(info.duration) + 
         '</pre>';
       const infowindow = new google.maps.InfoWindow({
         content: contentString,
