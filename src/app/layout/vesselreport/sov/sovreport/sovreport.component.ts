@@ -42,10 +42,10 @@ export class SovreportComponent implements OnInit {
     // Charts
     operationsChart;
     gangwayLimitationsChart;
+    weatherOverviewChart
     operationalChartCalculated = false;
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
-    chart;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
     iconMarkerSailedBy = {
@@ -431,6 +431,11 @@ export class SovreportComponent implements OnInit {
         if (weather !== undefined) {
             //const sailingDuration = timeBreakdown.hoursSailing !== undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
             let hasData = false;
+            let hasHs = false;
+            let hasTp = false;
+            let hasDirection = false;
+            let hasWindGust = false;
+            let hasWindAvg = false;
             let timeStamps = Array();
             weather.time.forEach((timeObj, index) =>{
                 timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
@@ -441,17 +446,19 @@ export class SovreportComponent implements OnInit {
             let windGust = Array();
             let windAvg  = Array();
             let chartTitle;
+            const cb_legend = (evt, item) => {this.onLegendClick(evt, item)}
             if (weather.wavesource == "_NaN_"){
                 //chartTitle = 'Weather overview';
                 chartTitle = '';
             }else{
                 chartTitle = [
                     //'Weather overview', 
-                    'Source:' + weather.wavesource];
+                    'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
             if (weather.waveHs[0] && typeof(weather.waveHs[0]) == "number"){
                 hasData = true;
+                hasHs = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
                         x:timeStamps[index],
@@ -461,6 +468,7 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.waveTp[0] && typeof(weather.waveTp[0]) == "number"){
                 hasData = true;
+                hasTp = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
                         x:timeStamps[index],
@@ -470,6 +478,7 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) == "number"){
                 hasData = true;
+                hasDirection = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
                         x:timeStamps[index],
@@ -479,6 +488,7 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.windGust[0] && typeof(weather.windGust[0]) == "number"){
                 hasData = true;
+                hasWindGust = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
                         x:timeStamps[index],
@@ -488,6 +498,7 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.windAvg[0] && typeof(weather.windAvg[0]) == "number"){
                 hasData = true;
+                hasWindAvg = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
                         x:timeStamps[index],
@@ -495,13 +506,10 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            //
-
-            //
             if (timeStamps.length > 0 && hasData) {
                 this.weatherOverviewChartCalculated = true;
                 setTimeout(() => {
-                    this.operationsChart = new Chart('weatherOverview', {
+                    this.weatherOverviewChart = new Chart('weatherOverview', {
                         type: 'line',
                         data: {
                             datasets: [
@@ -512,7 +520,8 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Hs (m)",
-                                    hidden: Hs.length == 0
+                                    hidden: Hs.length == 0,
+                                    yAxisID: 'Hs'
                                 },
                                 {
                                     data: Tp,
@@ -521,7 +530,8 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Tp (s)",
-                                    hidden: Tp.length == 0
+                                    hidden: Tp.length == 0,
+                                    yAxisID: 'Tp'
                                 },
                                 {
                                     data: waveDirection,
@@ -530,7 +540,8 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Wave direction (deg)",
-                                    hidden: true
+                                    hidden: true,
+                                    yAxisID: 'Direction'
                                 },
                                 {
                                     data: windGust,
@@ -539,7 +550,8 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Wind gust (m/s)",
-                                    hidden: windGust.length == 0
+                                    hidden: windGust.length == 0,
+                                    yAxisID: 'Wind'
                                 },
                                 {
                                     data: windAvg,
@@ -548,7 +560,8 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Wind average (m/s)",
-                                    hidden: windAvg.length == 0
+                                    hidden: windAvg.length == 0,
+                                    yAxisID: 'Wind'
                                 }
                             ],
                             // labels: timeStamps
@@ -569,6 +582,9 @@ export class SovreportComponent implements OnInit {
                                 animationDuration: 0
                             },
                             responsiveAnimationDuration: 0,
+                            legend:{
+                                onClick: cb_legend
+                            },
                             scales : {
                                 xAxes: [{
                                   scaleLabel: {
@@ -583,22 +599,85 @@ export class SovreportComponent implements OnInit {
                                 }
                                 }],
                                 yAxes: [{
+                                    id: 'Wind',
+                                    display: hasWindGust || hasWindAvg,
                                     scaleLabel: {
                                         display: true,
-                                        labelString: ''
+                                        labelString: 'Wind'
                                     },
                                     ticks:{
                                         type: 'linear',
                                         suggestedMin: true,
-                                    }
+                                    },
+                                },
+                                {
+                                    id: 'Hs',
+                                    display: hasHs,
+                                    suggestedMax: 2,
+                                    beginAtZero: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Significant wave height (m)'
+                                    },
+                                    ticks:{
+                                        type: 'linear',
+                                        suggestedMin: true,
+                                    },
+                                },
+                                {
+                                    id: 'Tp',
+                                    display: hasTp,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Tp (s)'
+                                    },
+                                    ticks:{
+                                        type: 'linear',
+                                        suggestedMin: true,
+                                    },
+                                },
+                                {
+                                    id: 'Direction',
+                                    display: hasDirection, 
+                                    max: 360,
+                                    beginAtZero: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Direction'
+                                    },
+                                    ticks:{
+                                        type: 'linear',
+                                        suggestedMin: true,
+                                    },
                                 }]
-                              }
+                            }
                         }
                     });
                 });
             }
         }
     }
+    onLegendClick(event, item){
+        // console.log('Custom legend cb fired')
+        // console.log(item)
+        //Default cb behaviour
+        var index = item.datasetIndex;
+        var ci = this.weatherOverviewChart;
+        var meta = ci.getDatasetMeta(index);
+        // console.log(meta)
+        var yAxes = ci.options.scales.yAxes
+        const newStatus = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+        meta.hidden = newStatus
+        yAxes.forEach(ax => {
+            if (ax.id == meta.yAxisID){
+                ax.display = !newStatus;
+            }
+        });
+
+        ci.update();
+    }
+
+    
 
     private ResetTransfers() {
         this.sovModel = new SovModel();

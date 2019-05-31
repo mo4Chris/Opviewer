@@ -18,17 +18,16 @@ import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { LonlatService } from '../../supportModules/lonlat.service';
+import {} from '@agm/core/services/google-maps-types';
 
+declare const google: any;
 @Component({
   selector: 'app-vesselreport',
   templateUrl: './vesselreport.component.html',
   styleUrls: ['./vesselreport.component.scss'],
   animations: [routerTransition()],
 })
-
-
 export class VesselreportComponent implements OnInit {
-
   constructor(public router: Router, 
     private newService: CommonService, 
     private route: ActivatedRoute, 
@@ -36,7 +35,7 @@ export class VesselreportComponent implements OnInit {
     private dateTimeService: DatetimeService, 
     private userService: UserService, 
     private eventService: EventService,
-    private lonlatService: LonlatService
+    private lonlatService: LonlatService,
     ) {
 
   }
