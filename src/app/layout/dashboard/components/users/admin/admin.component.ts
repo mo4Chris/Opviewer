@@ -20,7 +20,7 @@ export class AdminComponent implements OnInit {
     this.getActiveUsers();
     
     setTimeout(() => {
-      this.setZoomLevel();;
+      this.setZoomLevel();
   });
   }
 

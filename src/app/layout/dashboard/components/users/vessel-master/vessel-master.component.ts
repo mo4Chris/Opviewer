@@ -16,7 +16,7 @@ export class VesselMasterComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.setZoomLevel();;
+      this.setZoomLevel();
   });
   }
 

@@ -16,7 +16,7 @@ export class LogisticsSpecialistComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.setZoomLevel();;
+      this.setZoomLevel();
   });
   }
 

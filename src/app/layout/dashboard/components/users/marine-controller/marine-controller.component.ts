@@ -16,7 +16,7 @@ export class MarineControllerComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.setZoomLevel();;
+      this.setZoomLevel();
   });
   }
 
