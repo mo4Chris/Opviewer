@@ -86,7 +86,10 @@ var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
 
 var LatLonSchema = new Schema({
     filename: { type: String },
-    SiteName: { type: String }
+    SiteName: { type: String },
+    centroid: { type: Object },
+    outlineLonCoordinate: {type: Array },
+    outlineLatCoordinates: {type: Array },
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
@@ -159,6 +162,7 @@ var SovModel = new Schema({
     dayNum: { type: Number },
     vesselname: { type: String },
     mmsi: { Type: Number },
+    weatherConditions: { type: Object },
     timeBreakdown: { type: Object },
     seCoverageHours: { type: String },
     distancekm: { type: String },
@@ -380,6 +384,14 @@ var activeListingsSchema = new Schema({
 }, { versionKey: false });
 var activeListingsModel = mongo.model('activeListings', activeListingsSchema, 'activeListings');
 
+var harbourSchema = new Schema({
+    name: { type: String },
+    centroid: { type: Object },
+    lon: { type: Array }, 
+    lat: { type: Array }, 
+}, { versionKey: false });
+var harbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocations');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -500,7 +512,6 @@ app.post("/api/registerUser", function (req, res) {
 
 app.post("/api/login", function (req, res) {
     let userData = req.body;
-
     Usermodel.findOne({ username: userData.username.toLowerCase() },
         function (err, user) {
             if (err) {
@@ -613,19 +624,19 @@ app.post("/api/get2faExistence", function (req, res) {
 
     Usermodel.findOne({ username: userEmail },
         function (err, user) {
-            // if (err) {
-            //     res.send(err);
-            // } else {
-            if (!user) {
-                return res.status(401).send('User does not exist');
+            if (err) {
+                res.send(err);
             } else {
-                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
-                    res.send({ secret2fa: "" });
+                if (!user) {
+                    return res.status(401).send('User does not exist');
                 } else {
-                    res.send({ secret2fa: user.secret2fa });
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                        res.send({ secret2fa: "" });
+                    } else {
+                        res.send({ secret2fa: user.secret2fa });
+                    }
                 }
             }
-            // }
         });
 });
 
@@ -680,6 +691,22 @@ app.get("/api/getVessel", function (req, res) {
             }
         });
 });
+
+app.get("/api/getHarbourLocations", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Access denied');
+    }
+    harbourModel.find({}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    })
+});
+
+//ToDo harbourLocationsByCompany
 
 app.get("/api/getSov/:mmsi/:date", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
@@ -1602,6 +1629,40 @@ app.post("/api/addVesselToFleet", function (req, res) {
             } else {
                 return res.status(400).send('Vessel is already being processed to be added');
             }
+        }
+    });
+});
+
+app.get("/api/getParkLocations", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin") {
+        return res.status(401).send('Access denied');
+    }
+    LatLonmodel.find({}, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getParkLocationForCompany/:company", function (req, res) {
+    //ToDo: windfields do not yet have associated companies
+    let companyName = req.params.company;
+    let token = verifyToken(req, res);
+    if (token.userCompany !== companyName && token.userPermission !== "admin") {
+        return res.status(401).send('Access denied');
+    }
+    ParkLocationmodel.find({
+        client: companyName
+    }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
         }
     });
 });

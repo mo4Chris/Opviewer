@@ -436,4 +436,19 @@
             </div>
         </div>
     </div>
+    
+    <div *ngIf="operationalChartCalculated">
+        <div class="row">
+            <div class="col-xl-12 col-lg-24">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Weather overview
+                    </div>
+                    <div class="weatherOverview" style="height: 400px">
+                        <canvas id="weatherOverview"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

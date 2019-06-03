@@ -8,14 +8,17 @@ export class EventService {
 
   constructor() { }
 
-  OpenAgmInfoWindow(infoWindow, gm) {
+  OpenAgmInfoWindow(infoWindow, gm, map = null, marker = null) {
     if (this.previous) {
       this.closeLatestAgmInfoWindow();
     }
     this.previous = infoWindow;
-
     gm.lastOpen = infoWindow;
-    infoWindow.open();
+    if (map){
+      infoWindow.open(map, marker);
+    }else{
+      infoWindow.open();
+    }
   }
 
   CloseAgmInfoWindow(infoWindow) {
