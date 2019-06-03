@@ -52,22 +52,22 @@ export class DashboardComponent implements OnInit {
     infoWindowOld;
 
     iconMarkerLive: mapMarkerIcon = new mapMarkerIcon(
-        'http://maps.google.com/mapfiles/kml/paddle/grn-circle.png',
+        '../assets/images/grn-circle.png',
          "Updated last hour"
     )
       
     iconMarkerHours: mapMarkerIcon = new mapMarkerIcon(
-        'http://maps.google.com/mapfiles/kml/paddle/ylw-circle.png',
+        '../assets/images/ylw-circle.png',
         "Updated < 6 hours",
       )
       
     iconMarkerOld: mapMarkerIcon = new mapMarkerIcon(
-        'http://maps.google.com/mapfiles/kml/paddle/red-circle.png',
+        '../assets/images/red-circle.png',
         "Updated > 6 hours",
       )
        
     iconHarbour: mapMarkerIcon = new mapMarkerIcon(
-        'http://maps.google.com/mapfiles/kml/shapes/marina.png',
+        '../assets/images/marina.png',
         "Harbour",
         {
             width: 20,
