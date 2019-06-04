@@ -9,6 +9,7 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
+import { TestBed } from '@angular/core/testing';
 
 @Component({
     selector: 'app-sovreport',
@@ -494,6 +495,57 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
+            // Now create collection with all the dockings and v2v operations
+            var dockingData = new Array;
+            var start;
+            var stop;
+            this.sovModel.platformTransfers.forEach((transfer)=>{
+                start = this.datetimeService.MatlabDateToUnixEpoch(transfer.arrivalTimePlatform);
+                stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.departureTimePlatform);
+                dockingData.push({x:start-0.0001 , y: -1})
+                dockingData.push({x:start , y: 1})
+                dockingData.push({x:stop , y: 1})
+                dockingData.push({x:stop+0.0001 , y: -1})
+            })
+            this.sovModel.turbineTransfers.forEach((transfer)=>{
+                start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
+                stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
+                dockingData.push({x:start-0.0001 , y: -1})
+                dockingData.push({x:start , y: 1})
+                dockingData.push({x:stop , y: 1})
+                dockingData.push({x:stop+0.0001 , y: -1})
+            })
+            this.sovModel.vessel2vessels.forEach((vessel)=>{
+                vessel.transfers.forEach(transfer =>{
+                    start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
+                    stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
+                    dockingData.push({x:start-0.0001 , y: -1})
+                    dockingData.push({x:start , y: 1})
+                    dockingData.push({x:stop , y: 1})
+                    dockingData.push({x:stop+0.0001 , y: -1})
+                });
+            })
+            Chart.Tooltip.positioners.custom = function(elements, position) {
+                const item = this._data.datasets;
+                elements = elements.filter(function (value, _i){
+                    return item[value._datasetIndex].yAxisID !== 'hidden'
+                })
+                var x_mean = 0
+                elements.forEach(elt => {
+                    x_mean += elt._model.x
+                });
+                x_mean = x_mean / elements.length;
+                var y_mean = 0
+                elements.forEach(elt => {
+                    y_mean += elt._model.y
+                });
+                y_mean = y_mean / elements.length;
+                return{
+                    x: x_mean,
+                    y: y_mean
+                }
+              }
+
             if (timeStamps.length > 0 && hasData) {
                 if (this.weatherOverviewChartCalculated){
                     this.destroyOldCharts();
@@ -505,6 +557,7 @@ export class SovreportComponent implements OnInit {
                         data: {
                             datasets: [
                                 {
+                                    label: "Hs (m)",
                                     data: Hs,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 20,
@@ -513,11 +566,11 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'blue',
                                     borderWidth: 2,
                                     fill: false,
-                                    label: "Hs (m)",
                                     hidden: Hs.length == 0,
                                     yAxisID: 'Hs'
                                 },
                                 {
+                                    label: "Tp (s)",
                                     data: Tp,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 20,
@@ -526,11 +579,11 @@ export class SovreportComponent implements OnInit {
                                     borderColor:'red',
                                     borderWidth: 2,
                                     fill: false,
-                                    label: "Tp (s)",
                                     hidden: true,
                                     yAxisID: 'Tp'
                                 },
                                 {
+                                    label: "Wave direction (deg)",
                                     data: waveDirection,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 20,
@@ -539,11 +592,11 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'green',
                                     borderWidth: 2,
                                     fill: false,
-                                    label: "Wave direction (deg)",
                                     hidden: true,
                                     yAxisID: 'Direction'
                                 },
                                 {
+                                    label: "Wind gust (m/s)",
                                     data: windGust,
                                     pointRadius: 0,
                                     pointHoverRadius: 5,
@@ -552,11 +605,11 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'magenta',
                                     borderWidth: 2,
                                     fill: false,
-                                    label: "Wind gust (m/s)",
                                     hidden: true,
                                     yAxisID: 'Wind'
                                 },
                                 {
+                                    label: "Wind average (m/s)",
                                     data: windAvg,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 20,
@@ -565,9 +618,18 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'orange',
                                     borderWidth: 2.5,
                                     fill: false,
-                                    label: "Wind average (m/s)",
                                     hidden: windAvg.length == 0,
                                     yAxisID: 'Wind'
+                                },
+                                {
+                                    label: 'Vessel activity',
+                                    data: dockingData,
+                                    pointHoverRadius: 0,
+                                    pointHitRadius: 0,
+                                    pointRadius: 0,
+                                    borderWidth: 0,
+                                    yAxisID: 'hidden',
+                                    lineTension: 0,
                                 }
                             ],
                         },
@@ -655,9 +717,19 @@ export class SovreportComponent implements OnInit {
                                         suggestedMin: 0,
                                         suggestedMax: 360
                                     },
+                                },{
+                                    id: 'hidden',
+                                    display: false,
+                                    ticks:{
+                                        type: 'linear',
+                                        maxTicksLimit: 7,
+                                        min: 0,
+                                        suggestedMax: 1
+                                    },
                                 }]
                             },
                             tooltips: {
+                                position: 'custom',
                                 callbacks: {
                                     label: function(tooltipItem, data) {
                                         const dset = data.datasets[tooltipItem.datasetIndex]
@@ -667,9 +739,12 @@ export class SovreportComponent implements OnInit {
                                             label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
                                         }
                                         return label;
-                                    }
+                                    },
                                 },
                                 mode: 'index',
+                                filter: function (tooltip, data){
+                                    return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
+                                }
                             }
                         }
                     });
