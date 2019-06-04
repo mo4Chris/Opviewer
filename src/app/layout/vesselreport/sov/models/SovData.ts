@@ -3,6 +3,7 @@ export class SovData {
     dayNum: number;
     vesselname: string;
     mmsi: number;
+    weatherConditions: weatherConditionModel;
     timeBreakdown: any;
     seCoverageHours: string;
     distancekm: string;
@@ -15,4 +16,14 @@ export class SovData {
         this.lon = [];
         this.lat = [];
     }
+}
+
+class weatherConditionModel{
+    wavesource: string;
+    time: number[];
+    waveDirection: number[];
+    waveHs: number[];
+    waveTp: number[];
+    windAvg: number[];
+    windGust: number[];
 }

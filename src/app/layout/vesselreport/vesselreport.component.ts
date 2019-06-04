@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 
 import * as moment from 'moment';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DatetimeService } from '../../supportModules/datetime.service';
@@ -17,17 +17,26 @@ import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
+import { LonlatService } from '../../supportModules/lonlat.service';
+import {} from '@agm/core/services/google-maps-types';
 
+declare const google: any;
 @Component({
   selector: 'app-vesselreport',
   templateUrl: './vesselreport.component.html',
   styleUrls: ['./vesselreport.component.scss'],
-  animations: [routerTransition()]
+  animations: [routerTransition()],
 })
-
 export class VesselreportComponent implements OnInit {
-
-  constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private calculationService: CalculationService, private dateTimeService: DatetimeService, private userService: UserService, private eventService: EventService) {
+  constructor(public router: Router, 
+    private newService: CommonService, 
+    private route: ActivatedRoute, 
+    private calculationService: CalculationService, 
+    private dateTimeService: DatetimeService, 
+    private userService: UserService, 
+    private eventService: EventService,
+    private lonlatService: LonlatService,
+    ) {
 
   }
 
@@ -46,10 +55,14 @@ export class VesselreportComponent implements OnInit {
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
-  mapZoomLvl;
-  latitude;
-  longitude;
-  mapTypeId = 'roadmap';
+
+  zoominfo = {
+    mapZoomLvl: null,
+    latitude: null,
+    longitude: null,
+  }
+  googleMap: google.maps.Map
+
   streetViewControl = false;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
   alert = { type: '', message: '' };
@@ -204,20 +217,16 @@ export class VesselreportComponent implements OnInit {
  
 
   //Handle events and get variables from child components//////////
-  onMouseOver(infoWindow, gm) {
-    this.eventService.OpenAgmInfoWindow(infoWindow, gm);
-  }
-
   getMapZoomLvl(mapZoomLvl: number): void {
-    this.mapZoomLvl = mapZoomLvl;
+    this.zoominfo.mapZoomLvl = mapZoomLvl;
   }
 
   getLongitude(longitude: any): void {
-    this.longitude = longitude;
+    this.zoominfo.longitude = longitude;
   }
 
   getLatitude(latitude: any): void {
-    this.latitude = latitude;
+    this.zoominfo.latitude = latitude;
   }
 
   getBoatLocationData(boatLocationData: any[]): void {
@@ -295,13 +304,13 @@ export class VesselreportComponent implements OnInit {
         if(map != null) {
           this.mapPixelWidth = map.offsetWidth;
         }
+        //ToDo clear timeout when data is loaded
         setTimeout(() => {
           if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
             this.ctvChild.buildPageWithCurrentInformation();
           } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
             this.sovChild.buildPageWithCurrentInformation();
           }
-
         }, 1000);
       } else {
         this.noPermissionForData = true;
@@ -333,8 +342,8 @@ export class VesselreportComponent implements OnInit {
     this.vesselTurbines = new VesselTurbines();
     this.platformLocations = new VesselPlatforms();
     this.boatLocationData = [];
-    this.longitude = 0;
-    this.latitude = 0;
+    this.zoominfo.longitude = 0;
+    this.zoominfo.latitude = 0;
     this.showMap = false;
     this.routeFound = false;
     this.parkFound = false;
@@ -352,5 +361,109 @@ export class VesselreportComponent implements OnInit {
         this.general = {};
       }
     });
+  }
+
+  buildGoogleMap(googleMap){
+    this.googleMap = googleMap
+    // drawing route
+    const lineSymbol = {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+    };
+    this.boatLocationData.forEach(vessel=>{
+      new google.maps.Polyline({
+        clickable: false,
+        map: this.googleMap,
+        path: this.lonlatService.lonlatarrayToLatLngArray(vessel),
+        strokeColor: '#FF0000',
+        strokeWeight: 1.5,
+        icons: [{
+          icon: lineSymbol,
+          offset: '0.5%'
+        },{
+          icon: lineSymbol,
+          offset: '10%'
+        },{
+          icon: lineSymbol,
+          offset: '20%'
+        },{
+          icon: lineSymbol,
+          offset: '30%'
+        },{
+          icon: lineSymbol,
+          offset: '40%'
+        },{
+          icon: lineSymbol,
+          offset: '50%'
+        },{
+          icon: lineSymbol,
+          offset: '60%'
+        },{
+          icon: lineSymbol,
+          offset: '70%'
+        },{
+          icon: lineSymbol,
+          offset: '80%'
+        },{
+          icon: lineSymbol,
+          offset: '90%'
+        },{
+          icon: lineSymbol,
+          offset: '100%'
+        }],
+      })
+    })
+    // ToDo need to add a proper event emitter when location data is loaded
+    setTimeout(()=>{
+      // Drawing turbines
+      this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
+          if (turbineParkLocation[0].shipHasSailedBy){
+            this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer, turbineParkLocation[0].location, 5)
+          }
+          else{
+            this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer)
+          }
+        })
+      // Drawing platforms  
+      this.platformLocations.turbineLocations.forEach(platform => {
+        if (platform[0].shipHasSailedBy){
+          this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform[0].transfer, platform[0].location, 5)
+        }else if (false){
+          // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
+          this.addMarkerToGoogleMap(this.platformMarker, platform[0].longitude, platform[0].latitude)
+        }
+
+      })
+    }, 500);
+  }
+
+  addMarkerToGoogleMap(markerIcon, lon, lat, info=null, location = null, zIndex = 2){
+    const markerPosition = {lat: lat, lng: lon}
+    const mymarker = new google.maps.Marker({
+      position: markerPosition,
+      draggable: false,
+      icon: markerIcon,
+      map: this.googleMap,
+      zIndex: zIndex
+    })
+    if (info){
+      const contentString = 
+        '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
+        '<pre><br>' + 
+        "Start: " + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+        "Stop: " + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' + 
+        "Duration: " + this.dateTimeService.MatlabDurationToMinutes(info.duration) + 
+        '</pre>';
+      const infowindow = new google.maps.InfoWindow({
+        content: contentString,
+        disableAutoPan: true,
+      });
+      // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
+      const openInfoWindow = (marker, infowindow) =>{
+        this.eventService.OpenAgmInfoWindow(infowindow, [], this.googleMap, marker)
+      };
+      mymarker.addListener('mouseover', function (){
+        openInfoWindow(mymarker, infowindow);
+      })
+    }
   }
 }

@@ -1,34 +1,54 @@
 <div [@routerTransition]>
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
-    <agm-map #gm [latitude]="latitude" [longitude]="longitude" [zoom]="zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
-        <ng-container *ngFor="let location of locationData; let i=index" >
-             <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" >
-             	<agm-info-window #infoWindow>
-                    <pre>
-<strong style="font-size: 15px;">{{ location.vesselInformation[location.vesselInformation.length -1]}}</strong>
-MMSI: {{location._id}}
-Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}
-<br>
-<button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(location._id)" type="button">Go to DPR</button>
-                    </pre>
-     	        </agm-info-window>
-             </agm-marker>
-        </ng-container>
-    </agm-map>
+    <div class="divContainer" fxFlex="100">
+        <agm-map #gm [latitude]="zoominfo.latitude" [longitude]="zoominfo.longitude" [zoom]="zoominfo.zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
 
-    <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
+            <agm-marker-cluster [averageCenter]="true" [minimumClusterSize]="3" [imagePath]="clustererImagePathPark" [styles]=clusterStylePark [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
+                <div *ngFor="let field of parkLocations">
+                    <agm-marker [latitude]="field.centroid.lat" [longitude]="field.centroid.lon" [iconUrl]="iconWindfield" [markerClickable]="false"></agm-marker>
+                </div>
+            </agm-marker-cluster >
+
+            <div *ngFor="let harbour of harbourLocations">
+                <agm-marker [latitude]="harbour.centroid.lat" [longitude]="harbour.centroid.lon" [iconUrl]="iconHarbour" [markerClickable]="false"></agm-marker>
+            </div>
+
+            <agm-marker-cluster [averageCenter]="true" [imagePath]="clustererImagePathVessels" [styles]=clusterStyleVessels [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
+                <ng-container *ngFor="let location of locationData; let i=index" >
+                    <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" [iconUrl]="location.markerIcon" [zIndex]=500>
+                        <agm-info-window #infoWindow [disableAutoPan]="true">
+                            <pre>
+<strong style="font-size: 15px;">{{ location.vesselInformation[location.vesselInformation.length -1]}}</strong>
+MMSI: {{location._id}}  -  {{clustererMaxZoom}}
+Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}<br>
+<button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(location._id)" type="button">Go to DPR</button>
+                            </pre>
+                        </agm-info-window>
+                    </agm-marker>
+                </ng-container>
+            </agm-marker-cluster >
+
+        </agm-map>
+        <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
+        <div id="mapLegendID" class="mapLegend">
+            <h2> 
+                Legend
+            </h2>
+        </div>
+    </div>
 </div>
+
 
 <!-- Currently, children are only used for one-way binding. When filled with content. Move to content above. -->
 <div *ngIf="tokenInfo.userPermission == userType.Admin">
-    <app-admin [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" ></app-admin>
+    <app-admin [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-admin>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.LogisticsSpecialist">
-    <app-logistics-specialist [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" ></app-logistics-specialist>
+    <app-logistics-specialist [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-logistics-specialist>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.MarineController">
-    <app-marine-controller [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" ></app-marine-controller>
+    <app-marine-controller [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)"  (zoominfo)="getZoominfo($event)"></app-marine-controller>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.Vesselmaster">
-    <app-vessel-master [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" ></app-vessel-master>
+    <app-vessel-master [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-vessel-master>
 </div>

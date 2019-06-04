@@ -63,6 +63,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getHarbourLocations() {
+    return this.get(environment.DB_IP + '/api/getHarbourLocations/').pipe(
+      map((response: Response) => response.json()));
+  }
+
   getDistinctFieldnames(transferdata) {
     return this.post(environment.DB_IP + '/api/getDistinctFieldnames/', transferdata).pipe(
       map((response: Response) => response.json()));
@@ -80,6 +85,16 @@ export class CommonService {
 
   getSpecificPark(park) {
     return this.post(environment.DB_IP + '/api/getSpecificPark/', park).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getParkLocations() {
+    return this.get(environment.DB_IP + '/api/getParkLocations').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getParkLocationForCompany(company) {
+    return this.get(environment.DB_IP + '/api/getParkLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));
   }
 
