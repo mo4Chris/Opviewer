@@ -429,13 +429,7 @@ export class SovreportComponent implements OnInit {
     createWeatherOverviewChart() {
         let weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
-            //const sailingDuration = timeBreakdown.hoursSailing !== undefined ? timeBreakdown.hoursSailing.toFixed(1) : 0;
             let hasData = false;
-            let hasHs = false;
-            let hasTp = false;
-            let hasDirection = false;
-            let hasWindGust = false;
-            let hasWindAvg = false;
             let timeStamps = Array();
             weather.time.forEach((timeObj, index) =>{
                 timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
@@ -446,7 +440,6 @@ export class SovreportComponent implements OnInit {
             let windGust = Array();
             let windAvg  = Array();
             let chartTitle;
-            const cb_legend = (evt, item) => {this.onLegendClick(evt, item)}
             if (weather.wavesource == "_NaN_"){
                 //chartTitle = 'Weather overview';
                 chartTitle = '';
@@ -458,7 +451,6 @@ export class SovreportComponent implements OnInit {
             // Loading each of the weather sources if they exist and are not NaN
             if (weather.waveHs[0] && typeof(weather.waveHs[0]) == "number"){
                 hasData = true;
-                hasHs = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
                         x:timeStamps[index],
@@ -468,7 +460,6 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.waveTp[0] && typeof(weather.waveTp[0]) == "number"){
                 hasData = true;
-                hasTp = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
                         x:timeStamps[index],
@@ -478,7 +469,6 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) == "number"){
                 hasData = true;
-                hasDirection = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
                         x:timeStamps[index],
@@ -488,7 +478,6 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.windGust[0] && typeof(weather.windGust[0]) == "number"){
                 hasData = true;
-                hasWindGust = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
                         x:timeStamps[index],
@@ -498,7 +487,6 @@ export class SovreportComponent implements OnInit {
             }
             if (weather.windAvg[0] && typeof(weather.windAvg[0]) == "number"){
                 hasData = true;
-                hasWindAvg = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
                         x:timeStamps[index],
@@ -530,7 +518,7 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Tp (s)",
-                                    hidden: Tp.length == 0,
+                                    hidden: true,
                                     yAxisID: 'Tp'
                                 },
                                 {
@@ -550,7 +538,7 @@ export class SovreportComponent implements OnInit {
                                     borderWidth: 3,
                                     fill: false,
                                     label: "Wind gust (m/s)",
-                                    hidden: windGust.length == 0,
+                                    hidden: true,
                                     yAxisID: 'Wind'
                                 },
                                 {
@@ -564,14 +552,15 @@ export class SovreportComponent implements OnInit {
                                     yAxisID: 'Wind'
                                 }
                             ],
-                            // labels: timeStamps
                         },
                         options: {
                             title: {
-                                display: true,
-                                position: 'top',
+                                display: chartTitle !== '',
+                                position: 'right',
                                 text: chartTitle,
-                                fontSize: 25
+                                fontSize: 15,
+                                padding: 5,
+                                fontStyle: 'normal',
                             },
                             responsive: true,
                             maintainAspectRatio: false,
@@ -582,9 +571,6 @@ export class SovreportComponent implements OnInit {
                                 animationDuration: 0
                             },
                             responsiveAnimationDuration: 0,
-                            legend:{
-                                onClick: cb_legend
-                            },
                             scales : {
                                 xAxes: [{
                                   scaleLabel: {
@@ -600,10 +586,10 @@ export class SovreportComponent implements OnInit {
                                 }],
                                 yAxes: [{
                                     id: 'Wind',
-                                    display: hasWindGust || hasWindAvg,
+                                    display: 'auto',
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Wind'
+                                        labelString: 'Wind speed (m/s)'
                                     },
                                     ticks:{
                                         type: 'linear',
@@ -612,12 +598,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     id: 'Hs',
-                                    display: hasHs,
+                                    display: 'auto',
                                     suggestedMax: 2,
                                     beginAtZero: true,
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Significant wave height (m)'
+                                        labelString: 'Hs (m)'
                                     },
                                     ticks:{
                                         type: 'linear',
@@ -626,7 +612,7 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     id: 'Tp',
-                                    display: hasTp,
+                                    display: 'auto',
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Tp (s)'
@@ -638,12 +624,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     id: 'Direction',
-                                    display: hasDirection, 
+                                    display: 'auto', 
                                     max: 360,
                                     beginAtZero: true,
                                     scaleLabel: {
                                         display: true,
-                                        labelString: 'Direction'
+                                        labelString: 'Direction (deg)'
                                     },
                                     ticks:{
                                         type: 'linear',
@@ -657,27 +643,6 @@ export class SovreportComponent implements OnInit {
             }
         }
     }
-    onLegendClick(event, item){
-        // console.log('Custom legend cb fired')
-        // console.log(item)
-        //Default cb behaviour
-        var index = item.datasetIndex;
-        var ci = this.weatherOverviewChart;
-        var meta = ci.getDatasetMeta(index);
-        // console.log(meta)
-        var yAxes = ci.options.scales.yAxes
-        const newStatus = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-        meta.hidden = newStatus
-        yAxes.forEach(ax => {
-            if (ax.id == meta.yAxisID){
-                ax.display = !newStatus;
-            }
-        });
-
-        ci.update();
-    }
-
-    
 
     private ResetTransfers() {
         this.sovModel = new SovModel();
