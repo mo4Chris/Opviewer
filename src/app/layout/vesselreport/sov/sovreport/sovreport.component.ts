@@ -9,7 +9,6 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
-import { ConsoleReporter } from 'jasmine';
 
 @Component({
     selector: 'app-sovreport',
@@ -496,6 +495,9 @@ export class SovreportComponent implements OnInit {
                 });
             }
             if (timeStamps.length > 0 && hasData) {
+                if (this.weatherOverviewChartCalculated){
+                    this.destroyOldCharts();
+                }
                 this.weatherOverviewChartCalculated = true;
                 setTimeout(() => {
                     this.weatherOverviewChart = new Chart('weatherOverview', {
@@ -686,6 +688,9 @@ export class SovreportComponent implements OnInit {
         const final = !hidden
         return (final)
     }
+    destroyOldCharts(): void {
+        this.weatherOverviewChart.destroy()
+      }
 
     private ResetTransfers() {
         this.sovModel = new SovModel();
