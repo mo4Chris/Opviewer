@@ -9,6 +9,7 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
+import { ConsoleReporter } from 'jasmine';
 
 @Component({
     selector: 'app-sovreport',
@@ -503,9 +504,12 @@ export class SovreportComponent implements OnInit {
                             datasets: [
                                 {
                                     data: Hs,
-                                    pointHoverRadius: 10,
+                                    pointHoverRadius: 5,
+                                    pointHitRadius: 20,
+                                    pointRadius: 0,
                                     backgroundColor: 'blue',
-                                    borderWidth: 3,
+                                    borderColor: 'blue',
+                                    borderWidth: 2,
                                     fill: false,
                                     label: "Hs (m)",
                                     hidden: Hs.length == 0,
@@ -513,9 +517,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     data: Tp,
-                                    pointHoverRadius: 10,
+                                    pointHoverRadius: 5,
+                                    pointHitRadius: 20,
+                                    pointRadius: 0,
                                     backgroundColor: 'red',
-                                    borderWidth: 3,
+                                    borderColor:'red',
+                                    borderWidth: 2,
                                     fill: false,
                                     label: "Tp (s)",
                                     hidden: true,
@@ -523,9 +530,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     data: waveDirection,
-                                    pointHoverRadius: 10,
+                                    pointHoverRadius: 5,
+                                    pointHitRadius: 20,
+                                    pointRadius: 0,
                                     backgroundColor: 'green',
-                                    borderWidth: 3,
+                                    borderColor: 'green',
+                                    borderWidth: 2,
                                     fill: false,
                                     label: "Wave direction (deg)",
                                     hidden: true,
@@ -533,9 +543,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     data: windGust,
-                                    pointHoverRadius: 10,
+                                    pointRadius: 0,
+                                    pointHoverRadius: 5,
+                                    pointHitRadius: 20,
                                     backgroundColor: 'magenta',
-                                    borderWidth: 3,
+                                    borderColor: 'magenta',
+                                    borderWidth: 2,
                                     fill: false,
                                     label: "Wind gust (m/s)",
                                     hidden: true,
@@ -543,9 +556,12 @@ export class SovreportComponent implements OnInit {
                                 },
                                 {
                                     data: windAvg,
-                                    pointHoverRadius: 10,
-                                    backgroundColor: 'yellow',
-                                    borderWidth: 3,
+                                    pointHoverRadius: 5,
+                                    pointHitRadius: 20,
+                                    pointRadius: 0,
+                                    backgroundColor: 'orange',
+                                    borderColor: 'orange',
+                                    borderWidth: 2.5,
                                     fill: false,
                                     label: "Wind average (m/s)",
                                     hidden: windAvg.length == 0,
@@ -593,7 +609,8 @@ export class SovreportComponent implements OnInit {
                                     },
                                     ticks:{
                                         type: 'linear',
-                                        suggestedMin: true,
+                                        maxTicksLimit: 7,
+                                        suggestedMin: 0,
                                     },
                                 },
                                 {
@@ -607,8 +624,9 @@ export class SovreportComponent implements OnInit {
                                     },
                                     ticks:{
                                         type: 'linear',
-                                        suggestedMin: true,
-                                    },
+                                        maxTicksLimit: 7,
+                                        suggestedMin: 0,
+                                    }
                                 },
                                 {
                                     id: 'Tp',
@@ -619,29 +637,54 @@ export class SovreportComponent implements OnInit {
                                     },
                                     ticks:{
                                         type: 'linear',
-                                        suggestedMin: true,
+                                        maxTicksLimit: 7,
                                     },
                                 },
                                 {
                                     id: 'Direction',
                                     display: 'auto', 
-                                    max: 360,
-                                    beginAtZero: true,
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Direction (deg)'
                                     },
                                     ticks:{
                                         type: 'linear',
-                                        suggestedMin: true,
+                                        maxTicksLimit: 7,
+                                        suggestedMin: 0,
+                                        suggestedMax: 360
                                     },
                                 }]
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItem, data) {
+                                        const dset = data.datasets[tooltipItem.datasetIndex]
+                                        var label = dset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                            label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
+                                        }
+                                        return label;
+                                    }
+                                },
+                                mode: 'index',
                             }
                         }
                     });
                 });
             }
         }
+    }
+    datasetIsActive(dset, dsetIndex, chart){
+        const meta = chart.getDatasetMeta(dsetIndex)
+        let hidden 
+        if (meta.hidden === null) {
+            hidden = dset.hidden === true
+        } else{
+            hidden = meta.hidden;
+        }
+        const final = !hidden
+        return (final)
     }
 
     private ResetTransfers() {
