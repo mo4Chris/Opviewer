@@ -502,27 +502,24 @@ export class SovreportComponent implements OnInit {
             this.sovModel.platformTransfers.forEach((transfer)=>{
                 start = this.datetimeService.MatlabDateToUnixEpoch(transfer.arrivalTimePlatform);
                 stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.departureTimePlatform);
-                dockingData.push({x:start-0.0001 , y: -1})
                 dockingData.push({x:start , y: 1})
                 dockingData.push({x:stop , y: 1})
-                dockingData.push({x:stop+0.0001 , y: -1})
+                dockingData.push({x:stop+0.0001 , y: NaN})
             })
             this.sovModel.turbineTransfers.forEach((transfer)=>{
                 start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
                 stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
-                dockingData.push({x:start-0.0001 , y: -1})
                 dockingData.push({x:start , y: 1})
                 dockingData.push({x:stop , y: 1})
-                dockingData.push({x:stop+0.0001 , y: -1})
+                dockingData.push({x:stop+0.0001 , y: NaN})
             })
             this.sovModel.vessel2vessels.forEach((vessel)=>{
                 vessel.transfers.forEach(transfer =>{
                     start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
                     stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
-                    dockingData.push({x:start-0.0001 , y: -1})
                     dockingData.push({x:start , y: 1})
                     dockingData.push({x:stop , y: 1})
-                    dockingData.push({x:stop+0.0001 , y: -1})
+                    dockingData.push({x:stop+0.0001 , y: NaN})
                 });
             })
             Chart.Tooltip.positioners.custom = function(elements, position) {
@@ -560,7 +557,7 @@ export class SovreportComponent implements OnInit {
                                     label: "Hs (m)",
                                     data: Hs,
                                     pointHoverRadius: 5,
-                                    pointHitRadius: 20,
+                                    pointHitRadius: 30,
                                     pointRadius: 0,
                                     backgroundColor: 'blue',
                                     borderColor: 'blue',
@@ -573,7 +570,7 @@ export class SovreportComponent implements OnInit {
                                     label: "Tp (s)",
                                     data: Tp,
                                     pointHoverRadius: 5,
-                                    pointHitRadius: 20,
+                                    pointHitRadius: 30,
                                     pointRadius: 0,
                                     backgroundColor: 'red',
                                     borderColor:'red',
@@ -586,7 +583,7 @@ export class SovreportComponent implements OnInit {
                                     label: "Wave direction (deg)",
                                     data: waveDirection,
                                     pointHoverRadius: 5,
-                                    pointHitRadius: 20,
+                                    pointHitRadius: 30,
                                     pointRadius: 0,
                                     backgroundColor: 'green',
                                     borderColor: 'green',
@@ -600,7 +597,7 @@ export class SovreportComponent implements OnInit {
                                     data: windGust,
                                     pointRadius: 0,
                                     pointHoverRadius: 5,
-                                    pointHitRadius: 20,
+                                    pointHitRadius: 30,
                                     backgroundColor: 'magenta',
                                     borderColor: 'magenta',
                                     borderWidth: 2,
@@ -612,7 +609,7 @@ export class SovreportComponent implements OnInit {
                                     label: "Wind average (m/s)",
                                     data: windAvg,
                                     pointHoverRadius: 5,
-                                    pointHitRadius: 20,
+                                    pointHitRadius: 30,
                                     pointRadius: 0,
                                     backgroundColor: 'orange',
                                     borderColor: 'orange',
@@ -744,7 +741,7 @@ export class SovreportComponent implements OnInit {
                                 mode: 'index',
                                 filter: function (tooltip, data){
                                     return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
-                                }
+                                },
                             }
                         }
                     });
