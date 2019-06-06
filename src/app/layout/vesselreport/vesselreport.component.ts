@@ -1,3 +1,4 @@
+/// <reference types="@types/googlemaps" />
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
@@ -19,6 +20,7 @@ import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { LonlatService } from '../../supportModules/lonlat.service';
 import {} from '@agm/core/services/google-maps-types';
+
 
 declare const google: any;
 @Component({
