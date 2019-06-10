@@ -116,6 +116,30 @@
             </div>
         </div>
     </div>
+    <div *ngIf="weatherOverviewChartCalculated">
+        <div class="row">
+            <div class="col-xl-12 col-lg-24">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Weather overview
+                        <ng-template #popContentWeatherOverview class="helpContent">
+                            Weather overview for selected day and vessel. 
+                            By default, only Hs and avg wind speed are shown.
+                            Hidden or missing data is crossed through. To show or 
+                            hide a particular dataset, click on the colored
+                            bars in the legend. Hovering over the graph will 
+                            display the recorded values at any time.
+                        </ng-template>
+                        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
+                            [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+                    </div>
+                    <div class="weatherOverview" style="height: 400px">
+                        <canvas id="weatherOverview"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
         <br />
         <div class="col-xl-12 col-lg-24">
@@ -432,21 +456,6 @@
                             </ng-container>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div *ngIf="operationalChartCalculated">
-        <div class="row">
-            <div class="col-xl-12 col-lg-24">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Weather overview
-                    </div>
-                    <div class="weatherOverview" style="height: 400px">
-                        <canvas id="weatherOverview"></canvas>
-                    </div>
                 </div>
             </div>
         </div>
