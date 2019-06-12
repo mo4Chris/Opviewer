@@ -9,7 +9,6 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
-import { TestBed } from '@angular/core/testing';
 
 @Component({
     selector: 'app-sovreport',
@@ -496,9 +495,9 @@ export class SovreportComponent implements OnInit {
                 });
             }
             // Now create collection with all the dockings and v2v operations
-            var dockingData = new Array;
-            var start;
-            var stop;
+            let dockingData = new Array;
+            let start;
+            let stop;
             this.sovModel.platformTransfers.forEach((transfer)=>{
                 start = this.datetimeService.MatlabDateToUnixEpoch(transfer.arrivalTimePlatform);
                 stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.departureTimePlatform);
@@ -527,12 +526,12 @@ export class SovreportComponent implements OnInit {
                 elements = elements.filter(function (value, _i){
                     return item[value._datasetIndex].yAxisID !== 'hidden'
                 })
-                var x_mean = 0
+                let x_mean = 0
                 elements.forEach(elt => {
                     x_mean += elt._model.x
                 });
                 x_mean = x_mean / elements.length;
-                var y_mean = 0
+                let y_mean = 0
                 elements.forEach(elt => {
                     y_mean += elt._model.y
                 });
@@ -730,7 +729,7 @@ export class SovreportComponent implements OnInit {
                                 callbacks: {
                                     label: function(tooltipItem, data) {
                                         const dset = data.datasets[tooltipItem.datasetIndex]
-                                        var label = dset.label || '';
+                                        let label = dset.label || '';
                                         if (label) {
                                             label += ': ';
                                             label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;

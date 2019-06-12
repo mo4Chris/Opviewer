@@ -6,8 +6,8 @@ import { Injectable } from '@angular/core';
   export class LonlatService{
     
     lonlatarrayToLatLngArray(input){
-        var latlngArray: Array<google.maps.LatLng> = [];
-        var latlng;
+        let latlngArray: Array<google.maps.LatLng> = [];
+        let latlng;
         input.lon.forEach((lon, index) => {
             if (input.lat[index][0]) {
                 latlng = {
