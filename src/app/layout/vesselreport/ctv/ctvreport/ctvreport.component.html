@@ -54,7 +54,7 @@
     </div>
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
-        <h3>Dockings</h3>
+        <h3>Dockings <button (click)="openModal(content)" class="btn btn-md btn-primary submitBtnDate" type="button"> Enter userinput</button></h3>
         <table class="table table-hover table-striped">
             <thead>
                 <tr>
@@ -102,6 +102,20 @@
                 </tr>
             </tbody>
         </table>
+        <ng-template #content let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title">Fill out daily statistics</h4>
+                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" (click)="closeModal()">Close without saving</button>
+                <button type="button" class="btn btn-primary" (click)="closeModal()">Save and close</button>
+            </div>
+        </ng-template> 
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
     <div class="row">
