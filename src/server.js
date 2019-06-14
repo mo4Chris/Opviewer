@@ -62,7 +62,7 @@ var Usermodel = mongo.model('users', userSchema, 'users');
 var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
-    client: { type: String },
+    client: { type: Array },
     mmsi: { type: Number }
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
@@ -694,9 +694,10 @@ app.get("/api/getVessel", function (req, res) {
 
 app.get("/api/getHarbourLocations", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Access denied');
-    }
+    // ToDo: temp disabled untill feature has been enabled
+    //if (token.userPermission !== 'admin') {
+    //     return res.status(401).send('Access denied');
+    // }
     harbourModel.find({}, function (err, data) {
         if (err) {
             res.send(err);
@@ -1635,9 +1636,10 @@ app.post("/api/addVesselToFleet", function (req, res) {
 
 app.get("/api/getParkLocations", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== "admin") {
-        return res.status(401).send('Access denied');
-    }
+    // ToDo: temp disabled admin check since feature has not been implemented yet 
+    //if (token.userPermission !== "admin") {
+    //     return res.status(401).send('Access denied');
+    // }
     LatLonmodel.find({}, function (err, data) {
         if (err) {
             console.log(err);
@@ -1650,7 +1652,7 @@ app.get("/api/getParkLocations", function (req, res) {
 
 app.get("/api/getParkLocationForCompany/:company", function (req, res) {
     //ToDo: windfields do not yet have associated companies
-    let companyName = req.params.company;
+    let companyName = req.params.company.replace('-', ' ');
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Access denied');
