@@ -9,9 +9,9 @@ import { LogisticsSpecialistComponent } from './components/users/logistics-speci
 import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
 import { Usertype } from '../../shared/enums/UserType';
-import { EventService } from '../../supportModules/event.service'; 
+import { EventService } from '../../supportModules/event.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
-import { CommonService } from '../../common.service'
+import { CommonService } from '../../common.service';
 import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 
 
@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
         longitude: 0,
         latitude: 0,
         zoomlvl: 7
-    }
+    };
     mapTypeId = 'roadmap';
     streetViewControl = false;
     clusterStylePark: ClusterStyle[];
@@ -53,41 +53,41 @@ export class DashboardComponent implements OnInit {
 
     iconMarkerLive: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/grn-circle.png',
-         "Updated last hour"
-    )
-      
+         'Updated last hour'
+    );
+
     iconMarkerHours: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/ylw-circle.png',
-        "Updated < 6 hours",
-      )
-      
+        'Updated < 6 hours',
+      );
+
     iconMarkerOld: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/red-circle.png',
-        "Updated > 6 hours",
-      )
-       
+        'Updated > 6 hours',
+      );
+
     iconHarbour: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/marina.png',
-        "Harbour",
+        'Harbour',
         {
             width: 20,
             height: 20
         }
-      )
-      
+      );
+
     iconWindfield: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/windTurbine.png',
-        "Windfield",
+        'Windfield',
         {
             width: 25,
             height: 25
         }
-    )
-    
+    );
+
     iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/clusterer/m1.png', 
+        '../assets/clusterer/m1.png',
         'Cluster of vessels'
-    )
+    );
 
     // used for comparison in the HTML
     userType = Usertype;
@@ -106,23 +106,22 @@ export class DashboardComponent implements OnInit {
     private vesselMasterComponent: VesselMasterComponent;
 
     getLocationData(locationData: any[]): void {
-        let lastUpdatedHours
+        let lastUpdatedHours;
         this.locationData = locationData;
-        this.locationData.forEach(marker =>
-            {
-                lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP)
-                if (lastUpdatedHours < 1){
-                    marker.markerIcon = this.iconMarkerLive
-                } else if (lastUpdatedHours < 6){
-                    marker.markerIcon = this.iconMarkerHours
-                } else{
-                    marker.markerIcon = this.iconMarkerOld
+        this.locationData.forEach(marker => {
+                lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
+                if (lastUpdatedHours < 1) {
+                    marker.markerIcon = this.iconMarkerLive;
+                } else if (lastUpdatedHours < 6) {
+                    marker.markerIcon = this.iconMarkerHours;
+                } else {
+                    marker.markerIcon = this.iconMarkerOld;
                 }
                 });
     }
 
     getZoominfo(zoominfo: any): void {
-        this.zoominfo = zoominfo
+        this.zoominfo = zoominfo;
     }
 
     onMouseOver(infoWindow, gm) {
@@ -172,51 +171,51 @@ export class DashboardComponent implements OnInit {
         }, 60000);
     }
 
-    makeLegend(){
-        if (!this.legendLoaded){
+    makeLegend() {
+        if (!this.legendLoaded) {
             this.clustererMaxZoom = 9;
             this.clustererGridSize = 25;
-            this.clustererImagePathPark = "../assets/clusterer/turbine";
+            this.clustererImagePathPark = '../assets/clusterer/turbine';
             this.clusterStylePark = [
                 {
-                    url:'../assets/clusterer/turbine1.png', 
-                    textSize: 20, 
+                    url: '../assets/clusterer/turbine1.png',
+                    textSize: 20,
                     height: 48,
                     width: 48,
                     anchor: [1, 1],
                 },
                 {
-                    url:'../assets/clusterer/turbine2.png', 
+                    url: '../assets/clusterer/turbine2.png',
                     textSize: 20,
                     height: 48,
                     width: 48,
                     anchor: [1, 1],
                     textColor: '#000',
                 }
-            ]
-            this.clustererImagePathVessels = "../assets/clusterer/turbine";
+            ];
+            this.clustererImagePathVessels = '../assets/clusterer/turbine';
             this.clusterStyleVessels = [
                 {
-                    url:'../assets/clusterer/m1.png', 
-                    textSize: 20, 
+                    url: '../assets/clusterer/m1.png',
+                    textSize: 20,
                     height: 53,
                     width: 52
                 },
                 {
-                    url:'../assets/clusterer/m1.png', 
+                    url: '../assets/clusterer/m1.png',
                     textSize: 20,
                     height: 56,
                     width: 55
                 }
-            ]
+            ];
             const parkLocations = this.commonService.getParkLocations();
             parkLocations.forEach(field => {
                 this.parkLocations = field;
-            })
+            });
             const harbourLocations = this.commonService.getHarbourLocations();
             harbourLocations.forEach(harbour => {
                 this.harbourLocations = harbour;
-            })
+            });
 
             this.mapLegend.add(this.iconVesselCluster);
             this.mapLegend.add(this.iconMarkerLive);
@@ -226,13 +225,12 @@ export class DashboardComponent implements OnInit {
             this.mapLegend.add(this.iconWindfield);
 
             // Generate the legend
-            var legend = document.getElementById('mapLegendID');
+            const legend = document.getElementById('mapLegendID');
             const height = 35;
-            this.mapLegend.markers.forEach(marker=>
-                {var div = document.createElement('div');
+            this.mapLegend.markers.forEach(marker => {const div = document.createElement('div');
                     div.innerHTML = '<span><img src=' + marker.url + ' height="' + height + '"> ' + marker.description + '</span>';
                     legend.appendChild(div);
-                })
+                });
             this.legendLoaded = true;
         }
     }
@@ -243,7 +241,7 @@ export class DashboardComponent implements OnInit {
     }
 
     getAlert() {
-        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message;});
+        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message; });
         if (this.alert.type && this.alert.type !== '' && this.alert.text !== '') {
             clearTimeout(this.timeout);
             this.showAlert = true;
