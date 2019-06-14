@@ -1652,7 +1652,8 @@ app.get("/api/getParkLocations", function (req, res) {
 
 app.get("/api/getParkLocationForCompany/:company", function (req, res) {
     //ToDo: windfields do not yet have associated companies
-    let companyName = req.params.company.replace('-', ' ');
+    //ToDo: netjes afvangen als client een streepje bevat
+    let companyName = req.params.company.replace('--_--', ' ');
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Access denied');

@@ -94,7 +94,7 @@ export class CommonService {
   }
 
   getParkLocationForCompany(company) {
-    company = company.replace(' ', '-');
+    company = company.replace(' ', '--_--');
     return this.get(environment.DB_IP + '/api/getParkLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));
   }
