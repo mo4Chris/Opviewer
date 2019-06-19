@@ -15,6 +15,8 @@
                 <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
                 <td>Arrival Port</td>
                 <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
+                <td>Input 1</td>
+                <td><input class="form-control form-control-sm"></td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -25,6 +27,8 @@
                 <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' kts')}}</td>
                 <td>Max. speed inbound</td>
                 <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
+                <td>Input 2</td>
+                <td><input class="form-control form-control-sm"></td>
             </tr>
             <tr>
                 <td>MSI outbound</td>
@@ -35,6 +39,8 @@
                 <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+                <td>Input 3</td>
+                <td><input class="form-control form-control-sm"></td>
             </tr>
             <tr>
                 <td>Distance Sailed</td>
@@ -43,12 +49,18 @@
                 <td>{{roundNumber(general.TotalFuel, 10)}}</td>
                 <td>Fuel Economy</td>
                 <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                <td></td><td></td>
+                <td>Input 4</td>
+                <td><input class="form-control form-control-sm"></td>
             </tr>
             <tr>
                 <td>Number of dockings</td>
                 <td>{{roundNumber(general.numDockings, 1)}}</td>
                 <td>Average Docking Time</td>
                 <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+                <td></td><td></td><td></td><td></td>
+                <td></td>
+                <td><button class="btn btn-md btn-primary submitBtnDate" type="button">Save changes to userinput</button></td>
             </tr>
         </table>
     </div>
@@ -64,6 +76,8 @@
                     <th>duration</th>
                     <th>score</th>
                     <th>location</th>
+                    <th>Pax up/down</th>
+                    <th>Cargo up/down</th>
                     <th>comment</th>
                     <th>detector</th>
                     <th>save</th>
@@ -78,6 +92,12 @@
                     <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
+                    <td>
+                        <select class="form-control form-control-sm"><option>0</option><option>1 up</option><option>2 up</option><option >3 up</option><option >1 down</option><option>2 down</option><option>3 down</option></select>
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm"><option>0</option><option>1 up</option><option>2 up</option><option >3 up</option><option >1 down</option><option>2 down</option><option>3 down</option></select>
+                    </td>
                     <td class="comment">
                         <span ngbDropdown class="d-inline-block dropdown">
                             <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
@@ -102,7 +122,7 @@
                 </tr>
             </tbody>
         </table>
-        <ng-template #content let-modal>
+        <ng-template #content let-modal >
             <div class="modal-header">
                 <h4 class="modal-title">Fill out daily statistics</h4>
                 <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -110,6 +130,100 @@
                 </button>
             </div>
             <div class="modal-body">
+                <form>
+                    <h2>Option 1</h2>
+                    <table class="table table-responsive">
+                        <tr>
+                            <td>Name 11</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 12</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Name 21</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 22</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Name 31</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 32</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Name 41</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 42</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                    </table>
+                    <hr>
+                    <h3>Option 2</h3>
+                    <table class="table table-responsive">
+                        <tr>
+                            <td>Name 11</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 12</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Name 21</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 22</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Transfer 1</td>
+                            <td>Pax up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Pax down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                        </tr>
+                        <tr>
+                            <td>Transfer 2</td>
+                            <td>Pax up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Pax down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                        </tr>
+                        <tr>
+                            <td>Transfer 3</td>
+                            <td>Pax up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Pax down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo up</td>
+                            <td><input class="form-control form-control-sm"></td>
+                            <td>Cargo down</td>
+                            <td><input class="form-control form-control-sm"></td>
+                        </tr>
+                    </table>
+                    <hr>
+                    <h3>Option 3</h3>
+                    <table class="table table-responsive">
+                        <tr>
+                            <td>Name 11</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 12</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                        <tr>
+                            <td>Name 21</td>
+                            <td><input class="form-control form-control-lg"></td>
+                            <td>Name 22</td>
+                            <td><input class="form-control form-control-lg"></td>
+                        </tr>
+                    </table>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn" (click)="closeModal()">Close without saving</button>

@@ -61,7 +61,7 @@ export class CtvreportComponent implements OnInit {
     }
 
     openModal(content) {
-        this.modalReference = this.modalService.open(content, { size: 'lg' });
+        this.modalReference = this.modalService.open(content, { size: 'xl' });
     }
 
     closeModal() {

@@ -329,7 +329,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   getDateAsMatlab(): any {
-    const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
+    const datepickerValueAsMomentDate = moment.utc('14-11-2018', 'DD-MM-YYYY');
     datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     datepickerValueAsMomentDate.format();
 

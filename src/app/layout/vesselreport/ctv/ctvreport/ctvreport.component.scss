@@ -11,7 +11,7 @@ agm-map {
     margin-left: 20px;
 }
 
-.transitTable td:nth-child(1), .transitTable td:nth-child(3), .transitTable td:nth-child(5), .transitTable td:nth-child(7) {
+.transitTable td:nth-child(1), .transitTable td:nth-child(3), .transitTable td:nth-child(5), .transitTable td:nth-child(7), .transitTable td:nth-child(9) {
     background: gray;
     color: white;
 }
@@ -74,4 +74,17 @@ ngb-alert {
 .disable-day{
    background-color: white;
    color: rgb(225, 225, 225) !important;
+}
+
+div .modal-dialog{
+    width: 80%;
+    max-width: 1500px;
+}
+
+.hugeModal {
+    width:80%;
+    max-width: 1500px;
+}
+  .modal-xxl .modal-lg {
+    max-width: 80%;
 }
