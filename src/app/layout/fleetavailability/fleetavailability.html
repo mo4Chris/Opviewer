@@ -1,7 +1,7 @@
 <div [@routerTransition]>
     <ng-container *ngIf="!noData">
-        <app-page-header [heading]="''" [icon]="'fa-ship'"
-        [title]="'Fleet availability | ' + changeToNicename(params.windfield) + ' | ' + params.campaignName + ' | ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
+        <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"
+        [title]="' | ' + changeToNicename(params.windfield) + ' | ' + params.campaignName + ' | ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
         <div class="row" *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist' || tokenInfo.userPermission == 'Marine controller'">
             <div class="col-lg-8">
                 <canvas id="canvas">{{myChart}}</canvas>
