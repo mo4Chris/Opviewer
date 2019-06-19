@@ -1,7 +1,7 @@
 <div [@routerTransition]>
     <ng-container *ngIf="!noData">
-        <app-page-header [heading]="'Fleet availability'" [icon]="'fa-ship'"
-        [title]="'| ' + changeToNicename(params.windfield) + ' | ' + params.campaignName + ' | ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
+        <app-page-header [heading]="''" [icon]="'fa-ship'"
+        [title]="'Fleet availability | ' + changeToNicename(params.windfield) + ' | ' + params.campaignName + ' | ' + MatlabDateToJSDate(params.startDate)"></app-page-header>
         <div class="row" *ngIf="tokenInfo.userPermission == 'admin' || tokenInfo.userPermission == 'Logistics specialist' || tokenInfo.userPermission == 'Marine controller'">
             <div class="col-lg-8">
                 <canvas id="canvas">{{myChart}}</canvas>
@@ -234,7 +234,7 @@
                 <tbody>
                     <ng-container *ngFor="let date of turbineWarrenty.Dates;let ind = index">
                         <tr *ngIf="checkDateRange(date)">
-                            <td class="smallPadding dates">{{MatlabDateToJSDate(date)}}</td>
+                            <td class="smallPadding dates">{{MatlabDateToJSDatePerMonth(date)}}</td>
                             <ng-container *ngFor="let vessel of turbineWarrenty.fullFleet;let i = index">
                                 <td [class.green]="sailMatrix[i][ind]==1" [class.red]="sailMatrix[i][ind]==0" [class.inActive]="!isActive[i][ind]"
                                     [class.yellow]="sailMatrix[i][ind]==0.5" [class.gray]="sailMatrix[i][ind]=='_NaN_'" [class.hideColor]="hideText==false"

@@ -96,13 +96,14 @@ export class DatetimeService {
     }
   }
 
-  MatlabDateToJSDate(serial, selectedMonth = 'Last 2 weeks') {
+  MatlabDateToJSDate(serial) {
     const dateInt = this.MatlabDateToUnixEpoch(serial);
-    if (selectedMonth == 'Last 2 weeks') {
-      return dateInt.format('DD-MM-YYYY');
-    } else {
-      return dateInt.format('DD');
-    }
+    return dateInt.format('DD-MM-YYYY');
+  }
+
+  MatlabDateToJSMonthDate(serial) {
+    const dateInt = this.MatlabDateToUnixEpoch(serial);
+    return dateInt.format('DD');
   }
 
   convertObjectToMoment(year, month, day) {
