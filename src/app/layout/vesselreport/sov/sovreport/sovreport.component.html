@@ -9,16 +9,17 @@
                         <table class="table table-responsive tableSummary">
                             <ng-container>
                                 <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
-                                    <td>Departure from harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
+                                    <td >Departure from harbour</td>
+                                    <td >{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
                                 </tr>
                                 <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">
                                     <td>Arrival at harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
+                                    <td >{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
                                 </tr>
-                                <tr *ngIf="!(sovModel.sovInfo.distancekm == 'NaN' || sovModel.sovInfo.distancekm == 'N/a')">
+                                <tr >
                                     <td>Distance sailed</td>
-                                    <td>{{sovModel.sovInfo.distancekm}} km</td>
+                                    <td *ngIf="!(sovModel.sovInfo.distancekm == 'NaN' || sovModel.sovInfo.distancekm == 'N/a')">{{sovModel.sovInfo.distancekm}} km</td>
+                                    <td *ngIf="(sovModel.sovInfo.distancekm == 'NaN' || sovModel.sovInfo.distancekm == 'N/a')">N/a</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
@@ -26,13 +27,15 @@
                                     <td>Number of platforms visited</td>
                                     <td>{{sovModel.platformTransfers.length}}</td>
                                 </tr>
-                                <tr>
+                                <tr >
                                     <td>Average time in waiting zone</td>
-                                    <td>{{sovModel.summary.AvgTimeInWaitingZone}}</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeInWaitingZone == 'NaN hours' || sovModel.summary.AvgTimeInWaitingZone == 'N/a hours')">{{sovModel.summary.AvgTimeInWaitingZone}}</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeInWaitingZone == 'NaN hours' || sovModel.summary.AvgTimeInWaitingZone == 'N/a hours')">N/a</td>
                                 </tr>
                                 <tr>
                                     <td>Average time in exclusion zone</td>
-                                    <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeInExclusionZone == 'NaN minutes' || sovModel.summary.AvgTimeInExclusionZone == 'N/a minutes')">{{sovModel.summary.AvgTimeInExclusionZone}}</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeInExclusionZone == 'NaN minutes' || sovModel.summary.AvgTimeInExclusionZone == 'N/a minutes')">N/a</td>
                                 </tr>
                                 <tr>
 
@@ -40,15 +43,17 @@
                                         Average time spend from entering exclusion zone until leaving the platform.
                                     </ng-template>
                                     <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">Average time spent docking</td>
-                                    <td>{{sovModel.summary.AvgTimeDocking}}</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeDocking == 'NaN hours' || sovModel.summary.AvgTimeDocking == 'N/a hours')">{{sovModel.summary.AvgTimeDocking}}</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeDocking == 'NaN hours' || sovModel.summary.AvgTimeDocking == 'N/a hours')">N/a</td>
                                 </tr>
                                 <tr>
                                     <td>Average time travelling between assets</td>
-                                    <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeTravelingToPlatforms == 'NaN hours' || sovModel.summary.AvgTimeTravelingToPlatforms == 'N/a hours')">{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeTravelingToPlatforms == 'NaN hours' || sovModel.summary.AvgTimeTravelingToPlatforms == 'N/a hours')">N/a</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
-                                <tr>
+                                <tr *ngIf="sovModel.turbineTransfers.length > 0">
                                     <td>Number of gangway transfers</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
@@ -57,7 +62,8 @@
                                         Average time spend from entering exclusion zone until leaving the platform.
                                     </ng-template>
                                     <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time spent docking</td>
-                                    <td>{{sovModel.summary.AvgTimeDocking}}</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeDocking == 'NaN' || sovModel.summary.AvgTimeDocking == 'N/a')">{{sovModel.summary.AvgTimeDocking}}</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeDocking == 'NaN' || sovModel.summary.AvgTimeDocking == 'N/a')">N/a</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
@@ -67,11 +73,13 @@
                                         Total number of transfers between this SOV and other CTVs. 
                                     </ng-template>
                                     <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of CTV vessel to vessel transfers</td>
-                                    <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
+                                    <td *ngIf="!(sovModel.summary.NrOfVesselTransfers == 'NaN' || sovModel.summary.NrOfVesselTransfers == 'N/a')">{{sovModel.summary.NrOfVesselTransfers}}</td>
+                                    <td *ngIf="(sovModel.summary.NrOfVesselTransfers == 'NaN' || sovModel.summary.NrOfVesselTransfers == 'N/a')">N/a</td>
                                 </tr>
                                 <tr>
                                     <td >Average time spent docking (vessels)</td>
-                                    <td>{{sovModel.summary.AvgTimeVesselDocking}} minutes</td>
+                                    <td *ngIf="!(sovModel.summary.AvgTimeVesselDocking == 'NaN' || sovModel.summary.AvgTimeVesselDocking == 'N/a')">{{sovModel.summary.AvgTimeVesselDocking}} minutes</td>
+                                    <td *ngIf="(sovModel.summary.AvgTimeVesselDocking == 'NaN' || sovModel.summary.AvgTimeVesselDocking == 'N/a')">N/a</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
@@ -275,8 +283,10 @@
                                         </ng-container>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
-                                        <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
-                                        <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayReadyDuration !== 'N/a'">{{platformTransfer.gangwayReadyDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayReadyDuration == 'N/a'">N/a</td>
+                                        <td *ngIf="platformTransfer.gangwayDeployedDuration !== 'N/a'">{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayDeployedDuration == 'N/a'">N/a</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
                                     </tr>
@@ -287,8 +297,10 @@
                                     <th>{{turbineTransfer.location}}</th>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
-                                    <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
-                                    <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayReadyDuration !== 'N/a'">{{turbineTransfer.gangwayReadyDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayReadyDuration == 'N/a'">N/a</td>
+                                    <td *ngIf="turbineTransfer.gangwayDeployedDuration !== 'N/a'">{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayDeployedDuration == 'N/a'">N/a</td>
                                     <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
@@ -332,7 +344,8 @@
                                             <td colspan="2"></td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
-                                            <td>{{transfer.duration}} minutes</td>
+                                            <td *ngIf="transfer.duration !== 'N/a'">{{transfer.duration}} minutes</td>
+                                            <td *ngIf="transfer.duration == 'N/a'"> N/a </td>
                                             <td>{{transfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
