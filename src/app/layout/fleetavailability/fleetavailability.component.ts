@@ -263,7 +263,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     MatlabDateToJSDateTime(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial, this.selectedMonth) + " " + this.dateTimeService.MatlabDateToJSTime(serial);
+        return this.dateTimeService.MatlabDateToJSDate(serial) + ' ' + this.dateTimeService.MatlabDateToJSTime(serial);
     }
 
     convertObjectToMoment(year, month, day) {
