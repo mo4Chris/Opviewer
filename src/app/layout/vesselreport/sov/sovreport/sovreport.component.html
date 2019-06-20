@@ -275,8 +275,10 @@
                                         </ng-container>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
-                                        <td>{{platformTransfer.gangwayReadyDuration}} minutes</td>
-                                        <td>{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayReadyDuration !== 'N/a'">{{platformTransfer.gangwayReadyDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayReadyDuration == 'N/a'">N/a</td>
+                                        <td *ngIf="platformTransfer.gangwayDeployedDuration !== 'N/a'">{{platformTransfer.gangwayDeployedDuration}} minutes</td>
+                                        <td *ngIf="platformTransfer.gangwayDeployedDuration == 'N/a'">N/a</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
                                     </tr>
@@ -287,8 +289,10 @@
                                     <th>{{turbineTransfer.location}}</th>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}</td>
                                     <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}</td>
-                                    <td>{{turbineTransfer.gangwayReadyDuration}} minutes</td>
-                                    <td>{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayReadyDuration !== 'N/a'">{{turbineTransfer.gangwayReadyDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayReadyDuration == 'N/a'">N/a</td>
+                                    <td *ngIf="turbineTransfer.gangwayDeployedDuration !== 'N/a'">{{turbineTransfer.gangwayDeployedDuration}} minutes</td>
+                                    <td *ngIf="turbineTransfer.gangwayDeployedDuration == 'N/a'">N/a</td>
                                     <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                     <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
                                 </tr>
@@ -332,7 +336,8 @@
                                             <td colspan="2"></td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
-                                            <td>{{transfer.duration}} minutes</td>
+                                            <td *ngIf="transfer.duration !== 'N/a'">{{transfer.duration}} minutes</td>
+                                            <td *ngIf="transfer.duration == 'N/a'"> N/a </td>
                                             <td>{{transfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
