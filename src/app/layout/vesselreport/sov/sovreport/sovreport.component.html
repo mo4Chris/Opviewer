@@ -8,15 +8,13 @@
                     <div class="col-xl-6 dailySummary">
                         <table class="table table-responsive tableSummary">
                             <ng-container>
-                                <tr >
-                                    <td>Departure from harbour</td>
-                                    <td *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
-                                    <td *ngIf="sovModel.sovInfo.departureFromHarbour == 'N/a'">N/a</td>
+                                <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
+                                    <td >Departure from harbour</td>
+                                    <td >{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
                                 </tr>
-                                <tr >
+                                <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">
                                     <td>Arrival at harbour</td>
-                                    <td *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
-                                    <td *ngIf="sovModel.sovInfo.arrivalAtHarbour == 'N/a'">N/a</td>
+                                    <td >{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
                                 </tr>
                                 <tr >
                                     <td>Distance sailed</td>
