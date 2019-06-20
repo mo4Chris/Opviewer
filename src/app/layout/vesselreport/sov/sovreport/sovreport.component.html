@@ -22,19 +22,19 @@
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
-                                <tr>
+                                <tr *ngIf="(sovModel.platformTransfers.length > 0)">
                                     <td>Number of platforms visited</td>
                                     <td>{{sovModel.platformTransfers.length}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeInWaitingZone == 'NaN hours' || sovModel.summary.AvgTimeInWaitingZone == 'N/a hours')">
                                     <td>Average time in waiting zone</td>
                                     <td>{{sovModel.summary.AvgTimeInWaitingZone}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeInExclusionZone == 'NaN minutes' || sovModel.summary.AvgTimeInExclusionZone == 'N/a minutes')">
                                     <td>Average time in exclusion zone</td>
                                     <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeDocking == 'NaN hours' || sovModel.summary.AvgTimeDocking == 'N/a hours')">
 
                                     <ng-template #helpAvgDockingTime class="helpContent">
                                         Average time spend from entering exclusion zone until leaving the platform.
@@ -42,17 +42,17 @@
                                     <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">Average time spent docking</td>
                                     <td>{{sovModel.summary.AvgTimeDocking}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeTravelingToPlatforms == 'NaN hours' || sovModel.summary.AvgTimeTravelingToPlatforms == 'N/a hours')">
                                     <td>Average time travelling between assets</td>
                                     <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
-                                <tr>
+                                <tr *ngIf="sovModel.turbineTransfers.length > 0">
                                     <td>Number of gangway transfers</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeDocking == 'NaN' || sovModel.summary.AvgTimeDocking == 'N/a')">
                                     <ng-template #helpAvgDockingTime2 class="helpContent">
                                         Average time spend from entering exclusion zone until leaving the platform.
                                     </ng-template>
@@ -61,7 +61,7 @@
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.NrOfVesselTransfers == 'NaN' || sovModel.summary.NrOfVesselTransfers == 'N/a')">
 
                                     <ng-template #helpNumV2VTransfers class="helpContent">
                                         Total number of transfers between this SOV and other CTVs. 
@@ -69,7 +69,7 @@
                                     <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of CTV vessel to vessel transfers</td>
                                     <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="!(sovModel.summary.AvgTimeVesselDocking == 'NaN' || sovModel.summary.AvgTimeVesselDocking == 'N/a')">
                                     <td >Average time spent docking (vessels)</td>
                                     <td>{{sovModel.summary.AvgTimeVesselDocking}} minutes</td>
                                 </tr>
