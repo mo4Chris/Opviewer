@@ -19,7 +19,7 @@
                         <agm-info-window #infoWindow [disableAutoPan]="true">
                             <pre>
 <strong style="font-size: 15px;">{{ location.vesselInformation[location.vesselInformation.length -1]}}</strong>
-MMSI: {{location._id}}  -  {{clustererMaxZoom}}
+MMSI: {{location._id}}
 Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}<br>
 <button class="btn btn-sm btn-default DPRButton" (click)="redirectDailyVesselReport(location._id)" type="button">Go to DPR</button>
                             </pre>

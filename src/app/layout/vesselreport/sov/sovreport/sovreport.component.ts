@@ -682,7 +682,7 @@ export class SovreportComponent implements OnInit {
                                         display: true,
                                         labelString: 'Hs (m)'
                                     },
-                                    ticks:{
+                                    ticks: {
                                         type: 'linear',
                                         maxTicksLimit: 7,
                                         suggestedMin: 0,
