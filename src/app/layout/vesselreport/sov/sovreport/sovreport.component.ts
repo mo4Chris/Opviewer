@@ -282,7 +282,7 @@ export class SovreportComponent implements OnInit {
             const avgTimeDocking = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.totalDuration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
 
-            const avgTimeTravelingToPlatforms = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.approachTime; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeTravelingToPlatforms = platformTransfers.reduce(function (sum, a, i, ar) { if (a.approachTime !== undefined || a.approachTime === NaN) {sum += a.approachTime; } else { ar.length--; } return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
             summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
 
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
