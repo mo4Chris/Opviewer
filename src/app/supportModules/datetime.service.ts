@@ -13,7 +13,10 @@ export class DatetimeService {
   MatlabDurationToMinutes(serial) {
     const dur = moment.duration(serial, 'minutes');
     let format = '';
-    if (serial < 60) {
+    //console.log(serial);
+    if (typeof serial !== 'number' || serial == NaN) {
+      format = 'N/a';
+    } else if (serial < 60) {
       format = dur.minutes() + ' minutes';
     } else {
       format = (dur.hours() + dur.minutes() / 60).toFixed(1) + ' hours';
