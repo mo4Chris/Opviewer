@@ -13,11 +13,10 @@ export class DatetimeService {
   MatlabDurationToMinutes(serial) {
     const dur = moment.duration(serial, 'minutes');
     let format = '';
-    if (serial < 60){
+    if (serial < 60) {
       format = dur.minutes() + ' minutes';
-    }
-    else{
-      format = (dur.hours() + dur.minutes()/60).toFixed(1) + ' hours';
+    } else {
+      format = (dur.hours() + dur.minutes() / 60).toFixed(1) + ' hours';
     }
     return format;
   }
@@ -49,10 +48,15 @@ export class DatetimeService {
 
   MatlabDateToCustomJSTime(serial, format) {
     if (serial !== '_NaN_' && serial !== undefined) {
-      const time_info = moment((serial - 719529) * 864e5).format(format);
+      let time_info;
+      if ( moment((serial - 719529) * 864e5).isValid()) {
+        time_info = moment((serial - 719529) * 864e5).format(format);
+      } else {
+        time_info = 'N/a';
+      }
       return time_info;
     } else {
-      return "N/a";
+      return 'N/a';
     }
   }
 
@@ -96,13 +100,14 @@ export class DatetimeService {
     }
   }
 
-  MatlabDateToJSDate(serial, selectedMonth = 'Last 2 weeks') {
+  MatlabDateToJSDate(serial) {
     const dateInt = this.MatlabDateToUnixEpoch(serial);
-    if (selectedMonth == 'Last 2 weeks') {
-      return dateInt.format('DD-MM-YYYY');
-    } else {
-      return dateInt.format('DD');
-    }
+    return dateInt.format('DD-MM-YYYY');
+  }
+
+  MatlabDateToJSMonthDate(serial) {
+    const dateInt = this.MatlabDateToUnixEpoch(serial);
+    return dateInt.format('DD');
   }
 
   convertObjectToMoment(year, month, day) {
@@ -110,7 +115,7 @@ export class DatetimeService {
   }
 
   convertMomentToObject(date, addMonth = true) {
-    let obj = { year: date.year(), month: date.month(), day: date.date() };
+    const obj = { year: date.year(), month: date.month(), day: date.date() };
     if (addMonth) {
       obj.month++;
     }
@@ -125,12 +130,12 @@ export class DatetimeService {
     }
   }
 
-  hoursSinceMoment(dateString){
-    if (dateString){
-      const dur = moment().diff(moment.parseZone(dateString + "+00:00"))
-      return moment.duration(dur).asHours()
-    } else{
-      return null
+  hoursSinceMoment(dateString) {
+    if (dateString) {
+      const dur = moment().diff(moment.parseZone(dateString + '+00:00'));
+      return moment.duration(dur).asHours();
+    } else {
+      return null;
     }
   }
 }

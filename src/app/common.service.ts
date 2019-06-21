@@ -94,13 +94,14 @@ export class CommonService {
   }
 
   getParkLocationForCompany(company) {
+    company = company.replace(' ', '--_--');
     return this.get(environment.DB_IP + '/api/getParkLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));
   }
 
   getPlatformLocations(src_name) {
     // ToDo: replace hardcoded platforms filename with dynamic links when more than 1 source becomes available
-    return this.post(environment.DB_IP + '/api/getPlatformLocations/', {Name: "Northsea_offshore_oilgas_platform_coordinates"}).pipe(
+    return this.post(environment.DB_IP + '/api/getPlatformLocations/', {Name: 'Northsea_offshore_oilgas_platform_coordinates'}).pipe(
       map((response: Response) => response.json()));
   }
 

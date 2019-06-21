@@ -42,7 +42,7 @@ export class SovreportComponent implements OnInit {
     // Charts
     operationsChart;
     gangwayLimitationsChart;
-    weatherOverviewChart
+    weatherOverviewChart;
     operationalChartCalculated = false;
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
@@ -54,15 +54,15 @@ export class SovreportComponent implements OnInit {
           width: 10,
           height: 10
         }
-    }
-    
+    };
+
     iconMarkerNotVisited = {
         url: '../../../../assets/images/turbineIcon.png',
         scaledSize: {
           width: 10,
           height: 10
         }
-    }
+    };
 
     constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
 
@@ -72,32 +72,32 @@ export class SovreportComponent implements OnInit {
             vessel2vessel.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === toMMSI) {
                     this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
-                    if("object" == typeof(ctvActivity.turbineVisits)) {
+                    if ('object' === typeof(ctvActivity.turbineVisits)) {
                         this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
                     }
                 }
             });
         });
-        //Set up for turbines locations view on map
-        if(this.vessel2vesselActivityRoute.hasTurbineTransfers) {
+        // Set up for turbines locations view on map
+        if (this.vessel2vesselActivityRoute.hasTurbineTransfers) {
             this.turbineLocations.forEach(turbineLocation => {
-                for(let index = 0; index < turbineLocation.lat.length; index++) {
+                for (let index = 0; index < turbineLocation.lat.length; index++) {
                     let isVisited = false;
                     this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
-                        if(turbineLocation.name[index] == turbineVisit.location) {
-                            isVisited = true
-                            return
+                        if (turbineLocation.name[index] === turbineVisit.location) {
+                            isVisited = true;
+                            return;
                         }
                     });
-                    if (isVisited){
-                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ""));
-                    }else{
+                    if (isVisited) {
+                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ''));
+                    } else {
                         this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
                     }
-                };
+                }
             });
         }
-        let map = document.getElementById('routeMap');
+        const map = document.getElementById('routeMap');
         const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
         this.vessel2vesselActivityRoute.lat = mapProperties.avgLatitude;
         this.vessel2vesselActivityRoute.lon = mapProperties.avgLongitude;
@@ -129,14 +129,14 @@ export class SovreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        setTimeout(()=>{
+        setTimeout(() => {
             this.GetAvailableRouteDatesForVessel();
-        }, 1000)
-        
+        }, 1000);
+
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
-            if (sov.length !== 0 && sov[0].seCoverageSpanHours != "_NaN_") {
+            if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
-                setTimeout(()=>{
+                setTimeout(() => {
                     this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                         if (platformTransfers.length === 0) {
                             this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
@@ -206,26 +206,24 @@ export class SovreportComponent implements OnInit {
             this.longitude.emit(mapProperties.avgLongitude);
             this.mapZoomLvl.emit(mapProperties.zoomLevel);
             this.routeFound.emit(true);
-        }
-        else {
+        } else {
             this.routeFound.emit(false);
         }
         // Loads in relevant turbine data for visited parks
         this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
             this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
-                    //this.turbineLocations = locdata;
+                    // this.turbineLocations = locdata;
                     let transfers = [];
                     let sovType = 'Unknown';
-                    if(this.sovModel.sovType == SovType.Platform) {
+                    if (this.sovModel.sovType === SovType.Platform) {
                         transfers = this.sovModel.platformTransfers;
                         sovType = 'Platform';
-                    }
-                    else if(this.sovModel.sovType == SovType.Turbine) {
+                    } else if (this.sovModel.sovType === SovType.Turbine) {
                         transfers = this.sovModel.turbineTransfers;
                         sovType = 'Turbine';
                     }
-                    let locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
+                    const locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
                     this.turbineLocations = locationData.turbineLocations;
                     this.turbineLocationData.emit(locationData);
                 }
@@ -234,14 +232,13 @@ export class SovreportComponent implements OnInit {
         // Loads in relevant data for visited platforms
         this.commonService.getPlatformLocations('').subscribe(locdata => {
             if (locdata.length !== 0) {
-                //this.turbineLocations = locdata;
+                // this.turbineLocations = locdata;
                 const transfers = this.sovModel.platformTransfers;
                 // /const sovType = 'Platform';
-                let locationData = {'turbineLocations': locdata, 'transfers': transfers, 'type': 'Platforms', 'vesselType': 'SOV' };
+                const locationData = {'turbineLocations': locdata, 'transfers': transfers, 'type': 'Platforms', 'vesselType': 'SOV' };
                 this.platformLocationData.emit(locationData);
-            }
-            else{
-                console.log('Request to get platform locations returned 0 results!')
+            } else {
+                console.log('Request to get platform locations returned 0 results!');
             }
         });
     }
@@ -427,123 +424,123 @@ export class SovreportComponent implements OnInit {
     }
 
     createWeatherOverviewChart() {
-        let weather =  this.sovModel.sovInfo.weatherConditions;
+        const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
             let hasData = false;
-            let timeStamps = Array();
-            weather.time.forEach((timeObj, index) =>{
+            const timeStamps = Array();
+            weather.time.forEach((timeObj, index) => {
                 timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
                 });
-            let Hs = Array();
-            let Tp = Array();
-            let waveDirection = Array();
-            let windGust = Array();
-            let windAvg  = Array();
+            const Hs = Array();
+            const Tp = Array();
+            const waveDirection = Array();
+            const windGust = Array();
+            const windAvg  = Array();
             let chartTitle;
-            if (weather.wavesource == "_NaN_"){
-                //chartTitle = 'Weather overview';
+            if (weather.wavesource === '_NaN_') {
+                // chartTitle = 'Weather overview';
                 chartTitle = '';
-            }else{
+            } else {
                 chartTitle = [
-                    //'Weather overview', 
+                    // 'Weather overview',
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (weather.waveHs[0] && typeof(weather.waveHs[0]) == "number"){
+            if (weather.waveHs[0] && typeof(weather.waveHs[0]) === 'number') {
                 hasData = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
-                        x:timeStamps[index],
-                        y:val
+                        x: timeStamps[index],
+                        y: val
                     };
                 });
             }
-            if (weather.waveTp[0] && typeof(weather.waveTp[0]) == "number"){
+            if (weather.waveTp[0] && typeof(weather.waveTp[0]) === 'number') {
                 hasData = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
-                        x:timeStamps[index],
-                        y:val
+                        x: timeStamps[index],
+                        y: val
                     };
                 });
             }
-            if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) == "number"){
+            if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) === 'number') {
                 hasData = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
-                        x:timeStamps[index],
-                        y:val
+                        x: timeStamps[index],
+                        y: val
                     };
                 });
             }
-            if (weather.windGust[0] && typeof(weather.windGust[0]) == "number"){
+            if (weather.windGust[0] && typeof(weather.windGust[0]) === 'number') {
                 hasData = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
-                        x:timeStamps[index],
-                        y:val
+                        x: timeStamps[index],
+                        y: val
                     };
                 });
             }
-            if (weather.windAvg[0] && typeof(weather.windAvg[0]) == "number"){
+            if (weather.windAvg[0] && typeof(weather.windAvg[0]) === 'number') {
                 hasData = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
-                        x:timeStamps[index],
-                        y:val
+                        x: timeStamps[index],
+                        y: val
                     };
                 });
             }
             // Now create collection with all the dockings and v2v operations
-            let dockingData = new Array;
+            const dockingData = new Array;
             let start;
             let stop;
-            this.sovModel.platformTransfers.forEach((transfer)=>{
+            this.sovModel.platformTransfers.forEach((transfer) => {
                 start = this.datetimeService.MatlabDateToUnixEpoch(transfer.arrivalTimePlatform);
                 stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.departureTimePlatform);
-                dockingData.push({x:start , y: 1})
-                dockingData.push({x:stop , y: 1})
-                dockingData.push({x:stop+0.0001 , y: NaN})
-            })
-            this.sovModel.turbineTransfers.forEach((transfer)=>{
+                dockingData.push({x: start , y: 1});
+                dockingData.push({x: stop , y: 1});
+                dockingData.push({x: stop + 0.0001 , y: NaN});
+            });
+            this.sovModel.turbineTransfers.forEach((transfer) => {
                 start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
                 stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
-                dockingData.push({x:start , y: 1})
-                dockingData.push({x:stop , y: 1})
-                dockingData.push({x:stop+0.0001 , y: NaN})
-            })
-            this.sovModel.vessel2vessels.forEach((vessel)=>{
-                vessel.transfers.forEach(transfer =>{
+                dockingData.push({x: start , y: 1});
+                dockingData.push({x: stop , y: 1});
+                dockingData.push({x: stop + 0.0001 , y: NaN});
+            });
+            this.sovModel.vessel2vessels.forEach((vessel) => {
+                vessel.transfers.forEach(transfer => {
                     start = this.datetimeService.MatlabDateToUnixEpoch(transfer.startTime);
                     stop = this.datetimeService.MatlabDateToUnixEpoch(transfer.stopTime);
-                    dockingData.push({x:start , y: 1})
-                    dockingData.push({x:stop , y: 1})
-                    dockingData.push({x:stop+0.0001 , y: NaN})
+                    dockingData.push({x: start , y: 1});
+                    dockingData.push({x: stop , y: 1});
+                    dockingData.push({x: stop + 0.0001 , y: NaN});
                 });
-            })
+            });
             Chart.Tooltip.positioners.custom = function(elements, position) {
                 const item = this._data.datasets;
-                elements = elements.filter(function (value, _i){
-                    return item[value._datasetIndex].yAxisID !== 'hidden'
-                })
-                let x_mean = 0
+                elements = elements.filter(function (value, _i) {
+                    return item[value._datasetIndex].yAxisID !== 'hidden';
+                });
+                let x_mean = 0;
                 elements.forEach(elt => {
-                    x_mean += elt._model.x
+                    x_mean += elt._model.x;
                 });
                 x_mean = x_mean / elements.length;
-                let y_mean = 0
+                let y_mean = 0;
                 elements.forEach(elt => {
-                    y_mean += elt._model.y
+                    y_mean += elt._model.y;
                 });
                 y_mean = y_mean / elements.length;
                 return{
                     x: x_mean,
                     y: y_mean
-                }
-              }
+                };
+              };
 
             if (timeStamps.length > 0 && hasData) {
-                if (this.weatherOverviewChartCalculated){
+                if (this.weatherOverviewChartCalculated) {
                     this.destroyOldCharts();
                 }
                 this.weatherOverviewChartCalculated = true;
@@ -553,7 +550,7 @@ export class SovreportComponent implements OnInit {
                         data: {
                             datasets: [
                                 {
-                                    label: "Hs (m)",
+                                    label: 'Hs (m)',
                                     data: Hs,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 30,
@@ -562,24 +559,24 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'blue',
                                     borderWidth: 2,
                                     fill: false,
-                                    hidden: Hs.length == 0,
+                                    hidden: Hs.length === 0,
                                     yAxisID: 'Hs'
                                 },
                                 {
-                                    label: "Tp (s)",
+                                    label: 'Tp (s)',
                                     data: Tp,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 30,
                                     pointRadius: 0,
                                     backgroundColor: 'red',
-                                    borderColor:'red',
+                                    borderColor: 'red',
                                     borderWidth: 2,
                                     fill: false,
                                     hidden: true,
                                     yAxisID: 'Tp'
                                 },
                                 {
-                                    label: "Wave direction (deg)",
+                                    label: 'Wave direction (deg)',
                                     data: waveDirection,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 30,
@@ -592,7 +589,7 @@ export class SovreportComponent implements OnInit {
                                     yAxisID: 'Direction'
                                 },
                                 {
-                                    label: "Wind gust (m/s)",
+                                    label: 'Wind gust (m/s)',
                                     data: windGust,
                                     pointRadius: 0,
                                     pointHoverRadius: 5,
@@ -605,7 +602,7 @@ export class SovreportComponent implements OnInit {
                                     yAxisID: 'Wind'
                                 },
                                 {
-                                    label: "Wind average (m/s)",
+                                    label: 'Wind average (m/s)',
                                     data: windAvg,
                                     pointHoverRadius: 5,
                                     pointHitRadius: 30,
@@ -614,7 +611,7 @@ export class SovreportComponent implements OnInit {
                                     borderColor: 'orange',
                                     borderWidth: 2.5,
                                     fill: false,
-                                    hidden: windAvg.length == 0,
+                                    hidden: windAvg.length === 0,
                                     yAxisID: 'Wind'
                                 },
                                 {
@@ -667,7 +664,7 @@ export class SovreportComponent implements OnInit {
                                         display: true,
                                         labelString: 'Wind speed (m/s)'
                                     },
-                                    ticks:{
+                                    ticks: {
                                         type: 'linear',
                                         maxTicksLimit: 7,
                                         suggestedMin: 0,
@@ -695,28 +692,28 @@ export class SovreportComponent implements OnInit {
                                         display: true,
                                         labelString: 'Tp (s)'
                                     },
-                                    ticks:{
+                                    ticks: {
                                         type: 'linear',
                                         maxTicksLimit: 7,
                                     },
                                 },
                                 {
                                     id: 'Direction',
-                                    display: 'auto', 
+                                    display: 'auto',
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Direction (deg)'
                                     },
-                                    ticks:{
+                                    ticks: {
                                         type: 'linear',
                                         maxTicksLimit: 7,
                                         suggestedMin: 0,
                                         suggestedMax: 360
                                     },
-                                },{
+                                }, {
                                     id: 'hidden',
                                     display: false,
-                                    ticks:{
+                                    ticks: {
                                         type: 'linear',
                                         maxTicksLimit: 7,
                                         min: 0,
@@ -728,7 +725,7 @@ export class SovreportComponent implements OnInit {
                                 position: 'custom',
                                 callbacks: {
                                     label: function(tooltipItem, data) {
-                                        const dset = data.datasets[tooltipItem.datasetIndex]
+                                        const dset = data.datasets[tooltipItem.datasetIndex];
                                         let label = dset.label || '';
                                         if (label) {
                                             label += ': ';
@@ -738,7 +735,7 @@ export class SovreportComponent implements OnInit {
                                     },
                                 },
                                 mode: 'index',
-                                filter: function (tooltip, data){
+                                filter: function (tooltip, data) {
                                     return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
                                 },
                             }
@@ -748,19 +745,19 @@ export class SovreportComponent implements OnInit {
             }
         }
     }
-    datasetIsActive(dset, dsetIndex, chart){
-        const meta = chart.getDatasetMeta(dsetIndex)
-        let hidden 
+    datasetIsActive(dset, dsetIndex, chart) {
+        const meta = chart.getDatasetMeta(dsetIndex);
+        let hidden;
         if (meta.hidden === null) {
-            hidden = dset.hidden === true
-        } else{
+            hidden = dset.hidden === true;
+        } else {
             hidden = meta.hidden;
         }
-        const final = !hidden
-        return (final)
+        const final = !hidden;
+        return (final);
     }
     destroyOldCharts(): void {
-        this.weatherOverviewChart.destroy()
+        this.weatherOverviewChart.destroy();
       }
 
     private ResetTransfers() {
