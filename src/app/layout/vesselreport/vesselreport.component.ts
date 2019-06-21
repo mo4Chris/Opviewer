@@ -417,15 +417,15 @@ export class VesselreportComponent implements OnInit {
       // Drawing turbines
       this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
           if (turbineParkLocation[0].shipHasSailedBy) {
-            this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer, turbineParkLocation[0].location, 5);
+            this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation.map(docking => docking.transfer), turbineParkLocation[0].location, 5);
           } else {
-            this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation[0].transfer);
+            this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation.map(docking => docking.transfer));
           }
         });
       // Drawing platforms
       this.platformLocations.turbineLocations.forEach(platform => {
         if (platform[0].shipHasSailedBy) {
-          this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform[0].transfer, platform[0].location, 5);
+          this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform.map(docking => docking.transfer), platform[0].location, 5);
         } else if (false) {
           // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
           this.addMarkerToGoogleMap(this.platformMarker, platform[0].longitude, platform[0].latitude);
@@ -435,7 +435,7 @@ export class VesselreportComponent implements OnInit {
     }, 500);
   }
 
-  addMarkerToGoogleMap(markerIcon, lon, lat, info= null, location = null, zIndex = 2) {
+  addMarkerToGoogleMap(markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {
     const markerPosition = {lat: lat, lng: lon};
     const mymarker = new google.maps.Marker({
       position: markerPosition,
@@ -444,14 +444,17 @@ export class VesselreportComponent implements OnInit {
       map: this.googleMap,
       zIndex: zIndex
     });
-    if (info) {
-      const contentString =
+    if (infoArray.length > 0 && infoArray[0]) {
+      let contentString =
         '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
-        '<pre><br>' +
-        'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) +
-        '</pre>';
+        '<pre>';
+        infoArray.forEach(info => {
+          contentString = contentString + '<br>' +
+          'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+          'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
+          'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+        });
+        contentString = contentString + '</pre>';
       const infowindow = new google.maps.InfoWindow({
         content: contentString,
         disableAutoPan: true,
