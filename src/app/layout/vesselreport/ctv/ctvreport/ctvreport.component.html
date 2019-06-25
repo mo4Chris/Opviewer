@@ -66,7 +66,7 @@
     </div>
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
-        <h3>Dockings <button (click)="openModal(content)" class="btn btn-md btn-primary submitBtnDate" type="button"> Enter userinput</button></h3>
+        <h3>Dockings</h3>
         <table class="table table-hover table-striped">
             <thead>
                 <tr>
@@ -121,115 +121,7 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
-        <ng-template #content let-modal >
-            <div class="modal-header">
-                <h4 class="modal-title">Fill out daily statistics</h4>
-                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <h2>Option 1</h2>
-                    <table class="table table-responsive">
-                        <tr>
-                            <td>Name 11</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 12</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Name 21</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 22</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Name 31</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 32</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Name 41</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 42</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                    </table>
-                    <hr>
-                    <h3>Option 2</h3>
-                    <table class="table table-responsive">
-                        <tr>
-                            <td>Name 11</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 12</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Name 21</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 22</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Transfer 1</td>
-                            <td>Pax up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Pax down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                        </tr>
-                        <tr>
-                            <td>Transfer 2</td>
-                            <td>Pax up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Pax down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                        </tr>
-                        <tr>
-                            <td>Transfer 3</td>
-                            <td>Pax up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Pax down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo up</td>
-                            <td><input class="form-control form-control-sm"></td>
-                            <td>Cargo down</td>
-                            <td><input class="form-control form-control-sm"></td>
-                        </tr>
-                    </table>
-                    <hr>
-                    <h3>Option 3</h3>
-                    <table class="table table-responsive">
-                        <tr>
-                            <td>Name 11</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 12</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                        <tr>
-                            <td>Name 21</td>
-                            <td><input class="form-control form-control-lg"></td>
-                            <td>Name 22</td>
-                            <td><input class="form-control form-control-lg"></td>
-                        </tr>
-                    </table>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" (click)="closeModal()">Close without saving</button>
-                <button type="button" class="btn btn-primary" (click)="closeModal()">Save and close</button>
-            </div>
-        </ng-template> 
+        </table> 
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
     <div class="row">
