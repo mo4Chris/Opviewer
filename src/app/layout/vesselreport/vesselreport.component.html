@@ -1,6 +1,6 @@
 <h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
 <!-- Date picker vessel reports-->
-<div class="form-inline" (keyup.enter)="searchTransfersByNewSpecificDate()">
+<div class="form-inline" >
     <div class="form-group">
         <div class="input-group datepicker-input">
             <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
