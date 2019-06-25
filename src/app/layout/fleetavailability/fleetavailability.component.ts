@@ -90,7 +90,7 @@ export class FleetavailabilityComponent implements OnInit {
 
     buildData(init = false) {
         this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
-            if (data.data!=null) {
+            if (data.data != null) {
                 this.turbineWarrenty = data.data;
                 if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] != '_NaN_') {
                     this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
@@ -246,8 +246,16 @@ export class FleetavailabilityComponent implements OnInit {
         }
     }
 
+    MatlabDateToJSDatePerMonth(serial) {
+        if (this.selectedMonth === 'Last 2 weeks') {
+            return this.dateTimeService.MatlabDateToJSDate(serial);
+        } else {
+            return this.dateTimeService.MatlabDateToJSMonthDate(serial);
+        }
+    }
+
     MatlabDateToJSDate(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial, this.selectedMonth);
+        return this.dateTimeService.MatlabDateToJSDate(serial);
     }
 
     MatlabDateToJSTime(serial) {
@@ -255,7 +263,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     MatlabDateToJSDateTime(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial, this.selectedMonth) + " " + this.dateTimeService.MatlabDateToJSTime(serial);
+        return this.dateTimeService.MatlabDateToJSDate(serial) + ' ' + this.dateTimeService.MatlabDateToJSTime(serial);
     }
 
     convertObjectToMoment(year, month, day) {
@@ -447,7 +455,7 @@ export class FleetavailabilityComponent implements OnInit {
         target = this.turbineWarrenty.weatherDayTarget;
         for (let i = 1; i < this.allMonths.length; i++) {
             const index = parseInt(moment(this.allMonths[i - 1], 'MMM YYYY').format('M')) - 1;
-            const forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] * 
+            const forecastWeatherdays = this.turbineWarrenty.weatherDayForecast[index][0] *
                 this.turbineWarrenty.numContractedVessels *
                 moment(this.allMonths[i], 'MMM YYYY').daysInMonth();
             target = target - forecastWeatherdays;
@@ -471,11 +479,11 @@ export class FleetavailabilityComponent implements OnInit {
     addVessel(closeModal = true) {
         if (this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist') {
             const vesselToAdd = { 
-                client: this.turbineWarrenty.client, 
-                vessel: this.vesselToAdd, 
-                campaignName: this.params.campaignName, 
-                windfield: this.params.windfield, 
-                startDate: this.params.startDate 
+                client: this.turbineWarrenty.client,
+                vessel: this.vesselToAdd,
+                campaignName: this.params.campaignName,
+                windfield: this.params.windfield,
+                startDate: this.params.startDate
             };
             if (this.turbineWarrenty.fullFleet.indexOf(vesselToAdd.vessel) >= 0) {
                 this.setAlert('danger', 'Vessel already in fleet', true);
