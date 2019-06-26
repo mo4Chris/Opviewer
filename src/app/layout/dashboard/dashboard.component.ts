@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
     locationData;
 
     // Map settings
-    googleMap
+    googleMap: google.maps.Map;
     zoominfo = {
         longitude: 0,
         latitude: 0,
@@ -189,7 +189,7 @@ export class DashboardComponent implements OnInit {
                 harbourLayer.addData(new MapZoomData(
                     harbour.centroid.lon,
                     harbour.centroid.lat,
-                    this.iconHarbour.url,
+                    this.iconHarbour,
                     this.iconHarbour.description
                 ));
             });

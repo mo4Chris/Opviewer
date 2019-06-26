@@ -133,13 +133,10 @@ export class MapZoomData {
             return;
         }
         const markerPosition = {lat: this.lat, lng: this.lon};
-        const markerIcon = {
-            url: this.markerIcon
-        }
         this.marker = new google.maps.Marker({
             position: markerPosition,
             draggable: false,
-            icon: markerIcon, // Not sure why it is compaining, it is working
+            icon: this.markerIcon,
             map: layer.map,
             zIndex: this.zIndex,
             visible: this.visible
