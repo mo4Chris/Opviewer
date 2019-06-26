@@ -1,4 +1,5 @@
 import { EventService } from '../supportModules/event.service';
+import { MapsAPILoader } from '@agm/core';
 
 export class MapZoomLayer {
     map: google.maps.Map;
@@ -71,8 +72,7 @@ export class MapZoomLayer {
 
 export class MapZoomData {
     description: string;
-    image: string;
-    scaledSize: object;
+    markerIcon;
     lon: number;
     lat: number;
     zIndex = 2;
@@ -86,18 +86,16 @@ export class MapZoomData {
     constructor(
         lon: number,
         lat: number,
-        image: string,
+        markerIcon,
         description: string,
         visible = true,
         info = '',
         enableInfoWindow = true,
-        scaledSize = {width: 20, height: 20},
     ) {
         this.lon = lon;
         this.lat = lat;
-        this.image = image;
+        this.markerIcon = markerIcon;
         this.description = description;
-        this.scaledSize = scaledSize;
         this.visible = visible;
         this.infoWindowEnabled = enableInfoWindow;
         this.info = info;
@@ -136,8 +134,7 @@ export class MapZoomData {
         }
         const markerPosition = {lat: this.lat, lng: this.lon};
         const markerIcon = {
-            url: this.image,
-            scaledSize: this.scaledSize
+            url: this.markerIcon
         }
         this.marker = new google.maps.Marker({
             position: markerPosition,
@@ -167,4 +164,10 @@ export class MapZoomData {
 }
 
 
-
+interface iconInterface{
+    url: string;
+    scaledSize: {
+        width: number;
+        height: number;
+    };
+}
