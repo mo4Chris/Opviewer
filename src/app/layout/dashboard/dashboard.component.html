@@ -1,7 +1,17 @@
 <div [@routerTransition]>
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
     <div class="divContainer" fxFlex="100">
-        <agm-map #gm [latitude]="zoominfo.latitude" [longitude]="zoominfo.longitude" [zoom]="zoominfo.zoomlvl" [mapTypeId]="mapTypeId" [streetViewControl]="streetViewControl" [scrollwheel]='null' [scaleControl] ="true" [gestureHandling]="'cooperative'">
+        <agm-map #gm 
+            [latitude]="zoominfo.latitude"
+            [longitude]="zoominfo.longitude" 
+            [zoom]="zoominfo.zoomlvl" 
+            [mapTypeId]="mapTypeId" 
+            [streetViewControl]="streetViewControl" 
+            [scrollwheel]='null' 
+            [scaleControl] ="true" 
+            [gestureHandling]="'cooperative'"
+            (mapReady) = "buildGoogleMap($event)"
+            >
 
             <agm-marker-cluster [averageCenter]="true" [minimumClusterSize]="3" [imagePath]="clustererImagePathPark" [styles]=clusterStylePark [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
                 <div *ngFor="let field of parkLocations">

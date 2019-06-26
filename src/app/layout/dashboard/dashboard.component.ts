@@ -13,6 +13,8 @@ import { EventService } from '../../supportModules/event.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service';
 import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
+import { GmapService } from '../../supportModules/gmap.service';
+import { MapZoomData, MapZoomLayer } from '../../models/mapZoomLayer';
 
 
 @Component({
@@ -22,10 +24,18 @@ import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(public router: Router, private route: ActivatedRoute, private userService: UserService, private eventService: EventService, private dateTimeService: DatetimeService, private commonService: CommonService) {   }
+    constructor(public router: Router,
+        private route: ActivatedRoute,
+        private userService: UserService,
+        private eventService: EventService,
+        private dateTimeService: DatetimeService,
+        private commonService: CommonService,
+        private mapService: GmapService,
+     ) {   }
     locationData;
 
     // Map settings
+    googleMap
     zoominfo = {
         longitude: 0,
         latitude: 0,
@@ -121,6 +131,7 @@ export class DashboardComponent implements OnInit {
     }
 
     getZoominfo(zoominfo: any): void {
+        // Is this not setZoominfo?
         this.zoominfo = zoominfo;
     }
 
@@ -142,25 +153,22 @@ export class DashboardComponent implements OnInit {
             switch (this.tokenInfo.userPermission) {
                 case Usertype.Admin: {
                     this.adminComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.LogisticsSpecialist: {
                     this.logisticsSpecialistComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.MarineController: {
                     this.marineControllerComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.Vesselmaster: {
                     this.vesselMasterComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
             }
+            this.eventService.closeLatestAgmInfoWindow();
         }, 1000);
         setTimeout(() => {
             this.eventService.closeLatestAgmInfoWindow();
@@ -169,6 +177,24 @@ export class DashboardComponent implements OnInit {
                 this.getLocations();
             }
         }, 60000);
+    }
+
+    buildGoogleMap( googleMap ){
+        // this.mapService.addTurbinesToMapForDashboard(googleMap, this.parkLocations);
+        this.googleMap = googleMap;
+        const harbourLocations = this.commonService.getHarbourLocations();
+        const harbourLayer = new MapZoomLayer(this.googleMap, 7);
+        harbourLocations.forEach(harbourList => {
+            harbourList.forEach(harbour => {
+                harbourLayer.addData(new MapZoomData(
+                    harbour.centroid.lon,
+                    harbour.centroid.lat,
+                    this.iconHarbour.url,
+                    this.iconHarbour.description
+                ));
+            });
+        });
+        harbourLayer.draw();
     }
 
     makeLegend() {
@@ -211,10 +237,6 @@ export class DashboardComponent implements OnInit {
             const parkLocations = this.commonService.getParkLocations();
             parkLocations.forEach(field => {
                 this.parkLocations = field;
-            });
-            const harbourLocations = this.commonService.getHarbourLocations();
-            harbourLocations.forEach(harbour => {
-                this.harbourLocations = harbour;
             });
 
             this.mapLegend.add(this.iconVesselCluster);
