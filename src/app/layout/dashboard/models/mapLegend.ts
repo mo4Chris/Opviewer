@@ -5,17 +5,17 @@ export class mapLegend {
         this.markers = markers;
     }
 
-    add(marker: any){
+    add(marker: any) {
         this.markers.push(marker);
     }
 }
 
-export class mapMarkerIcon{
+export class mapMarkerIcon {
     url: string;
     description: string;
     scaledSize: object;
 
-    constructor(url, description, scaledSize = {width: 40, height: 40}){
+    constructor(url: string, description: string, scaledSize = {width: 40, height: 40}) {
         this.url = url;
         this.description = description;
         this.scaledSize = scaledSize;

@@ -19,7 +19,7 @@ import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { LonlatService } from '../../supportModules/lonlat.service';
-import {} from '@agm/core/services/google-maps-types';
+import { GmapService } from '../../supportModules/gmap.service';
 
 
 declare const google: any;
@@ -38,6 +38,7 @@ export class VesselreportComponent implements OnInit {
     private userService: UserService,
     private eventService: EventService,
     private lonlatService: LonlatService,
+    private mapService: GmapService
     ) {
 
   }
@@ -81,37 +82,6 @@ export class VesselreportComponent implements OnInit {
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
-
-  iconMarker = {
-    url: '../../assets/images/turbineIcon.png',
-    scaledSize: {
-      width: 5,
-      height: 5
-    }
-  };
-
-  visitedIconMarker = {
-    url: '../../assets/images/visitedTurbineIcon.png',
-    scaledSize: {
-      width: 10,
-      height: 10
-    }
-  };
-
-  platformMarker = {
-    url: '../../assets/images/oil-platform.png',
-    scaledSize: {
-      width: 10,
-      height: 10
-    }
-  };
-  visitedPlatformMarker = {
-    url: '../../assets/images/visitedPlatform.png',
-    scaledSize: {
-      width: 10,
-      height: 10
-    }
-  };
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -366,106 +336,11 @@ export class VesselreportComponent implements OnInit {
   buildGoogleMap(googleMap) {
     this.googleMap = googleMap;
     // drawing route
-    const lineSymbol = {
-      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-    };
-    this.boatLocationData.forEach(vessel => {
-      new google.maps.Polyline({
-        clickable: false,
-        map: this.googleMap,
-        path: this.lonlatService.lonlatarrayToLatLngArray(vessel),
-        strokeColor: '#FF0000',
-        strokeWeight: 1.5,
-        icons: [{
-          icon: lineSymbol,
-          offset: '0.5%'
-        }, {
-          icon: lineSymbol,
-          offset: '10%'
-        }, {
-          icon: lineSymbol,
-          offset: '20%'
-        }, {
-          icon: lineSymbol,
-          offset: '30%'
-        }, {
-          icon: lineSymbol,
-          offset: '40%'
-        }, {
-          icon: lineSymbol,
-          offset: '50%'
-        }, {
-          icon: lineSymbol,
-          offset: '60%'
-        }, {
-          icon: lineSymbol,
-          offset: '70%'
-        }, {
-          icon: lineSymbol,
-          offset: '80%'
-        }, {
-          icon: lineSymbol,
-          offset: '90%'
-        }, {
-          icon: lineSymbol,
-          offset: '100%'
-        }],
-      });
-    });
+    this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     // ToDo need to add a proper event emitter when location data is loaded
     setTimeout(() => {
-      // Drawing turbines
-      this.vesselTurbines.turbineLocations.forEach((turbineParkLocation, index) => {
-          if (turbineParkLocation[0].shipHasSailedBy) {
-            this.addMarkerToGoogleMap(this.visitedIconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation.map(docking => docking.transfer), turbineParkLocation[0].location, 5);
-          } else {
-            this.addMarkerToGoogleMap(this.iconMarker, turbineParkLocation[0].longitude, turbineParkLocation[0].latitude, turbineParkLocation.map(docking => docking.transfer));
-          }
-        });
-      // Drawing platforms
-      this.platformLocations.turbineLocations.forEach(platform => {
-        if (platform[0].shipHasSailedBy) {
-          this.addMarkerToGoogleMap(this.visitedPlatformMarker, platform[0].longitude, platform[0].latitude, platform.map(docking => docking.transfer), platform[0].location, 5);
-        } else if (false) {
-          // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
-          this.addMarkerToGoogleMap(this.platformMarker, platform[0].longitude, platform[0].latitude);
-        }
-
-      });
+      this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
     }, 500);
   }
-
-  addMarkerToGoogleMap(markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {
-    const markerPosition = {lat: lat, lng: lon};
-    const mymarker = new google.maps.Marker({
-      position: markerPosition,
-      draggable: false,
-      icon: markerIcon,
-      map: this.googleMap,
-      zIndex: zIndex
-    });
-    if (infoArray.length > 0 && infoArray[0]) {
-      let contentString =
-        '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
-        '<pre>';
-        infoArray.forEach(info => {
-          contentString = contentString + '<br>' +
-          'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-          'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-          'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
-        });
-        contentString = contentString + '</pre>';
-      const infowindow = new google.maps.InfoWindow({
-        content: contentString,
-        disableAutoPan: true,
-      });
-      // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
-      const openInfoWindow = (marker) => {
-        this.eventService.OpenAgmInfoWindow(infowindow, [], this.googleMap, marker);
-      };
-      mymarker.addListener('mouseover', function () {
-        openInfoWindow(mymarker);
-      });
-    }
-  }
 }
+

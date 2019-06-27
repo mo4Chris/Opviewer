@@ -61,53 +61,6 @@ export class DashboardComponent implements OnInit {
     timeout;
     infoWindowOld;
 
-    iconMarkerLive: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/grn-circle.png',
-         'Updated last hour'
-    );
-
-    iconMarkerHours: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/ylw-circle.png',
-        'Updated < 6 hours',
-      );
-
-    iconMarkerOld: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/red-circle.png',
-        'Updated > 6 hours',
-      );
-
-    iconHarbour: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/marina.png',
-        'Harbour',
-        {
-            width: 20,
-            height: 20
-        }
-      );
-
-    iconWindfield: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/windTurbine.png',
-        'Windfield',
-        {
-            width: 25,
-            height: 25
-        }
-    );
-
-    iconPlatform: mapMarkerIcon = new mapMarkerIcon(
-        '../../assets/images/oil-platform.png',
-        'Platform',
-        {
-            width: 10,
-            height: 10
-        }
-    );
-
-    iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/clusterer/m1.png',
-        'Cluster of vessels'
-    );
-
     // used for comparison in the HTML
     userType = Usertype;
 
@@ -130,11 +83,11 @@ export class DashboardComponent implements OnInit {
         this.locationData.forEach(marker => {
                 lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
                 if (lastUpdatedHours < 1) {
-                    marker.markerIcon = this.iconMarkerLive;
+                    marker.markerIcon = this.mapService.iconVesselLive;
                 } else if (lastUpdatedHours < 6) {
-                    marker.markerIcon = this.iconMarkerHours;
+                    marker.markerIcon = this.mapService.iconVesselHours;
                 } else {
-                    marker.markerIcon = this.iconMarkerOld;
+                    marker.markerIcon = this.mapService.iconVesselOld;
                 }
                 });
     }
@@ -191,64 +144,17 @@ export class DashboardComponent implements OnInit {
     buildGoogleMap( googleMap ) {
         // this.mapService.addTurbinesToMapForDashboard(googleMap, this.parkLocations);
         this.googleMap = googleMap;
-        const harbourLocations = this.commonService.getHarbourLocations();
-        const harbourLayer = new MapZoomLayer(this.googleMap, 7);
-        harbourLocations.forEach(harbourList => {
-            harbourList.forEach(harbour => {
-                harbourLayer.addData(new MapZoomData(
-                    harbour.centroid.lon,
-                    harbour.centroid.lat,
-                    this.iconHarbour,
-                    this.iconHarbour.description,
-                ));
-            });
-        });
-        harbourLayer.draw();
+        const harbourLocations = this.commonService.getHarbourLocations(8);
+        this.mapService.plotHarbours(this.googleMap, harbourLocations);
         // Drawing the wind parks as polygons is zoomed in
         const parkLocations = this.commonService.getParkLocations();
-        const parkBdrLayer = new MapZoomLayer(this.googleMap, 8);
-        parkLocations.forEach(locations => {
-            locations.forEach(field => {
-                parkBdrLayer.addData(new MapZoomPolygon(
-                    field.outlineLonCoordinates,
-                    field.outlineLatCoordinates,
-                    field.SiteName,
-                    field.SiteName,
-                ));
-            });
-        });
         // Draw turbines as pictograms if zoomed out
-        parkBdrLayer.draw();
-        const parkLayer = new MapZoomLayer(this.googleMap, 6, 7);
-        parkLocations.forEach(locations => {
-            locations.forEach(field => {
-                parkLayer.addData(new MapZoomData(
-                    field.centroid.lon,
-                    field.centroid.lat,
-                    this.iconWindfield,
-                    field.SiteName
-                ));
-            });
-        });
-        parkLayer.draw();
+        this.mapService.plotParkBoundaries(this.googleMap, parkLocations);
+        this.mapService.plotParkPictograms(this.googleMap, parkLocations);
+        
         // Draw platforms if zoomed in
         const platforms = this.commonService.getPlatformLocations('');
-        const platformLayer = new MapZoomLayer(this.googleMap, 10);
-        platforms.forEach(platformList => {
-            platformList.forEach(platform => {
-                platform.lon.forEach((_long, idx) => {
-                    platformLayer.addData(new MapZoomData(
-                        platform.lon[idx],
-                        platform.lat[idx],
-                        this.iconPlatform,
-                        platform.name[idx],
-                        platform.name[idx],
-                        'click'
-                    ));
-                })
-            });
-        });
-        platformLayer.draw();
+        this.mapService.plotPlatforms(this.googleMap, platforms);
     }
 
     makeLegend() {
@@ -288,12 +194,12 @@ export class DashboardComponent implements OnInit {
                     width: 55
                 }
             ];
-            this.mapLegend.add(this.iconVesselCluster);
-            this.mapLegend.add(this.iconMarkerLive);
-            this.mapLegend.add(this.iconMarkerHours);
-            this.mapLegend.add(this.iconMarkerOld);
-            this.mapLegend.add(this.iconHarbour);
-            this.mapLegend.add(this.iconWindfield);
+            this.mapLegend.add(this.mapService.iconVesselCluster);
+            this.mapLegend.add(this.mapService.iconVesselLive);
+            this.mapLegend.add(this.mapService.iconVesselHours);
+            this.mapLegend.add(this.mapService.iconVesselOld);
+            this.mapLegend.add(this.mapService.iconHarbour);
+            this.mapLegend.add(this.mapService.iconWindfield);
 
             // Generate the legend
             const legend = document.getElementById('mapLegendID');
