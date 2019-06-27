@@ -186,6 +186,7 @@ export class MapZoomPolygon {
     private infoWindowEnabled: boolean;
     private isDrawn = false;
     private polyline: google.maps.Polygon;
+    private infoWindow: google.maps.InfoWindow;
 
     constructor(
         lons: number[],
@@ -227,6 +228,9 @@ export class MapZoomPolygon {
         this.visible = newStatus;
         if (this.isDrawn) {
             this.polyline.setVisible(newStatus);
+            if (this.infoWindow && !newStatus) {
+                this.infoWindow.close();
+            }
         }
     }
 
@@ -256,13 +260,13 @@ export class MapZoomPolygon {
         });
         // Adding infowindow if enabled
         if (this.getInfoWindowEnabled()) {
-            const infoWindow = new google.maps.InfoWindow({
+            this.infoWindow = new google.maps.InfoWindow({
                 content: this.info,
                 position: this.centroid(),
                 disableAutoPan: true,
             });
             const openInfoWindowCB = () => {
-                layer.eventService.OpenAgmInfoWindow(infoWindow, [], this.polyline.getMap(), this.polyline);
+                layer.eventService.OpenAgmInfoWindow(this.infoWindow, [], this.polyline.getMap(), this.polyline);
             };
             this.polyline.addListener(this.popupMode, function () {
                 openInfoWindowCB();
