@@ -14,7 +14,7 @@ import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service';
 import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 import { GmapService } from '../../supportModules/gmap.service';
-import { MapZoomData, MapZoomLayer } from '../../models/mapZoomLayer';
+import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
 
 
 @Component({
@@ -91,6 +91,15 @@ export class DashboardComponent implements OnInit {
         {
             width: 25,
             height: 25
+        }
+    );
+
+    iconPlatform: mapMarkerIcon = new mapMarkerIcon(
+        '../../assets/images/oil-platform.png',
+        'Platform',
+        {
+            width: 10,
+            height: 10
         }
     );
 
@@ -179,7 +188,7 @@ export class DashboardComponent implements OnInit {
         }, 60000);
     }
 
-    buildGoogleMap( googleMap ){
+    buildGoogleMap( googleMap ) {
         // this.mapService.addTurbinesToMapForDashboard(googleMap, this.parkLocations);
         this.googleMap = googleMap;
         const harbourLocations = this.commonService.getHarbourLocations();
@@ -190,11 +199,56 @@ export class DashboardComponent implements OnInit {
                     harbour.centroid.lon,
                     harbour.centroid.lat,
                     this.iconHarbour,
-                    this.iconHarbour.description
+                    this.iconHarbour.description,
                 ));
             });
         });
         harbourLayer.draw();
+        // Drawing the wind parks as polygons is zoomed in
+        const parkLocations = this.commonService.getParkLocations();
+        const parkBdrLayer = new MapZoomLayer(this.googleMap, 8);
+        parkLocations.forEach(locations => {
+            locations.forEach(field => {
+                parkBdrLayer.addData(new MapZoomPolygon(
+                    field.outlineLonCoordinates,
+                    field.outlineLatCoordinates,
+                    field.SiteName,
+                    field.SiteName,
+                ));
+            });
+        });
+        // Draw turbines as pictograms if zoomed out
+        parkBdrLayer.draw();
+        const parkLayer = new MapZoomLayer(this.googleMap, 6, 7);
+        parkLocations.forEach(locations => {
+            locations.forEach(field => {
+                parkLayer.addData(new MapZoomData(
+                    field.centroid.lon,
+                    field.centroid.lat,
+                    this.iconWindfield,
+                    field.SiteName
+                ));
+            });
+        });
+        parkLayer.draw();
+        // Draw platforms if zoomed in
+        const platforms = this.commonService.getPlatformLocations('');
+        const platformLayer = new MapZoomLayer(this.googleMap, 10);
+        platforms.forEach(platformList => {
+            platformList.forEach(platform => {
+                platform.lon.forEach((_long, idx) => {
+                    platformLayer.addData(new MapZoomData(
+                        platform.lon[idx],
+                        platform.lat[idx],
+                        this.iconPlatform,
+                        platform.name[idx],
+                        platform.name[idx],
+                        'click'
+                    ));
+                })
+            });
+        });
+        platformLayer.draw();
     }
 
     makeLegend() {
@@ -234,11 +288,6 @@ export class DashboardComponent implements OnInit {
                     width: 55
                 }
             ];
-            const parkLocations = this.commonService.getParkLocations();
-            parkLocations.forEach(field => {
-                this.parkLocations = field;
-            });
-
             this.mapLegend.add(this.iconVesselCluster);
             this.mapLegend.add(this.iconMarkerLive);
             this.mapLegend.add(this.iconMarkerHours);

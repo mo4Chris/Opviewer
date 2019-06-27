@@ -460,11 +460,11 @@ export class VesselreportComponent implements OnInit {
         disableAutoPan: true,
       });
       // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
-      const openInfoWindow = (marker, infowindow) => {
+      const openInfoWindow = (marker) => {
         this.eventService.OpenAgmInfoWindow(infowindow, [], this.googleMap, marker);
       };
       mymarker.addListener('mouseover', function () {
-        openInfoWindow(mymarker, infowindow);
+        openInfoWindow(mymarker);
       });
     }
   }

@@ -14,9 +14,9 @@ export class EventService {
     }
     this.previous = infoWindow;
     gm.lastOpen = infoWindow;
-    if (map){
+    if (map) {
       infoWindow.open(map, marker);
-    }else{
+    } else {
       infoWindow.open();
     }
   }

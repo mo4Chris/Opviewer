@@ -12,17 +12,6 @@
             [gestureHandling]="'cooperative'"
             (mapReady) = "buildGoogleMap($event)"
             >
-
-            <agm-marker-cluster [averageCenter]="true" [minimumClusterSize]="3" [imagePath]="clustererImagePathPark" [styles]=clusterStylePark [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
-                <div *ngFor="let field of parkLocations">
-                    <agm-marker [latitude]="field.centroid.lat" [longitude]="field.centroid.lon" [iconUrl]="iconWindfield" [markerClickable]="false"></agm-marker>
-                </div>
-            </agm-marker-cluster >
-
-            <div *ngFor="let harbour of harbourLocations">
-                <agm-marker [latitude]="harbour.centroid.lat" [longitude]="harbour.centroid.lon" [iconUrl]="iconHarbour" [markerClickable]="false"></agm-marker>
-            </div>
-
             <agm-marker-cluster [averageCenter]="true" [imagePath]="clustererImagePathVessels" [styles]=clusterStyleVessels [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
                 <ng-container *ngFor="let location of locationData; let i=index" >
                     <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" [iconUrl]="location.markerIcon" [zIndex]=500>
@@ -37,7 +26,6 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }}<br>
                     </agm-marker>
                 </ng-container>
             </agm-marker-cluster >
-
         </agm-map>
         <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
         <div id="mapLegendID" class="mapLegend">
