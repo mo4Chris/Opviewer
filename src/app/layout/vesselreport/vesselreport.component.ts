@@ -335,12 +335,11 @@ export class VesselreportComponent implements OnInit {
 
   buildGoogleMap(googleMap) {
     this.googleMap = googleMap;
-    // drawing route
-    this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     // ToDo need to add a proper event emitter when location data is loaded
     setTimeout(() => {
+      this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
       this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
-    }, 500);
+    }, 1000);
   }
 }
 
