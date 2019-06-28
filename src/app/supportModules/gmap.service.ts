@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { LonlatService } from '../supportModules/lonlat.service';
 import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
-import { ClusterManager } from '@agm/js-marker-clusterer';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
 
@@ -82,7 +81,7 @@ export class GmapService {
         '../assets/clusterer/m1.png',
         'Cluster of vessels'
     );
-
+    vesselRouteTurbineLayer: MapZoomLayer;
 
     addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines, platformLocations) {
         // Drawing turbines
@@ -109,16 +108,13 @@ export class GmapService {
     }
 
     addVesselRouteTurbine(map, markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {
-        const markerPosition = { lat: lat, lng: lon };
-        const mymarker = new google.maps.Marker({
-            position: markerPosition,
-            draggable: false,
-            icon: markerIcon,
-            zIndex: zIndex,
-            map: map
-        });
+        if (this.vesselRouteTurbineLayer !== undefined) {
+            this.vesselRouteTurbineLayer = new MapZoomLayer(map, 10);
+            this.vesselRouteTurbineLayer.draw();
+        }
+        let contentString = '';
         if (infoArray.length > 0 && infoArray[0]) {
-            let contentString =
+            contentString =
                 '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
                 '<pre>';
             infoArray.forEach(info => {
@@ -128,18 +124,14 @@ export class GmapService {
                     'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
             });
             contentString = contentString + '</pre>';
-            const infowindow = new google.maps.InfoWindow({
-                content: contentString,
-                disableAutoPan: true,
-            });
-            // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
-            const openInfoWindow = (marker, window) => {
-                this.eventService.OpenAgmInfoWindow(window, [], map, marker);
-            };
-            mymarker.addListener('mouseover', function () {
-                openInfoWindow(mymarker, infowindow);
-            });
         }
+        this.vesselRouteTurbineLayer.addData(new MapZoomData(
+            lon,
+            lat,
+            markerIcon,
+            'Turbine',
+            contentString
+        ));
     }
 
     addVesselRoutePlatform(map, markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {

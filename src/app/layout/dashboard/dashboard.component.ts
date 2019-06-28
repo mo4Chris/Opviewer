@@ -144,7 +144,7 @@ export class DashboardComponent implements OnInit {
     buildGoogleMap( googleMap ) {
         // this.mapService.addTurbinesToMapForDashboard(googleMap, this.parkLocations);
         this.googleMap = googleMap;
-        const harbourLocations = this.commonService.getHarbourLocations(8);
+        const harbourLocations = this.commonService.getHarbourLocations();
         this.mapService.plotHarbours(this.googleMap, harbourLocations);
         // Drawing the wind parks as polygons is zoomed in
         const parkLocations = this.commonService.getParkLocations();

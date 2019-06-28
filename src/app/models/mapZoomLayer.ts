@@ -4,7 +4,7 @@ import { isArray } from 'util';
 
 export class MapZoomLayer {
     map: google.maps.Map;
-    data = new Array<MapZoomData>() || new Array<MapZoomPolygon>();
+    data: MapZoomChild[] = new Array<MapZoomChild>();
     minZoom: number;
     maxZoom: number;
     eventService: EventService = new EventService();
@@ -19,14 +19,14 @@ export class MapZoomLayer {
         this.setZoomCallbacks();
     }
 
-    addData(data) {
+    addData(newData: MapZoomChild) {
         if (!this.isDrawn) {
-            this.data.push(data);
+            this.data.push(newData);
         } else {
-            this.data.push(data);
-            data.addDataToLayer(this);
+            this.data.push(newData);
+            newData.addDataToLayer(this);
         }
-        data.setVisible(this.layerEnabled);
+        newData.setVisible(this.layerEnabled);
     }
 
     draw() {
@@ -53,7 +53,7 @@ export class MapZoomLayer {
             }
         });
         const mapZoomLevel = this.map.getZoom();
-        this.layerEnabled = this.zoomLevelIsInLimits(mapZoomLevel)
+        this.layerEnabled = this.zoomLevelIsInLimits(mapZoomLevel);
     }
 
     private onZoom(mapZoomLevel: number) {
@@ -72,20 +72,29 @@ export class MapZoomLayer {
     }
 }
 
-
-export class MapZoomData {
+export abstract class MapZoomChild {
     description: string;
-    markerIcon: mapMarkerIcon;
+    popupMode: string;
+    zIndex: number;
+    protected visible: boolean;
+    protected isDrawn: boolean = false;
+    constructor() {
+    }
+    getVisible() {
+        return this.visible;
+    }
+    abstract setVisible(status: boolean): void
+    abstract addDataToLayer(dataLayer: MapZoomLayer): void
+}
+
+export class MapZoomData extends MapZoomChild {
     lon: number;
     lat: number;
-    zIndex: number;
-    popupMode: string;
-    private info: string;
-    private visible: boolean;
-    private infoWindowEnabled: boolean;
-    private isDrawn = false;
     private marker: google.maps.Marker;
+    markerIcon: mapMarkerIcon;
+    private info: string;
     private infoWindow: google.maps.InfoWindow;
+    private infoWindowEnabled: boolean;
 
     constructor(
         lon: number,
@@ -97,6 +106,8 @@ export class MapZoomData {
         zIndex = 2,
         enableInfoWindow = true,
     ) {
+        super()
+
         if (isArray(lon)) {
             this.lon = lon[0];
             this.lat = lat[0];
@@ -124,8 +135,8 @@ export class MapZoomData {
         }
     }
 
-    getVisible() {
-        return this.visible;
+    getInfo() {
+        return this.info;
     }
 
     setVisible(newStatus: boolean) {
@@ -136,10 +147,6 @@ export class MapZoomData {
                 this.infoWindow.close();
             }
         }
-    }
-
-    getInfo() {
-        return this.info;
     }
 
     addDataToLayer( layer: MapZoomLayer ) {
@@ -174,19 +181,14 @@ export class MapZoomData {
 }
 
 
-export class MapZoomPolygon {
-    description: string;
+export class MapZoomPolygon extends MapZoomChild {
     lon: number[];
     lat: number[];
-    zIndex: number;
-    popupMode: string;
-    private info: string;
-    private visible: boolean;
-    private fillColor: string;
-    private infoWindowEnabled: boolean;
-    private isDrawn = false;
     private polyline: google.maps.Polygon;
+    private fillColor: string;
+    private info: string;
     private infoWindow: google.maps.InfoWindow;
+    private infoWindowEnabled: boolean;
 
     constructor(
         lons: number[],
@@ -198,6 +200,7 @@ export class MapZoomPolygon {
         zIndex = 2,
         enableInfoWindow = true,
     ) {
+        super()
         this.lon = lons;
         this.lat = lats;
         this.description = description;
@@ -220,8 +223,12 @@ export class MapZoomPolygon {
         }
     }
 
-    getVisible() {
-        return this.visible;
+    getInfo() {
+        return this.info;
+    }
+
+    centroid() {
+        return {lat: this.mean(this.lat), lng: this.mean(this.lon)};
     }
 
     setVisible(newStatus: boolean) {
@@ -232,14 +239,6 @@ export class MapZoomPolygon {
                 this.infoWindow.close();
             }
         }
-    }
-
-    getInfo() {
-        return this.info;
-    }
-
-    centroid() {
-        return {lat: this.mean(this.lat), lng: this.mean(this.lon)}
     }
 
     addDataToLayer( layer: MapZoomLayer ) {
@@ -278,7 +277,7 @@ export class MapZoomPolygon {
     private concatLonLatArray(lons: number[], lats: number[]) {
         const lonlatArray = [];
         let latt: number;
-        if (isArray(lons)){
+        if (isArray(lons)) {
             lons.forEach((long, idx) => {
                 if (isArray(long)) {
                     latt = lats[idx][0];
