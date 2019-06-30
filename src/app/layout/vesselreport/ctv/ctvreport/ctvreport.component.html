@@ -52,10 +52,8 @@
                 <td>{{roundNumber(general.TotalFuel, 10)}}</td>
                 <td>Fuel Economy</td>
                 <td>{{roundNumber(general.FuelEcon, 10)}}</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">Amount of toolbox talks</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? '0' : generalInputStats.toolboxConducted.count()}}</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"></td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"></td>
+                <td></td>
+                <td></td>
                 <td>Tool box talks conducted</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                     <ng-multiselect-dropdown 
@@ -74,10 +72,8 @@
                 <td>Average Docking Time</td>
                 <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
                 <td></td><td></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">Amount of HSE reports</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.hseReports == '') ? '0' : generalInputStats.hseReports.count()}}</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"></td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"></td>
+                <td></td>
+                <td></td>
                 <td>HSE reports issued</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                     <ng-multiselect-dropdown
