@@ -97,7 +97,6 @@ export class CtvreportComponent implements OnInit {
         });
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
-            console.log(this.tokenInfo.userPermission);
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
@@ -463,13 +462,21 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.toolboxConducted = [null];
             }
 
-            console.log(typeof this.generalInputStats.toolboxConducted);
         });
     }
 
     saveGeneralStats() {
-        this.newService.saveCTVGeneralStats(this.generalInputStats).subscribe(data => {
-            console.log(data);
+        this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
+            map(res => {
+                this.alert.type = 'success';
+                this.alert.message = res.data;
+            }),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })).subscribe(data => {
+                console.log();
         });
     }
 
