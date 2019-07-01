@@ -31,6 +31,11 @@ export class SovreportComponent implements OnInit {
     @Input() mapPixelWidth;
 
     sovModel: SovModel = new SovModel();
+    private routeLoaded = false;
+    private turbinesLoaded = false;
+    private platformsLoaded = false;
+    private v2vLoaded = false;
+    private cycleTimeLoaded = false;
 
     // used for comparison in the HTML
     SovTypeEnum = SovType;
@@ -136,46 +141,69 @@ export class SovreportComponent implements OnInit {
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
-                setTimeout(() => {
-                    this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
-                        if (platformTransfers.length === 0) {
-                            this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
-                                if (turbineTransfers.length === 0) {
-                                    this.sovModel.sovType = SovType.Unknown;
-                                } else {
-                                    this.sovModel.turbineTransfers = turbineTransfers;
-                                    this.sovModel.sovType = SovType.Turbine;
-                                }
-                            });
-                        } else {
-                            this.sovModel.platformTransfers = platformTransfers;
-                            this.sovModel.sovType = SovType.Platform;
-                        }
-                        this.getVesselRoute();
-                    });
-                }, 1500);
-
+                this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                    if (platformTransfers.length === 0) {
+                        this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
+                            if (turbineTransfers.length === 0) {
+                                this.sovModel.sovType = SovType.Unknown;
+                            } else {
+                                this.sovModel.turbineTransfers = turbineTransfers;
+                                this.sovModel.sovType = SovType.Turbine;
+                            }
+                        }, null, () => {
+                            this.turbinesLoaded = true;
+                        });
+                    } else {
+                        this.sovModel.platformTransfers = platformTransfers;
+                        this.sovModel.sovType = SovType.Platform;
+                        this.turbinesLoaded = true;
+                    }
+                    this.getVesselRoute();
+                }, null, () => {
+                    this.platformsLoaded = true;
+                    this.buildPageWhenAllLoaded();
+                });
                 this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
+                }, null, () => {
+                    this.v2vLoaded = true;
+                    this.buildPageWhenAllLoaded();
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
+                }, null, () => {
+                    this.cycleTimeLoaded = true;
+                    this.buildPageWhenAllLoaded();
                 });
                 this.locShowContent = true;
-                // Set the timer so data is first collected on time
             } else {
                 this.locShowContent = false;
-                this.loaded.emit(true);
             }
             this.showContent.emit(this.locShowContent);
         }, null, () => {
-            this.CalculateDailySummary();
-            this.createOperationalStatsChart();
-            this.createGangwayLimitationsChart();
-            this.createWeatherOverviewChart();
-            this.CheckForNullValues();
-            this.loaded.emit(true);
+            this.routeLoaded = true;
+            this.buildPageWhenAllLoaded();
         });
+    }
+
+    testIfAllLoaded() {
+        console.log(this.routeLoaded);
+        console.log(this.turbinesLoaded);
+        console.log(this.platformsLoaded);
+        console.log(this.v2vLoaded);
+        console.log(this.cycleTimeLoaded);
+        if (this.routeLoaded && this.turbinesLoaded && this.platformsLoaded && this.v2vLoaded && this.cycleTimeLoaded) {
+            this.buildPageWhenAllLoaded();
+        }
+    }
+
+    buildPageWhenAllLoaded() {
+        this.CalculateDailySummary();
+        this.createOperationalStatsChart();
+        this.createGangwayLimitationsChart();
+        this.createWeatherOverviewChart();
+        this.CheckForNullValues();
+        this.loaded.emit(true);
     }
 
     GetTransits() {
@@ -227,6 +255,8 @@ export class SovreportComponent implements OnInit {
                     this.turbineLocations = locationData.turbineLocations;
                     this.turbineLocationData.emit(locationData);
                 }
+            }, null, () => {
+                this.routeLoaded = true;
             });
         });
         // Loads in relevant data for visited platforms
@@ -761,6 +791,11 @@ export class SovreportComponent implements OnInit {
       }
 
     private ResetTransfers() {
+        this.routeLoaded = false;
+        this.platformsLoaded = false;
+        this.turbinesLoaded = false;
+        this.v2vLoaded = false;
+        this.cycleTimeLoaded = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();

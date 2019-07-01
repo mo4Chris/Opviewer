@@ -157,10 +157,12 @@ export class GmapService {
                 '<strong style="font-size: 15px;">' + location + ' Platform transfers</strong>' +
                 '<pre>';
             infoArray.forEach(info => {
-                contentString = contentString + '<br>' +
-                    'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-                    'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-                    'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+                if (info) {
+                    contentString = contentString + '<br>' +
+                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
+                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+                }
             });
             contentString = contentString + '</pre>';
             const infowindow = new google.maps.InfoWindow({

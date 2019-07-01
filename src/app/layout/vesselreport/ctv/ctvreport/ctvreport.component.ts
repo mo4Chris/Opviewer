@@ -182,13 +182,14 @@ export class CtvreportComponent implements OnInit {
                     }
                 }, null, () => {
                     this.showContent.emit(true);
+                    this.loaded.emit(true);
                 });
             } else {
                 this.showContent.emit(false);
                 this.noPermissionForData = true;
+                this.loaded.emit(true);
             }
         });
-        setTimeout(() => this.loaded.emit(true), 2000);
     }
 
     createSlipgraphs() {
