@@ -31,6 +31,7 @@ export class SovreportComponent implements OnInit {
     @Input() mapPixelWidth;
 
     sovModel: SovModel = new SovModel();
+    private sovLoaded = false;
     private routeLoaded = false;
     private turbinesLoaded = false;
     private platformsLoaded = false;
@@ -152,47 +153,46 @@ export class SovreportComponent implements OnInit {
                             }
                         }, null, () => {
                             this.turbinesLoaded = true;
+                            this.testIfAllLoaded();
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                         this.turbinesLoaded = true;
+                        this.testIfAllLoaded();
                     }
                     this.getVesselRoute();
                 }, null, () => {
                     this.platformsLoaded = true;
-                    this.buildPageWhenAllLoaded();
+                    this.testIfAllLoaded();
                 });
                 this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
                 }, null, () => {
                     this.v2vLoaded = true;
-                    this.buildPageWhenAllLoaded();
+                    this.testIfAllLoaded();
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
                 }, null, () => {
                     this.cycleTimeLoaded = true;
-                    this.buildPageWhenAllLoaded();
+                    this.testIfAllLoaded();
                 });
                 this.locShowContent = true;
             } else {
+                // Skip check if all data is loaded if there is none
+                this.buildPageWhenAllLoaded();
                 this.locShowContent = false;
             }
             this.showContent.emit(this.locShowContent);
         }, null, () => {
-            this.routeLoaded = true;
-            this.buildPageWhenAllLoaded();
+            this.sovLoaded = true;
+            this.testIfAllLoaded();
         });
     }
 
     testIfAllLoaded() {
-        console.log(this.routeLoaded);
-        console.log(this.turbinesLoaded);
-        console.log(this.platformsLoaded);
-        console.log(this.v2vLoaded);
-        console.log(this.cycleTimeLoaded);
-        if (this.routeLoaded && this.turbinesLoaded && this.platformsLoaded && this.v2vLoaded && this.cycleTimeLoaded) {
+        if (this.sovLoaded && this.routeLoaded && this.turbinesLoaded && this.platformsLoaded && this.v2vLoaded && this.cycleTimeLoaded) {
             this.buildPageWhenAllLoaded();
         }
     }
@@ -257,6 +257,7 @@ export class SovreportComponent implements OnInit {
                 }
             }, null, () => {
                 this.routeLoaded = true;
+                this.testIfAllLoaded();
             });
         });
         // Loads in relevant data for visited platforms
@@ -796,6 +797,7 @@ export class SovreportComponent implements OnInit {
         this.turbinesLoaded = false;
         this.v2vLoaded = false;
         this.cycleTimeLoaded = false;
+        this.sovLoaded = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();
