@@ -84,10 +84,14 @@ export class GmapService {
     vesselRouteTurbineLayer: MapZoomLayer;
 
     buildLayerIfNotPresent(googleMap: google.maps.Map) {
-        if (this.vesselRouteTurbineLayer === undefined) {
+        if (this.vesselRouteTurbineLayer === undefined || this.vesselRouteTurbineLayer === null) {
             this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
             this.vesselRouteTurbineLayer.draw();
         }
+    }
+
+    resetLayer() {
+        this.vesselRouteTurbineLayer = null;
     }
 
     addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines: VesselTurbines, platformLocations: VesselPlatforms) {

@@ -78,6 +78,7 @@ export class VesselreportComponent implements OnInit {
   loaded = false;
   turbinesLoaded = true; // getTurbineLocationData is not always triggered
   platformsLoaded = true;
+  googleMapLoaded = false;
   mapPixelWidth = 0;
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
@@ -134,6 +135,7 @@ export class VesselreportComponent implements OnInit {
     );
     groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val), null, () => {
       this.turbinesLoaded = true;
+      this.buildPageWhenLoaded();
     });
   }
 
@@ -179,8 +181,8 @@ export class VesselreportComponent implements OnInit {
     );
     groupedTurbines.subscribe(val => this.platformLocations.turbineLocations.push(val), null, () => {
         this.platformsLoaded = true;
+        this.buildPageWhenLoaded();
       });
-        
   }
 
 
@@ -212,6 +214,9 @@ export class VesselreportComponent implements OnInit {
 
   getRouteFound(routeFound: boolean): void {
     this.routeFound = routeFound;
+    if (routeFound) {
+      this.buildPageWhenLoaded();
+    }
   }
 
   getParkFound(parkFound: boolean): void {
@@ -220,6 +225,9 @@ export class VesselreportComponent implements OnInit {
 
   isLoaded(loaded: boolean): void {
     this.loaded = loaded;
+    if (loaded) {
+      this.buildPageWhenLoaded();
+    }
   }
   ///////////////////////////////////////////////////
 
@@ -252,7 +260,9 @@ export class VesselreportComponent implements OnInit {
 
   ngOnInit() {
     if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.getVessel().subscribe(data => this.vessels = data, null, () => {
+      this.newService.getVessel().subscribe(data => {
+        this.vessels = data;
+      }, null, () => {
         this.buildPageWithCurrentInformation();
       });
     } else {
@@ -289,9 +299,18 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
+  buildPageWhenLoaded() {
+    const allDataLoaded = this.turbinesLoaded && this.googleMapLoaded &&
+      this.platformsLoaded && this.routeFound && this.loaded;
+    if (allDataLoaded) {
+      this.buildGoogleMap();
+    }
+  }
+
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
     this.resetRoutes();
+    this.mapService.resetLayer();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
@@ -320,6 +339,7 @@ export class VesselreportComponent implements OnInit {
     this.parkFound = false;
     this.transferVisitedAtLeastOneTurbine = false;
     this.loaded = false;
+    this.googleMapLoaded = false;
   }
 
   getGeneralStats() {
@@ -334,13 +354,15 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
-  buildGoogleMap(googleMap) {
+  setMapReady(googleMap) {
     this.googleMap = googleMap;
-    // ToDo need to add a proper event emitter when location data is loaded
-    setTimeout(() => {
-      this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
-      this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
-    }, 1000);
+    this.googleMapLoaded = true;
+    this.buildPageWhenLoaded();
+  }
+
+  buildGoogleMap() {
+    this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
+    this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
   }
 }
 
