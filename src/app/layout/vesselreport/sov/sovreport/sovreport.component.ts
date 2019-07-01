@@ -129,10 +129,10 @@ export class SovreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        setTimeout(() => {
-            this.GetAvailableRouteDatesForVessel();
-        }, 1000);
+        this.GetAvailableRouteDatesForVessel();
+    }
 
+    buildPageWhenRouteLoaded() {
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
@@ -153,7 +153,7 @@ export class SovreportComponent implements OnInit {
                         }
                         this.getVesselRoute();
                     });
-                });
+                }, 1500);
 
                 this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
@@ -163,20 +163,18 @@ export class SovreportComponent implements OnInit {
                 });
                 this.locShowContent = true;
                 // Set the timer so data is first collected on time
-                // ToDo clear timeout when data has been loaded
-                setTimeout(() => {
-                    this.CalculateDailySummary();
-                    this.createOperationalStatsChart();
-                    this.createGangwayLimitationsChart();
-                    this.createWeatherOverviewChart();
-                    this.CheckForNullValues();
-                    this.loaded.emit(true);
-                }, 1500);
             } else {
                 this.locShowContent = false;
                 this.loaded.emit(true);
             }
             this.showContent.emit(this.locShowContent);
+        }, null, () => {
+            this.CalculateDailySummary();
+            this.createOperationalStatsChart();
+            this.createGangwayLimitationsChart();
+            this.createWeatherOverviewChart();
+            this.CheckForNullValues();
+            this.loaded.emit(true);
         });
     }
 
@@ -193,7 +191,9 @@ export class SovreportComponent implements OnInit {
             }
             const sailDates = dates;
             this.sailDates.emit(sailDates);
-        });
+        }, null,
+        () => this.buildPageWhenRouteLoaded()
+        );
     }
 
     getVesselRoute() {

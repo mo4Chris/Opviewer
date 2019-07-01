@@ -104,7 +104,7 @@ export class CtvreportComponent implements OnInit {
                             this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
                                 if (locData.length > 0) {
 
-                                    let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
+                                    const locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
 
                                     this.turbineLocationData.emit(locationData),
                                         this.parkFound.emit(true);

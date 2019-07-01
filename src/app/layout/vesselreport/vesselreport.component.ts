@@ -132,11 +132,9 @@ export class VesselreportComponent implements OnInit {
     groupBy(turbine => turbine.latitude),
     mergeMap(group => group.pipe(toArray()))
     );
-    groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val));
-
-    setTimeout(() => {
-    this.turbinesLoaded = true;
-    }, 1500);
+    groupedTurbines.subscribe(val => this.vesselTurbines.turbineLocations.push(val), null, () => {
+      this.turbinesLoaded = true;
+    });
   }
 
   getPlatformLocationData(platformLocationData: any): void {
@@ -179,10 +177,10 @@ export class VesselreportComponent implements OnInit {
       groupBy(platforms => platforms.latitude),
       mergeMap(group => group.pipe(toArray()))
     );
-    groupedTurbines.subscribe(val => this.platformLocations.turbineLocations.push(val));
-    setTimeout(() => {
+    groupedTurbines.subscribe(val => this.platformLocations.turbineLocations.push(val), null, () => {
         this.platformsLoaded = true;
-    }, 1500);
+      });
+        
   }
 
 
@@ -254,13 +252,16 @@ export class VesselreportComponent implements OnInit {
 
   ngOnInit() {
     if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.getVessel().subscribe(data => this.vessels = data);
+      this.newService.getVessel().subscribe(data => this.vessels = data, null, () => {
+        this.buildPageWithCurrentInformation();
+      });
     } else {
       this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
         this.vessels = data;
+      }, null, () => {
+        this.buildPageWithCurrentInformation();
       });
     }
-    this.buildPageWithCurrentInformation();
   }
 
   // TODO: make complient with the newly added usertypes
@@ -274,17 +275,17 @@ export class VesselreportComponent implements OnInit {
         if (map != null) {
           this.mapPixelWidth = map.offsetWidth;
         }
-        // ToDo clear timeout when data is loaded
-        setTimeout(() => {
-          if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
-            this.ctvChild.buildPageWithCurrentInformation();
-          } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
-            this.sovChild.buildPageWithCurrentInformation();
-          }
-        }, 1000);
       } else {
         this.noPermissionForData = true;
       }
+    }, null, () => {
+      setTimeout(() => {
+        if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
+          this.ctvChild.buildPageWithCurrentInformation();
+        } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
+          this.sovChild.buildPageWithCurrentInformation();
+        }
+      });
     });
   }
 

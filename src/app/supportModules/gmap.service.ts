@@ -4,6 +4,7 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
+import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
 
 @Injectable({
     providedIn: 'root'
@@ -12,8 +13,7 @@ export class GmapService {
     constructor(
         private eventService: EventService,
         private lonlatService: LonlatService,
-        private dateTimeService: DatetimeService,
-        // private commonService: CommonService,
+        private dateTimeService: DatetimeService
     ) {
 
     }
@@ -83,8 +83,16 @@ export class GmapService {
     );
     vesselRouteTurbineLayer: MapZoomLayer;
 
-    addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines, platformLocations) {
+    buildLayerIfNotPresent(googleMap: google.maps.Map) {
+        if (this.vesselRouteTurbineLayer === undefined) {
+            this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
+            this.vesselRouteTurbineLayer.draw();
+        }
+    }
+
+    addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines: VesselTurbines, platformLocations: VesselPlatforms) {
         // Drawing turbines
+        this.buildLayerIfNotPresent(googleMap);
         vesselturbines.turbineLocations.forEach((turbineParkLocation, index) => {
             turbineParkLocation.forEach(parkLocation => {
                 if (parkLocation.shipHasSailedBy) {
@@ -107,13 +115,10 @@ export class GmapService {
         });
     }
 
-    addVesselRouteTurbine(map, markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {
-        if (this.vesselRouteTurbineLayer !== undefined) {
-            this.vesselRouteTurbineLayer = new MapZoomLayer(map, 10);
-            this.vesselRouteTurbineLayer.draw();
-        }
+    addVesselRouteTurbine(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
+        this.buildLayerIfNotPresent(googleMap);
         let contentString = '';
-        if (infoArray.length > 0 && infoArray[0]) {
+        if (infoArray !== undefined && infoArray !== null && infoArray.length > 0 && infoArray[0]) {
             contentString =
                 '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
                 '<pre>';
@@ -134,14 +139,14 @@ export class GmapService {
         ));
     }
 
-    addVesselRoutePlatform(map, markerIcon, lon, lat, infoArray = null, location = null, zIndex = 2) {
+    addVesselRoutePlatform(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
         const markerPosition = { lat: lat, lng: lon };
         const mymarker = new google.maps.Marker({
             position: markerPosition,
             draggable: false,
             icon: markerIcon,
             zIndex: zIndex,
-            map: map
+            map: googleMap
         });
         if (infoArray.length > 0 && infoArray[0]) {
             let contentString =
@@ -160,7 +165,7 @@ export class GmapService {
             });
             // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
             const openInfoWindow = (marker, window) => {
-                this.eventService.OpenAgmInfoWindow(window, [], map, marker);
+                this.eventService.OpenAgmInfoWindow(window, [], googleMap, marker);
             };
             mymarker.addListener('mouseover', function () {
                 openInfoWindow(mymarker, infowindow);
