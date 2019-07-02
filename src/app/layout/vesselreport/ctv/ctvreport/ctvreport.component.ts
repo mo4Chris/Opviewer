@@ -98,7 +98,6 @@ export class CtvreportComponent implements OnInit {
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
-                console.log(this.vesselObject);
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
                         this.getComments(this.vesselObject).subscribe(_ => {
