@@ -98,6 +98,7 @@ export class CtvreportComponent implements OnInit {
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
+                console.log(this.vesselObject);
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
                         this.getComments(this.vesselObject).subscribe(_ => {
@@ -115,6 +116,7 @@ export class CtvreportComponent implements OnInit {
                             });
                         });
                     });
+                    
                     if (this.transferData.length !== 0) {
                         this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                             this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
