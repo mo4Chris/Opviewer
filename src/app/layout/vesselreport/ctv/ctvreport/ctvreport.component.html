@@ -15,9 +15,9 @@
                 <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
                 <td>Arrival Port</td>
                 <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
-                <td>Fuel consumption in Liters</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control form-control-sm"></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}}</td>
+                <td>Fuel consumption</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -28,9 +28,9 @@
                 <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' kts')}}</td>
                 <td>Max. speed inbound</td>
                 <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
-                <td>Waste oil landed in Liters</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control form-control-sm"></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}}</td>
+                <td>Waste oil landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
             </tr>
             <tr>
                 <td>MSI outbound</td>
@@ -41,9 +41,9 @@
                 <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
-                <td>Garbage landed in KG</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control form-control-sm"></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}}</td>
+                <td>Garbage landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-5"> kg</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} kg</td>
             </tr>
             <tr>
                 <td>Distance Sailed</td>
