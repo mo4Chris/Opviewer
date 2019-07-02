@@ -83,11 +83,11 @@ export class DashboardComponent implements OnInit {
         this.locationData.forEach(marker => {
                 lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
                 if (lastUpdatedHours < 1) {
-                    marker.markerIcon = this.mapService.iconVesselLive;
+                    marker.markerIcon = GmapService.iconVesselLive;
                 } else if (lastUpdatedHours < 6) {
-                    marker.markerIcon = this.mapService.iconVesselHours;
+                    marker.markerIcon = GmapService.iconVesselHours;
                 } else {
-                    marker.markerIcon = this.mapService.iconVesselOld;
+                    marker.markerIcon = GmapService.iconVesselOld;
                 }
                 });
     }
@@ -194,12 +194,12 @@ export class DashboardComponent implements OnInit {
                     width: 55
                 }
             ];
-            this.mapLegend.add(this.mapService.iconVesselCluster);
-            this.mapLegend.add(this.mapService.iconVesselLive);
-            this.mapLegend.add(this.mapService.iconVesselHours);
-            this.mapLegend.add(this.mapService.iconVesselOld);
-            this.mapLegend.add(this.mapService.iconHarbour);
-            this.mapLegend.add(this.mapService.iconWindfield);
+            this.mapLegend.add(GmapService.iconVesselCluster);
+            this.mapLegend.add(GmapService.iconVesselLive);
+            this.mapLegend.add(GmapService.iconVesselHours);
+            this.mapLegend.add(GmapService.iconVesselOld);
+            this.mapLegend.add(GmapService.iconHarbour);
+            this.mapLegend.add(GmapService.iconWindfield);
 
             // Generate the legend
             const legend = document.getElementById('mapLegendID');

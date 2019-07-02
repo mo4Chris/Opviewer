@@ -40,6 +40,20 @@ export class MapZoomLayer {
         return this.isDrawn;
     }
 
+    reset() {
+        this.data.forEach(data => {
+            data.delete();
+        });
+        this.data = new Array<MapZoomChild>();
+    }
+
+    setMap(gmap: google.maps.Map) {
+        this.data.forEach(data => {
+            data.setMap(gmap);
+        });
+        this.map = gmap;
+    }
+
     private zoomLevelIsInLimits (mapZoomLevel: number) {
         return mapZoomLevel >= this.minZoom && mapZoomLevel <= this.maxZoom;
     }
@@ -83,8 +97,11 @@ export abstract class MapZoomChild {
     getVisible() {
         return this.visible;
     }
-    abstract setVisible(status: boolean): void
-    abstract addDataToLayer(dataLayer: MapZoomLayer): void
+
+    abstract setMap(map: google.maps.Map): void;
+    abstract setVisible(status: boolean): void;
+    abstract addDataToLayer(dataLayer: MapZoomLayer): void;
+    abstract delete(): void;
 }
 
 export class MapZoomData extends MapZoomChild {
@@ -123,6 +140,10 @@ export class MapZoomData extends MapZoomChild {
         this.zIndex = zIndex;
     }
 
+    delete() {
+        this.marker.setMap(null);
+    }
+
     getInfoWindowEnabled() {
         return this.infoWindowEnabled && this.info.length > 0;
     }
@@ -137,6 +158,10 @@ export class MapZoomData extends MapZoomChild {
 
     getInfo() {
         return this.info;
+    }
+
+    setMap(map: google.maps.Map) {
+        this.marker.setMap(map);
     }
 
     setVisible(newStatus: boolean) {
@@ -184,7 +209,8 @@ export class MapZoomData extends MapZoomChild {
 export class MapZoomPolygon extends MapZoomChild {
     lon: number[];
     lat: number[];
-    private polyline: google.maps.Polygon;
+    private linetype = 'polygon';
+    private polyline;
     private fillColor: string;
     private info: string;
     private infoWindow: google.maps.InfoWindow;
@@ -196,11 +222,12 @@ export class MapZoomPolygon extends MapZoomChild {
         description: string,
         info = '',
         popupMode = 'click',
+        linetype = 'polygon',
         fillColor = 'blue',
         zIndex = 2,
         enableInfoWindow = true,
     ) {
-        super()
+        super();
         this.lon = lons;
         this.lat = lats;
         this.description = description;
@@ -209,10 +236,17 @@ export class MapZoomPolygon extends MapZoomChild {
         this.info = info;
         this.zIndex = zIndex;
         this.fillColor = fillColor;
+        if (linetype === 'polygon' || linetype === 'polyline') {
+            this.linetype = linetype;
+        }
+    }
+
+    delete() {
+        this.polyline.setMap(null);
     }
 
     getInfoWindowEnabled() {
-        return this.infoWindowEnabled && this.info.length > 0;
+        return this.infoWindowEnabled && this.info && this.info.length > 0;
     }
 
     setInfoWindowEnabled(newSetting: boolean) {
@@ -230,6 +264,10 @@ export class MapZoomPolygon extends MapZoomChild {
     centroid() {
         return {lat: this.mean(this.lat), lng: this.mean(this.lon)};
     }
+     
+    setMap(map: google.maps.Map) {
+        this.polyline.setMap(map);
+    }
 
     setVisible(newStatus: boolean) {
         this.visible = newStatus;
@@ -246,17 +284,33 @@ export class MapZoomPolygon extends MapZoomChild {
             return;
         }
         const markerPosition = this.concatLonLatArray(this.lon, this.lat);
-        this.polyline = new google.maps.Polygon({
-            paths: [markerPosition],
-            draggable: false,
-            editable: false,
-            clickable: this.getInfoWindowEnabled(),
-            map: layer.map,
-            zIndex: this.zIndex,
-            visible: this.visible,
-            fillColor: this.fillColor,
-            strokeWeight: 2
-        });
+        if (this.linetype === 'polygon') {
+            this.polyline = new google.maps.Polygon({
+                paths: [markerPosition],
+                draggable: false,
+                editable: false,
+                clickable: this.getInfoWindowEnabled(),
+                map: layer.map,
+                zIndex: this.zIndex,
+                visible: this.visible,
+                fillColor: this.fillColor,
+                strokeWeight: 2
+            });
+        } else{
+            this.polyline = new google.maps.Polyline({
+                path: markerPosition,
+                draggable: false,
+                editable: false,
+                strokeColor: this.fillColor,
+                geodesic: true,
+                clickable: this.getInfoWindowEnabled(),
+                map: layer.map,
+                zIndex: this.zIndex,
+                visible: this.visible,
+                strokeWeight: 1.5
+            });
+        }
+
         // Adding infowindow if enabled
         if (this.getInfoWindowEnabled()) {
             this.infoWindow = new google.maps.InfoWindow({

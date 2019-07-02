@@ -5,11 +5,11 @@ export class TurbineLocation {
     shipHasSailedBy: boolean = false;
     transfer: TurbineLocationTransfer;
 
-    constructor(latitude: any, longitude: any, location: string, transfer = null) {
+    constructor(latitude: any, longitude: any, location: string, transfer = null, shipHasSailedBy = null) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.location = location;
-        if(transfer != null && location != "") {
+        if (transfer != null && location !== '') {
             this.shipHasSailedBy = true;
             if(transfer.duration !== undefined && transfer.duration !== ''){
                 this.transfer = new TurbineLocationTransfer(transfer.startTime, transfer.stopTime, transfer.duration);
@@ -17,6 +17,9 @@ export class TurbineLocation {
             else if(transfer.arrivalTimePlatform !== undefined && transfer.arrivalTimePlatform !== ''){
                 this.transfer = new TurbineLocationTransfer(transfer.arrivalTimePlatform, transfer.departureTimePlatform, transfer.visitDuration);
             }
+        }
+        if (shipHasSailedBy !== null) {
+            this.shipHasSailedBy = shipHasSailedBy;
         }
     }
 }

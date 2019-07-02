@@ -9,6 +9,10 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { TurbineLocation } from '../../models/TurbineLocation';
+import { GmapService } from '../../../../supportModules/gmap.service';
+import { MapZoomLayer, MapZoomData, MapZoomPolygon } from '../../../../models/mapZoomLayer';
+import { isArray } from 'util';
+import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 
 @Component({
     selector: 'app-sovreport',
@@ -42,10 +46,11 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
+    vessel2vesselActivityRoute: Vessel2VesselActivity;
     turbineLocations = new Array<any>();
 
     // Charts
+    private v2v_data_layer: MapZoomLayer;
     operationsChart;
     gangwayLimitationsChart;
     weatherOverviewChart;
@@ -54,63 +59,38 @@ export class SovreportComponent implements OnInit {
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
-    iconMarkerSailedBy = {
-        url: '../../../../assets/images/visitedTurbineIcon.png',
-        scaledSize: {
-          width: 10,
-          height: 10
-        }
-    };
-
-    iconMarkerNotVisited = {
-        url: '../../../../assets/images/turbineIcon.png',
-        scaledSize: {
-          width: 10,
-          height: 10
-        }
-    };
-
-    constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
+    constructor(
+        private commonService: CommonService,
+        private datetimeService: DatetimeService,
+        private modalService: NgbModal,
+        private calculationService: CalculationService,
+        private gmapService: GmapService
+        ) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
-        this.vessel2vesselActivityRoute.vessel = vesselname;
-        this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-            vessel2vessel.CTVactivity.forEach(ctvActivity => {
-                if (ctvActivity.mmsi === toMMSI) {
-                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
-                    if ('object' === typeof(ctvActivity.turbineVisits)) {
-                        this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
-                    }
-                }
-            });
-        });
-        // Set up for turbines locations view on map
-        if (this.vessel2vesselActivityRoute.hasTurbineTransfers) {
-            this.turbineLocations.forEach(turbineLocation => {
-                for (let index = 0; index < turbineLocation.lat.length; index++) {
-                    let isVisited = false;
-                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
-                        if (turbineLocation.name[index] === turbineVisit.location) {
-                            isVisited = true;
-                            return;
-                        }
-                    });
-                    if (isVisited) {
-                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ''));
-                    } else {
-                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
-                    }
-                }
-            });
-        }
         const map = document.getElementById('routeMap');
-        const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
-        this.vessel2vesselActivityRoute.lat = mapProperties.avgLatitude;
-        this.vessel2vesselActivityRoute.lon = mapProperties.avgLongitude;
-        this.vessel2vesselActivityRoute.zoomLevel = mapProperties.zoomLevel;
-        this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
-        this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
+        const v2vHandler = new Vessel2VesselActivity({
+            sovModel: this.sovModel,
+            htmlMap: map,
+            vessel: vesselname,
+            mmsi: toMMSI,
+            turbineLocations: this.turbineLocations
+        });
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+        this.vessel2vesselActivityRoute = v2vHandler;
+    }
+
+    build_v2v_map(googleMap) {
+        if (this.v2v_data_layer === undefined) {
+            this.v2v_data_layer = new MapZoomLayer(googleMap, 1);
+        } else {
+            this.v2v_data_layer.reset();
+            this.v2v_data_layer.setMap(googleMap);
+        }
+        // Set up for turbines locations view on map
+        this.vessel2vesselActivityRoute.addVesselRouteToMapZoomLayer(this.v2v_data_layer);
+        this.vessel2vesselActivityRoute.addTurbinesToMapZoomLayer(this.v2v_data_layer);
+        this.v2v_data_layer.draw();
     }
 
     objectToInt(objectvalue) {

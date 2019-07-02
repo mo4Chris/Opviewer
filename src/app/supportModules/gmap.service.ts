@@ -17,7 +17,7 @@ export class GmapService {
     ) {
 
     }
-    iconWindfield: mapMarkerIcon = new mapMarkerIcon(
+    static iconWindfield: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/windTurbine.png',
         'Windfield',
         {
@@ -25,7 +25,7 @@ export class GmapService {
             height: 25
         }
     );
-    iconTurbine: mapMarkerIcon = new mapMarkerIcon(
+    static iconTurbine: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/turbineIcon.png',
         '',
         {
@@ -33,7 +33,7 @@ export class GmapService {
             height: 5
         }
     );
-    iconVisitedTurbine: mapMarkerIcon = new mapMarkerIcon(
+    static iconVisitedTurbine: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/visitedTurbineIcon.png',
         'Visited turbine',
         {
@@ -41,15 +41,15 @@ export class GmapService {
             height: 10
         }
     );
-    iconPlatform: mapMarkerIcon = new mapMarkerIcon(
-        '../../assets/images/oil-platform.png',
+    static iconPlatform: mapMarkerIcon = new mapMarkerIcon(
+        '../assets/images/oil-platform.png',
         'Platform',
         {
             width: 10,
             height: 10
         }
     );
-    iconVisitedPlatform: mapMarkerIcon = new mapMarkerIcon(
+    static iconVisitedPlatform: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/visitedPlatform.png',
         'Visited platform',
         {
@@ -57,7 +57,7 @@ export class GmapService {
             height: 10
         }
     );
-    iconHarbour: mapMarkerIcon = new mapMarkerIcon(
+    static iconHarbour: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/marina.png',
         'Harbour',
         {
@@ -65,19 +65,19 @@ export class GmapService {
             height: 20
         }
     );
-    iconVesselLive: mapMarkerIcon = new mapMarkerIcon(
+    static iconVesselLive: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/grn-circle.png',
          'Updated last hour'
     );
-    iconVesselHours: mapMarkerIcon = new mapMarkerIcon(
+    static iconVesselHours: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/ylw-circle.png',
         'Updated < 6 hours',
     );
-    iconVesselOld: mapMarkerIcon = new mapMarkerIcon(
+    static iconVesselOld: mapMarkerIcon = new mapMarkerIcon(
         '../assets/images/red-circle.png',
         'Updated > 6 hours'
     );
-    iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
+    static iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
         '../assets/clusterer/m1.png',
         'Cluster of vessels'
     );
@@ -100,9 +100,9 @@ export class GmapService {
         vesselturbines.turbineLocations.forEach((turbineParkLocation, index) => {
             turbineParkLocation.forEach(parkLocation => {
                 if (parkLocation.shipHasSailedBy) {
-                    this.addVesselRouteTurbine(googleMap, this.iconVisitedTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer), parkLocation.location, 5);
+                    this.addVesselRouteTurbine(googleMap, GmapService.iconVisitedTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer), parkLocation.location, 5);
                 } else {
-                    this.addVesselRouteTurbine(googleMap, this.iconTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer));
+                    this.addVesselRouteTurbine(googleMap, GmapService.iconTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer));
                 }
             });
         });
@@ -110,10 +110,10 @@ export class GmapService {
         platformLocations.turbineLocations.forEach(platformArray => {
             platformArray.forEach(platform => {
                 if (platform.shipHasSailedBy) {
-                    this.addVesselRoutePlatform(googleMap, this.iconVisitedPlatform, platform.longitude, platform.latitude, platformArray.map(docking => docking.transfer), platform.location, 5);
+                    this.addVesselRoutePlatform(googleMap, GmapService.iconVisitedPlatform, platform.longitude, platform.latitude, platformArray.map(docking => docking.transfer), platform.location, 5);
                 } else if (false) {
                     // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
-                    this.addVesselRoutePlatform(googleMap, this.iconPlatform, platform.longitude, platform.latitude);
+                    this.addVesselRoutePlatform(googleMap, GmapService.iconPlatform, platform.longitude, platform.latitude);
                 }
             });
         });
@@ -250,7 +250,7 @@ export class GmapService {
                 parkLayer.addData(new MapZoomData(
                     field.centroid.lon,
                     field.centroid.lat,
-                    this.iconWindfield,
+                    GmapService.iconWindfield,
                     field.SiteName
                 ));
             });
@@ -265,8 +265,8 @@ export class GmapService {
                 harbourLayer.addData(new MapZoomData(
                     harbour.centroid.lon,
                     harbour.centroid.lat,
-                    this.iconHarbour,
-                    this.iconHarbour.description,
+                    GmapService.iconHarbour,
+                    GmapService.iconHarbour.description,
                 ));
             });
         });
@@ -281,7 +281,7 @@ export class GmapService {
                     platformLayer.addData(new MapZoomData(
                         platform.lon[idx],
                         platform.lat[idx],
-                        this.iconPlatform,
+                        GmapService.iconPlatform,
                         platform.name[idx],
                         platform.name[idx],
                         'click'
