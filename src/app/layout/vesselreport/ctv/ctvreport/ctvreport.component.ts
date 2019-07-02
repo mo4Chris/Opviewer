@@ -66,7 +66,7 @@ export class CtvreportComponent implements OnInit {
     generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: []};
 
 
-   
+
     public showAlert = false;
     alert = { type: '', message: '' };
     timeout;
@@ -115,13 +115,13 @@ export class CtvreportComponent implements OnInit {
                             });
                         });
                     });
-                    
+
                     if (this.transferData.length !== 0) {
                         this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                             this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
                                 if (locData.length > 0) {
 
-                                    let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
+                                    const locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': '', 'vesselType': 'CTV' };
 
                                     this.turbineLocationData.emit(locationData),
                                         this.parkFound.emit(true);
