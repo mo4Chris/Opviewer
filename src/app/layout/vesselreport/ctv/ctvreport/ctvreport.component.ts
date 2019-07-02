@@ -51,7 +51,22 @@ export class CtvreportComponent implements OnInit {
     vessel;
     dateData;
     modalReference: NgbModalRef;
+    multiSelectSettings = {
+        idField: 'mmsi',
+        textField: 'nicename',
+        allowSearchFilter: true,
+        singleSelection: false
+    };
+    toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
+    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
+   'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
+    toolboxConducted = [];
+    hseOptions = [];
 
+    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: []};
+
+
+   
     public showAlert = false;
     alert = { type: '', message: '' };
     timeout;
@@ -60,8 +75,9 @@ export class CtvreportComponent implements OnInit {
 
     }
 
+
     openModal(content) {
-        this.modalReference = this.modalService.open(content, { size: 'xl' });
+        this.modalReference = this.modalService.open(content, { size: 'lg' });
     }
 
     closeModal() {
@@ -81,6 +97,7 @@ export class CtvreportComponent implements OnInit {
         });
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+            console.log(this.tokenInfo.userPermission);
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
@@ -428,6 +445,31 @@ export class CtvreportComponent implements OnInit {
                 this.noTransits = true;
                 this.general = {};
             }
+            if (general.data.length > 0 && general.data[0].inputStats) {
+                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
+                this.generalInputStats.date =  this.vesselObject.date;
+                this.generalInputStats.fuelConsumption =  general.data[0].inputStats.fuelConsumption;
+                this.generalInputStats.hseReports = general.data[0].inputStats.hseReports;
+                this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
+                this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
+                this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
+            } else {
+                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
+                this.generalInputStats.date =  this.vesselObject.date;
+                this.generalInputStats.fuelConsumption =  0;
+                this.generalInputStats.hseReports = [null];
+                this.generalInputStats.landedGarbage = 0;
+                this.generalInputStats.landedOil = 0;
+                this.generalInputStats.toolboxConducted = [null];
+            }
+
+            console.log(typeof this.generalInputStats.toolboxConducted);
+        });
+    }
+
+    saveGeneralStats() {
+        this.newService.saveCTVGeneralStats(this.generalInputStats).subscribe(data => {
+            console.log(data);
         });
     }
 
