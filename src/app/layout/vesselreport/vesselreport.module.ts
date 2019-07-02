@@ -20,6 +20,7 @@ import { CalculationService } from '../../supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { EventService } from '../../supportModules/event.service';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -29,6 +30,7 @@ import { EventService } from '../../supportModules/event.service';
         FormsModule,
         ReactiveFormsModule,
         NgbModule.forRoot(),
+        NgMultiSelectDropDownModule.forRoot(),
         CommonModule,
         VesselreportRoutingModule,
         PageHeaderModule,

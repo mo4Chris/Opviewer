@@ -250,6 +250,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveCTVGeneralStats(generalStats) {
+    return this.post(environment.DB_IP + '/api/saveCTVGeneralStats/', generalStats).pipe(
+      map((response: Response) => response.json()));
+  }
+
   addVesselToFleet(vessel) {
     return this.post(environment.DB_IP + '/api/addVesselToFleet/', vessel).pipe(
       map((response: Response) => response.json()));

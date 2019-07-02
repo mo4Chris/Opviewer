@@ -51,6 +51,21 @@ export class CtvreportComponent implements OnInit {
     vessel;
     dateData;
     modalReference: NgbModalRef;
+    multiSelectSettings = {
+        idField: 'mmsi',
+        textField: 'nicename',
+        allowSearchFilter: true,
+        singleSelection: false
+    };
+    toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
+    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
+   'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
+    toolboxConducted = [];
+    hseOptions = [];
+
+    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: []};
+
+
 
     public showAlert = false;
     alert = { type: '', message: '' };
@@ -59,6 +74,7 @@ export class CtvreportComponent implements OnInit {
     constructor(private newService: CommonService, private calculationService: CalculationService, private modalService: NgbModal, private dateTimeService: DatetimeService) {
 
     }
+
 
     openModal(content) {
         this.modalReference = this.modalService.open(content, { size: 'lg' });
@@ -99,12 +115,13 @@ export class CtvreportComponent implements OnInit {
                             });
                         });
                     });
+
                     if (this.transferData.length !== 0) {
                         this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                             this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
                                 if (locData.length > 0) {
 
-                                    let locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': "", 'vesselType': 'CTV' };
+                                    const locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': '', 'vesselType': 'CTV' };
 
                                     this.turbineLocationData.emit(locationData),
                                         this.parkFound.emit(true);
@@ -428,6 +445,39 @@ export class CtvreportComponent implements OnInit {
                 this.noTransits = true;
                 this.general = {};
             }
+            if (general.data.length > 0 && general.data[0].inputStats) {
+                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
+                this.generalInputStats.date =  this.vesselObject.date;
+                this.generalInputStats.fuelConsumption =  general.data[0].inputStats.fuelConsumption;
+                this.generalInputStats.hseReports = general.data[0].inputStats.hseReports;
+                this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
+                this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
+                this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
+            } else {
+                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
+                this.generalInputStats.date =  this.vesselObject.date;
+                this.generalInputStats.fuelConsumption =  0;
+                this.generalInputStats.hseReports = [null];
+                this.generalInputStats.landedGarbage = 0;
+                this.generalInputStats.landedOil = 0;
+                this.generalInputStats.toolboxConducted = [null];
+            }
+
+        });
+    }
+
+    saveGeneralStats() {
+        this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
+            map(res => {
+                this.alert.type = 'success';
+                this.alert.message = res.data;
+            }),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })).subscribe(data => {
+                console.log();
         });
     }
 
