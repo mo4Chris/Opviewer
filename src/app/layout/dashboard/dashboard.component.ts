@@ -110,7 +110,6 @@ export class DashboardComponent implements OnInit {
 
     getLocations() {
         this.makeLegend();
-        // this.adminComponent.setZoomLevel();
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
                 case Usertype.Admin: {
@@ -142,7 +141,6 @@ export class DashboardComponent implements OnInit {
     }
 
     buildGoogleMap( googleMap ) {
-        // this.mapService.addTurbinesToMapForDashboard(googleMap, this.parkLocations);
         this.googleMap = googleMap;
         const harbourLocations = this.commonService.getHarbourLocations();
         this.mapService.plotHarbours(this.googleMap, harbourLocations);
@@ -151,7 +149,6 @@ export class DashboardComponent implements OnInit {
         // Draw turbines as pictograms if zoomed out
         this.mapService.plotParkBoundaries(this.googleMap, parkLocations);
         this.mapService.plotParkPictograms(this.googleMap, parkLocations);
-        
         // Draw platforms if zoomed in
         const platforms = this.commonService.getPlatformLocations('');
         this.mapService.plotPlatforms(this.googleMap, platforms);

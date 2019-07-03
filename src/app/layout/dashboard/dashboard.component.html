@@ -1,18 +1,18 @@
 <div [@routerTransition]>
     <h2 class="text-muted">Dashboard <small>Ship Overview</small></h2>
     <div class="divContainer" fxFlex="100">
-        <agm-map #gm 
+        <agm-map #gm
             [latitude]="zoominfo.latitude"
-            [longitude]="zoominfo.longitude" 
-            [zoom]="zoominfo.zoomlvl" 
-            [mapTypeId]="mapTypeId" 
-            [streetViewControl]="streetViewControl" 
-            [scrollwheel]='null' 
-            [scaleControl] ="true" 
+            [longitude]="zoominfo.longitude"
+            [zoom]="zoominfo.zoomlvl"
+            [mapTypeId]="mapTypeId"
+            [streetViewControl]="streetViewControl"
+            [scrollwheel]='null'
+            [scaleControl] ="true"
             [gestureHandling]="'cooperative'"
             (mapReady) = "buildGoogleMap($event)"
             >
-            <agm-marker-cluster [averageCenter]="true" [imagePath]="clustererImagePathVessels" [styles]=clusterStyleVessels [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize"> 
+            <agm-marker-cluster [averageCenter]="true" [imagePath]="clustererImagePathVessels" [styles]=clusterStyleVessels [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize">
                 <ng-container *ngFor="let location of locationData; let i=index" >
                     <agm-marker [latitude]="location.LAT" [longitude]="location.LON" (mouseOver)="onMouseOver(infoWindow, gm)" [iconUrl]="location.markerIcon" [zIndex]=500>
                         <agm-info-window #infoWindow [disableAutoPan]="true">

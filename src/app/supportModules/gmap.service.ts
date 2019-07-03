@@ -81,17 +81,29 @@ export class GmapService {
         '../assets/clusterer/m1.png',
         'Cluster of vessels'
     );
+    layersInitialized = false;
     vesselRouteTurbineLayer: MapZoomLayer;
+    unvisitedPlatformLayer: MapZoomLayer;
 
-    buildLayerIfNotPresent(googleMap: google.maps.Map) {
-        if (this.vesselRouteTurbineLayer === undefined || this.vesselRouteTurbineLayer === null) {
-            this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
-            this.vesselRouteTurbineLayer.draw();
+    reset() {
+        if (this.layersInitialized) {
+            this.vesselRouteTurbineLayer.reset();
+            this.unvisitedPlatformLayer.reset();
+            this.layersInitialized = false; // This ensures that the correct map will be set when switching between pages
         }
     }
 
-    resetLayer() {
-        this.vesselRouteTurbineLayer = null;
+    buildLayerIfNotPresent(googleMap: google.maps.Map) {
+        if (!this.layersInitialized) {
+            this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
+            this.vesselRouteTurbineLayer.draw();
+            this.unvisitedPlatformLayer = new MapZoomLayer(googleMap, 10);
+            setTimeout(() => {
+                // Platform layer is drawn only after 500 ms delay to keep map responsive
+                this.unvisitedPlatformLayer.draw();
+            }, 500);
+            this.layersInitialized = true;
+        }
     }
 
     addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines: VesselTurbines, platformLocations: VesselPlatforms) {
@@ -111,9 +123,8 @@ export class GmapService {
             platformArray.forEach(platform => {
                 if (platform.shipHasSailedBy) {
                     this.addVesselRoutePlatform(googleMap, GmapService.iconVisitedPlatform, platform.longitude, platform.latitude, platformArray.map(docking => docking.transfer), platform.location, 5);
-                } else if (false) {
-                    // ToDO Need to decide if we want to show all platforms. Maybe we use some sort of fancy merger similar to dashboard or show only above certain zoom level
-                    this.addVesselRoutePlatform(googleMap, GmapService.iconPlatform, platform.longitude, platform.latitude);
+                } else {
+                    this.unvisitedPlatformLayer.addData(new MapZoomData(platform.longitude, platform.latitude, GmapService.iconPlatform, 'Unvisited platform'));
                 }
             });
         });

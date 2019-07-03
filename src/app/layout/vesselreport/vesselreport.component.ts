@@ -310,7 +310,7 @@ export class VesselreportComponent implements OnInit {
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
     this.resetRoutes();
-    this.mapService.resetLayer();
+    this.mapService.reset();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);

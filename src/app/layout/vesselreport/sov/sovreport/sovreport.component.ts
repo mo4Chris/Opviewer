@@ -8,10 +8,8 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
-import { TurbineLocation } from '../../models/TurbineLocation';
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer, MapZoomData, MapZoomPolygon } from '../../../../models/mapZoomLayer';
-import { isArray } from 'util';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 
 @Component({
@@ -133,30 +131,30 @@ export class SovreportComponent implements OnInit {
                             }
                         }, null, () => {
                             this.turbinesLoaded = true;
-                            this.testIfAllLoaded();
+                            this.checkIfAllLoaded();
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                         this.turbinesLoaded = true;
-                        this.testIfAllLoaded();
+                        this.checkIfAllLoaded();
                     }
                     this.getVesselRoute();
                 }, null, () => {
                     this.platformsLoaded = true;
-                    this.testIfAllLoaded();
+                    this.checkIfAllLoaded();
                 });
                 this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
                 }, null, () => {
                     this.v2vLoaded = true;
-                    this.testIfAllLoaded();
+                    this.checkIfAllLoaded();
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
                 }, null, () => {
                     this.cycleTimeLoaded = true;
-                    this.testIfAllLoaded();
+                    this.checkIfAllLoaded();
                 });
                 this.locShowContent = true;
             } else {
@@ -167,11 +165,11 @@ export class SovreportComponent implements OnInit {
             this.showContent.emit(this.locShowContent);
         }, null, () => {
             this.sovLoaded = true;
-            this.testIfAllLoaded();
+            this.checkIfAllLoaded();
         });
     }
 
-    testIfAllLoaded() {
+    checkIfAllLoaded() {
         if (this.sovLoaded && this.routeLoaded && this.turbinesLoaded && this.platformsLoaded && this.v2vLoaded && this.cycleTimeLoaded) {
             this.buildPageWhenAllLoaded();
         }
@@ -237,7 +235,7 @@ export class SovreportComponent implements OnInit {
                 }
             }, null, () => {
                 this.routeLoaded = true;
-                this.testIfAllLoaded();
+                this.checkIfAllLoaded();
             });
         });
         // Loads in relevant data for visited platforms
@@ -769,7 +767,7 @@ export class SovreportComponent implements OnInit {
     }
     destroyOldCharts(): void {
         this.weatherOverviewChart.destroy();
-      }
+    }
 
     private ResetTransfers() {
         this.routeLoaded = false;
