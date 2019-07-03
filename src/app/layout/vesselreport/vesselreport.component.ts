@@ -277,6 +277,7 @@ export class VesselreportComponent implements OnInit {
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
     this.resetRoutes();
+    this.mapService.reset();
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {

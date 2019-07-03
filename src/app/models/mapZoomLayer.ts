@@ -91,7 +91,7 @@ export abstract class MapZoomChild {
     popupMode: string;
     zIndex: number;
     protected visible: boolean;
-    protected isDrawn: boolean = false;
+    protected isDrawn = false;
     constructor() {
     }
     getVisible() {
@@ -123,7 +123,7 @@ export class MapZoomData extends MapZoomChild {
         zIndex = 2,
         enableInfoWindow = true,
     ) {
-        super()
+        super();
 
         if (isArray(lon)) {
             this.lon = lon[0];
@@ -264,7 +264,7 @@ export class MapZoomPolygon extends MapZoomChild {
     centroid() {
         return {lat: this.mean(this.lat), lng: this.mean(this.lon)};
     }
-     
+
     setMap(map: google.maps.Map) {
         this.polyline.setMap(map);
     }
@@ -296,7 +296,7 @@ export class MapZoomPolygon extends MapZoomChild {
                 fillColor: this.fillColor,
                 strokeWeight: 2
             });
-        } else{
+        } else {
             this.polyline = new google.maps.Polyline({
                 path: markerPosition,
                 draggable: false,
