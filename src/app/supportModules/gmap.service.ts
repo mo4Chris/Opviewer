@@ -155,6 +155,7 @@ export class GmapService {
     }
 
     addVesselRoutePlatform(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
+        this.buildLayerIfNotPresent(googleMap);
         const markerPosition = { lat: lat, lng: lon };
         const mymarker = new google.maps.Marker({
             position: markerPosition,

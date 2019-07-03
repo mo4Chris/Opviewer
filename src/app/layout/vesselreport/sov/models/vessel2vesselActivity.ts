@@ -1,5 +1,3 @@
-
-import { TurbineLocation } from '../../models/TurbineLocation';
 import { SovModel } from './SovModel';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { V2vCtvActivity } from './Transfers/vessel2vessel/V2vCtvActivity';
@@ -17,7 +15,7 @@ export class Vessel2VesselActivity {
     mmsi: number;
 
     route: {lon: number[], lat: number[]};
-    private mapProperties;
+    private mapProperties: {zoomLevel: number, avgLatitude: number, avgLongitude: number};
     private calculationService = new CalculationService();
     private ctvActivity: V2vCtvActivity;
     private hasNotVisitedIcon = GmapService.iconTurbine; // static property
