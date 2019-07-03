@@ -358,22 +358,31 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body" *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers">
+        <ng-template #noTurbinesVisited>
+            <thead>
+                <tr>
+                    <td colspan="5">  There were no turbines visited by this vessel</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </ng-template>
+        <div class="modal-body" *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
             <p>Turbines visited by this vessel</p>
             <div class="table-responsive">
                 <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Location</th>
-                            <th>Start time</th>
-                            <th>End time</th>
-                            <th>Duration [mns]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
-                            <ng-container *ngFor="let object of (vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits | groupBy:'fieldname')">
+                    <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers;">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Location</th>
+                                <th>Start time</th>
+                                <th>End time</th>
+                                <th>Duration [mns]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let object of (vessel2vesselActivityRoute.ctvActivity.turbineVisits | groupBy:'fieldname')">
                                 <tr>
                                     <th colspan="5">{{object.key}}</th>
                                 </tr>
@@ -387,35 +396,21 @@
                                     </tr>
                                 </ng-container>
                             </ng-container>
-                        </ng-container>
-                        <ng-template #noTurbinesVisited>
-                            <tr>
-                                <td colspan="5">There were no turbines visited by this vessel</td>
-                            </tr>
-                        </ng-template>
-                    </tbody>
+                        </tbody>
+                    </ng-container>
                 </table>
             </div>
         </div>
         <div class="modal-body">
             <div id="routeMap">
                 <!-- Drawing popup map for CTV transfers-->
-                <agm-map [latitude]="vessel2vesselActivityRoute.lat" [longitude]="vessel2vesselActivityRoute.lon" [zoom]="vessel2vesselActivityRoute.zoomLevel" [mapTypeId]="'roadmap'" [streetViewControl]=false>
-                    <ng-container *ngFor="let turbinePark of vessel2vesselActivityRoute.turbineLocations; let i=index">
-                        <ng-container *ngIf="turbinePark.location==''; else hasVisited">
-                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerSailedBy"></agm-marker>
-                        </ng-container>
-                        <ng-template #hasVisited>
-                            <agm-marker [latitude]="objectToInt(turbinePark.latitude)" [longitude]="objectToInt(turbinePark.longitude)" [iconUrl]="iconMarkerNotVisited" [markerClickable]="false"></agm-marker>
-                        </ng-template>
-                    </ng-container>
-                    
-                    <agm-polyline [strokeColor]="'#FF0000'" [strokeWeight]="1.5">
-                        <ng-container *ngFor="let loc of vessel2vesselActivityRoute.latCollection; let i = index">
-                            <agm-polyline-point [latitude]="objectToInt(loc)" [longitude]="objectToInt(vessel2vesselActivityRoute.lonCollection[i])">
-                            </agm-polyline-point>
-                        </ng-container>
-                    </agm-polyline>
+                <agm-map [latitude]="vessel2vesselActivityRoute.mapLat" 
+                            [longitude]="vessel2vesselActivityRoute.mapLon" 
+                            [zoom]="vessel2vesselActivityRoute.mapZoomLevel" 
+                            [mapTypeId]="'roadmap'" 
+                            [streetViewControl]=false
+                            (mapReady)="build_v2v_map($event)"
+                            >
                 </agm-map>
             </div>
         </div>

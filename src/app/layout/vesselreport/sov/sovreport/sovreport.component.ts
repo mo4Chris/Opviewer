@@ -8,7 +8,9 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
-import { TurbineLocation } from '../../models/TurbineLocation';
+import { GmapService } from '../../../../supportModules/gmap.service';
+import { MapZoomLayer, MapZoomData, MapZoomPolygon } from '../../../../models/mapZoomLayer';
+import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 
 @Component({
     selector: 'app-sovreport',
@@ -31,15 +33,22 @@ export class SovreportComponent implements OnInit {
     @Input() mapPixelWidth;
 
     sovModel: SovModel = new SovModel();
+    private sovLoaded = false;
+    private routeLoaded = false;
+    private turbinesLoaded = false;
+    private platformsLoaded = false;
+    private v2vLoaded = false;
+    private cycleTimeLoaded = false;
 
     // used for comparison in the HTML
     SovTypeEnum = SovType;
 
     locShowContent = false;
-    vessel2vesselActivityRoute = { 'lat': 0, 'lon': 0, 'latCollection': [], 'lonCollection': [], 'zoomLevel': 5, 'vessel': '', 'ctvActivityOfTransfer': undefined, 'hasTurbineTransfers': false, 'turbineLocations': Array<TurbineLocation>() };
+    vessel2vesselActivityRoute: Vessel2VesselActivity;
     turbineLocations = new Array<any>();
 
     // Charts
+    private v2v_data_layer: MapZoomLayer;
     operationsChart;
     gangwayLimitationsChart;
     weatherOverviewChart;
@@ -48,63 +57,38 @@ export class SovreportComponent implements OnInit {
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
-    iconMarkerSailedBy = {
-        url: '../../../../assets/images/visitedTurbineIcon.png',
-        scaledSize: {
-          width: 10,
-          height: 10
-        }
-    };
-
-    iconMarkerNotVisited = {
-        url: '../../../../assets/images/turbineIcon.png',
-        scaledSize: {
-          width: 10,
-          height: 10
-        }
-    };
-
-    constructor(private commonService: CommonService, private datetimeService: DatetimeService, private modalService: NgbModal, private calculationService: CalculationService) { }
+    constructor(
+        private commonService: CommonService,
+        private datetimeService: DatetimeService,
+        private modalService: NgbModal,
+        private calculationService: CalculationService,
+        private gmapService: GmapService
+        ) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
-        this.vessel2vesselActivityRoute.vessel = vesselname;
-        this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-            vessel2vessel.CTVactivity.forEach(ctvActivity => {
-                if (ctvActivity.mmsi === toMMSI) {
-                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer = ctvActivity;
-                    if ('object' === typeof(ctvActivity.turbineVisits)) {
-                        this.vessel2vesselActivityRoute.hasTurbineTransfers = true;
-                    }
-                }
-            });
-        });
-        // Set up for turbines locations view on map
-        if (this.vessel2vesselActivityRoute.hasTurbineTransfers) {
-            this.turbineLocations.forEach(turbineLocation => {
-                for (let index = 0; index < turbineLocation.lat.length; index++) {
-                    let isVisited = false;
-                    this.vessel2vesselActivityRoute.ctvActivityOfTransfer.turbineVisits.forEach(turbineVisit => {
-                        if (turbineLocation.name[index] === turbineVisit.location) {
-                            isVisited = true;
-                            return;
-                        }
-                    });
-                    if (isVisited) {
-                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], ''));
-                    } else {
-                        this.vessel2vesselActivityRoute.turbineLocations.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
-                    }
-                }
-            });
-        }
         const map = document.getElementById('routeMap');
-        const mapProperties = this.calculationService.GetPropertiesForMap(map.offsetWidth, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat, this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon);
-        this.vessel2vesselActivityRoute.lat = mapProperties.avgLatitude;
-        this.vessel2vesselActivityRoute.lon = mapProperties.avgLongitude;
-        this.vessel2vesselActivityRoute.zoomLevel = mapProperties.zoomLevel;
-        this.vessel2vesselActivityRoute.latCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lat;
-        this.vessel2vesselActivityRoute.lonCollection = this.vessel2vesselActivityRoute.ctvActivityOfTransfer.map.lon;
+        const v2vHandler = new Vessel2VesselActivity({
+            sovModel: this.sovModel,
+            htmlMap: map,
+            vessel: vesselname,
+            mmsi: toMMSI,
+            turbineLocations: this.turbineLocations
+        });
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+        this.vessel2vesselActivityRoute = v2vHandler;
+    }
+
+    build_v2v_map(googleMap) {
+        if (this.v2v_data_layer === undefined) {
+            this.v2v_data_layer = new MapZoomLayer(googleMap, 1);
+        } else {
+            this.v2v_data_layer.reset();
+            this.v2v_data_layer.setMap(googleMap);
+        }
+        // Set up for turbines locations view on map
+        this.vessel2vesselActivityRoute.addVesselRouteToMapZoomLayer(this.v2v_data_layer);
+        this.vessel2vesselActivityRoute.addTurbinesToMapZoomLayer(this.v2v_data_layer);
+        this.v2v_data_layer.draw();
     }
 
     objectToInt(objectvalue) {
@@ -129,55 +113,75 @@ export class SovreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        setTimeout(() => {
-            this.GetAvailableRouteDatesForVessel();
-        }, 1000);
+        this.GetAvailableRouteDatesForVessel();
+    }
 
+    buildPageWhenRouteLoaded() {
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
-                setTimeout(() => {
-                    this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
-                        if (platformTransfers.length === 0) {
-                            this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
-                                if (turbineTransfers.length === 0) {
-                                    this.sovModel.sovType = SovType.Unknown;
-                                } else {
-                                    this.sovModel.turbineTransfers = turbineTransfers;
-                                    this.sovModel.sovType = SovType.Turbine;
-                                }
-                            });
-                        } else {
-                            this.sovModel.platformTransfers = platformTransfers;
-                            this.sovModel.sovType = SovType.Platform;
-                        }
-                        this.getVesselRoute();
-                    });
+                this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
+                    if (platformTransfers.length === 0) {
+                        this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
+                            if (turbineTransfers.length === 0) {
+                                this.sovModel.sovType = SovType.Unknown;
+                            } else {
+                                this.sovModel.turbineTransfers = turbineTransfers;
+                                this.sovModel.sovType = SovType.Turbine;
+                            }
+                        }, null, () => {
+                            this.turbinesLoaded = true;
+                            this.checkIfAllLoaded();
+                        });
+                    } else {
+                        this.sovModel.platformTransfers = platformTransfers;
+                        this.sovModel.sovType = SovType.Platform;
+                        this.turbinesLoaded = true;
+                        this.checkIfAllLoaded();
+                    }
+                    this.getVesselRoute();
+                }, null, () => {
+                    this.platformsLoaded = true;
+                    this.checkIfAllLoaded();
                 });
-
                 this.commonService.getVessel2vesselsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(vessel2vessels => {
                     this.sovModel.vessel2vessels = vessel2vessels;
+                }, null, () => {
+                    this.v2vLoaded = true;
+                    this.checkIfAllLoaded();
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
+                }, null, () => {
+                    this.cycleTimeLoaded = true;
+                    this.checkIfAllLoaded();
                 });
                 this.locShowContent = true;
-                // Set the timer so data is first collected on time
-                // ToDo clear timeout when data has been loaded
-                setTimeout(() => {
-                    this.CalculateDailySummary();
-                    this.createOperationalStatsChart();
-                    this.createGangwayLimitationsChart();
-                    this.createWeatherOverviewChart();
-                    this.CheckForNullValues();
-                    this.loaded.emit(true);
-                }, 1500);
             } else {
+                // Skip check if all data is loaded if there is none
+                this.buildPageWhenAllLoaded();
                 this.locShowContent = false;
-                this.loaded.emit(true);
             }
             this.showContent.emit(this.locShowContent);
+        }, null, () => {
+            this.sovLoaded = true;
+            this.checkIfAllLoaded();
         });
+    }
+
+    checkIfAllLoaded() {
+        if (this.sovLoaded && this.routeLoaded && this.turbinesLoaded && this.platformsLoaded && this.v2vLoaded && this.cycleTimeLoaded) {
+            this.buildPageWhenAllLoaded();
+        }
+    }
+
+    buildPageWhenAllLoaded() {
+        this.CalculateDailySummary();
+        this.createOperationalStatsChart();
+        this.createGangwayLimitationsChart();
+        this.createWeatherOverviewChart();
+        this.CheckForNullValues();
+        this.loaded.emit(true);
     }
 
     GetTransits() {
@@ -193,7 +197,9 @@ export class SovreportComponent implements OnInit {
             }
             const sailDates = dates;
             this.sailDates.emit(sailDates);
-        });
+        }, null,
+        () => this.buildPageWhenRouteLoaded()
+        );
     }
 
     getVesselRoute() {
@@ -227,6 +233,9 @@ export class SovreportComponent implements OnInit {
                     this.turbineLocations = locationData.turbineLocations;
                     this.turbineLocationData.emit(locationData);
                 }
+            }, null, () => {
+                this.routeLoaded = true;
+                this.checkIfAllLoaded();
             });
         });
         // Loads in relevant data for visited platforms
@@ -758,9 +767,15 @@ export class SovreportComponent implements OnInit {
     }
     destroyOldCharts(): void {
         this.weatherOverviewChart.destroy();
-      }
+    }
 
     private ResetTransfers() {
+        this.routeLoaded = false;
+        this.platformsLoaded = false;
+        this.turbinesLoaded = false;
+        this.v2vLoaded = false;
+        this.cycleTimeLoaded = false;
+        this.sovLoaded = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();

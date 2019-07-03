@@ -89,6 +89,7 @@ export class CtvreportComponent implements OnInit {
     }
 
     buildPageWithCurrentInformation() {
+        // At this point are loaded: tokenInfo, vesselObject
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
@@ -196,14 +197,16 @@ export class CtvreportComponent implements OnInit {
                             }
                         }
                     }
+                }, null, () => {
+                    this.showContent.emit(true);
+                    this.loaded.emit(true);
                 });
-                this.showContent.emit(true);
             } else {
                 this.showContent.emit(false);
                 this.noPermissionForData = true;
+                this.loaded.emit(true);
             }
         });
-        setTimeout(() => this.loaded.emit(true), 2000);
     }
 
     createSlipgraphs() {
@@ -280,7 +283,6 @@ export class CtvreportComponent implements OnInit {
     }
 
     getTransfersForVessel(vessel) {
-
         let isTransfering = false;
         const responseTimes = [];
 

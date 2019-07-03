@@ -13,6 +13,8 @@ import { EventService } from '../../supportModules/event.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service';
 import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
+import { GmapService } from '../../supportModules/gmap.service';
+import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
 
 
 @Component({
@@ -22,10 +24,18 @@ import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(public router: Router, private route: ActivatedRoute, private userService: UserService, private eventService: EventService, private dateTimeService: DatetimeService, private commonService: CommonService) {   }
+    constructor(public router: Router,
+        private route: ActivatedRoute,
+        private userService: UserService,
+        private eventService: EventService,
+        private dateTimeService: DatetimeService,
+        private commonService: CommonService,
+        private mapService: GmapService,
+     ) {   }
     locationData;
 
     // Map settings
+    googleMap: google.maps.Map;
     zoominfo = {
         longitude: 0,
         latitude: 0,
@@ -51,44 +61,6 @@ export class DashboardComponent implements OnInit {
     timeout;
     infoWindowOld;
 
-    iconMarkerLive: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/grn-circle.png',
-         'Updated last hour'
-    );
-
-    iconMarkerHours: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/ylw-circle.png',
-        'Updated < 6 hours',
-      );
-
-    iconMarkerOld: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/red-circle.png',
-        'Updated > 6 hours',
-      );
-
-    iconHarbour: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/marina.png',
-        'Harbour',
-        {
-            width: 20,
-            height: 20
-        }
-      );
-
-    iconWindfield: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/windTurbine.png',
-        'Windfield',
-        {
-            width: 25,
-            height: 25
-        }
-    );
-
-    iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/clusterer/m1.png',
-        'Cluster of vessels'
-    );
-
     // used for comparison in the HTML
     userType = Usertype;
 
@@ -111,16 +83,17 @@ export class DashboardComponent implements OnInit {
         this.locationData.forEach(marker => {
                 lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
                 if (lastUpdatedHours < 1) {
-                    marker.markerIcon = this.iconMarkerLive;
+                    marker.markerIcon = GmapService.iconVesselLive;
                 } else if (lastUpdatedHours < 6) {
-                    marker.markerIcon = this.iconMarkerHours;
+                    marker.markerIcon = GmapService.iconVesselHours;
                 } else {
-                    marker.markerIcon = this.iconMarkerOld;
+                    marker.markerIcon = GmapService.iconVesselOld;
                 }
                 });
     }
 
     getZoominfo(zoominfo: any): void {
+        // Is this not setZoominfo?
         this.zoominfo = zoominfo;
     }
 
@@ -137,30 +110,26 @@ export class DashboardComponent implements OnInit {
 
     getLocations() {
         this.makeLegend();
-        // this.adminComponent.setZoomLevel();
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
                 case Usertype.Admin: {
                     this.adminComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.LogisticsSpecialist: {
                     this.logisticsSpecialistComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.MarineController: {
                     this.marineControllerComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
                 case Usertype.Vesselmaster: {
                     this.vesselMasterComponent.getLocations();
-                    this.eventService.closeLatestAgmInfoWindow();
                     break;
                 }
             }
+            this.eventService.closeLatestAgmInfoWindow();
         }, 1000);
         setTimeout(() => {
             this.eventService.closeLatestAgmInfoWindow();
@@ -169,6 +138,20 @@ export class DashboardComponent implements OnInit {
                 this.getLocations();
             }
         }, 60000);
+    }
+
+    buildGoogleMap( googleMap ) {
+        this.googleMap = googleMap;
+        const harbourLocations = this.commonService.getHarbourLocations();
+        this.mapService.plotHarbours(this.googleMap, harbourLocations);
+        // Drawing the wind parks as polygons is zoomed in
+        const parkLocations = this.commonService.getParkLocations();
+        // Draw turbines as pictograms if zoomed out
+        this.mapService.plotParkBoundaries(this.googleMap, parkLocations);
+        this.mapService.plotParkPictograms(this.googleMap, parkLocations);
+        // Draw platforms if zoomed in
+        const platforms = this.commonService.getPlatformLocations('');
+        this.mapService.plotPlatforms(this.googleMap, platforms);
     }
 
     makeLegend() {
@@ -208,21 +191,12 @@ export class DashboardComponent implements OnInit {
                     width: 55
                 }
             ];
-            const parkLocations = this.commonService.getParkLocations();
-            parkLocations.forEach(field => {
-                this.parkLocations = field;
-            });
-            const harbourLocations = this.commonService.getHarbourLocations();
-            harbourLocations.forEach(harbour => {
-                this.harbourLocations = harbour;
-            });
-
-            this.mapLegend.add(this.iconVesselCluster);
-            this.mapLegend.add(this.iconMarkerLive);
-            this.mapLegend.add(this.iconMarkerHours);
-            this.mapLegend.add(this.iconMarkerOld);
-            this.mapLegend.add(this.iconHarbour);
-            this.mapLegend.add(this.iconWindfield);
+            this.mapLegend.add(GmapService.iconVesselCluster);
+            this.mapLegend.add(GmapService.iconVesselLive);
+            this.mapLegend.add(GmapService.iconVesselHours);
+            this.mapLegend.add(GmapService.iconVesselOld);
+            this.mapLegend.add(GmapService.iconHarbour);
+            this.mapLegend.add(GmapService.iconWindfield);
 
             // Generate the legend
             const legend = document.getElementById('mapLegendID');

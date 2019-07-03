@@ -56,7 +56,7 @@
                     [mapTypeId]="'roadmap'" 
                     [streetViewControl]="streetViewControl" 
                     [gestureHandling]="'cooperative'"
-                    (mapReady)="buildGoogleMap($event)"
+                    (mapReady)="setMapReady($event)"
                     >
                 </agm-map>
             </div>
