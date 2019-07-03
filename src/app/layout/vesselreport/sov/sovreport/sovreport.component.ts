@@ -258,10 +258,26 @@ export class SovreportComponent implements OnInit {
         summaryModel.NrOfDaughterCraftLaunches = 0;
         summaryModel.NrOfHelicopterVisits = 0;
 
-        if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
+        if (this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType === SovType.Platform) {
+            const platformTransfers = this.sovModel.platformTransfers;
+
+            const avgTimeInWaitingZone = this.calculationService.getNanMean(platformTransfers.map(x => x.timeInWaitingZone));
+            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
+
+            const avgTimeInExclusionZone = this.calculationService.getNanMean(platformTransfers.map(x => x.visitDuration));
+            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
+
+            const avgTimeDocking = this.calculationService.getNanMean(platformTransfers.map(x => x.totalDuration));
+            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+
+            const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(platformTransfers.map(x => x.approachTime));
+            summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
+
+            summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
+        } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
             const turbineTransfers = this.sovModel.turbineTransfers;
 
-            const avgTimeDocking = turbineTransfers.reduce(function (sum, a, i, ar) { sum += a.duration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+            const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => x.duration));
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
             // Average time vessel docking
             let totalVesselDockingDuration = 0;
@@ -269,32 +285,18 @@ export class SovreportComponent implements OnInit {
             this.sovModel.vessel2vessels.forEach(vessel2vessel => {
                 let totalDockingDurationOfVessel2vessel = 0;
                 vessel2vessel.transfers.forEach(transfer => {
-                    totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
-                    nmrVesselTransfers += 1;
+                    if (transfer) {
+                        totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
+                        nmrVesselTransfers += 1;
+                    }
                 });
-                const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / vessel2vessel.transfers.length;
+                const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;
                 totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
             });
             summaryModel.NrOfVesselTransfers = nmrVesselTransfers;
             summaryModel.AvgTimeVesselDocking = this.calculationService.GetDecimalValueForNumber(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
-        } else if (this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType === SovType.Platform) {
-            const platformTransfers = this.sovModel.platformTransfers;
-
-            const avgTimeInWaitingZone = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.timeInWaitingZone; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
-            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
-
-            const avgTimeInExclusionZone = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.visitDuration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
-            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
-
-            const avgTimeDocking = platformTransfers.reduce(function (sum, a, i, ar) { sum += a.totalDuration; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
-            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-
-            const avgTimeTravelingToPlatforms = platformTransfers.reduce(function (sum, a, i, ar) { if (a.approachTime !== undefined || a.approachTime === NaN) {sum += a.approachTime; } else { ar.length--; } return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
-            summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
-
-            summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
         }
 
         this.sovModel.summary = summaryModel;

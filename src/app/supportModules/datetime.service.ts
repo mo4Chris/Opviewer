@@ -10,11 +10,15 @@ export class DatetimeService {
   constructor() { }
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
-  MatlabDurationToMinutes(serial) {
-    const dur = moment.duration(serial, 'minutes');
-    let format = '';
-    //console.log(serial);
-    if (typeof serial !== 'number' || serial == NaN) {
+  MatlabDurationToMinutes(serial: number, roundMinutes = true) {
+    let dur: moment.Duration;
+    if (roundMinutes) {
+      dur = moment.duration(serial + 0.5, 'minutes');
+    } else {
+      dur = moment.duration(serial, 'minutes');
+    }
+    let format: string;
+    if (typeof serial !== 'number' || serial === NaN) {
       format = 'N/a';
     } else if (serial < 60) {
       format = dur.minutes() + ' minutes';
@@ -24,33 +28,33 @@ export class DatetimeService {
     return format;
   }
 
-  MinutesToHours(date) {
-    const hours = (date / 60).toFixed(1);
+  MinutesToHours(Minutes: number) {
+    const hours = (Minutes / 60).toFixed(1);
     return hours;
   }
 
-  MatlabDateToUnixEpoch(serial) {
+  MatlabDateToUnixEpoch(serial: number) {
     const time_info = moment((serial - 719529) * 864e5);
     return time_info;
   }
 
-  MatlabDateToJSDateYMD(serial) {
+  MatlabDateToJSDateYMD(serial: number) {
     const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
     return datevar;
   }
-  JSDateYMDToObjectDate(YMDDate) {
-    YMDDate = YMDDate.split('-');
-    const ObjectDate = { year: YMDDate[0], month: YMDDate[1], day: YMDDate[2] };
+  JSDateYMDToObjectDate(YMDDate: string) {
+    const YMDarray = YMDDate.split('-');
+    const ObjectDate = { year: YMDarray[0], month: YMDarray[1], day: YMDarray[2] };
     return ObjectDate;
   }
 
-  MatlabDateToJSTime(serial) {
+  MatlabDateToJSTime(serial: number) {
     const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
     return time_info;
   }
 
-  MatlabDateToCustomJSTime(serial, format) {
-    if (serial !== '_NaN_' && serial !== undefined) {
+  MatlabDateToCustomJSTime(serial: string | number, format: string) {
+    if (typeof(serial) === 'number' && serial !== undefined) {
       let time_info;
       if ( moment((serial - 719529) * 864e5).isValid()) {
         time_info = moment((serial - 719529) * 864e5).format(format);
@@ -63,15 +67,15 @@ export class DatetimeService {
     }
   }
 
-  unixEpochtoMatlabDate(epochDate) {
+  unixEpochtoMatlabDate(epochDate: number) {
     const matlabTime = ((epochDate / 864e2) + 719529);
     return matlabTime;
   }
 
-  MatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    serialEnd = moment((serialEnd - 719529) * 864e5).startOf('second');
-    serialBegin = moment((serialBegin - 719529) * 864e5).startOf('second');
-    const difference = serialEnd.diff(serialBegin);
+  MatlabDateToJSTimeDifference(serialEnd: number, serialBegin: number) {
+    const serialEndMoment = moment((serialEnd - 719529) * 864e5).startOf('second');
+    const serialBeginMoment = moment((serialBegin - 719529) * 864e5).startOf('second');
+    const difference = serialEndMoment.diff(serialBeginMoment);
 
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
   }
@@ -103,21 +107,21 @@ export class DatetimeService {
     }
   }
 
-  MatlabDateToJSDate(serial) {
+  MatlabDateToJSDate(serial: number) {
     const dateInt = this.MatlabDateToUnixEpoch(serial);
     return dateInt.format('DD-MM-YYYY');
   }
 
-  MatlabDateToJSMonthDate(serial) {
+  MatlabDateToJSMonthDate(serial: number) {
     const dateInt = this.MatlabDateToUnixEpoch(serial);
     return dateInt.format('DD');
   }
 
-  convertObjectToMoment(year, month, day) {
+  convertObjectToMoment(year: string | number, month: string |number, day: string | number) {
     return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
   }
 
-  convertMomentToObject(date, addMonth = true) {
+  convertMomentToObject(date: moment.Moment, addMonth = true) {
     const obj = { year: date.year(), month: date.month(), day: date.date() };
     if (addMonth) {
       obj.month++;
@@ -125,7 +129,7 @@ export class DatetimeService {
     return obj;
   }
 
-  valueToDate(serial) {
+  valueToDate(serial: number) {
     if (serial) {
       return moment(serial).format('DD-MM-YYYY');
     } else {
@@ -133,7 +137,7 @@ export class DatetimeService {
     }
   }
 
-  hoursSinceMoment(dateString) {
+  hoursSinceMoment(dateString: string) {
     if (dateString) {
       const dur = moment().diff(moment.parseZone(dateString + '+00:00'));
       return moment.duration(dur).asHours();

@@ -96,4 +96,12 @@ export class CalculationService {
 
     return { 'zoomLevel': zoomLevel, 'avgLatitude': avgLatitude, 'avgLongitude': avgLongitude };
   }
+
+  getNanMean(X: number[], removeNaNs = true) {
+    if (removeNaNs) {
+      X = X.filter(elt => !isNaN(elt));
+    }
+    const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+    return avg;
+  }
 }
