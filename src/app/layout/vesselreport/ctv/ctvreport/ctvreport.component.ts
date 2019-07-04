@@ -342,8 +342,10 @@ export class CtvreportComponent implements OnInit {
 
     createCharts(lineData) {
         for (let j = 0; j < lineData.length; j++) {
-            const tempChart = new Chart('canvas' + j, lineData[j]);
-            this.charts.push(tempChart);
+            if (lineData[j].data.datasets[0].data.length > 0) {
+                const tempChart = new Chart('canvas' + j, lineData[j]);
+                this.charts.push(tempChart);
+            }
         }
     }
 
