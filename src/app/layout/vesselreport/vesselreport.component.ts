@@ -277,6 +277,12 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
+    const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
+    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
+      htmlButton.disabled = true;
+    } else {
+      htmlButton.disabled = false;
+    };
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;
