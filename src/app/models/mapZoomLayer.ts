@@ -25,13 +25,14 @@ export class MapZoomLayer {
         } else {
             this.data.push(newData);
             newData.addDataToLayer(this);
+            newData.setVisible(this.layerEnabled);
         }
-        newData.setVisible(this.layerEnabled);
     }
 
     draw() {
         this.data.forEach((dataElement) => {
             dataElement.addDataToLayer(this);
+            dataElement.setVisible(this.layerEnabled);
         });
         this.isDrawn = true;
     }
@@ -52,10 +53,12 @@ export class MapZoomLayer {
             data.setMap(gmap);
         });
         this.map = gmap;
+        this.setZoomCallbacks();
+        this.onZoom(this.map.getZoom());
     }
 
     private zoomLevelIsInLimits (mapZoomLevel: number) {
-        return mapZoomLevel >= this.minZoom && mapZoomLevel <= this.maxZoom;
+        return (mapZoomLevel >= this.minZoom) && (mapZoomLevel <= this.maxZoom);
     }
 
     private setZoomCallbacks() {
@@ -66,8 +69,8 @@ export class MapZoomLayer {
                 this.oldZoomLvl = newZoomLvl;
             }
         });
-        const mapZoomLevel = this.map.getZoom();
-        this.layerEnabled = this.zoomLevelIsInLimits(mapZoomLevel);
+        const mapZoomLevel  = this.map.getZoom();
+        this.layerEnabled   = this.zoomLevelIsInLimits(mapZoomLevel);
     }
 
     private onZoom(mapZoomLevel: number) {

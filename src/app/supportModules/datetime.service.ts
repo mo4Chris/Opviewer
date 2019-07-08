@@ -54,8 +54,11 @@ export class DatetimeService {
   }
 
   MatlabDateToCustomJSTime(serial: string | number, format: string) {
-    if (typeof(serial) === 'number' && serial !== undefined) {
-      let time_info;
+    if (typeof(serial) === 'string') {
+      serial = +serial;
+    }
+    if (!isNaN(serial)) {
+      let time_info: string;
       if ( moment((serial - 719529) * 864e5).isValid()) {
         time_info = moment((serial - 719529) * 864e5).format(format);
       } else {

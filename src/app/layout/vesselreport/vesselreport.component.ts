@@ -1,4 +1,3 @@
-/// <reference types="@types/googlemaps" />
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
@@ -18,11 +17,8 @@ import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
-import { LonlatService } from '../../supportModules/lonlat.service';
 import { GmapService } from '../../supportModules/gmap.service';
 
-
-declare const google: any;
 @Component({
   selector: 'app-vesselreport',
   templateUrl: './vesselreport.component.html',
@@ -37,7 +33,6 @@ export class VesselreportComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private lonlatService: LonlatService,
     private mapService: GmapService
     ) {
 
@@ -204,6 +199,12 @@ export class VesselreportComponent implements OnInit {
     this.showMap = true;
   }
 
+  changeDay(changedDayCount) {
+    const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
+    const newDate = oldDate.add(changedDayCount, 'day');
+    this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
+    this.onChange();
+  }
   getDatesHasSailed(sailDates: any[]): void {
     this.sailDates = sailDates;
   }
@@ -276,6 +277,12 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
+    const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
+    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
+      htmlButton.disabled = true;
+    } else {
+      htmlButton.disabled = false;
+    };
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;
