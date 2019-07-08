@@ -11,6 +11,7 @@ export class DatetimeService {
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   MatlabDurationToMinutes(serial: number, roundMinutes = true) {
+    serial = +serial;
     let dur: moment.Duration;
     if (roundMinutes) {
       dur = moment.duration(serial + 0.5, 'minutes');
@@ -49,8 +50,12 @@ export class DatetimeService {
   }
 
   MatlabDateToJSTime(serial: number) {
-    const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
-    return time_info;
+    if (moment((serial - 719529) * 864e5).isValid()) {
+      const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
+      return time_info;
+    } else {
+      return 'N/a';
+    }
   }
 
   MatlabDateToCustomJSTime(serial: string | number, format: string) {
