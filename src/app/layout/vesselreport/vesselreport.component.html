@@ -4,7 +4,7 @@
     <div class="form-group">
         <div class="input-group datepicker-input">
             <button id="prevDayButton" (click)="changeDay(-1)">
-                prev
+                <i class="fa fa-caret-left"></i>
             </button>
             <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp" [minDate]="{year: 2014, month: 1, day: 1}"
                 [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate" [(ngModel)]="datePickerValue"
@@ -20,7 +20,7 @@
                 <span class="fa fa-calendar"></span>
             </button>
             <button id="nextDayButton" (click)="changeDay(1)" (disabled)="true">
-                next
+                <i class="fa fa-caret-right"></i>
             </button>
         </div>
     </div>

@@ -168,10 +168,7 @@
                 <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
                     {{roundNumber(transfer_Data.score, 10)}}</h3>
             </span>
-            <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length == undefined">
-                <h3>Transfer #{{ind + 1}} - location: {{transfer_Data.location}} - status: {{transfer_Data.detector}}</h3>
-            </span>
-            <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
+            <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
         </div>
     </div>
     <div class="videoRequestLoading" *ngIf="videoRequestLoading">

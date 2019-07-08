@@ -13,10 +13,14 @@ export class CalculationService {
 
   roundNumber(number, decimal = 10, addString: string = '') {
     if (typeof number === 'string' || number instanceof String) {
-      return number + addString;
+      if (number === '_NaN_' || number === 'n/a' || number === 'n/a ') {
+        return 'N/a';
+      } else {
+        return number + addString;
+      }
     }
     if (!number) {
-      return 'n/a';
+      return 'N/a';
     }
 
     return (Math.round(number * decimal) / decimal) + addString;
