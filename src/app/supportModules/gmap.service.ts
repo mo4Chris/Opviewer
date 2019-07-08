@@ -124,7 +124,7 @@ export class GmapService {
                 if (platform.shipHasSailedBy) {
                     this.addVesselRoutePlatform(googleMap, GmapService.iconVisitedPlatform, platform.longitude, platform.latitude, platformArray.map(docking => docking.transfer), platform.location, 5);
                 } else {
-                    this.unvisitedPlatformLayer.addData(new MapZoomData(platform.longitude, platform.latitude, GmapService.iconPlatform, 'Unvisited platform'));
+                    this.unvisitedPlatformLayer.addData(new MapZoomData(platform.longitude, platform.latitude, GmapService.iconPlatform, 'Unvisited platform', platform.location, 'click'));
                 }
             });
         });
