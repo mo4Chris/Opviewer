@@ -18,6 +18,9 @@
                 <td>Fuel consumption</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-5"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
+                <td rowspan='5'>Custom input</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='5'><textarea class="form-control" rows='9' [(ngModel)]="generalInputStats.customInput"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='5'>{{generalInputStats.customInput}}</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -87,7 +90,7 @@
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.hseReports == '') ? 'N/a' : generalInputStats.hseReports }}</td>
             </tr>
             <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                <td class="SubmitRowColSpan" colspan="9"></td>
+                <td class="SubmitRowColSpan" colspan="11"></td>
                 <td class="SubmitRowColSpan"><button class="btn btn-md btn-primary submitBtnDate" type="button" (click)="saveGeneralStats()">Save changes to userinput</button></td>
             </tr>
         </table>
