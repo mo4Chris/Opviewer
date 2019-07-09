@@ -63,7 +63,7 @@ export class CtvreportComponent implements OnInit {
     toolboxConducted = [];
     hseOptions = [];
 
-    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: []};
+    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: [], customInput: ''};
 
 
 
@@ -457,6 +457,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
                 this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
                 this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
+                this.generalInputStats.customInput = general.data[0].inputStats.customInput;
             } else {
                 this.generalInputStats.mmsi =  this.vesselObject.mmsi;
                 this.generalInputStats.date =  this.vesselObject.date;
@@ -465,6 +466,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.landedGarbage = 0;
                 this.generalInputStats.landedOil = 0;
                 this.generalInputStats.toolboxConducted = [null];
+                this.generalInputStats.customInput = 'N/a';
             }
 
         });
@@ -481,7 +483,10 @@ export class CtvreportComponent implements OnInit {
                 this.alert.message = error;
                 throw error;
             })).subscribe(data => {
-                console.log();
+                this.showAlert = true;
+                this.timeout = setTimeout(() => {
+                    this.showAlert = false;
+                }, 7000);
         });
     }
 
