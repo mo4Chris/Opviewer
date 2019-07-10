@@ -401,6 +401,14 @@ var harbourSchema = new Schema({
 }, { versionKey: false });
 var harbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocations');
 
+var upstreamSchema = new Schema({
+    type: String,
+    date: String,
+    user: String,
+    content,
+}, { versionKey: false });
+var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -467,6 +475,18 @@ function mailTo(subject, html, user) {
         console.log('Message sent: %s', info.messageId);
     });
 }
+
+function sendUpstream(content, type, user, confirmFcn = null) {
+    // Assumes the token has been validated
+    upstreamSchema.findOneAndUpdate({_id: req.body._id}) 
+    const date = new Date().toDateString();
+    upstreamModel.create({
+        date: date,
+        user: user,
+        type: type,
+        content: content
+    }, confirmFcn());
+};
 
 //#########################################################
 //#################   Endpoints   #########################
@@ -1935,3 +1955,4 @@ app.post("/api/saveFleetRequest", function (req, res) {
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
 });
+
