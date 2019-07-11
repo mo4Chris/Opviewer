@@ -441,7 +441,7 @@
                                     <th>{{cycleTime.fromTurbine}}</th>
                                     <th>{{cycleTime.toTurbine}}</th>
                                     <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}</td>
-                                    <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
+                                    <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
