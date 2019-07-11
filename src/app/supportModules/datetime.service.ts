@@ -10,8 +10,11 @@ export class DatetimeService {
   constructor() { }
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
-  MatlabDurationToMinutes(serial: number, roundMinutes = true) {
-    serial = +serial;
+  MatlabDurationToMinutes(serial, roundMinutes = true) {
+    if (serial !== 'N/a') {
+      serial = +serial;
+    }
+
     let dur: moment.Duration;
     if (roundMinutes) {
       dur = moment.duration(serial + 0.5, 'minutes');
