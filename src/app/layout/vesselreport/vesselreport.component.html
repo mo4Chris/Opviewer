@@ -51,7 +51,7 @@
                     <b>Warning!</b> no parks found for the selected day and vessel.
                 </div>
                 <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine" class="alert alert-primary" role="alert">
-                    <b>Info,</b> parks were found but have not been visited by ship.
+                    <b>Info,</b> parks were found but have not been visited by vessel.
                 </div>
                 <agm-map id='googleMap' #gm 
                     [scrollwheel]='null' 
