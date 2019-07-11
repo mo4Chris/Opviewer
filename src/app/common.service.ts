@@ -210,6 +210,16 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  setActive(user) {
+    return this.post(environment.DB_IP + '/api/setActive/', user).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  setInactive(user) {
+    return this.post(environment.DB_IP + '/api/setInactive/', user).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getVideoRequests(vessel) {
     return this.post(environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
       map((response: Response) => response.json()));

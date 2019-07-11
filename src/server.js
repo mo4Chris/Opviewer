@@ -55,6 +55,7 @@ var userSchema = new Schema({
     client: { type: String },
     boats: { type: Array },
     token: { type: String },
+    active: { type: Number },
     secret2fa: { type: String },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
@@ -552,6 +553,9 @@ app.post("/api/login", function (req, res) {
                                     hasCampaigns: data.length >= 1
                                 };
                                 let token = jwt.sign(payload, 'secretKey');
+                                if (user.active == 0){
+                                    return res.status(401).send('User has been deactivated');
+                                }
                                 if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
                                     return res.status(200).send({ token });
                                 } else {
@@ -1486,6 +1490,40 @@ app.post("/api/resetPassword", function (req, res) {
                     'If that doesnt work copy the link below <br>' + link;
                 mailTo('Password reset', html, data.username);
                 res.send({ data: "Succesfully reset the password" });
+            }
+        });
+});
+
+app.post("/api/setActive", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 1 },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully activated this user" });
+            }
+        });
+});
+
+app.post("/api/setInactive", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully deactivated this user" });
             }
         });
 });
