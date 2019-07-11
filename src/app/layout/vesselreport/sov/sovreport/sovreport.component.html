@@ -57,7 +57,7 @@
                                         Average time spend from entering exclusion zone until leaving the platform.
                                     </ng-template>
                                     <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time spent docking</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.summary.AvgTimeDocking)}}</td>
+                                    <td>{{sovModel.summary.AvgTimeDocking}}</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
@@ -232,7 +232,7 @@
     </div>
     <br />
     <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
-        <div class="col-xl-12 col-lg-24">
+        <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
             <div class="card mb-3">
                 <div class="card-header">
                     Gangway usage
