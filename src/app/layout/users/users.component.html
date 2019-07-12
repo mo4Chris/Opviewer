@@ -39,8 +39,8 @@
                                 <td *ngIf="userPermission == 'admin'">{{user_data.client}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage vessels</a></td>
                                 <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
-                                <td *ngIf="user_data.active == 1"><a class="btn rounded-btn-red" (click)="setInactive(user_data._id)">Deactivate user</a></td>
-                                <td *ngIf="user_data.active == 0"><a class="btn rounded-btn" (click)="setActive(user_data._id)">Activate user</a></td>
+                                <td *ngIf="user_data.active == 1"><a class="btn rounded-btn-red" (click)="setInactive(user_data)">Deactivate user</a></td>
+                                <td *ngIf="user_data.active == 0"><a class="btn rounded-btn" (click)="setActive(user_data)">Activate user</a></td>
                             </tr>
                         </tbody>
                     </table>

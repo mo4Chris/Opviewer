@@ -62,12 +62,13 @@ export class UsersComponent implements OnInit {
         });
     }
 
-    setActive(id) {
-        this.newService.setActive({ _id: id }).pipe(
+    setActive(user) {
+        this.newService.setActive({ _id: user._id }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
                     this.alert.message = res.data;
+                    user.active = 1;
                 }
             ),
             catchError(error => {
@@ -84,12 +85,13 @@ export class UsersComponent implements OnInit {
         });
     }
 
-    setInactive(id) {
-        this.newService.setInactive({ _id: id }).pipe(
+    setInactive(user) {
+        this.newService.setInactive({ _id: user._id }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
                     this.alert.message = res.data;
+                    user.active = 0;
                 }
             ),
             catchError(error => {

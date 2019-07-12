@@ -419,6 +419,16 @@ function verifyToken(req, res) {
 
     if (payload === 'null') {
         return res.status(401).send('Unauthorized request');
+    } else {
+        console.log(payload);
+        Usermodel.countDocuments({ username: payload.username, userCompany: payload.userCompany },
+            function (err, count) {
+                if (err) {
+                    res.send(err);
+                } else {
+                    console.log(count);
+                }
+            });
     }
     return payload;
 }
