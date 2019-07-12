@@ -334,13 +334,14 @@ export class SovreportComponent implements OnInit {
             });
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
+                transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
         }
-        if (naCountGangway == this.sovModel.turbineTransfers.length) {
+        if (naCountGangway == this.sovModel.turbineTransfers.length || naCountGangway == this.sovModel.platformTransfers.length) {
             this.gangwayActive = false;
         } else {
             this.gangwayActive = true;
