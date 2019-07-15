@@ -18,9 +18,9 @@
                 <td>Fuel consumption</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-5"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
-                <td rowspan='5'>Custom input</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='5'><textarea class="form-control" rows='9' [(ngModel)]="generalInputStats.customInput"></textarea></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='5'>{{generalInputStats.customInput}}</td>
+                <td rowspan='3'>Observations</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='3'><textarea class="form-control" rows='5' [(ngModel)]="generalInputStats.customInput"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='3'>{{generalInputStats.customInput}}</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -45,8 +45,8 @@
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
                 <td>Garbage landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-5"> kg</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} kg</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-5"> m3</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m3</td>
             </tr>
             <tr>
                 <td>Distance Sailed</td>
@@ -68,6 +68,9 @@
                     </ng-multiselect-dropdown>
                 </td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'N/a' : generalInputStats.toolboxConducted }}</td>
+                <td rowspan='2'>Incidents</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4' [(ngModel)]="generalInputStats.hseReports"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>{{generalInputStats.hseReports}}</td>
             </tr>
             <tr>
                 <td>Number of dockings</td>
@@ -77,17 +80,8 @@
                 <td></td><td></td>
                 <td></td>
                 <td></td>
-                <td>HSE reports issued</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                    <ng-multiselect-dropdown
-                        class="d-inline-block msdd" 
-                        [placeholder]="'Select HSE incidents'"
-                        [data]="hseOptions"
-                        [(ngModel)]="generalInputStats.hseReports"
-                        [settings]="multiSelectSettings">
-                    </ng-multiselect-dropdown>
-                </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.hseReports == '') ? 'N/a' : generalInputStats.hseReports }}</td>
+                <td></td>
+                <td></td>
             </tr>
             <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                 <td class="SubmitRowColSpan" colspan="11"></td>
