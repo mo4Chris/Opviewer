@@ -63,7 +63,7 @@ export class CtvreportComponent implements OnInit {
     toolboxConducted = [];
     hseOptions = [];
 
-    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: [], customInput: ''};
+    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
 
 
 
@@ -462,7 +462,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.mmsi =  this.vesselObject.mmsi;
                 this.generalInputStats.date =  this.vesselObject.date;
                 this.generalInputStats.fuelConsumption =  0;
-                this.generalInputStats.hseReports = [null];
+                this.generalInputStats.hseReports = 'N/a';
                 this.generalInputStats.landedGarbage = 0;
                 this.generalInputStats.landedOil = 0;
                 this.generalInputStats.toolboxConducted = [null];

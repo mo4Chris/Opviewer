@@ -101,7 +101,7 @@
                             </tr>
                             <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}} km/h</td>
+                                <td>{{GetDecimalValueForNumber(sovModel.summary.maxWindSpeedDuringOperations / 3.6)}} m/s</td>
                             </tr>
                         </table>
                     </div>
@@ -161,7 +161,7 @@
                                         Time from 1000m waiting range until leaving platform
                                     </ng-template>
                                     <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</th>
-                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Peak gust wind [m/s]</th>
                                     <th>Hs [m]</th>
                                 </tr>
                             </thead>
@@ -180,7 +180,7 @@
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
-                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust)}}</td>
+                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -207,7 +207,7 @@
                                         Performance of gangway relative to its performance limitations.
                                     </ng-template>
                                     <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity [%]</th>
-                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Peak gust wind [m/s]</th>
                                     <th>Hs [m]</th>
                                 </tr>
                             </thead>
@@ -219,7 +219,7 @@
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                                         <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust)}}</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -317,7 +317,7 @@
                                 <th>Start time</th>
                                 <th>End time</th>
                                 <th>Duration [mns]</th>
-                                <th>Peak wind gust [km/h]</th>
+                                <th>Peak wind gust [m/s]</th>
                                 <th>Peak heave [m]</th>
                             </tr>
                         </thead>
@@ -334,7 +334,7 @@
                                             <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
-                                            <td>{{transfer.peakWindGust}}</td>
+                                            <td>{{transfer.peakWindGust / 3.6}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
                                     </ng-container>
