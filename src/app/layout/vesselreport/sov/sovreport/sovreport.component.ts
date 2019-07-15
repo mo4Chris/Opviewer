@@ -498,7 +498,7 @@ export class SovreportComponent implements OnInit {
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
@@ -507,7 +507,7 @@ export class SovreportComponent implements OnInit {
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
