@@ -179,8 +179,9 @@
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
-                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
+                                        <td>{{platformTransfer.totalDuration}} minutes</td>
+                                        <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) >= 10">{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
+                                        <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) < 10">&nbsp;{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -217,7 +218,7 @@
                                         <th>{{turbineTransfer.location}}</th>
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
+                                        <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
