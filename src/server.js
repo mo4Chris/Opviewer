@@ -62,7 +62,7 @@ var Usermodel = mongo.model('users', userSchema, 'users');
 var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
-    client: { type: String },
+    client: { type: Array },
     mmsi: { type: Number }
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
@@ -76,6 +76,10 @@ var TransferSchema = new Schema({
     duration: { type: Number },
     location: { type: String },
     fieldname: { type: String },
+    paxUp: { type: Number},
+    paxDown: {type: Number},
+    cargoUp: { type: Number},
+    cargoDown: {type: Number},
     comment: { type: String },
     detector: { type: String },
     videoAvailable: { type: Number },
@@ -133,6 +137,10 @@ var CommentsChangedSchema = new Schema({
     otherComment: { type: String },
     userID: { type: String },
     processed: { type: String },
+    paxUp: { type: Number },
+    paxDown: { type: Number },
+    cargoUp: { type: Number },
+    cargoDown: { type: Number },
     date: { type: Number }
 }, { versionKey: false });
 var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
@@ -308,7 +316,8 @@ var generalSchema = new Schema({
     minutesFloating: { type: Number },
     minutesInField: { type: Number },
     distancekm: { type: Number },
-    DPRstats: { type: Object }
+    DPRstats: { type: Object },
+    inputStats: { type: Object }
 }, { versionKey: false });
 var generalmodel = mongo.model('general', generalSchema, 'general');
 
@@ -607,15 +616,41 @@ app.post("/api/saveTransfer", function (req, res) {
         comment.idTransfer = req.body._id;
         comment.date = req.body.commentDate;
         comment.mmsi = req.body.mmsi;
+        comment.paxUp = req.body.paxUp;
+        comment.paxDown = req.body.paxDown;
+        comment.cargoUp = req.body.cargoUp;
+        comment.cargoDown = req.body.cargoDown;
         comment.processed = null;
         comment.userID = req.body.userID;
+        
+        
+
         comment.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the comment" });
+
+                Transfermodel.findOneAndUpdate({ _id: req.body._id }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown, cargoUp: req.body.cargoUp, cargoDown: req.body.cargoDown },
+                    function (err, data) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.send({ data: "Succesfully saved the comment" });
+                        }
+                    });
             }
         });
+    });
+});
+
+app.post("/api/saveCTVGeneralStats", function(req, res){
+
+    generalmodel.findOneAndUpdate({mmsi: req.body.mmsi, date: req.body.date},{inputStats: req.body}, function(err, data){
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({data: 'Data has been succesfully saved'});
+        }
     });
 });
 
@@ -694,9 +729,10 @@ app.get("/api/getVessel", function (req, res) {
 
 app.get("/api/getHarbourLocations", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin') {
-        return res.status(401).send('Access denied');
-    }
+    // ToDo: temp disabled untill feature has been enabled
+    //if (token.userPermission !== 'admin') {
+    //     return res.status(401).send('Access denied');
+    // }
     harbourModel.find({}, function (err, data) {
         if (err) {
             res.send(err);
@@ -1173,7 +1209,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: mmsi, date: date }, function (err, data) {
+        Transfermodel.find({ mmsi: mmsi, date: date, detector: {$ne: 'impact'}}, function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1680,9 +1716,10 @@ app.post("/api/addVesselToFleet", function (req, res) {
 
 app.get("/api/getParkLocations", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== "admin") {
-        return res.status(401).send('Access denied');
-    }
+    // ToDo: temp disabled admin check since feature has not been implemented yet 
+    //if (token.userPermission !== "admin") {
+    //     return res.status(401).send('Access denied');
+    // }
     LatLonmodel.find({}, function (err, data) {
         if (err) {
             console.log(err);
@@ -1695,7 +1732,8 @@ app.get("/api/getParkLocations", function (req, res) {
 
 app.get("/api/getParkLocationForCompany/:company", function (req, res) {
     //ToDo: windfields do not yet have associated companies
-    let companyName = req.params.company;
+    //ToDo: netjes afvangen als client een streepje bevat
+    let companyName = req.params.company.replace('--_--', ' ');
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Access denied');

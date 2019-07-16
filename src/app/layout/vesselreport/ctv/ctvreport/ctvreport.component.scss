@@ -11,9 +11,19 @@ agm-map {
     margin-left: 20px;
 }
 
-.transitTable td:nth-child(1), .transitTable td:nth-child(3), .transitTable td:nth-child(5), .transitTable td:nth-child(7) {
+.transitTable{
+    border: 1px;
+    overflow: visible;
+}
+
+.transitTable td:nth-child(1), .transitTable td:nth-child(3), .transitTable td:nth-child(5), .transitTable td:nth-child(7), .transitTable td:nth-child(9), .transitTable td:nth-child(11) {
     background: gray;
     color: white;
+}
+
+.SubmitRowColSpan{
+    background: white !important;
+    border: 0;
 }
 
 .otherComment {
@@ -67,6 +77,16 @@ ngb-alert {
     background-color:rgb(245, 245, 245);
 }
 
+.msdd{
+    width: 100%;
+    display: inline-block;
+    overflow: visible;
+}
+
+.testclass{
+    display: inline-block
+}
+
 .has-sailed{
     background-color:rgb(198, 233, 255);
 }
@@ -74,4 +94,9 @@ ngb-alert {
 .disable-day{
    background-color: white;
    color: rgb(225, 225, 225) !important;
+}
+
+div .modal-dialog{
+    width: 80%;
+    max-width: 1500px;
 }

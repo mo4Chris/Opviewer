@@ -2,7 +2,7 @@
     <br><br>
     <div class="divContainer" *ngIf="transferData?.length > 0">
         <h3 *ngIf="noTransits">There is no transit data available</h3>
-        <table class="table table-responsive transitTable">
+        <table class="table table-bordered table-responsive transitTable">
             <tr>
                 <ng-template #tooltip_speedknots class="helpContent">
                     Speed in knots
@@ -15,6 +15,12 @@
                 <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
                 <td>Arrival Port</td>
                 <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
+                <td>Fuel consumption</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
+                <td rowspan='3'>Observations</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='3'><textarea class="form-control" rows='5' [(ngModel)]="generalInputStats.customInput"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='3'>{{generalInputStats.customInput}}</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -25,6 +31,9 @@
                 <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' kts')}}</td>
                 <td>Max. speed inbound</td>
                 <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
+                <td>Waste oil landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
             </tr>
             <tr>
                 <td>MSI outbound</td>
@@ -35,6 +44,9 @@
                 <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+                <td>Garbage landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-5"> m3</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m3</td>
             </tr>
             <tr>
                 <td>Distance Sailed</td>
@@ -43,12 +55,37 @@
                 <td>{{roundNumber(general.TotalFuel, 10)}}</td>
                 <td>Fuel Economy</td>
                 <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                <td></td>
+                <td></td>
+                <td>Tool box talks conducted</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                    <ng-multiselect-dropdown 
+                        class="d-inline-block msdd" 
+                        [placeholder]="'Select tool box talks'"
+                        [data]="toolboxOptions"
+                        [(ngModel)]="generalInputStats.toolboxConducted"
+                        [settings]="multiSelectSettings">
+                    </ng-multiselect-dropdown>
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'N/a' : generalInputStats.toolboxConducted }}</td>
+                <td rowspan='2'>Incidents</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4' [(ngModel)]="generalInputStats.hseReports"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>{{generalInputStats.hseReports}}</td>
             </tr>
             <tr>
                 <td>Number of dockings</td>
                 <td>{{roundNumber(general.numDockings, 1)}}</td>
                 <td>Average Docking Time</td>
                 <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+                <td></td><td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                <td class="SubmitRowColSpan" colspan="11"></td>
+                <td class="SubmitRowColSpan"><button class="btn btn-md btn-primary submitBtnDate" type="button" (click)="saveGeneralStats()">Save changes to userinput</button></td>
             </tr>
         </table>
     </div>
@@ -64,6 +101,8 @@
                     <th>duration</th>
                     <th>score</th>
                     <th>location</th>
+                    <th>Pax in/out</th>
+                    <th>Cargo in/out</th>
                     <th>comment</th>
                     <th>detector</th>
                     <th>save</th>
@@ -78,6 +117,22 @@
                     <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
+                    <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-3" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
+                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-3" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp"  [(ngModel)]="transfer_Data.cargoUp" class="form-control-sm col-sm-3" (change)="transfer_Data.formChanged=true"> KG incoming <br>
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoDown" [(ngModel)]="transfer_Data.cargoDown" class="form-control-sm col-sm-3" (change)="transfer_Data.formChanged=true"> KG outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+                        {{transfer_Data.paxUp}} incoming <br> 
+                        {{transfer_Data.paxDown}} outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+                        {{ transfer_Data.cargoUp }} KG incoming <br>
+                        {{ transfer_Data.cargoDown}} KG outgoing
+                    </td>
                     <td class="comment">
                         <span ngbDropdown class="d-inline-block dropdown">
                             <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
@@ -101,7 +156,7 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table> 
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
     <div class="row">
@@ -110,10 +165,7 @@
                 <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
                     {{roundNumber(transfer_Data.score, 10)}}</h3>
             </span>
-            <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length == undefined">
-                <h3>Transfer #{{ind + 1}} - location: {{transfer_Data.location}} - status: {{transfer_Data.detector}}</h3>
-            </span>
-            <canvas id="canvas{{ind}}">{{charts[ind]}}</canvas>
+            <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
         </div>
     </div>
     <div class="videoRequestLoading" *ngIf="videoRequestLoading">

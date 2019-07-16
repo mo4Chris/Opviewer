@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 @Injectable({
     providedIn: 'root'
   })
-  export class LonlatService{
-    
-    lonlatarrayToLatLngArray(input){
-        var latlngArray: Array<google.maps.LatLng> = [];
-        var latlng;
+  export class LonlatService {
+
+    lonlatarrayToLatLngArray(input) {
+        const latlngArray: Array<google.maps.LatLng> = [];
+        let latlng;
         input.lon.forEach((lon, index) => {
             if (input.lat[index][0]) {
                 latlng = {
@@ -18,10 +18,10 @@ import { Injectable } from '@angular/core';
                     latlng = {
                         lat: input.lat[index],
                         lng: lon
-                    }
-            };
+                    };
+            }
             latlngArray.push(latlng);
         });
-        return latlngArray
+        return latlngArray;
     }
   }

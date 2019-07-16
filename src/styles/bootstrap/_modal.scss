@@ -32,6 +32,11 @@
   }
 }
 
+.hugeModal {
+  width:80%;
+  max-width: 1500px;
+}
+
 // Shell div to position the modal with bottom padding
 .modal-dialog {
   position: relative;
@@ -165,4 +170,8 @@
 
 @include media-breakpoint-up(lg) {
   .modal-lg { max-width: $modal-lg; }
+}
+
+@include media-breakpoint-up(xl) {
+  .modal-xl { max-width: 80%; }
 }
