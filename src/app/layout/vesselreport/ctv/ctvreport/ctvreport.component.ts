@@ -384,7 +384,7 @@ export class CtvreportComponent implements OnInit {
     }
 
     roundNumber(number, decimal = 10, addString = '') {
-        return this.calculationService.roundNumber(number, decimal = 10, addString = addString);
+        return this.calculationService.roundNumber(number, decimal = decimal, addString = addString);
     }
 
     getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {

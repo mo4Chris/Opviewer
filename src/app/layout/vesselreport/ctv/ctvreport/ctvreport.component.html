@@ -99,6 +99,7 @@
                     <th>start time</th>
                     <th>stop time</th>
                     <th>duration</th>
+                    <th>max impact</th>
                     <th>score</th>
                     <th>location</th>
                     <th>Pax in/out</th>
@@ -115,6 +116,7 @@
                     <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
                     <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>
                     <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                    <td>{{roundNumber((transfer_Data.impactForceNmax / 1000), 1, 'KN')}} </td>
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
                     <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
