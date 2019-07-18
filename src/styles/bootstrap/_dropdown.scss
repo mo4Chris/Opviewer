@@ -8,7 +8,9 @@
   // Generate the caret automatically
   @include caret;
 }
-
+.dropdown-list{
+  width: auto !important;
+}
 // The dropdown menu
 .dropdown-menu {
   position: absolute;
