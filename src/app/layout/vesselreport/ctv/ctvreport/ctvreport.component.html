@@ -16,7 +16,7 @@
                 <td>Arrival Port</td>
                 <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
                 <td>Fuel consumption</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-6"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
                 <td rowspan='3'>Observations</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='3'><textarea class="form-control" rows='5' [(ngModel)]="generalInputStats.customInput"></textarea></td>
@@ -32,7 +32,7 @@
                 <td>Max. speed inbound</td>
                 <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
                 <td>Waste oil landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-6"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
             </tr>
             <tr>
@@ -45,7 +45,7 @@
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
                 <td>Garbage landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-6"> m3</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m3</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m3</td>
             </tr>
             <tr>
@@ -120,8 +120,8 @@
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
                     <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-3 col-xl-6" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
-                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-3 col-xl-6" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
+                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
+                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
                     </td>
                     <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                         <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp"  [(ngModel)]="transfer_Data.cargoUp" class="form-control-sm col-sm-3 col-xl-6" (change)="transfer_Data.formChanged=true"> KG incoming <br>
