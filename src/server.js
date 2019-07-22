@@ -479,7 +479,7 @@ function mailTo(subject, html, user) {
 function sendUpstream(content, type, user, confirmFcn = null) {
     // Assumes the token has been validated
     upstreamSchema.findOneAndUpdate({_id: req.body._id}) 
-    const date = new Date().toDateString();
+    const date = new Date().toUTCString();
     upstreamModel.create({
         date: date,
         user: user,
