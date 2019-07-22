@@ -405,7 +405,7 @@ var upstreamSchema = new Schema({
     type: String,
     date: String,
     user: String,
-    content,
+    content: Object,
 }, { versionKey: false });
 var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
 
@@ -476,12 +476,11 @@ function mailTo(subject, html, user) {
     });
 }
 
-function sendUpstream(content, type, user, confirmFcn = null) {
+function sendUpstream(content, type, user, confirmFcn = function(){}) {
     // Assumes the token has been validated
-    upstreamSchema.findOneAndUpdate({_id: req.body._id}) 
-    const date = new Date().toUTCString();
+    const date = getUTCstring();
     upstreamModel.create({
-        date: date,
+        dateUTC: date,
         user: user,
         type: type,
         content: content
@@ -642,14 +641,12 @@ app.post("/api/saveTransfer", function (req, res) {
         comment.cargoDown = req.body.cargoDown;
         comment.processed = null;
         comment.userID = req.body.userID;
-        
-        
 
+        sendUpstream(comment, 'DPR_comment_change', req.body.userID);
         comment.save(function (err, data) {
             if (err) {
                 res.send(err);
             } else {
-
                 Transfermodel.findOneAndUpdate({ _id: req.body._id }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown, cargoUp: req.body.cargoUp, cargoDown: req.body.cargoDown },
                     function (err, data) {
                         if (err) {
@@ -1956,3 +1953,19 @@ app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
 });
 
+
+function getUTCstring() {
+    const d = new Date();
+    dformat = [d.getUTCFullYear(),
+        (d.getMonth()+1).padLeft(),
+        d.getUTCDate().padLeft()].join('-') + ' ' +
+       [d.getUTCHours().padLeft(),
+        d.getUTCMinutes().padLeft(),
+        d.getUTCSeconds().padLeft()].join(':');
+    return dformat
+}
+
+Number.prototype.padLeft = function(base,chr){
+    var  len = (String(base || 10).length - String(this).length)+1;
+    return len > 0? new Array(len).join(chr || '0')+this : this;
+}
