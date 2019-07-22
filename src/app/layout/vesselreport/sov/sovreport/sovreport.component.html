@@ -57,7 +57,7 @@
                                         Average time spend from entering exclusion zone until leaving the platform.
                                     </ng-template>
                                     <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time spent docking</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.summary.AvgTimeDocking)}}</td>
+                                    <td>{{sovModel.summary.AvgTimeDocking}}</td>
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
@@ -101,7 +101,7 @@
                             </tr>
                             <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}} km/h</td>
+                                <td>{{GetDecimalValueForNumber(sovModel.summary.maxWindSpeedDuringOperations / 3.6)}} m/s</td>
                             </tr>
                         </table>
                     </div>
@@ -161,7 +161,7 @@
                                         Time from 1000m waiting range until leaving platform
                                     </ng-template>
                                     <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</th>
-                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Peak gust wind [m/s]</th>
                                     <th>Hs [m]</th>
                                 </tr>
                             </thead>
@@ -179,8 +179,9 @@
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(platformTransfer.totalDuration)}}</td>
-                                        <td>{{GetDecimalValueForNumber(platformTransfer.peakWindGust)}}</td>
+                                        <td>{{platformTransfer.totalDuration}} minutes</td>
+                                        <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) >= 10">{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
+                                        <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) < 10">&nbsp;{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -207,7 +208,7 @@
                                         Performance of gangway relative to its performance limitations.
                                     </ng-template>
                                     <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity [%]</th>
-                                    <th>Peak gust wind [km/h]</th>
+                                    <th>Peak gust wind [m/s]</th>
                                     <th>Hs [m]</th>
                                 </tr>
                             </thead>
@@ -217,9 +218,9 @@
                                         <th>{{turbineTransfer.location}}</th>
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
-                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.duration)}}</td>
+                                        <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust)}}</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                     </tr>
                                 </ng-container>
@@ -232,7 +233,7 @@
     </div>
     <br />
     <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
-        <div class="col-xl-12 col-lg-24">
+        <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
             <div class="card mb-3">
                 <div class="card-header">
                     Gangway usage
@@ -317,7 +318,7 @@
                                 <th>Start time</th>
                                 <th>End time</th>
                                 <th>Duration [mns]</th>
-                                <th>Peak wind gust [km/h]</th>
+                                <th>Peak wind gust [m/s]</th>
                                 <th>Peak heave [m]</th>
                             </tr>
                         </thead>
@@ -334,7 +335,7 @@
                                             <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
-                                            <td>{{transfer.peakWindGust}}</td>
+                                            <td>{{transfer.peakWindGust / 3.6}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
                                     </ng-container>
@@ -441,7 +442,7 @@
                                     <th>{{cycleTime.fromTurbine}}</th>
                                     <th>{{cycleTime.toTurbine}}</th>
                                     <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}</td>
-                                    <td>{{GetDecimalValueForNumber(cycleTime.durationMinutes, ' minutes')}}</td>
+                                    <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
                                     <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>

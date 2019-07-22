@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { NgbDateISOParserFormatter } from '@ng-bootstrap/ng-bootstrap/datepicker/ngb-date-parser-formatter';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,9 @@ export class CalculationService {
       const type = typeof (value);
       if (type === 'number') {
           value = Math.round(value * 10) / 10;
+          if (value - Math.floor(value) === 0 ) {
+            value = value + '.0';
+          }
           if (endpoint != null) {
               value = value + endpoint;
           }
@@ -44,6 +48,7 @@ export class CalculationService {
       } else {
         value = 'N/a';
       }
+
     return value;
   }
 

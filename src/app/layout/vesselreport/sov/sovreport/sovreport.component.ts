@@ -9,7 +9,7 @@ import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { GmapService } from '../../../../supportModules/gmap.service';
-import { MapZoomLayer, MapZoomData, MapZoomPolygon } from '../../../../models/mapZoomLayer';
+import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 
 @Component({
@@ -44,6 +44,7 @@ export class SovreportComponent implements OnInit {
     SovTypeEnum = SovType;
 
     locShowContent = false;
+    gangwayActive = false;
     vessel2vesselActivityRoute: Vessel2VesselActivity;
     turbineLocations = new Array<any>();
 
@@ -316,11 +317,13 @@ export class SovreportComponent implements OnInit {
     // Properly change undefined values to N/a
     // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
     CheckForNullValues() {
+        let naCountGangway = 0;
         this.sovModel.sovInfo = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
         this.sovModel.sovInfo.distancekm = this.calculationService.GetDecimalValueForNumber(this.sovModel.sovInfo.distancekm);
         this.sovModel.summary = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.summary);
         if (this.sovModel.sovType === SovType.Turbine) {
             this.sovModel.turbineTransfers.forEach(transfer => {
+                transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
@@ -331,11 +334,17 @@ export class SovreportComponent implements OnInit {
             });
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
+                transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
+        }
+        if (naCountGangway == this.sovModel.turbineTransfers.length || naCountGangway == this.sovModel.platformTransfers.length) {
+            this.gangwayActive = false;
+        } else {
+            this.gangwayActive = true;
         }
         if (this.sovModel.transits.length > 0) {
             this.sovModel.transits.forEach(transit => {
@@ -489,7 +498,7 @@ export class SovreportComponent implements OnInit {
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
@@ -498,7 +507,7 @@ export class SovreportComponent implements OnInit {
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
