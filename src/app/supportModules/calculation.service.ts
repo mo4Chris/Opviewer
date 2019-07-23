@@ -119,7 +119,7 @@ export class CalculationService {
   parseMatlabArray(A: any) {
     // Parses any of the weird matlab arrays into a 1D array
     let B: number[];
-    if (typeof(A) !== 'object') {
+    if (typeof(A) !== 'object' || A._ArrayType) {
       B = [];
     } else if(typeof(A[0]) !== 'object') {
       B = A;
