@@ -116,7 +116,7 @@ export class CalculationService {
     return avg;
   }
 
-  parseMatlabArray(A: number[] | number[][]) {
+  parseMatlabArray(A: any) {
     // Parses any of the weird matlab arrays into a 1D array
     let B: number[];
     if (typeof(A) !== 'object') {
