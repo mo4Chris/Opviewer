@@ -1,10 +1,10 @@
 export enum SovType {
-    
+
     Unknown,
-        
-    //oil/gas
+
+    // oil/gas
     Platform,
 
-    //wind
+    // wind
     Turbine,
 }

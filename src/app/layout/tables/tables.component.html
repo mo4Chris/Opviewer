@@ -28,7 +28,7 @@
                                     [class.fa-arrow-down]="!sort.isAsc"></i>
                             </th>
                             <th>Daily vessel report</th>
-                            <!-- <th *ngIf="ScatterplotPermission">Scatterplot</th> -->
+                            <th *ngIf="ScatterplotPermission">Long term reports</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,7 +38,7 @@
                                 <td *ngIf="tokenInfo.userPermission == 'admin'">{{rd.client}}</td>
                                 <td>{{rd.mmsi}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a></td>
-                                <!-- <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(rd.mmsi)"> Scatterplot </a></td> -->
+                                <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(rd.mmsi, rd.nicename)"> Long term reports </a></td>
                             </tr>
                         </tbody>
                     </table>

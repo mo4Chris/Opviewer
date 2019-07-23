@@ -1365,7 +1365,6 @@ app.get("/api/getUserClientById/:id/:client", function (req, res) {
 
 app.post("/api/validatePermissionToViewData", function (req, res) {
     validatePermissionToViewData(req, res, function (data) {
-        console.log(data);
         res.send(data);
     });
 });

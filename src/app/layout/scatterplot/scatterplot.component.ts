@@ -4,7 +4,6 @@ import { CommonService } from '../../common.service';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as jwt_decode from 'jwt-decode';
 import { map, catchError } from 'rxjs/operators';
 import {NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '../../shared/services/user.service';
@@ -60,12 +59,12 @@ export class ScatterplotComponent implements OnInit {
     };
 
   constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService) {
-    this.fromDate = calendar.getPrev(calendar.getToday(), 'd', 1);
+    this.fromDate = calendar.getPrev( calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
 
   maxDate = {year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date()};
-  vesselObject = {'dateMin': this.getMatlabDateYesterday(), 'mmsi' : [], 'dateNormalMin': this.getJSDateYesterdayYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
+  vesselObject = {'dateMin': this.getMatlabDateLastMonth(), 'mmsi' : this.getMMSIFromParameter(), 'dateNormalMin': this.getJSDateLastMonthYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD()};
 
   datePickerValue = this.maxDate;
   Vessels;
@@ -77,7 +76,8 @@ export class ScatterplotComponent implements OnInit {
   showContent = false;
   datasetValues = [];
   varAnn = { annotations: []};
-  dropdownValues = [this.vesselObject];
+  defaultVesselName = '';
+  dropdownValues = [{mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter()}];
   graphXLabels = {scales : {} };
   noPermissionForData = false;
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
@@ -108,11 +108,13 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.vesselObject.mmsi);
     Chart.pluginService.register(ChartAnnotation);
 
     this.noPermissionForData = false;
       if (this.tokenInfo.userPermission === 'admin') {
         this.newService.getVessel().subscribe(data => this.Vessels = data);
+        this.newService.getVessel().subscribe();
       } else {
           this.newService.getVesselsForCompany([{client: this.tokenInfo.userCompany}]).subscribe(data => this.Vessels = data);
       }
@@ -131,7 +133,7 @@ export class ScatterplotComponent implements OnInit {
 
 
   createScatterChart() {
-    if (this.scatterDataArrayVessel[0].length > 0) {
+    if (this.scatterDataArrayVessel[0] && this.scatterDataArrayVessel[0].length > 0) {
       this.myChart = new Chart('canvas', {
         type: this.comparisonValue.graph,
         data: {
@@ -182,10 +184,26 @@ export class ScatterplotComponent implements OnInit {
     return dateAsMatlab;
   }
 
+  getMatlabDateLastMonth() {
+    const matlabValueYesterday = moment().add(-1, 'months');
+    matlabValueYesterday.utcOffset(0).set({date: 1, hour: 0, minute: 0, second: 0, millisecond: 0});
+    matlabValueYesterday.format();
+    const momentDateAsIso = moment(matlabValueYesterday).unix();
+    const dateAsMatlab =  this.unixEpochtoMatlabDate(momentDateAsIso);
+    return dateAsMatlab;
+  }
+
+
   getJSDateYesterdayYMD() {
     const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
     return JSValueYesterday;
   }
+
+  getJSDateLastMonthYMD() {
+    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({date: 1, hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
+    return JSValueYesterday;
+  }
+
   MatlabDateToJSDateYMD(serial) {
     const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
     return datevar;
@@ -201,6 +219,12 @@ export class ScatterplotComponent implements OnInit {
     this.route.params.subscribe( params => mmsi = parseFloat(params.boatmmsi));
 
     return mmsi;
+  }
+
+  getVesselNameFromParameter() {
+    let vesselName;
+    this.route.params.subscribe( params => vesselName = params.vesselName);
+    return vesselName;
   }
 
   applyChangeValue(newValue) {
