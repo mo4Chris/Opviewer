@@ -197,7 +197,7 @@ export class ScatterplotComponent implements OnInit {
   getJSDateYesterdayYMD() {
     const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
     return JSValueYesterday;
-  }
+  } 
 
   getJSDateLastMonthYMD() {
     const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({date: 1, hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
