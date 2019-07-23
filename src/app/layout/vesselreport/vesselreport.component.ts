@@ -351,18 +351,6 @@ export class VesselreportComponent implements OnInit {
     this.googleMapLoaded = false;
   }
 
-  getGeneralStats() {
-    this.newService.getGeneral(this.vesselObject).subscribe(general => {
-      if (general.data.length > 0 && general.data[0].DPRstats) {
-        this.noTransits = false;
-        this.general = general.data[0].DPRstats;
-      } else {
-        this.noTransits = true;
-        this.general = {};
-      }
-    });
-  }
-
   setMapReady(googleMap) {
     this.googleMap = googleMap;
     this.googleMapLoaded = true;

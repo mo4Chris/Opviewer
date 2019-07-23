@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbDateISOParserFormatter } from '@ng-bootstrap/ng-bootstrap/datepicker/ngb-date-parser-formatter';
+import { typeofExpr } from '@angular/compiler/src/output/output_ast';
+import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -112,5 +114,20 @@ export class CalculationService {
     }
     const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
     return avg;
+  }
+
+  parseMatlabArray(A: number[] | number[][]) {
+    // Parses any of the weird matlab arrays into a 1D array
+    let B: number[];
+    if (typeof(A) !== 'object') {
+      B = [];
+    } else if(typeof(A[0]) !== 'object') {
+      B = A;
+    } else if (A.length === 1 && A[0].length > 1) {
+      B = A[0];
+    } else {
+      B = A.map(x => x[0]);
+    }
+    return B;
   }
 }
