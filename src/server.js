@@ -420,6 +420,12 @@ var sovHasTurbineTransfersSchema = new Schema({
 })
 var sovHasTurbineTransferModel = new mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
 
+var sovHasV2VTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasV2VModel = new mongo.model('sovHasV2VModel', sovHasV2VTransfersSchema, 'SOV_vessel2vesselTransfers');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -1216,12 +1222,19 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
                         console.log('Error retrieve turbine dates')
                         res.send(err);
                     } else {
-                        if (platformTransferDates && turbineTransferDates) {
-                            const merged = platformTransferDates.concat(turbineTransferDates);
-                            res.send(merged.filter((item, index) => merged.indexOf(item) === index));
-                        } else {
-                            res.send('error: failed to retrieve transfers');
-                        }
+                        sovHasV2VModel.find( {'mmsi': mmsi}, ['date']).distinct('date', function ( err, v2vTransferDates) {
+                            if (err) {
+                                console.log('Error retrieve v2v dates')
+                                res.send(err);
+                            } else {
+                                if (platformTransferDates && turbineTransferDates && v2vTransferDates) {
+                                    const merged = platformTransferDates.concat(turbineTransferDates).concat(v2vTransferDates);
+                                    res.send(merged.filter((item, index) => merged.indexOf(item) === index));
+                                } else {
+                                    res.send('error: failed to retrieve transfers');
+                                }
+                            }
+                        })
                     }
                 });
             }

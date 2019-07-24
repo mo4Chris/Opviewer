@@ -113,11 +113,12 @@ export class SovreportComponent implements OnInit {
 
     ngOnInit() {
         Chart.pluginService.register(annotation);
+        this.GetAvailableRouteDatesForVessel();
     }
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        this.GetAvailableRouteDatesForVessel();
+        this.buildPageWhenRouteLoaded();
     }
 
     buildPageWhenRouteLoaded() {
@@ -231,7 +232,6 @@ export class SovreportComponent implements OnInit {
             });
             const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
             this.sailDates.emit(sailInfo);
-            this.buildPageWhenRouteLoaded();
         }
     }
 
