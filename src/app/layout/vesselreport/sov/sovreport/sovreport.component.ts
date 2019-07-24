@@ -113,7 +113,6 @@ export class SovreportComponent implements OnInit {
 
     ngOnInit() {
         Chart.pluginService.register(annotation);
-        this.GetAvailableRouteDatesForVessel();
     }
 
     buildPageWithCurrentInformation() {
@@ -122,6 +121,7 @@ export class SovreportComponent implements OnInit {
     }
 
     buildPageWhenRouteLoaded() {
+        this.GetAvailableRouteDatesForVessel();
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];

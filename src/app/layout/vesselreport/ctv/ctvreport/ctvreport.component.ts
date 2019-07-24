@@ -86,11 +86,11 @@ export class CtvreportComponent implements OnInit {
 
     ngOnInit() {
         Chart.pluginService.register(ChartAnnotation);
-        this.getDatesShipHasSailed(this.vesselObject);
     }
 
     buildPageWithCurrentInformation() {
         // At this point are loaded: tokenInfo, vesselObject
+        this.getDatesShipHasSailed(this.vesselObject);
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
