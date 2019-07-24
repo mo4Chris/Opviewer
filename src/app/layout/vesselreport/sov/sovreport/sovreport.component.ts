@@ -11,6 +11,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { __core_private_testing_placeholder__ } from '@angular/core/testing';
 
 @Component({
     selector: 'app-sovreport',
@@ -219,7 +220,7 @@ export class SovreportComponent implements OnInit {
             let hasTransfers: boolean;
             this.dateData.general.forEach(elt => {
                 formattedDate = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(elt.dayNum));
-                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val.dayNum === elt.dayNum, false);
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val === elt.dayNum, false);
                 if (elt.distancekm && hasTransfers) {
                     transferDates.push(formattedDate);
                 } else if (elt.distancekm) {
@@ -229,7 +230,6 @@ export class SovreportComponent implements OnInit {
                 }
             });
             const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
-            console.log(sailInfo);
             this.sailDates.emit(sailInfo);
             this.buildPageWhenRouteLoaded();
         }

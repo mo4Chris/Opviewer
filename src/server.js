@@ -1206,25 +1206,26 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        var platformTransferDates
-        var turbineTransferDates
-        sovHasPlatformTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, data) {
+        sovHasPlatformTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, platformTransferDates) {
             if (err) {
+                console.log('Error retrieve platform dates')
                 res.send(err);
             } else {
-                platformTransferDates = data.map(x => x.date);
+                sovHasTurbineTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, turbineTransferDates) {
+                    if (err) {
+                        console.log('Error retrieve turbine dates')
+                        res.send(err);
+                    } else {
+                        if (platformTransferDates && turbineTransferDates) {
+                            const merged = platformTransferDates.concat(turbineTransferDates);
+                            res.send(merged.filter((item, index) => merged.indexOf(item) === index));
+                        } else {
+                            res.send('error: failed to retrieve transfers');
+                        }
+                    }
+                });
             }
         });
-        sovHasTurbineTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, data) {
-            if (err) {
-                res.send(err);
-            } else {
-                turbineTransferDates = data.map(x => x.date);
-            }
-        });
-        console.log(platformTransferDates)
-        console.log(turbineTransferDates)
-        return platformTransferDates.concat(turbineTransferDates)
     });
 });
 
