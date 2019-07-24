@@ -464,6 +464,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.toolboxConducted = [null];
                 this.generalInputStats.customInput = 'N/a';
             }
+            console.log(general)
             if (general.data && general.data.length > 0 && general.data[0].lon) {
                 const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
                 if (longitudes.length > 0) {
@@ -476,7 +477,7 @@ export class CtvreportComponent implements OnInit {
                     this.mapZoomLvl.emit(mapProperties.zoomLevel);
                     this.routeFound.emit(true);
                 } else {
-                    this.routeFound.emit(false);
+                    this.legacyGetRouteInfo();
                 }
             } else {
                 this.routeFound.emit(false);
