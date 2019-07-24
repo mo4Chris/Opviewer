@@ -150,6 +150,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getDatesWithTransfersForSOV(mmsi) {
+    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + mmsi).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getCommentsForVessel(vessel) {
     return this.post(environment.DB_IP + '/api/getCommentsForVessel/', vessel).pipe(
       map((response: Response) => response.json()));

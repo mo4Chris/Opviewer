@@ -406,7 +406,19 @@ var hasSailedSchemaCTV = new Schema({
     date: {type: Number},
     distancekm: {type: Number},
 }, { versionKey: false, strictQuery: true, strict: true});
-var hasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general')
+var hasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general');
+
+var sovHasPlatformTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasPlatformTransferModel = new mongo.model('sovHasPlatformModel', sovHasPlatformTransfersSchema, 'SOV_platformTransfers');
+
+var sovHasTurbineTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasTurbineTransferModel = new mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -1187,22 +1199,48 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
-app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }).distinct('dayNum', function (err, data) {
+        var platformTransferDates
+        var turbineTransferDates
+        sovHasPlatformTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                platformTransferDates = data.map(x => x.date);
+            }
+        });
+        sovHasTurbineTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                turbineTransferDates = data.map(x => x.date);
+            }
+        });
+        console.log(platformTransferDates)
+        console.log(turbineTransferDates)
+        return platformTransferDates.concat(turbineTransferDates)
+    });
+});
+
+app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+    const mmsi = parseInt(req.params.mmsi);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }, ['dayNum', 'distancekm'], function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
             } else {
-                let dateData = data + '';
-                let arrayOfDates = [];
-                arrayOfDates = dateData.split(",");
-                res.send(arrayOfDates);
+                res.send(data);
             }
         });
     });

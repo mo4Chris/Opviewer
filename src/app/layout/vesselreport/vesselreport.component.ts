@@ -46,7 +46,7 @@ export class VesselreportComponent implements OnInit {
   parkNamesData;
   boatLocationData = [];
   datePickerValue = this.maxDate;
-  sailDates = [];
+  sailDates: {transfer: object[], transit: object[], other: object[]};
   vessels;
   general = {};
 
@@ -206,7 +206,7 @@ export class VesselreportComponent implements OnInit {
     this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
     this.onChange();
   }
-  getDatesHasSailed(sailDates: any[]): void {
+  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
     this.sailDates = sailDates;
   }
 
@@ -233,9 +233,18 @@ export class VesselreportComponent implements OnInit {
   }
   ///////////////////////////////////////////////////
 
-  hasSailed(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates);
+  hasSailedTransfer(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
   }
+
+  hasSailedTransit(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
+  }
+
+  hasSailedOther(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
+  }
+
 
   getMatlabDateToJSDate(serial) {
     return this.dateTimeService.MatlabDateToJSDate(serial);

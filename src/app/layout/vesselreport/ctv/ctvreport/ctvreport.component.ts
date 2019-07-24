@@ -19,7 +19,7 @@ export class CtvreportComponent implements OnInit {
     @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
-    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -49,7 +49,7 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
-    dateData;
+    dateData = {transfer: undefined, general: undefined};
     modalReference: NgbModalRef;
     multiSelectSettings = {
         idField: 'mmsi',
@@ -86,6 +86,7 @@ export class CtvreportComponent implements OnInit {
 
     ngOnInit() {
         Chart.pluginService.register(ChartAnnotation);
+        this.getDatesShipHasSailed(this.vesselObject);
     }
 
     buildPageWithCurrentInformation() {
@@ -93,26 +94,20 @@ export class CtvreportComponent implements OnInit {
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
-        this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
-            this.sailDates.emit(data);
-        });
-
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                    this.getDatesWithVesselData(this.vesselObject).subscribe(__ => {
-                        this.getComments(this.vesselObject).subscribe(_ => {
-                            this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                                    if (data[0]) {
-                                        this.videoBudget = data[0];
-                                    } else {
-                                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                                    }
-                                    // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
-                                    this.matchCommentsWithTransfers();
-                                    this.getGeneralStats();
-                                });
+                    this.getComments(this.vesselObject).subscribe(_ => {
+                        this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                            this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                                if (data[0]) {
+                                    this.videoBudget = data[0];
+                                } else {
+                                    this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                                }
+                                // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
+                                this.matchCommentsWithTransfers();
+                                this.getGeneralStats();
                             });
                         });
                     });
@@ -306,15 +301,15 @@ export class CtvreportComponent implements OnInit {
         }
     }
 
-    getDatesWithVesselData(date) {
+    getDatesWithTransfers(date) {
         return this.newService
-            .getDatesWithValuesFromGeneralStats(date).pipe(
+            .getDatesWithValues(date).pipe(
                 map(
                     (dates) => {
                         for (let _i = 0; _i < dates.length; _i++) {
                             dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
                         }
-                        this.dateData = dates;
+                        // this.dateData = dates;
                     }),
                 catchError(error => {
                     console.log('error ' + error);
@@ -322,7 +317,7 @@ export class CtvreportComponent implements OnInit {
                 }));
     }
 
-    getDatesShipHasSailed(date) {
+    getDatesShipHasSailed_legacy(date) {
         return this.newService.getDatesWithValues(date).pipe(map((dates) => {
             for (let _i = 0; _i < dates.length; _i++) {
                 dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
@@ -334,6 +329,50 @@ export class CtvreportComponent implements OnInit {
                 console.log('error ' + error);
                 throw error;
             }));
+    }
+
+    getDatesShipHasSailed(date) {
+        this.newService.getDatesWithValues(date).subscribe((transfers) => {
+                this.dateData.transfer = transfers;
+            },
+            catchError(error => {
+                console.log('error ' + error);
+                throw error;
+            }), () => {
+                this.pushSailingDates();
+            });
+            this.newService.getDatesWithValuesFromGeneralStats(date).subscribe((data) => {
+                this.dateData.general = data.data;
+            },
+                catchError(error => {
+                    console.log('error ' + error);
+                    throw error;
+                }), () => {
+                    this.pushSailingDates();
+            });
+    }
+
+    pushSailingDates() {
+        if (this.dateData.transfer && this.dateData.general) {
+            const transferDates = [];
+            const transitDates  = [];
+            const otherDates    = [];
+            let formattedDate;
+            let hasTransfers: boolean;
+            this.dateData.general.forEach(elt => {
+                formattedDate = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(elt.date));
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || +val === elt.date, false);
+                if (elt.distancekm && hasTransfers) {
+                    transferDates.push(formattedDate);
+                } else if (elt.distancekm) {
+                    transitDates.push(formattedDate);
+                } else {
+                    otherDates.push(formattedDate);
+                }
+            });
+            const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
+            this.sailDates.emit(sailInfo);
+        }
     }
 
     getMatlabDateToJSTime(serial) {
