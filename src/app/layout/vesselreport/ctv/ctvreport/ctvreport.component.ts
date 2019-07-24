@@ -464,7 +464,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.toolboxConducted = [null];
                 this.generalInputStats.customInput = 'N/a';
             }
-            if (general.data[0].lon) {
+            if (general.data && general.data.length > 0 && general.data[0].lon) {
                 const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
                 if (longitudes.length > 0) {
                     const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
@@ -479,7 +479,7 @@ export class CtvreportComponent implements OnInit {
                     this.routeFound.emit(false);
                 }
             } else {
-                this.legacyGetRouteInfo();
+                this.routeFound.emit(false);
             }
         });
     }
@@ -519,7 +519,6 @@ export class CtvreportComponent implements OnInit {
                         this.longitude.emit(mapProperties.avgLongitude);
                         this.mapZoomLvl.emit(mapProperties.zoomLevel);
                         this.routeFound.emit(true);
-
                     } else {
                         this.routeFound.emit(false);
                         this.mapZoomLvl.emit(10);
