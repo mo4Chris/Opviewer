@@ -401,6 +401,13 @@ var harbourSchema = new Schema({
 }, { versionKey: false });
 var harbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocations');
 
+var hasSailedSchemaCTV = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number},
+    distancekm: {type: Number},
+}, { versionKey: false, strictQuery: true, strict: true});
+var hasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general')
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -1872,6 +1879,22 @@ app.post("/api/setActiveListings", function (req, res) {
         }
     });
 });
+
+app.post("/api/getHasSailedDatesCTV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        hasSailedModelCTV.find({ mmsi: req.body.mmsi}, ['date', 'distancekm'], function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: data });
+            }
+        });
+    });
+});
+
 
 app.post("/api/getVesselsToAddToFleet", function (req, res) {
     let token = verifyToken(req, res);

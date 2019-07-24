@@ -283,7 +283,7 @@ export class VesselreportComponent implements OnInit {
       htmlButton.disabled = true;
     } else {
       htmlButton.disabled = false;
-    };
+    }
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;

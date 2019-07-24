@@ -100,7 +100,7 @@ export class CtvreportComponent implements OnInit {
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                    this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
+                    this.getDatesWithVesselData(this.vesselObject).subscribe(__ => {
                         this.getComments(this.vesselObject).subscribe(_ => {
                             this.getVideoRequests(this.vesselObject).subscribe(_ => {
                                 this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
@@ -306,9 +306,9 @@ export class CtvreportComponent implements OnInit {
         }
     }
 
-    getDatesWithTransfers(date) {
+    getDatesWithVesselData(date) {
         return this.newService
-            .getDatesWithValues(date).pipe(
+            .getDatesWithValuesFromGeneralStats(date).pipe(
                 map(
                     (dates) => {
                         for (let _i = 0; _i < dates.length; _i++) {
@@ -427,14 +427,18 @@ export class CtvreportComponent implements OnInit {
             }
             if (general.data[0].lon) {
                 const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
-                const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
-                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                const route = [{lat: latitudes, lon: longitudes}];
-                this.boatLocationData.emit(route);
-                this.latitude.emit(mapProperties.avgLatitude);
-                this.longitude.emit(mapProperties.avgLongitude);
-                this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                this.routeFound.emit(true);
+                if (longitudes.length > 0) {
+                    const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
+                    const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                    const route = [{lat: latitudes, lon: longitudes}];
+                    this.boatLocationData.emit(route);
+                    this.latitude.emit(mapProperties.avgLatitude);
+                    this.longitude.emit(mapProperties.avgLongitude);
+                    this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                    this.routeFound.emit(true);
+                } else {
+                    this.routeFound.emit(false);
+                }
             } else {
                 this.legacyGetRouteInfo();
             }
