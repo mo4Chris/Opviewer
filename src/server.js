@@ -401,6 +401,31 @@ var harbourSchema = new Schema({
 }, { versionKey: false });
 var harbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocations');
 
+var hasSailedSchemaCTV = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number},
+    distancekm: {type: Number},
+}, { versionKey: false, strictQuery: true, strict: true});
+var hasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general');
+
+var sovHasPlatformTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasPlatformTransferModel = new mongo.model('sovHasPlatformModel', sovHasPlatformTransfersSchema, 'SOV_platformTransfers');
+
+var sovHasTurbineTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasTurbineTransferModel = new mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
+
+var sovHasV2VTransfersSchema = new Schema({
+    mmsi: {type: Number},
+    date: {type: Number}
+})
+var sovHasV2VModel = new mongo.model('sovHasV2VModel', sovHasV2VTransfersSchema, 'SOV_vessel2vesselTransfers');
+
 var upstreamSchema = new Schema({
     type: String,
     date: String,
@@ -1197,22 +1222,56 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
-app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }).distinct('dayNum', function (err, data) {
+        sovHasPlatformTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, platformTransferDates) {
+            if (err) {
+                console.log('Error retrieve platform dates')
+                res.send(err);
+            } else {
+                sovHasTurbineTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, turbineTransferDates) {
+                    if (err) {
+                        console.log('Error retrieve turbine dates')
+                        res.send(err);
+                    } else {
+                        sovHasV2VModel.find( {'mmsi': mmsi}, ['date']).distinct('date', function ( err, v2vTransferDates) {
+                            if (err) {
+                                console.log('Error retrieve v2v dates')
+                                res.send(err);
+                            } else {
+                                if (platformTransferDates && turbineTransferDates && v2vTransferDates) {
+                                    const merged = platformTransferDates.concat(turbineTransferDates).concat(v2vTransferDates);
+                                    res.send(merged.filter((item, index) => merged.indexOf(item) === index));
+                                } else {
+                                    res.send('error: failed to retrieve transfers');
+                                }
+                            }
+                        })
+                    }
+                });
+            }
+        });
+    });
+});
+
+app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
+    const mmsi = parseInt(req.params.mmsi);
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }, ['dayNum', 'distancekm'], function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
             } else {
-                let dateData = data + '';
-                let arrayOfDates = [];
-                arrayOfDates = dateData.split(",");
-                res.send(arrayOfDates);
+                res.send(data);
             }
         });
     });
@@ -1889,6 +1948,22 @@ app.post("/api/setActiveListings", function (req, res) {
         }
     });
 });
+
+app.post("/api/getHasSailedDatesCTV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        hasSailedModelCTV.find({ mmsi: req.body.mmsi}, ['date', 'distancekm'], function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: data });
+            }
+        });
+    });
+});
+
 
 app.post("/api/getVesselsToAddToFleet", function (req, res) {
     let token = verifyToken(req, res);

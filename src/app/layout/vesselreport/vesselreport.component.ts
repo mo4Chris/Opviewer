@@ -46,7 +46,7 @@ export class VesselreportComponent implements OnInit {
   parkNamesData;
   boatLocationData = [];
   datePickerValue = this.maxDate;
-  sailDates = [];
+  sailDates: {transfer: object[], transit: object[], other: object[]};
   vessels;
   general = {};
 
@@ -206,7 +206,7 @@ export class VesselreportComponent implements OnInit {
     this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
     this.onChange();
   }
-  getDatesHasSailed(sailDates: any[]): void {
+  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
     this.sailDates = sailDates;
   }
 
@@ -233,9 +233,18 @@ export class VesselreportComponent implements OnInit {
   }
   ///////////////////////////////////////////////////
 
-  hasSailed(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates);
+  hasSailedTransfer(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
   }
+
+  hasSailedTransit(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
+  }
+
+  hasSailedOther(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
+  }
+
 
   getMatlabDateToJSDate(serial) {
     return this.dateTimeService.MatlabDateToJSDate(serial);
@@ -283,7 +292,7 @@ export class VesselreportComponent implements OnInit {
       htmlButton.disabled = true;
     } else {
       htmlButton.disabled = false;
-    };
+    }
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;
@@ -349,18 +358,6 @@ export class VesselreportComponent implements OnInit {
     this.transferVisitedAtLeastOneTurbine = false;
     this.loaded = false;
     this.googleMapLoaded = false;
-  }
-
-  getGeneralStats() {
-    this.newService.getGeneral(this.vesselObject).subscribe(general => {
-      if (general.data.length > 0 && general.data[0].DPRstats) {
-        this.noTransits = false;
-        this.general = general.data[0].DPRstats;
-      } else {
-        this.noTransits = true;
-        this.general = {};
-      }
-    });
   }
 
   setMapReady(googleMap) {

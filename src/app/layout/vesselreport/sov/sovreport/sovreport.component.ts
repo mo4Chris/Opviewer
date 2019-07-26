@@ -25,7 +25,7 @@ export class SovreportComponent implements OnInit {
     @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
-    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -39,6 +39,8 @@ export class SovreportComponent implements OnInit {
     private platformsLoaded = false;
     private v2vLoaded = false;
     private cycleTimeLoaded = false;
+
+    dateData = {general: undefined, transfer: undefined};
 
     // used for comparison in the HTML
     SovTypeEnum = SovType;
@@ -114,10 +116,11 @@ export class SovreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        this.GetAvailableRouteDatesForVessel();
+        this.buildPageWhenRouteLoaded();
     }
 
     buildPageWhenRouteLoaded() {
+        this.GetAvailableRouteDatesForVessel();
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
@@ -192,15 +195,43 @@ export class SovreportComponent implements OnInit {
     }
 
     GetAvailableRouteDatesForVessel() {
-        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
-            for (let _i = 0; _i < dates.length; _i++) {
-                dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
-            }
-            const sailDates = dates;
-            this.sailDates.emit(sailDates);
+        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(genData => {
+            this.dateData.general = genData;
         }, null,
-        () => this.buildPageWhenRouteLoaded()
+            () => {
+                this.pushSailingDates();
+            }
         );
+        this.commonService.getDatesWithTransfersForSOV(this.vesselObject.mmsi).subscribe(transferDates => {
+            this.dateData.transfer = transferDates;
+        }, null,
+            () => {
+                this.pushSailingDates();
+            }
+        );
+    }
+
+    pushSailingDates() {
+        if (this.dateData.transfer && this.dateData.general) {
+            const transferDates = [];
+            const transitDates  = [];
+            const otherDates    = [];
+            let formattedDate;
+            let hasTransfers: boolean;
+            this.dateData.general.forEach(generalDataInstance => {
+                formattedDate = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(elt.dayNum));
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val === elt.dayNum, false);
+                if (generalDataInstance.distancekm && hasTransfers) {
+                    transferDates.push(formattedDate);
+                } else if (generalDataInstance.distancekm) {
+                    transitDates.push(formattedDate);
+                } else {
+                    otherDates.push(formattedDate);
+                }
+            });
+            const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
+            this.sailDates.emit(sailInfo);
+        }
     }
 
     getVesselRoute() {

@@ -137,11 +137,21 @@ export class CommonService {
 
   getDatesWithValues(vessel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
-      map((response: Response) => response.json()));
+     map((response: Response) => response.json()));
+  }
+
+  getDatesWithValuesFromGeneralStats(vessel) {
+    return this.post(environment.DB_IP + '/api/getHasSailedDatesCTV/', vessel).pipe(
+       map((response: Response) => response.json()));
   }
 
   getDatesShipHasSailedForSov(mmsi) {
     return this.get(environment.DB_IP + '/api/getDatesShipHasSailedForSov/' + mmsi).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getDatesWithTransfersForSOV(mmsi) {
+    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + mmsi).pipe(
       map((response: Response) => response.json()));
   }
 

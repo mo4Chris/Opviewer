@@ -12,7 +12,8 @@
             <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
                 let-disabled="disabled" let-focused="focused">
                 <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
-                    [class.text-muted]="disabled" [class.has-sailed]="hasSailed(date)">
+                    [class.text-muted]="disabled" [class.has-sailed-transfer]="hasSailedTransfer(date)" 
+                    [class.has-sailed-transit]="hasSailedTransit(date)" [class.has-sailed-other]="hasSailedOther(date)">
                     {{ date.day }}
                 </div>
             </ng-template>
