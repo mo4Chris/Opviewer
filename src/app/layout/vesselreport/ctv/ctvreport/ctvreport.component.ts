@@ -105,7 +105,6 @@ export class CtvreportComponent implements OnInit {
                                 } else {
                                     this.videoBudget = { maxBudget: -1, currentBudget: -1 };
                                 }
-                                // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
                                 this.matchCommentsWithTransfers();
                                 this.getGeneralStats();
                             });
@@ -309,7 +308,7 @@ export class CtvreportComponent implements OnInit {
                         for (let _i = 0; _i < dates.length; _i++) {
                             dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
                         }
-                        // this.dateData = dates;
+                        return dates;
                     }),
                 catchError(error => {
                     console.log('error ' + error);
@@ -464,7 +463,6 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.toolboxConducted = [null];
                 this.generalInputStats.customInput = 'N/a';
             }
-            console.log(general)
             if (general.data && general.data.length > 0 && general.data[0].lon) {
                 const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
                 if (longitudes.length > 0) {
