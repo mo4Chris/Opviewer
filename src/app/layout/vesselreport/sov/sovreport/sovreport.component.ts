@@ -219,8 +219,8 @@ export class SovreportComponent implements OnInit {
             let formattedDate;
             let hasTransfers: boolean;
             this.dateData.general.forEach(generalDataInstance => {
-                formattedDate = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(elt.dayNum));
-                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val === elt.dayNum, false);
+                formattedDate = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(generalDataInstance.dayNum));
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val === generalDataInstance.dayNum, false);
                 if (generalDataInstance.distancekm && hasTransfers) {
                     transferDates.push(formattedDate);
                 } else if (generalDataInstance.distancekm) {
