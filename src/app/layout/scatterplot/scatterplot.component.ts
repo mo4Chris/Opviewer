@@ -70,9 +70,8 @@ export class ScatterplotComponent implements OnInit {
   Vessels;
   transferData;
   labelValues = [];
-  myChart;
+  myChart = [];
   myDatepicker;
-  comparisonValue = {x: '', y: '', graph: 'scatter', xLabel: '', yLabel: ''};
   showContent = false;
   datasetValues = [];
   varAnn = { annotations: []};
@@ -82,7 +81,11 @@ export class ScatterplotComponent implements OnInit {
   noPermissionForData = false;
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
-  edgeLineValue = 0;
+
+  comparisonArray = [
+    {x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores'},
+    {x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]'}
+  ];
 
   onDateSelection(date: NgbDate) {
     if (!this.fromDate && !this.toDate) {
@@ -108,7 +111,6 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.vesselObject.mmsi);
     Chart.pluginService.register(ChartAnnotation);
 
     this.noPermissionForData = false;
@@ -121,7 +123,7 @@ export class ScatterplotComponent implements OnInit {
       if (this.vesselObject.mmsi.length > 0) {
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
           if (validatedValue.length === this.vesselObject.mmsi.length) {
-            this.setScatterPointsVessel().subscribe();
+            this.setScatterPointsVessel();
           } else {
             this.showContent = true;
             this.noPermissionForData = true;
@@ -133,46 +135,58 @@ export class ScatterplotComponent implements OnInit {
 
 
   createScatterChart() {
-    if (this.scatterDataArrayVessel[0] && this.scatterDataArrayVessel[0].length > 0) {
-      this.myChart = new Chart('canvas', {
-        type: this.comparisonValue.graph,
-        data: {
-          datasets: this.datasetValues
-        },
-        options: {
-          scaleShowVerticalLines: false,
-          responsive: true,
-          radius: 6,
-          legend: {
-            display: true,
+    for (let _j = 0; _j <  this.comparisonArray.length; _j ++) {
+      // console.log(this.comparisonArray.length + " - " + _j);
+      // console.log(this.scatterDataArrayVessel[_j]);
+      if (this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
+        this.myChart[_j] = new Chart('canvas' + _j , {
+          type: this.comparisonArray[_j].graph,
+          data: {
+            datasets: this.datasetValues
           },
-          pointHoverRadius: 6,
-          animation: {
-              duration: 0,
-          },
-          hover: {
-              animationDuration: 0,
-          },
-          responsiveAnimationDuration: 0,
-          scales : {
-            xAxes: [{
-              scaleLabel: {
-                display: true,
-                labelString: this.comparisonValue.xLabel
-              },
-              type: 'time',
-              time: {
-                min: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMin).getTime()),
-                max: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1).getTime()),
-                unit: 'day'
-            }
-            }]
-          },
-          annotation: this.varAnn,
-        }
-      });
-      this.edgeLineValue = 0;
+          options: {
+            scaleShowVerticalLines: false,
+            responsive: true,
+            radius: 6,
+            legend: {
+              display: true,
+            },
+            pointHoverRadius: 6,
+            animation: {
+                duration: 0,
+            },
+            hover: {
+                animationDuration: 0,
+            },
+            responsiveAnimationDuration: 0,
+            scales : {
+              xAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: this.comparisonArray[_j].xLabel
+                },
+                type: 'time',
+                time: {
+                  min: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMin).getTime()),
+                  max: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1).getTime()),
+                  unit: 'day'
+              }
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: this.comparisonArray[_j].yLabel
+                }
+              }]
+            },
+            annotation: this.varAnn,
+          }
+        });
+      }
     }
+    //console.log(this.datasetValues[0].data);
+    //console.log( this.comparisonArray[0]);
+    //console.log(this.myChart);
   }
 
   getMatlabDateYesterday() {
@@ -197,7 +211,7 @@ export class ScatterplotComponent implements OnInit {
   getJSDateYesterdayYMD() {
     const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
     return JSValueYesterday;
-  } 
+  }
 
   getJSDateLastMonthYMD() {
     const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({date: 1, hour: 0, minute: 0, second: 0, millisecond: 0}).format('YYYY-MM-DD');
@@ -225,10 +239,6 @@ export class ScatterplotComponent implements OnInit {
     let vesselName;
     this.route.params.subscribe( params => vesselName = params.vesselName);
     return vesselName;
-  }
-
-  applyChangeValue(newValue) {
-    this.edgeLineValue = newValue;
   }
 
   MatlabDateToUnixEpoch(serial) {
@@ -270,8 +280,9 @@ export class ScatterplotComponent implements OnInit {
   }
 
   getTransfersForVesselByRange(vessel) {
+    for (let _i = 0; _i <  this.comparisonArray.length; _i ++) {
      return this.newService
-     .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonValue.x, y: this.comparisonValue.y}).pipe(
+     .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonArray[_i].x, y: this.comparisonArray[_i].y}).pipe(
      map(
        (transfers) => {
          this.transferData = transfers;
@@ -283,19 +294,23 @@ export class ScatterplotComponent implements OnInit {
          console.log('error ' + error);
          throw error;
        }));
+      }
    }
 
   buildPageWithCurrentInformation() {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({mmsi: this.vesselObject.mmsi}).subscribe(validatedValue => {
       if (validatedValue.length !== 0 && validatedValue.length === this.vesselObject.mmsi.length) {
-        this.newService.getTransfersForVesselByRange({mmsi: this.vesselObject.mmsi, x: this.comparisonValue.x, y: this.comparisonValue.y,  dateMin: this.vesselObject.dateMin, dateMax: this.vesselObject.dateMax}).subscribe(_ => {
-          this.setScatterPointsVessel().subscribe();
-          setTimeout(() => this.showContent = true, 1050);
-          if (_[0].length > 0) {
-            this.myChart.update();
-          }
-        });
+        // for (let _i = 0; _i <  this.comparisonArray.length; _i ++) {
+        this.newService.getTransfersForVesselByRange({mmsi: this.vesselObject.mmsi, x: this.comparisonArray[0].x, y: this.comparisonArray[0].y,  dateMin: this.vesselObject.dateMin, dateMax: this.vesselObject.dateMax}).subscribe(_ => {
+            this.setScatterPointsVessel();
+            setTimeout(() => this.showContent = true, 1050);
+            console.log(_);
+            // if (_[0].length > 0) {
+            //   this.myChart[0].update();
+            // }
+          });
+        // }
       } else {
         this.showContent = true;
         this.noPermissionForData = true;
@@ -305,6 +320,7 @@ export class ScatterplotComponent implements OnInit {
 
   createValues() {
     this.datasetValues = [];
+    console.log(this.scatterDataArrayVessel);
     for (let i = 0; i < this.scatterDataArrayVessel.length; i++) {
       this.datasetValues.push({
         data: this.scatterDataArrayVessel[i],
@@ -320,85 +336,58 @@ export class ScatterplotComponent implements OnInit {
   }
 
   setScatterPointsVessel() {
-    return this.newService
-    .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonValue.x, y: this.comparisonValue.y}).pipe(
-    map(
-      (scatterData) => {
+    let scatterDataArray = [];
+    for (let _i = 0; _i <  this.comparisonArray.length; _i ++) {
+      this.newService
+      .getTransfersForVesselByRange({'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonArray[_i].x, y: this.comparisonArray[_i].y}).pipe(
+      map(
+        (scatterData) => {
 
-        for (let _j = 0; _j < scatterData.length; _j++) {
-          this.labelValues[_j] =  scatterData[_j].label[0];
-         }
-
-        switch (this.comparisonValue.y) {
-          case 'score':
-            this.calculateScoreData(scatterData);
-          break;
-          case 'impactForceNmax':
-            this.calculateImpactData(scatterData);
-          break;
-        }
-
-
-        switch (this.comparisonValue.x) {
-          case 'startTime':
-            this.createTimeLabels(scatterData);
-          break;
-          case 'Hs':
-            this.createWaveheightLabels(scatterData);
-          break;
-        }
-        if (this.edgeLineValue !== 0 || this.edgeLineValue === NaN) {
-        this.varAnn = {
-          annotations: [
-                {
-                    type: 'line',
-                    id: 'average',
-                    mode: 'horizontal',
-                    scaleID: 'y-axis-1',
-                    borderWidth: 2,
-                    borderColor: 'red',
-                    value: this.edgeLineValue
-                }
-            ]
-          };
-        } else {
-          this.varAnn = { annotations: []};
-        }
-
-        this.createValues();
-        if (this.myChart == null || this.edgeLineValue === NaN) {
-          this.createScatterChart();
-        } else {
-          if (this.edgeLineValue !== 0) {
-            this.varAnn = {
-              annotations: [
-                    {
-                        type: 'line',
-                        id: 'average',
-                        mode: 'horizontal',
-                        scaleID: 'y-axis-1',
-                        borderWidth: 2,
-                        borderColor: 'red',
-                        value: this.edgeLineValue
-                    }
-                ]
-              };
-            } else {
-              this.varAnn = { annotations: []};
-            }
-          if (this.scatterDataArrayVessel[0].length <= 0) {
-            this.myChart.destroy();
-          } else {
-            this.myChart.destroy();
-            this.createScatterChart();
+          for (let _j = 0; _j < scatterData.length; _j++) {
+            this.labelValues[_j] =  scatterData[_j].label[0];
           }
-        }
-        setTimeout(() => this.showContent = true, 0);
-      }),
-      catchError(error => {
-        console.log('error ' + error);
-        throw error;
-      }));
+          console.log(scatterData.length);
+          switch (this.comparisonArray[_i].y) {
+            case 'score':
+              this.calculateScoreData(scatterData);
+            break;
+            case 'impactForceNmax':
+              this.calculateImpactData(scatterData);
+            break;
+          }
+
+          switch (this.comparisonArray[_i].x) {
+            case 'startTime':
+              this.createTimeLabels(scatterData);
+            break;
+            case 'Hs':
+              this.createWaveheightLabels(scatterData);
+            break;
+          }
+          this.scatterDataArray[_i] = scatterData;
+
+        }),
+        catchError(error => {
+          console.log('error: ' + error);
+          throw error;
+        })).subscribe();
+       
+        this.createValues();
+          if (this.myChart[_i] == null) {
+            this.createScatterChart();
+          } else {
+            if (this.scatterDataArrayVessel[_i].length <= 0) {
+              this.myChart[_i].destroy();
+            } else {
+              this.myChart[_i].destroy();
+              this.createScatterChart();
+            }
+          }
+          setTimeout(() => this.showContent = true, 0);
+      }
+      console.log(this.scatterDataArray.length);
+      console.log(this.scatterDataArray);
+
   }
 
   createTimeLabels(scatterData) {
