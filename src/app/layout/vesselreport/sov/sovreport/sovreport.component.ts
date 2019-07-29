@@ -372,7 +372,7 @@ export class SovreportComponent implements OnInit {
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
         }
-        if (naCountGangway == this.sovModel.turbineTransfers.length || naCountGangway == this.sovModel.platformTransfers.length) {
+        if (naCountGangway === this.sovModel.turbineTransfers.length || naCountGangway === this.sovModel.platformTransfers.length) {
             this.gangwayActive = false;
         } else {
             this.gangwayActive = true;
@@ -497,7 +497,7 @@ export class SovreportComponent implements OnInit {
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (weather.waveHs[0] && typeof(weather.waveHs[0]) === 'number') {
+            if (weather.waveHs[0] && weather.waveHs.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
                 hasData = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
@@ -506,7 +506,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveTp[0] && typeof(weather.waveTp[0]) === 'number') {
+            if (weather.waveTp[0]  && weather.waveTp.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
                 hasData = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
@@ -515,7 +515,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) === 'number') {
+            if (weather.waveDirection[0]  && weather.waveDirection.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
                 hasData = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
@@ -524,7 +524,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.windGust[0] && typeof(weather.windGust[0]) === 'number') {
+            if (weather.windGust[0] && weather.windGust.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
                 hasData = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
@@ -533,7 +533,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.windAvg[0] && typeof(weather.windAvg[0]) === 'number') {
+            if (weather.windAvg[0]  && weather.windAvg.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
                 hasData = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
