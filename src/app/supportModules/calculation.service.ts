@@ -124,7 +124,7 @@ export class CalculationService {
     let B: number[];
     if (typeof(A) !== 'object' || A._ArrayType_) {
       B = [];
-    } else if(typeof(A[0]) !== 'object') {
+    } else if (typeof(A[0]) !== 'object') {
       B = A;
     } else if (A.length === 1 && A[0].length > 1) {
       B = A[0];
