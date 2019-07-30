@@ -11,6 +11,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { isArray } from 'util';
 
 @Component({
     selector: 'app-sovreport',
@@ -475,7 +476,7 @@ export class SovreportComponent implements OnInit {
     }
 
     testValidWeatherField(weatherField: number[]) {
-        return weatherField && weatherField[0] && weatherField.reduce((curr: boolean, val: any) => curr || typeof(val) === 'number', false);
+        return isArray(weatherField) && weatherField.reduce((curr: boolean, val: any) => curr || typeof(val) === 'number', false);
     }
 
     createWeatherOverviewChart() {
