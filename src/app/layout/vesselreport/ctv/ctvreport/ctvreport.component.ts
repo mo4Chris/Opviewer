@@ -510,14 +510,17 @@ export class CtvreportComponent implements OnInit {
                             latitudes = latitudes.concat(transitrouteData[i].lat);
                             longitudes = longitudes.concat(transitrouteData[i].lon);
                         }
-
-                        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                        const boatLocationData = transitrouteData;
-                        this.boatLocationData.emit(boatLocationData);
-                        this.latitude.emit(mapProperties.avgLatitude);
-                        this.longitude.emit(mapProperties.avgLongitude);
-                        this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                        this.routeFound.emit(true);
+                        if (latitudes.length > 0) {
+                            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                            const boatLocationData = transitrouteData;
+                            this.boatLocationData.emit(boatLocationData);
+                            this.latitude.emit(mapProperties.avgLatitude);
+                            this.longitude.emit(mapProperties.avgLongitude);
+                            this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                            this.routeFound.emit(true);
+                        } else {
+                            this.routeFound.emit(false);
+                        }
                     } else {
                         this.routeFound.emit(false);
                         this.mapZoomLvl.emit(10);

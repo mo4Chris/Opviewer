@@ -11,6 +11,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { isArray } from 'util';
 
 @Component({
     selector: 'app-sovreport',
@@ -474,6 +475,10 @@ export class SovreportComponent implements OnInit {
         }
     }
 
+    testValidWeatherField(weatherField: number[]) {
+        return isArray(weatherField) && weatherField.reduce((curr: boolean, val: any) => curr || typeof(val) === 'number', false);
+    }
+
     createWeatherOverviewChart() {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
@@ -497,7 +502,7 @@ export class SovreportComponent implements OnInit {
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (weather.waveHs[0] && weather.waveHs.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
+            if (this.testValidWeatherField(weather.waveHs)) {
                 hasData = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
@@ -506,7 +511,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveTp[0]  && weather.waveTp.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
+            if (this.testValidWeatherField(weather.waveTp)) {
                 hasData = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
@@ -515,7 +520,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveDirection[0]  && weather.waveDirection.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
+            if (this.testValidWeatherField(weather.waveDirection)) {
                 hasData = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
@@ -524,7 +529,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.windGust[0] && weather.windGust.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
+            if (this.testValidWeatherField(weather.windGust)) {
                 hasData = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
@@ -533,7 +538,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.windAvg[0]  && weather.windAvg.reduce((curr, val) => curr || typeof(val) === 'number', false)) {
+            if (this.testValidWeatherField(weather.windAvg)) {
                 hasData = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {

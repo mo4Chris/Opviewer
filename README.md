@@ -20,3 +20,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.html [L]
 
+## Colors
+Color - rgb - description/usecase
+White - 255, 255, 255 - Datepicker day disabled, video request loading
+Light blue  - 198, 233, 255 - Datepicker day has transfer
+Light yellow  - 255, 255, 211 - Datepicker day has transit but no transfer
