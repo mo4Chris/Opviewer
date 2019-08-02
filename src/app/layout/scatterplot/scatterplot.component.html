@@ -64,7 +64,7 @@
         </div> -->
         <div class="col-lg-8" *ngFor="let transfer_Data of comparisonArray;let ind = index">
             <span >
-                <h3></h3>
+                <h3>{{comparisonArray[ind].xLabel}} vs {{comparisonArray[ind].yLabel}}</h3>
             </span>
             <canvas id="canvas{{ind}}">{{myChart[ind]}}</canvas>
         </div>
