@@ -7,6 +7,10 @@ import * as moment from 'moment';
 })
 export class DatetimeService {
 
+static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+
+
   constructor() { }
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
@@ -121,6 +125,14 @@ export class DatetimeService {
         return true;
       }
     }
+  }
+
+  jsDateToMDHMString(date) {
+    let hours = date.getHours();
+    let mins  = date.getMinutes();
+    if (hours < 10) {hours = '0' + hours; }
+    if (mins < 10) {mins = '0' + mins; }
+    return DatetimeService.shortMonths[date.getMonth()] + ' ' + date.getDate() + ', ' + hours + ':' + mins;
   }
 
   getMatlabDateLastMonth() {

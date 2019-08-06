@@ -27,21 +27,21 @@ export class ScatterplotComponent implements OnInit {
   modalReference: NgbModalRef;
 
   backgroundcolors = [
-    'rgba(255,0,255,0.4)',
-    'rgba(0,255,255,0.4)',
-    'rgba(228, 94, 157 , 0.4)',
-    'rgba(255, 159, 64, 0.4)',
-    'rgba(255, 99, 132, 0.4)',
-    'rgba(255, 206, 86, 0.4)',
-    'rgba(75, 192, 192, 0.4)',
-    'rgba(255,255,0,0.4)',
-    'rgba(153, 102, 255, 0.4)',
+    'rgba(255,0,0,1)',
+    'rgba(0,255,0,1)',
+    'rgba(0, 255, 255 , 1)',
+    'rgba(255, 159, 64, 1)',
+    'rgba(255, 99, 132, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(255,255,0,1)',
+    'rgba(153, 102, 255, 1)',
     'rgba(0,0,0,0.4)'
   ];
   bordercolors = [
-    'rgba(255,0,255,1)',
-    'rgba(0,255,255,1)',
-    'rgba(228, 94, 157 , 1)',
+    'rgba(255,0,0,1)',
+    'rgba(0,255,0,1)',
+    'rgba(0, 255, 255 , 1)',
     'rgba(255, 159, 64, 1)',
     'rgba(255,99,132,1)',
     'rgba(255, 206, 86, 1)',
@@ -49,6 +49,16 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,255,0,1)',
     'rgba(153, 102, 255, 1)',
     'rgba(0,0,0,1)'
+  ];
+  pointStyles = [
+    'circle',
+    'cross',
+    'rect',
+    'triangle',
+    'crossRot',
+    'star',
+    'RectRounded',
+    'dash',
   ];
 
   multiSelectSettings = {
@@ -60,7 +70,16 @@ export class ScatterplotComponent implements OnInit {
     singleSelection: false
   };
 
-  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService,  private calculationService: CalculationService, private dateTimeService: DatetimeService) {
+  constructor(
+    private newService: CommonService,
+    private route: ActivatedRoute,
+    private modalService: NgbModal,
+    calendar: NgbCalendar,
+    public router: Router,
+    private userService: UserService,
+    private calculationService: CalculationService,
+    private dateTimeService: DatetimeService
+    ) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
@@ -147,18 +166,20 @@ export class ScatterplotComponent implements OnInit {
             throw error;
           })).subscribe();
     }
-    setTimeout(() => this.setScatterPointsVessel(), 600);
+    setTimeout(() => this.setScatterPointsVessel(), 1000);
   }
 
 
   setScatterPointsVessel() {
-
     const scatterDataArray = [];
     this.labelValues = [];
     for (let _i = 0; _i < this.graphData.length; _i++) {
       for (let _j = 0; _j < this.graphData[_i].length; _j++) {
-        this.labelValues[_j] = this.graphData[_i][_j].label[0];
-
+        if (this.graphData[_i][_j].label !== undefined && this.graphData[_i][_j].label[0]) {
+          this.labelValues[_j] = this.graphData[_i][_j].label[0].replace('_', ' ');
+        } else {
+          setTimeout(() => {this.labelValues[_j] = this.graphData[_i][_j].label[0].replace('_', ' ');}, 1000);
+        }
         switch (this.comparisonArray[_i].y) {
           case 'score':
             this.graphData[_i][_j] = this.calculateScoreData(this.graphData[_i][_j]);
@@ -183,7 +204,6 @@ export class ScatterplotComponent implements OnInit {
   }
 
   createTimeLabels(scatterData) {
-
     const obj = [];
     for (let _i = 0, arr_i = 0; _i < scatterData.length; _i++) {
       if (scatterData[_i].x !== null && typeof scatterData[_i].x !== 'object') {
@@ -231,7 +251,7 @@ export class ScatterplotComponent implements OnInit {
   }
 
   createScatterChart() {
-    console.log('createScatterChart')
+    const dateService = this.dateTimeService;
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       if (this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         this.myChart[_j] = new Chart('canvas' + _j, {
@@ -242,15 +262,14 @@ export class ScatterplotComponent implements OnInit {
           options: {
             tooltips: {
               callbacks: {
-                label: function(tooltipItem, data) {
-                  console.log('------------')
-                  console.log(tooltipItem);
-                  console.log(data);
-                  const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
-                  const label = time.getMonth() + '-' + time.getDay() + ': ' + Math.round(tooltipItem.yLabel * 100) / 100;
-                  console.log(time)
-                  console.log(label)
-                  return label;
+                beforeLabel: function (tooltipItem, data) {
+                  return data.datasets[tooltipItem.datasetIndex].label;
+                },
+                label: function (tooltipItem, data) {
+                  return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                },
+                afterLabel: function(tooltipItem, data) {
+                  return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
                 }
               }
             },
@@ -293,7 +312,39 @@ export class ScatterplotComponent implements OnInit {
               }]
             },
             annotation: this.varAnn,
-          }
+          },
+          plugins: [
+            {
+              beforeInit: function (chartInstance) {
+                const legendOpts = chartInstance.options.legend;
+                if (legendOpts) {
+                  createNewLegendAndAttach(chartInstance, legendOpts);
+                }
+              },
+              beforeUpdate: function (chartInstance) {
+                let legendOpts = chartInstance.options.legend;
+
+                if (legendOpts) {
+                  legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
+
+                  if (chartInstance.newLegend) {
+                    chartInstance.newLegend.options = legendOpts;
+                  } else {
+                    createNewLegendAndAttach(chartInstance, legendOpts);
+                  }
+                } else {
+                  Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
+                  delete chartInstance.newLegend;
+                }
+              },
+              afterEvent: function (chartInstance, e) {
+                const legend = chartInstance.newLegend;
+                if (legend) {
+                  legend.handleEvent(e);
+                }
+              }
+            }
+          ],
         });
       }
     }
@@ -417,11 +468,13 @@ export class ScatterplotComponent implements OnInit {
         this.datasetValues[j].push({
           data: this.scatterDataArrayVessel[j][i],
           label: this.labelValues[i],
+          pointStyle: this.pointStyles[i],
           backgroundColor: this.backgroundcolors[i],
           radius: 6,
           borderColor: this.bordercolors[i],
-          pointHoverRadius: 6,
-          borderWidth: 1
+          pointHoverRadius: 10,
+          borderWidth: 1,
+          hitRadius: 10,
         });
       }
     }
@@ -464,36 +517,3 @@ function createNewLegendAndAttach(chartInstance, legendOpts) {
   chartInstance.newLegend = legend;
   Chart.layoutService.addBox(chartInstance, legend);
 }
-
-// Register the legend plugin
-Chart.plugins.register({
-  beforeInit: function (chartInstance) {
-    const legendOpts = chartInstance.options.legend;
-
-    if (legendOpts) {
-      createNewLegendAndAttach(chartInstance, legendOpts);
-    }
-  },
-  beforeUpdate: function (chartInstance) {
-    let legendOpts = chartInstance.options.legend;
-
-    if (legendOpts) {
-      legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
-
-      if (chartInstance.newLegend) {
-        chartInstance.newLegend.options = legendOpts;
-      } else {
-        createNewLegendAndAttach(chartInstance, legendOpts);
-      }
-    } else {
-      Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
-      delete chartInstance.newLegend;
-    }
-  },
-  afterEvent: function (chartInstance, e) {
-    const legend = chartInstance.newLegend;
-    if (legend) {
-      legend.handleEvent(e);
-    }
-  }
-});
