@@ -15,13 +15,13 @@
 
 .dateSelectorModal{
     height: 48px !important;
-}
-.boatSelectDropdown{
-    height: 48px !important;
-    margin-left: 20px;
     margin-right:20px;
-    width: auto !important;
 }
+
+.multiselect-dropdown{
+    width:auto;
+}
+
 .keyTD{
     background: gray;
     color: white;

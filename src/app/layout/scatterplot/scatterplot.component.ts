@@ -9,6 +9,8 @@ import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bo
 import { UserService } from '../../shared/services/user.service';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
+import { DatetimeService } from '../../supportModules/datetime.service';
+import { CalculationService } from '../../supportModules/calculation.service';
 
 @Component({
   selector: 'app-scatterplot',
@@ -37,13 +39,13 @@ export class ScatterplotComponent implements OnInit {
     'rgba(0,0,0,0.4)'
   ];
   bordercolors = [
-    'rgba(255,255,0,1)',
-    'rgba(255,0,255,1)',
-    'rgba(0,255,255,1)',
-    'rgba(228, 94, 157 , 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(255,99,132,1)',
-    'rgba(255, 206, 86, 1)',
+    'rgba(255,255,0,0.4)',
+    'rgba(255,0,255,0.4)',
+    'rgba(0,255,255,0.4)',
+    'rgba(228, 94, 157 , 0.4)',
+    'rgba(255, 159, 64, 0.4)',
+    'rgba(255,99,132,0.4)',
+    'rgba(255, 206, 86, 0.4)',
     'rgba(75, 192, 192, 1)',
     'rgba(153, 102, 255, 1)',
     'rgba(0,0,0,1)'
@@ -58,7 +60,7 @@ export class ScatterplotComponent implements OnInit {
     singleSelection: false
   };
 
-  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService) {
+  constructor(private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, calendar: NgbCalendar, public router: Router, private userService: UserService,  private calculationService: CalculationService, private dateTimeService: DatetimeService) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
@@ -139,7 +141,6 @@ export class ScatterplotComponent implements OnInit {
       this.newService.getTransfersForVesselByRange({ 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonArray[_i].x, y: this.comparisonArray[_i].y }).pipe(
         map(
           (scatterData) => {
-            console.log(scatterData);
             this.graphData[_i] = scatterData;
           }), catchError(error => {
             console.log('error: ' + error);
@@ -187,7 +188,7 @@ export class ScatterplotComponent implements OnInit {
     for (let _i = 0, arr_i = 0; _i < scatterData.length; _i++) {
       if (scatterData[_i].x !== null && typeof scatterData[_i].x !== 'object') {
         obj[arr_i] = {
-          'x': this.MatlabDateToUnixEpoch(scatterData[_i].x),
+          'x': this.MatlabDateToUnixEpochViaDate(scatterData[_i].x),
           'y': scatterData[_i].y
         };
         arr_i++;
@@ -225,6 +226,10 @@ export class ScatterplotComponent implements OnInit {
 
   }
 
+  onDropdownClose() {
+    console.log('closed');
+  }
+
   createScatterChart() {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       if (this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
@@ -236,11 +241,15 @@ export class ScatterplotComponent implements OnInit {
           options: {
             scaleShowVerticalLines: false,
             responsive: true,
-            radius: 6,
+            radius: 2,
             legend: {
               display: true,
+              labels: {
+                defaultFontSize: 24,
+                defaultFontStyle: 'bold'
+              }
             },
-            pointHoverRadius: 6,
+            pointHoverRadius: 2,
             animation: {
               duration: 0,
             },
@@ -256,8 +265,8 @@ export class ScatterplotComponent implements OnInit {
                 },
                 type: 'time',
                 time: {
-                  min: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMin).getTime()),
-                  max: new Date(this.MatlabDateToUnixEpoch(this.vesselObject.dateMax + 1).getTime()),
+                  min: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin).getTime()),
+                  max: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax + 1).getTime()),
                   unit: 'day'
                 }
               }],
@@ -276,42 +285,28 @@ export class ScatterplotComponent implements OnInit {
   }
 
   getMatlabDateYesterday() {
-    const matlabValueYesterday = moment().add(-1, 'days');
-    matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    matlabValueYesterday.format();
-    const momentDateAsIso = moment(matlabValueYesterday).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-    return dateAsMatlab;
+    return this.dateTimeService.getMatlabDateYesterday();
   }
 
   getMatlabDateLastMonth() {
-    const matlabValueYesterday = moment().add(-1, 'months');
-    matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
-    matlabValueYesterday.format();
-    const momentDateAsIso = moment(matlabValueYesterday).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
-    return dateAsMatlab;
+    return this.dateTimeService.getMatlabDateLastMonth();
   }
 
 
   getJSDateYesterdayYMD() {
-    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
-    return JSValueYesterday;
+    return this.dateTimeService.getJSDateYesterdayYMD();
   }
 
   getJSDateLastMonthYMD() {
-    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
-    return JSValueYesterday;
+    return this.dateTimeService.getJSDateLastMonthYMD();
   }
 
   MatlabDateToJSDateYMD(serial) {
-    const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
-    return datevar;
+    return this.dateTimeService.MatlabDateToJSDateYMD(serial);
   }
 
   unixEpochtoMatlabDate(epochDate) {
-    const matlabTime = ((epochDate / 864e2) + 719530);
-    return matlabTime;
+    return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
 
   getMMSIFromParameter() {
@@ -327,9 +322,9 @@ export class ScatterplotComponent implements OnInit {
     return vesselName;
   }
 
-  MatlabDateToUnixEpoch(serial) {
-    const time_info = new Date((serial - 719529) * 864e5);
-    return time_info;
+
+  MatlabDateToUnixEpochViaDate(serial) {
+    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
 
   searchTransfersByNewSpecificDate() {
@@ -409,8 +404,8 @@ export class ScatterplotComponent implements OnInit {
           label: this.labelValues[i],
           backgroundColor: this.backgroundcolors[i],
           borderColor: this.bordercolors[i],
-          radius: 8,
-          pointHoverRadius: 10,
+          radius: 6,
+          pointHoverRadius: 6,
           borderWidth: 1
         });
       }

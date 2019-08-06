@@ -29,23 +29,18 @@
                         </ngb-datepicker>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" (click)="closeModal()">Close</button>
+                        <button type="button" class="btn btn-light" (click)="closeModal()">Close without changing date</button>
+                        <button type="button" class="btn btn-primary" (click)="closeModal(); searchTransfersByNewSpecificDate()">Search for new date range</button>
                     </div>
                 </ng-template>                   
                 
               <div class="form-group">
                  <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">Date selector</button>
-                 <!-- <select class="form-control boatSelectDropdown"  [(ngModel)]="comparisonValue" name="selectComparison" required>
-                    <option class="dropdown-item" [ngValue]="{x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores'}">Transferscores vs time</option>
-                    <option class="dropdown-item" [ngValue]="{x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]'}">Docking impacts vs time</option>
-                    <option class="dropdown-item" [ngValue]="{x: 'name', y: test, graph: 'bar', xLabel: '', yLabel: ''}">Number of impacts</option>
-                  </select> -->
-                    <ng-multiselect-dropdown name="selectVessel" class="multiSelectDiv" [placeholder]="'Select vessel'"
+                    <ng-multiselect-dropdown name="selectVessel" class="multiSelectDiv" (onSelect)="searchTransfersByNewSpecificDate()" (onDeSelect)="searchTransfersByNewSpecificDate()" [placeholder]="'Select vessel'"
                                  [data]="Vessels"
                                  [(ngModel)]="dropdownValues"
                                  [settings]="multiSelectSettings">
                     </ng-multiselect-dropdown>
-                  <button class="btn btn-lg btn-primary submitBtnDate" (click)="searchTransfersByNewSpecificDate()" type="button" name="dpSubmit" >Submit</button>
               </div>
           </div>
       </div>
@@ -59,9 +54,6 @@
         </div>
     </div>
     <div class="row">
-        <!-- <div class="col-lg-8" >
-            <canvas id="canvas">{{myChart}}</canvas>
-        </div> -->
         <div class="col-lg-8" *ngFor="let transfer_Data of comparisonArray;let ind = index">
             <span >
                 <h3>{{comparisonArray[ind].xLabel}} vs {{comparisonArray[ind].yLabel}}</h3>

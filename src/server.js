@@ -1242,6 +1242,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
                     date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
                 }
             },
+            {"$sort": {startTime: -1}},
             { "$project": testObj },
             { "$group" : { 
                 _id : "$mmsi",
@@ -1260,23 +1261,6 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
             }
         });
 
-
-        // Transfermodel.find({ mmsi: [235095774,235108711], date: { $gte: req.body.dateMin, $lte: req.body.dateMax }}, testObj , function (err, data) {
-        //     if (err) {
-        //         console.log(err);
-        //         res.send(err);
-        //     } else {
-        //         for (var i = 0; i < data.length; i++) {
-        //             if(data[i].mmsi == 235095774){ 
-        //                 dataArray.push(data[i]);
-        //             } else {
-        //                 dataArray[1].push(data[i]);
-        //             }
-        //         }
-        //         //console.log(data);
-        //         res.send(dataArray);
-        //     }
-        // });
     });
 });
 
