@@ -25,7 +25,6 @@ export class ScatterplotComponent implements OnInit {
   modalReference: NgbModalRef;
 
   backgroundcolors = [
-    'rgba(255,255,0,0.4)',
     'rgba(255,0,255,0.4)',
     'rgba(0,255,255,0.4)',
     'rgba(228, 94, 157 , 0.4)',
@@ -33,11 +32,11 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255, 99, 132, 0.4)',
     'rgba(255, 206, 86, 0.4)',
     'rgba(75, 192, 192, 0.4)',
+    'rgba(255,255,0,0.4)',
     'rgba(153, 102, 255, 0.4)',
     'rgba(0,0,0,0.4)'
   ];
   bordercolors = [
-    'rgba(255,255,0,1)',
     'rgba(255,0,255,1)',
     'rgba(0,255,255,1)',
     'rgba(228, 94, 157 , 1)',
@@ -45,6 +44,7 @@ export class ScatterplotComponent implements OnInit {
     'rgba(255,99,132,1)',
     'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
+    'rgba(255,255,0,1)',
     'rgba(153, 102, 255, 1)',
     'rgba(0,0,0,1)'
   ];
@@ -226,6 +226,7 @@ export class ScatterplotComponent implements OnInit {
   }
 
   createScatterChart() {
+    console.log('createScatterChart')
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       if (this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         this.myChart[_j] = new Chart('canvas' + _j, {
@@ -234,11 +235,25 @@ export class ScatterplotComponent implements OnInit {
             datasets: this.datasetValues[_j]
           },
           options: {
+            tooltips: {
+              callbacks: {
+                label: function(tooltipItem, data) {
+                  console.log('------------')
+                  console.log(tooltipItem);
+                  console.log(data);
+                  const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
+                  const label = time.getMonth() + '-' + time.getDay() + ': ' + Math.round(tooltipItem.yLabel * 100) / 100;
+                  console.log(time)
+                  console.log(label)
+                  return label;
+                }
+              }
+            },
             scaleShowVerticalLines: false,
             responsive: true,
-            radius: 6,
             legend: {
               display: true,
+
             },
             pointHoverRadius: 6,
             animation: {
@@ -408,27 +423,83 @@ export class ScatterplotComponent implements OnInit {
           data: this.scatterDataArrayVessel[j][i],
           label: this.labelValues[i],
           backgroundColor: this.backgroundcolors[i],
+          radius: 6,
           borderColor: this.bordercolors[i],
-          radius: 8,
-          pointHoverRadius: 10,
-          borderWidth: 1
+          borderWidth: 0,
+          hoverBorderColor: 2,
+          hoverRadius: 10,
         });
       }
     }
-      if (this.myChart[0] == null) {
-        this.createScatterChart();
-      } else {
-        if (this.scatterDataArrayVessel[0].length <= 0) {
-          for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
-            this.myChart[j].destroy();
-          }
-        } else {
-          for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
-            this.myChart[j].destroy();
-          }
-          this.createScatterChart();
+    if (this.myChart[0] == null) {
+      this.createScatterChart();
+    } else {
+      if (this.scatterDataArrayVessel[0].length <= 0) {
+        for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
+          this.myChart[j].destroy();
         }
-      }
-      setTimeout(() => this.showContent = true, 0);
-  }
+      } else {
+        for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
+          this.myChart[j].destroy();
+        }
+        this.createScatterChart();
+     }
+   }
+  setTimeout(() => this.showContent = true, 0);
 }
+}
+
+Chart.NewLegend = Chart.Legend.extend({
+  afterFit: function () {
+    this.height = this.height + 10;
+  },
+});
+
+function createNewLegendAndAttach(chartInstance, legendOpts) {
+  const legend = new Chart.NewLegend({
+    ctx: chartInstance.chart.ctx,
+    options: legendOpts,
+    chart: chartInstance
+  });
+
+  if (chartInstance.legend) {
+    Chart.layoutService.removeBox(chartInstance, chartInstance.legend);
+    delete chartInstance.newLegend;
+  }
+
+  chartInstance.newLegend = legend;
+  Chart.layoutService.addBox(chartInstance, legend);
+}
+
+// Register the legend plugin
+Chart.plugins.register({
+  beforeInit: function (chartInstance) {
+    const legendOpts = chartInstance.options.legend;
+
+    if (legendOpts) {
+      createNewLegendAndAttach(chartInstance, legendOpts);
+    }
+  },
+  beforeUpdate: function (chartInstance) {
+    let legendOpts = chartInstance.options.legend;
+
+    if (legendOpts) {
+      legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
+
+      if (chartInstance.newLegend) {
+        chartInstance.newLegend.options = legendOpts;
+      } else {
+        createNewLegendAndAttach(chartInstance, legendOpts);
+      }
+    } else {
+      Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
+      delete chartInstance.newLegend;
+    }
+  },
+  afterEvent: function (chartInstance, e) {
+    const legend = chartInstance.newLegend;
+    if (legend) {
+      legend.handleEvent(e);
+    }
+  }
+});
