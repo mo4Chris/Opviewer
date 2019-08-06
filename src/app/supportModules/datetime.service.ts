@@ -42,6 +42,11 @@ export class DatetimeService {
     return time_info;
   }
 
+  MatlabDateToUnixEpochViaDate(serial: number) {
+    const time_info = new Date((serial - 719529) * 864e5);
+    return time_info;
+  }
+
   MatlabDateToJSDateYMD(serial: number) {
     const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
     return datevar;
@@ -116,6 +121,20 @@ export class DatetimeService {
         return true;
       }
     }
+  }
+
+  getMatlabDateLastMonth() {
+    const matlabValueYesterday = moment().add(-1, 'months');
+    matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+    matlabValueYesterday.format();
+    const momentDateAsIso = moment(matlabValueYesterday).unix();
+    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    return dateAsMatlab;
+  }
+
+  getJSDateLastMonthYMD() {
+    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    return JSValueYesterday;
   }
 
   MatlabDateToJSDate(serial: number) {
