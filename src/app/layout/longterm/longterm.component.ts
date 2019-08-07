@@ -12,8 +12,8 @@ import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CalculationService } from '../../supportModules/calculation.service';
-import { LongtermCTVComponent } from './ctv/longtermCTV.component'
-import { LongtermSOVComponent } from './sov/longtermSOV.component'
+import { LongtermCTVComponent } from './ctv/longtermCTV.component';
+import { LongtermSOVComponent } from './sov/longtermSOV.component';
 
 @Component({
   selector: 'app-longterm',
@@ -36,10 +36,10 @@ export class LongtermComponent implements OnInit {
         this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
         this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
     }
-  
+
     maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
     vesselObject = { 'dateMin': this.getMatlabDateLastMonth(), 'mmsi': [this.getMMSIFromParameter()], 'dateNormalMin': this.getJSDateLastMonthYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD() };
-  
+
     multiSelectSettings = {
       idField: 'mmsi',
       textField: 'nicename',
@@ -57,12 +57,13 @@ export class LongtermComponent implements OnInit {
     datePickerValue = this.maxDate;
     Vessels;
     showContent;
-    
+    loaded = {Vessels: false, vesselType: false};
+
     myDatepicker;
     noPermissionForData = false;
     dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  
+
     @ViewChild(LongtermCTVComponent)
     private ctvChild: LongtermCTVComponent;
 
@@ -71,33 +72,56 @@ export class LongtermComponent implements OnInit {
 
     // onInit
     ngOnInit() {
-        console.log('Mark 1')
+        console.log('Running longterm base ngOnInit');
         Chart.pluginService.register(ChartAnnotation);
         this.noPermissionForData = false;
         if (this.tokenInfo.userPermission === 'admin') {
-          this.newService.getVessel().subscribe(data => this.Vessels = data);
+          this.newService.getVessel().subscribe(data => {
+            this.Vessels = data;
+            this.loaded.Vessels = true;
+          }, null, () => this.testIfAllInit());
         } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Vessels = data);
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
+              this.Vessels = data;
+              this.loaded.Vessels = true;
+            }, null, () => this.testIfAllInit());
         }
         if (this.vesselObject.mmsi.length > 0) {
-          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
-            if (validatedValue.length === 1) {
-              // this.getGraphDataPerComparison();
-              this.vesselType = 'CTV';
-              if (this.vesselType === 'CTV') {
-                // Build CTV module
-              } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-                // Build SOV module
-              }
-            } else {
-              this.showContent = true;
-              this.noPermissionForData = true;
-            }
-            setTimeout(() => this.showContent = true, 1000);
-          });
+            this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(
+                validatedValue => {
+                  if (validatedValue.length === 1) {
+                      this.vesselType = validatedValue[0].operationsClass;
+                  } else {
+                      this.showContent = true;
+                      this.noPermissionForData = true;
+                  }
+                  this.loaded.vesselType = true;
+            }, null, () => this.testIfAllInit());
         }
     }
-    
+
+    testIfAllInit () {
+      if (this.loaded.Vessels && this.loaded.vesselType) {
+        console.log('Initial data loaded!')
+        this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
+        this.buildPageWithCurrentInformation();
+      }
+    }
+
+    testIfAllLoaded() {
+
+    }
+
+    buildPageWithCurrentInformation() {
+        if (this.vesselType === 'CTV') {
+            // Build CTV module
+            this.ctvChild.buildPageWithCurrentInformation();
+        } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+            // Build SOV module
+            this.sovChild.buildPageWithCurrentInformation();
+        }
+    }
+
     // Date selection modal
     openModal(content) {
         this.modalReference = this.modalService.open(content);
@@ -123,7 +147,7 @@ export class LongtermComponent implements OnInit {
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
 
-  // Utility 
+  // Utility
   getMatlabDateYesterday() {
     return this.dateTimeService.getMatlabDateYesterday();
   }
@@ -144,7 +168,9 @@ export class LongtermComponent implements OnInit {
   }
   getMMSIFromParameter() {
     let mmsi;
-    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
+    this.route.params.subscribe(params => {
+      mmsi = parseFloat(params.boatmmsi);
+    });
 
     return mmsi;
   }

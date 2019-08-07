@@ -14,7 +14,7 @@ import { CalculationService } from '../../../supportModules/calculation.service'
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component'
 
 @Component({
-selector: 'app-longtermSOV',
+selector: 'app-longterm-sov',
 templateUrl: './longtermSOV.component.html',
 styleUrls: ['./longtermSOV.component.scss']
 })
@@ -38,4 +38,10 @@ export class LongtermSOVComponent {
     @Input() toDate: NgbDate;
     //   @Input() modalReference: NgbModalRef;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+
+    //
+    buildPageWithCurrentInformation() {
+        // Triggered after each change in vessel / date
+    }
 }

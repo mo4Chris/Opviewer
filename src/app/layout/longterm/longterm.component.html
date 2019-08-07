@@ -48,12 +48,12 @@
 </div>
 <hr>
 <div *ngIf="noPermissionForData == false; else noPermission">
-    <app-longtermCTV *ngIf="vesselObject.vesselType == 'CTV'" (showContent)="isLoaded($event)" [vesselObject]="vesselObject" 
+    <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="isLoaded($event)" [vesselObject]="vesselObject" 
     [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate">
-    </app-longtermCTV>
-    <app-longtermSOV *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (showContent)="isLoaded($event)"
+    </app-longterm-ctv>
+    <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="isLoaded($event)"
         [vesselObject]="vesselObject">
-    </app-longtermSOV>
+    </app-longterm-sov>
     <!-- <div class="row" *ngIf="scatterDataArrayVessel[0]?.length == 0;">
         <div class="col-lg-8">
             <h3>There is not data available for the selected day and vessel.</h3>

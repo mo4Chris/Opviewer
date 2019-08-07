@@ -18,10 +18,16 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
   // styleUrls: ['./scatterplot.component.scss']
 // })
 export class ScatterplotComponent {
-  scatterData;
-  scatterDataArray = [];
-  scatterDataArrayVessel = [];
-  comparisonArray
+  constructor(
+    vesselObject: {mmsi: Number, dateMin: Number, dateMax: Number},
+    comparisonArray,
+    private calculationService: CalculationService,
+    private dateTimeService: DatetimeService
+    ) {
+      console.log('Scatterplot constructor triggered!')
+      this.vesselObject = vesselObject;
+      this.comparisonArray = comparisonArray;
+    }
 
   backgroundcolors = [
     'rgba(255,0,0,1)',
@@ -58,20 +64,11 @@ export class ScatterplotComponent {
     'dash',
   ];
 
-
-  constructor(
-    private vesselObject,
-    private newService: CommonService,
-    private route: ActivatedRoute,
-    private modalService: NgbModal,
-    public router: Router,
-    private userService: UserService,
-    private calculationService: CalculationService,
-    private dateTimeService: DatetimeService
-    ) {}
+  scatterData;
+  scatterDataArray = [];
+  scatterDataArrayVessel = [];
 
   labelValues = [];
-  myChart = [];
   showContent = false;
   datasetValues = [];
   varAnn = { annotations: [] };
@@ -79,10 +76,11 @@ export class ScatterplotComponent {
   graphXLabels = { scales: {} };
   // tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
-
+  vesselObject: {mmsi: Number, dateMin: Number, dateMax: Number};
+  comparisonArray: {x: String, y: String, graph: String, xLabel: String, yLabel: String}[];
 
   graphData = [];
-
+  myChart: Chart[] = [];
 
 
 
@@ -143,13 +141,12 @@ export class ScatterplotComponent {
 
   createTimeLabels(scatterData) {
     const obj = [];
-    for (let _i = 0, arr_i = 0; _i < scatterData.length; _i++) {
+    for (let _i = 0; _i < scatterData.length; _i++) {
       if (scatterData[_i].x !== null && typeof scatterData[_i].x !== 'object') {
-        obj[arr_i] = {
+        obj.push({
           'x': this.MatlabDateToUnixEpochViaDate(scatterData[_i].x),
           'y': scatterData[_i].y
-        };
-        arr_i++;
+        });
       }
     }
     return obj;
@@ -285,20 +282,6 @@ export class ScatterplotComponent {
     return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
 
-  getMMSIFromParameter() {
-    let mmsi;
-    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
-
-    return mmsi;
-  }
-
-  getVesselNameFromParameter() {
-    let vesselName;
-    this.route.params.subscribe(params => vesselName = params.vesselName);
-    return vesselName;
-  }
-
-
   MatlabDateToUnixEpochViaDate(serial) {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
@@ -336,7 +319,7 @@ export class ScatterplotComponent {
         this.createScatterChart();
      }
    }
-  setTimeout(() => this.showContent = true, 0);
+  setTimeout(() => this.showContent = true, 10);
 }
 }
 

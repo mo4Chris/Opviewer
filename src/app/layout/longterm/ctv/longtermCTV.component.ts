@@ -11,10 +11,10 @@
     import * as ChartAnnotation from 'chartjs-plugin-annotation';
     import { DatetimeService } from '../../../supportModules/datetime.service';
     import { CalculationService } from '../../../supportModules/calculation.service';
-    import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component'
+    import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 
     @Component({
-    selector: 'app-longtermCTV',
+    selector: 'app-longterm-ctv',
     templateUrl: './longtermCTV.component.html',
     styleUrls: ['./longtermCTV.component.scss']
     })
@@ -22,17 +22,14 @@
 
 
     export class LongtermCTVComponent implements OnInit {
-    
+
     constructor(
         private newService: CommonService,
         private route: ActivatedRoute,
         private modalService: NgbModal,
-        calendar: NgbCalendar,
-        public router: Router,
         private userService: UserService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
-        private scatterPlot: ScatterplotComponent,
         ) {
     }
     @Input() vesselObject;
@@ -47,28 +44,37 @@
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores' },
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]' }
     ];
+
+    myChart = [];
     transferData;
+    scatterPlot = new ScatterplotComponent(
+        this.vesselObject,
+        this.comparisonArray,
+        this.calculationService,
+        this.dateTimeService
+        );
 
 
-
-    
     // On (re)load
     ngOnInit() {
+        console.log('Running ctv child init')
         Chart.pluginService.register(ChartAnnotation);
     }
 
     buildPageWithCurrentInformation() {
-        this.newService.getTransfersForVesselByRange({ 
-            mmsi: this.vesselObject.mmsi, 
-            x: this.comparisonArray[0].x, 
-            y: this.comparisonArray[0].y, 
-            dateMin: this.vesselObject.dateMin, 
+        console.log('Building CTV longterm module with current information')
+        this.scatterPlot.vesselObject = this.vesselObject;
+        this.newService.getTransfersForVesselByRange({
+            mmsi: this.vesselObject.mmsi,
+            x: this.comparisonArray[0].x,
+            y: this.comparisonArray[0].y,
+            dateMin: this.vesselObject.dateMin,
             dateMax: this.vesselObject.dateMax }).subscribe(_ => {
             this.getGraphDataPerComparison();
             setTimeout(() => this.showContent.emit(true), 1050);
         });
     }
-    
+
     // Data acquisition
 
     searchTransfersByNewSpecificDate() {
@@ -121,17 +127,36 @@
         }
     }
     getGraphDataPerComparison() {
+        const loaded = [];
+        const proceedWhenAllLoaded = () => {
+            if (loaded.reduce((x, y) => x && y, true)) {
+                console.log('All graph data parsed and loaded!')
+                this.scatterPlot.setScatterPointsVessel();
+            }
+        };
         for (let _i = 0; _i < this.comparisonArray.length; _i++) {
+        loaded.push(false);
         this.newService.getTransfersForVesselByRange({ 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonArray[_i].x, y: this.comparisonArray[_i].y }).pipe(
             map(
             (scatterData) => {
-                this.scatterPlot.graphData[_i] = scatterData;
+                this.scatterPlot.graphData[_i] = scatterData.map(data => {
+                    switch (data.y) {
+                        case 'score':
+                            data.map( x => this.calculateScoreData(x));
+                        break;
+                        case 'impactForceNmax':
+                            data.map( x => this.calculateImpactData(x));
+                        break;
+                    }
+                });
             }), catchError(error => {
                 console.log('error: ' + error);
                 throw error;
-            })).subscribe();
+            })).subscribe(null, null, () => {
+                loaded[_i] = true;
+                proceedWhenAllLoaded();
+            });
         }
-        setTimeout(() => this.scatterPlot.setScatterPointsVessel(), 1000);
     }
 
 
@@ -163,7 +188,7 @@
         return obj;
     }
 
-    // Utility 
+    // Utility
     getMatlabDateYesterday() {
         return this.dateTimeService.getMatlabDateYesterday();
     }
@@ -195,4 +220,4 @@
     MatlabDateToUnixEpochViaDate(serial) {
         return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
     }
-    };
+    }
