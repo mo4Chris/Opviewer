@@ -10,13 +10,13 @@ import { PageHeaderModule } from './../../shared';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
-import {CommonService} from '../../common.service';
+import { CommonService } from '../../common.service';
 import { VesselreportModule } from '../vesselreport/vesselreport.module';
-import { ScatterplotModule } from '../scatterplot/scatterplot.module';
+import { LongtermModule } from '../longterm/longterm.module';
 import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
-    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, VesselreportModule, ScatterplotModule],
+    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, VesselreportModule, LongtermModule],
     declarations: [TablesComponent, TablesComponent],
     providers: [CommonService, UserService],
     bootstrap: [TablesComponent]

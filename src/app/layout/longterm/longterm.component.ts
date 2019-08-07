@@ -1,0 +1,159 @@
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { CommonService } from '../../common.service';
+import { routerTransition } from '../../router.animations';
+
+
+import * as moment from 'moment';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, catchError } from 'rxjs/operators';
+import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from '../../shared/services/user.service';
+import * as Chart from 'chart.js';
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
+import { DatetimeService } from '../../supportModules/datetime.service';
+import { CalculationService } from '../../supportModules/calculation.service';
+import { LongtermCTVComponent } from './ctv/longtermCTV.component'
+import { LongtermSOVComponent } from './sov/longtermSOV.component'
+
+@Component({
+  selector: 'app-longterm',
+  templateUrl: './longterm.component.html',
+  styleUrls: ['./longterm.component.scss'],
+  animations: [routerTransition()],
+})
+
+export class LongtermComponent implements OnInit {
+    constructor(
+        private newService: CommonService,
+        private route: ActivatedRoute,
+        private modalService: NgbModal,
+        calendar: NgbCalendar,
+        public router: Router,
+        private userService: UserService,
+        private calculationService: CalculationService,
+        private dateTimeService: DatetimeService
+        ) {
+        this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
+        this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
+    }
+  
+    maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
+    vesselObject = { 'dateMin': this.getMatlabDateLastMonth(), 'mmsi': [this.getMMSIFromParameter()], 'dateNormalMin': this.getJSDateLastMonthYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD() };
+  
+    multiSelectSettings = {
+      idField: 'mmsi',
+      textField: 'nicename',
+      allowSearchFilter: true,
+      selectAllText: 'Select All',
+      unSelectAllText: 'UnSelect All',
+      singleSelection: false
+    };
+
+    vesselType: String;
+    hoveredDate: NgbDate;
+    fromDate: NgbDate;
+    toDate: NgbDate;
+    modalReference: NgbModalRef;
+    datePickerValue = this.maxDate;
+    Vessels;
+    showContent;
+    
+    myDatepicker;
+    noPermissionForData = false;
+    dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
+    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  
+    @ViewChild(LongtermCTVComponent)
+    private ctvChild: LongtermCTVComponent;
+
+    @ViewChild(LongtermSOVComponent)
+    private sovChild: LongtermSOVComponent;
+
+    // onInit
+    ngOnInit() {
+        console.log('Mark 1')
+        Chart.pluginService.register(ChartAnnotation);
+        this.noPermissionForData = false;
+        if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.getVessel().subscribe(data => this.Vessels = data);
+        } else {
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.Vessels = data);
+        }
+        if (this.vesselObject.mmsi.length > 0) {
+          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+            if (validatedValue.length === 1) {
+              // this.getGraphDataPerComparison();
+              this.vesselType = 'CTV';
+              if (this.vesselType === 'CTV') {
+                // Build CTV module
+              } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+                // Build SOV module
+              }
+            } else {
+              this.showContent = true;
+              this.noPermissionForData = true;
+            }
+            setTimeout(() => this.showContent = true, 1000);
+          });
+        }
+    }
+    
+    // Date selection modal
+    openModal(content) {
+        this.modalReference = this.modalService.open(content);
+    }
+
+    closeModal() {
+        this.modalReference.close();
+    }
+
+    onDateSelection(date: NgbDate) {
+        if (!this.fromDate && !this.toDate) {
+        this.fromDate = date;
+        } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
+        this.toDate = date;
+        } else {
+        this.toDate = null;
+        this.fromDate = date;
+        }
+    }
+
+  isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
+  isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
+  isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
+
+
+  // Utility 
+  getMatlabDateYesterday() {
+    return this.dateTimeService.getMatlabDateYesterday();
+  }
+  getMatlabDateLastMonth() {
+    return this.dateTimeService.getMatlabDateLastMonth();
+  }
+    getJSDateYesterdayYMD() {
+    return this.dateTimeService.getJSDateYesterdayYMD();
+  }
+  getJSDateLastMonthYMD() {
+    return this.dateTimeService.getJSDateLastMonthYMD();
+  }
+  MatlabDateToJSDateYMD(serial) {
+    return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+  }
+  unixEpochtoMatlabDate(epochDate) {
+    return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+  }
+  getMMSIFromParameter() {
+    let mmsi;
+    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
+
+    return mmsi;
+  }
+  getVesselNameFromParameter() {
+    let vesselName;
+    this.route.params.subscribe(params => vesselName = params.vesselName);
+    return vesselName;
+  }
+  MatlabDateToUnixEpochViaDate(serial) {
+    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+  }
+}

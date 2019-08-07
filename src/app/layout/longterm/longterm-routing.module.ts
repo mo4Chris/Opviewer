@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ScatterplotComponent } from './scatterplot.component';
+import { LongtermComponent } from './longterm.component';
 
 const routes: Routes = [
     {
-        path: '', component: ScatterplotComponent
+        path: '', component: LongtermComponent
     }
 ];
 
@@ -12,5 +12,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class ScatterplotRoutingModule {
-}
+export class LongtermRoutingModule {}

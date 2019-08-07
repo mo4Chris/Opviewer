@@ -13,7 +13,12 @@ import { StringMutationService } from '../../shared/services/stringMutation.serv
     animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
-    constructor(private stringMutationService: StringMutationService, private newService: CommonService, private _router: Router, private userService: UserService ) { }
+    constructor(
+        private stringMutationService: StringMutationService, 
+        private newService: CommonService, 
+        private _router: Router, 
+        private userService: UserService 
+        ) { }
     Repdata;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     ScatterplotPermission = (this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist');
@@ -33,8 +38,8 @@ export class TablesComponent implements OnInit {
         this._router.navigate(['vesselreport', {boatmmsi: mmsi}]);
     }
 
-    redirectScatterplot(mmsi, vesselName) {
-        this._router.navigate(['scatterplot', {boatmmsi: mmsi, vesselName: vesselName}]);
+    redirectLongterm(mmsi, vesselName) {
+        this._router.navigate(['longterm', {boatmmsi: mmsi, vesselName: vesselName}]);
     }
 
     applyFilter(filterValue: string) {
