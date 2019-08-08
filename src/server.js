@@ -526,7 +526,7 @@ app.post("/api/registerUser", function (req, res) {
             return res.status(401).send('Access denied');
         }
     }
-    Usermodel.findOne({ username: userData.email },
+    Usermodel.findOne({ username: userData.email, active: {$ne: false} },
         function (err, existingUser) {
             if (err) {
                 res.send(err);
@@ -565,7 +565,7 @@ app.post("/api/registerUser", function (req, res) {
 
 app.post("/api/login", function (req, res) {
     let userData = req.body;
-    Usermodel.findOne({ username: userData.username.toLowerCase() },
+    Usermodel.findOne({ username: userData.username.toLowerCase(), active: {$ne: false} },
         function (err, user) {
             if (err) {
                 res.send(err);
@@ -672,7 +672,7 @@ app.post("/api/saveTransfer", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                Transfermodel.findOneAndUpdate({ _id: req.body._id }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown, cargoUp: req.body.cargoUp, cargoDown: req.body.cargoDown },
+                Transfermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown, cargoUp: req.body.cargoUp, cargoDown: req.body.cargoDown },
                     function (err, data) {
                         if (err) {
                             res.send(err);
@@ -687,7 +687,7 @@ app.post("/api/saveTransfer", function (req, res) {
 
 app.post("/api/saveCTVGeneralStats", function(req, res){
 
-    generalmodel.findOneAndUpdate({mmsi: req.body.mmsi, date: req.body.date},{inputStats: req.body}, function(err, data){
+    generalmodel.findOneAndUpdate({mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false}},{inputStats: req.body}, function(err, data){
         if (err) {
             res.send(err);
         } else {
@@ -699,7 +699,7 @@ app.post("/api/saveCTVGeneralStats", function(req, res){
 app.post("/api/get2faExistence", function (req, res) {
     let userEmail = req.body.userEmail;
 
-    Usermodel.findOne({ username: userEmail },
+    Usermodel.findOne({ username: userEmail, active: {$ne: false} },
         function (err, user) {
             if (err) {
                 res.send(err);
@@ -725,7 +725,8 @@ app.post("/api/getCommentsForVessel", function (req, res) {
         CommentsChangedmodel.aggregate([
             {
                 "$match": {
-                    mmsi: { $in: [req.body.mmsi] }
+                    mmsi: { $in: [req.body.mmsi] }, 
+                    active: {$ne: false}
                 }
             },
             {
@@ -754,7 +755,7 @@ app.get("/api/getVessel", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    Vesselmodel.find({
+    Vesselmodel.find({active: {$ne: false}
 
     }, null, {
             sort: {
@@ -775,7 +776,7 @@ app.get("/api/getHarbourLocations", function (req, res) {
     //if (token.userPermission !== 'admin') {
     //     return res.status(401).send('Access denied');
     // }
-    harbourModel.find({}, function (err, data) {
+    harbourModel.find({active: {$ne: false}}, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -794,7 +795,7 @@ app.get("/api/getSov/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovModelmodel.find({ "mmsi": mmsi, "dayNum": date }, function (err, data) {
+        SovModelmodel.find({ "mmsi": mmsi, "dayNum": date, active: {$ne: false} }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -813,7 +814,7 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function (req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
+        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -832,7 +833,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovVessel2vesselTransfersmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
+        SovVessel2vesselTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -851,7 +852,7 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function (req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovCycleTimesmodel.find({ "mmsi": mmsi, "date": date }, function (err, data) {
+        SovCycleTimesmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -869,7 +870,7 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date },
+        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} },
         null, {
             sort: {
                 arrivalTimePlatform: 'asc'
@@ -894,7 +895,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function (req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date },
+        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} },
             null, {
                 sort: {
                     startTime: 'asc'
@@ -916,7 +917,7 @@ app.post("/api/getVesselsForCompany", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Access denied');
     }
-    let filter = { client: companyName };
+    let filter = { client: companyName, active: {$ne: false} };
     if (!req.body[0].notHired) {
         filter.onHire = 1;
     }
@@ -944,7 +945,7 @@ app.get("/api/getCompanies", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    Vesselmodel.find().distinct('client', function (err, data) {
+    Vesselmodel.find({ active: {$ne: false}}).distinct('client', function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -961,7 +962,7 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date }).distinct('fieldname', function (err, data) {
+        Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -982,7 +983,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date }).distinct('fieldname', function (err, data) {
+        SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -997,7 +998,8 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
 
 app.post("/api/getPlatformLocations", function (req, res) {
     PlatformLocationmodel.find({
-        filename: req.body.Name
+        filename: req.body.Name, 
+        active: {$ne: false}
     }, function (err, data) {
         if (err) {
             console.log(err);
@@ -1010,7 +1012,8 @@ app.post("/api/getPlatformLocations", function (req, res) {
 
 app.post("/api/getSpecificPark", function (req, res) {
     LatLonmodel.find({
-        filename: { $in: req.body.park }
+        filename: { $in: req.body.park }, 
+        active: {$ne: false}
     }, function (err, data) {
         if (err) {
             console.log(err);
@@ -1039,6 +1042,11 @@ app.get("/api/getLatestBoatLocation", function (req, res) {
                 "TIMESTAMP": {
                     "$last": "$TIMESTAMP"
                 }
+            }
+        },
+        {
+            $match: {
+                active: {$ne: false}
             }
         },
         {
@@ -1072,7 +1080,8 @@ app.post("/api/getRouteForBoat", function (req, res) {
         }
         boatLocationmodel.find({
             "TIMESTAMP": { $regex: req.body.dateNormal, $options: 'i' },
-            "MMSI": req.body.mmsi
+            "MMSI": req.body.mmsi, 
+            active: {$ne: false}
         }, function (err, data) {
             if (err) {
                 console.log(err);
@@ -1091,7 +1100,8 @@ app.post("/api/getCrewRouteForBoat", function (req, res) {
         }
         boatCrewLocationmodel.find({
             "date": req.body.date,
-            "mmsi": req.body.mmsi
+            "mmsi": req.body.mmsi,
+            active: {$ne: false}
         }, function (err, data) {
             if (err) {
                 console.log(err);
@@ -1110,7 +1120,8 @@ app.post("/api/getTransitsRouteForBoat", function (req, res) {
         }
         transitsmodel.find({
             "date": req.body.date,
-            "mmsi": req.body.mmsi
+            "mmsi": req.body.mmsi, 
+            active: {$ne: false}
         }, function (err, data) {
             if (err) {
                 console.log(err);
@@ -1141,7 +1152,7 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
         return res.status(401).send('Access denied');
     }
-    Vesselmodel.find({ client: companyName }, function (err, data) {
+    Vesselmodel.find({ client: companyName, active: {$ne: false} }, function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
@@ -1161,7 +1172,8 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
             boatLocationmodel.aggregate([
                 {
                     "$match": {
-                        MMSI: { $in: companyMmsi }
+                        MMSI: { $in: companyMmsi }, 
+                        active: {$ne: false}
                     }
                 },
                 {
@@ -1208,7 +1220,7 @@ app.post("/api/getDatesWithValues", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: req.body.mmsi }).distinct('date', function (err, data) {
+        Transfermodel.find({ mmsi: req.body.mmsi, active: {$ne: false} }).distinct('date', function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1229,17 +1241,17 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        sovHasPlatformTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, platformTransferDates) {
+        sovHasPlatformTransferModel.find({ "mmsi": mmsi, active: {$ne: false} }, ['date']).distinct('date', function (err, platformTransferDates) {
             if (err) {
                 console.log('Error retrieve platform dates')
                 res.send(err);
             } else {
-                sovHasTurbineTransferModel.find({ "mmsi": mmsi }, ['date']).distinct('date', function (err, turbineTransferDates) {
+                sovHasTurbineTransferModel.find({ "mmsi": mmsi, active: {$ne: false} }, ['date']).distinct('date', function (err, turbineTransferDates) {
                     if (err) {
                         console.log('Error retrieve turbine dates')
                         res.send(err);
                     } else {
-                        sovHasV2VModel.find( {'mmsi': mmsi}, ['date']).distinct('date', function ( err, v2vTransferDates) {
+                        sovHasV2VModel.find( {'mmsi': mmsi, active: {$ne: false}}, ['date']).distinct('date', function ( err, v2vTransferDates) {
                             if (err) {
                                 console.log('Error retrieve v2v dates')
                                 res.send(err);
@@ -1266,7 +1278,7 @@ app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        SovModelmodel.find({ mmsi: mmsi, distancekm: { $not: /_NaN_/ } }, ['dayNum', 'distancekm'], function (err, data) {
+        SovModelmodel.find({ mmsi: mmsi, active: {$ne: false}, distancekm: { $not: /_NaN_/ } }, ['dayNum', 'distancekm'], function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1285,7 +1297,9 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: mmsi, date: date, detector: {$ne: 'impact'}}, function (err, data) {
+        Transfermodel.find({ mmsi: mmsi, date: date, active: {$ne: false}, detector: {$ne: 'impact'}}).sort({
+                startTime: 1
+        }).exec(function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1301,7 +1315,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: req.body.mmsi, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
+        Transfermodel.find({ mmsi: req.body.mmsi, active: {$ne: false}, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1317,7 +1331,7 @@ app.get("/api/getUsers", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    Usermodel.find({
+    Usermodel.find({active: {$ne: false}
 
     }, null, {
             sort: {
@@ -1342,7 +1356,8 @@ app.post("/api/getUsersForCompany", function (req, res) {
         return res.status(401).send('Access denied');
     }
     Usermodel.find({
-        client: companyName,
+        client: companyName, 
+        active: {$ne: false},
         permissions: ["Vessel master", "Marine controller"]
     }, null, {
 
@@ -1361,7 +1376,8 @@ app.post("/api/getUserByUsername", function (req, res) {
         return res.status(401).send('Access denied');
     }
     Usermodel.find({
-        username: req.body.username
+        username: req.body.username, 
+        active: {$ne: false}
     }, null, {
 
         }, function (err, data) {
@@ -1386,7 +1402,7 @@ app.get("/api/getUserClientById/:id/:client", function (req, res) {
     if(!id[0]){
         return res.send('No id given');
     }
-    Usermodel.find({_id: id}, ['_id', 'client'], function(err, data) {
+    Usermodel.find({_id: id, active: {$ne: false}}, ['_id', 'client'], function(err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1408,7 +1424,7 @@ app.post("/api/saveUserBoats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    Usermodel.findOneAndUpdate({ _id: req.body._id }, { boats: req.body.boats },
+    Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { boats: req.body.boats },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1426,7 +1442,8 @@ app.post("/api/getVideoRequests", function (req, res) {
         videoRequestedmodel.aggregate([
             {
                 "$match": {
-                    mmsi: { $in: [req.body.mmsi] }
+                    mmsi: { $in: [req.body.mmsi] }, 
+                    active: {$ne: false}
                 }
             },
             {
@@ -1456,7 +1473,8 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
             return res.status(401).send('Access denied');
         }
         videoBudgetmodel.find({
-            mmsi: req.body.mmsi
+            mmsi: req.body.mmsi, 
+            active: {$ne: false}
         }, null, {
 
             }, function (err, data) {
@@ -1507,12 +1525,12 @@ app.post("/api/saveVideoRequest", function (req, res) {
             if (err) {
                 return res.send(err);
             } else {
-                videoBudgetmodel.findOne({ mmsi: req.body.mmsi }, function (err, data) {
+                videoBudgetmodel.findOne({ mmsi: req.body.mmsi, active: {$ne: false} }, function (err, data) {
                     if (err) {
                         return res.send(err);
                     } else {
                         if (data) {
-                            videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function (_err, _data) {
+                            videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi, active: {$ne: false} }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function (_err, _data) {
                                 if (_err) {
                                     return res.send(_err);
                                 } else {
@@ -1551,7 +1569,7 @@ app.post("/api/resetPassword", function (req, res) {
     }
     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
     randomToken = randomToken.replace(/\//gi, '8');
-    Usermodel.findOneAndUpdate({ _id: req.body._id }, { token: randomToken },
+    Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { token: randomToken },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1568,7 +1586,7 @@ app.post("/api/resetPassword", function (req, res) {
 
 app.post("/api/sendFeedback", function (req, res) {
 
-    Usermodel.findOne({ _id: req.body.person }, function (err, data) {
+    Usermodel.findOne({ _id: req.body.person, active: {$ne: false} }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1585,7 +1603,7 @@ app.post("/api/sendFeedback", function (req, res) {
 });
 
 app.post("/api/getUserByToken", function (req, res) {
-    Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user }, function (err, data) {
+    Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user, active: {$ne: false} }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1603,7 +1621,7 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOneAndUpdate({ token: req.body.passwordToken }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
+    Usermodel.findOneAndUpdate({ token: req.body.passwordToken, active: {$ne: false} }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1618,7 +1636,7 @@ app.post("/api/getGeneral", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date }, function (err, data) {
+        generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -1633,7 +1651,7 @@ app.get("/api/getTurbineWarranty", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    turbineWarrantymodel.find({}, function (err, data) {
+    turbineWarrantymodel.find({active: {$ne: false}}, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1644,7 +1662,7 @@ app.get("/api/getTurbineWarranty", function (req, res) {
 
 app.post("/api/getTurbineWarrantyOne", function (req, res) {
     let token = verifyToken(req, res);
-    turbineWarrantymodel.findOne({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+    turbineWarrantymodel.findOne({ campaignName: req.body.campaignName, active: {$ne: false}, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1654,7 +1672,7 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
             if (token.userPermission !== 'admin' && token.userCompany !== data.client) {
                 return res.status(401).send('Access denied');
             }
-            sailDayChangedmodel.find({ fleetID: data._id }, function (err, _data) {
+            sailDayChangedmodel.find({ fleetID: data._id, active: {$ne: false} }, function (err, _data) {
                 if (err) {
                     console.log(err);
                     return res.send(err);
@@ -1671,7 +1689,7 @@ app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Access denied');
     }
-    turbineWarrantymodel.find({ client: req.body.client }, function (err, data) {
+    turbineWarrantymodel.find({ client: req.body.client, active: {$ne: false} }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1705,7 +1723,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Access denied');
     }
-    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, windfield: req.body.windfield, status: "TODO" };
+    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, active: {$ne: false}, windfield: req.body.windfield, status: "TODO" };
     if (isNaN(req.body.vessel)) {
         filter.vesselname = req.body.vessel;
     } else if (req.body.vessel) {
@@ -1751,7 +1769,7 @@ app.get("/api/getParkLocations", function (req, res) {
     //if (token.userPermission !== "admin") {
     //     return res.status(401).send('Access denied');
     // }
-    LatLonmodel.find({}, function (err, data) {
+    LatLonmodel.find({active: {$ne: false}}, function (err, data) {
         if (err) {
             console.log(err);
             res.send(err);
@@ -1770,7 +1788,8 @@ app.get("/api/getParkLocationForCompany/:company", function (req, res) {
         return res.status(401).send('Access denied');
     }
     ParkLocationmodel.find({
-        client: companyName
+        client: companyName, 
+        active: {$ne: false}
     }, function (err, data) {
         if (err) {
             console.log(err);
@@ -1792,7 +1811,8 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (r
     activeListingsModel.aggregate([
         {
             $match: {
-                fleetID: fleetID
+                fleetID: fleetID, 
+                active: {$ne: false}
             }
         }, {
             $group: {
@@ -1870,7 +1890,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    activeListingsModel.find({ fleetID: fleetID }, function (err, data) {
+    activeListingsModel.find({ fleetID: fleetID, active: {$ne: false} }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1954,7 +1974,7 @@ app.post("/api/getHasSailedDatesCTV", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        hasSailedModelCTV.find({ mmsi: req.body.mmsi}, ['date', 'distancekm'], function (err, data) {
+        hasSailedModelCTV.find({ mmsi: req.body.mmsi, active: {$ne: false}}, ['date', 'distancekm'], function (err, data) {
             if (err) {
                 res.send(err);
             } else {
@@ -1970,7 +1990,7 @@ app.post("/api/getVesselsToAddToFleet", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    vesselsToAddToFleetmodel.find({ campaignName: req.body.campaignName, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+    vesselsToAddToFleetmodel.find({ campaignName: req.body.campaignName, active: {$ne: false}, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
