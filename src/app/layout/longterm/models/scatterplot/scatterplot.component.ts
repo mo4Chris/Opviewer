@@ -1,30 +1,16 @@
-import { Component, OnInit, Output } from '@angular/core';
-import { CommonService } from '../../../../common.service';
-
-
-import * as moment from 'moment';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
-import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { UserService } from '../../../../shared/services/user.service';
 import * as Chart from 'chart.js';
-import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 
-// @Component({
-//   selector: 'app-scatterplot',
-  // templateUrl: './scatterplot.component.html',
-  // styleUrls: ['./scatterplot.component.scss']
-// })
+
 export class ScatterplotComponent {
   constructor(
-    vesselObject: {mmsi: Number, dateMin: Number, dateMax: Number},
+    vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string},
     comparisonArray,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
     ) {
-      console.log('Scatterplot constructor triggered!')
+      console.log('Scatterplot constructor triggered!');
       this.vesselObject = vesselObject;
       this.comparisonArray = comparisonArray;
     }
@@ -69,92 +55,50 @@ export class ScatterplotComponent {
   scatterDataArrayVessel = [];
 
   labelValues = [];
-  showContent = false;
   datasetValues = [];
   varAnn = { annotations: [] };
   defaultVesselName = '';
   graphXLabels = { scales: {} };
-  // tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   public scatterChartLegend = false;
-  vesselObject: {mmsi: Number, dateMin: Number, dateMax: Number};
+  vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string};
   comparisonArray: {x: String, y: String, graph: String, xLabel: String, yLabel: String}[];
 
-  graphData = [];
   myChart: Chart[] = [];
 
-
-
-  // getGraphDataPerComparison() {
-    // for (let _i = 0; _i < this.comparisonArray.length; _i++) {
-    //   this.newService.getTransfersForVesselByRange({
-    //     'mmsi': this.vesselObject.mmsi, 
-    //     'dateMin': this.vesselObject.dateMin, 
-    //     'dateMax': this.vesselObject.dateMax, 
-    //     x: this.comparisonArray[_i].x, 
-    //     y: this.comparisonArray[_i].y 
-    //   }).pipe(
-  //       map(
-  //         (scatterData) => {
-  //           this.graphData[_i] = scatterData;
-  //         }), catchError(error => {
-  //           console.log('error: ' + error);
-  //           throw error;
-  //         })).subscribe();
-  //   }
-  //   setTimeout(() => this.setScatterPointsVessel(), 1000);
-  // }
-
-
-  setScatterPointsVessel() {
-    const scatterDataArray = [];
-    this.labelValues = [];
-    for (let _i = 0; _i < this.graphData.length; _i++) {
-      for (let _j = 0; _j < this.graphData[_i].length; _j++) {
-        if (this.graphData[_i][_j].label !== undefined && this.graphData[_i][_j].label[0]) {
-          this.labelValues[_j] = this.graphData[_i][_j].label[0].replace('_', ' ');
-        } else {
-          setTimeout(() => {this.labelValues[_j] = this.graphData[_i][_j].label[0].replace('_', ' ');}, 1000);
-        }
-        // ToDo: this parsing needs to happen upstream
-        // switch (this.comparisonArray[_i].y) {
-        //   case 'score':
-        //     this.graphData[_i][_j] = this.calculateScoreData(this.graphData[_i][_j]);
-        //     break;
-        //   case 'impactForceNmax':
-        //     this.graphData[_i][_j] = this.calculateImpactData(this.graphData[_i][_j]);
-        //     break;
-        // }
-
-        // switch (this.comparisonArray[_i].x) {
-        //   case 'startTime':
-        //     this.graphData[_i][_j] = this.createTimeLabels(this.graphData[_i][_j]);
-        //     break;
-        // }
-        scatterDataArray[_i] = this.graphData[_i];
-      }
-    }
-    this.scatterDataArrayVessel = scatterDataArray;
-    this.createValues();
-
-    setTimeout(() => this.showContent = true, 0);
-  }
-
-  createTimeLabels(scatterData) {
-    const obj = [];
-    for (let _i = 0; _i < scatterData.length; _i++) {
-      if (scatterData[_i].x !== null && typeof scatterData[_i].x !== 'object') {
-        obj.push({
-          'x': this.MatlabDateToUnixEpochViaDate(scatterData[_i].x),
-          'y': scatterData[_i].y
+  createValues() {
+    this.datasetValues = [];
+    for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
+      this.datasetValues[j] = [];
+      for (let i = 0; i < this.scatterDataArrayVessel[j].length; i++) {
+        this.datasetValues[j].push({
+          data: this.scatterDataArrayVessel[j][i],
+          label: this.labelValues[i],
+          pointStyle: this.pointStyles[i],
+          backgroundColor: this.backgroundcolors[i],
+          radius: 6,
+          borderColor: this.bordercolors[i],
+          pointHoverRadius: 10,
+          borderWidth: 1,
+          hitRadius: 10,
         });
       }
     }
-    return obj;
+    if (this.myChart[0] == null) {
+      this.createScatterChart();
+    } else {
+      this.myChart.forEach((chart) => chart.destroy());
+      if (this.scatterDataArrayVessel[0].length > 0) {
+        this.createScatterChart();
+      }
+    }
   }
 
-
-  onDropdownClose() {
-    console.log('closed');
+  createTimeLabels(timeElt: number) {
+    if (timeElt !== null && typeof timeElt !== 'object') {
+      return this.MatlabDateToUnixEpochViaDate(timeElt);
+    } else {
+      return NaN;
+    }
   }
 
   createScatterChart() {
@@ -253,76 +197,37 @@ export class ScatterplotComponent {
             }
           ],
         });
+        console.log(this.myChart[_j])
       }
     }
   }
 
+  // Date support functions
   getMatlabDateYesterday() {
     return this.dateTimeService.getMatlabDateYesterday();
   }
-
   getMatlabDateLastMonth() {
     return this.dateTimeService.getMatlabDateLastMonth();
   }
-
-
   getJSDateYesterdayYMD() {
     return this.dateTimeService.getJSDateYesterdayYMD();
   }
-
   getJSDateLastMonthYMD() {
     return this.dateTimeService.getJSDateLastMonthYMD();
   }
-
   MatlabDateToJSDateYMD(serial) {
     return this.dateTimeService.MatlabDateToJSDateYMD(serial);
   }
-
   unixEpochtoMatlabDate(epochDate) {
     return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
-
   MatlabDateToUnixEpochViaDate(serial) {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
+} // End of class
 
 
-  createValues() {
-    this.datasetValues = [];
-    for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
-      this.datasetValues[j] = [];
-      for (let i = 0; i < this.scatterDataArrayVessel[j].length; i++) {
-        this.datasetValues[j].push({
-          data: this.scatterDataArrayVessel[j][i],
-          label: this.labelValues[i],
-          pointStyle: this.pointStyles[i],
-          backgroundColor: this.backgroundcolors[i],
-          radius: 6,
-          borderColor: this.bordercolors[i],
-          pointHoverRadius: 10,
-          borderWidth: 1,
-          hitRadius: 10,
-        });
-      }
-    }
-    if (this.myChart[0] == null) {
-      this.createScatterChart();
-    } else {
-      if (this.scatterDataArrayVessel[0].length <= 0) {
-        for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
-          this.myChart[j].destroy();
-        }
-      } else {
-        for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
-          this.myChart[j].destroy();
-        }
-        this.createScatterChart();
-     }
-   }
-  setTimeout(() => this.showContent = true, 10);
-}
-}
-
+// Getting the legend in the right position
 Chart.NewLegend = Chart.Legend.extend({
   afterFit: function () {
     this.height = this.height + 10;
@@ -335,12 +240,10 @@ function createNewLegendAndAttach(chartInstance, legendOpts) {
     options: legendOpts,
     chart: chartInstance
   });
-
   if (chartInstance.legend) {
     Chart.layoutService.removeBox(chartInstance, chartInstance.legend);
     delete chartInstance.newLegend;
   }
-
   chartInstance.newLegend = legend;
   Chart.layoutService.addBox(chartInstance, legend);
 }
