@@ -10,7 +10,6 @@ export class ScatterplotComponent {
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
     ) {
-      console.log('Scatterplot constructor triggered!');
       this.vesselObject = vesselObject;
       this.comparisonArray = comparisonArray;
     }
@@ -197,7 +196,6 @@ export class ScatterplotComponent {
             }
           ],
         });
-        console.log(this.myChart[_j])
       }
     }
   }

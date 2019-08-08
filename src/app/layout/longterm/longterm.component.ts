@@ -71,7 +71,6 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
-      console.log('Running longterm base ngOnInit');
       Chart.pluginService.register(ChartAnnotation);
       this.noPermissionForData = false;
       if (this.tokenInfo.userPermission === 'admin') {
@@ -101,7 +100,6 @@ export class LongtermComponent implements OnInit {
 
   testIfAllInit () {
     if (this.loaded.Vessels && this.loaded.vesselType) {
-      console.log('Initial data loaded!');
       this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
       this.buildPageWithCurrentInformation();
     }
@@ -149,7 +147,6 @@ export class LongtermComponent implements OnInit {
   }
 
   buildPageWithCurrentInformation() {
-    console.log('Building longterm parent function');
     if (this.vesselType === 'CTV') {
       // Build CTV module
       this.ctvChild.buildPageWithCurrentInformation();
@@ -160,10 +157,8 @@ export class LongtermComponent implements OnInit {
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
-    console.log('Child has been loaded!')
     if (this.vesselType === 'CTV') {
       // Build CTV module
-      console.log(this.ctvChild)
     } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
       // Build SOV module
     }
