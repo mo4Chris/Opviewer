@@ -221,7 +221,6 @@ export class CtvreportComponent implements OnInit {
         if (this.transferData.length > 0 && createCharts) {
             const array = [];
             for (let i = 0; i < this.transferData.length; i++) {
-                console.log(this.XYvars[i]);
                 const line = {
                     type: 'line',
                     data: {

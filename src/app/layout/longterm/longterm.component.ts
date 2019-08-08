@@ -45,7 +45,7 @@ export class LongtermComponent implements OnInit {
     allowSearchFilter: true,
     selectAllText: 'Select All',
     unSelectAllText: 'UnSelect All',
-    singleSelection: false
+    singleSelection: false,
   };
 
   vesselType: string;
@@ -71,31 +71,31 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
-      Chart.pluginService.register(ChartAnnotation);
-      this.noPermissionForData = false;
-      if (this.tokenInfo.userPermission === 'admin') {
-        this.newService.getVessel().subscribe(data => {
+    Chart.pluginService.register(ChartAnnotation);
+    this.noPermissionForData = false;
+    if (this.tokenInfo.userPermission === 'admin') {
+      this.newService.getVessel().subscribe(data => {
+        this.Vessels = data;
+        this.loaded.Vessels = true;
+      }, null, () => this.testIfAllInit());
+    } else {
+      this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
           this.Vessels = data;
           this.loaded.Vessels = true;
         }, null, () => this.testIfAllInit());
-      } else {
-        this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
-            this.Vessels = data;
-            this.loaded.Vessels = true;
-          }, null, () => this.testIfAllInit());
-      }
-      if (this.vesselObject.mmsi.length > 0) {
-          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(
-              validatedValue => {
-                if (validatedValue.length === 1) {
-                    this.vesselType = validatedValue[0].operationsClass;
-                } else {
-                    this.showContent = true;
-                    this.noPermissionForData = true;
-                }
-                this.loaded.vesselType = true;
-          }, null, () => this.testIfAllInit());
-      }
+    }
+    if (this.vesselObject.mmsi.length > 0) {
+        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(
+            validatedValue => {
+              if (validatedValue.length === 1) {
+                  this.vesselType = validatedValue[0].operationsClass;
+              } else {
+                  this.showContent = true;
+                  this.noPermissionForData = true;
+              }
+              this.loaded.vesselType = true;
+        }, null, () => this.testIfAllInit());
+    }
   }
 
   testIfAllInit () {
@@ -125,25 +125,13 @@ export class LongtermComponent implements OnInit {
     this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
     this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
     const mmsiArray = [];
-    if (this.dropdownValues !== undefined && this.dropdownValues[0].mmsi !== []) {
+    if (this.dropdownValues && this.dropdownValues.length > 0 && this.dropdownValues[0].mmsi !== []) {
       for (let _j = 0; _j < this.dropdownValues.length; _j++) {
         mmsiArray.push(this.dropdownValues[_j].mmsi);
       }
-      this.vesselObject.mmsi = mmsiArray;
     }
-    switch (this.vesselType) {
-      case 'CTV': // Build CTV module
-        this.ctvChild.vesselObject = this.vesselObject;
-        this.ctvChild.buildPageWithCurrentInformation();
-        break;
-      case 'SOV': // Using fall-through
-      case 'OSV': // Build SOV module
-        this.ctvChild.vesselObject = this.vesselObject;
-        this.sovChild.buildPageWithCurrentInformation();
-        break;
-      default:
-        console.error('Invalid vessel type');
-    }
+    this.vesselObject.mmsi = mmsiArray;
+    this.buildPageWithCurrentInformation();
   }
 
   buildPageWithCurrentInformation() {
@@ -162,6 +150,12 @@ export class LongtermComponent implements OnInit {
     } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
       // Build SOV module
     }
+  }
+
+  // Vessel selection modal
+  openVesselModal(content) {
+    console.log('Dropdown was opened')
+    console.log(content)
   }
 
   // Date selection modal

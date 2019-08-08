@@ -103,7 +103,8 @@ export class ScatterplotComponent {
   createScatterChart() {
     const dateService = this.dateTimeService;
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
-      if (this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
+      const axisTypes = this.getAxisType(this.datasetValues[_j]);
+      if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         this.myChart[_j] = new Chart('canvas' + _j, {
           type: this.comparisonArray[_j].graph,
           data: {
@@ -116,10 +117,18 @@ export class ScatterplotComponent {
                   return data.datasets[tooltipItem.datasetIndex].label;
                 },
                 label: function (tooltipItem, data) {
-                  return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                  if (axisTypes.x === 'date') {
+                    return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                  } else {
+                    return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
+                  }
                 },
                 afterLabel: function(tooltipItem, data) {
-                  return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
+                  if (axisTypes.y === 'date') {
+                    return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
+                  } else {
+                    return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
+                  }
                 }
               }
             },
@@ -142,24 +151,8 @@ export class ScatterplotComponent {
             },
             responsiveAnimationDuration: 0,
             scales: {
-              xAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: this.comparisonArray[_j].xLabel
-                },
-                type: 'time',
-                time: {
-                  min: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin).getTime()),
-                  max: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax + 1).getTime()),
-                  unit: 'day'
-                }
-              }],
-              yAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: this.comparisonArray[_j].yLabel
-                }
-              }]
+              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel),
+              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel),
             },
             annotation: this.varAnn,
           },
@@ -197,6 +190,55 @@ export class ScatterplotComponent {
           ],
         });
       }
+    }
+  }
+
+  getAxisType(dataArrays) {
+    const type = {x: 'hidden', y: 'hidden'};
+    dataArrays.some((dataArray) => {
+      return dataArray.data.some((dataElt) => {
+        if (!(isNaN(dataElt.x) || isNaN(dataElt.y))) {
+          if (typeof dataElt.x === 'number') {
+            type.x = 'numeric';
+          } else {
+            type.x = 'date';
+          }
+          if (typeof dataElt.y === 'number') {
+            type.y = 'numeric';
+          } else {
+            type.x = 'date';
+          }
+          return true;
+        } else {
+          return false;
+        }
+      });
+    });
+    return type;
+  }
+
+  buildAxisFromType(Type: String, Label: String) {
+    switch (Type) {
+      case 'date':
+        return [{
+          scaleLabel: {
+            display: true,
+            labelString: Label
+          },
+          type: 'time',
+          time: {
+            min: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin).getTime()),
+            max: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax + 1).getTime()),
+            unit: 'day'
+          }
+        }];
+      case 'numeric':
+        return [{
+          scaleLabel: {
+            display: true,
+            labelString: Label
+          }
+        }];
     }
   }
 

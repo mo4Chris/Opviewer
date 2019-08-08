@@ -32,7 +32,8 @@ export class LongtermCTVComponent implements OnInit {
 
     comparisonArray = [
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores' },
-        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]' }
+        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]' },
+        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs (m)', yLabel: 'Transfer scores' },
     ];
 
     myChart = [];
@@ -52,14 +53,18 @@ export class LongtermCTVComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.scatterPlot.vesselObject = this.vesselObject;
-        this.getTransfersForVesselByRange({
-            mmsi: this.vesselObject.mmsi,
-            x: this.comparisonArray[0].x,
-            y: this.comparisonArray[0].y,
-            dateMin: this.vesselObject.dateMin,
-            dateMax: this.vesselObject.dateMax }).subscribe(_ => {
-            this.getGraphDataPerComparison();
-        });
+        if (this.vesselObject.mmsi.length > 0) {
+            this.getTransfersForVesselByRange({
+                mmsi: this.vesselObject.mmsi,
+                x: this.comparisonArray[0].x,
+                y: this.comparisonArray[0].y,
+                dateMin: this.vesselObject.dateMin,
+                dateMax: this.vesselObject.dateMax }).subscribe(_ => {
+                this.getGraphDataPerComparison();
+            });
+        } else {
+            this.scatterPlot.createValues();
+        }
         this.myChart = this.scatterPlot.myChart;
     }
 
@@ -70,10 +75,10 @@ export class LongtermCTVComponent implements OnInit {
             .getTransfersForVesselByRange(vessel).pipe(
             map(
                 (transfers) => {
-                this.transferData = transfers;
-                for (let _j = 0; _j < this.transferData.length; _j++) {
-                    this.scatterPlot.labelValues[_j] = this.transferData[_j].label[0].replace('_', ' ');
-                }
+                    this.transferData = transfers;
+                    for (let _j = 0; _j < this.transferData.length; _j++) {
+                        this.scatterPlot.labelValues[_j] = this.transferData[_j].label[0].replace('_', ' ');
+                    }
                 }),
             catchError(error => {
                 console.log('error ' + error);
@@ -96,28 +101,13 @@ export class LongtermCTVComponent implements OnInit {
             map(
             (rawScatterData) => {
                 this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
-                    const scatterData: {x: number|Date, y: number}[] = [];
+                    const scatterData: {x: number|Date, y: number|Date}[] = [];
                     let x: number|Date;
-                    let y: number;
+                    let y: number|Date;
                     data.xVal.forEach((_x, __i) => {
                         const _y = data.yVal[__i];
-                        switch (this.comparisonArray[_i].y) {
-                            case 'score':
-                                y = this.calculateScoreData(_y);
-                            break;
-                            case 'impactForceNmax':
-                                y = this.calculateImpactData(_y);
-                            break;
-                            default:
-                                y = NaN;
-                        }
-                        switch (this.comparisonArray[_i].x) {
-                            case 'startTime':
-                                x = this.scatterPlot.createTimeLabels(_x);
-                                break;
-                            default:
-                                x = NaN;
-                        }
+                        x = this.processData(this.comparisonArray[_i].x, _x);
+                        y = this.processData(this.comparisonArray[_i].y, _y);
                         scatterData.push({x: x, y: y});
                     });
                     return scatterData;
@@ -132,6 +122,21 @@ export class LongtermCTVComponent implements OnInit {
         }
     }
 
+    processData(Type: string, elt: number) {
+        switch (Type) {
+            case 'startTime':
+                return this.scatterPlot.createTimeLabels(elt);
+            case 'Hs':
+                return this.calculateHsData(elt);
+            case 'score':
+                return this.calculateScoreData(elt);
+            case 'impactForceNmax':
+                return this.calculateImpactData(elt);
+            default:
+                return NaN;
+        }
+    }
+
     // Formatting function for each type of graph used
     calculateImpactData(impact: number) {
         // Formatting impacts
@@ -141,6 +146,10 @@ export class LongtermCTVComponent implements OnInit {
     calculateScoreData(score: number) {
         // Format score
         return score;
+    }
+
+    calculateHsData(hs: number) {
+        return hs;
     }
 
     // Utility

@@ -36,10 +36,17 @@
                 
               <div class="form-group">
                  <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">Date selector</button>
-                    <ng-multiselect-dropdown name="selectVessel" class="multiSelectDiv" (onSelect)="searchTransfersByNewSpecificDate()" (onDeSelect)="searchTransfersByNewSpecificDate()" [placeholder]="'Select vessel'"
-                                 [data]="Vessels"
-                                 [(ngModel)]="dropdownValues"
-                                 [settings]="multiSelectSettings">
+                    <ng-multiselect-dropdown 
+                        name="selectVessel" 
+                        (onOpen)="openVesselModal($event)" 
+                        id ="selectVessel"
+                        class="multiSelectDiv" 
+                        (onSelect)="searchTransfersByNewSpecificDate()" 
+                        (onDeSelect)="searchTransfersByNewSpecificDate()" 
+                        [placeholder]="'Select vessel'"
+                        [data]="Vessels"
+                        [(ngModel)]="dropdownValues"
+                        [settings]="multiSelectSettings">
                     </ng-multiselect-dropdown>
               </div>
           </div>
@@ -54,19 +61,6 @@
     <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="isLoaded($event)"
         [vesselObject]="vesselObject">
     </app-longterm-sov>
-    <!-- <div class="row" *ngIf="scatterDataArrayVessel[0]?.length == 0;">
-        <div class="col-lg-8">
-            <h3>There is not data available for the selected day and vessel.</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-8" *ngFor="let transfer_Data of comparisonArray;let ind = index">
-            <span >
-                <h3>{{comparisonArray[ind].xLabel}} vs {{comparisonArray[ind].yLabel}}</h3>
-            </span>
-            <canvas id="canvas{{ind}}">{{myChart[ind]}}</canvas>
-        </div>
-    </div> -->
 </div>
 
 <ng-template #noPermission>

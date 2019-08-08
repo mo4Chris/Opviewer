@@ -278,7 +278,6 @@ export class VesselreportComponent implements OnInit {
 
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
-    console.log('Trigged CTV child buildWithCurrentInformation');
     const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
     if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
       htmlButton.disabled = true;
