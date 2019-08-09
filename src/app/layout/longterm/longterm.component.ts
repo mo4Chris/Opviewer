@@ -154,8 +154,6 @@ export class LongtermComponent implements OnInit {
 
   // Vessel selection modal
   openVesselModal(content) {
-    console.log('Dropdown was opened')
-    console.log(content)
   }
 
   // Date selection modal

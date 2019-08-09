@@ -120,6 +120,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getTransitsForVesselByRange(vessel) {
+    return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getRouteForBoat(vessel) {
     return this.post(environment.DB_IP + '/api/getRouteForBoat/', vessel).pipe(
       map((response: Response) => response.json()));

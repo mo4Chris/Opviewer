@@ -31,13 +31,15 @@ export class LongtermCTVComponent implements OnInit {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     comparisonArray = [
-        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores' },
-        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]' },
-        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs (m)', yLabel: 'Transfer scores' },
+        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer' },
+        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer' },
+        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer' },
+        { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit' },
     ];
 
     myChart = [];
     transferData;
+    transitData;
     scatterPlot = new ScatterplotComponent(
         this.vesselObject,
         this.comparisonArray,
@@ -54,7 +56,7 @@ export class LongtermCTVComponent implements OnInit {
     buildPageWithCurrentInformation() {
         this.scatterPlot.vesselObject = this.vesselObject;
         if (this.vesselObject.mmsi.length > 0) {
-            this.getTransfersForVesselByRange({
+            this.getVesselLabels({
                 mmsi: this.vesselObject.mmsi,
                 x: this.comparisonArray[0].x,
                 y: this.comparisonArray[0].y,
@@ -69,8 +71,7 @@ export class LongtermCTVComponent implements OnInit {
     }
 
     // Data acquisition
-    getTransfersForVesselByRange(vessel: {mmsi: number[], x: number|string, y: number | string, dateMin: any, dateMax: any}) {
-        for (let _i = 0; _i < this.comparisonArray.length; _i++) {
+    getVesselLabels(vessel: {mmsi: number[], x: number|string, y: number | string, dateMin: any, dateMax: any}) {
         return this.newService
             .getTransfersForVesselByRange(vessel).pipe(
             map(
@@ -84,7 +85,6 @@ export class LongtermCTVComponent implements OnInit {
                 console.log('error ' + error);
                 throw error;
             }));
-        }
     }
 
     getGraphDataPerComparison() {
@@ -95,31 +95,49 @@ export class LongtermCTVComponent implements OnInit {
                 this.showContent.emit(true);
             }
         };
-        for (let _i = 0; _i < this.comparisonArray.length; _i++) {
-        loaded.push(false);
-        this.newService.getTransfersForVesselByRange({ 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: this.comparisonArray[_i].x, y: this.comparisonArray[_i].y }).pipe(
-            map(
-            (rawScatterData) => {
-                this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
-                    const scatterData: {x: number|Date, y: number|Date}[] = [];
-                    let x: number|Date;
-                    let y: number|Date;
-                    data.xVal.forEach((_x, __i) => {
-                        const _y = data.yVal[__i];
-                        x = this.processData(this.comparisonArray[_i].x, _x);
-                        y = this.processData(this.comparisonArray[_i].y, _y);
-                        scatterData.push({x: x, y: y});
+        this.comparisonArray.forEach((compElt, _i) => {
+            loaded.push(false);
+            const queryElt = { 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: compElt.x, y: compElt.y };
+            switch (compElt.dataType) {
+                case 'transfer':
+                    this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
+                        rawScatterData => this.parseRawData(rawScatterData, _i)
+                        ), catchError(error => {
+                        console.log('error: ' + error);
+                        throw error;
+                    })).subscribe(null, null, () => {
+                        loaded[_i] = true;
+                        proceedWhenAllLoaded();
                     });
-                    return scatterData;
-                });
-            }), catchError(error => {
-                console.log('error: ' + error);
-                throw error;
-            })).subscribe(null, null, () => {
-                loaded[_i] = true;
-                proceedWhenAllLoaded();
+                    break;
+                case 'transit':
+                    this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
+                        rawScatterData => this.parseRawData(rawScatterData, _i)
+                        ), catchError(error => {
+                        console.log('error: ' + error);
+                        throw error;
+                    })).subscribe(null, null, () => {
+                        loaded[_i] = true;
+                        proceedWhenAllLoaded();
+                    });
+                    break;
+            }
+        });
+    }
+
+    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[]|Date[], yVal: number[]|Date[]}[], _i: number) {
+        this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
+            const scatterData: {x: number|Date, y: number|Date}[] = [];
+            let x: number|Date;
+            let y: number|Date;
+            data.xVal.forEach((_x, __i) => {
+                const _y = data.yVal[__i];
+                x = this.processData(this.comparisonArray[_i].x, _x);
+                y = this.processData(this.comparisonArray[_i].y, _y);
+                scatterData.push({x: x, y: y});
             });
-        }
+            return scatterData;
+        });
     }
 
     processData(Type: string, elt: number) {
@@ -132,6 +150,8 @@ export class LongtermCTVComponent implements OnInit {
                 return this.calculateScoreData(elt);
             case 'impactForceNmax':
                 return this.calculateImpactData(elt);
+            case 'MSI':
+                    return this.calculateMSIData(elt);
             default:
                 return NaN;
         }
@@ -150,6 +170,10 @@ export class LongtermCTVComponent implements OnInit {
 
     calculateHsData(hs: number) {
         return hs;
+    }
+
+    calculateMSIData(msi: number) {
+        return msi;
     }
 
     // Utility
