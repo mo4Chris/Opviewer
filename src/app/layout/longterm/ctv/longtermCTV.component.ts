@@ -120,11 +120,13 @@ export class LongtermCTVComponent implements OnInit {
                         proceedWhenAllLoaded();
                     });
                     break;
+                default:
+                    console.error('Invalid data type!');
             }
         });
     }
 
-    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[]|Date[], yVal: number[]|Date[]}[], _i: number) {
+    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[], yVal: number[]}[], _i: number) {
         this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
             const scatterData: {x: number|Date, y: number|Date}[] = [];
             let x: number|Date;

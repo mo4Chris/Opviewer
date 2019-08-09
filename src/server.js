@@ -1307,6 +1307,137 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
     });
 });
 
+app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTurbineTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                // console.log(data);
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovPlatformTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {arrivalTimePlatform: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                // console.log(data);
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getTransitsForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTransitsmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {dayNum: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                // console.log(data);
+                res.send(data);
+            }
+        });
+
+    });
+});
+
 app.get("/api/getUsers", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {

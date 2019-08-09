@@ -125,6 +125,21 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getTurbineTransfersForVesselByRangeForSOV(vessel) {
+    return this.post(environment.DB_IP + '/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getPlatformTransfersForVesselByRangeForSOV(vessel) {
+    return this.post(environment.DB_IP + '/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getTransitsForVesselByRangeForSOV(vessel) {
+    return this.post(environment.DB_IP + '/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getRouteForBoat(vessel) {
     return this.post(environment.DB_IP + '/api/getRouteForBoat/', vessel).pipe(
       map((response: Response) => response.json()));

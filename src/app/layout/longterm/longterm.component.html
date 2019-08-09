@@ -1,4 +1,4 @@
-<h2 class="text-muted">Scatterplot Impact:<small> {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}} </small></h2>
+<h2 class="text-muted">Longterm performance:<small> {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}} </small></h2>
 <div>
     <ng-template #t let-date="date" let-focused="focused">
         <span class="custom-day"
@@ -58,8 +58,8 @@
     <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject" 
     [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate">
     </app-longterm-ctv>
-    <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="isLoaded($event)"
-        [vesselObject]="vesselObject">
+    <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'"  (showContent)="childLoaded($event)" 
+    [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate">
     </app-longterm-sov>
 </div>
 
