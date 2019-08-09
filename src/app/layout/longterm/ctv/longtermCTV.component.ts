@@ -35,11 +35,11 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer' },
         { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer' },
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit' },
+        { x: 'transitTimeMinutes', y: 'MSI', graph: 'scatter', xLabel: 'Transit time [mns]', yLabel: 'Motion sickness index', dataType: 'transit' },
     ];
 
     myChart = [];
-    transferData;
-    transitData;
+    allGraphsEmpty = false;
     scatterPlot = new ScatterplotComponent(
         this.vesselObject,
         this.comparisonArray,
@@ -65,7 +65,7 @@ export class LongtermCTVComponent implements OnInit {
                 this.getGraphDataPerComparison();
             });
         } else {
-            this.scatterPlot.createValues();
+            this.scatterPlot.destroyCurrentCharts();
         }
         this.myChart = this.scatterPlot.myChart;
     }
@@ -76,9 +76,8 @@ export class LongtermCTVComponent implements OnInit {
             .getTransfersForVesselByRange(vessel).pipe(
             map(
                 (transfers) => {
-                    this.transferData = transfers;
-                    for (let _j = 0; _j < this.transferData.length; _j++) {
-                        this.scatterPlot.labelValues[_j] = this.transferData[_j].label[0].replace('_', ' ');
+                    for (let _j = 0; _j < transfers.length; _j++) {
+                        this.scatterPlot.labelValues[_j] = transfers[_j].label[0].replace('_', ' ');
                     }
                 }),
             catchError(error => {
@@ -145,35 +144,18 @@ export class LongtermCTVComponent implements OnInit {
             case 'startTime':
                 return this.scatterPlot.createTimeLabels(elt);
             case 'Hs':
-                return this.calculateHsData(elt);
+                return elt;
             case 'score':
-                return this.calculateScoreData(elt);
+                return elt;
             case 'impactForceNmax':
-                return this.calculateImpactData(elt);
+                return elt / 1000;
             case 'MSI':
-                    return this.calculateMSIData(elt);
+                return elt;
+            case 'transitTimeMinutes':
+                return elt;
             default:
                 return NaN;
         }
-    }
-
-    // Formatting function for each type of graph used
-    calculateImpactData(impact: number) {
-        // Formatting impacts
-        return impact / 1000;
-    }
-
-    calculateScoreData(score: number) {
-        // Format score
-        return score;
-    }
-
-    calculateHsData(hs: number) {
-        return hs;
-    }
-
-    calculateMSIData(msi: number) {
-        return msi;
     }
 
     // Utility

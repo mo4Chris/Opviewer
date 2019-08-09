@@ -49,6 +49,7 @@ export class ScatterplotComponent {
     'dash',
   ];
 
+  allGraphsEmpty = false;
   scatterData;
   scatterDataArray = [];
   scatterDataArrayVessel = [];
@@ -65,6 +66,7 @@ export class ScatterplotComponent {
   myChart: Chart[] = [];
 
   createValues() {
+    this.allGraphsEmpty = true;
     this.datasetValues = [];
     for (let j = 0; j < this.scatterDataArrayVessel.length; j++) {
       this.datasetValues[j] = [];
@@ -82,14 +84,12 @@ export class ScatterplotComponent {
         });
       }
     }
-    if (this.myChart[0] == null) {
-      this.createScatterChart();
-    } else {
-      this.myChart.forEach((chart) => chart.destroy());
-      if (this.scatterDataArrayVessel[0].length > 0) {
-        this.createScatterChart();
-      }
-    }
+    this.destroyCurrentCharts();
+    this.createScatterChart();
+  }
+
+  destroyCurrentCharts() {
+    this.myChart.forEach(chart => chart.destroy());
   }
 
   createTimeLabels(timeElt: number) {
@@ -111,6 +111,12 @@ export class ScatterplotComponent {
             datasets: this.datasetValues[_j]
           },
           options: {
+            title: {
+              display: true,
+              fontSize: 20,
+              text: this.comparisonArray[_j].xLabel + ' vs ' + this.comparisonArray[_j].yLabel,
+              position: 'top'
+            },
             tooltips: {
               callbacks: {
                 beforeLabel: function (tooltipItem, data) {
@@ -214,6 +220,9 @@ export class ScatterplotComponent {
         }
       });
     });
+    if (type.x !== 'hidden' && type.y !== 'hidden') {
+      this.allGraphsEmpty = false;
+    }
     return type;
   }
 
