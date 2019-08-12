@@ -1315,7 +1315,6 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-<<<<<<< HEAD
         
         testObj = {};
         testObj[req.body.x] = 1;
@@ -1386,9 +1385,6 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
             }
             }
         ]).exec(function (err, data) {
-=======
-        Transfermodel.find({ mmsi: req.body.mmsi, active: {$ne: false}, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
->>>>>>> Development
             if (err) {
                 console.log(err);
                 res.send(err);
