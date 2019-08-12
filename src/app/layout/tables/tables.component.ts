@@ -5,7 +5,7 @@ import { CommonService } from '../../common.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { UserService } from '../../shared/services/user.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
-import { VesselModel } from '../../models/vesselTemplate';
+import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
 
 @Component({

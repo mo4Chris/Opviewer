@@ -4,7 +4,6 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
@@ -25,7 +24,7 @@ export class CtvreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject;
+    @Input() vesselObject: { date: number, mmsi: number, dateNormal: Date, vesselType: string };
     @Input() tokenInfo;
     @Input() mapPixelWidth;
 
@@ -63,7 +62,7 @@ export class CtvreportComponent implements OnInit {
     toolboxConducted = [];
     hseOptions = [];
 
-    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
+    generalInputStats = {date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
 
 
 

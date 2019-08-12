@@ -85,7 +85,7 @@ export class LongtermComponent implements OnInit {
         }, null, () => this.testIfAllInit());
     }
     if (this.vesselObject.mmsi.length > 0) {
-        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(
+        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
             validatedValue => {
               if (validatedValue.length === 1) {
                   this.vesselType = validatedValue[0].operationsClass;

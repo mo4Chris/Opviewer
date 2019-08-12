@@ -255,7 +255,6 @@ export class VesselreportComponent implements OnInit {
   getMMSIFromParameter() {
     let mmsi;
     this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
-
     return mmsi;
   }
 
