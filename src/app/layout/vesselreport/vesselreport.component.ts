@@ -19,6 +19,8 @@ import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
+import { VesselModel } from '../../models/vesselModel';
+import { TokenModel } from '../../models/tokenModel';
 
 @Component({
   selector: 'app-vesselreport',
@@ -47,10 +49,10 @@ export class VesselreportComponent implements OnInit {
   boatLocationData = [];
   datePickerValue = this.maxDate;
   sailDates: {transfer: object[], transit: object[], other: object[]};
-  vessels;
+  vessels: VesselModel[];
   general = {};
 
-  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = new TokenModel(this.userService);
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;

@@ -8,6 +8,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../../supportModules/datetime.service';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
+import { TokenModel } from '../../../models/tokenModel';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -25,7 +26,7 @@ export class LongtermCTVComponent implements OnInit {
         ) {
     }
     @Input() vesselObject: {dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[]};
-    @Input() tokenInfo;
+    @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();

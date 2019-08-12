@@ -7,9 +7,9 @@ import { LongtermComponent } from '../longterm/longterm.component';
 const routes: Routes = [
     {
         path: '', component: TablesComponent
-    },{
-        path: 'vesselreport/:mmsi', component: VesselreportComponent 
-    },{
+    }, {
+        path: 'vesselreport/:mmsi', component: VesselreportComponent
+    }, {
         path: 'scatterplot/:mmsi', component: LongtermComponent
     }
 ];
