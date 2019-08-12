@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NgbDateISOParserFormatter } from '@ng-bootstrap/ng-bootstrap/datepicker/ngb-date-parser-formatter';
 
 @Injectable({
   providedIn: 'root'
@@ -63,10 +62,16 @@ export class CalculationService {
 }
 
   GetMaxValueInMultipleDimensionArray(array) {
+    if (array._ArrayType_ || array.length === 0) {
+      return NaN;
+    }
     return Math.max(...array.map(e => Array.isArray(e) ? this.GetMaxValueInMultipleDimensionArray(e) : e));
   }
 
   GetMinValueInMultipleDimensionArray(array) {
+    if (array._ArrayType_ || array.length === 0) {
+      return NaN;
+    }
     return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
   }
 
@@ -112,5 +117,20 @@ export class CalculationService {
     }
     const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
     return avg;
+  }
+
+  parseMatlabArray(A: any) {
+    // Parses any of the weird matlab arrays into a 1D array
+    let B: number[];
+    if (typeof(A) !== 'object' || A._ArrayType_) {
+      B = [];
+    } else if (typeof(A[0]) !== 'object') {
+      B = A;
+    } else if (A.length === 1 && A[0].length > 1) {
+      B = A[0];
+    } else {
+      B = A.map(x => x[0]);
+    }
+    return B;
   }
 }
