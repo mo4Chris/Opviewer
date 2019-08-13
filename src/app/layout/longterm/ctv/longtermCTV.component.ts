@@ -36,6 +36,7 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info: 'Shows the peak impact for each vessel during transits. This is the peak impact, and might not have occured during the initial approach' },
         { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info: 'Some multi-line message which will magically force the screen to become much bigger'},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info: 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration.'},
+        { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info: 'Number of transfers between the vessel and turbines in the selected period'},
     ];
 
     myChart = [];
@@ -100,7 +101,7 @@ export class LongtermCTVComponent implements OnInit {
             switch (compElt.dataType) {
                 case 'transfer':
                     this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
-                        rawScatterData => this.parseRawData(rawScatterData, _i)
+                        rawScatterData => this.parseRawData(rawScatterData, _i, compElt.graph)
                         ), catchError(error => {
                         console.log('error: ' + error);
                         throw error;
@@ -111,7 +112,7 @@ export class LongtermCTVComponent implements OnInit {
                     break;
                 case 'transit':
                     this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
-                        rawScatterData => this.parseRawData(rawScatterData, _i)
+                        rawScatterData => this.parseRawData(rawScatterData, _i, compElt.graph)
                         ), catchError(error => {
                         console.log('error: ' + error);
                         throw error;
@@ -126,19 +127,28 @@ export class LongtermCTVComponent implements OnInit {
         });
     }
 
-    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[], yVal: number[]}[], _i: number) {
-        this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
-            const scatterData: {x: number|Date, y: number|Date}[] = [];
-            let x: number|Date;
-            let y: number|Date;
-            data.xVal.forEach((_x, __i) => {
-                const _y = data.yVal[__i];
-                x = this.processData(this.comparisonArray[_i].x, _x);
-                y = this.processData(this.comparisonArray[_i].y, _y);
-                scatterData.push({x: x, y: y});
-            });
-            return scatterData;
-        });
+    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[], yVal: number[]}[], _i: number, graphType: string) {
+        switch (graphType) {
+            case 'scatter':
+                this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
+                    const scatterData: {x: number|Date, y: number|Date}[] = [];
+                    let x: number|Date;
+                    let y: number|Date;
+                    data.xVal.forEach((_x, __i) => {
+                        const _y = data.yVal[__i];
+                        x = this.processData(this.comparisonArray[_i].x, _x);
+                        y = this.processData(this.comparisonArray[_i].y, _y);
+                        scatterData.push({x: x, y: y});
+                    });
+                    return scatterData;
+                });
+                break;
+            case 'bar':
+                this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
+                    return [{x: data.label[0], y: data.xVal.length}];
+                });
+            break;
+        }
     }
 
     processData(Type: string, elt: number) {
@@ -154,6 +164,10 @@ export class LongtermCTVComponent implements OnInit {
             case 'MSI':
                 return elt;
             case 'transitTimeMinutes':
+                return elt;
+            case 'vesselname':
+                return elt;
+            case 'date':
                 return elt;
             default:
                 return NaN;

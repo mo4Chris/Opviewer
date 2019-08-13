@@ -123,10 +123,13 @@ export class ScatterplotComponent {
                   return data.datasets[tooltipItem.datasetIndex].label;
                 },
                 label: function (tooltipItem, data) {
-                  if (axisTypes.x === 'date') {
-                    return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
-                  } else {
-                    return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
+                  switch (axisTypes.x) {
+                    case 'date':
+                     return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                    case 'numeric':
+                      return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
+                    default:
+                      return '';
                   }
                 },
                 afterLabel: function(tooltipItem, data) {
@@ -157,8 +160,8 @@ export class ScatterplotComponent {
             },
             responsiveAnimationDuration: 0,
             scales: {
-              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel),
-              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel),
+              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel, this.comparisonArray[_j].graph),
+              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel, this.comparisonArray[_j].graph),
             },
             annotation: this.varAnn,
           },
@@ -207,8 +210,11 @@ export class ScatterplotComponent {
   getAxisType(dataArrays) {
     const type = {x: 'hidden', y: 'hidden'};
     dataArrays.some((dataArray) => {
-      return dataArray.data.some((dataElt) => {
-        if (!(isNaN(dataElt.x) || isNaN(dataElt.y))) {
+      return dataArray.data.some((dataElt: {x: any, y: any}) => {
+        if (typeof dataElt.x === 'string' && dataElt.x !== '_NaN_') {
+          type.x = 'label';
+          type.y = 'numeric';
+        } else if (!(isNaN(dataElt.x) || isNaN(dataElt.y))) {
           if (typeof dataElt.x === 'number') {
             type.x = 'numeric';
           } else {
@@ -217,7 +223,7 @@ export class ScatterplotComponent {
           if (typeof dataElt.y === 'number') {
             type.y = 'numeric';
           } else {
-            type.x = 'date';
+            type.y = 'date';
           }
           return true;
         } else {
@@ -231,28 +237,66 @@ export class ScatterplotComponent {
     return type;
   }
 
-  buildAxisFromType(Type: String, Label: String) {
-    switch (Type) {
-      case 'date':
-        return [{
-          scaleLabel: {
-            display: true,
-            labelString: Label
-          },
-          type: 'time',
-          time: {
-            min: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin).getTime()),
-            max: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax + 1).getTime()),
-            unit: 'day'
-          }
-        }];
-      case 'numeric':
-        return [{
-          scaleLabel: {
-            display: true,
-            labelString: Label
-          }
-        }];
+  buildAxisFromType(Type: String, Label: String, chartType: String) {
+    switch (chartType) {
+      case 'scatter':
+        switch (Type) {
+          case 'date':
+            return [{
+              scaleLabel: {
+                display: true,
+                labelString: Label
+              },
+              type: 'time',
+              time: {
+                min: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin).getTime()),
+                max: new Date(this.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax + 1).getTime()),
+                unit: 'day'
+              }
+            }];
+          case 'label':
+            return [{
+              scaleLabel: {
+                display: true,
+                labelString: Label
+              }
+            }];
+          case 'numeric':
+            return [{
+              scaleLabel: {
+                display: true,
+                labelString: Label
+              }
+            }];
+        }
+        break;
+
+      case 'bar':
+        switch (Type) {
+          case 'date':
+            return [{
+              scaleLabel: {
+                display: true,
+                labelString: Label
+              }
+            }];
+          case 'label':
+            return [{
+              minBarLength: 1600,
+              maxBarThickness: 80,
+            }];
+          case 'numeric':
+            return [{
+              ticks: {
+                beginAtZero: true,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: Label
+              }
+            }];
+        }
+        break;
     }
   }
 
