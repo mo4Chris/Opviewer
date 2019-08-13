@@ -4,14 +4,21 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-8" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
+    <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
         <div *ngIf="scatterPlot.allGraphsEmpty">
             <div class="divContainer">
                 <h3> There is no valid data for selected vessel(s)!</h3>
             </div>
         </div>
-        <div *ngFor="let transfer_Data of comparisonArray;let ind = index">
-            <canvas id="canvas{{ind}}"></canvas>
+        <div class="row" *ngFor="let transfer_Data of comparisonArray;let ind = index">
+            <div class="row" id='hideIfNoData{{ind}}'>
+                <div class="col-lg-8">
+                    <canvas id="canvas{{ind}}"></canvas>
+                </div>
+                <div class="col-lg-3">
+                    {{transfer_Data.info}}
+                </div>
+            </div>
         </div>
     </div>
 </div>

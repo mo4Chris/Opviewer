@@ -32,11 +32,10 @@ export class LongtermCTVComponent implements OnInit {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     comparisonArray = [
-        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer' },
-        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer' },
-        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer' },
-        { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit' },
-        { x: 'transitTimeMinutes', y: 'MSI', graph: 'scatter', xLabel: 'Transit time [mns]', yLabel: 'Motion sickness index', dataType: 'transit' },
+        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info: 'Transfer score for each vessel in the selected period' },
+        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info: 'Shows the peak impact for each vessel during transits. This is the peak impact, and might not have occured during the initial approach' },
+        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info: 'Some multi-line message which will magically force the screen to become much bigger'},
+        { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info: 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration.'},
     ];
 
     myChart = [];

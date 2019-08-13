@@ -6,7 +6,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 export class ScatterplotComponent {
   constructor(
     vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string},
-    comparisonArray,
+    comparisonArray: {x: String, y: String, graph: String, xLabel: String, yLabel: String}[],
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
     ) {
@@ -105,7 +105,7 @@ export class ScatterplotComponent {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
       if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
-        this.myChart[_j] = new Chart('canvas' + _j, {
+        this.myChart.push(new Chart('canvas' + _j, {
           type: this.comparisonArray[_j].graph,
           data: {
             datasets: this.datasetValues[_j]
@@ -194,7 +194,12 @@ export class ScatterplotComponent {
               }
             }
           ],
-        });
+        }));
+        const hmtlElt = document.getElementById('hideIfNoData' + _j);
+        hmtlElt.setAttribute('style', 'display: normal');
+      } else {
+        const hmtlElt = document.getElementById('hideIfNoData' + _j);
+        hmtlElt.setAttribute('style', 'display: none');
       }
     }
   }
@@ -249,6 +254,10 @@ export class ScatterplotComponent {
           }
         }];
     }
+  }
+
+  getPeakValue(graphNumber: number, filterActive: boolean = true) {
+    const graphInfo = this.myChart[graphNumber];
   }
 
   // Date support functions

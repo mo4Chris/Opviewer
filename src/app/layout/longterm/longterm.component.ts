@@ -109,6 +109,11 @@ export class LongtermComponent implements OnInit {
 
   }
 
+  onSelectVessel(event: {mmsi: number, nicename: string}[]) {
+    this.vesselObject.mmsi = event.map(x => x.mmsi);
+    this.buildPageWithCurrentInformation();
+  }
+
   searchTransfersByNewSpecificDate() { // Sets new date and selected vessel values
     const minValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
     const maxpickerValueAsMomentDate = moment(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');

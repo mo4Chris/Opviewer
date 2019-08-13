@@ -43,6 +43,8 @@
                         class="multiSelectDiv" 
                         (onSelect)="searchTransfersByNewSpecificDate()" 
                         (onDeSelect)="searchTransfersByNewSpecificDate()" 
+                        (onSelectAll)="onSelectVessel($event)"
+                        (onDeSelectAll)="onSelectVessel($event)"
                         [placeholder]="'Select vessel'"
                         [data]="Vessels"
                         [(ngModel)]="dropdownValues"
