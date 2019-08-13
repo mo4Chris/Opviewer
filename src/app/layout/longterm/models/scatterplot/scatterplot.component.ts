@@ -84,6 +84,7 @@ export class ScatterplotComponent {
         });
       }
     }
+    console.log(this.datasetValues)
     this.destroyCurrentCharts();
     this.createScatterChart();
   }
@@ -138,11 +139,15 @@ export class ScatterplotComponent {
                   } else {
                     return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
                   }
+                },
+                title: function(tooltipItem, data) {
+                  // Prevents a bug from showing up in the bar chart tooltip
                 }
               }
             },
             scaleShowVerticalLines: false,
             responsive: true,
+            maintainAspectRatio: false,
             radius: 2,
             legend: {
               display: true,
@@ -199,7 +204,7 @@ export class ScatterplotComponent {
           ],
         }));
         const hmtlElt = document.getElementById('hideIfNoData' + _j);
-        hmtlElt.setAttribute('style', 'display: normal');
+        hmtlElt.setAttribute('style', 'normal');
       } else {
         const hmtlElt = document.getElementById('hideIfNoData' + _j);
         hmtlElt.setAttribute('style', 'display: none');

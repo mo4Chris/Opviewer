@@ -32,11 +32,16 @@ export class LongtermCTVComponent implements OnInit {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     comparisonArray = [
-        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info: 'Transfer score for each vessel in the selected period' },
-        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info: 'Shows the peak impact for each vessel during transits. This is the peak impact, and might not have occured during the initial approach' },
-        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info: 'Some multi-line message which will magically force the screen to become much bigger'},
-        { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info: 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration.'},
-        { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info: 'Number of transfers between the vessel and turbines in the selected period'},
+        { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
+            'Number of turbine transfers in the selected period.'},
+        { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
+            'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, and need not be the result of the initial approach' },
+        { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
+            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.' },
+        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
+            'Peak impacts verses Hs. Higher impacts during low sea conditions indicate either a damaged fender or unsafe vessel handling.'},
+        { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
+            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration.'},
     ];
 
     myChart = [];

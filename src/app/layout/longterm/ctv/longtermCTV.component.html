@@ -10,7 +10,7 @@
                 <h3> There is no valid data for selected vessel(s)!</h3>
             </div>
         </div>
-        <div class="row" *ngFor="let transfer_Data of comparisonArray;let ind = index">
+        <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
             <div class="row" id='hideIfNoData{{ind}}'>
                 <div class="col-lg-8">
                     <canvas id="canvas{{ind}}"></canvas>
