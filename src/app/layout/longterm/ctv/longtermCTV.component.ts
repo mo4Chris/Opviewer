@@ -31,17 +31,20 @@ export class LongtermCTVComponent implements OnInit {
     @Input() toDate: NgbDate;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    comparisonArray = [
+    comparisonArray: ComprisonArrayElt[] = [
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
             'Number of turbine transfers in the selected period.'},
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
             'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, and need not be the result of the initial approach' },
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.' },
+            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Peak impacts verses Hs. Higher impacts during low sea conditions indicate either a damaged fender or unsafe vessel handling.'},
+            'Peak impacts verses Hs. Higher impacts during low sea conditions indicate either a damaged fender or unsafe vessel handling.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
-            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration.'},
+            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
     myChart = [];
@@ -102,54 +105,59 @@ export class LongtermCTVComponent implements OnInit {
         };
         this.comparisonArray.forEach((compElt, _i) => {
             loaded.push(false);
-            const queryElt = { 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: compElt.x, y: compElt.y };
-            switch (compElt.dataType) {
-                case 'transfer':
-                    this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
-                        rawScatterData => this.parseRawData(rawScatterData, _i, compElt.graph)
-                        ), catchError(error => {
-                        console.log('error: ' + error);
-                        throw error;
-                    })).subscribe(null, null, () => {
-                        loaded[_i] = true;
-                        proceedWhenAllLoaded();
-                    });
-                    break;
-                case 'transit':
-                    this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
-                        rawScatterData => this.parseRawData(rawScatterData, _i, compElt.graph)
-                        ), catchError(error => {
-                        console.log('error: ' + error);
-                        throw error;
-                    })).subscribe(null, null, () => {
-                        loaded[_i] = true;
-                        proceedWhenAllLoaded();
-                    });
-                    break;
-                default:
-                    console.error('Invalid data type!');
-            }
+            this.contructSingleGraph(compElt, _i, () => {
+                loaded[_i] = true;
+                proceedWhenAllLoaded();
+            });
         });
     }
 
-    parseRawData(rawScatterData:  {_id: number, label: string[], xVal: number[], yVal: number[]}[], _i: number, graphType: string) {
+    contructSingleGraph(compElt: ComprisonArrayElt, graphIndex: number, onLoadedCB?: () => void) {
+        const queryElt = { 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: compElt.x, y: compElt.y };
+        switch (compElt.dataType) {
+            case 'transfer':
+                this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
+                    rawScatterData => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
+                    ), catchError(error => {
+                    console.log('error: ' + error);
+                    throw error;
+                })).subscribe(null, null, () => {
+                    onLoadedCB();
+                });
+                break;
+            case 'transit':
+                this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
+                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
+                    ), catchError(error => {
+                    console.log('error: ' + error);
+                    throw error;
+                })).subscribe(null, null, () => {
+                    onLoadedCB();
+                });
+                break;
+            default:
+                console.error('Invalid data type!');
+        }
+    }
+
+    parseRawData(rawScatterData: RawScatterData[], graphIndex: number, graphType: string) {
         switch (graphType) {
             case 'scatter':
-                this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
+                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
                     const scatterData: {x: number|Date, y: number|Date}[] = [];
                     let x: number|Date;
                     let y: number|Date;
                     data.xVal.forEach((_x, __i) => {
                         const _y = data.yVal[__i];
-                        x = this.processData(this.comparisonArray[_i].x, _x);
-                        y = this.processData(this.comparisonArray[_i].y, _y);
+                        x = this.processData(this.comparisonArray[graphIndex].x, _x);
+                        y = this.processData(this.comparisonArray[graphIndex].y, _y);
                         scatterData.push({x: x, y: y});
                     });
                     return scatterData;
                 });
                 break;
             case 'bar':
-                this.scatterPlot.scatterDataArrayVessel[_i] = rawScatterData.map((data) => {
+                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
                     return [{x: data.label[0], y: data.xVal.length}];
                 });
             break;
@@ -201,4 +209,22 @@ export class LongtermCTVComponent implements OnInit {
     MatlabDateToUnixEpochViaDate(serial) {
         return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
     }
+}
+
+interface ComprisonArrayElt {
+    x: string;
+    y: string;
+    graph: string;
+    xLabel: string;
+    yLabel: string;
+    dataType: string;
+    info: string;
+    annotation?: () => {};
+}
+
+interface RawScatterData {
+    _id: number;
+    label: string[];
+    xVal: number[];
+    yVal: number[];
 }

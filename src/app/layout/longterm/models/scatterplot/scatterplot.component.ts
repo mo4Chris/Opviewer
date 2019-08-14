@@ -6,7 +6,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 export class ScatterplotComponent {
   constructor(
     vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string},
-    comparisonArray: {x: String, y: String, graph: String, xLabel: String, yLabel: String}[],
+    comparisonArray: ComprisonArrayElt[],
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
     ) {
@@ -56,12 +56,11 @@ export class ScatterplotComponent {
 
   labelValues = [];
   datasetValues = [];
-  varAnn = { annotations: [] };
   defaultVesselName = '';
   graphXLabels = { scales: {} };
   public scatterChartLegend = false;
   vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string};
-  comparisonArray: {x: String, y: String, graph: String, xLabel: String, yLabel: String}[];
+  comparisonArray: ComprisonArrayElt[];
 
   myChart: Chart[] = [];
 
@@ -84,7 +83,6 @@ export class ScatterplotComponent {
         });
       }
     }
-    console.log(this.datasetValues)
     this.destroyCurrentCharts();
     this.createScatterChart();
   }
@@ -154,7 +152,7 @@ export class ScatterplotComponent {
               labels: {
                 defaultFontSize: 24,
                 defaultFontStyle: 'bold'
-              }
+              },
             },
             pointHoverRadius: 2,
             animation: {
@@ -165,10 +163,13 @@ export class ScatterplotComponent {
             },
             responsiveAnimationDuration: 0,
             scales: {
-              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel, this.comparisonArray[_j].graph),
-              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel, this.comparisonArray[_j].graph),
+              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel, this.comparisonArray[_j].graph, 'x-axis-0'),
+              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel, this.comparisonArray[_j].graph, 'y-axis-0'),
             },
-            annotation: this.varAnn,
+            annotation: {
+              events: ['mouseover', 'mouseout'],
+              annotations: this.setAnnotations(this.comparisonArray[_j])
+            },
           },
           plugins: [
             {
@@ -242,12 +243,13 @@ export class ScatterplotComponent {
     return type;
   }
 
-  buildAxisFromType(Type: String, Label: String, chartType: String) {
+  buildAxisFromType(Type: String, Label: String, chartType: String, chartID: string) {
     switch (chartType) {
       case 'scatter':
         switch (Type) {
           case 'date':
             return [{
+              id: chartID,
               scaleLabel: {
                 display: true,
                 labelString: Label
@@ -261,6 +263,7 @@ export class ScatterplotComponent {
             }];
           case 'label':
             return [{
+              id: chartID,
               scaleLabel: {
                 display: true,
                 labelString: Label
@@ -268,6 +271,7 @@ export class ScatterplotComponent {
             }];
           case 'numeric':
             return [{
+              id: chartID,
               scaleLabel: {
                 display: true,
                 labelString: Label
@@ -280,6 +284,7 @@ export class ScatterplotComponent {
         switch (Type) {
           case 'date':
             return [{
+              id: chartID,
               scaleLabel: {
                 display: true,
                 labelString: Label
@@ -287,11 +292,13 @@ export class ScatterplotComponent {
             }];
           case 'label':
             return [{
+              id: chartID,
               minBarLength: 1600,
               maxBarThickness: 80,
             }];
           case 'numeric':
             return [{
+              id: chartID,
               ticks: {
                 beginAtZero: true,
               },
@@ -305,7 +312,54 @@ export class ScatterplotComponent {
     }
   }
 
+  setAnnotations(compElt: ComprisonArrayElt) {
+    if (compElt.annotation === undefined) {
+       return [];
+    } else {
+      return [compElt.annotation()];
+    }
+  }
+
+  drawHorizontalLine(yVal: number, label?: string) {
+    return {
+      passive: false,
+      type: 'line',
+      mode: 'horizontal',
+      scaleID: 'y-axis-0',
+      value: 1.0001 * yVal, // we add small number to make graphs auto-scale above the line
+      borderColor: 'rgb(75, 192, 192)',
+      borderWidth: 3,
+      label: {
+        position: 'left',
+        xAdjust: 10,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        fontColor: '#fff',
+        enabled: true,
+        content: label
+      },
+      // These events appear to be broken due to bug in annotions module
+      // onMouseover: function (e) {
+      //   console.log('Mouse enter event')
+      //   const annot = this;
+      //   console.log(annot)
+      //   annot.options.borderWidth = 7;
+      //   annot.options.label.enabled = true;
+      //   annot.chartInstance.update();
+      //   annot.chartInstance.chart.canvas.style.cursor = 'pointer';
+      // },
+      // onMouseout: function (e) {
+      //   console.log('Mouse leave event')
+      //   const annot = this;
+      //   console.log(annot)
+      //   annot.options.label.enabled = false;
+      //   annot.chartInstance.update();
+      //   annot.chartInstance.chart.canvas.style.cursor = 'pointer';
+      // }
+    };
+  }
+
   getPeakValue(graphNumber: number, filterActive: boolean = true) {
+    // Not yet used
     const graphInfo = this.myChart[graphNumber];
   }
 
@@ -353,4 +407,15 @@ function createNewLegendAndAttach(chartInstance, legendOpts) {
   }
   chartInstance.newLegend = legend;
   Chart.layoutService.addBox(chartInstance, legend);
+}
+
+class ComprisonArrayElt {
+  x: string;
+  y: string;
+  graph: string;
+  xLabel: string;
+  yLabel: string;
+  dataType: string;
+  info: string;
+  annotation?: () => {};
 }
