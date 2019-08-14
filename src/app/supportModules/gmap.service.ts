@@ -295,7 +295,7 @@ export class GmapService {
                         platform.lat[idx],
                         GmapService.iconPlatform,
                         platform.name[idx],
-                        platform.name[idx],
+                        platform.name[0][idx],
                         'click'
                     ));
                 });
