@@ -117,6 +117,143 @@
             </div>
         </div>
     </div>
+    <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">DPR input</div>
+                <div class="card-body">
+                    <div class="col-xl-6 dailySummary">
+                            <h4>Mid-day fuel, lub oil & fresh water</h4>
+                        <table class="table table-responsive table-bordered tableSummary">
+                            <tr>
+                                <td></td>
+                                <th>FUEL OIL (m3)</th>
+                                <th>LUB OIL (Litres)</th>
+                                <th>Dom. Pot Water (m3)</th>
+                                <th>Cargo Pot Water(m3)</th>
+                            </tr>
+                            <tr>
+                                <td>Previous</td>
+                                <td>185.2</td>
+                                <td>13272</td>
+                                <td>92</td>
+                                <td>264</td>
+                            </tr>
+                            <tr>
+                                <td>Loaded/Made</td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Consumed</td>
+                                <td><input type="number" min="0" max="10000" value="8.1"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="10"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Discharged to Client</td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>ROB</td>
+                                <td>177.1</td>
+                                <td>13272</td>
+                                <td>82</td>
+                                <td>264</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                            </tr> 
+                        </table>
+                    </div>
+                    <div class="col-xl-6 dailySummary">
+                        <h3>input X</h3>
+                        <table class="table table-responsive table-bordered tableSummary">
+                            <tr>
+                                <td>HOC cards: 0</td>
+                                <td colspan="3">
+                                    <select>
+                                        <option>None</option>  
+                                    </select>
+                                    <select>
+                                        <option>0 times</option>
+                                    </select><br>
+                                    <button class="btn btn-sm btn-primary" type="button">add another</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>HOC total Previous</td>
+                                <td>833</td>
+                                <td class="tableSummarySpecial">New total</td>
+                                <td>833</td>
+                            </tr>
+                            <tr>
+                                <td>Toolbox talks: 2</td>
+                                <td colspan="3">
+                                    <select>
+                                      <option>Shift Changes Marine crew</option>  
+                                    </select>
+                                    <select>
+                                        <option>2 times</option>
+                                    </select><br>
+                                    <button class="btn btn-sm btn-primary" type="button">add another</button>
+                                </td>
+                            
+                            <tr>
+                                <td>Toolbox total previous</td>
+                                <td>3026</td>
+                                <td class="tableSummarySpecial">New total</td>
+                                <td>3028</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                            </tr> 
+                        </table>
+                    </div> 
+
+                    <div class="col-xl-6 dailySummary">
+                        <h3>Catering</h3>
+                        <table class="table table-responsive table-bordered tableSummary">
+                            <tr>
+                                <td>People on board</td>
+                                <td><input type="number" min="0" max="10000" value="29"></td>
+                            </tr>
+                            <tr>
+                                <td>Extra meals</td>
+                                <td><input type="number" min="0" max="10000" value="7"></td>
+                            </tr>
+                            <tr>
+                                <td>Packed Lunches</td>
+                                <td><input type="number" min="0" max="10000" value="20"></td>
+                            </tr>
+                            <tr>
+                                <td>Marine</td>
+                                <td><input type="number" min="0" max="10000" value="23"></td>
+                            </tr>
+                            <tr>
+                                <td>Marine + Marine contractors</td>
+                                <td><input type="number" min="0" max="10000" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                            </tr>  
+                        </table>
+                    </div>
+                    <div class="col-xl-6 dailySummary">
+                        <h3>Vessel Operations/remarks</h3>
+                        <textarea rows="10" cols="70"></textarea><br>
+                        
+                        <button class="btn btn-lg btn-primary" type="button">Save</button>
+                    </div>  
+                </div>
+            </div>
+        </div>
+
     <div *ngIf="weatherOverviewChartCalculated">
         <div class="row">
             <div class="col-xl-12 col-lg-24">
