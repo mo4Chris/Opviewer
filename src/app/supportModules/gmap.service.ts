@@ -5,6 +5,7 @@ import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
 import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
+import { isArray } from 'util';
 
 @Injectable({
     providedIn: 'root'
@@ -295,7 +296,7 @@ export class GmapService {
                         platform.lat[idx],
                         GmapService.iconPlatform,
                         platform.name[idx],
-                        platform.name[0][idx],
+                        isArray(platform.name[0]) ? platform.name[0][idx] : platform.name[idx],
                         'click'
                     ));
                 });

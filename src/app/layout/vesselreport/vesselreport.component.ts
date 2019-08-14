@@ -2,6 +2,7 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
+import { isArray } from 'util';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
@@ -144,8 +145,8 @@ export class VesselreportComponent implements OnInit {
     const platforms: any[] = new Array<any>();
 
     if (locationData.length > 0 && transfers.length > 0) {
-      locationData.forEach(turbineLocation => {
-        for (let index = 0; index < turbineLocation.lat.length; index++) {
+      locationData.forEach(platformLocation => {
+        for (let index = 0; index < platformLocation.lat.length; index++) {
           let platformIsVisited = false;
           for (let transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
             let transferName = '';
@@ -155,9 +156,8 @@ export class VesselreportComponent implements OnInit {
             } else {
               transferName = transfers[transferIndex].location;
             }
-            if (turbineLocation.name[index] === transferName) {
-
-              platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
+            if (platformLocation.name[0][index] === transferName) {
+              platforms.push(new TurbineLocation(platformLocation.lat[index][0], platformLocation.lon[index][0], transferName, transfers[transferIndex]));
               platformIsVisited = true;
               this.transferVisitedAtLeastOneTurbine = true;
               continue;
@@ -165,7 +165,7 @@ export class VesselreportComponent implements OnInit {
           }
           // Reached the end, turbine has not been visited
           if (!platformIsVisited) {
-            platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
+            platforms.push(new TurbineLocation(platformLocation.lat[index][0], platformLocation.lon[index][0], isArray(platformLocation.name[0]) ? platformLocation.name[0][index] : platformLocation.name[index]));
           }
         }
       });
