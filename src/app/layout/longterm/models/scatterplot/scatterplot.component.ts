@@ -1,6 +1,7 @@
 import * as Chart from 'chart.js';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
+import { ComprisonArrayElt } from '../scatterInterface';
 
 
 export class ScatterplotComponent {
@@ -407,15 +408,4 @@ function createNewLegendAndAttach(chartInstance, legendOpts) {
   }
   chartInstance.newLegend = legend;
   Chart.layoutService.addBox(chartInstance, legend);
-}
-
-class ComprisonArrayElt {
-  x: string;
-  y: string;
-  graph: string;
-  xLabel: string;
-  yLabel: string;
-  dataType: string;
-  info: string;
-  annotation?: () => {};
 }

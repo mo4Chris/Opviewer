@@ -9,6 +9,7 @@ import { DatetimeService } from '../../../supportModules/datetime.service';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { TokenModel } from '../../../models/tokenModel';
+import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -209,22 +210,4 @@ export class LongtermCTVComponent implements OnInit {
     MatlabDateToUnixEpochViaDate(serial) {
         return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
     }
-}
-
-interface ComprisonArrayElt {
-    x: string;
-    y: string;
-    graph: string;
-    xLabel: string;
-    yLabel: string;
-    dataType: string;
-    info: string;
-    annotation?: () => {};
-}
-
-interface RawScatterData {
-    _id: number;
-    label: string[];
-    xVal: number[];
-    yVal: number[];
 }

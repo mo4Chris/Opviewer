@@ -8,6 +8,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../../supportModules/datetime.service';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
+import { ComprisonArrayElt } from '../models/scatterInterface';
 
 @Component({
 selector: 'app-longterm-sov',
@@ -28,7 +29,7 @@ export class LongtermSOVComponent implements OnInit {
     @Input() toDate: NgbDate;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    comparisonArray = [
+    comparisonArray: ComprisonArrayElt[] = [
         { x: 'dayNum', y: 'speedInTransitAvg', graph: 'scatter', xLabel: 'Time', yLabel: 'Transit speed [km/h]', dataType: 'transit' },
         { x: 'startTime', y: 'duration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration', dataType: 'turbine' },
     ];

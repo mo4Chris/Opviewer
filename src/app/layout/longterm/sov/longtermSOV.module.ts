@@ -27,4 +27,4 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     providers: [CommonService, UserService],
     bootstrap: [LongtermSOVComponent]
 })
-export class LongtermCTVModule {}
+export class LongtermSOVModule {}
