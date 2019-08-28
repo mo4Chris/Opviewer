@@ -31,6 +31,7 @@ export class LongtermCTVComponent implements OnInit {
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
     comparisonArray: ComprisonArrayElt[] = [
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
@@ -114,7 +115,13 @@ export class LongtermCTVComponent implements OnInit {
     }
 
     contructSingleGraph(compElt: ComprisonArrayElt, graphIndex: number, onLoadedCB?: () => void) {
-        const queryElt = { 'mmsi': this.vesselObject.mmsi, 'dateMin': this.vesselObject.dateMin, 'dateMax': this.vesselObject.dateMax, x: compElt.x, y: compElt.y };
+        const queryElt = {
+            'mmsi': this.vesselObject.mmsi,
+            'dateMin': this.vesselObject.dateMin,
+            'dateMax': this.vesselObject.dateMax,
+            x: compElt.x,
+            y: compElt.y
+        };
         switch (compElt.dataType) {
             case 'transfer':
                 this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
@@ -145,14 +152,22 @@ export class LongtermCTVComponent implements OnInit {
         switch (graphType) {
             case 'scatter':
                 this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    const scatterData: {x: number|Date, y: number|Date}[] = [];
+                    const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
                     let x: number|Date;
                     let y: number|Date;
                     data.xVal.forEach((_x, __i) => {
                         const _y = data.yVal[__i];
                         x = this.processData(this.comparisonArray[graphIndex].x, _x);
                         y = this.processData(this.comparisonArray[graphIndex].y, _y);
-                        scatterData.push({x: x, y: y});
+                        if (typeof(x) !== 'number') {
+                            const matlabDate = Math.floor(_x);
+                            const navToDPRByDate = () => {
+                                return this.navigateToVesselreport.emit({mmsi: data._id, matlabDate: matlabDate});
+                            }
+                            scatterData.push({x: x, y: y, callback: navToDPRByDate});
+                        } else {
+                            scatterData.push({x: x, y: y});
+                        }
                     });
                     return scatterData;
                 });

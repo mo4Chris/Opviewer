@@ -181,6 +181,11 @@ export class LongtermComponent implements OnInit {
       }
   }
 
+  navigateToVesselreport(vesselObject: {mmsi: number, matlabDate: number}) {
+    console.log('Navigation to vesselreport via LTM triggered')
+    this.router.navigate(['vesselreport', {boatmmsi: vesselObject.mmsi, date: vesselObject.matlabDate}]);
+  }
+
   isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);

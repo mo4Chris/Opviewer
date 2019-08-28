@@ -135,6 +135,11 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return DatetimeService.shortMonths[date.getMonth()] + ' ' + date.getDate() + ', ' + hours + ':' + mins;
   }
 
+  dateStringToEpoch(datestring: string) {
+    const dateMoment = moment(datestring);
+    return dateMoment.unix();
+  }
+
   getMatlabDateLastMonth() {
     const matlabValueYesterday = moment().add(-1, 'months');
     matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });

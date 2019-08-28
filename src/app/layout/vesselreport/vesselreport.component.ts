@@ -30,7 +30,8 @@ import { TokenModel } from '../../models/tokenModel';
   animations: [routerTransition()],
 })
 export class VesselreportComponent implements OnInit {
-  constructor(public router: Router,
+  constructor(
+    public router: Router,
     private newService: CommonService,
     private route: ActivatedRoute,
     private calculationService: CalculationService,
@@ -44,7 +45,7 @@ export class VesselreportComponent implements OnInit {
 
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': '' };
+  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getInitialDateNormal(), 'vesselType': '' };
 
   parkNamesData;
   boatLocationData = [];
@@ -202,7 +203,7 @@ export class VesselreportComponent implements OnInit {
     this.showMap = true;
   }
 
-  changeDay(changedDayCount) {
+  changeDay(changedDayCount: number) {
     const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
     this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
@@ -253,9 +254,33 @@ export class VesselreportComponent implements OnInit {
   }
 
   getMMSIFromParameter() {
-    let mmsi;
+    let mmsi: number;
     this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
     return mmsi;
+  }
+
+  getDateFromParameter() {
+    let matlabDate: number;
+    this.route.params.subscribe(params => matlabDate = parseFloat(params.date));
+    return matlabDate;
+  }
+
+  getInitialDate() {
+    const paramDate = this.getDateFromParameter();
+    if (isNaN(paramDate)) {
+      return this.dateTimeService.getMatlabDateYesterday();
+    } else {
+      return paramDate;
+    }
+  }
+
+  getInitialDateNormal() {
+    const paramDate = this.getDateFromParameter();
+    if (isNaN(paramDate)) {
+      return this.dateTimeService.getJSDateYesterdayYMD();
+    } else {
+      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
+    }
   }
 
   objectToInt(objectvalue) {

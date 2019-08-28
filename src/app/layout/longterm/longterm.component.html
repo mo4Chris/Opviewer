@@ -61,10 +61,11 @@
 <hr>
 <div *ngIf="noPermissionForData == false; else noPermission">
     <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject" 
-    [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate">
+    [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToVesselreport($event)">
     </app-longterm-ctv>
     <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'"  (showContent)="childLoaded($event)" 
-    [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate">
+    [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"
+    (navigateToVesselreport)="navigateToVesselreport($event)">
     </app-longterm-sov>
 </div>
 

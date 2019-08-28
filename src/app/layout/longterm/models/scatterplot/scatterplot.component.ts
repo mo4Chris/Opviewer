@@ -139,6 +139,12 @@ export class ScatterplotComponent {
                     return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
                   }
                 },
+                afterBody: function(tooltipItem, data) {
+                  tooltipItem = tooltipItem[0];
+                  console.log(tooltipItem);
+                  console.log(data);
+                  data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].callback();
+                },
                 title: function(tooltipItem, data) {
                   // Prevents a bug from showing up in the bar chart tooltip
                 }
@@ -337,25 +343,7 @@ export class ScatterplotComponent {
         fontColor: '#fff',
         enabled: true,
         content: label
-      },
-      // These events appear to be broken due to bug in annotions module
-      // onMouseover: function (e) {
-      //   console.log('Mouse enter event')
-      //   const annot = this;
-      //   console.log(annot)
-      //   annot.options.borderWidth = 7;
-      //   annot.options.label.enabled = true;
-      //   annot.chartInstance.update();
-      //   annot.chartInstance.chart.canvas.style.cursor = 'pointer';
-      // },
-      // onMouseout: function (e) {
-      //   console.log('Mouse leave event')
-      //   const annot = this;
-      //   console.log(annot)
-      //   annot.options.label.enabled = false;
-      //   annot.chartInstance.update();
-      //   annot.chartInstance.chart.canvas.style.cursor = 'pointer';
-      // }
+      }
     };
   }
 
