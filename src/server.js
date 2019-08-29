@@ -10,6 +10,7 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", { useNewUrlParser: true }, function (err, response) {
+    // Why is this address hardcoded instead of calling the environment.ts file?
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -35,6 +36,7 @@ let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
     secure: (process.env.EMAIL_PORT == 465),
+    // Why is this port hardcoded instead of calling the environment.ts file?
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -2248,6 +2250,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
 
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
+    // Why is this port hardcoded instead of calling the environment.ts file?
 });
 
 
