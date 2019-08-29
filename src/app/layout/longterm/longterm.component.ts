@@ -182,7 +182,6 @@ export class LongtermComponent implements OnInit {
   }
 
   navigateToVesselreport(vesselObject: {mmsi: number, matlabDate: number}) {
-    console.log('Navigation to vesselreport via LTM triggered')
     this.router.navigate(['vesselreport', {boatmmsi: vesselObject.mmsi, date: vesselObject.matlabDate}]);
   }
 

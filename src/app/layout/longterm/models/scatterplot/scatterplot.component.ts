@@ -2,6 +2,7 @@ import * as Chart from 'chart.js';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
+import { Duration, Moment, now } from 'moment';
 
 
 export class ScatterplotComponent {
@@ -108,7 +109,7 @@ export class ScatterplotComponent {
         this.myChart.push(new Chart('canvas' + _j, {
           type: this.comparisonArray[_j].graph,
           data: {
-            datasets: this.datasetValues[_j]
+            datasets: this.datasetValues[_j],
           },
           options: {
             title: {
@@ -139,12 +140,10 @@ export class ScatterplotComponent {
                     return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
                   }
                 },
-                afterBody: function(tooltipItem, data) {
-                  tooltipItem = tooltipItem[0];
-                  console.log(tooltipItem);
-                  console.log(data);
-                  data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].callback();
-                },
+                // afterBody: function(tooltipItem, data) {
+                //   tooltipItem = tooltipItem[0];
+                //   data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].callback();
+                // },
                 title: function(tooltipItem, data) {
                   // Prevents a bug from showing up in the bar chart tooltip
                 }
@@ -174,9 +173,22 @@ export class ScatterplotComponent {
               yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel, this.comparisonArray[_j].graph, 'y-axis-0'),
             },
             annotation: {
-              events: ['mouseover', 'mouseout'],
+              events: ['mouseover', 'mouseout', 'dblclick', 'click'],
               annotations: this.setAnnotations(this.comparisonArray[_j])
             },
+            onClick: function(clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
+              if (this.lastClick !== undefined && now() - this.lastClick < 300) {
+                // Two clicks < 300ms ==> double click
+                if (chartElt.length > 0) {
+                  chartElt = chartElt[0];
+                  const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
+                  if (dataElt.callback !== undefined) {
+                    dataElt.callback();
+                  }
+                }
+              }
+              this.lastClick = now();
+          }
           },
           plugins: [
             {
