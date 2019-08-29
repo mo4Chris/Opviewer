@@ -43,13 +43,14 @@ export class VesselreportComponent implements OnInit {
 
   }
 
+  startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.getInitialDateNormal(), 'vesselType': '' };
+  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': '', 'vesselType': '' };
 
   parkNamesData;
   boatLocationData = [];
-  datePickerValue = this.maxDate;
+  datePickerValue = this.startDate;
   sailDates: {transfer: object[], transit: object[], other: object[]};
   vessels: VesselModel[];
   general = {};
@@ -266,12 +267,16 @@ export class VesselreportComponent implements OnInit {
   }
 
   getInitialDate() {
-    const paramDate = this.getDateFromParameter();
-    if (isNaN(paramDate)) {
+    const matlabDate = this.getDateFromParameter();
+    if (isNaN(matlabDate)) {
       return this.dateTimeService.getMatlabDateYesterday();
     } else {
-      return paramDate;
+      return matlabDate;
     }
+  }
+
+  getInitialDateObject() {
+    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
   }
 
   getInitialDateNormal() {

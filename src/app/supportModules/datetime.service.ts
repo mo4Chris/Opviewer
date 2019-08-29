@@ -52,9 +52,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToJSDateYMD(serial: number) {
-    const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
+    const datevar = this.MatlabDateToUnixEpoch(serial).format('YYYY-MM-DD');
     return datevar;
   }
+
   JSDateYMDToObjectDate(YMDDate: string) {
     const YMDarray = YMDDate.split('-');
     const ObjectDate = { year: YMDarray[0], month: YMDarray[1], day: YMDarray[2] };
@@ -62,12 +63,17 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToJSTime(serial: number) {
-    if (moment((serial - 719529) * 864e5).isValid()) {
-      const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
+    const serialMoment = this.MatlabDateToUnixEpoch(serial);
+    if (serialMoment.isValid()) {
+      const time_info = serialMoment.format('HH:mm:ss');
       return time_info;
     } else {
       return 'N/a';
     }
+  }
+
+  MatlabDateToObject(serial: number) {
+    return this.convertMomentToObject(this.MatlabDateToUnixEpoch(serial));
   }
 
   MatlabDateToCustomJSTime(serial: string | number, format: string) {
@@ -76,8 +82,9 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
     if (!isNaN(serial)) {
       let time_info: string;
-      if ( moment((serial - 719529) * 864e5).isValid()) {
-        time_info = moment((serial - 719529) * 864e5).format(format);
+      const serialMoment = this.MatlabDateToUnixEpoch(serial);
+      if (serialMoment.isValid()) {
+        time_info = serialMoment.format(format);
       } else {
         time_info = 'N/a';
       }
@@ -88,13 +95,12 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   unixEpochtoMatlabDate(epochDate: number) {
-    const matlabTime = ((epochDate / 864e2) + 719529);
-    return matlabTime;
+    return (epochDate / 864e2) + 719529;
   }
 
   MatlabDateToJSTimeDifference(serialEnd: number, serialBegin: number) {
-    const serialEndMoment = moment((serialEnd - 719529) * 864e5).startOf('second');
-    const serialBeginMoment = moment((serialBegin - 719529) * 864e5).startOf('second');
+    const serialEndMoment = this.MatlabDateToUnixEpoch(serialEnd).startOf('second');
+    const serialBeginMoment = this.MatlabDateToUnixEpoch(serialBegin).startOf('second');
     const difference = serialEndMoment.diff(serialBeginMoment);
 
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
