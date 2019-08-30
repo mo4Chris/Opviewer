@@ -48,7 +48,7 @@ export class LongtermCTVComponent implements OnInit {
             'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
         { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
+            '95% confidence intervals for the docking score are drawn for various Hs bins. Outliers are drawn separately.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 

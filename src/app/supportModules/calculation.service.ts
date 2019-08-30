@@ -129,6 +129,22 @@ export class CalculationService {
     return std;
   }
 
+  getNanMax(X: number[], removeNaNs = true) {
+    if (removeNaNs) {
+      X = X.filter(elt => !isNaN(elt));
+    }
+    const max = X.reduce((a, b) => Math.max(a, b));
+    return max;
+  }
+
+  getNanMin(X: number[], removeNaNs = true) {
+    if (removeNaNs) {
+      X = X.filter(elt => !isNaN(elt));
+    }
+    const max = X.reduce((a, b) => Math.min(a, b));
+    return max;
+  }
+
   parseMatlabArray(A: any) {
     // Parses any of the weird matlab arrays into a 1D array
     let B: number[];

@@ -276,22 +276,24 @@ export class ScatterplotComponent {
           // Add points to scatter array
           vesselDataSets = vesselDataSets.concat(newDataElts);
         } else {
-          const yVals = newDataElts.map(data => data.y);
+          const yVals = newDataElts.map(data => data.y) as number[];
           const mean = this.calculationService.getNanMean(yVals as number[]);
           const std = this.calculationService.getNanStd(yVals as number[]);
           const outliers = newDataElts.filter((data) => data.y < mean - 2 * std || data.y > mean + 2 * std);
           vesselDataSets = vesselDataSets.concat(outliers);
+          const upperLimit = this.calculationService.getNanMax(yVals);
+          const lowerLimit = this.calculationService.getNanMin(yVals);
           line.push({
             x: lb / 2 + ub / 2,
             y: mean
           });
           line_lb.push({
             x: lb / 2 + ub / 2,
-            y: Math.max(0, mean - std),
+            y: Math.max(lowerLimit, mean - std),
           });
           line_ub.push({
             x: lb / 2 + ub / 2,
-            y: Math.min(10, mean + std),
+            y: Math.min(upperLimit, mean + std),
           });
         }
       }
@@ -314,6 +316,7 @@ export class ScatterplotComponent {
         label: '95% confidence interval',
         type: 'line',
         showLine: true,
+        pointRadius: 0,
         backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
         borderColor: vesselScatterData.backgroundColor,
         fill: true,
