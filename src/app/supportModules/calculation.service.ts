@@ -119,6 +119,16 @@ export class CalculationService {
     return avg;
   }
 
+  getNanStd(X: number[], removeNaNs = true) {
+    if (removeNaNs) {
+      X = X.filter(elt => !isNaN(elt));
+    }
+    const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+    const ste = X.reduce(function (sum, a, i, ar) { sum += (a - avg) * (a - avg); return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
+    const std = Math.sqrt(ste);
+    return std;
+  }
+
   parseMatlabArray(A: any) {
     // Parses any of the weird matlab arrays into a 1D array
     let B: number[];

@@ -47,6 +47,9 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
             'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+        { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
+            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
     myChart = [];
@@ -122,6 +125,7 @@ export class LongtermCTVComponent implements OnInit {
             x: compElt.x,
             y: compElt.y
         };
+
         switch (compElt.dataType) {
             case 'transfer':
                 this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
@@ -150,7 +154,7 @@ export class LongtermCTVComponent implements OnInit {
 
     parseRawData(rawScatterData: RawScatterData[], graphIndex: number, graphType: string) {
         switch (graphType) {
-            case 'scatter':
+            case 'scatter': case 'areaScatter':
                 this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
                     const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
                     let x: number|Date;

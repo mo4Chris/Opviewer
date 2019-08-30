@@ -77,12 +77,12 @@ export class ScatterplotComponent {
           label: this.labelValues[i],
           pointStyle: this.pointStyles[i],
           backgroundColor: this.backgroundcolors[i],
-          radius: 6,
           borderColor: this.bordercolors[i],
+          radius: 4,
           pointHoverRadius: 10,
           borderWidth: 1,
           hitRadius: 10,
-        });
+        } as ScatterValueArray);
       }
     }
     this.destroyCurrentCharts();
@@ -102,21 +102,237 @@ export class ScatterplotComponent {
   }
 
   createScatterChart() {
-    const dateService = this.dateTimeService;
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
       if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
-        this.myChart.push(new Chart('canvas' + _j, {
-          type: this.comparisonArray[_j].graph,
-          data: {
-            datasets: this.datasetValues[_j],
+        const graph: string  = this.comparisonArray[_j].graph;
+        const args: ScatterArguments = {
+          comparisonElt: this.comparisonArray[_j],
+          datasets: this.datasetValues[_j],
+          graphIndex: _j,
+          axisType: axisTypes,
+          bins: [0, 0.25, 0.5, 0.75, 1.0, 2],
+        };
+        switch (graph) {
+          case 'bar': case 'scatter':
+            this.myChart.push(this.createBarOrScatterChart(args));
+            break;
+          case 'areaScatter':
+            this.myChart.push(this.createAreaScatter(args));
+            break;
+          default:
+            console.error('Invalid graph type used!');
+        }
+        const hmtlElt = document.getElementById('hideIfNoData' + _j);
+        hmtlElt.setAttribute('style', 'normal');
+      } else {
+        const hmtlElt = document.getElementById('hideIfNoData' + _j);
+        hmtlElt.setAttribute('style', 'display: none');
+      }
+    }
+  }
+
+  createBarOrScatterChart(args: ScatterArguments) {
+    const dateService = this.dateTimeService;
+    return new Chart('canvas' + args.graphIndex, {
+      type: args.comparisonElt.graph,
+      data: {
+        datasets: args.datasets,
+      },
+      options: {
+        title: {
+          display: true,
+          fontSize: 20,
+          text: args.comparisonElt.xLabel + ' vs ' + args.comparisonElt.yLabel,
+          position: 'top'
+        },
+        tooltips: {
+          callbacks: {
+            beforeLabel: function (tooltipItem, data) {
+              return data.datasets[tooltipItem.datasetIndex].label;
+            },
+            label: function (tooltipItem, data) {
+              switch (args.axisType.x) {
+                case 'date':
+                 return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                case 'numeric':
+                  return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
+                default:
+                  return '';
+              }
+            },
+            afterLabel: function(tooltipItem, data) {
+              if (args.axisType.y === 'date') {
+                return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
+              } else {
+                return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
+              }
+            },
+            title: function(tooltipItem, data) {
+              // Prevents a bug from showing up in the bar chart tooltip
+            }
+          }
+        },
+        scaleShowVerticalLines: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        radius: 2,
+        legend: {
+          display: true,
+          labels: {
+            defaultFontSize: 24,
+            defaultFontStyle: 'bold'
           },
-          options: {
+        },
+        pointHoverRadius: 2,
+        animation: {
+          duration: 0,
+        },
+        hover: {
+          animationDuration: 0,
+        },
+        responsiveAnimationDuration: 0,
+        scales: {
+          xAxes: this.buildAxisFromType(args.axisType.x, args.comparisonElt.xLabel, args.comparisonElt.graph, 'x-axis-0'),
+          yAxes: this.buildAxisFromType(args.axisType.y, args.comparisonElt.yLabel, args.comparisonElt.graph, 'y-axis-0'),
+        },
+        annotation: {
+          events: ['mouseover', 'mouseout', 'dblclick', 'click'],
+          annotations: this.setAnnotations(args.comparisonElt)
+        },
+        onClick: function(clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
+          if (this.lastClick !== undefined && now() - this.lastClick < 300) {
+            // Two clicks < 300ms ==> double click
+            if (chartElt.length > 0) {
+              chartElt = chartElt[0];
+              const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
+              if (dataElt.callback !== undefined) {
+                dataElt.callback();
+              }
+            }
+          }
+          this.lastClick = now();
+      }
+      },
+      plugins: [
+        {
+          beforeInit: function (chartInstance) {
+            const legendOpts = chartInstance.options.legend;
+            if (legendOpts) {
+              createNewLegendAndAttach(chartInstance, legendOpts);
+            }
+          },
+          beforeUpdate: function (chartInstance) {
+            let legendOpts = chartInstance.options.legend;
+
+            if (legendOpts) {
+              legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
+
+              if (chartInstance.newLegend) {
+                chartInstance.newLegend.options = legendOpts;
+              } else {
+                createNewLegendAndAttach(chartInstance, legendOpts);
+              }
+            } else {
+              Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
+              delete chartInstance.newLegend;
+            }
+          },
+          afterEvent: function (chartInstance, e) {
+            const legend = chartInstance.newLegend;
+            if (legend) {
+              legend.handleEvent(e);
+            }
+          }
+        }
+      ],
+    });
+  }
+
+  public createAreaScatter(args: ScatterArguments) {
+    const dateService = this.dateTimeService;
+    const datasets = [];
+    args.datasets.forEach( (vesselScatterData) => {
+      // Iterates over vessels
+      let vesselDataSets: ScatterDataElt[] = [];
+      const line = [{x: 0, y: 10}];
+      const line_lb = [{x: 0, y: 10}];
+      const line_ub = [{x: 0, y: 10}];
+      for (let binIdx = 0; binIdx < args.bins.length - 1; binIdx++ ) {
+        // Iterate over bins
+        const lb = args.bins[binIdx];
+        const ub = args.bins[binIdx + 1];
+        let cnt = 0;
+        const idx =  vesselScatterData.data.map((elt, __i) => {
+              if (elt.x >= lb && elt.x < ub) {
+                cnt ++;
+                return true;
+              } else {
+                return false;
+              }
+            });
+        const newDataElts = vesselScatterData.data.filter((_, _idx) => idx[_idx]);
+        if (cnt < 5) {
+          // Add points to scatter array
+          vesselDataSets = vesselDataSets.concat(newDataElts);
+        } else {
+          const yVals = newDataElts.map(data => data.y);
+          const mean = this.calculationService.getNanMean(yVals as number[]);
+          const std = this.calculationService.getNanStd(yVals as number[]);
+          const outliers = newDataElts.filter((data) => data.y < mean - 2 * std || data.y > mean + 2 * std);
+          vesselDataSets = vesselDataSets.concat(outliers);
+          line.push({
+            x: lb / 2 + ub / 2,
+            y: mean
+          });
+          line_lb.push({
+            x: lb / 2 + ub / 2,
+            y: Math.max(0, mean - std),
+          });
+          line_ub.push({
+            x: lb / 2 + ub / 2,
+            y: Math.min(10, mean + std),
+          });
+        }
+      }
+      vesselScatterData.data = vesselDataSets;
+      datasets.push(vesselScatterData);
+      datasets.push({
+        data: line,
+        label: 'Mean', // vesselScatterData.label,
+        type: 'line',
+        fill: false,
+        borderColor: vesselScatterData.backgroundColor,
+        backgroundColor: vesselScatterData.backgroundColor,
+        showLine: true,
+        borderWidth: 5
+      });
+      const bbox = line_lb.concat(line_ub.reverse());
+      bbox.push(line_lb[0]);
+      datasets.push({
+        data: bbox,
+        label: '95% confidence interval',
+        type: 'line',
+        showLine: true,
+        backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
+        borderColor: vesselScatterData.backgroundColor,
+        fill: true,
+        borderWidth: 0,
+        lineTension: 0.1,
+      });
+    });
+    // Iterate over args.datasets and separately add the line and scatter components
+    return new Chart('canvas' + args.graphIndex, {
+        type: 'scatter',
+        data: {
+          datasets
+        },
+        options: {
             title: {
-              display: true,
-              fontSize: 20,
-              text: this.comparisonArray[_j].xLabel + ' vs ' + this.comparisonArray[_j].yLabel,
-              position: 'top'
+            display: true,
+            fontSize: 20,
+            text: args.comparisonElt.xLabel + ' vs ' + args.comparisonElt.yLabel,
+            position: 'top'
             },
             tooltips: {
               callbacks: {
@@ -124,7 +340,7 @@ export class ScatterplotComponent {
                   return data.datasets[tooltipItem.datasetIndex].label;
                 },
                 label: function (tooltipItem, data) {
-                  switch (axisTypes.x) {
+                  switch (args.axisType.x) {
                     case 'date':
                      return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
                     case 'numeric':
@@ -134,16 +350,12 @@ export class ScatterplotComponent {
                   }
                 },
                 afterLabel: function(tooltipItem, data) {
-                  if (axisTypes.y === 'date') {
+                  if (args.axisType.y === 'date') {
                     return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
                   } else {
                     return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
                   }
                 },
-                // afterBody: function(tooltipItem, data) {
-                //   tooltipItem = tooltipItem[0];
-                //   data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].callback();
-                // },
                 title: function(tooltipItem, data) {
                   // Prevents a bug from showing up in the bar chart tooltip
                 }
@@ -152,7 +364,6 @@ export class ScatterplotComponent {
             scaleShowVerticalLines: false,
             responsive: true,
             maintainAspectRatio: false,
-            radius: 2,
             legend: {
               display: true,
               labels: {
@@ -169,67 +380,43 @@ export class ScatterplotComponent {
             },
             responsiveAnimationDuration: 0,
             scales: {
-              xAxes: this.buildAxisFromType(axisTypes.x, this.comparisonArray[_j].xLabel, this.comparisonArray[_j].graph, 'x-axis-0'),
-              yAxes: this.buildAxisFromType(axisTypes.y, this.comparisonArray[_j].yLabel, this.comparisonArray[_j].graph, 'y-axis-0'),
+              xAxes: this.buildAxisFromType(args.axisType.x, args.comparisonElt.xLabel, args.comparisonElt.graph, 'x-axis-0'),
+              yAxes: this.buildAxisFromType(args.axisType.y, args.comparisonElt.yLabel, args.comparisonElt.graph, 'y-axis-0'),
             },
-            annotation: {
-              events: ['mouseover', 'mouseout', 'dblclick', 'click'],
-              annotations: this.setAnnotations(this.comparisonArray[_j])
-            },
-            onClick: function(clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
-              if (this.lastClick !== undefined && now() - this.lastClick < 300) {
-                // Two clicks < 300ms ==> double click
-                if (chartElt.length > 0) {
-                  chartElt = chartElt[0];
-                  const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
-                  if (dataElt.callback !== undefined) {
-                    dataElt.callback();
-                  }
-                }
-              }
-              this.lastClick = now();
-          }
-          },
-          plugins: [
+        },
+        plugins: [
             {
-              beforeInit: function (chartInstance) {
+            beforeInit: function (chartInstance) {
                 const legendOpts = chartInstance.options.legend;
                 if (legendOpts) {
-                  createNewLegendAndAttach(chartInstance, legendOpts);
+                createNewLegendAndAttach(chartInstance, legendOpts);
                 }
-              },
-              beforeUpdate: function (chartInstance) {
+            },
+            beforeUpdate: function (chartInstance) {
                 let legendOpts = chartInstance.options.legend;
 
                 if (legendOpts) {
-                  legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
+                legendOpts = Chart.helpers.configMerge(Chart.defaults.global.legend, legendOpts);
 
-                  if (chartInstance.newLegend) {
+                if (chartInstance.newLegend) {
                     chartInstance.newLegend.options = legendOpts;
-                  } else {
-                    createNewLegendAndAttach(chartInstance, legendOpts);
-                  }
                 } else {
-                  Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
-                  delete chartInstance.newLegend;
+                    createNewLegendAndAttach(chartInstance, legendOpts);
                 }
-              },
-              afterEvent: function (chartInstance, e) {
+                } else {
+                Chart.layoutService.removeBox(chartInstance, chartInstance.newLegend);
+                delete chartInstance.newLegend;
+                }
+            },
+            afterEvent: function (chartInstance, e) {
                 const legend = chartInstance.newLegend;
                 if (legend) {
-                  legend.handleEvent(e);
+                legend.handleEvent(e);
                 }
-              }
-            }
-          ],
-        }));
-        const hmtlElt = document.getElementById('hideIfNoData' + _j);
-        hmtlElt.setAttribute('style', 'normal');
-      } else {
-        const hmtlElt = document.getElementById('hideIfNoData' + _j);
-        hmtlElt.setAttribute('style', 'display: none');
-      }
-    }
+            },
+          }
+        ]
+    });
   }
 
   getAxisType(dataArrays) {
@@ -328,6 +515,17 @@ export class ScatterplotComponent {
             }];
         }
         break;
+      case 'areaScatter':
+          return [{
+            id: chartID,
+            ticks: {
+              beginAtZero: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: Label
+            }
+          }];
     }
   }
 
@@ -408,4 +606,30 @@ function createNewLegendAndAttach(chartInstance, legendOpts) {
   }
   chartInstance.newLegend = legend;
   Chart.layoutService.addBox(chartInstance, legend);
+}
+
+interface ScatterArguments {
+  axisType: {x: string, y: string};
+  graphIndex: number;
+  datasets: ScatterValueArray[];
+  comparisonElt: ComprisonArrayElt;
+  bins ?: number[];
+}
+
+interface ScatterValueArray {
+  data: ScatterDataElt[];
+  label: String;
+  pointStyle: String;
+  backgroundColor: String;
+  borderColor: String;
+  radius: Number;
+  pointHoverRadius: Number;
+  borderWidth: Number;
+  hitRadius: Number;
+}
+
+interface ScatterDataElt {
+  x: number|Date;
+  y: number|Date;
+  callback?: Function;
 }
