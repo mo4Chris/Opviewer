@@ -73,7 +73,7 @@ export class ScatterplotComponent {
       this.datasetValues[j] = [];
       for (let i = 0; i < this.scatterDataArrayVessel[j].length; i++) {
         this.datasetValues[j].push({
-          data: this.scatterDataArrayVessel[j][i],
+          data: this.filterNans(this.scatterDataArrayVessel[j][i]),
           label: this.labelValues[i],
           pointStyle: this.pointStyles[i],
           backgroundColor: this.backgroundcolors[i],
@@ -111,7 +111,7 @@ export class ScatterplotComponent {
           datasets: this.datasetValues[_j],
           graphIndex: _j,
           axisType: axisTypes,
-          bins: [0, 0.25, 0.5, 0.75, 1.0, 2],
+          bins: this.calculationService.linspace(0, 2, 0.2),
         };
         switch (graph) {
           case 'bar': case 'scatter':
@@ -563,6 +563,10 @@ export class ScatterplotComponent {
   getPeakValue(graphNumber: number, filterActive: boolean = true) {
     // Not yet used
     const graphInfo = this.myChart[graphNumber];
+  }
+
+  filterNans(rawData: ScatterDataElt[]) {
+    return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number)));
   }
 
   // Date support functions

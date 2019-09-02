@@ -59,7 +59,7 @@ export class CalculationService {
         }
     });
     return resetObject;
-}
+  }
 
   GetMaxValueInMultipleDimensionArray(array) {
     if (array._ArrayType_ || array.length === 0) {
@@ -115,6 +115,7 @@ export class CalculationService {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
+    if (X.length < 1) {return NaN; }
     const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
     return avg;
   }
@@ -123,6 +124,7 @@ export class CalculationService {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
+    if (X.length < 1) {return NaN; }
     const avg = X.reduce(function (sum, a, i, ar) { sum += a; return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
     const ste = X.reduce(function (sum, a, i, ar) { sum += (a - avg) * (a - avg); return i === ar.length - 1 ? (ar.length === 0 ? 0 : sum / ar.length) : sum; }, 0);
     const std = Math.sqrt(ste);
@@ -133,6 +135,7 @@ export class CalculationService {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
+    if (X.length < 1) {return NaN; }
     const max = X.reduce((a, b) => Math.max(a, b));
     return max;
   }
@@ -141,6 +144,7 @@ export class CalculationService {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
+    if (X.length < 1) {return NaN; }
     const max = X.reduce((a, b) => Math.min(a, b));
     return max;
   }
@@ -158,5 +162,15 @@ export class CalculationService {
       B = A.map(x => x[0]);
     }
     return B;
+  }
+
+  linspace(start: number, stop: number, step: number = 1) {
+    const linspace = [];
+    let curr = start;
+    while ( curr <= stop ) {
+      linspace.push(curr);
+      curr = curr + step;
+    }
+    return linspace;
   }
 }
