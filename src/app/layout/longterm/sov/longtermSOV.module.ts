@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-
-// import { LongtermRoutingModule } from './longterm-routing.module';
 import { LongtermSOVComponent } from './longtermSOV.component';
 import { PageHeaderModule } from '../../../shared';
 
