@@ -489,7 +489,8 @@ function mailTo(subject, html, user) {
 
     let mailOptions = {
         from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
-        to: process.env.EMAIL, //'bar@example.com, baz@example.com' list of receivers
+        to: user, //'bar@example.com, baz@example.com' list of receivers
+        bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
         subject: subject, //'Hello ✔' Subject line
         html: body //'<b>Hello world?</b>' html body
     };
