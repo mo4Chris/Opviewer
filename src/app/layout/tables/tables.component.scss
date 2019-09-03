@@ -36,7 +36,7 @@ a {
     }
 }
 
-th:not(:first-child):not(:last-child) {
+.clickable {
     cursor: pointer;
 }
 

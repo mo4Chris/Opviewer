@@ -1,0 +1,85 @@
+<h2 class="text-muted">Longterm performance:<small> {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}} </small></h2>
+<div>
+    <ng-template #t let-date="date" let-focused="focused">
+        <span class="custom-day"
+                [class.focused]="focused"
+                [class.range]="isRange(date)"
+                [class.faded]="isHovered(date) || isInside(date)"
+                [class.disable-day]="disabled"
+                [class.text-muted]="disabled"
+                (mouseenter)="hoveredDate = date"
+                (mouseleave)="hoveredDate = null">
+            {{ date.day }}
+        </span>
+    </ng-template>
+</div>
+<div class="col-lg-12">
+    <form class="form-inline mb-3">
+      <div class="form-group" (keyup.enter)="searchTransfersByNewSpecificDate()">
+          <div class="input-group datepicker-input">
+                <ng-template #content let-modal>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Select your date range</h4>
+                        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ngb-datepicker #dp (select)="onDateSelection($event)" [displayMonths]="2" [dayTemplate]="t" [maxDate]="maxDate">
+                        </ngb-datepicker>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" (click)="closeModal()">Close without changing date</button>
+                        <button type="button" class="btn btn-primary" (click)="closeModal(); searchTransfersByNewSpecificDate()">Search for new date range</button>
+                    </div>
+                </ng-template>                   
+                
+              <div class="form-group">
+                 <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">Date selector</button>
+                    <ng-multiselect-dropdown 
+                        name="selectVessel" 
+                        (onOpen)="openVesselModal($event)" 
+                        id ="selectVessel"
+                        class="multiSelectDiv" 
+                        (onSelect)="searchTransfersByNewSpecificDate()" 
+                        (onDeSelect)="searchTransfersByNewSpecificDate()" 
+                        (onSelectAll)="onSelectVessel($event)"
+                        (onDeSelectAll)="onSelectVessel($event)"
+                        [placeholder]="'Select vessel'"
+                        [data]="Vessels"
+                        [(ngModel)]="dropdownValues"
+                        [settings]="multiSelectSettings">
+                    </ng-multiselect-dropdown>
+              </div>
+          </div>
+        <button type="button" class="btn btn-outline-secondary helpBtn longtermModule" [autoClose]="true"
+            [ngbPopover]="formHelp" placement="bottom" popoverClass="helpPopup" container="body">?
+        </button>
+      </div>
+  </form>
+</div>
+<hr>
+<div *ngIf="noPermissionForData == false; else noPermission">
+    <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject" 
+    [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToVesselreport($event)">
+    </app-longterm-ctv>
+    <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'"  (showContent)="childLoaded($event)" 
+    [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"
+    (navigateToVesselreport)="navigateToVesselreport($event)">
+    </app-longterm-sov>
+</div>
+
+<ng-template #noPermission>
+    <div class="divContainer">
+        <h3>You are not allowed to view the vessel you requested</h3>
+    </div>
+</ng-template>
+
+<ng-template #formHelp class="helpContent">
+    This module aims to give an overview of the longterm performance of your fleet. Left of this button you can
+    select the dates and vessels used for generating the graphs. By default, 1 vessel is drawn from the start of last
+    month up to the current date. Adding or removing vessels will automatically update the charts. Click on the labels
+    above each graph to toggle the visibility of those data points. Double click on a data element to immediately go
+    to the relevant DPR. Graphs without any data are automatically hidden, and drawn graphs only show the vessels with
+    valid data.
+</ng-template>

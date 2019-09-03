@@ -18,7 +18,7 @@ export class HeaderComponent implements OnInit {
     pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'login' ];
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userCreatePermission;
-    feedback;
+    feedback: {message: string, page: string, person: any};
     alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
     timeout;

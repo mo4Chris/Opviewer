@@ -7,6 +7,10 @@ import * as moment from 'moment';
 })
 export class DatetimeService {
 
+static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+
+
   constructor() { }
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
@@ -42,10 +46,16 @@ export class DatetimeService {
     return time_info;
   }
 
+  MatlabDateToUnixEpochViaDate(serial: number) {
+    const time_info = new Date((serial - 719529) * 864e5);
+    return time_info;
+  }
+
   MatlabDateToJSDateYMD(serial: number) {
-    const datevar = moment((serial - 719529) * 864e5).format('YYYY-MM-DD');
+    const datevar = this.MatlabDateToUnixEpoch(serial).format('YYYY-MM-DD');
     return datevar;
   }
+
   JSDateYMDToObjectDate(YMDDate: string) {
     const YMDarray = YMDDate.split('-');
     const ObjectDate = { year: YMDarray[0], month: YMDarray[1], day: YMDarray[2] };
@@ -53,12 +63,17 @@ export class DatetimeService {
   }
 
   MatlabDateToJSTime(serial: number) {
-    if (moment((serial - 719529) * 864e5).isValid()) {
-      const time_info = moment((serial - 719529) * 864e5).format('HH:mm:ss');
+    const serialMoment = this.MatlabDateToUnixEpoch(serial);
+    if (serialMoment.isValid()) {
+      const time_info = serialMoment.format('HH:mm:ss');
       return time_info;
     } else {
       return 'N/a';
     }
+  }
+
+  MatlabDateToObject(serial: number) {
+    return this.convertMomentToObject(this.MatlabDateToUnixEpoch(serial));
   }
 
   MatlabDateToCustomJSTime(serial: string | number, format: string) {
@@ -67,8 +82,9 @@ export class DatetimeService {
     }
     if (!isNaN(serial)) {
       let time_info: string;
-      if ( moment((serial - 719529) * 864e5).isValid()) {
-        time_info = moment((serial - 719529) * 864e5).format(format);
+      const serialMoment = this.MatlabDateToUnixEpoch(serial);
+      if (serialMoment.isValid()) {
+        time_info = serialMoment.format(format);
       } else {
         time_info = 'N/a';
       }
@@ -79,13 +95,12 @@ export class DatetimeService {
   }
 
   unixEpochtoMatlabDate(epochDate: number) {
-    const matlabTime = ((epochDate / 864e2) + 719529);
-    return matlabTime;
+    return (epochDate / 864e2) + 719529;
   }
 
   MatlabDateToJSTimeDifference(serialEnd: number, serialBegin: number) {
-    const serialEndMoment = moment((serialEnd - 719529) * 864e5).startOf('second');
-    const serialBeginMoment = moment((serialBegin - 719529) * 864e5).startOf('second');
+    const serialEndMoment = this.MatlabDateToUnixEpoch(serialEnd).startOf('second');
+    const serialBeginMoment = this.MatlabDateToUnixEpoch(serialBegin).startOf('second');
     const difference = serialEndMoment.diff(serialBeginMoment);
 
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
@@ -116,6 +131,33 @@ export class DatetimeService {
         return true;
       }
     }
+  }
+
+  jsDateToMDHMString(date) {
+    let hours = date.getHours();
+    let mins  = date.getMinutes();
+    if (hours < 10) {hours = '0' + hours; }
+    if (mins < 10) {mins = '0' + mins; }
+    return DatetimeService.shortMonths[date.getMonth()] + ' ' + date.getDate() + ', ' + hours + ':' + mins;
+  }
+
+  dateStringToEpoch(datestring: string) {
+    const dateMoment = moment(datestring);
+    return dateMoment.unix();
+  }
+
+  getMatlabDateLastMonth() {
+    const matlabValueYesterday = moment().add(-1, 'months');
+    matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+    matlabValueYesterday.format();
+    const momentDateAsIso = moment(matlabValueYesterday).unix();
+    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    return dateAsMatlab;
+  }
+
+  getJSDateLastMonthYMD() {
+    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    return JSValueYesterday;
   }
 
   MatlabDateToJSDate(serial: number) {

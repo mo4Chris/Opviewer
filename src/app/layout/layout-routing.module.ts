@@ -19,7 +19,7 @@ const routes: Routes = [
             { path: 'fleet-log', loadChildren: './fleet-log/fleet-log.module#FleetLogModule' },
             { path: 'campaign-request', loadChildren: './fleet-request/fleet-request.module#FleetRequestModule' },
             { path: 'fleetavailability', loadChildren: './fleetavailability/fleetavailability.module#FleetavailabilityModule' },
-            { path: 'scatterplot', loadChildren: './scatterplot/scatterplot.module#ScatterplotModule' },
+            { path: 'longterm', loadChildren: './longterm/longterm.module#LongtermModule' },
             { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
             { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
             { path: 'users', loadChildren: './users/users.module#UsersModule' },

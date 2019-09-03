@@ -1,6 +1,6 @@
 export class PlatformTransfer {
 
-    vesselname: string; 
+    vesselname: string;
     mmsi: number;
     locationname: string;
     Tentry1000mWaitingRange: number;
@@ -22,7 +22,7 @@ export class PlatformTransfer {
     windArray: any;
     gangwayUtilisation: string;
     gangwayUtilisationTrace: any;
-    gangwayUtilisationLimiter: string; 
+    gangwayUtilisationLimiter: string;
     alarmsPresent: string;
     motionsEnvelope: string;
     peakHeave: string;
@@ -37,5 +37,5 @@ export class PlatformTransfer {
     lat: number;
     paxCntEstimate: string;
     TexitExclusionZone: number;
-    date: { type: Number }
+    date: { type: Number };
 }

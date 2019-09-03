@@ -10,6 +10,7 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", { useNewUrlParser: true }, function (err, response) {
+    // Why is this address hardcoded instead of calling the environment.ts file?
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -35,6 +36,7 @@ let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
     secure: (process.env.EMAIL_PORT == 465),
+    // Why is this port hardcoded instead of calling the environment.ts file?
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -1315,7 +1317,33 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: req.body.mmsi, active: {$ne: false}, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        Transfermodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1323,6 +1351,177 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
                 res.send(data);
             }
         });
+
+    });
+});
+
+app.post("/api/getTransitsForVesselByRange", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        transitsmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTurbineTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovPlatformTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {arrivalTimePlatform: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getTransitsForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTransitsmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {dayNum: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
     });
 });
 
@@ -2046,6 +2245,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
 
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
+    // Why is this port hardcoded instead of calling the environment.ts file?
 });
 
 

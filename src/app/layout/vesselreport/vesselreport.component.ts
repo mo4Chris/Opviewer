@@ -20,6 +20,8 @@ import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
+import { VesselModel } from '../../models/vesselModel';
+import { TokenModel } from '../../models/tokenModel';
 
 @Component({
   selector: 'app-vesselreport',
@@ -28,7 +30,8 @@ import { GmapService } from '../../supportModules/gmap.service';
   animations: [routerTransition()],
 })
 export class VesselreportComponent implements OnInit {
-  constructor(public router: Router,
+  constructor(
+    public router: Router,
     private newService: CommonService,
     private route: ActivatedRoute,
     private calculationService: CalculationService,
@@ -40,18 +43,19 @@ export class VesselreportComponent implements OnInit {
 
   }
 
+  startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': '' };
+  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': '', 'vesselType': '' };
 
   parkNamesData;
   boatLocationData = [];
-  datePickerValue = this.maxDate;
+  datePickerValue = this.startDate;
   sailDates: {transfer: object[], transit: object[], other: object[]};
-  vessels;
+  vessels: VesselModel[];
   general = {};
 
-  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = new TokenModel(this.userService);
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
@@ -200,7 +204,7 @@ export class VesselreportComponent implements OnInit {
     this.showMap = true;
   }
 
-  changeDay(changedDayCount) {
+  changeDay(changedDayCount: number) {
     const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
     this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
@@ -251,10 +255,37 @@ export class VesselreportComponent implements OnInit {
   }
 
   getMMSIFromParameter() {
-    let mmsi;
+    let mmsi: number;
     this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
-
     return mmsi;
+  }
+
+  getDateFromParameter() {
+    let matlabDate: number;
+    this.route.params.subscribe(params => matlabDate = parseFloat(params.date));
+    return matlabDate;
+  }
+
+  getInitialDate() {
+    const matlabDate = this.getDateFromParameter();
+    if (isNaN(matlabDate)) {
+      return this.dateTimeService.getMatlabDateYesterday();
+    } else {
+      return matlabDate;
+    }
+  }
+
+  getInitialDateObject() {
+    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
+  }
+
+  getInitialDateNormal() {
+    const paramDate = this.getDateFromParameter();
+    if (isNaN(paramDate)) {
+      return this.dateTimeService.getJSDateYesterdayYMD();
+    } else {
+      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
+    }
   }
 
   objectToInt(objectvalue) {
