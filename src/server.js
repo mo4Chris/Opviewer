@@ -1348,7 +1348,6 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                // console.log(data);
                 res.send(data);
             }
         });
@@ -1391,7 +1390,6 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                // console.log(data);
                 res.send(data);
             }
         });
@@ -1435,7 +1433,6 @@ app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                // console.log(data);
                 res.send(data);
             }
         });
@@ -1479,7 +1476,6 @@ app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function (req, res) 
                 console.log(err);
                 res.send(err);
             } else {
-                // console.log(data);
                 res.send(data);
             }
         });
@@ -1522,7 +1518,6 @@ app.post("/api/getTransitsForVesselByRangeForSOV", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                // console.log(data);
                 res.send(data);
             }
         });
