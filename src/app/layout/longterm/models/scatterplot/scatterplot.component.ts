@@ -18,38 +18,39 @@ export class ScatterplotComponent {
 
   backgroundcolors = [
     'rgba(255,0,0,1)',
-    'rgba(0,255,0,1)',
-    'rgba(0, 255, 255 , 1)',
+    'rgba(0,155,0,1)',
+    'rgba(0, 100, 255 , 1)',
     'rgba(255, 159, 64, 1)',
     'rgba(255, 99, 132, 1)',
-    'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
     'rgba(255,255,0,1)',
     'rgba(153, 102, 255, 1)',
+    'rgba(255, 206, 86, 1)',
     'rgba(0,0,0,0.4)'
   ];
   bordercolors = [
     'rgba(255,0,0,1)',
-    'rgba(0,255,0,1)',
-    'rgba(0, 255, 255 , 1)',
+    'rgba(0,155,0,1)',
+    'rgba(0, 100, 255 , 1)',
     'rgba(255, 159, 64, 1)',
     'rgba(255,99,132,1)',
-    'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
     'rgba(255,255,0,1)',
     'rgba(153, 102, 255, 1)',
+    'rgba(255, 206, 86, 1)',
     'rgba(0,0,0,1)'
   ];
   pointStyles = [
     'circle',
-    'cross',
     'rect',
     'triangle',
-    'crossRot',
     'star',
-    'RectRounded',
+    'crossRot',
+    'cross',
     'dash',
+    'RectRounded',
   ];
+  borderWidth = [1, 1, 1, 1, 3, 3, 4, 1];
 
   allGraphsEmpty = false;
   scatterData;
@@ -73,14 +74,14 @@ export class ScatterplotComponent {
       this.datasetValues[j] = [];
       for (let i = 0; i < this.scatterDataArrayVessel[j].length; i++) {
         this.datasetValues[j].push({
-          data: this.filterNans(this.scatterDataArrayVessel[j][i]),
+          data: this.filterNans(this.scatterDataArrayVessel[j][i], this.comparisonArray[j]),
           label: this.labelValues[i],
           pointStyle: this.pointStyles[i],
           backgroundColor: this.backgroundcolors[i],
           borderColor: this.bordercolors[i],
           radius: 4,
           pointHoverRadius: 10,
-          borderWidth: 1,
+          borderWidth: this.borderWidth[i],
           hitRadius: 10,
         } as ScatterValueArray);
       }
@@ -289,11 +290,11 @@ export class ScatterplotComponent {
           });
           line_lb.push({
             x: lb / 2 + ub / 2,
-            y: Math.max(lowerLimit, mean - std),
+            y: Math.max(lowerLimit, mean - 2 * std),
           });
           line_ub.push({
             x: lb / 2 + ub / 2,
-            y: Math.min(upperLimit, mean + std),
+            y: Math.min(upperLimit, mean + 2 * std),
           });
         }
       }
@@ -565,8 +566,12 @@ export class ScatterplotComponent {
     const graphInfo = this.myChart[graphNumber];
   }
 
-  filterNans(rawData: ScatterDataElt[]) {
-    return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number)));
+  filterNans(rawData: ScatterDataElt[], type: ComprisonArrayElt) {
+    if (type.graph === 'bar') {
+      return rawData.filter(data => !isNaN(data.y as number));
+    } else {
+      return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number)));
+    }
   }
 
   // Date support functions
