@@ -37,19 +37,25 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
             'Number of turbine transfers in the selected period.'},
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
-            'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, and need not be the result of the initial approach' },
+            'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
+            'and need not be the result of the initial approach' },
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
+            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during ' +
+            'transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Peak impacts verses Hs. Higher impacts during low sea conditions indicate either a damaged fender or unsafe vessel handling.',
+            'Hs verses docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
-            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
+            'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
+            'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
         { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            '95% confidence intervals for the docking score are drawn for various Hs bins. Outliers are drawn separately.',
+            'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+    //     { x: 'startTime', y: 'speed', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
+    //         'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
+    //         annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
     myChart = [];
@@ -129,7 +135,7 @@ export class LongtermCTVComponent implements OnInit {
         switch (compElt.dataType) {
             case 'transfer':
                 this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
-                    rawScatterData => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
+                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
                     ), catchError(error => {
                     console.log('error: ' + error);
                     throw error;
@@ -167,7 +173,7 @@ export class LongtermCTVComponent implements OnInit {
                             const matlabDate = Math.floor(_x);
                             const navToDPRByDate = () => {
                                 return this.navigateToVesselreport.emit({mmsi: data._id, matlabDate: matlabDate});
-                            }
+                            };
                             scatterData.push({x: x, y: y, callback: navToDPRByDate});
                         } else {
                             scatterData.push({x: x, y: y});
@@ -178,7 +184,7 @@ export class LongtermCTVComponent implements OnInit {
                 break;
             case 'bar':
                 this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    return [{x: data.label[0], y: data.xVal.length}];
+                    return [{x: 'Jan', y: data.yVal.length}, {x: 'Apr', y: data.yVal.length}];
                 });
             break;
         }
@@ -186,7 +192,7 @@ export class LongtermCTVComponent implements OnInit {
 
     processData(Type: string, elt: number) {
         switch (Type) {
-            case 'startTime':
+            case 'startTime': case 'date':
                 return this.scatterPlot.createTimeLabels(elt);
             case 'Hs':
                 return elt;
@@ -202,6 +208,8 @@ export class LongtermCTVComponent implements OnInit {
                 return elt;
             case 'date':
                 return elt;
+            case 'speed':
+                return elt / 1.8;
             default:
                 return NaN;
         }

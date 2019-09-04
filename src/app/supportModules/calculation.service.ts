@@ -173,4 +173,12 @@ export class CalculationService {
     }
     return linspace;
   }
+
+  countUniques( myArray: any[]) {
+    const counts = {};
+    myArray.forEach(elt => {
+      counts[elt] = 1 + (counts[elt] || 0);
+    });
+    return counts;
+  }
 }
