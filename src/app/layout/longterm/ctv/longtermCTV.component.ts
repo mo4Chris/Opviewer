@@ -37,7 +37,7 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
             'Number of turbine transfers in the selected period.'},
         { x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
-            'Average speed of when sailing from the harbour to the wind field',
+            'Average speed of when sailing from or to the windfield. Aborted attempts are not shown',
         },
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
             'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +

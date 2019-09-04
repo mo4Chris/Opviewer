@@ -1374,7 +1374,8 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
             {
                 "$match": {
                     mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax },
+                    combinedId: {$in: [12, 21]}
                 }
             },
             {"$sort": {startTime: -1}},
