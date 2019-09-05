@@ -570,7 +570,7 @@ export class ScatterplotComponent {
     if (type.graph === 'bar') {
       return rawData.filter(data => !isNaN(data.y as number));
     } else {
-      return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number)));
+      return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.y === 0));
     }
   }
 
