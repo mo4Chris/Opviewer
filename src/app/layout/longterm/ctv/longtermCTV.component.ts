@@ -36,6 +36,9 @@ export class LongtermCTVComponent implements OnInit {
     comparisonArray: ComprisonArrayElt[] = [
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
             'Number of turbine transfers in the selected period.'},
+        { x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
+            'Average speed of when sailing from or to the windfield. Aborted attempts are not shown',
+        },
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
             'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
             'and need not be the result of the initial approach' },
@@ -53,9 +56,6 @@ export class LongtermCTVComponent implements OnInit {
         { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
             'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
-    //     { x: 'startTime', y: 'speed', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-    //         'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
-    //         annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
     myChart = [];
@@ -208,8 +208,8 @@ export class LongtermCTVComponent implements OnInit {
                 return elt;
             case 'date':
                 return elt;
-            case 'speed':
-                return elt / 1.8;
+            case 'speed': case 'speedInTransitAvgKMH': case'speedInTransitKMH':
+                return elt / 1.852;
             default:
                 return NaN;
         }
