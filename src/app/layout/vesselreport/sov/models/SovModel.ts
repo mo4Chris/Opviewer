@@ -1,11 +1,11 @@
-import { SummaryModel } from "./Summary";
-import { PlatformTransfer } from "./Transfers/PlatformTransfer";
-import { TurbineTransfer } from "./Transfers/TurbineTransfer";
-import { Transit } from "./Transfers/Transit";
-import { SovType } from "./SovType";
-import { Vessel2vesselModel } from "./Transfers/vessel2vessel/Vessel2vessel";
-import { SovData } from "./SovData";
-import { CycleTime } from "./CycleTime";
+import { SummaryModel } from './Summary';
+import { PlatformTransfer } from './Transfers/PlatformTransfer';
+import { TurbineTransfer } from './Transfers/TurbineTransfer';
+import { Transit } from './Transfers/Transit';
+import { SovType } from './SovType';
+import { Vessel2vesselModel } from './Transfers/vessel2vessel/Vessel2vessel';
+import { SovData } from './SovData';
+import { CycleTime } from './CycleTime';
 
 export class SovModel {
 
@@ -14,13 +14,13 @@ export class SovModel {
     sovType: SovType;
 
     summary: SummaryModel;
-    
+
     platformTransfers: PlatformTransfer[];
     turbineTransfers: TurbineTransfer[];
     transits: Transit[];
     vessel2vessels: Vessel2vesselModel[];
     cycleTimes: CycleTime[];
- 
+
     constructor() {
         this.sovInfo = new SovData();
         this.summary = new SummaryModel();

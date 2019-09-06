@@ -2,6 +2,7 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
+import { isArray } from 'util';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
@@ -19,6 +20,8 @@ import { EventService } from '../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
+import { VesselModel } from '../../models/vesselModel';
+import { TokenModel } from '../../models/tokenModel';
 
 @Component({
   selector: 'app-vesselreport',
@@ -27,7 +30,8 @@ import { GmapService } from '../../supportModules/gmap.service';
   animations: [routerTransition()],
 })
 export class VesselreportComponent implements OnInit {
-  constructor(public router: Router,
+  constructor(
+    public router: Router,
     private newService: CommonService,
     private route: ActivatedRoute,
     private calculationService: CalculationService,
@@ -39,18 +43,19 @@ export class VesselreportComponent implements OnInit {
 
   }
 
+  startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.dateTimeService.getMatlabDateYesterday(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': this.dateTimeService.getJSDateYesterdayYMD(), 'vesselType': '' };
+  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': '', 'vesselType': '' };
 
   parkNamesData;
   boatLocationData = [];
-  datePickerValue = this.maxDate;
-  sailDates = [];
-  vessels;
+  datePickerValue = this.startDate;
+  sailDates: {transfer: object[], transit: object[], other: object[]};
+  vessels: VesselModel[];
   general = {};
 
-  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  tokenInfo = new TokenModel(this.userService);
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
@@ -144,8 +149,8 @@ export class VesselreportComponent implements OnInit {
     const platforms: any[] = new Array<any>();
 
     if (locationData.length > 0 && transfers.length > 0) {
-      locationData.forEach(turbineLocation => {
-        for (let index = 0; index < turbineLocation.lat.length; index++) {
+      locationData.forEach(platformLocation => {
+        for (let index = 0; index < platformLocation.lat.length; index++) {
           let platformIsVisited = false;
           for (let transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
             let transferName = '';
@@ -155,9 +160,8 @@ export class VesselreportComponent implements OnInit {
             } else {
               transferName = transfers[transferIndex].location;
             }
-            if (turbineLocation.name[index] === transferName) {
-
-              platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
+            if (platformLocation.name[0][index] === transferName) {
+              platforms.push(new TurbineLocation(platformLocation.lat[index][0], platformLocation.lon[index][0], transferName, transfers[transferIndex]));
               platformIsVisited = true;
               this.transferVisitedAtLeastOneTurbine = true;
               continue;
@@ -165,7 +169,7 @@ export class VesselreportComponent implements OnInit {
           }
           // Reached the end, turbine has not been visited
           if (!platformIsVisited) {
-            platforms.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], turbineLocation.name[index]));
+            platforms.push(new TurbineLocation(platformLocation.lat[index][0], platformLocation.lon[index][0], isArray(platformLocation.name[0]) ? platformLocation.name[0][index] : platformLocation.name[index]));
           }
         }
       });
@@ -200,13 +204,13 @@ export class VesselreportComponent implements OnInit {
     this.showMap = true;
   }
 
-  changeDay(changedDayCount) {
+  changeDay(changedDayCount: number) {
     const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
     this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
     this.onChange();
   }
-  getDatesHasSailed(sailDates: any[]): void {
+  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
     this.sailDates = sailDates;
   }
 
@@ -233,19 +237,55 @@ export class VesselreportComponent implements OnInit {
   }
   ///////////////////////////////////////////////////
 
-  hasSailed(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates);
+  hasSailedTransfer(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
   }
+
+  hasSailedTransit(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
+  }
+
+  hasSailedOther(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
+  }
+
 
   getMatlabDateToJSDate(serial) {
     return this.dateTimeService.MatlabDateToJSDate(serial);
   }
 
   getMMSIFromParameter() {
-    let mmsi;
+    let mmsi: number;
     this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
-
     return mmsi;
+  }
+
+  getDateFromParameter() {
+    let matlabDate: number;
+    this.route.params.subscribe(params => matlabDate = parseFloat(params.date));
+    return matlabDate;
+  }
+
+  getInitialDate() {
+    const matlabDate = this.getDateFromParameter();
+    if (isNaN(matlabDate)) {
+      return this.dateTimeService.getMatlabDateYesterday();
+    } else {
+      return matlabDate;
+    }
+  }
+
+  getInitialDateObject() {
+    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
+  }
+
+  getInitialDateNormal() {
+    const paramDate = this.getDateFromParameter();
+    if (isNaN(paramDate)) {
+      return this.dateTimeService.getJSDateYesterdayYMD();
+    } else {
+      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
+    }
   }
 
   objectToInt(objectvalue) {
@@ -283,7 +323,7 @@ export class VesselreportComponent implements OnInit {
       htmlButton.disabled = true;
     } else {
       htmlButton.disabled = false;
-    };
+    }
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;
@@ -349,18 +389,6 @@ export class VesselreportComponent implements OnInit {
     this.transferVisitedAtLeastOneTurbine = false;
     this.loaded = false;
     this.googleMapLoaded = false;
-  }
-
-  getGeneralStats() {
-    this.newService.getGeneral(this.vesselObject).subscribe(general => {
-      if (general.data.length > 0 && general.data[0].DPRstats) {
-        this.noTransits = false;
-        this.general = general.data[0].DPRstats;
-      } else {
-        this.noTransits = true;
-        this.general = {};
-      }
-    });
   }
 
   setMapReady(googleMap) {

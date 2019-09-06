@@ -4,7 +4,6 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import * as jwt_decode from 'jwt-decode';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
@@ -19,13 +18,13 @@ export class CtvreportComponent implements OnInit {
     @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
-    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject;
+    @Input() vesselObject: { date: number, mmsi: number, dateNormal: Date, vesselType: string };
     @Input() tokenInfo;
     @Input() mapPixelWidth;
 
@@ -49,7 +48,7 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
-    dateData;
+    dateData = {transfer: undefined, general: undefined};
     modalReference: NgbModalRef;
     multiSelectSettings = {
         idField: 'mmsi',
@@ -63,7 +62,7 @@ export class CtvreportComponent implements OnInit {
     toolboxConducted = [];
     hseOptions = [];
 
-    generalInputStats = {date: '', mmsi: '', fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: [], toolboxConducted: [], customInput: ''};
+    generalInputStats = {date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
 
 
 
@@ -90,29 +89,23 @@ export class CtvreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         // At this point are loaded: tokenInfo, vesselObject
+        this.getDatesShipHasSailed(this.vesselObject);
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-
-        this.getDatesShipHasSailed(this.vesselObject).subscribe(data => {
-            this.sailDates.emit(data);
-        });
 
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                    this.getDatesWithTransfers(this.vesselObject).subscribe(__ => {
-                        this.getComments(this.vesselObject).subscribe(_ => {
-                            this.getVideoRequests(this.vesselObject).subscribe(_ => {
-                                this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
-                                    if (data[0]) {
-                                        this.videoBudget = data[0];
-                                    } else {
-                                        this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                                    }
-                                    // this.vessel = this.vessels.find(x => x.mmsi === this.vesselObject.mmsi);
-                                    this.matchCommentsWithTransfers();
-                                    this.getGeneralStats();
-                                });
+                    this.getComments(this.vesselObject).subscribe(_ => {
+                        this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                            this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                                if (data[0]) {
+                                    this.videoBudget = data[0];
+                                } else {
+                                    this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+                                }
+                                this.matchCommentsWithTransfers();
+                                this.getGeneralStats();
                             });
                         });
                     });
@@ -129,49 +122,6 @@ export class CtvreportComponent implements OnInit {
                                 } else {
                                     this.parkFound.emit(false);
                                 }
-                                this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-                                    if (routeData.length > 0) {
-                                        let latitudes = [];
-                                        let longitudes = [];
-
-                                        for (let i = 0; i < routeData.length; i++) {
-                                            latitudes = latitudes.concat(routeData[i].lat);
-                                            longitudes = longitudes.concat(routeData[i].lon);
-                                        }
-
-                                        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                                        const boatLocationData = routeData;
-                                        this.boatLocationData.emit(boatLocationData);
-                                        this.latitude.emit(mapProperties.avgLatitude);
-                                        this.longitude.emit(mapProperties.avgLongitude);
-                                        this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                                        this.routeFound.emit(true);
-                                    } else {
-                                        this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
-                                            let latitudes = [];
-                                            let longitudes = [];
-                                            if (transitrouteData.length > 0) {
-                                                for (let i = 0; i < transitrouteData.length; i++) {
-                                                    latitudes = latitudes.concat(transitrouteData[i].lat);
-                                                    longitudes = longitudes.concat(transitrouteData[i].lon);
-                                                }
-
-                                                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                                                const boatLocationData = transitrouteData;
-                                                this.boatLocationData.emit(boatLocationData);
-                                                this.latitude.emit(mapProperties.avgLatitude);
-                                                this.longitude.emit(mapProperties.avgLongitude);
-                                                this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                                                this.routeFound.emit(true);
-
-                                            } else {
-                                                this.routeFound.emit(false);
-                                                this.mapZoomLvl.emit(10);
-                                            }
-                                        });
-
-                                    }
-                                });
                             });
                         });
                     }
@@ -221,7 +171,6 @@ export class CtvreportComponent implements OnInit {
         if (this.transferData.length > 0 && createCharts) {
             const array = [];
             for (let i = 0; i < this.transferData.length; i++) {
-
                 const line = {
                     type: 'line',
                     data: {
@@ -357,7 +306,7 @@ export class CtvreportComponent implements OnInit {
                         for (let _i = 0; _i < dates.length; _i++) {
                             dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
                         }
-                        this.dateData = dates;
+                        return dates;
                     }),
                 catchError(error => {
                     console.log('error ' + error);
@@ -365,7 +314,7 @@ export class CtvreportComponent implements OnInit {
                 }));
     }
 
-    getDatesShipHasSailed(date) {
+    getDatesShipHasSailed_legacy(date) {
         return this.newService.getDatesWithValues(date).pipe(map((dates) => {
             for (let _i = 0; _i < dates.length; _i++) {
                 dates[_i] = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(dates[_i]));
@@ -379,12 +328,56 @@ export class CtvreportComponent implements OnInit {
             }));
     }
 
+    getDatesShipHasSailed(date) {
+        this.newService.getDatesWithValues(date).subscribe((transfers) => {
+                this.dateData.transfer = transfers;
+            },
+            catchError(error => {
+                console.log('error ' + error);
+                throw error;
+            }), () => {
+                this.pushSailingDates();
+            });
+            this.newService.getDatesWithValuesFromGeneralStats(date).subscribe((data) => {
+                this.dateData.general = data.data;
+            },
+                catchError(error => {
+                    console.log('error ' + error);
+                    throw error;
+                }), () => {
+                    this.pushSailingDates();
+            });
+    }
+
+    pushSailingDates() {
+        if (this.dateData.transfer && this.dateData.general) {
+            const transferDates = [];
+            const transitDates  = [];
+            const otherDates    = [];
+            let formattedDate;
+            let hasTransfers: boolean;
+            this.dateData.general.forEach(elt => {
+                formattedDate = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(elt.date));
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || +val === elt.date, false);
+                if (elt.distancekm && hasTransfers) {
+                    transferDates.push(formattedDate);
+                } else if (elt.distancekm) {
+                    transitDates.push(formattedDate);
+                } else {
+                    otherDates.push(formattedDate);
+                }
+            });
+            const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
+            this.sailDates.emit(sailInfo);
+        }
+    }
+
     getMatlabDateToJSTime(serial) {
         return this.dateTimeService.MatlabDateToJSTime(serial);
     }
 
     roundNumber(number, decimal = 10, addString = '') {
-        return this.calculationService.roundNumber(number, decimal = 10, addString = addString);
+        return this.calculationService.roundNumber(number, decimal = decimal, addString = addString);
     }
 
     getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
@@ -462,13 +455,77 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.mmsi =  this.vesselObject.mmsi;
                 this.generalInputStats.date =  this.vesselObject.date;
                 this.generalInputStats.fuelConsumption =  0;
-                this.generalInputStats.hseReports = [null];
+                this.generalInputStats.hseReports = 'N/a';
                 this.generalInputStats.landedGarbage = 0;
                 this.generalInputStats.landedOil = 0;
                 this.generalInputStats.toolboxConducted = [null];
                 this.generalInputStats.customInput = 'N/a';
             }
+            if (general.data && general.data.length > 0 && general.data[0].lon) {
+                const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
+                if (longitudes.length > 0) {
+                    const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
+                    const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                    const route = [{lat: latitudes, lon: longitudes}];
+                    this.boatLocationData.emit(route);
+                    this.latitude.emit(mapProperties.avgLatitude);
+                    this.longitude.emit(mapProperties.avgLongitude);
+                    this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                    this.routeFound.emit(true);
+                } else {
+                    this.legacyGetRouteInfo();
+                }
+            } else {
+                this.routeFound.emit(false);
+            }
+        });
+    }
 
+    legacyGetRouteInfo() {
+        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
+            if (routeData.length > 0) {
+                let latitudes = [];
+                let longitudes = [];
+
+                for (let i = 0; i < routeData.length; i++) {
+                    latitudes = latitudes.concat(routeData[i].lat);
+                    longitudes = longitudes.concat(routeData[i].lon);
+                }
+
+                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                const boatLocationData = routeData;
+                this.boatLocationData.emit(boatLocationData);
+                this.latitude.emit(mapProperties.avgLatitude);
+                this.longitude.emit(mapProperties.avgLongitude);
+                this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                this.routeFound.emit(true);
+            } else {
+                this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
+                    let latitudes = [];
+                    let longitudes = [];
+                    if (transitrouteData.length > 0) {
+                        for (let i = 0; i < transitrouteData.length; i++) {
+                            latitudes = latitudes.concat(transitrouteData[i].lat);
+                            longitudes = longitudes.concat(transitrouteData[i].lon);
+                        }
+                        if (latitudes.length > 0) {
+                            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                            const boatLocationData = transitrouteData;
+                            this.boatLocationData.emit(boatLocationData);
+                            this.latitude.emit(mapProperties.avgLatitude);
+                            this.longitude.emit(mapProperties.avgLongitude);
+                            this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                            this.routeFound.emit(true);
+                        } else {
+                            this.routeFound.emit(false);
+                        }
+                    } else {
+                        this.routeFound.emit(false);
+                        this.mapZoomLvl.emit(10);
+                    }
+                });
+
+            }
         });
     }
 

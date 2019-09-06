@@ -16,11 +16,11 @@
                 <td>Arrival Port</td>
                 <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
                 <td>Fuel consumption</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
-                <td rowspan='5'>Custom input</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='5'><textarea class="form-control" rows='9' [(ngModel)]="generalInputStats.customInput"></textarea></td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='5'>{{generalInputStats.customInput}}</td>
+                <td rowspan='3'>Observations</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='3'><textarea class="form-control" rows='5' [(ngModel)]="generalInputStats.customInput"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='3'>{{generalInputStats.customInput}}</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -32,7 +32,7 @@
                 <td>Max. speed inbound</td>
                 <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
                 <td>Waste oil landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-5"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
             </tr>
             <tr>
@@ -45,8 +45,8 @@
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
                 <td>Garbage landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-5"> kg</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} kg</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m3</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m3</td>
             </tr>
             <tr>
                 <td>Distance Sailed</td>
@@ -68,6 +68,9 @@
                     </ng-multiselect-dropdown>
                 </td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'N/a' : generalInputStats.toolboxConducted }}</td>
+                <td rowspan='2'>Incidents</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4' [(ngModel)]="generalInputStats.hseReports"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>{{generalInputStats.hseReports}}</td>
             </tr>
             <tr>
                 <td>Number of dockings</td>
@@ -77,17 +80,8 @@
                 <td></td><td></td>
                 <td></td>
                 <td></td>
-                <td>HSE reports issued</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                    <ng-multiselect-dropdown
-                        class="d-inline-block msdd" 
-                        [placeholder]="'Select HSE incidents'"
-                        [data]="hseOptions"
-                        [(ngModel)]="generalInputStats.hseReports"
-                        [settings]="multiSelectSettings">
-                    </ng-multiselect-dropdown>
-                </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.hseReports == '') ? 'N/a' : generalInputStats.hseReports }}</td>
+                <td></td>
+                <td></td>
             </tr>
             <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                 <td class="SubmitRowColSpan" colspan="11"></td>
@@ -105,6 +99,7 @@
                     <th>start time</th>
                     <th>stop time</th>
                     <th>duration</th>
+                    <th>max impact</th>
                     <th>score</th>
                     <th>location</th>
                     <th>Pax in/out</th>
@@ -121,15 +116,16 @@
                     <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
                     <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>
                     <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                    <td>{{roundNumber((transfer_Data.impactForceNmax / 1000), 1, 'KN')}} </td>
                     <td>{{roundNumber(transfer_Data.score, 10)}}</td>
                     <td>{{transfer_Data.location}}</td>
                     <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-3" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
-                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-3" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
+                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
+                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
                     </td>
                     <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp"  [(ngModel)]="transfer_Data.cargoUp" class="form-control-sm col-sm-3" (change)="transfer_Data.formChanged=true"> KG incoming <br>
-                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoDown" [(ngModel)]="transfer_Data.cargoDown" class="form-control-sm col-sm-3" (change)="transfer_Data.formChanged=true"> KG outgoing
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp"  [(ngModel)]="transfer_Data.cargoUp" class="form-control-sm col-sm-3 col-xl-6" (change)="transfer_Data.formChanged=true"> KG incoming <br>
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoDown" [(ngModel)]="transfer_Data.cargoDown" class="form-control-sm col-sm-3 col-xl-6" (change)="transfer_Data.formChanged=true"> KG outgoing
                     </td>
                     <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
                         {{transfer_Data.paxUp}} incoming <br> 

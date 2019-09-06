@@ -1,0 +1,74 @@
+.divContainer{
+    width:100%;
+    min-height: 200px;
+    padding-left: 20px;
+}
+.leftdiv{
+    width: 49%;
+    display:inline-block;
+    margin-right:.5%;
+}
+.rightdiv{
+    width:49%;
+    display:inline-block;
+    margin-left:.5%;
+}
+
+.dateSelectorModal{
+    height: 48px !important;
+    margin-right:20px;
+}
+
+.multiselect-dropdown{
+    width:auto;
+}
+
+.keyTD{
+    background: gray;
+    color: white;
+}
+.custom-day {
+    text-align: center;
+    padding: 0.185rem 0.25rem;
+    display: inline-block;
+    height: 2rem;
+    width: 2rem;
+}
+.custom-day.focused {
+    background-color: #e6e6e6;
+}
+.custom-day.range, .custom-day:hover {
+    background-color: rgb(2, 117, 216);
+    color: white;
+}
+.custom-day.faded {
+    background-color: rgba(2, 117, 216, 0.5);
+}
+
+.disable-day{
+    background-color: white;
+    color: rgb(225, 225, 225) !important;
+ }
+ 
+ .multiSelectDiv {
+    width: 35%;
+    min-width: 300px;
+    margin-right:20px;
+}
+
+.col-lg-3{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.col-lg-8{
+    position: relative;
+    height: 400px;
+}
+
+.graphContainer{
+    width: 98%;
+    position: relative;
+}
+
+

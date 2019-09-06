@@ -11,6 +11,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { isArray } from 'util';
 
 @Component({
     selector: 'app-sovreport',
@@ -25,7 +26,7 @@ export class SovreportComponent implements OnInit {
     @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
-    @Output() sailDates: EventEmitter<any[]> = new EventEmitter<any[]>();
+    @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -39,6 +40,8 @@ export class SovreportComponent implements OnInit {
     private platformsLoaded = false;
     private v2vLoaded = false;
     private cycleTimeLoaded = false;
+
+    dateData = {general: undefined, transfer: undefined};
 
     // used for comparison in the HTML
     SovTypeEnum = SovType;
@@ -114,10 +117,11 @@ export class SovreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
-        this.GetAvailableRouteDatesForVessel();
+        this.buildPageWhenRouteLoaded();
     }
 
     buildPageWhenRouteLoaded() {
+        this.GetAvailableRouteDatesForVessel();
         this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
@@ -192,15 +196,43 @@ export class SovreportComponent implements OnInit {
     }
 
     GetAvailableRouteDatesForVessel() {
-        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(dates => {
-            for (let _i = 0; _i < dates.length; _i++) {
-                dates[_i] = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(dates[_i]));
-            }
-            const sailDates = dates;
-            this.sailDates.emit(sailDates);
+        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(genData => {
+            this.dateData.general = genData;
         }, null,
-        () => this.buildPageWhenRouteLoaded()
+            () => {
+                this.pushSailingDates();
+            }
         );
+        this.commonService.getDatesWithTransfersForSOV(this.vesselObject.mmsi).subscribe(transferDates => {
+            this.dateData.transfer = transferDates;
+        }, null,
+            () => {
+                this.pushSailingDates();
+            }
+        );
+    }
+
+    pushSailingDates() {
+        if (this.dateData.transfer && this.dateData.general) {
+            const transferDates = [];
+            const transitDates  = [];
+            const otherDates    = [];
+            let formattedDate;
+            let hasTransfers: boolean;
+            this.dateData.general.forEach(generalDataInstance => {
+                formattedDate = this.datetimeService.JSDateYMDToObjectDate(this.datetimeService.MatlabDateToJSDateYMD(generalDataInstance.dayNum));
+                hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || val === generalDataInstance.dayNum, false);
+                if (generalDataInstance.distancekm && hasTransfers) {
+                    transferDates.push(formattedDate);
+                } else if (generalDataInstance.distancekm) {
+                    transitDates.push(formattedDate);
+                } else {
+                    otherDates.push(formattedDate);
+                }
+            });
+            const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
+            this.sailDates.emit(sailInfo);
+        }
     }
 
     getVesselRoute() {
@@ -334,13 +366,14 @@ export class SovreportComponent implements OnInit {
             });
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
+                transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                 transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
         }
-        if (naCountGangway == this.sovModel.turbineTransfers.length) {
+        if (naCountGangway === this.sovModel.turbineTransfers.length || naCountGangway === this.sovModel.platformTransfers.length) {
             this.gangwayActive = false;
         } else {
             this.gangwayActive = true;
@@ -442,6 +475,10 @@ export class SovreportComponent implements OnInit {
         }
     }
 
+    testValidWeatherField(weatherField: number[]) {
+        return isArray(weatherField) && weatherField.reduce((curr: boolean, val: any) => curr || typeof(val) === 'number', false);
+    }
+
     createWeatherOverviewChart() {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
@@ -465,7 +502,7 @@ export class SovreportComponent implements OnInit {
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (weather.waveHs[0] && typeof(weather.waveHs[0]) === 'number') {
+            if (this.testValidWeatherField(weather.waveHs)) {
                 hasData = true;
                 weather.waveHs.forEach((val, index) => {
                     Hs[index] = {
@@ -474,7 +511,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveTp[0] && typeof(weather.waveTp[0]) === 'number') {
+            if (this.testValidWeatherField(weather.waveTp)) {
                 hasData = true;
                 weather.waveTp.forEach((val, index) => {
                     Tp[index] = {
@@ -483,7 +520,7 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.waveDirection[0] && typeof(weather.waveDirection[0]) === 'number') {
+            if (this.testValidWeatherField(weather.waveDirection)) {
                 hasData = true;
                 weather.waveDirection.forEach((val, index) => {
                     waveDirection[index] = {
@@ -492,21 +529,21 @@ export class SovreportComponent implements OnInit {
                     };
                 });
             }
-            if (weather.windGust[0] && typeof(weather.windGust[0]) === 'number') {
+            if (this.testValidWeatherField(weather.windGust)) {
                 hasData = true;
                 weather.windGust.forEach((val, index) => {
                     windGust[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
-            if (weather.windAvg[0] && typeof(weather.windAvg[0]) === 'number') {
+            if (this.testValidWeatherField(weather.windAvg)) {
                 hasData = true;
                 weather.windAvg.forEach((val, index) => {
                     windAvg[index] = {
                         x: timeStamps[index],
-                        y: val
+                        y: val / 3.6
                     };
                 });
             }
