@@ -25,7 +25,7 @@ export class UsersComponent implements OnInit {
     sort = { active: '', isAsc: true };
 
     ngOnInit() {
-        this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive === true) {
                 if (this.userPermission != "admin") {
                     if (this.userPermission != "Logistics specialist") {

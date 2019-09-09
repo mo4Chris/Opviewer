@@ -30,7 +30,7 @@ export class TablesComponent implements OnInit {
     sort = { active: 'Client', isAsc: true };
 
     ngOnInit() {
-        this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
             this.ScatterplotPermission = this.testScatterPermission();
             if (this.tokenInfo.userPermission === 'admin') {

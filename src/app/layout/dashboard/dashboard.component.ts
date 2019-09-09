@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit {
     ///////////////////////////////
 
     ngOnInit() {
-        this.commonService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+        this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive === true) {
                 this.getAlert();
                 this.getLocations();

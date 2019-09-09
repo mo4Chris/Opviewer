@@ -34,7 +34,7 @@ export class UserManagementComponent implements OnInit {
     };
 
     ngOnInit() {
-        this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive !== true) {
                 localStorage.removeItem('isLoggedin');
                 localStorage.removeItem('token');

@@ -82,7 +82,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive === true) {
                 Chart.pluginService.register(ChartAnnotation);
                 this.getCampaignName();

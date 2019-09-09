@@ -781,7 +781,7 @@ app.get("/api/getVessel", function (req, res) {
         });
 });
 
-app.get("/api/seeIfUserIsActive/:user", function (req, res) {
+app.get("/api/checkUserActive/:user", function (req, res) {
     Usermodel.find({username: req.params.user , active: 1}, function (err, data) {
         if (err) {
             res.send(err);

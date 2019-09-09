@@ -72,7 +72,7 @@ export class LongtermComponent implements OnInit {
   // onInit
   ngOnInit() {
 
-    this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
          Chart.pluginService.register(ChartAnnotation);
         this.noPermissionForData = false;

@@ -301,7 +301,7 @@ export class VesselreportComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (this.tokenInfo.userPermission === 'admin') {
           this.newService.getVessel().subscribe(data => {
