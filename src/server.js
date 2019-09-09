@@ -454,17 +454,7 @@ function verifyToken(req, res) {
 
     if (payload === 'null') {
         return res.status(401).send('Unauthorized request');
-    } else {
-        console.log(payload);
-        Usermodel.countDocuments({ username: payload.username, userCompany: payload.userCompany },
-            function (err, count) {
-                if (err) {
-                    res.send(err);
-                } else {
-                    console.log(count);
-                }
-            });
-    }
+    } 
     return payload;
 }
 
@@ -554,6 +544,7 @@ app.post("/api/registerUser", function (req, res) {
                         "permissions": userData.permissions,
                         "client": userData.client,
                         "secret2fa": "",
+                        "active": 1,
                         "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
                     });
                     user.save((error, registeredUser) => {
@@ -579,14 +570,16 @@ app.post("/api/registerUser", function (req, res) {
 
 app.post("/api/login", function (req, res) {
     let userData = req.body;
-    Usermodel.findOne({ username: userData.username.toLowerCase(), active: {$ne: false} },
+    Usermodel.findOne({ username: userData.username.toLowerCase()},
         function (err, user) {
             if (err) {
                 res.send(err);
             } else {
                 if (!user) {
                     return res.status(401).send('User does not exist');
-                } else {
+                } else if (user.active === 0) {
+                    return res.status(401).send('User is not active, please contact your supervisor');
+                }else {
                     /*if (!user.password) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
                     } else*/ //Has to be implemented when user doesn't have a default password
@@ -788,9 +781,8 @@ app.get("/api/getVessel", function (req, res) {
         });
 });
 
-app.post("/api/seeIfUserIsActive", function (req, res) {
-    console.log(req.params);
-    Usermodel.find({username: 'test@test.nl', active: 1}, function (err, data) {
+app.get("/api/seeIfUserIsActive/:user", function (req, res) {
+    Usermodel.find({username: req.params.user , active: 1}, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -1562,9 +1554,7 @@ app.get("/api/getUsers", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    Usermodel.find({active: {$ne: false}
-
-    }, null, {
+    Usermodel.find({}, null, {
             sort: {
                 client: 'asc', permissions: 'asc'
             }

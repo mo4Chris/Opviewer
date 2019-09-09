@@ -25,15 +25,23 @@ export class UsersComponent implements OnInit {
     sort = { active: '', isAsc: true };
 
     ngOnInit() {
-        if (this.userPermission != "admin") {
-            if (this.userPermission != "Logistics specialist") {
-                this._router.navigate(['/access-denied']);
+        this.newService.seeIfUserIsActive(this.tokenInfo.username).subscribe(userIsActive => {
+            if (userIsActive === true) {
+                if (this.userPermission != "admin") {
+                    if (this.userPermission != "Logistics specialist") {
+                        this._router.navigate(['/access-denied']);
+                    } else {
+                        this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
+                    }
+                } else {
+                    this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
+                }
             } else {
-                this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
-            }
-        } else {
-            this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
-        }
+                localStorage.removeItem('isLoggedin');
+                localStorage.removeItem('token');
+                this._router.navigate(['login']);
+              }
+            });
     }
 
     redirectManageBoats(username) {

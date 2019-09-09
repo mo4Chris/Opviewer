@@ -69,7 +69,7 @@ export class CommonService {
   }
 
   seeIfUserIsActive(username: string) {
-    return this.post(environment.DB_IP + '/api/seeIfUserIsActive/', username).pipe(
+    return this.get(environment.DB_IP + '/api/seeIfUserIsActive/' + username).pipe(
       map((response: Response) => response.json()));
   }
 
