@@ -68,6 +68,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  seeIfUserIsActive(username: string) {
+    return this.post(environment.DB_IP + '/api/seeIfUserIsActive/', username).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getDistinctFieldnames(transferdata: {mmsi: number, date: number}) {
     return this.post(environment.DB_IP + '/api/getDistinctFieldnames/', transferdata).pipe(
       map((response: Response) => response.json()));

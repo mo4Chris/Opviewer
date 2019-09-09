@@ -665,6 +665,7 @@ app.post("/api/saveVessel", function (req, res) {
     }
 });
 
+
 app.post("/api/saveTransfer", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
@@ -785,6 +786,21 @@ app.get("/api/getVessel", function (req, res) {
                 res.send(data);
             }
         });
+});
+
+app.post("/api/seeIfUserIsActive", function (req, res) {
+    console.log(req.params);
+    Usermodel.find({username: 'test@test.nl', active: 1}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if(data.length > 0){
+                res.send(true);
+            } else {
+                res.send(false);
+            }
+        }
+    })
 });
 
 app.get("/api/getHarbourLocations", function (req, res) {

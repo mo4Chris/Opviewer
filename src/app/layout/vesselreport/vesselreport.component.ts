@@ -94,6 +94,7 @@ export class VesselreportComponent implements OnInit {
   getTurbineLocationData(turbineLocationData: any): void {
     this.turbinesLoaded = false;
     const locationData = turbineLocationData.turbineLocations;
+    console.log(locationData);
     const transfers = turbineLocationData.transfers;
     const type = turbineLocationData.type;
     const vesselType = turbineLocationData.vesselType;
@@ -301,19 +302,31 @@ export class VesselreportComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.getVessel().subscribe(data => {
-        this.vessels = data;
-      }, null, () => {
-        this.buildPageWithCurrentInformation();
-      });
-    } else {
-      this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-        this.vessels = data;
-      }, null, () => {
-        this.buildPageWithCurrentInformation();
-      });
-    }
+    console.log(this.tokenInfo.username);
+    this.newService.seeIfUserIsActive('test@test.nl').subscribe(userIsActive => {
+      console.log(userIsActive);
+      if (userIsActive === true) {
+        console.log('test true');
+        if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.getVessel().subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        } else {
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        }
+      } else {
+        console.log('test false');
+        console.log(localStorage.getItem('isLoggenin'));
+        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
+      }
+    });
   }
 
   // TODO: make complient with the newly added usertypes
