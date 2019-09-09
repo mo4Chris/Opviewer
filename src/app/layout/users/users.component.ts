@@ -71,7 +71,7 @@ export class UsersComponent implements OnInit {
     }
 
     setActive(user) {
-        this.newService.setActive({ _id: user._id }).pipe(
+        this.newService.setActive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -94,7 +94,7 @@ export class UsersComponent implements OnInit {
     }
 
     setInactive(user) {
-        this.newService.setInactive({ _id: user._id }).pipe(
+        this.newService.setInactive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';

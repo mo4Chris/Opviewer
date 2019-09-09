@@ -62,6 +62,14 @@ var userSchema = new Schema({
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
+var userActivitySchema = new Schema({
+    username: { type: String },
+    changedUser: Schema.Types.ObjectId,
+    newValue: { type: String },
+    date: { type: Number }
+}, { versionKey: false });
+var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
+
 var VesselsSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
@@ -1817,6 +1825,17 @@ app.post("/api/setActive", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
+                var userActivity = new UserActivitymodel();
+                userActivity.username = req.body.user;
+                userActivity.changedUser = req.body._id;
+                userActivity.newValue = 'active';
+                userActivity.date = new Date();
+
+                userActivity.save(function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
                 res.send({ data: "Succesfully activated this user" });
             }
         });
@@ -1834,6 +1853,17 @@ app.post("/api/setInactive", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
+                var userActivity = new UserActivitymodel();
+                userActivity.username = req.body.user;
+                userActivity.changedUser = req.body._id;
+                userActivity.newValue = 'inactive';
+                userActivity.date = new Date();
+
+                userActivity.save(function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
                 res.send({ data: "Succesfully deactivated this user" });
             }
         });
