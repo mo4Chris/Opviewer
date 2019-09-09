@@ -71,31 +71,40 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
-    Chart.pluginService.register(ChartAnnotation);
-    this.noPermissionForData = false;
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.getVessel().subscribe(data => {
-        this.Vessels = data;
-        this.loaded.Vessels = true;
-      }, null, () => this.testIfAllInit());
-    } else {
-      this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
-          this.Vessels = data;
-          this.loaded.Vessels = true;
-        }, null, () => this.testIfAllInit());
-    }
-    if (this.vesselObject.mmsi.length > 0) {
-        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
-            validatedValue => {
-              if (validatedValue.length === 1) {
-                  this.vesselType = validatedValue[0].operationsClass;
-              } else {
-                  this.showContent = true;
-                  this.noPermissionForData = true;
-              }
-              this.loaded.vesselType = true;
-        }, null, () => this.testIfAllInit());
-    }
+
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      if (userIsActive === true) {
+         Chart.pluginService.register(ChartAnnotation);
+        this.noPermissionForData = false;
+        if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.getVessel().subscribe(data => {
+            this.Vessels = data;
+            this.loaded.Vessels = true;
+          }, null, () => this.testIfAllInit());
+        } else {
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
+              this.Vessels = data;
+              this.loaded.Vessels = true;
+            }, null, () => this.testIfAllInit());
+        }
+        if (this.vesselObject.mmsi.length > 0) {
+            this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
+                validatedValue => {
+                  if (validatedValue.length === 1) {
+                      this.vesselType = validatedValue[0].operationsClass;
+                  } else {
+                      this.showContent = true;
+                      this.noPermissionForData = true;
+                  }
+                  this.loaded.vesselType = true;
+            }, null, () => this.testIfAllInit());
+        }
+      } else {
+          localStorage.removeItem('isLoggedin');
+          localStorage.removeItem('token');
+          this.router.navigate(['login']);
+        }
+      });
   }
 
   testIfAllInit () {
