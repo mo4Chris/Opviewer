@@ -15,27 +15,34 @@ import { StringMutationService } from '../../shared/services/stringMutation.serv
     animations: [routerTransition()]
 })
 export class FleetLogComponent implements OnInit {
-    constructor(private stringMutationService: StringMutationService, private newService: CommonService, private userService: UserService, private _router: Router, private route: ActivatedRoute, private dateTimeService: DatetimeService) { }
+    constructor(
+        private stringMutationService: StringMutationService,
+        private newService: CommonService,
+        private userService: UserService,
+        private _router: Router,
+        private route: ActivatedRoute,
+        private dateTimeService: DatetimeService
+    ) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     params = { campaignName: '', windfield: '', startDate: 0 };
     edits;
-    fleetId;
-    fleetClient;
-    type = "Sail days changed";
-    sailDayChanged;
+    fleetId: string;
+    fleetClient: string;
+    type = 'Sail days changed';
+    sailDayChanged: any[];
     activeListings;
     vesselsToAdd;
-    users;
+    users: {_id: string, username: string}[];
     loading = true;
     availableMonths = [];
-    selectedMonth;
+    selectedMonth: string;
     noData = true;
     sortedData;
     sort = { active: '', isAsc: true };
 
     ngOnInit() {
-        if (this.tokenInfo.userPermission != 'admin') {
+        if (this.tokenInfo.userPermission !== 'admin') {
             this._router.navigate(['access-denied']);
         }
         this.getCampaignName();
@@ -48,14 +55,14 @@ export class FleetLogComponent implements OnInit {
 
     buildData(init = false) {
         this.loading = true;
-        if (this.type == "Sail days changed") {
+        if (this.type === 'Sail days changed') {
             if (!this.sailDayChanged) {
                 this.getSailDayChanged();
             } else {
                 this.getValidData();
                 this.loading = false;
             }
-        } else if (this.type == "Active listings") {
+        } else if (this.type === 'Active listings') {
             if (!this.activeListings) {
                 this.getActiveListings();
             } else {
@@ -106,7 +113,7 @@ export class FleetLogComponent implements OnInit {
 
     getUsername(id) {
         if (this.users) {
-            let user = this.users.find(x => x._id == id);
+            const user = this.users.find(x => x._id === id);
             return user.username;
         } else {
             return id;
@@ -114,7 +121,7 @@ export class FleetLogComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        let dateStart = moment('2018-01-01');
+        const dateStart = moment('2018-01-01');
         const dateEnd = moment();
 
         while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
@@ -156,11 +163,11 @@ export class FleetLogComponent implements OnInit {
 
     getValidData() {
         this.edits = [];
-        if (this.type == "Sail days changed") {
+        if (this.type === 'Sail days changed') {
             for (let i = 0; i < this.sailDayChanged.length; i++) {
                 this.formatDate(this.sailDayChanged[i], this.sailDayChanged[i].changeDate);
             }
-        } else if (this.type == "Active listings") {
+        } else if (this.type == 'Active listings') {
             for (let i = 0; i < this.activeListings.length; i++) {
                 this.formatDate(this.activeListings[i], this.activeListings[i].dateChanged);
             }
@@ -171,7 +178,7 @@ export class FleetLogComponent implements OnInit {
         }
         this.noData = (!this.edits[0]);
     }
-    
+
     formatDate(data, date) {
         if (moment(date).format('YYYY MMM') == this.selectedMonth) {
             this.edits.push(data);

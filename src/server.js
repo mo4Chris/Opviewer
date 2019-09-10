@@ -10,6 +10,7 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", { useNewUrlParser: true }, function (err, response) {
+    // Why is this address hardcoded instead of calling the environment.ts file?
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
 });
@@ -35,6 +36,7 @@ let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
     secure: (process.env.EMAIL_PORT == 465),
+    // Why is this port hardcoded instead of calling the environment.ts file?
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -55,9 +57,18 @@ var userSchema = new Schema({
     client: { type: String },
     boats: { type: Array },
     token: { type: String },
+    active: { type: Number },
     secret2fa: { type: String },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
+
+var userActivitySchema = new Schema({
+    username: { type: String },
+    changedUser: Schema.Types.ObjectId,
+    newValue: { type: String },
+    date: { type: Number }
+}, { versionKey: false });
+var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
 
 var VesselsSchema = new Schema({
     vesselname: { type: String },
@@ -451,7 +462,7 @@ function verifyToken(req, res) {
 
     if (payload === 'null') {
         return res.status(401).send('Unauthorized request');
-    }
+    } 
     return payload;
 }
 
@@ -487,7 +498,8 @@ function mailTo(subject, html, user) {
 
     let mailOptions = {
         from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
-        to: process.env.EMAIL, //'bar@example.com, baz@example.com' list of receivers
+        to: user, //'bar@example.com, baz@example.com' list of receivers
+        bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
         subject: subject, //'Hello ✔' Subject line
         html: body //'<b>Hello world?</b>' html body
     };
@@ -540,6 +552,7 @@ app.post("/api/registerUser", function (req, res) {
                         "permissions": userData.permissions,
                         "client": userData.client,
                         "secret2fa": "",
+                        "active": 1,
                         "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over
                     });
                     user.save((error, registeredUser) => {
@@ -565,14 +578,16 @@ app.post("/api/registerUser", function (req, res) {
 
 app.post("/api/login", function (req, res) {
     let userData = req.body;
-    Usermodel.findOne({ username: userData.username.toLowerCase(), active: {$ne: false} },
+    Usermodel.findOne({ username: userData.username.toLowerCase()},
         function (err, user) {
             if (err) {
                 res.send(err);
             } else {
                 if (!user) {
                     return res.status(401).send('User does not exist');
-                } else {
+                } else if (user.active === 0) {
+                    return res.status(401).send('User is not active, please contact your supervisor');
+                }else {
                     /*if (!user.password) {
                         return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
                     } else*/ //Has to be implemented when user doesn't have a default password
@@ -596,6 +611,9 @@ app.post("/api/login", function (req, res) {
                                     hasCampaigns: data.length >= 1
                                 };
                                 let token = jwt.sign(payload, 'secretKey');
+                                if (user.active == 0){
+                                    return res.status(401).send('User has been deactivated');
+                                }
                                 if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
                                     return res.status(200).send({ token });
                                 } else {
@@ -647,6 +665,7 @@ app.post("/api/saveVessel", function (req, res) {
 
     }
 });
+
 
 app.post("/api/saveTransfer", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
@@ -768,6 +787,20 @@ app.get("/api/getVessel", function (req, res) {
                 res.send(data);
             }
         });
+});
+
+app.get("/api/checkUserActive/:user", function (req, res) {
+    Usermodel.find({username: req.params.user , active: 1}, function (err, data) {
+        if (err) {
+            res.send(err);
+        } else {
+            if(data.length > 0){
+                res.send(true);
+            } else {
+                res.send(false);
+            }
+        }
+    })
 });
 
 app.get("/api/getHarbourLocations", function (req, res) {
@@ -1315,7 +1348,33 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: req.body.mmsi, active: {$ne: false}, date: { $gte: req.body.dateMin, $lte: req.body.dateMax } }, function (err, data) {
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        Transfermodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1323,6 +1382,178 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
                 res.send(data);
             }
         });
+
+    });
+});
+
+app.post("/api/getTransitsForVesselByRange", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        transitsmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax },
+                    combinedId: {$in: [12, 21]}
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTurbineTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovPlatformTransfersmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {arrivalTimePlatform: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
+    });
+});
+
+app.post("/api/getTransitsForVesselByRangeForSOV", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {};
+        testObj[req.body.x] = 1;
+        testObj[req.body.y] = 1;
+        testObj['vesselname'] = 1;
+        testObj['mmsi'] = 1;
+        dataArray = [];
+        xGroup = {$push: '$'+req.body.x};
+        yGroup = {$push: '$'+req.body.y};
+
+        SovTransitsmodel.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            {"$sort": {dayNum: -1}},
+            { "$project": testObj },
+            { "$group" : { 
+                _id : "$mmsi",
+                label: {$push: "$vesselname"},
+                xVal: xGroup,
+                yVal:  yGroup  
+            }
+            }
+        ]).exec(function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+
     });
 });
 
@@ -1331,9 +1562,7 @@ app.get("/api/getUsers", function (req, res) {
     if (token.userPermission !== 'admin') {
         return res.status(401).send('Access denied');
     }
-    Usermodel.find({active: {$ne: false}
-
-    }, null, {
+    Usermodel.find({}, null, {
             sort: {
                 client: 'asc', permissions: 'asc'
             }
@@ -1580,6 +1809,62 @@ app.post("/api/resetPassword", function (req, res) {
                     'If that doesnt work copy the link below <br>' + link;
                 mailTo('Password reset', html, data.username);
                 res.send({ data: "Succesfully reset the password" });
+            }
+        });
+});
+
+app.post("/api/setActive", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 1 },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                var userActivity = new UserActivitymodel();
+                userActivity.username = req.body.user;
+                userActivity.changedUser = req.body._id;
+                userActivity.newValue = 'active';
+                userActivity.date = new Date();
+
+                userActivity.save(function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                res.send({ data: "Succesfully activated this user" });
+            }
+        });
+});
+
+app.post("/api/setInactive", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                var userActivity = new UserActivitymodel();
+                userActivity.username = req.body.user;
+                userActivity.changedUser = req.body._id;
+                userActivity.newValue = 'inactive';
+                userActivity.date = new Date();
+
+                userActivity.save(function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                res.send({ data: "Succesfully deactivated this user" });
             }
         });
 });
@@ -2046,6 +2331,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
 
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
+    // Why is this port hardcoded instead of calling the environment.ts file?
 });
 
 

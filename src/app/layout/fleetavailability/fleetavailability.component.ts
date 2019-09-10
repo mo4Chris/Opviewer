@@ -2,7 +2,7 @@ import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import * as Chart from 'chart.js';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -15,6 +15,7 @@ import { CalculationService } from '../../supportModules/calculation.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
+
 @Component({
     selector: 'app-users',
     templateUrl: './fleetavailability.html',
@@ -23,7 +24,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
     encapsulation: ViewEncapsulation.None,
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute,
+    constructor(public router: Router, private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute,
         private dateTimeService: DatetimeService, private userService: UserService, public dialogService: DialogService,
         private calculationService: CalculationService, private stringMutationService: StringMutationService) { }
 
@@ -81,11 +82,19 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     ngOnInit() {
-        Chart.pluginService.register(ChartAnnotation);
-        this.getCampaignName();
-        this.getStartDate();
-        this.getWindfield();
-        this.buildData(true);
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+            if (userIsActive === true) {
+                Chart.pluginService.register(ChartAnnotation);
+                this.getCampaignName();
+                this.getStartDate();
+                this.getWindfield();
+                this.buildData(true);
+            } else {
+                localStorage.removeItem('isLoggedin');
+                localStorage.removeItem('token');
+                this.router.navigate(['login']);
+              }
+            });
     }
 
     buildData(init = false) {

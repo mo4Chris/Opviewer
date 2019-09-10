@@ -12,9 +12,9 @@ export class UserService {
 
     getDecodedAccessToken(token: string): any {
         const decoded = jwt_decode(token);
-        if(decoded.expires){
+        if (decoded.expires) {
             const expires = moment.utc(decoded.expires);
-            if(moment().valueOf() > expires.valueOf()){
+            if (moment().valueOf() > expires.valueOf()) {
                 localStorage.removeItem('token');
                 this.router.navigate(['/login']);
             }

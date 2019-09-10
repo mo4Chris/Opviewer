@@ -22,10 +22,10 @@ export class FleetRequestComponent implements OnInit {
     alert = { type: '', message: '' };
     showAlert = false;
     emptyRequired = {
-        windfield: false, 
-        startDate: false, 
-        stopDate: false, 
-        numContractedVessels: false, 
+        windfield: false,
+        startDate: false,
+        stopDate: false,
+        numContractedVessels: false,
         campaignName: false,
         weatherDayTarget: false,
         client: false,
@@ -35,13 +35,13 @@ export class FleetRequestComponent implements OnInit {
     timeout;
     companies = [];
 
-    request = { 
-        boats: [], 
-        client: '', 
-        windfield: '', 
-        startDate: { year: null, month: null, day: null }, 
-        stopDate: { year: null, month: null, day: null }, 
-        numContractedVessels: null, 
+    request = {
+        boats: [],
+        client: '',
+        windfield: '',
+        startDate: { year: null, month: null, day: null },
+        stopDate: { year: null, month: null, day: null },
+        numContractedVessels: null,
         campaignName: '',
         weatherDayTarget: null,
         weatherDayTargetType: 'Per vessel',
@@ -96,7 +96,7 @@ export class FleetRequestComponent implements OnInit {
         }
         this.emptyRequired.boats = this.request.boats.length<=0;
         this.emptyRequired.client = !this.request.client;
-        for (var obj in this.emptyRequired) {
+        for (let obj in this.emptyRequired) {
             if (this.emptyRequired[obj]) return;
         }
         this.request.jsTime.startDate = this.dateTimeService.convertObjectToMoment(this.request.startDate.year, this.request.startDate.month, this.request.startDate.day).valueOf();

@@ -5,6 +5,7 @@ import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
 import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
+import { isArray } from 'util';
 
 @Injectable({
     providedIn: 'root'
@@ -137,11 +138,14 @@ export class GmapService {
             contentString =
                 '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
                 '<pre>';
+            infoArray = infoArray.filter(function(elem) {
+                return elem !== undefined;
+            });
             infoArray.forEach(info => {
-                contentString = contentString + '<br>' +
-                    'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-                    'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-                    'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+            contentString = contentString + '<br>' +
+                'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+                'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
+                'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
             });
             contentString = contentString + '</pre>';
         }
@@ -295,7 +299,7 @@ export class GmapService {
                         platform.lat[idx],
                         GmapService.iconPlatform,
                         platform.name[idx],
-                        platform.name[idx],
+                        isArray(platform.name[0]) ? platform.name[0][idx] : platform.name[idx],
                         'click'
                     ));
                 });

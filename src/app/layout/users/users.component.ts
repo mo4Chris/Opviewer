@@ -25,15 +25,23 @@ export class UsersComponent implements OnInit {
     sort = { active: '', isAsc: true };
 
     ngOnInit() {
-        if (this.userPermission != "admin") {
-            if (this.userPermission != "Logistics specialist") {
-                this._router.navigate(['/access-denied']);
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+            if (userIsActive === true) {
+                if (this.userPermission != "admin") {
+                    if (this.userPermission != "Logistics specialist") {
+                        this._router.navigate(['/access-denied']);
+                    } else {
+                        this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
+                    }
+                } else {
+                    this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
+                }
             } else {
-                this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
-            }
-        } else {
-            this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
-        }
+                localStorage.removeItem('isLoggedin');
+                localStorage.removeItem('token');
+                this._router.navigate(['login']);
+              }
+            });
     }
 
     redirectManageBoats(username) {
@@ -46,6 +54,52 @@ export class UsersComponent implements OnInit {
                 (res) => {
                     this.alert.type = 'success';
                     this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+    }
+
+    setActive(user) {
+        this.newService.setActive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                    user.active = 1;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+    }
+
+    setInactive(user) {
+        this.newService.setInactive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                    user.active = 0;
                 }
             ),
             catchError(error => {

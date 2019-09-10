@@ -1,6 +1,7 @@
 .divContainer{
     width:100%;
     min-height: 200px;
+    padding-left: 20px;
 }
 .leftdiv{
     width: 49%;
@@ -15,12 +16,13 @@
 
 .dateSelectorModal{
     height: 48px !important;
+    margin-right:20px;
 }
-.boatSelectDropdown{
-    height: 48px !important;
-    margin-left: 20px;
-    width: auto !important;
+
+.multiselect-dropdown{
+    width:auto;
 }
+
 .keyTD{
     background: gray;
     color: white;
@@ -48,3 +50,8 @@
     color: rgb(225, 225, 225) !important;
  }
  
+ .multiSelectDiv {
+    width: 35%;
+    min-width: 300px;
+    margin-right:20px;
+}

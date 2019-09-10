@@ -12,23 +12,23 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
+                            <th class='clickable' (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
                                 Vesselname
                                 <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
                                     [class.fa-arrow-down]="!sort.isAsc"></i>
                             </th>
-                            <th (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="tokenInfo.userPermission == 'admin'">
+                            <th class='clickable' (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="tokenInfo.userPermission == 'admin'">
                                 Client
                                 <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                                     [class.fa-arrow-down]="!sort.isAsc"></i>
                             </th>
-                            <th (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
+                            <th class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
                                 mmsi
                                 <i class="fa" [class.hidden]="sort.active!='mmsi'" [class.fa-arrow-up]="sort.isAsc"
                                     [class.fa-arrow-down]="!sort.isAsc"></i>
                             </th>
-                            <th>Daily vessel report</th>
-                            <!-- <th *ngIf="ScatterplotPermission">Scatterplot</th> -->
+                            <th> Daily vessel report </th>
+                            <th *ngIf="ScatterplotPermission">Long term reports</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,7 +38,9 @@
                                 <td *ngIf="tokenInfo.userPermission == 'admin'">{{rd.client}}</td>
                                 <td>{{rd.mmsi}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a></td>
-                                <!-- <td *ngIf="ScatterplotPermission"><a class="btn rounded-btn" (click)="redirectScatterplot(rd.mmsi)"> Scatterplot </a></td> -->
+                                <td *ngIf="ScatterplotPermission">
+                                    <div *ngIf="rd.operationsClass==='CTV'"><a class="btn rounded-btn" (click)="redirectLongterm(rd.mmsi, rd.nicename)"> Long term reports </a></div>
+                                </td> 
                             </tr>
                         </tbody>
                     </table>
