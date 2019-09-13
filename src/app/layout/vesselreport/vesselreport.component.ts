@@ -301,19 +301,27 @@ export class VesselreportComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.tokenInfo.userPermission === 'admin') {
-      this.newService.getVessel().subscribe(data => {
-        this.vessels = data;
-      }, null, () => {
-        this.buildPageWithCurrentInformation();
-      });
-    } else {
-      this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-        this.vessels = data;
-      }, null, () => {
-        this.buildPageWithCurrentInformation();
-      });
-    }
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      if (userIsActive === true) {
+        if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.getVessel().subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        } else {
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        }
+      } else {
+        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
+        this.router.navigate(['login']);
+      }
+    });
   }
 
   // TODO: make complient with the newly added usertypes

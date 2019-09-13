@@ -68,6 +68,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  checkUserActive(username: string) {
+    return this.get(environment.DB_IP + '/api/checkUserActive/' + username).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getDistinctFieldnames(transferdata: {mmsi: number, date: number}) {
     return this.post(environment.DB_IP + '/api/getDistinctFieldnames/', transferdata).pipe(
       map((response: Response) => response.json()));
@@ -232,6 +237,16 @@ export class CommonService {
 
   resetPassword(user) {
     return this.post(environment.DB_IP + '/api/resetPassword/', user).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  setActive(user) {
+    return this.post(environment.DB_IP + '/api/setActive/', user).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  setInactive(user) {
+    return this.post(environment.DB_IP + '/api/setInactive/', user).pipe(
       map((response: Response) => response.json()));
   }
 

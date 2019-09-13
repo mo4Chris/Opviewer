@@ -30,12 +30,20 @@ export class TablesComponent implements OnInit {
     sort = { active: 'Client', isAsc: true };
 
     ngOnInit() {
-        this.ScatterplotPermission = this.testScatterPermission();
-        if (this.tokenInfo.userPermission === 'admin') {
-            this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+        if (userIsActive === true) {
+            this.ScatterplotPermission = this.testScatterPermission();
+            if (this.tokenInfo.userPermission === 'admin') {
+                this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+            } else {
+                this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+            }
         } else {
-            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
-        }
+            localStorage.removeItem('isLoggedin');
+            localStorage.removeItem('token');
+            this._router.navigate(['login']);
+          }
+        });
     }
 
     redirectDailyVesselReport(mmsi: Number) {
