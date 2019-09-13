@@ -36,7 +36,7 @@ export class LongtermCTVComponent implements OnInit {
 
     comparisonArray: ComprisonArrayElt[] = [
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
-            'Number of turbine transfers per month.'},
+            'Number of turbine transfers per month.', barCallback: (data) => this.usagePerMonth(data)},
         { x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
             'Average speed of when sailing from or to the windfield. Aborted attempts are not shown.',
         },
@@ -47,12 +47,15 @@ export class LongtermCTVComponent implements OnInit {
             'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during ' +
             'transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
-        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
             'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
             'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+        { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
+            'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
+            annotation: () => this.scatterPlot.drawHorizontalLine(6)},
+        { x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
+            'Deployment distribution for various values of Hs', barCallback: (data) => this.usagePerHsBin(data),
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
         { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
             'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
@@ -207,12 +210,30 @@ export class LongtermCTVComponent implements OnInit {
                 });
                 break;
             case 'bar':
-                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    const groupedData = this.groupDataByMonth(data);
-                    return [{x: groupedData.labels, y: groupedData.data.map(x => x.length)}];
+                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map(scatterElt => {
+                    return compElt.barCallback(scatterElt);
                 });
-            break;
+                break;
+            default:
+                console.error('Undefined graphtype detected in parseRawData!')
         }
+    }
+
+    usagePerMonth(rawScatterData: RawScatterData) {
+        const groupedData = this.groupDataByMonth(rawScatterData);
+        return [{x: groupedData.labels, y: groupedData.data.map(x => x.length)}];
+    }
+
+    usagePerHsBin(rawScatterData: RawScatterData) {
+        const groupedData = this.groupDataByBin(rawScatterData, {Hs: this.calculationService.linspace(0, 5, 0.2)});
+        const largestDataBin = groupedData.data.reduce((prev, curr, _i) => {
+            if (curr.length > 0) {
+                return _i;
+            } else {
+                return prev;
+            }
+        });
+        return [{x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length)}];
     }
 
     processData(Type: string, elt: number) {
@@ -269,6 +290,23 @@ export class LongtermCTVComponent implements OnInit {
             dataPerMonth.push(data.date.filter(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate ));
         }
         return {data: dataPerMonth, labels: monthLabels};
+    }
+
+    groupDataByBin(data, binData: {[prop: string]: number[]}) {
+        const binParam: string = Object.keys(binData)[0];
+        const bins: number[] = binData[binParam];
+        const labels = [];
+        const binnedData = [];
+
+        for (let _i = 0; _i < bins.length - 1; _i++) {
+            const lower = bins[_i];
+            const upper = bins[_i + 1];
+            // Creating nice labels to show in the bar plots
+            labels.push(this.calculationService.roundNumber(lower, 10) + '-' + this.calculationService.roundNumber(upper, 10) );
+            // Actually sorting the data
+            binnedData.push(data[binParam].filter(dateElt => dateElt >= lower && dateElt < upper ));
+        }
+        return {data: binnedData, labels: labels};
     }
 
     // Utility

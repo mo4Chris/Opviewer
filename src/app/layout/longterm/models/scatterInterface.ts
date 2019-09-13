@@ -8,6 +8,7 @@ export interface ComprisonArrayElt {
     dataType: string;
     info?: string;
     annotation?: () => {};
+    barCallback?: (data: RawScatterData) => {x: any, y: any}[];
 }
 
 export interface RawScatterData {

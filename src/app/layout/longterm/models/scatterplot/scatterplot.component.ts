@@ -255,7 +255,17 @@ export class ScatterplotComponent {
   }
 
   createBarChart(args: ScatterArguments) {
-    const barLabels = args.datasets[0].data[0].x; // string[]
+    const labelLength =  args.datasets.map(dset => dset.data[0].x.length);
+    let largestLabelLength = 0;
+    const largestDataBin = labelLength.reduce((prev, curr, _i) => {
+      if (curr > largestLabelLength) {
+        largestLabelLength = curr;
+        return _i;
+      } else {
+        return prev;
+      }
+    }, 0);
+    const barLabels = args.datasets[largestDataBin].data[0].x; // string[]
     const dataSets = [];
     args.datasets.forEach(vesseldata => {
       dataSets.push({
@@ -481,7 +491,7 @@ export class ScatterplotComponent {
 
   getAxisType(dataArrays) {
     const type = {x: 'hidden', y: 'hidden'};
-    dataArrays.some((dataArray) => {
+    dataArrays.some((dataArray: {data: {x: any, y: any}[]}) => {
       return dataArray.data.some((dataElt: {x: any, y: any}) => {
         if (typeof dataElt.x === 'string' && dataElt.x !== '_NaN_') {
           type.x = 'label';
