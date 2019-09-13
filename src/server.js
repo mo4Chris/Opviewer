@@ -1318,15 +1318,21 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        
-        testObj = {};
-        testObj[req.body.x] = 1;
-        testObj[req.body.y] = 1;
-        testObj['vesselname'] = 1;
-        testObj['mmsi'] = 1;
-        dataArray = [];
-        xGroup = {$push: '$'+req.body.x};
-        yGroup = {$push: '$'+req.body.y};
+        testObj = {
+            vesselname: 1,
+            mmsi: 1,
+            startTime: 1,
+        }
+        groupObj = {
+            _id: "$mmsi",
+            label: {$push: "$vesselname"},
+            date: {$push: "$startTime"}
+        }
+        const reqFields = req.body.reqFields;
+        reqFields.forEach( key => {
+            testObj[key] = 1;
+            groupObj[key] = {$push: '$' + key};
+        })
 
         Transfermodel.aggregate([
             {
@@ -1335,18 +1341,11 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
                     date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
                 }
             },
-            {"$sort": {startTime: -1}},
+            { "$sort": {startTime: -1}},
             { "$project": testObj },
-            { "$group" : { 
-                _id : "$mmsi",
-                label: {$push: "$vesselname"},
-                xVal: xGroup,
-                yVal:  yGroup  
-            }
-            }
+            { "$group": groupObj}
         ]).exec(function (err, data) {
             if (err) {
-                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -1361,15 +1360,21 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        testObj = {};
-        testObj[req.body.x] = 1;
-        testObj[req.body.y] = 1;
-        testObj['vesselname'] = 1;
-        testObj['mmsi'] = 1;
-        dataArray = [];
-        xGroup = {$push: '$'+req.body.x};
-        yGroup = {$push: '$'+req.body.y};
-
+        testObj = {
+            vesselname: 1,
+            mmsi: 1,
+            startTime: 1,
+        }
+        groupObj = {
+            _id: "$mmsi",
+            label: {$push: "$vesselname"},
+            date: {$push: "$startTime"}
+        }
+        const reqFields = req.body.reqFields;
+        reqFields.forEach( key => {
+            testObj[key] = 1;
+            groupObj[key] = {$push: '$' + key};
+        })
         transitsmodel.aggregate([
             {
                 "$match": {
@@ -1380,13 +1385,7 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
             },
             {"$sort": {startTime: -1}},
             { "$project": testObj },
-            { "$group" : { 
-                _id : "$mmsi",
-                label: {$push: "$vesselname"},
-                xVal: xGroup,
-                yVal:  yGroup  
-            }
-            }
+            { "$group" : groupObj}
         ]).exec(function (err, data) {
             if (err) {
                 console.log(err);
@@ -1395,7 +1394,6 @@ app.post("/api/getTransitsForVesselByRange", function (req, res) {
                 res.send(data);
             }
         });
-
     });
 });
 

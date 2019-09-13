@@ -3,6 +3,7 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
 import { Duration, Moment, now } from 'moment';
+import { CompileDirectiveMetadata } from '@angular/compiler';
 
 
 export class ScatterplotComponent {
@@ -87,7 +88,7 @@ export class ScatterplotComponent {
       }
     }
     this.destroyCurrentCharts();
-    this.createScatterChart();
+    this.parseChartArray();
   }
 
   destroyCurrentCharts() {
@@ -102,10 +103,10 @@ export class ScatterplotComponent {
     }
   }
 
-  createScatterChart() {
+  parseChartArray() {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
-      if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
+      if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0 || true) {
         const graph: string  = this.comparisonArray[_j].graph;
         const args: ScatterArguments = {
           comparisonElt: this.comparisonArray[_j],
@@ -115,8 +116,11 @@ export class ScatterplotComponent {
           bins: this.calculationService.linspace(0, 2, 0.2),
         };
         switch (graph) {
-          case 'bar': case 'scatter':
-            this.myChart.push(this.createBarOrScatterChart(args));
+          case 'bar':
+            this.myChart.push(this.createBarChart(args));
+            break;
+          case 'scatter':
+            this.myChart.push(this.createScatterChart(args));
             break;
           case 'areaScatter':
             this.myChart.push(this.createAreaScatter(args));
@@ -133,7 +137,7 @@ export class ScatterplotComponent {
     }
   }
 
-  createBarOrScatterChart(args: ScatterArguments) {
+  createScatterChart(args: ScatterArguments) {
     const dateService = this.dateTimeService;
     return new Chart('canvas' + args.graphIndex, {
       type: args.comparisonElt.graph,
@@ -248,6 +252,57 @@ export class ScatterplotComponent {
         }
       ],
     });
+  }
+
+  createBarChart(args: ScatterArguments) {
+    const dateService = this.dateTimeService;
+    const barLabels: string[] = args.datasets[0].data[0].x;
+    const dataSets = [];
+    args.datasets.forEach(vesseldata => {
+      dataSets.push({
+        label: vesseldata.label,
+        data: vesseldata.data[0].y,
+        backgroundColor: vesseldata.backgroundColor,
+      });
+    });
+    console.log(args);
+    const ChartY =  new Chart('canvas' + args.graphIndex, {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: dataSets
+      },
+      options: {
+        title: {
+          display: true,
+          fontSize: 20,
+          text: args.comparisonElt.yLabel, // args.comparisonElt.xLabel + ' vs ' + args.comparisonElt.yLabel,
+          position: 'top'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            defaultFontSize: 24,
+            defaultFontStyle: 'bold'
+          },
+        },
+        scales: {
+          xAxes: [{
+            id: 'x-axis-0',
+          }],
+          yAxes: [{
+            id: 'y-axis-0',
+            ticks: {
+              beginAtZero: true
+          }
+          }],
+        },
+        responsiveAnimationDuration: 0,
+      },
+    });
+    return ChartY;
   }
 
   public createAreaScatter(args: ScatterArguments) {
@@ -489,36 +544,6 @@ export class ScatterplotComponent {
             }];
         }
         break;
-
-      case 'bar':
-        switch (Type) {
-          case 'date':
-            return [{
-              id: chartID,
-              scaleLabel: {
-                display: true,
-                labelString: Label
-              }
-            }];
-          case 'label':
-            return [{
-              id: chartID,
-              minBarLength: 1600,
-              maxBarThickness: 80,
-            }];
-          case 'numeric':
-            return [{
-              id: chartID,
-              ticks: {
-                beginAtZero: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: Label
-              }
-            }];
-        }
-        break;
       case 'areaScatter':
           return [{
             id: chartID,
@@ -568,7 +593,7 @@ export class ScatterplotComponent {
 
   filterNans(rawData: ScatterDataElt[], type: ComprisonArrayElt) {
     if (type.graph === 'bar') {
-      return rawData.filter(data => !isNaN(data.y as number));
+      return rawData;
     } else {
       return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.y === 0));
     }
@@ -630,14 +655,14 @@ interface ScatterArguments {
 
 interface ScatterValueArray {
   data: ScatterDataElt[];
-  label: String;
-  pointStyle: String;
-  backgroundColor: String;
-  borderColor: String;
-  radius: Number;
-  pointHoverRadius: Number;
-  borderWidth: Number;
-  hitRadius: Number;
+  label: string;
+  pointStyle: string;
+  backgroundColor: string;
+  borderColor: string;
+  radius: number;
+  pointHoverRadius: number;
+  borderWidth: number;
+  hitRadius: number;
 }
 
 interface ScatterDataElt {

@@ -10,6 +10,7 @@ import { CalculationService } from '../../../supportModules/calculation.service'
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
+import { CorrelationGraph } from '../models/correlationgraph/correlationgraph.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -66,7 +67,7 @@ export class LongtermCTVComponent implements OnInit {
         this.calculationService,
         this.dateTimeService
         );
-
+    CorrelationGraph: CorrelationGraph;
 
     // On (re)load
     ngOnInit() {
@@ -78,8 +79,8 @@ export class LongtermCTVComponent implements OnInit {
         if (this.vesselObject.mmsi.length > 0) {
             this.getVesselLabels({
                 mmsi: this.vesselObject.mmsi,
-                x: this.comparisonArray[0].x,
-                y: this.comparisonArray[0].y,
+                x: this.comparisonArray[0].x as string,
+                y: this.comparisonArray[0].y as string,
                 dateMin: this.vesselObject.dateMin,
                 dateMax: this.vesselObject.dateMax }).subscribe(_ => {
                 this.getGraphDataPerComparison();
@@ -88,17 +89,41 @@ export class LongtermCTVComponent implements OnInit {
             this.scatterPlot.destroyCurrentCharts();
         }
         this.myChart = this.scatterPlot.myChart;
+        // this.CorrelationGraph = new CorrelationGraph(
+        //     {
+        //         mmsi: this.vesselObject.mmsi[0],
+        //         matlabDates: [this.vesselObject.dateMin, this.vesselObject.dateMax],
+        //         predictors: [{name: 'Hs', label: 'Hs'}],
+        //     },
+        //     this.calculationService,
+        //     this.dateTimeService,
+        //     this.newService
+        //     );
+        // this.CorrelationGraph.load();
+        // this.CorrelationGraph.info();
     }
 
     // Data acquisition
-    getVesselLabels(vessel: {mmsi: number[], x: number|string, y: number | string, dateMin: any, dateMax: any}) {
+    getVesselLabels(vessel: {mmsi: number[], x: string | number, y: string | number, dateMin: any, dateMax: any}) {
+        const request = {
+            mmsi: vessel.mmsi,
+            reqFields: [],
+            dateMin: vessel.dateMin,
+            dateMax: vessel.dateMax
+        };
         return this.newService
-            .getTransfersForVesselByRange(vessel).pipe(
+            .getTransfersForVesselByRange(request).pipe(
             map(
                 (transfers) => {
                     for (let _j = 0; _j < transfers.length; _j++) {
                         this.scatterPlot.labelValues[_j] = transfers[_j].label[0].replace('_', ' ');
                     }
+                    return {
+                        label: [transfers[0].label],
+                        startTime: transfers.map(transfer => transfer.date),
+                        x: transfers.map(transfer => transfer[vessel.x]),
+                        y: transfers.map(transfer => transfer[vessel.y]),
+                    };
                 }),
             catchError(error => {
                 console.log('error ' + error);
@@ -125,9 +150,10 @@ export class LongtermCTVComponent implements OnInit {
 
     contructSingleGraph(compElt: ComprisonArrayElt, graphIndex: number, onLoadedCB?: () => void) {
         const queryElt = {
-            'mmsi': this.vesselObject.mmsi,
-            'dateMin': this.vesselObject.dateMin,
-            'dateMax': this.vesselObject.dateMax,
+            mmsi: this.vesselObject.mmsi,
+            dateMin: this.vesselObject.dateMin,
+            dateMax: this.vesselObject.dateMax,
+            reqFields: [compElt.x, compElt.y],
             x: compElt.x,
             y: compElt.y
         };
@@ -135,7 +161,7 @@ export class LongtermCTVComponent implements OnInit {
         switch (compElt.dataType) {
             case 'transfer':
                 this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
-                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
+                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt)
                     ), catchError(error => {
                     console.log('error: ' + error);
                     throw error;
@@ -145,7 +171,9 @@ export class LongtermCTVComponent implements OnInit {
                 break;
             case 'transit':
                 this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
-                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt.graph)
+                    (rawScatterData: RawScatterData[]) => {
+                        this.parseRawData(rawScatterData, graphIndex, compElt);
+                    }
                     ), catchError(error => {
                     console.log('error: ' + error);
                     throw error;
@@ -158,33 +186,30 @@ export class LongtermCTVComponent implements OnInit {
         }
     }
 
-    parseRawData(rawScatterData: RawScatterData[], graphIndex: number, graphType: string) {
-        switch (graphType) {
+    parseRawData(rawScatterData: RawScatterData[], graphIndex: number, compElt: ComprisonArrayElt) {
+        switch (compElt.graph) {
             case 'scatter': case 'areaScatter':
                 this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
                     const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
                     let x: number|Date;
                     let y: number|Date;
-                    data.xVal.forEach((_x, __i) => {
-                        const _y = data.yVal[__i];
+                    data[compElt.x].forEach((_x, __i) => {
+                        const _y = data[compElt.y][__i];
                         x = this.processData(this.comparisonArray[graphIndex].x, _x);
                         y = this.processData(this.comparisonArray[graphIndex].y, _y);
-                        if (typeof(x) !== 'number') {
-                            const matlabDate = Math.floor(_x);
-                            const navToDPRByDate = () => {
-                                return this.navigateToVesselreport.emit({mmsi: data._id, matlabDate: matlabDate});
-                            };
-                            scatterData.push({x: x, y: y, callback: navToDPRByDate});
-                        } else {
-                            scatterData.push({x: x, y: y});
-                        }
+                        const matlabDate = Math.floor(data.date[__i]);
+                        const navToDPRByDate = () => {
+                            return this.navigateToVesselreport.emit({mmsi: data._id, matlabDate: matlabDate});
+                        };
+                        scatterData.push({x: x, y: y, callback: navToDPRByDate});
                     });
                     return scatterData;
                 });
                 break;
             case 'bar':
                 this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    return [{x: 'Jan', y: data.yVal.length}, {x: 'Apr', y: data.yVal.length}];
+                    const groupedData = this.groupDataByMonth(data);
+                    return [{x: groupedData.labels, y: groupedData.data.map(x => x.length)}];
                 });
             break;
         }
@@ -213,6 +238,37 @@ export class LongtermCTVComponent implements OnInit {
             default:
                 return NaN;
         }
+    }
+
+    groupDataByMonth(data: {date: number[], [prop: string]: any} ) {
+        const month = Object.create(this.fromDate);
+        month.year = this.fromDate.year;
+        month.month = this.fromDate.month;
+        month.day = 10;
+        const monthLabels = [];
+        const dataPerMonth = [];
+        let matlabStartDate: number;
+        let matlabStopDate: number;
+        while (!month.after(this.toDate)) {
+            // Creating nice labels to show in the bar plots
+            if (month.month === 0) {
+                monthLabels.push('Jan ' + month.year);
+            } else {
+                monthLabels.push(DatetimeService.shortMonths[month.month - 1]);
+            }
+            matlabStartDate = this.dateTimeService.objectToMatlabDate(month);
+            // Getting the next month
+            if (month.month === 11) {
+                month.year += 1;
+                month.month = 0;
+            } else {
+                month.month += 1;
+            }
+            matlabStopDate = this.dateTimeService.objectToMatlabDate(month);
+            // Actually sorting the data
+            dataPerMonth.push(data.date.filter(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate ));
+        }
+        return {data: dataPerMonth, labels: monthLabels};
     }
 
     // Utility

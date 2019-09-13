@@ -68,13 +68,22 @@ export class LongtermSOVComponent implements OnInit {
 
     // Data acquisition
     getVesselLabels(vessel: {mmsi: number[], x: number|string, y: number | string, dateMin: any, dateMax: any}) {
+        const request = {
+            mmsi: vessel.mmsi,
+            reqFields: [vessel.x as string, vessel.y as string],
+            dateMin: vessel.dateMin,
+            dateMax: vessel.dateMax
+        };
         return this.newService
-            .getTransitsForVesselByRangeForSOV(vessel).pipe(
+            .getTransfersForVesselByRange(request).pipe(
             map(
                 (transfers) => {
-                    for (let _j = 0; _j < transfers.length; _j++) {
-                        this.scatterPlot.labelValues[_j] = transfers[_j].label[0].replace('_', ' ');
-                    }
+                    return {
+                        label: [transfers[0].vesselname],
+                        startTim: transfers.map(transfer => transfer.startTime),
+                        x: transfers.map(transfer => transfer[vessel.x]),
+                        y: transfers.map(transfer => transfer[vessel.y]),
+                    };
                 }),
             catchError(error => {
                 console.log('error ' + error);

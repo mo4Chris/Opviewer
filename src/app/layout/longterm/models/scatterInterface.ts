@@ -13,6 +13,6 @@ export interface ComprisonArrayElt {
 export interface RawScatterData {
     _id: number;
     label: string[];
-    xVal: number[];
-    yVal: number[];
+    date: number[];
+    queryFields: {[prop: string]: string};
 }
