@@ -106,8 +106,8 @@ export class ScatterplotComponent {
   parseChartArray() {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
-      if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0 || true) {
-        const graph: string  = this.comparisonArray[_j].graph;
+      const graph: string  = this.comparisonArray[_j].graph;
+      if ((axisTypes.x !== 'hidden' || graph === 'bar') && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         const args: ScatterArguments = {
           comparisonElt: this.comparisonArray[_j],
           datasets: this.datasetValues[_j],
@@ -255,8 +255,7 @@ export class ScatterplotComponent {
   }
 
   createBarChart(args: ScatterArguments) {
-    const dateService = this.dateTimeService;
-    const barLabels: string[] = args.datasets[0].data[0].x;
+    const barLabels = args.datasets[0].data[0].x; // string[]
     const dataSets = [];
     args.datasets.forEach(vesseldata => {
       dataSets.push({
@@ -265,8 +264,7 @@ export class ScatterplotComponent {
         backgroundColor: vesseldata.backgroundColor,
       });
     });
-    console.log(args);
-    const ChartY =  new Chart('canvas' + args.graphIndex, {
+    return new Chart('canvas' + args.graphIndex, {
       type: 'bar',
       data: {
         labels: barLabels,
@@ -276,7 +274,7 @@ export class ScatterplotComponent {
         title: {
           display: true,
           fontSize: 20,
-          text: args.comparisonElt.yLabel, // args.comparisonElt.xLabel + ' vs ' + args.comparisonElt.yLabel,
+          text: args.comparisonElt.yLabel,
           position: 'top'
         },
         responsive: true,
@@ -294,6 +292,10 @@ export class ScatterplotComponent {
           }],
           yAxes: [{
             id: 'y-axis-0',
+            scaleLabel: {
+              display: true,
+              labelString: args.comparisonElt.yLabel,
+            },
             ticks: {
               beginAtZero: true
           }
@@ -302,7 +304,6 @@ export class ScatterplotComponent {
         responsiveAnimationDuration: 0,
       },
     });
-    return ChartY;
   }
 
   public createAreaScatter(args: ScatterArguments) {

@@ -36,19 +36,19 @@ export class LongtermCTVComponent implements OnInit {
 
     comparisonArray: ComprisonArrayElt[] = [
         { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
-            'Number of turbine transfers in the selected period.'},
+            'Number of turbine transfers per month.'},
         { x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
-            'Average speed of when sailing from or to the windfield. Aborted attempts are not shown',
+            'Average speed of when sailing from or to the windfield. Aborted attempts are not shown.',
         },
         { x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
             'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
-            'and need not be the result of the initial approach' },
+            'and need not be the result of the initial approach.' },
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
             'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during ' +
             'transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Hs verses docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
+            'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
             'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
@@ -244,7 +244,7 @@ export class LongtermCTVComponent implements OnInit {
         const month = Object.create(this.fromDate);
         month.year = this.fromDate.year;
         month.month = this.fromDate.month;
-        month.day = 10;
+        month.day = 0;
         const monthLabels = [];
         const dataPerMonth = [];
         let matlabStartDate: number;
