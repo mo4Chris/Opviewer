@@ -117,13 +117,13 @@ export class ScatterplotComponent {
         };
         switch (graph) {
           case 'bar':
-            this.myChart.push(this.createBarChart(args));
+            this.myChart[_j] = this.createBarChart(args);
             break;
           case 'scatter':
-            this.myChart.push(this.createScatterChart(args));
+            this.myChart[_j] = this.createScatterChart(args);
             break;
           case 'areaScatter':
-            this.myChart.push(this.createAreaScatter(args));
+            this.myChart[_j] = this.createAreaScatter(args);
             break;
           default:
             console.error('Invalid graph type used!');
@@ -273,6 +273,7 @@ export class ScatterplotComponent {
           label: vesseldata.label,
           data: stackdata.y,
           stack: vesseldata.label,
+          showInLegend: _i === 0,
           borderWidth: 1,
           borderColor: 'rgba(0,0,0,1)',
           backgroundColor: vesseldata.backgroundColor.replace('1)', 1 / (1 + _i) + ')'),
@@ -299,9 +300,21 @@ export class ScatterplotComponent {
           labels: {
             defaultFontSize: 24,
             defaultFontStyle: 'bold',
-            filter: legItem => {
-              return legItem.datasetIndex === 0;
+            filter: (legItem: LegendEntryCallbackElement, chart) => {
+              return chart.datasets[legItem.datasetIndex].showInLegend;
             }
+          },
+          onClick: (event: MouseEvent, legItem: LegendEntryCallbackElement) => {
+            const Key = legItem.text;
+            const chart = this.myChart[args.graphIndex];
+            const dsets = chart.config.data.datasets;
+            dsets.forEach(dset => {
+              const metaKey = Object.keys(dset._meta)[0];
+              if (dset.label === Key && dset._meta[metaKey]) {
+                dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
+              }
+            });
+            chart.update();
           }
         },
         scales: {
@@ -375,11 +388,13 @@ export class ScatterplotComponent {
         }
       }
       vesselScatterData.data = vesselDataSets;
+      vesselScatterData.showInLegend = true;
       datasets.push(vesselScatterData);
       datasets.push({
         data: line,
-        label: 'Mean', // vesselScatterData.label,
+        label: vesselScatterData.label,
         type: 'line',
+        showInLegend: false,
         fill: false,
         borderColor: vesselScatterData.backgroundColor,
         backgroundColor: vesselScatterData.backgroundColor,
@@ -390,8 +405,9 @@ export class ScatterplotComponent {
       bbox.push(line_lb[0]);
       datasets.push({
         data: bbox,
-        label: '95% confidence interval',
+        label: vesselScatterData.label,
         type: 'line',
+        showInLegend: false,
         showLine: true,
         pointRadius: 0,
         backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
@@ -449,11 +465,23 @@ export class ScatterplotComponent {
               labels: {
                 defaultFontSize: 24,
                 defaultFontStyle: 'bold',
-                filter: (legItem, chart) => {
-                  const name = legItem.text;
-                  return !(name === 'Mean' || name === '95% confidence interval');
+                filter: (legItem: LegendEntryCallbackElement, chart) => {
+                  return chart.datasets[legItem.datasetIndex].showInLegend;
                 }
               },
+              onClick: (event: MouseEvent, legItem: LegendEntryCallbackElement) => {
+                const Key = legItem.text;
+                const chart = this.myChart[args.graphIndex];
+                const dsets = chart.config.data.datasets;
+                console.log(dsets)
+                dsets.forEach(dset => {
+                  const metaKey = Object.keys(dset._meta)[0];
+                  if (dset.label === Key && dset._meta[metaKey]) {
+                    dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
+                  }
+                });
+                chart.update();
+              }
             },
             pointHoverRadius: 2,
             animation: {
@@ -688,10 +716,36 @@ interface ScatterValueArray {
   pointHoverRadius: number;
   borderWidth: number;
   hitRadius: number;
+  showInLegend?: boolean;
 }
 
 interface ScatterDataElt {
   x: number|Date;
   y: number|Date;
   callback?: Function;
+}
+
+interface LegendEntryCallbackElement {
+  // Number of dataset
+  datasetIndex: number;
+  // Label that will be displayed
+  text: string;
+  // Fill style of the legend box
+  fillStyle: any;
+  // If true, this item represents a hidden dataset. Label will be rendered with a strike-through effect
+  hidden: boolean;
+  // For box border. See https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/lineCap
+  lineCap: string;
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+  lineDash: number[];
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
+  lineDashOffset: number;
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+  lineJoin: string;
+  // Width of box border
+  lineWidth: number;
+  // Stroke style of the legend box
+  strokeStyle: any;
+  // Point style of the legend box (only used if usePointStyle is true)
+  pointStyle: string;
 }

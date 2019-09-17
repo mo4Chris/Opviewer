@@ -35,8 +35,11 @@ export class LongtermCTVComponent implements OnInit {
     @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
     comparisonArray: ComprisonArrayElt[] = [
-        { x: 'date', y: 'vesselname', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
-            'Number of turbine transfers per month.', barCallback: (data) => this.usagePerMonth(data)},
+        { x: 'date', y: 'score', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
+            `Number of turbine transfers per month. The lower (thick) part of the bins show the number of valid vessel to turbine 
+            transfers. The lighter part shows any other transfer made by the vessel (Tied off, impacts without properly attaching 
+            to the turbine, etc..).
+            `, barCallback: (data) => this.usagePerMonth(data)},
         { x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
             'Average speed of when sailing from or to the windfield. Aborted attempts are not shown.',
         },
@@ -44,9 +47,9 @@ export class LongtermCTVComponent implements OnInit {
             'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
             'and need not be the result of the initial approach.' },
         { x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel connection is during ' +
-            'transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(6)},
+            `Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel 
+            connection is during  transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.
+            `,annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
             'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
             'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
@@ -224,9 +227,11 @@ export class LongtermCTVComponent implements OnInit {
 
     usagePerMonth(rawScatterData: RawScatterData) {
         const groupedData = this.groupDataByMonth(rawScatterData);
+        const validScoresPerMonth = groupedData.data.map(x => x.scores.reduce((prev, curr) => prev + !isNaN(curr), 0));
+        const invalidScoresPerMonth = groupedData.data.map(x => x.scores.reduce((prev, curr) => prev + isNaN(curr), 0));
         return [
-            {x: groupedData.labels, y: groupedData.data.map(x => x.length)},
-            {x: groupedData.labels, y: [100, 10]}
+            {x: groupedData.labels, y: validScoresPerMonth},
+            {x: groupedData.labels, y: invalidScoresPerMonth}
         ];
     }
 
@@ -293,7 +298,11 @@ export class LongtermCTVComponent implements OnInit {
             }
             matlabStopDate = this.dateTimeService.objectToMatlabDate(month);
             // Actually sorting the data
-            dataPerMonth.push(data.date.filter(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate ));
+            const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate );
+            dataPerMonth.push({
+                dates: data.date.filter((_, _i) => dataInMonth[_i]),
+                scores: data.score.filter((_, _i) => dataInMonth[_i]),
+            });
         }
         return {data: dataPerMonth, labels: monthLabels};
     }
