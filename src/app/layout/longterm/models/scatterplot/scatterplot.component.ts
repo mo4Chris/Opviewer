@@ -390,32 +390,34 @@ export class ScatterplotComponent {
       vesselScatterData.data = vesselDataSets;
       vesselScatterData.showInLegend = true;
       datasets.push(vesselScatterData);
-      datasets.push({
-        data: line,
-        label: vesselScatterData.label,
-        type: 'line',
-        showInLegend: false,
-        fill: false,
-        borderColor: vesselScatterData.backgroundColor,
-        backgroundColor: vesselScatterData.backgroundColor,
-        showLine: true,
-        borderWidth: 5
-      });
-      const bbox = line_lb.concat(line_ub.reverse());
-      bbox.push(line_lb[0]);
-      datasets.push({
-        data: bbox,
-        label: vesselScatterData.label,
-        type: 'line',
-        showInLegend: false,
-        showLine: true,
-        pointRadius: 0,
-        backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
-        borderColor: vesselScatterData.backgroundColor,
-        fill: true,
-        borderWidth: 0,
-        lineTension: 0.1,
-      });
+      if (vesselDataSets.length > 0) {
+        datasets.push({
+          data: line,
+          label: vesselScatterData.label,
+          type: 'line',
+          showInLegend: false,
+          fill: false,
+          borderColor: vesselScatterData.backgroundColor,
+          backgroundColor: vesselScatterData.backgroundColor,
+          showLine: true,
+          borderWidth: 5
+        });
+        const bbox = line_lb.concat(line_ub.reverse());
+        bbox.push(line_lb[0]);
+        datasets.push({
+          data: bbox,
+          label: vesselScatterData.label,
+          type: 'line',
+          showInLegend: false,
+          showLine: true,
+          pointRadius: 0,
+          backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
+          borderColor: vesselScatterData.backgroundColor,
+          fill: true,
+          borderWidth: 0,
+          lineTension: 0.1,
+        });
+      }
     });
     // Iterate over args.datasets and separately add the line and scatter components
     return new Chart('canvas' + args.graphIndex, {
@@ -473,7 +475,6 @@ export class ScatterplotComponent {
                 const Key = legItem.text;
                 const chart = this.myChart[args.graphIndex];
                 const dsets = chart.config.data.datasets;
-                console.log(dsets)
                 dsets.forEach(dset => {
                   const metaKey = Object.keys(dset._meta)[0];
                   if (dset.label === Key && dset._meta[metaKey]) {
