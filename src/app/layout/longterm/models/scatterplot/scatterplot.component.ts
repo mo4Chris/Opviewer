@@ -78,7 +78,7 @@ export class ScatterplotComponent {
           data: this.filterNans(this.scatterDataArrayVessel[j][i], this.comparisonArray[j]),
           label: this.labelValues[i],
           pointStyle: this.pointStyles[i],
-          backgroundColor: this.backgroundcolors[i],
+          backgroundColor: i < this.backgroundcolors.length ? this.backgroundcolors[i] : 'rgba(0,0,0,0.3)',
           borderColor: this.bordercolors[i],
           radius: 4,
           pointHoverRadius: 10,
@@ -255,7 +255,7 @@ export class ScatterplotComponent {
   }
 
   createBarChart(args: ScatterArguments) {
-    const labelLength =  args.datasets.map(dset => dset.data[0].x.length);
+    const labelLength =  args.datasets.map((dset: {data}) => dset.data[0].x.length);
     let largestLabelLength = 0;
     const largestDataBin = labelLength.reduce((prev, curr, _i) => {
       if (curr > largestLabelLength) {
@@ -268,17 +268,22 @@ export class ScatterplotComponent {
     const barLabels = args.datasets[largestDataBin].data[0].x; // string[]
     const dataSets = [];
     args.datasets.forEach(vesseldata => {
-      dataSets.push({
-        label: vesseldata.label,
-        data: vesseldata.data[0].y,
-        backgroundColor: vesseldata.backgroundColor,
+      vesseldata.data.forEach((stackdata, _i) => {
+        dataSets.push({
+          label: vesseldata.label,
+          data: stackdata.y,
+          stack: vesseldata.label,
+          borderWidth: 1,
+          borderColor: 'rgba(0,0,0,1)',
+          backgroundColor: vesseldata.backgroundColor.replace('1)', 1 / (1 + _i) + ')'),
+        });
       });
     });
     return new Chart('canvas' + args.graphIndex, {
       type: 'bar',
       data: {
         labels: barLabels,
-        datasets: dataSets
+        datasets: dataSets,
       },
       options: {
         title: {
@@ -293,15 +298,20 @@ export class ScatterplotComponent {
           display: true,
           labels: {
             defaultFontSize: 24,
-            defaultFontStyle: 'bold'
-          },
+            defaultFontStyle: 'bold',
+            filter: legItem => {
+              return legItem.datasetIndex === 0;
+            }
+          }
         },
         scales: {
           xAxes: [{
             id: 'x-axis-0',
+            stacked: true
           }],
           yAxes: [{
             id: 'y-axis-0',
+            stacked: true,
             scaleLabel: {
               display: true,
               labelString: args.comparisonElt.yLabel,
@@ -438,7 +448,11 @@ export class ScatterplotComponent {
               display: true,
               labels: {
                 defaultFontSize: 24,
-                defaultFontStyle: 'bold'
+                defaultFontStyle: 'bold',
+                filter: (legItem, chart) => {
+                  const name = legItem.text;
+                  return !(name === 'Mean' || name === '95% confidence interval');
+                }
               },
             },
             pointHoverRadius: 2,

@@ -55,10 +55,13 @@ export class LongtermCTVComponent implements OnInit {
             'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
             annotation: () => this.scatterPlot.drawHorizontalLine(6)},
         { x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
-            'Deployment distribution for various values of Hs', barCallback: (data) => this.usagePerHsBin(data),
+            `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
+            Only bins in which the vessels have been deployed are shown.
+            `, barCallback: (data) => this.usagePerHsBin(data),
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
         { x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
-            'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately.',
+            'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
+            'Transfers without valid transfer scores have been omitted.',
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
@@ -117,12 +120,12 @@ export class LongtermCTVComponent implements OnInit {
         return this.newService
             .getTransfersForVesselByRange(request).pipe(
             map(
-                (transfers) => {
+                (transfers: {date: number, label: string}[]) => {
                     for (let _j = 0; _j < transfers.length; _j++) {
                         this.scatterPlot.labelValues[_j] = transfers[_j].label[0].replace('_', ' ');
                     }
                     return {
-                        label: [transfers[0].label],
+                        label: transfers.length > 0 ? [transfers[0].label] : [''],
                         startTime: transfers.map(transfer => transfer.date),
                         x: transfers.map(transfer => transfer[vessel.x]),
                         y: transfers.map(transfer => transfer[vessel.y]),
@@ -221,7 +224,10 @@ export class LongtermCTVComponent implements OnInit {
 
     usagePerMonth(rawScatterData: RawScatterData) {
         const groupedData = this.groupDataByMonth(rawScatterData);
-        return [{x: groupedData.labels, y: groupedData.data.map(x => x.length)}];
+        return [
+            {x: groupedData.labels, y: groupedData.data.map(x => x.length)},
+            {x: groupedData.labels, y: [100, 10]}
+        ];
     }
 
     usagePerHsBin(rawScatterData: RawScatterData) {
@@ -295,6 +301,7 @@ export class LongtermCTVComponent implements OnInit {
     groupDataByBin(data, binData: {[prop: string]: number[]}) {
         const binParam: string = Object.keys(binData)[0];
         const bins: number[] = binData[binParam];
+        bins[0] = 0.0001; // To stop roundNumber from returning 0 as N/a
         const labels = [];
         const binnedData = [];
 
