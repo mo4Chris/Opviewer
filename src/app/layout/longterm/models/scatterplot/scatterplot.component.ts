@@ -107,7 +107,7 @@ export class ScatterplotComponent {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
       const graph: string  = this.comparisonArray[_j].graph;
-      if ((axisTypes.x !== 'hidden' || graph === 'bar') && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
+      if ((axisTypes.x !== 'hidden' || graph === 'bar' && this.TestBarEmpty(this.scatterDataArrayVessel[_j])) && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         const args: ScatterArguments = {
           comparisonElt: this.comparisonArray[_j],
           datasets: this.datasetValues[_j],
@@ -276,7 +276,7 @@ export class ScatterplotComponent {
           showInLegend: _i === 0,
           borderWidth: 1,
           borderColor: 'rgba(0,0,0,1)',
-          backgroundColor: vesseldata.backgroundColor.replace('1)', 1 / (1 + _i) + ')'),
+          backgroundColor: vesseldata.backgroundColor.replace('1)', (vesseldata.data.length - _i) / (vesseldata.data.length) + ')'),
         });
       });
     });
@@ -650,6 +650,13 @@ export class ScatterplotComponent {
     } else {
       return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.y === 0));
     }
+  }
+
+  TestBarEmpty(rawData: {x: number[], y: number[]}[][]) {
+    // Return true iff there is some nonempty dataset
+    return rawData.some(elts => elts.some((elt) => {
+      return elt.x.length > 0 && elt.y.length > 0;
+    }));
   }
 
   // Date support functions
