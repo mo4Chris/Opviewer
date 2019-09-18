@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
-import { LongtermCTVComponent } from './longtermCTV.component';
 import { PageHeaderModule } from '../../../shared';
 
 // modules mongoDB
@@ -22,8 +21,6 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
         CommonModule,
         // LongtermRoutingModule,
         PageHeaderModule],
-    declarations: [LongtermCTVComponent, LongtermCTVComponent],
-    providers: [CommonService, UserService],
-    bootstrap: [LongtermCTVComponent]
+    providers: [CommonService, UserService]
 })
 export class LongtermCTVModule {}
