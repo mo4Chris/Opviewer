@@ -121,134 +121,268 @@
             <div class="card mb-3">
                 <div class="card-header">DPR input</div>
                 <div class="card-body">
-                    <div class="col-xl-6 dailySummary">
-                            <h4>Mid-day fuel, lub oil & fresh water</h4>
-                        <table class="table table-responsive table-bordered tableSummary">
-                            <tr>
-                                <td></td>
-                                <th>FUEL OIL (m3)</th>
-                                <th>LUB OIL (Litres)</th>
-                                <th>Dom. Pot Water (m3)</th>
-                                <th>Cargo Pot Water(m3)</th>
-                            </tr>
-                            <tr>
-                                <td>Previous</td>
-                                <td>185.2</td>
-                                <td>13272</td>
-                                <td>92</td>
-                                <td>264</td>
-                            </tr>
-                            <tr>
-                                <td>Loaded/Made</td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td>Consumed</td>
-                                <td><input type="number" min="0" max="10000" value="8.1"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="10"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td>Discharged to Client</td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td>ROB</td>
-                                <td>177.1</td>
-                                <td>13272</td>
-                                <td>82</td>
-                                <td>264</td>
-                            </tr>
-                            <tr>
-                                <td colspan="5" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
-                            </tr> 
-                        </table>
+                    <div class="row">
+                        <div class="col-xl-6 dailySummary">
+                                <h4>Mid-day fuel, lub oil & fresh water</h4>
+                            <table class="table table-responsive table-bordered tableSummary">
+                                <tr>
+                                    <td></td>
+                                    <th>FUEL OIL (m3)</th>
+                                    <th>LUB OIL (Litres)</th>
+                                    <th>Dom. Pot Water (m3)</th>
+                                    <th>Cargo Pot Water(m3)</th>
+                                </tr>
+                                <tr>
+                                    <td>Previous</td>
+                                    <td>{{liquidsObject.fuel.oldValue}}</td>
+                                    <td>{{liquidsObject.luboil.oldValue}}</td>
+                                    <td>{{liquidsObject.domwater.oldValue}}</td>
+                                    <td>{{liquidsObject.potwater.oldValue}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Loaded/Made</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateFuel()" [(ngModel)]="liquidsObject.fuel.loaded" [(value)]="liquidsObject.fuel.loaded" ></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateLuboil()" [(ngModel)]="liquidsObject.luboil.loaded" [(value)]="liquidsObject.luboil.loaded"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateDomwater()" [(ngModel)]="liquidsObject.domwater.loaded" [(value)]="liquidsObject.domwater.loaded"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updatePotwater()" [(ngModel)]="liquidsObject.potwater.loaded" [(value)]="liquidsObject.potwater.loaded"></td>
+                                </tr>
+                                <tr>
+                                    <td>Consumed</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateFuel()" [(ngModel)]="liquidsObject.fuel.consumed" [(value)]="liquidsObject.fuel.consumed"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateLuboil()" [(ngModel)]="liquidsObject.luboil.consumed" [(value)]="liquidsObject.luboil.consumed"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateDomwater()" [(ngModel)]="liquidsObject.domwater.consumed" [(value)]="liquidsObject.domwater.consumed"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updatePotwater()" [(ngModel)]="liquidsObject.potwater.consumed" [(value)]="liquidsObject.potwater.consumed"></td>
+                                </tr>
+                                <tr>
+                                    <td>Discharged to Client</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateFuel()" [(ngModel)]="liquidsObject.fuel.discharged" [(value)]="liquidsObject.fuel.discharged"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateLuboil()" [(ngModel)]="liquidsObject.luboil.discharged" [(value)]="liquidsObject.luboil.discharged"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updateDomwater()" [(ngModel)]="liquidsObject.domwater.discharged" [(value)]="liquidsObject.domwater.discharged"></td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" (change)="updatePotwater()" [(ngModel)]="liquidsObject.potwater.discharged" [(value)]="liquidsObject.potwater.discharged"></td>
+                                </tr>
+                                <tr>
+                                    <td>ROB</td>
+                                    <td>{{liquidsObject.fuel.newValue}}</td>
+                                    <td>{{liquidsObject.luboil.newValue}}</td>
+                                    <td>{{liquidsObject.domwater.newValue}}</td>
+                                    <td>{{liquidsObject.potwater.newValue}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                                </tr> 
+                            </table>
+                        </div>
+                        <div class="col-xl-6 dailySummary">
+                            <h3>input X</h3>
+                            <table class="table table-bordered tableSummary">
+                                <tr>
+                                    <td>HOC cards: 0</td>
+                                    <td colspan="3">
+                                        <ng-container *ngFor="let HoC of HOCArray">
+                                            <div class="tableRow">
+                                                <input class="form-control col-xl-7" type="text" [value]="HoC.value">
+                                                <select [(ngModel)]="HoC.amount" class="form-control col-xl-5">
+                                                    <option value="0">0 times</option>
+                                                    <option value="1">1 times</option>
+                                                    <option value="2">2 times</option>
+                                                    <option value="3">3 times</option>
+                                                    <option value="4">4 times</option>
+                                                    <option value="5">5 times</option>
+                                                </select>
+                                            </div>
+                                        </ng-container>
+                                        <br>
+                                        <button class="btn btn-sm btn-primary" (click)="addHoCToArray()" type="button">add another</button>
+                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromHOCArray()" type="button">remove last</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>HOC total Previous</td>
+                                    <td>833</td>
+                                    <td class="tableSummarySpecial">New total</td>
+                                    <td>833</td>
+                                </tr>
+                                <tr>
+                                    <td>Toolbox talks: 2</td>
+                                    <td colspan="3">
+                                        <ng-container *ngFor="let toolbox of ToolboxArray">
+                                            <div class="tableRow">
+                                                <input class="form-control col-xl-7" type="text" [value]="toolbox.value">
+                                                <select [(ngModel)]="toolbox.amount" class="form-control col-xl-5">
+                                                    <option value="0">0 times</option>
+                                                    <option value="1">1 times</option>
+                                                    <option value="2">2 times</option>
+                                                    <option value="3">3 times</option>
+                                                    <option value="4">4 times</option>
+                                                    <option value="5">5 times</option>
+                                                </select>
+                                            </div>
+                                        </ng-container><br>
+                                        <button class="btn btn-sm btn-primary" (click)="addToolboxToArray()" type="button">add another</button>
+                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromToolboxArray()" type="button">remove last</button>
+                                    </td>
+                                    
+                                <tr>
+                                    <td>Toolbox total previous</td>
+                                    <td>3026</td>
+                                    <td class="tableSummarySpecial">New total</td>
+                                    <td>3028</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                                </tr> 
+                            </table>
+                        </div> 
                     </div>
-                    <div class="col-xl-6 dailySummary">
-                        <h3>input X</h3>
-                        <table class="table table-responsive table-bordered tableSummary">
-                            <tr>
-                                <td>HOC cards: 0</td>
-                                <td colspan="3">
-                                    <select>
-                                        <option>None</option>  
-                                    </select>
-                                    <select>
-                                        <option>0 times</option>
-                                    </select><br>
-                                    <button class="btn btn-sm btn-primary" type="button">add another</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>HOC total Previous</td>
-                                <td>833</td>
-                                <td class="tableSummarySpecial">New total</td>
-                                <td>833</td>
-                            </tr>
-                            <tr>
-                                <td>Toolbox talks: 2</td>
-                                <td colspan="3">
-                                    <select>
-                                      <option>Shift Changes Marine crew</option>  
-                                    </select>
-                                    <select>
-                                        <option>2 times</option>
-                                    </select><br>
-                                    <button class="btn btn-sm btn-primary" type="button">add another</button>
-                                </td>
+                    <div class="row">
+                        <div class="col-xl-6 dailySummary">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th colspan="3">Vessel technical non availability</th>
+                                </tr>
+                                <tr>
+                                    <th>Reason</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select></td>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                        <button class="btn btn-sm btn-primary" (click)="addToolboxToArray()" type="button">add another</button>
+                                        <button class="btn btn-sm btn-warning" (click)="removeLastFromToolboxArray()" type="button">remove last</button>   
+                                        <button class="btn btn-lg btn-primary" style="float:right" type="button">Save</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <hr> 
+                        <div class="col-xl-6 dailySummary">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th colspan="4">Weather downtime</th>
+                                </tr>
+                                <tr>
+                                    <th>Decided by</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>vessel/subsystem</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select></td>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control">
+                                            <option value="0">0 times</option>
+                                            <option value="1">1 times</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                            <option value="5">5 times</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                            <button class="btn btn-sm btn-primary" (click)="addToolboxToArray()" type="button">add another</button>
+                                            <button class="btn btn-sm btn-warning" (click)="removeLastFromToolboxArray()" type="button">remove last</button>   
+                                            <button class="btn btn-lg btn-primary" style="float:right" type="button">Save</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 dailySummary">
+                            <h3>Catering</h3>
+                            <table class="table table-bordered tableSummary">
+                                <tr>
+                                    <td>People on board</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" value="29"></td>
+                                </tr>
+                                <tr>
+                                    <td>Extra meals</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" value="7"></td>
+                                </tr>
+                                <tr>
+                                    <td>Packed Lunches</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" value="20"></td>
+                                </tr>
+                                <tr>
+                                    <td>Marine</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" value="23"></td>
+                                </tr>
+                                <tr>
+                                    <td>Marine + Marine contractors</td>
+                                    <td><input class="form-control" type="number" min="0" max="10000" value="0"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
+                                </tr>  
+                            </table>
+                        </div>
+                        <div class="col-xl-6 dailySummary">
+                            <h3>Vessel Operations/remarks</h3>
+                            <textarea class="form-control" rows="10" cols="70"></textarea><br>
                             
-                            <tr>
-                                <td>Toolbox total previous</td>
-                                <td>3026</td>
-                                <td class="tableSummarySpecial">New total</td>
-                                <td>3028</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
-                            </tr> 
-                        </table>
-                    </div> 
-
-                    <div class="col-xl-6 dailySummary">
-                        <h3>Catering</h3>
-                        <table class="table table-responsive table-bordered tableSummary">
-                            <tr>
-                                <td>People on board</td>
-                                <td><input type="number" min="0" max="10000" value="29"></td>
-                            </tr>
-                            <tr>
-                                <td>Extra meals</td>
-                                <td><input type="number" min="0" max="10000" value="7"></td>
-                            </tr>
-                            <tr>
-                                <td>Packed Lunches</td>
-                                <td><input type="number" min="0" max="10000" value="20"></td>
-                            </tr>
-                            <tr>
-                                <td>Marine</td>
-                                <td><input type="number" min="0" max="10000" value="23"></td>
-                            </tr>
-                            <tr>
-                                <td>Marine + Marine contractors</td>
-                                <td><input type="number" min="0" max="10000" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="submitbtnclass"> <button class="btn btn-lg btn-primary" type="button">Save</button></td>
-                            </tr>  
-                        </table>
-                    </div>
-                    <div class="col-xl-6 dailySummary">
-                        <h3>Vessel Operations/remarks</h3>
-                        <textarea rows="10" cols="70"></textarea><br>
-                        
-                        <button class="btn btn-lg btn-primary" type="button">Save</button>
+                            <button class="btn btn-lg btn-primary" type="button">Save</button>
+                        </div>
                     </div>  
                 </div>
             </div>
@@ -405,7 +539,7 @@
                         <tbody>
                             <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
                                 <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
-                                    <tr *ngIf="platformTransfer.gangwayDeployedDuration != 'NaN'">
+                                    <tr *ngIf="platformTransfer.gangwayDeployedDuration != 'N/a'">
                                         <ng-container *ngIf="platformTransfer.locationname != undefined">
                                             <th>{{platformTransfer.locationname}}</th>
                                         </ng-container>

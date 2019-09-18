@@ -60,6 +60,26 @@ export class SovreportComponent implements OnInit {
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
+    HOCArray = [{value: 'HOC one', amount: 1}, {value: 'HOC two', amount: 2}];
+    ToolboxArray = [{value: 'Toolbox one', amount: 1}, {value: 'Second Twobox', amount: 2}];
+    liquidsObject = {fuel: {oldValue: 185.2 , loaded: 1, consumed: 2, discharged: 3, newValue: (2 + 3 - 1 - 1) },
+     luboil: {oldValue: 13272, loaded: 4, consumed: 5, discharged: 6, newValue: (2 + 3 - 1 - 1) }, domwater: {oldValue: 92, loaded: 7, consumed: 8, discharged: 9, newValue: (2 + 3 - 1 - 1) }, potwater: {oldValue: 264, loaded: 10, consumed: 11, discharged: 12, newValue: (2 + 3 - 1 - 1) }};
+
+    updateFuel() {
+        this.liquidsObject.fuel.newValue = (this.liquidsObject.fuel.oldValue + this.liquidsObject.fuel.loaded - this.liquidsObject.fuel.consumed - this.liquidsObject.fuel.discharged);
+    }
+
+    updateLuboil() {
+        this.liquidsObject.luboil.newValue = (this.liquidsObject.luboil.oldValue + this.liquidsObject.luboil.loaded - this.liquidsObject.luboil.consumed - this.liquidsObject.luboil.discharged);
+    }
+
+    updateDomwater() {
+        this.liquidsObject.domwater.newValue = (this.liquidsObject.domwater.oldValue + this.liquidsObject.domwater.loaded - this.liquidsObject.domwater.consumed - this.liquidsObject.domwater.discharged);
+    }
+
+    updatePotwater() {
+        this.liquidsObject.potwater.newValue = (this.liquidsObject.potwater.oldValue + this.liquidsObject.potwater.loaded - this.liquidsObject.potwater.consumed - this.liquidsObject.potwater.discharged);
+    }
 
     constructor(
         private commonService: CommonService,
@@ -109,6 +129,22 @@ export class SovreportComponent implements OnInit {
 
     GetDecimalValueForNumber(value, endpoint = null) {
         return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+    }
+
+    addHoCToArray() {
+        this.HOCArray.push({value: 'none', amount: 0});
+    }
+
+    addToolboxToArray() {
+        this.ToolboxArray.push({value: 'none', amount: 0});
+    }
+
+    removeLastFromToolboxArray() {
+        this.ToolboxArray.pop();
+    }
+
+    removeLastFromHOCArray() {
+        this.HOCArray.pop();
     }
 
     ngOnInit() {

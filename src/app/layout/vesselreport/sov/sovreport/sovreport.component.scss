@@ -18,6 +18,10 @@
     
 }
 
+.btn-danger{
+    float:right
+}
+
 .submitbtnclass{
     background: white !important;
 }
@@ -43,6 +47,11 @@ agm-map {
     canvas{
         position: relative;
     }
+}
+
+.tableRow{
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .helpBtn {
