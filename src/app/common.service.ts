@@ -120,27 +120,27 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransfersForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string | number, y: string | number}) {
+  getTransfersForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[]}) {
     return this.post(environment.DB_IP + '/api/getTransfersForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string | number, y: string | number}) {
+  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string }) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTurbineTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string | number, y: string | number}) {
+  getTurbineTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
     return this.post(environment.DB_IP + '/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getPlatformTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string | number, y: string | number}) {
+  getPlatformTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
     return this.post(environment.DB_IP + '/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string | number, y: string | number}) {
+  getTransitsForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }

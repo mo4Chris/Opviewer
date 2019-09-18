@@ -3,6 +3,7 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
 import { Duration, Moment, now } from 'moment';
+import { CompileDirectiveMetadata } from '@angular/compiler';
 
 
 export class ScatterplotComponent {
@@ -77,7 +78,7 @@ export class ScatterplotComponent {
           data: this.filterNans(this.scatterDataArrayVessel[j][i], this.comparisonArray[j]),
           label: this.labelValues[i],
           pointStyle: this.pointStyles[i],
-          backgroundColor: this.backgroundcolors[i],
+          backgroundColor: i < this.backgroundcolors.length ? this.backgroundcolors[i] : 'rgba(0,0,0,0.3)',
           borderColor: this.bordercolors[i],
           radius: 4,
           pointHoverRadius: 10,
@@ -87,7 +88,7 @@ export class ScatterplotComponent {
       }
     }
     this.destroyCurrentCharts();
-    this.createScatterChart();
+    this.parseChartArray();
   }
 
   destroyCurrentCharts() {
@@ -102,11 +103,11 @@ export class ScatterplotComponent {
     }
   }
 
-  createScatterChart() {
+  parseChartArray() {
     for (let _j = 0; _j < this.comparisonArray.length; _j++) {
       const axisTypes = this.getAxisType(this.datasetValues[_j]);
-      if (axisTypes.x !== 'hidden' && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
-        const graph: string  = this.comparisonArray[_j].graph;
+      const graph: string  = this.comparisonArray[_j].graph;
+      if ((axisTypes.x !== 'hidden' || graph === 'bar' && this.TestBarEmpty(this.scatterDataArrayVessel[_j])) && this.scatterDataArrayVessel[_j] && this.scatterDataArrayVessel[_j].length > 0) {
         const args: ScatterArguments = {
           comparisonElt: this.comparisonArray[_j],
           datasets: this.datasetValues[_j],
@@ -115,11 +116,14 @@ export class ScatterplotComponent {
           bins: this.calculationService.linspace(0, 2, 0.2),
         };
         switch (graph) {
-          case 'bar': case 'scatter':
-            this.myChart.push(this.createBarOrScatterChart(args));
+          case 'bar':
+            this.myChart[_j] = this.createBarChart(args);
+            break;
+          case 'scatter':
+            this.myChart[_j] = this.createScatterChart(args);
             break;
           case 'areaScatter':
-            this.myChart.push(this.createAreaScatter(args));
+            this.myChart[_j] = this.createAreaScatter(args);
             break;
           default:
             console.error('Invalid graph type used!');
@@ -133,7 +137,7 @@ export class ScatterplotComponent {
     }
   }
 
-  createBarOrScatterChart(args: ScatterArguments) {
+  createScatterChart(args: ScatterArguments) {
     const dateService = this.dateTimeService;
     return new Chart('canvas' + args.graphIndex, {
       type: args.comparisonElt.graph,
@@ -250,6 +254,91 @@ export class ScatterplotComponent {
     });
   }
 
+  createBarChart(args: ScatterArguments) {
+    const labelLength =  args.datasets.map((dset: {data}) => dset.data[0].x.length);
+    let largestLabelLength = 0;
+    const largestDataBin = labelLength.reduce((prev, curr, _i) => {
+      if (curr > largestLabelLength) {
+        largestLabelLength = curr;
+        return _i;
+      } else {
+        return prev;
+      }
+    }, 0);
+    const barLabels = args.datasets[largestDataBin].data[0].x; // string[]
+    const dataSets = [];
+    args.datasets.forEach(vesseldata => {
+      vesseldata.data.forEach((stackdata, _i) => {
+        dataSets.push({
+          label: vesseldata.label,
+          data: stackdata.y,
+          stack: vesseldata.label,
+          showInLegend: _i === 0,
+          borderWidth: 1,
+          borderColor: 'rgba(0,0,0,1)',
+          backgroundColor: vesseldata.backgroundColor.replace('1)', (vesseldata.data.length - _i) / (vesseldata.data.length) + ')'),
+        });
+      });
+    });
+    return new Chart('canvas' + args.graphIndex, {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: dataSets,
+      },
+      options: {
+        title: {
+          display: true,
+          fontSize: 20,
+          text: args.comparisonElt.yLabel,
+          position: 'top'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            defaultFontSize: 24,
+            defaultFontStyle: 'bold',
+            filter: (legItem: LegendEntryCallbackElement, chart) => {
+              return chart.datasets[legItem.datasetIndex].showInLegend;
+            }
+          },
+          onClick: (event: MouseEvent, legItem: LegendEntryCallbackElement) => {
+            const Key = legItem.text;
+            const chart = this.myChart[args.graphIndex];
+            const dsets = chart.config.data.datasets;
+            dsets.forEach(dset => {
+              const metaKey = Object.keys(dset._meta)[0];
+              if (dset.label === Key && dset._meta[metaKey]) {
+                dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
+              }
+            });
+            chart.update();
+          }
+        },
+        scales: {
+          xAxes: [{
+            id: 'x-axis-0',
+            stacked: true
+          }],
+          yAxes: [{
+            id: 'y-axis-0',
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: args.comparisonElt.yLabel,
+            },
+            ticks: {
+              beginAtZero: true
+          }
+          }],
+        },
+        responsiveAnimationDuration: 0,
+      },
+    });
+  }
+
   public createAreaScatter(args: ScatterArguments) {
     const dateService = this.dateTimeService;
     const datasets = [];
@@ -299,31 +388,36 @@ export class ScatterplotComponent {
         }
       }
       vesselScatterData.data = vesselDataSets;
+      vesselScatterData.showInLegend = true;
       datasets.push(vesselScatterData);
-      datasets.push({
-        data: line,
-        label: 'Mean', // vesselScatterData.label,
-        type: 'line',
-        fill: false,
-        borderColor: vesselScatterData.backgroundColor,
-        backgroundColor: vesselScatterData.backgroundColor,
-        showLine: true,
-        borderWidth: 5
-      });
-      const bbox = line_lb.concat(line_ub.reverse());
-      bbox.push(line_lb[0]);
-      datasets.push({
-        data: bbox,
-        label: '95% confidence interval',
-        type: 'line',
-        showLine: true,
-        pointRadius: 0,
-        backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
-        borderColor: vesselScatterData.backgroundColor,
-        fill: true,
-        borderWidth: 0,
-        lineTension: 0.1,
-      });
+      if (vesselDataSets.length > 0) {
+        datasets.push({
+          data: line,
+          label: vesselScatterData.label,
+          type: 'line',
+          showInLegend: false,
+          fill: false,
+          borderColor: vesselScatterData.backgroundColor,
+          backgroundColor: vesselScatterData.backgroundColor,
+          showLine: true,
+          borderWidth: 5
+        });
+        const bbox = line_lb.concat(line_ub.reverse());
+        bbox.push(line_lb[0]);
+        datasets.push({
+          data: bbox,
+          label: vesselScatterData.label,
+          type: 'line',
+          showInLegend: false,
+          showLine: true,
+          pointRadius: 0,
+          backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
+          borderColor: vesselScatterData.backgroundColor,
+          fill: true,
+          borderWidth: 0,
+          lineTension: 0.1,
+        });
+      }
     });
     // Iterate over args.datasets and separately add the line and scatter components
     return new Chart('canvas' + args.graphIndex, {
@@ -372,8 +466,23 @@ export class ScatterplotComponent {
               display: true,
               labels: {
                 defaultFontSize: 24,
-                defaultFontStyle: 'bold'
+                defaultFontStyle: 'bold',
+                filter: (legItem: LegendEntryCallbackElement, chart) => {
+                  return chart.datasets[legItem.datasetIndex].showInLegend;
+                }
               },
+              onClick: (event: MouseEvent, legItem: LegendEntryCallbackElement) => {
+                const Key = legItem.text;
+                const chart = this.myChart[args.graphIndex];
+                const dsets = chart.config.data.datasets;
+                dsets.forEach(dset => {
+                  const metaKey = Object.keys(dset._meta)[0];
+                  if (dset.label === Key && dset._meta[metaKey]) {
+                    dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
+                  }
+                });
+                chart.update();
+              }
             },
             pointHoverRadius: 2,
             animation: {
@@ -425,7 +534,7 @@ export class ScatterplotComponent {
 
   getAxisType(dataArrays) {
     const type = {x: 'hidden', y: 'hidden'};
-    dataArrays.some((dataArray) => {
+    dataArrays.some((dataArray: {data: {x: any, y: any}[]}) => {
       return dataArray.data.some((dataElt: {x: any, y: any}) => {
         if (typeof dataElt.x === 'string' && dataElt.x !== '_NaN_') {
           type.x = 'label';
@@ -489,36 +598,6 @@ export class ScatterplotComponent {
             }];
         }
         break;
-
-      case 'bar':
-        switch (Type) {
-          case 'date':
-            return [{
-              id: chartID,
-              scaleLabel: {
-                display: true,
-                labelString: Label
-              }
-            }];
-          case 'label':
-            return [{
-              id: chartID,
-              minBarLength: 1600,
-              maxBarThickness: 80,
-            }];
-          case 'numeric':
-            return [{
-              id: chartID,
-              ticks: {
-                beginAtZero: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: Label
-              }
-            }];
-        }
-        break;
       case 'areaScatter':
           return [{
             id: chartID,
@@ -568,10 +647,17 @@ export class ScatterplotComponent {
 
   filterNans(rawData: ScatterDataElt[], type: ComprisonArrayElt) {
     if (type.graph === 'bar') {
-      return rawData.filter(data => !isNaN(data.y as number));
+      return rawData;
     } else {
       return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.y === 0));
     }
+  }
+
+  TestBarEmpty(rawData: {x: number[], y: number[]}[][]) {
+    // Return true iff there is some nonempty dataset
+    return rawData.some(elts => elts.some((elt) => {
+      return elt.x.length > 0 && elt.y.length > 0;
+    }));
   }
 
   // Date support functions
@@ -630,18 +716,44 @@ interface ScatterArguments {
 
 interface ScatterValueArray {
   data: ScatterDataElt[];
-  label: String;
-  pointStyle: String;
-  backgroundColor: String;
-  borderColor: String;
-  radius: Number;
-  pointHoverRadius: Number;
-  borderWidth: Number;
-  hitRadius: Number;
+  label: string;
+  pointStyle: string;
+  backgroundColor: string;
+  borderColor: string;
+  radius: number;
+  pointHoverRadius: number;
+  borderWidth: number;
+  hitRadius: number;
+  showInLegend?: boolean;
 }
 
 interface ScatterDataElt {
   x: number|Date;
   y: number|Date;
   callback?: Function;
+}
+
+interface LegendEntryCallbackElement {
+  // Number of dataset
+  datasetIndex: number;
+  // Label that will be displayed
+  text: string;
+  // Fill style of the legend box
+  fillStyle: any;
+  // If true, this item represents a hidden dataset. Label will be rendered with a strike-through effect
+  hidden: boolean;
+  // For box border. See https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/lineCap
+  lineCap: string;
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+  lineDash: number[];
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
+  lineDashOffset: number;
+  // For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+  lineJoin: string;
+  // Width of box border
+  lineWidth: number;
+  // Stroke style of the legend box
+  strokeStyle: any;
+  // Point style of the legend box (only used if usePointStyle is true)
+  pointStyle: string;
 }
