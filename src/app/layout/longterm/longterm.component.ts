@@ -156,13 +156,15 @@ export class LongtermComponent implements OnInit {
   }
 
   buildPageWithCurrentInformation() {
-    if (this.vesselType === 'CTV') {
-      // Build CTV module
-      this.ctvChild.buildPageWithCurrentInformation();
-    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-      // Build SOV module
-      this.sovChild.buildPageWithCurrentInformation();
-    }
+    setTimeout(() => { // Let CTV child object load
+      if (this.vesselType === 'CTV') {
+        // Build CTV module
+        this.ctvChild.buildPageWithCurrentInformation();
+      } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+        // Build SOV module
+        this.sovChild.buildPageWithCurrentInformation();
+      }
+    }, 100);
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
