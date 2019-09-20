@@ -1,15 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ScatterplotComponent } from './scatterplot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { ScatterplotRoutingModule } from './scatterplot-routing.module';
-import { PageHeaderModule } from '../../shared';
-import { CommonService } from '../../common.service';
+import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
+import { PageHeaderModule } from '../../../shared';
+import { CommonService } from '../../../common.service';
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -21,7 +20,6 @@ describe('ScatterplotComponent', () => {
         FormsModule,
         NgbModule.forRoot(),
         ReactiveFormsModule,
-        ScatterplotRoutingModule,
         PageHeaderModule,
         HttpModule,
         RouterModule.forRoot([])],

@@ -108,20 +108,21 @@ export class LongtermComponent implements OnInit {
   }
 
   testIfAllInit () {
-    if (this.loaded.Vessels && this.loaded.vesselType) {
-      this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
-      if (this === undefined) {
-        console.log(this); // Debugging this === undefined bug
-        console.log(this.Vessels); // Debugging this === undefined bug
-        console.log(this.vesselType); // Debugging this === undefined bug
-        console.error('Somehow failed to load page :( Debug info above');
+    try {
+      if (this.loaded.Vessels && this.loaded.vesselType) {
+        this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
+        this.buildPageWithCurrentInformation();
       }
-      this.buildPageWithCurrentInformation();
+    } catch (err) {
+      console.log('Failed to build page with current information');
+      console.log(this);
+      console.error(err);
     }
   }
 
   testIfAllLoaded() {
-
+    // Is this still used?
+    console.log('This is still called')
   }
 
   onSelectVessel(event: {mmsi: number, nicename: string}[]) {
