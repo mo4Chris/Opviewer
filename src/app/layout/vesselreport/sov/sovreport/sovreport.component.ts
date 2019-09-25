@@ -671,7 +671,7 @@ export class SovreportComponent implements OnInit {
                                     yAxisID: 'Wind'
                                 },
                                 {
-                                    label: 'Vessel tranfers',
+                                    label: 'Vessel transfers',
                                     data: dockingData,
                                     pointHoverRadius: 0,
                                     pointHitRadius: 0,

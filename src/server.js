@@ -2377,7 +2377,7 @@ app.post("/api/getWavedataForDay", function (req, res) {
             res.send(err);
         } else if (data === null) {
             // Did not find valid data
-            res.send(null);
+            res.status(204).send('Not found');
         } else {
             waveSourceModel.findById(data.source, (err, meta) => {
                 let company = token.userCompany;

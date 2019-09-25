@@ -2,7 +2,6 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
-import { EventEmitter } from 'events';
 import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 
@@ -353,8 +352,7 @@ export class CommonService {
   }): Observable<WavedataModel> {
     return this.post(environment.DB_IP + '/api/getWavedataForDay', request).pipe(
       map((response: Response) => {
-        console.log(response)
-        if (response._body === '') {
+        if (response.status === 204) {
           return null;
         } else {
           return new WavedataModel(response.json());

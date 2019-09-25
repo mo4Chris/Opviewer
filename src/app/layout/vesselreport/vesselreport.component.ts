@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core'
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
 import { isArray } from 'util';
+import * as Chart from 'chart.js';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
@@ -85,8 +86,21 @@ export class VesselreportComponent implements OnInit {
   wavedataLoaded = false;
   mapPixelWidth = 0;
   visitedPark = '';
+  weatherChartColors = [
+    'rgba(255,0,0,1)',
+    'rgba(0,155,0,1)',
+    'rgba(0, 100, 255 , 1)',
+    'rgba(255, 159, 64, 1)',
+    'rgba(255, 99, 132, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(255,255,0,1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(0,0,0,0.4)'
+  ];
 
   wavedata: WavedataModel;
+  weatherOverviewChart;
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
@@ -104,7 +118,6 @@ export class VesselreportComponent implements OnInit {
     const type = turbineLocationData.type;
     const vesselType = turbineLocationData.vesselType;
     const turbines: any[] = new Array<any>();
-    console.log(turbineLocationData)
 
     if (locationData.length > 0 && transfers.length > 0) {
       this.visitedPark = locationData[0].SiteName;
@@ -383,6 +396,7 @@ export class VesselreportComponent implements OnInit {
       if (waves) {
         this.wavedataLoaded = true;
         this.wavedata.meta.drawOnMap(this.googleMap);
+        this.createWeatherOverviewChart();
       }
     });
   }
@@ -421,6 +435,9 @@ export class VesselreportComponent implements OnInit {
     this.loaded = false;
     this.googleMapLoaded = false;
     this.visitedPark = '';
+    if (this.weatherOverviewChart) {
+      this.weatherOverviewChart.destroy();
+    }
   }
 
   setMapReady(googleMap) {
@@ -432,6 +449,205 @@ export class VesselreportComponent implements OnInit {
   buildGoogleMap() {
     this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
+  }
+
+  createWeatherOverviewChart() {
+    const wavedata = this.wavedata.wavedata;
+    if (wavedata) {
+      const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
+      const validLabels = this.wavedata.availableWaveParameters();
+      // Parsing the main datasets
+      const dsets = [];
+      validLabels.forEach((label, __i) => {
+        dsets.push({
+          label: label,
+          data: wavedata[label].map((elt: number, _i) => {
+            return {x: timeStamps[_i], y: elt};
+          }),
+          pointHoverRadius: 5,
+          pointHitRadius: 30,
+          pointRadius: 0,
+          backgroundColor: this.weatherChartColors[__i],
+          borderColor: this.weatherChartColors[__i],
+          borderWidth: 2,
+          fill: false,
+          yAxisID: (label === 'windDir') ? 'waveDir' : label,
+          hidden: __i !== 0
+        });
+      });
+      const chartTitle = 'Source: ' + this.wavedata.meta.name;
+      const transferData = [];
+      // Adding the grey transfer boxes
+      const addTransfer = (start, stop) => {
+        start = this.dateTimeService.MatlabDateToUnixEpoch(start);
+        stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
+        transferData.push({x: start , y: 1});
+        transferData.push({x: stop , y: 1});
+        transferData.push({x: NaN, y: NaN});
+      }
+      this.vesselTurbines.turbineLocations.forEach( visits => {
+        visits.forEach(visit => {
+          if (visit.shipHasSailedBy) {
+            addTransfer(visit.transfer.startTime, visit.transfer.stopTime);
+          }
+        });
+      });
+      dsets.push({
+        label: 'Vessel transfers',
+        data: transferData,
+        pointHoverRadius: 0,
+        pointHitRadius: 0,
+        pointRadius: 0,
+        borderWidth: 0,
+        yAxisID: 'hidden',
+        lineTension: 0,
+      });
+      // Support function for chart legend padding
+      Chart.Tooltip.positioners.custom = function (elements, position) {
+        const item = this._data.datasets;
+        elements = elements.filter(function (value, _i) {
+          return item[value._datasetIndex].yAxisID !== 'hidden';
+        });
+        let x_mean = 0;
+        elements.forEach(elt => {
+          x_mean += elt._model.x;
+        });
+        x_mean = x_mean / elements.length;
+        let y_mean = 0;
+        elements.forEach(elt => {
+          y_mean += elt._model.y;
+        });
+        y_mean = y_mean / elements.length;
+        return {
+          x: x_mean,
+          y: y_mean
+        };
+      };
+      if (timeStamps.length > 0) {
+        setTimeout(() => {
+          this.weatherOverviewChart = new Chart('weatherOverview', {
+            type: 'line',
+            data: {
+              datasets: dsets,
+            },
+            options: {
+              title: {
+                display: chartTitle !== '',
+                position: 'right',
+                text: chartTitle,
+                fontSize: 15,
+                padding: 5,
+                fontStyle: 'normal',
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                duration: 0
+              },
+              hover: {
+                animationDuration: 0
+              },
+              responsiveAnimationDuration: 0,
+              scales: {
+                xAxes: [{
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Local time'
+                  },
+                  type: 'time',
+                  time: {
+                    min: timeStamps[0],
+                    max: timeStamps[72],
+                    unit: 'hour'
+                  }
+                }],
+                yAxes: [{
+                  id: 'Wind',
+                  display: 'auto',
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Wind speed (m/s)'
+                  },
+                  ticks: {
+                    type: 'linear',
+                    maxTicksLimit: 7,
+                    suggestedMin: 0,
+                  },
+                },
+                {
+                  id: 'Hs',
+                  display: 'auto',
+                  suggestedMax: 2,
+                  beginAtZero: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Hs (m)'
+                  },
+                  ticks: {
+                    type: 'linear',
+                    maxTicksLimit: 7,
+                    suggestedMin: 0,
+                  }
+                },
+                {
+                  id: 'Tp',
+                  display: 'auto',
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Tp (s)'
+                  },
+                  ticks: {
+                    type: 'linear',
+                    maxTicksLimit: 7,
+                  },
+                },
+                {
+                  id: 'waveDir',
+                  display: 'auto',
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Direction (deg)'
+                  },
+                  ticks: {
+                    type: 'linear',
+                    maxTicksLimit: 7,
+                    suggestedMin: 0,
+                    max: 360
+                  },
+                }, {
+                  id: 'hidden',
+                  display: false,
+                  ticks: {
+                    type: 'linear',
+                    maxTicksLimit: 7,
+                    min: 0,
+                    suggestedMax: 1
+                  },
+                }]
+              },
+              tooltips: {
+                position: 'custom',
+                callbacks: {
+                  label: function (tooltipItem, data) {
+                    const dset = data.datasets[tooltipItem.datasetIndex];
+                    let label = dset.label || '';
+                    if (label) {
+                      label += ': ';
+                      label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
+                    }
+                    return label;
+                  },
+                },
+                mode: 'index',
+                filter: function (tooltip, data) {
+                  return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
+                },
+              }
+            }
+          });
+        });
+      }
+    }
   }
 }
 

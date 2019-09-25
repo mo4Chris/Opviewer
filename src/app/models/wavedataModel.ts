@@ -99,19 +99,27 @@ export class WaveSourceModel {
     }
 
     asMapZoomData() {
-        return new MapZoomData(
-            this.lon,
-            this.lat,
-            GmapService.iconWaveSource,
-            this.name,
-            this.site + '<br>' + 'Wave source: ' + this.name,
-            'click',
-            1,
-            true
-        );
+        if (this.lon && this.lat) {
+            return new MapZoomData(
+                this.lon,
+                this.lat,
+                GmapService.iconWaveSource,
+                this.name,
+                this.site + '<br>' +
+                'Wave source: ' + this.name + '<br>' +
+                this.info,
+                'click',
+                1,
+                true
+            );
+        } else {
+            return null;
+        }
     }
 
     drawOnMap(map: google.maps.Map) {
-        this.asMapZoomData().setMap(map);
+        if (this.lon && this.lat) {
+            this.asMapZoomData().setMap(map);
+        }
     }
 }
