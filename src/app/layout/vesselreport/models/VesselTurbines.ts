@@ -3,7 +3,7 @@ import { TurbineLocation } from "./TurbineLocation";
 export class VesselTurbines {
 
     turbineLocations: Array<TurbineLocation[]>;
-    parkName: string;
+    parkName: string = '';
     parkBoundaryLongitudes: number[];
     parkBoundaryLatitudes: number[];
 

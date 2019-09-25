@@ -275,7 +275,7 @@ export class ScatterplotComponent {
           stack: vesseldata.label,
           showInLegend: _i === 0,
           borderWidth: 1,
-          borderColor: 'rgba(0,0,0,1)',
+          borderColor: 'rgba(0,0,0,0.7)',
           backgroundColor: vesseldata.backgroundColor.replace('1)', (vesseldata.data.length - _i) / (vesseldata.data.length) + ')'),
         });
       });

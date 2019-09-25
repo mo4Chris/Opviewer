@@ -62,6 +62,7 @@ export class CtvreportComponent implements OnInit {
     toolboxConducted = [];
     hseOptions = [];
 
+
     generalInputStats = {date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
 
 
@@ -70,8 +71,12 @@ export class CtvreportComponent implements OnInit {
     alert = { type: '', message: '' };
     timeout;
 
-    constructor(private newService: CommonService, private calculationService: CalculationService, private modalService: NgbModal, private dateTimeService: DatetimeService) {
-
+    constructor(
+        private newService: CommonService,
+        private calculationService: CalculationService,
+        private modalService: NgbModal,
+        private dateTimeService: DatetimeService
+    ) {
     }
 
 

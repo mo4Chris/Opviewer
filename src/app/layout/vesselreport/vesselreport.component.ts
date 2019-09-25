@@ -22,6 +22,8 @@ import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
+import { WavedataModel } from '../../models/wavedataModel';
+import { MapZoomData, MapZoomLayer } from '../../models/mapZoomLayer';
 
 @Component({
   selector: 'app-vesselreport',
@@ -80,7 +82,11 @@ export class VesselreportComponent implements OnInit {
   turbinesLoaded = true; // getTurbineLocationData is not always triggered
   platformsLoaded = true;
   googleMapLoaded = false;
+  wavedataLoaded = false;
   mapPixelWidth = 0;
+  visitedPark = '';
+
+  wavedata: WavedataModel;
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
@@ -98,8 +104,10 @@ export class VesselreportComponent implements OnInit {
     const type = turbineLocationData.type;
     const vesselType = turbineLocationData.vesselType;
     const turbines: any[] = new Array<any>();
+    console.log(turbineLocationData)
 
     if (locationData.length > 0 && transfers.length > 0) {
+      this.visitedPark = locationData[0].SiteName;
       locationData.forEach(turbineLocation => {
         for (let index = 0; index < turbineLocation.lat.length; index++) {
           let turbineIsVisited = false;
@@ -361,7 +369,22 @@ export class VesselreportComponent implements OnInit {
       this.platformsLoaded && this.routeFound && this.loaded;
     if (allDataLoaded) {
       this.buildGoogleMap();
+      this.loadWaveData();
     }
+  }
+
+
+  loadWaveData() {
+    this.newService.getWavedataForDay({
+      date: this.vesselObject.date,
+      site: this.visitedPark,
+    }).subscribe(waves => {
+      this.wavedata = waves;
+      if (waves) {
+        this.wavedataLoaded = true;
+        this.wavedata.meta.drawOnMap(this.googleMap);
+      }
+    });
   }
 
   onChange(): void {
@@ -397,6 +420,7 @@ export class VesselreportComponent implements OnInit {
     this.transferVisitedAtLeastOneTurbine = false;
     this.loaded = false;
     this.googleMapLoaded = false;
+    this.visitedPark = '';
   }
 
   setMapReady(googleMap) {
