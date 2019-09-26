@@ -11,6 +11,7 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 
 @Component({
@@ -60,10 +61,28 @@ export class SovreportComponent implements OnInit {
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
-    HOCArray = [{value: 'HOC one', amount: 1}, {value: 'HOC two', amount: 2}];
-    ToolboxArray = [{value: 'Toolbox one', amount: 1}, {value: 'Second Twobox', amount: 2}];
-    liquidsObject = {fuel: {oldValue: 185.2 , loaded: 1, consumed: 2, discharged: 3, newValue: (2 + 3 - 1 - 1) },
-     luboil: {oldValue: 13272, loaded: 4, consumed: 5, discharged: 6, newValue: (2 + 3 - 1 - 1) }, domwater: {oldValue: 92, loaded: 7, consumed: 8, discharged: 9, newValue: (2 + 3 - 1 - 1) }, potwater: {oldValue: 264, loaded: 10, consumed: 11, discharged: 12, newValue: (2 + 3 - 1 - 1) }};
+    HOCArray = [];
+    ToolboxArray = [];
+    VesselNonAvailabilityArray = [];
+    WeatherDowntimeArray = [];
+    fuelChanged = false;
+    incidentsChanged = false;
+    nonAvailabilityChanged = false;
+    weatherDowntimeChanged = false;
+    cateringChanged = false;
+    remarksChanged = false;
+    alert = {type : '', message: ''};
+    showAlert = false;
+    timeout;
+    remarks = '';
+
+    cateringObject = {};
+    liquidsObject = {
+        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+    };
 
     updateFuel() {
         this.liquidsObject.fuel.newValue = (this.liquidsObject.fuel.oldValue + this.liquidsObject.fuel.loaded - this.liquidsObject.fuel.consumed - this.liquidsObject.fuel.discharged);
@@ -139,12 +158,27 @@ export class SovreportComponent implements OnInit {
         this.ToolboxArray.push({value: 'none', amount: 0});
     }
 
+    addVesselNonAvailabilityToArray() {
+        this.VesselNonAvailabilityArray.push({reason: 'DC small breakdown', from: '00:00', to: '00:00'});
+    }
+    addWeatherDowntimeToArray() {
+        this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
+    }
+
     removeLastFromToolboxArray() {
         this.ToolboxArray.pop();
     }
 
     removeLastFromHOCArray() {
         this.HOCArray.pop();
+    }
+
+    removeLastFromVesselNonAvailabilityArray() {
+        this.VesselNonAvailabilityArray.pop();
+    }
+
+    removeLastFromWeatherDowntimeArray() {
+        this.WeatherDowntimeArray.pop();
     }
 
     ngOnInit() {
@@ -196,6 +230,18 @@ export class SovreportComponent implements OnInit {
                 }, null, () => {
                     this.cycleTimeLoaded = true;
                     this.checkIfAllLoaded();
+                });
+                this.commonService.getSovDprInput({mmsi: this.sovModel.sovInfo.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+                    if (SovDprInput.length > 0) {
+                        this.HOCArray = SovDprInput[0].hoc;
+                        this.ToolboxArray = SovDprInput[0].toolbox;
+                        this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
+                        this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
+                        this.liquidsObject = SovDprInput[0].liquids;
+                    }
+
+                }, null, () => {
+
                 });
                 this.locShowContent = true;
             } else {
@@ -381,6 +427,148 @@ export class SovreportComponent implements OnInit {
     GetMatlabDurationToMinutes(serial) {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
+
+    saveFuelStats() {
+        this.commonService.saveFuelStatsSovDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, liquids: this.liquidsObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                    console.log('success');
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                console.log('danger');
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+            console.log('timeOutSet');
+        });
+        this.fuelChanged = false;
+    }
+
+    saveIncidentStats() {
+        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.incidentsChanged = false;
+    }
+
+    saveNonAvailabilityStats() {
+        this.commonService.saveNonAvailabilityDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, vesselNonAvailability: this.VesselNonAvailabilityArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveWeatherDowntimeStats() {
+        this.commonService.saveWeatherDowntimeDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, weatherDowntime: this.WeatherDowntimeArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.weatherDowntimeChanged = false;
+    }
+
+    saveCateringStats() {
+        this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    saveRemarksStats() {
+        this.commonService.saveRemarksStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, remarks: this.remarks}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.remarksChanged = false;
+    }
+
 
     // Properly change undefined values to N/a
     // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
@@ -859,6 +1047,12 @@ export class SovreportComponent implements OnInit {
         this.v2vLoaded = false;
         this.cycleTimeLoaded = false;
         this.sovLoaded = false;
+        this.fuelChanged = false;
+        this.incidentsChanged = false;
+        this.nonAvailabilityChanged = false;
+        this.weatherDowntimeChanged = false;
+        this.cateringChanged = false;
+        this.remarksChanged = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();

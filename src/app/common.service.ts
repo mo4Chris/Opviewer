@@ -205,8 +205,43 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveFuelStatsSovDpr(sovfuelstats) {
+    return this.post(environment.DB_IP + '/api/saveFuelStatsSovDpr/', sovfuelstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveIncidentDpr(sovincidentstats) {
+    return this.post(environment.DB_IP + '/api/saveIncidentDpr/', sovincidentstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveNonAvailabilityDpr(sovnonavailabilitystats) {
+    return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveWeatherDowntimeDpr(weatherdowntime) {
+    return this.post(environment.DB_IP + '/api/saveWeatherDowntimeDpr/', weatherdowntime).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveCateringStats(sovcateringstats) {
+    return this.post(environment.DB_IP + '/api/saveCateringStats/', sovcateringstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveRemarksStats(sovremarks) {
+    return this.post(environment.DB_IP + '/api/saveRemarksStats/', sovremarks).pipe(
+      map((response: Response) => response.json()));
+  }
+
   sendFeedback(feedback: {message: string, page: string, person: any}) {
     return this.post(environment.DB_IP + '/api/sendFeedback/', feedback).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getSovDprInput(vessel) {
+    return this.post(environment.DB_IP + '/api/getSovDprInput/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 

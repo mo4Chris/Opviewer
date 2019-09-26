@@ -302,6 +302,19 @@ var SovVessel2vesselTransfers = new Schema({
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
+var SovDprInput = new Schema({
+    liquids: { type: Object },
+    toolbox: { type: Array },
+    hoc: { type: Array },
+    vesselNonAvailability: { type: Array },
+    weatherDowntime: { type: Array },
+    remarks: {type: String},
+    catering: {type: Object},
+    date: { type: Number },
+    mmsi: { type: Number }
+});
+var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
+
 var SovCycleTimes = new Schema({
     startTime: { type: String },
     durationMinutes: { type: Number },
@@ -1265,6 +1278,179 @@ app.post("/api/getDatesWithValues", function (req, res) {
             }
         });
     });
+});
+
+
+app.post("/api/getSovDprInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, null, {}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                if (data.length > 0) {
+                    res.send(data);
+                } else {
+                    SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            let dprData = {};
+                            if (data == null){
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "remarks": ''
+                                };
+                            } else {
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "remarks": ''
+                                };
+                            }
+                            let sovDprData = new SovDprInputmodel(dprData);
+                            
+                            sovDprData.save((error, dprData) => {
+                                if (error) {
+                                    console.log(error);
+                                    return res.send(error);
+                                } else {
+                                    res.send([dprData]);
+                                }
+                            });
+                        }
+                    });
+                }
+                
+            }
+        });
+    });
+});
+
+app.post("/api/saveFuelStatsSovDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/saveIncidentDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/saveNonAvailabilityDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/saveRemarksStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
+});
+
+app.post("/api/saveCateringStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the permissions" });
+            }
+        });
 });
 
 app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
