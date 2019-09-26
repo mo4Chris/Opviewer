@@ -2396,6 +2396,70 @@ app.post("/api/getWavedataForDay", function (req, res) {
     });
 });
 
+app.post("/api/getWavedataForRange", function (req, res) {
+    let token = verifyToken(req, res);
+    let startDate  = req.body.startDate;
+    let stopDate  = req.body.stopDate;
+    let site  = req.body.site;
+
+    wavedataModel.find({
+        date: {$gte: startDate, $lte: stopDate},
+        site: site,
+        active: {$ne: false}
+    }, (err, datas) => {
+        if (err) {
+            res.send(err);
+        } else if (datas === null) {
+            // Did not find valid data
+            res.status(204).send('Not found');
+        } else {
+            datas.forEach( data =>
+                waveSourceModel.findById(data.source, (err, meta) => {
+                    let company = token.userCompany;
+                    let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
+                        meta.clients === company : meta.clients.some(client => client == company))
+                    if (hasAccessRights) {
+                        data.meta = meta;
+                    } else {
+                        data = null;
+                    }
+                })
+            );
+            res.send(datas);
+        }
+    });
+});
+
+app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === 'admin') {
+        waveSourceModel.distinct(
+            "site",
+            (data, err) => {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    } else {
+        waveSourceModel.distinct(
+            "site",
+            {
+                company: {$contains: token.userCompany}
+            },
+            (data, err) => {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    }
+})
+
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
     // Why is this port hardcoded instead of calling the environment.ts file?

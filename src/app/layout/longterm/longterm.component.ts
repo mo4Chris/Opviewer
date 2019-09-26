@@ -47,6 +47,11 @@ export class LongtermComponent implements OnInit {
     unSelectAllText: 'UnSelect All',
     singleSelection: false,
   };
+  fieldSelectSettings = {
+    allowSearchFilter: true,
+    singleSelection: true,
+    closeDropDownOnSelection: true
+  };
 
   vesselType: string;
   hoveredDate: NgbDate;
@@ -58,6 +63,8 @@ export class LongtermComponent implements OnInit {
     operationsClass: string, speednotifylimit: any, vesselname: string}[];
   showContent: boolean;
   loaded = {Vessels: false, vesselType: false};
+  fieldsWithWavedata: string[] = [];
+  selectedField: string = '';
 
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
@@ -71,10 +78,12 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
-
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
-         Chart.pluginService.register(ChartAnnotation);
+        Chart.pluginService.register(ChartAnnotation);
+        this.newService.getFieldsWithWaveSourcesByCompany().subscribe(fields => {
+          this.fieldsWithWavedata = fields;
+        });
         this.noPermissionForData = false;
         if (this.tokenInfo.userPermission === 'admin') {
           this.newService.getVessel().subscribe(data => {
@@ -82,29 +91,29 @@ export class LongtermComponent implements OnInit {
             this.loaded.Vessels = true;
           }, null, () => this.testIfAllInit());
         } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
-              this.Vessels = data;
-              this.loaded.Vessels = true;
-            }, null, () => this.testIfAllInit());
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.Vessels = data;
+            this.loaded.Vessels = true;
+          }, null, () => this.testIfAllInit());
         }
         if (this.vesselObject.mmsi.length > 0) {
-            this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
-                validatedValue => {
-                  if (validatedValue.length === 1) {
-                      this.vesselType = validatedValue[0].operationsClass;
-                  } else {
-                      this.showContent = true;
-                      this.noPermissionForData = true;
-                  }
-                  this.loaded.vesselType = true;
+          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
+            validatedValue => {
+              if (validatedValue.length === 1) {
+                this.vesselType = validatedValue[0].operationsClass;
+              } else {
+                this.showContent = true;
+                this.noPermissionForData = true;
+              }
+              this.loaded.vesselType = true;
             }, null, () => this.testIfAllInit());
         }
       } else {
-          localStorage.removeItem('isLoggedin');
-          localStorage.removeItem('token');
-          this.router.navigate(['login']);
-        }
-      });
+        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
+        this.router.navigate(['login']);
+      }
+    });
   }
 
   testIfAllInit () {
@@ -152,6 +161,9 @@ export class LongtermComponent implements OnInit {
     }
     this.vesselObject.mmsi = mmsiArray;
     this.buildPageWithCurrentInformation();
+    setTimeout(() => {
+      this.updateWavedataForChild();
+    }, 1000);
   }
 
   buildPageWithCurrentInformation() {
@@ -187,12 +199,12 @@ export class LongtermComponent implements OnInit {
 
   onDateSelection(date: NgbDate) {
       if (!this.fromDate && !this.toDate) {
-      this.fromDate = date;
+        this.fromDate = date;
       } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
-      this.toDate = date;
+        this.toDate = date;
       } else {
-      this.toDate = null;
-      this.fromDate = date;
+        this.toDate = null;
+        this.fromDate = date;
       }
   }
 
@@ -204,6 +216,25 @@ export class LongtermComponent implements OnInit {
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
+  selectField(event: string) {
+    this.selectedField = event;
+    this.updateWavedataForChild();
+  }
+
+  deselectField(event: string) {
+    this.selectedField = '';
+    this.updateWavedataForChild();
+  }
+
+  updateWavedataForChild() {
+    if (this.vesselType === 'CTV') {
+      // Build CTV module
+      this.ctvChild.updateActiveField(this.selectedField);
+    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+      // Build SOV module
+      // this.sovChild.buildPageWithCurrentInformation();
+    }
+  }
 
   // Utility
   getMatlabDateYesterday() {

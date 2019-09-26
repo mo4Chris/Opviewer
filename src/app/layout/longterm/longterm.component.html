@@ -42,20 +42,32 @@
                     
                 <div class="form-group">
                     <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">Date selector</button>
-                        <ng-multiselect-dropdown 
-                            name="selectVessel" 
-                            (onOpen)="openVesselModal($event)" 
-                            id ="selectVessel"
-                            class="multiSelectDiv" 
-                            (onSelect)="searchTransfersByNewSpecificDate()" 
-                            (onDeSelect)="searchTransfersByNewSpecificDate()" 
-                            (onSelectAll)="onSelectVessel($event)"
-                            (onDeSelectAll)="onSelectVessel($event)"
-                            [placeholder]="'Select vessel'"
-                            [data]="Vessels"
-                            [(ngModel)]="dropdownValues"
-                            [settings]="multiSelectSettings">
-                        </ng-multiselect-dropdown>
+                    <ng-multiselect-dropdown 
+                        name="selectVessel" 
+                        (onOpen)="openVesselModal($event)" 
+                        id ="selectVessel"
+                        class="multiSelectDiv" 
+                        (onSelect)="searchTransfersByNewSpecificDate()" 
+                        (onDeSelect)="searchTransfersByNewSpecificDate()" 
+                        (onSelectAll)="onSelectVessel($event)"
+                        (onDeSelectAll)="onSelectVessel($event)"
+                        [placeholder]="'Select vessel'"
+                        [data]="Vessels"
+                        [(ngModel)]="dropdownValues"
+                        [settings]="multiSelectSettings">
+                    </ng-multiselect-dropdown>
+                    <ng-multiselect-dropdown 
+                        name="selectField" 
+                        (onOpen)="openVesselModal($event)" 
+                        id ="selectField"
+                        class="multiSelectDiv" 
+                        (onSelect)="selectField($event)" 
+                        (onDeSelect)="deselectField($event)" 
+                        [placeholder]="'Select field to add wavedata'"
+                        [data]="fieldsWithWavedata"
+                        [settings]="fieldSelectSettings"
+                        >
+                    </ng-multiselect-dropdown>
                 </div>
             </div>
             <button type="button" class="btn btn-outline-secondary helpBtn longtermModule" [autoClose]="true"
@@ -67,7 +79,8 @@
     <hr>
     <div *ngIf="noPermissionForData == false; else noPermission">
         <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject" 
-        [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToVesselreport($event)">
+        [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToVesselreport($event)"
+        >
         </app-longterm-ctv>
         <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'"  (showContent)="childLoaded($event)" 
         [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"

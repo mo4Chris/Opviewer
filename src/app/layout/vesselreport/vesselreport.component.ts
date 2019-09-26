@@ -484,7 +484,7 @@ export class VesselreportComponent implements OnInit {
         transferData.push({x: start , y: 1});
         transferData.push({x: stop , y: 1});
         transferData.push({x: NaN, y: NaN});
-      }
+      };
       this.vesselTurbines.turbineLocations.forEach( visits => {
         visits.forEach(visit => {
           if (visit.shipHasSailedBy) {

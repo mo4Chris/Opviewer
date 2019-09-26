@@ -2,8 +2,7 @@ import * as Chart from 'chart.js';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
-import { Duration, Moment, now } from 'moment';
-import { CompileDirectiveMetadata } from '@angular/compiler';
+import { now } from 'moment';
 
 
 export class ScatterplotComponent {
@@ -595,6 +594,17 @@ export class ScatterplotComponent {
                 display: true,
                 labelString: Label
               }
+            }, {
+              id: 'Hs',
+              scaleLabel: {
+                display: true,
+                labelString: 'Hs (m)'
+              },
+              ticks: {
+                min: 0,
+                max: 3,
+              },
+              display: false,
             }];
         }
         break;

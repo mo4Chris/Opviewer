@@ -1,22 +1,15 @@
-import { isArray } from "util";
-import { MapZoomData } from "./mapZoomLayer";
-import { GmapService } from "../supportModules/gmap.service";
+import { isArray } from 'util';
+import { MapZoomData } from './mapZoomLayer';
+import { GmapService } from '../supportModules/gmap.service';
+import { CalculationService } from '../supportModules/calculation.service';
 
 
 export class WavedataModel {
-    constructor(objLiteral?: Object) {
-        if (objLiteral) {
-            const temp: WavedataModel = Object.assign(new WavedataModel(), objLiteral);
-            temp.meta = new WaveSourceModel(temp.meta);
-            temp.cleanWavedata();
-            return temp;
-        }
-    }
-
     active: boolean;
     date: Number;
 
     site: string;
+    meta: WaveSourceModel;
     wavedata: {
         timeStamp: number[];
         Hs: number[];
@@ -26,10 +19,55 @@ export class WavedataModel {
         windDir: number[];
     };
 
-    meta: WaveSourceModel;
+    static mergeWavedataArray(arr: WavedataModel[]) {
+        const calcService = new CalculationService;
+        const merged = {
+            timeStamp: [],
+            Hs: [],
+            Tp: [],
+            waveDir: [],
+            wind: [],
+            windDir: [],
+        };
+        const params = ['Hs', 'Tp', 'waveDir', 'wind', 'windDir'];
+        arr.forEach(wavedata => {
+            merged.timeStamp = merged.timeStamp.concat(wavedata.wavedata.timeStamp);
+            params.forEach( param => {
+                const vals = wavedata.wavedata[param];
+                if (vals && vals.length === wavedata.wavedata.timeStamp.length) {
+                    merged[param] = merged[param].concat(vals);
+                } else {
+                    wavedata.wavedata.timeStamp.forEach(() => {
+                        merged[param].push(NaN);
+                    });
+                }
+            });
+        });
+        // We sort here just to be sure - there have been some irregularities in the past
+        const sortedIdx = calcService.sortIndices(merged.timeStamp);
+        merged.timeStamp = calcService.sortViaIndex(merged.timeStamp, sortedIdx);
+        params.forEach(param => {
+            merged[param] = calcService.sortViaIndex(merged[param], sortedIdx);
+        });
+        return merged;
+    }
 
-    merge(other: WavedataModel) {
-        this.wavedata.timeStamp.concat(other.wavedata.timeStamp);
+    static getMetaFromWavedataArrayByDate(arr: WavedataModel[], matlabDate: number) {
+        const index = arr.findIndex(((wavedata) => wavedata.date === matlabDate));
+        if (index === -1) {
+            return null;
+        } else {
+            return arr[index].meta;
+        }
+    }
+
+    constructor(objLiteral?: Object) {
+        if (objLiteral) {
+            const temp: WavedataModel = Object.assign(new WavedataModel(), objLiteral);
+            temp.meta = new WaveSourceModel(temp.meta);
+            temp.cleanWavedata();
+            return temp;
+        }
     }
 
     cleanWavedata() {
@@ -62,6 +100,7 @@ export class WavedataModel {
             return arr !== null && arr.some(elt => elt !== null && elt !== '_NaN_');
         });
     }
+
 }
 
 export class WaveSourceModel {

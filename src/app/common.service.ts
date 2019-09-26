@@ -360,17 +360,20 @@ export class CommonService {
       }));
   }
 
-  getWavedataForPeriod(request: {
-    date: number,
+  getWavedataForRange(request: {
+    startDate: number,
+    stopDate: number,
     site: string,
-  }): Observable<WavedataModel> {
-    return this.post(environment.DB_IP + '/api/getWavedataForDay', request).pipe(
-      map((response: Response) => response.json()));
+  }): Observable<WavedataModel[]> {
+    return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
+      map((response: Response) => {
+        return response.json().map( wavedata => new WavedataModel(wavedata));
+      }));
   }
 
-  getWaveSourcesForCompany(): Observable<WaveSourceModel[]> {
+  getFieldsWithWaveSourcesByCompany(): Observable<string[]> {
     // TODO this is not yet on server.js
-    return this.get(environment.DB_IP + '/api/getWaveSourcesForCompany').pipe(
+    return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
     map((response: Response) => response.json()));
   }
 }

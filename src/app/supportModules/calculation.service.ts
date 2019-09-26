@@ -181,4 +181,21 @@ export class CalculationService {
     });
     return counts;
   }
+
+  sortIndices(arr: any[], sortFcn?: (a: any, b: any) => number): number[] {
+    const indices = arr.map((_, _i) => _i);
+    if (sortFcn) {
+      return indices.sort((a, b) => sortFcn(arr[a], arr[b]) ? -1 : sortFcn(arr[a], arr[b]) ? 1 : 0);
+    } else {
+      return indices.sort((a, b) => arr[a] < arr[b] ? -1 : arr[a] > arr[b] ? 1 : 0);
+    }
+  }
+
+  sortViaIndex(arr: any[], indices: number[]) {
+    const out = [];
+    indices.forEach(idx => {
+      out.push(arr[idx]);
+    });
+    return out;
+  }
 }
