@@ -7,7 +7,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { WavedataModel } from '../../../../models/wavedataModel';
-import { WeatherOverviewChart } from '../../models/weatherChart';
+import { WeatherOverviewChart, ExtendedChartDataset } from '../../models/weatherChart';
 
 @Component({
     selector: 'app-ctvreport',
@@ -72,7 +72,7 @@ export class CtvreportComponent implements OnInit {
     wavedata: WavedataModel;
     wavedataLoaded = false;
     wavegraphMinimized = false;
-    weatherOverviewChart: any;
+    weatherOverviewChart: WeatherOverviewChart;
     visitedPark = '';
 
     public showAlert = false;
@@ -105,7 +105,7 @@ export class CtvreportComponent implements OnInit {
 
         this.visitedPark = '';
         if (this.weatherOverviewChart) {
-            this.weatherOverviewChart.destroy();
+            this.weatherOverviewChart.Chart.destroy();
         }
 
         this.getDatesShipHasSailed(this.vesselObject);
@@ -198,7 +198,7 @@ export class CtvreportComponent implements OnInit {
                 if (waves) {
                     this.wavedataLoaded = true;
                     this.createWeatherOverviewChart(turbData);
-                    this.addFeaturesToMap();
+                    this.addWaveFeaturesToMap();
                 }
             });
         });
@@ -206,10 +206,10 @@ export class CtvreportComponent implements OnInit {
 
     onMapLoaded(googleMap: google.maps.Map) {
         this.googleMap = googleMap;
-        this.addFeaturesToMap();
+        this.addWaveFeaturesToMap();
     }
 
-    addFeaturesToMap() {
+    addWaveFeaturesToMap() {
         if (this.googleMap && this.wavedataLoaded) {
             this.wavedata.meta.drawOnMap(this.googleMap);
         }
@@ -221,7 +221,7 @@ export class CtvreportComponent implements OnInit {
             const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
             const validLabels = this.wavedata.availableWaveParameters();
             // Parsing the main datasets
-            const dsets = [];
+            const dsets: ExtendedChartDataset[] = [];
             validLabels.forEach((label, __i) => {
                 dsets.push({
                     label: label,
@@ -231,12 +231,10 @@ export class CtvreportComponent implements OnInit {
                     pointHoverRadius: 5,
                     pointHitRadius: 30,
                     pointRadius: 0,
-                    backgroundColor: WeatherOverviewChart.weatherChartColors[__i],
-                    borderColor: WeatherOverviewChart.weatherChartColors[__i],
                     borderWidth: 2,
+                    unit: undefined,
                     fill: false,
-                    yAxisID: (label === 'windDir') ? 'waveDir' : label,
-                    hidden: __i !== 0
+                    yAxisID: (label === 'windDir') ? 'waveDir' : label
                 });
             });
             const wavedataSourceName = 'Source: ' + this.wavedata.meta.name;
