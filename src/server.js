@@ -315,7 +315,11 @@ var SovDprInput = new Schema({
     remarks: {type: String},
     catering: {type: Object},
     date: { type: Number },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    ToolboxAmountOld: { type: Number },
+    ToolboxAmountNew: { type: Number },
+    HOCAmountOld: { type: Number },
+    HOCAmountNew: { type: Number }
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
@@ -1318,6 +1322,10 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "vesselNonAvailability": [],
                                     "weatherDowntime":[],
                                     "remarks": '',
+                                    "ToolboxAmountOld": 0,
+                                    "ToolboxAmountNew": 0,
+                                    "HOCAmountOld": 0,
+                                    "HOCAmountNew": 0,
                                     "catering": {
                                         extraMeals : 0,
                                         packedLunches: 0,
@@ -1339,6 +1347,10 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "hoc": [],
                                     "vesselNonAvailability": [],
                                     "weatherDowntime":[],
+                                    "ToolboxAmountOld": data.ToolboxAmountNew,
+                                    "ToolboxAmountNew": data.ToolboxAmountNew,
+                                    "HOCAmountOld": data.HOCAmountNew,
+                                    "HOCAmountNew": data.HOCAmountNew,
                                     "remarks": '',
                                     "catering": {
                                         extraMeals : 0,
@@ -1391,7 +1403,8 @@ app.post("/api/saveIncidentDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc },
+    console.log(req.body);
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
                 res.send(err);

@@ -202,9 +202,9 @@
                                 </tr>
                                 <tr>
                                     <th>HOC total Previous</th>
-                                    <td>833</td>
+                                    <td>{{HOCTotalOld}}</td>
                                     <th>New total</th>
-                                    <td>833</td>
+                                    <td>{{HOCTotalNew}}</td>
                                 </tr>
                                 <tr>
                                     <th>Toolbox talks: {{ToolboxTotal}}</th>
@@ -228,9 +228,9 @@
                                     
                                 <tr>
                                     <th>Toolbox total previous</th>
-                                    <td>3026</td>
+                                    <td>{{ToolboxTotalOld}}</td>
                                     <th>New total</th>
-                                    <td>3028</td>
+                                    <td>{{ToolboxTotalNew}}</td>
                                 </tr>
                                 <tr *ngIf="incidentsChanged == true">
                                     <td  colspan="4" class="submitbtnclass"> <button *ngIf="incidentsChanged == true" class="btn btn-lg btn-primary" (click)="saveIncidentStats();" style="float:right" type="button">Save</button></td>

@@ -64,8 +64,12 @@ export class SovreportComponent implements OnInit {
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
     HOCArray = [];
     HOCTotal = 0;
+    HOCTotalOld = 0;
+    HOCTotalNew = 0;
     ToolboxArray = [];
     ToolboxTotal = 0;
+    ToolboxTotalOld = 0;
+    ToolboxTotalNew = 0;
     VesselNonAvailabilityArray = [];
     WeatherDowntimeArray = [];
     fuelChanged = false;
@@ -75,6 +79,7 @@ export class SovreportComponent implements OnInit {
     cateringChanged = false;
     remarksChanged = false;
     alert = {type : '', message: ''};
+
 
     showAlert = false;
     timeout;
@@ -90,18 +95,22 @@ export class SovreportComponent implements OnInit {
 
     updateHOCTotal() {
         this.HOCTotal = 0;
+        this.HOCTotalNew = this.HOCTotalOld;
         if (this.HOCArray.length !== 0) {
             this.HOCArray.forEach(element => {
                 this.HOCTotal = this.HOCTotal + +element.amount;
+                this.HOCTotalNew = this.HOCTotalNew + +element.amount;
             });
         }
     }
 
     updateToolboxTotal() {
         this.ToolboxTotal = 0;
+        this.ToolboxTotalNew = this.ToolboxTotalOld;
         if (this.ToolboxArray.length !== 0) {
             this.ToolboxArray.forEach(element => {
                 this.ToolboxTotal = this.ToolboxTotal + +element.amount;
+                this.ToolboxTotalNew = this.ToolboxTotalNew + +element.amount;
             });
         }
     }
@@ -308,6 +317,10 @@ export class SovreportComponent implements OnInit {
                         this.liquidsObject = SovDprInput[0].liquids;
                         this.remarks = SovDprInput[0].remarks;
                         this.cateringObject = SovDprInput[0].catering;
+                        this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
+                        this.HOCTotalNew = SovDprInput[0].HOCAmountNew;
+                        this.ToolboxTotalOld = SovDprInput[0].ToolboxAmountOld;
+                        this.ToolboxTotalNew = SovDprInput[0].ToolboxAmountNew;
                     }
 
                 }, null, () => {
@@ -533,7 +546,7 @@ export class SovreportComponent implements OnInit {
             return +result.amount !== 0;
         });
 
-        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray}).pipe(
+        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray, ToolboxAmountNew: this.ToolboxTotalNew, HOCAmountNew: this.HOCTotalNew}).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
