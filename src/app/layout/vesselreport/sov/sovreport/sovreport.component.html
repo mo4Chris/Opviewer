@@ -169,7 +169,7 @@
                                     <td>{{liquidsObject.domwater.newValue}}</td>
                                     <td>{{liquidsObject.potwater.newValue}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="fuelChanged == true">
                                     <td colspan="5" class="submitbtnclass"> <button *ngIf="fuelChanged == true" (click)="saveFuelStats();" class="btn btn-lg btn-primary" style="float:right" type="button">Save</button></td>
                                 </tr> 
                             </table>
@@ -180,24 +180,24 @@
                                     <th colspan="4">Incidents & Toolbox input</th>
                                 </tr>
                                 <tr>
-                                    <th>HOC cards: 0</th>
+                                    <th>HOC cards: {{HOCTotal}}</th>
                                     <td colspan="3">
                                         <ng-container *ngFor="let HoC of HOCArray">
                                             <div class="tableRow">
-                                                <input class="form-control col-xl-7" type="text" (change)="incidentsChanged = true;" [value]="HoC.value">
-                                                <select [(ngModel)]="HoC.amount" (change)="incidentsChanged = true;" class="form-control col-xl-5">
-                                                    <option value="0">0 times</option>
-                                                    <option value="1">1 times</option>
-                                                    <option value="2">2 times</option>
-                                                    <option value="3">3 times</option>
-                                                    <option value="4">4 times</option>
-                                                    <option value="5">5 times</option>
+                                                <input class="form-control col-xl-7" type="text" (change)="incidentsChanged = true;" placeholder="input reason" [value]="HoC.value">
+                                                <select [(ngModel)]="HoC.amount" (change)="incidentsChanged = true; updateHOCTotal();" class="form-control col-xl-5">
+                                                    <option value=0>0 (remove)</option>
+                                                    <option value=1>1 times</option>
+                                                    <option value=2>2 times</option>
+                                                    <option value=3>3 times</option>
+                                                    <option value=4>4 times</option>
+                                                    <option value=5>5 times</option>
                                                 </select>
                                             </div>
                                         </ng-container>
                                         <br>
-                                        <button class="btn btn-sm btn-success" (click)="addHoCToArray(); incidentsChanged = true;" type="button">add line</button>
-                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromHOCArray(); incidentsChanged = true;" type="button">remove last</button>
+                                        <button class="btn btn-sm btn-success" (click)="addHoCToArray(); incidentsChanged = true; updateHOCTotal()" type="button">add line</button>
+                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromHOCArray(); incidentsChanged = true; updateHOCTotal()" type="button">remove last</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -207,23 +207,23 @@
                                     <td>833</td>
                                 </tr>
                                 <tr>
-                                    <th>Toolbox talks: 2</th>
+                                    <th>Toolbox talks: {{ToolboxTotal}}</th>
                                     <td colspan="3">
                                         <ng-container *ngFor="let toolbox of ToolboxArray">
                                             <div class="tableRow">
-                                                <input class="form-control col-xl-7" type="text" (change)="incidentsChanged = true;" [value]="toolbox.value">
-                                                <select [(ngModel)]="toolbox.amount" (change)="incidentsChanged = true;" class="form-control col-xl-5">
-                                                    <option value="0">0 times</option>
-                                                    <option value="1">1 times</option>
-                                                    <option value="2">2 times</option>
-                                                    <option value="3">3 times</option>
-                                                    <option value="4">4 times</option>
-                                                    <option value="5">5 times</option>
+                                                <input class="form-control col-xl-7" type="text" (change)="incidentsChanged = true;" placeholder="input reason" [value]="toolbox.value">
+                                                <select [(ngModel)]="toolbox.amount" (change)="incidentsChanged = true; updateToolboxTotal();" class="form-control col-xl-5">
+                                                    <option value=0>0 times</option>
+                                                    <option value=1>1 times</option>
+                                                    <option value=2>2 times</option>
+                                                    <option value=3>3 times</option>
+                                                    <option value=4>4 times</option>
+                                                    <option value=5>5 times</option>
                                                 </select>
                                             </div>
                                         </ng-container><br>
-                                        <button class="btn btn-sm btn-success" (click)="addToolboxToArray(); incidentsChanged = true;" type="button">add line</button>
-                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromToolboxArray(); incidentsChanged = true;" type="button">remove last</button>
+                                        <button class="btn btn-sm btn-success" (click)="addToolboxToArray(); incidentsChanged = true; updateToolboxTotal();" type="button">add line</button>
+                                        <button class="btn btn-sm btn-danger" (click)="removeLastFromToolboxArray(); incidentsChanged = true;  updateToolboxTotal();" type="button">remove last</button>
                                     </td>
                                     
                                 <tr>
@@ -232,7 +232,7 @@
                                     <th>New total</th>
                                     <td>3028</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="incidentsChanged == true">
                                     <td  colspan="4" class="submitbtnclass"> <button *ngIf="incidentsChanged == true" class="btn btn-lg btn-primary" (click)="saveIncidentStats();" style="float:right" type="button">Save</button></td>
                                 </tr> 
                             </table>
@@ -718,26 +718,26 @@
                             <table class="table table-bordered">
                                 <tr>
                                     <th>People on board</th>
-                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="29"></td>
+                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="42"></td>
                                 </tr>
                                 <tr>
                                     <th>Extra meals</th>
-                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="7"></td>
+                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" [(ngModel)]="cateringObject.extraMeals" [(value)]="cateringObject.extraMeals"></td>
                                 </tr>
                                 <tr>
                                     <th>Packed Lunches</th>
-                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="20"></td>
+                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" [(ngModel)]="cateringObject.packedLunches" [(value)]="cateringObject.packedLunches"></td>
                                 </tr>
                                 <tr>
                                     <th>Marine</th>
-                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="23"></td>
+                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" [(ngModel)]="cateringObject.marine" [(value)]="cateringObject.marine"></td>
                                 </tr>
                                 <tr>
                                     <th>Marine + Marine contractors</th>
-                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" value="0"></td>
+                                    <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000" [(ngModel)]="cateringObject.marineContractors" [(value)]="cateringObject.marineContractors"></td>
                                 </tr>
-                                <tr>
-                                    <td colspan="2" class="submitbtnclass"> <button *ngIf="cateringChanged == true" (click)="saveCateringStats();" class="btn btn-lg btn-primary" style="float:right" type="button">Save</button></td>
+                                <tr *ngIf="cateringChanged == true">
+                                    <td colspan="2" class="submitbtnclass"> <button (click)="saveCateringStats();" class="btn btn-lg btn-primary" style="float:right" type="button">Save</button></td>
                                 </tr>  
                             </table>
                         </div>
@@ -811,20 +811,20 @@
                                         <ng-container *ngIf="platformTransfer.location != undefined">
                                             <th>{{platformTransfer.location}}</th>
                                         </ng-container>
-                                        <td >{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
+                                        <td>{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}</td>
                                         <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}</td>
                                         <td>{{platformTransfer.totalDuration}} minutes</td>
                                         <td> 
-                                            <input type="number" min="0"  class="form-control-sm col-sm-5"  > incoming <br> 
-                                            <input type="number" min="0" class="form-control-sm col-sm-5" > outgoing
+                                            <input type="number" min="0"  class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxUp"> incoming <br> 
+                                            <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxDown"> outgoing
                                         </td>
                                         <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) >= 10">{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
                                         <td *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) < 10">&nbsp;{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
-                                        <td><button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button">Save</button></td>
+                                        <td><button class="btn btn-lg btn-primary submitBtnDate" (click)="savePlatformPaxInput(platformTransfer)" type="button">Save</button></td>
                                     </tr>
                                 </ng-container>
                             </tbody>
@@ -865,12 +865,12 @@
                                         <td>{{turbineTransfer.duration}} minutes</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
                                         <td> 
-                                            <input type="number" min="0"  class="form-control-sm col-sm-5"  > incoming <br> 
-                                            <input type="number" min="0" class="form-control-sm col-sm-5" > outgoing
+                                            <input type="number" min="0"  class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.paxUp" > incoming <br> 
+                                            <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.paxDown"> outgoing
                                         </td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
-                                        <td><button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button">Save</button></td>
+                                        <td><button class="btn btn-lg btn-primary submitBtnDate" (click)="saveTurbinePaxInput(turbineTransfer)" type="button">Save</button></td>
                                     </tr>
                                 </ng-container>
                             </tbody>
@@ -1107,3 +1107,4 @@
         </div>
     </div>
 </div>
+<ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>

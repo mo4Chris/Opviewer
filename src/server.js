@@ -231,7 +231,9 @@ var SovPlatformTransfers = new Schema({
     lat: { type: Number },
     paxCntEstimate: { type: String },
     TexitExclusionZone: { type: Number },
-    date: { type: Number }
+    date: { type: Number },
+    paxUp: { type: Number },
+    paxDown: { type: Number }
 }, { versionKey: false });
 var SovPlatformTransfersmodel = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
 
@@ -270,7 +272,9 @@ var SovTurbineTransfers = new Schema({
     gangwayUtilisationTrace: { type: String },
     positionalStability: { type: String },
     windArray: { type: Object },
-    date: { type: Number }
+    date: { type: Number },
+    paxUp: { type: Number },
+    paxDown: { type: Number }
 });
 var SovTurbineTransfersmodel = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
@@ -964,9 +968,9 @@ app.post("/api/getVesselsForCompany", function (req, res) {
         return res.status(401).send('Access denied');
     }
     let filter = { client: companyName, active: {$ne: false} };
-    if (!req.body[0].notHired) {
-        filter.onHire = 1;
-    }
+    // if (!req.body[0].notHired) {
+    //     filter.onHire = 1;
+    // }
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -1313,7 +1317,13 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "hoc": [],
                                     "vesselNonAvailability": [],
                                     "weatherDowntime":[],
-                                    "remarks": ''
+                                    "remarks": '',
+                                    "catering": {
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    }
                                 };
                             } else {
                                 dprData = {
@@ -1329,7 +1339,13 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "hoc": [],
                                     "vesselNonAvailability": [],
                                     "weatherDowntime":[],
-                                    "remarks": ''
+                                    "remarks": '',
+                                    "catering": {
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    }
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1363,7 +1379,7 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved the fuel input" });
             }
         });
 });
@@ -1380,7 +1396,41 @@ app.post("/api/saveIncidentDpr", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved the incident input" });
+            }
+        });
+});
+
+app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+});
+
+app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
             }
         });
 });
@@ -1397,7 +1447,7 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved the non-availability input" });
             }
         });
 });
@@ -1414,7 +1464,7 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved the weather downtime input" });
             }
         });
 });
@@ -1431,7 +1481,7 @@ app.post("/api/saveRemarksStats", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved your remarks" });
             }
         });
 });
@@ -1448,7 +1498,7 @@ app.post("/api/saveCateringStats", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the permissions" });
+                res.send({ data: "Succesfully saved the catering input" });
             }
         });
 });

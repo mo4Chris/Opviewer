@@ -14,6 +14,7 @@ import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 
+
 @Component({
     selector: 'app-sovreport',
     templateUrl: './sovreport.component.html',
@@ -62,7 +63,9 @@ export class SovreportComponent implements OnInit {
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
     HOCArray = [];
+    HOCTotal = 0;
     ToolboxArray = [];
+    ToolboxTotal = 0;
     VesselNonAvailabilityArray = [];
     WeatherDowntimeArray = [];
     fuelChanged = false;
@@ -72,6 +75,7 @@ export class SovreportComponent implements OnInit {
     cateringChanged = false;
     remarksChanged = false;
     alert = {type : '', message: ''};
+
     showAlert = false;
     timeout;
     remarks = '';
@@ -83,6 +87,24 @@ export class SovreportComponent implements OnInit {
         domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
         potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
     };
+
+    updateHOCTotal() {
+        this.HOCTotal = 0;
+        if (this.HOCArray.length !== 0) {
+            this.HOCArray.forEach(element => {
+                this.HOCTotal = this.HOCTotal + +element.amount;
+            });
+        }
+    }
+
+    updateToolboxTotal() {
+        this.ToolboxTotal = 0;
+        if (this.ToolboxArray.length !== 0) {
+            this.ToolboxArray.forEach(element => {
+                this.ToolboxTotal = this.ToolboxTotal + +element.amount;
+            });
+        }
+    }
 
     updateFuel() {
         this.liquidsObject.fuel.newValue = (this.liquidsObject.fuel.oldValue + this.liquidsObject.fuel.loaded - this.liquidsObject.fuel.consumed - this.liquidsObject.fuel.discharged);
@@ -109,10 +131,10 @@ export class SovreportComponent implements OnInit {
         ) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
-        const map = document.getElementById('routeMap');
+        const routemap = document.getElementById('routeMap');
         const v2vHandler = new Vessel2VesselActivity({
             sovModel: this.sovModel,
-            htmlMap: map,
+            htmlMap: routemap,
             vessel: vesselname,
             mmsi: toMMSI,
             turbineLocations: this.turbineLocations
@@ -151,11 +173,11 @@ export class SovreportComponent implements OnInit {
     }
 
     addHoCToArray() {
-        this.HOCArray.push({value: 'none', amount: 0});
+        this.HOCArray.push({value: '', amount: 1});
     }
 
     addToolboxToArray() {
-        this.ToolboxArray.push({value: 'none', amount: 0});
+        this.ToolboxArray.push({value: '', amount: 1});
     }
 
     addVesselNonAvailabilityToArray() {
@@ -179,6 +201,52 @@ export class SovreportComponent implements OnInit {
 
     removeLastFromWeatherDowntimeArray() {
         this.WeatherDowntimeArray.pop();
+    }
+
+    savePlatformPaxInput(transfer) {
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveTurbinePaxInput(transfer) {
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
     }
 
     ngOnInit() {
@@ -238,6 +306,8 @@ export class SovreportComponent implements OnInit {
                         this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
                         this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
                         this.liquidsObject = SovDprInput[0].liquids;
+                        this.remarks = SovDprInput[0].remarks;
+                        this.cateringObject = SovDprInput[0].catering;
                     }
 
                 }, null, () => {
@@ -428,13 +498,13 @@ export class SovreportComponent implements OnInit {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
 
+    // universe functie van maken ipv 6x dezelfde functie
     saveFuelStats() {
         this.commonService.saveFuelStatsSovDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, liquids: this.liquidsObject}).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
                     this.alert.message = res.data;
-                    console.log('success');
                 }
             ),
             catchError(error => {
@@ -449,12 +519,20 @@ export class SovreportComponent implements OnInit {
             this.timeout = setTimeout(() => {
                 this.showAlert = false;
             }, 7000);
-            console.log('timeOutSet');
         });
         this.fuelChanged = false;
     }
 
     saveIncidentStats() {
+
+        this.ToolboxArray = this.ToolboxArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
+        this.HOCArray = this.HOCArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
         this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray}).pipe(
             map(
                 (res) => {
