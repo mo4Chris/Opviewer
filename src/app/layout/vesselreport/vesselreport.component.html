@@ -68,40 +68,18 @@
                 </agm-map>
             </div>
         </div>
-        <!-- No idea -->
-        <div *ngIf="parkFound && wavedata" class="row" class="weatherMap">
-            <div class="col-xl-12 col-lg-24">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Weather overview: {{wavedata? wavedata.site: ''}}
-                        <ng-template #popContentWeatherOverview class="helpContent">
-                            Weather overview for selected day and vessel. 
-                            By default, only Hs and avg wind speed are shown.
-                            Hidden or missing data is crossed through. To show or 
-                            hide a particular dataset, click on the colored
-                            bars in the legend. Hovering over the graph will 
-                            display the recorded values at any time.
-                        </ng-template>
-                        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
-                            [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-                    </div>
-                    <div class="weatherOverview" style="height: 400px">
-                        <canvas id="weatherOverview"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- This builds the CTV / SOV subpages -->
         <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
             [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
             (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)" (parkFound)="getParkFound($event)"
-            (platformLocationData)="getPlatformLocationData($event)">
+            (platformLocationData)="getPlatformLocationData($event)" [mapPromise]="mapPromise">
         </app-ctvreport>
         <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" (loaded)="isLoaded($event)"
             [vesselObject]="vesselObject" [mapPixelWidth]="mapPixelWidth" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
             (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)"
-            (platformLocationData)="getPlatformLocationData($event)">
+            (platformLocationData)="getPlatformLocationData($event)" [mapPromise]="mapPromise">
         </app-sovreport>
     </div>
     <ng-template #other_content>

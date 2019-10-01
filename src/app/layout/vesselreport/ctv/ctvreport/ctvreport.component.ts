@@ -6,6 +6,8 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
+import { WavedataModel } from '../../../../models/wavedataModel';
+import { WeatherOverviewChart } from '../../models/weatherChart';
 
 @Component({
     selector: 'app-ctvreport',
@@ -26,7 +28,8 @@ export class CtvreportComponent implements OnInit {
 
     @Input() vesselObject: { date: number, mmsi: number, dateNormal: Date, vesselType: string };
     @Input() tokenInfo;
-    @Input() mapPixelWidth;
+    @Input() mapPixelWidth: number;
+    @Input() mapPromise: Promise<google.maps.Map>;
 
     videoRequestPermission;
     videoRequestLoading = false;
@@ -48,7 +51,7 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
-    dateData = {transfer: undefined, general: undefined};
+    dateData = { transfer: undefined, general: undefined };
     modalReference: NgbModalRef;
     multiSelectSettings = {
         idField: 'mmsi',
@@ -57,15 +60,20 @@ export class CtvreportComponent implements OnInit {
         singleSelection: false
     };
     toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
-    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
-   'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
+        'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
+        'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
     toolboxConducted = [];
     hseOptions = [];
 
 
-    generalInputStats = {date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: ''};
+    generalInputStats = { date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: '' };
 
-
+    googleMap: google.maps.Map;
+    wavedata: WavedataModel;
+    wavedataLoaded = false;
+    wavegraphMinimized = false;
+    weatherOverviewChart: any;
+    visitedPark = '';
 
     public showAlert = false;
     alert = { type: '', message: '' };
@@ -94,6 +102,12 @@ export class CtvreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         // At this point are loaded: tokenInfo, vesselObject
+
+        this.visitedPark = '';
+        if (this.weatherOverviewChart) {
+            this.weatherOverviewChart.destroy();
+        }
+
         this.getDatesShipHasSailed(this.vesselObject);
         this.noPermissionForData = false;
         this.videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
@@ -119,11 +133,14 @@ export class CtvreportComponent implements OnInit {
                         this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
                             this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
                                 if (locData.length > 0) {
-
-                                    const locationData = { 'turbineLocations': locData, 'transfers': this.transferData, 'type': '', 'vesselType': 'CTV' };
-
-                                    this.turbineLocationData.emit(locationData),
-                                        this.parkFound.emit(true);
+                                    const locationData = {
+                                        'turbineLocations': locData,
+                                        'transfers': this.transferData,
+                                        'type': '',
+                                        'vesselType': 'CTV'
+                                    };
+                                    this.turbineLocationData.emit(locationData);
+                                    this.parkFound.emit(true);
                                 } else {
                                     this.parkFound.emit(false);
                                 }
@@ -155,6 +172,7 @@ export class CtvreportComponent implements OnInit {
                 }, null, () => {
                     this.showContent.emit(true);
                     this.loaded.emit(true);
+                    this.loadWaveData();
                 });
             } else {
                 this.showContent.emit(false);
@@ -162,6 +180,85 @@ export class CtvreportComponent implements OnInit {
                 this.loaded.emit(true);
             }
         });
+    }
+
+    minimizeWaveGraph() {
+        this.wavegraphMinimized = this.wavegraphMinimized ? false : true;
+    }
+
+
+    loadWaveData() {
+        this.turbineLocationData.subscribe(turbData => {
+            this.visitedPark = turbData.turbineLocations[0] ? turbData.turbineLocations[0].SiteName : null;
+            this.newService.getWavedataForDay({
+                date: this.vesselObject.date,
+                site: this.visitedPark,
+            }).subscribe(waves => {
+                this.wavedata = waves;
+                if (waves) {
+                    this.wavedataLoaded = true;
+                    this.createWeatherOverviewChart(turbData);
+                    this.mapPromise.then((gMap) => {
+                        this.wavedata.meta.drawOnMap(gMap);
+                    }).catch(
+                        err => console.error(err)
+                    );
+                }
+            });
+        });
+    }
+
+    createWeatherOverviewChart(turbData) {
+        const wavedata = this.wavedata.wavedata;
+        if (wavedata) {
+            const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
+            const validLabels = this.wavedata.availableWaveParameters();
+            // Parsing the main datasets
+            const dsets = [];
+            validLabels.forEach((label, __i) => {
+                dsets.push({
+                    label: label,
+                    data: wavedata[label].map((elt: number, _i) => {
+                        return { x: timeStamps[_i], y: elt };
+                    }),
+                    pointHoverRadius: 5,
+                    pointHitRadius: 30,
+                    pointRadius: 0,
+                    backgroundColor: WeatherOverviewChart.weatherChartColors[__i],
+                    borderColor: WeatherOverviewChart.weatherChartColors[__i],
+                    borderWidth: 2,
+                    fill: false,
+                    yAxisID: (label === 'windDir') ? 'waveDir' : label,
+                    hidden: __i !== 0
+                });
+            });
+            const wavedataSourceName = 'Source: ' + this.wavedata.meta.name;
+            const transferData = [];
+            // Adding the grey transfer boxes
+            const addTransfer = (start, stop) => {
+                start = this.dateTimeService.MatlabDateToUnixEpoch(start);
+                stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
+                transferData.push({ x: start, y: 1 });
+                transferData.push({ x: stop, y: 1 });
+                transferData.push({ x: NaN, y: NaN });
+            };
+            turbData.transfers.forEach(visit => {
+                addTransfer(visit.startTime, visit.stopTime);
+            });
+            dsets.push({
+                label: 'Vessel transfers',
+                data: transferData,
+                pointHoverRadius: 0,
+                pointHitRadius: 0,
+                pointRadius: 0,
+                borderWidth: 0,
+                yAxisID: 'hidden',
+                lineTension: 0,
+            });
+            setTimeout(() => {
+                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, wavedataSourceName);
+            }, 100);
+        }
     }
 
     createSlipgraphs() {
@@ -243,6 +340,8 @@ export class CtvreportComponent implements OnInit {
         return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
             map(
                 (transfers) => {
+                    this.visitedPark = transfers[0].fieldname;
+                    // ToDo: map this to the nice fieldname & make sure to handle v2v events etc. (maybe use mode if multipe?)
                     this.transferData = transfers;
                     if (transfers !== 0) {
                         this.XYvars = [];
@@ -335,30 +434,30 @@ export class CtvreportComponent implements OnInit {
 
     getDatesShipHasSailed(date) {
         this.newService.getDatesWithValues(date).subscribe((transfers) => {
-                this.dateData.transfer = transfers;
-            },
+            this.dateData.transfer = transfers;
+        },
             catchError(error => {
                 console.log('error ' + error);
                 throw error;
             }), () => {
                 this.pushSailingDates();
             });
-            this.newService.getDatesWithValuesFromGeneralStats(date).subscribe((data) => {
-                this.dateData.general = data.data;
-            },
-                catchError(error => {
-                    console.log('error ' + error);
-                    throw error;
-                }), () => {
-                    this.pushSailingDates();
+        this.newService.getDatesWithValuesFromGeneralStats(date).subscribe((data) => {
+            this.dateData.general = data.data;
+        },
+            catchError(error => {
+                console.log('error ' + error);
+                throw error;
+            }), () => {
+                this.pushSailingDates();
             });
     }
 
     pushSailingDates() {
         if (this.dateData.transfer && this.dateData.general) {
             const transferDates = [];
-            const transitDates  = [];
-            const otherDates    = [];
+            const transitDates = [];
+            const otherDates = [];
             let formattedDate;
             let hasTransfers: boolean;
             this.dateData.general.forEach(elt => {
@@ -372,7 +471,7 @@ export class CtvreportComponent implements OnInit {
                     otherDates.push(formattedDate);
                 }
             });
-            const sailInfo = {transfer: transferDates, transit: transitDates, other: otherDates};
+            const sailInfo = { transfer: transferDates, transit: transitDates, other: otherDates };
             this.sailDates.emit(sailInfo);
         }
     }
@@ -448,18 +547,18 @@ export class CtvreportComponent implements OnInit {
                 this.general = {};
             }
             if (general.data.length > 0 && general.data[0].inputStats) {
-                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
-                this.generalInputStats.date =  this.vesselObject.date;
-                this.generalInputStats.fuelConsumption =  general.data[0].inputStats.fuelConsumption;
+                this.generalInputStats.mmsi = this.vesselObject.mmsi;
+                this.generalInputStats.date = this.vesselObject.date;
+                this.generalInputStats.fuelConsumption = general.data[0].inputStats.fuelConsumption;
                 this.generalInputStats.hseReports = general.data[0].inputStats.hseReports;
                 this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
                 this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
                 this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
                 this.generalInputStats.customInput = general.data[0].inputStats.customInput;
             } else {
-                this.generalInputStats.mmsi =  this.vesselObject.mmsi;
-                this.generalInputStats.date =  this.vesselObject.date;
-                this.generalInputStats.fuelConsumption =  0;
+                this.generalInputStats.mmsi = this.vesselObject.mmsi;
+                this.generalInputStats.date = this.vesselObject.date;
+                this.generalInputStats.fuelConsumption = 0;
                 this.generalInputStats.hseReports = 'N/a';
                 this.generalInputStats.landedGarbage = 0;
                 this.generalInputStats.landedOil = 0;
@@ -471,7 +570,7 @@ export class CtvreportComponent implements OnInit {
                 if (longitudes.length > 0) {
                     const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
                     const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                    const route = [{lat: latitudes, lon: longitudes}];
+                    const route = [{ lat: latitudes, lon: longitudes }];
                     this.boatLocationData.emit(route);
                     this.latitude.emit(mapProperties.avgLatitude);
                     this.longitude.emit(mapProperties.avgLongitude);
@@ -549,7 +648,7 @@ export class CtvreportComponent implements OnInit {
                 this.timeout = setTimeout(() => {
                     this.showAlert = false;
                 }, 7000);
-        });
+            });
     }
 
     matchVideoRequestWithTransfer(transfer) {
