@@ -106,7 +106,10 @@
                     </ng-template>
                     <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
                         [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-                    <button class="minimizer" (click)="minimizeWaveGraph()"></button>
+                        
+                    <button class="minimizer" (click)="minimizeWaveGraph()">
+                        <i class="fa fa-window-minimize"></i>
+                    </button>
                 </div>
                 <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
                     <canvas id="weatherOverview"></canvas>
