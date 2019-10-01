@@ -198,14 +198,21 @@ export class CtvreportComponent implements OnInit {
                 if (waves) {
                     this.wavedataLoaded = true;
                     this.createWeatherOverviewChart(turbData);
-                    this.mapPromise.then((gMap) => {
-                        this.wavedata.meta.drawOnMap(gMap);
-                    }).catch(
-                        err => console.error(err)
-                    );
+                    this.addFeaturesToMap();
                 }
             });
         });
+    }
+
+    onMapLoaded(googleMap: google.maps.Map) {
+        this.googleMap = googleMap;
+        this.addFeaturesToMap();
+    }
+
+    addFeaturesToMap() {
+        if (this.googleMap && this.wavedataLoaded) {
+            this.wavedata.meta.drawOnMap(this.googleMap);
+        }
     }
 
     createWeatherOverviewChart(turbData) {

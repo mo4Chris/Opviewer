@@ -22,6 +22,7 @@ import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
+import { EventEmitter } from 'protractor';
 
 @Component({
   selector: 'app-vesselreport',
@@ -66,15 +67,6 @@ export class VesselreportComponent implements OnInit {
     longitude: null,
   };
   googleMap: google.maps.Map;
-  mapPromise: Promise<google.maps.Map> = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (this.googleMap) {
-        resolve(this.googleMap);
-      } else {
-        reject('Map failed to load!');
-      }
-    }, 3000);
-  });
 
   streetViewControl = false;
   changedCommentObj = { 'newComment': '', 'otherComment': '' };
@@ -411,8 +403,13 @@ export class VesselreportComponent implements OnInit {
   }
 
 
-  setMapReady(googleMap) {
+  setMapReady(googleMap: google.maps.Map) {
     this.googleMap = googleMap;
+    if (this.ctvChild) {
+      this.ctvChild.onMapLoaded(googleMap);
+    } else {
+
+    }
     this.googleMapLoaded = true;
     this.buildPageWhenLoaded();
   }
