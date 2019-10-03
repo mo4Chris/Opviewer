@@ -26,7 +26,7 @@ Unit = {
 };
 
 constructor(
-    dsets: ExtendedChartDataset[],
+    dsets: any[],
     timeStamps: Moment[],
     wavedataSourceName: string = 'Source: unknown',
     private calcService: CalculationService = new CalculationService
@@ -195,10 +195,10 @@ constructor(
 }
 
 changeUnits(axisName: string, newUnit: string) {
-    // ToDo: here be the callback hanfle 
+    // ToDo: here be the callback handle
 }
 
-private changeUnitsForDset(dset: ExtendedChartDataset, newUnit?: string) {
+private changeUnitsForDset(dset, newUnit?: string) {
     if (dset.unit && dset.yAxisID !== 'hidden') {
         if (newUnit === undefined) {
             newUnit = this.getUnitByAxisId(dset.yAxisID);
@@ -231,7 +231,7 @@ getUnitByAxisId(id: string) {
     }
 }
 
-private sortByAxisID(dsets: ExtendedChartDataset[]) {
+private sortByAxisID(dsets) {
     return dsets.sort((A, B) => {
         const valA = this.getValueForAxis(A.yAxisID);
         const valB = this.getValueForAxis(B.yAxisID);
@@ -261,10 +261,6 @@ private getValueForAxis(ID: string) {
             return 10;
     }
 }
-}
-
-export interface ExtendedChartDataset extends Chart.ChartDataSets {
-    unit?: string;
 }
 
 
