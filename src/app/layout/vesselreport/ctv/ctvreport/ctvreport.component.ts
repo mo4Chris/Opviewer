@@ -105,7 +105,7 @@ export class CtvreportComponent implements OnInit {
 
         this.visitedPark = '';
         if (this.weatherOverviewChart) {
-            this.weatherOverviewChart.Chart.destroy();
+            this.weatherOverviewChart.destroy();
         }
 
         this.getDatesShipHasSailed(this.vesselObject);

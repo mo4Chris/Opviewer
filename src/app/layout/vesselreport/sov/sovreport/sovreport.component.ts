@@ -930,9 +930,6 @@ export class SovreportComponent implements OnInit {
         const final = !hidden;
         return (final);
     }
-    destroyOldCharts(): void {
-        this.weatherOverviewChart.destroy();
-    }
 
     private ResetTransfers() {
         this.routeLoaded = false;

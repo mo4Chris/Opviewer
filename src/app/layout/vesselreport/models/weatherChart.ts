@@ -198,6 +198,12 @@ changeUnits(axisName: string, newUnit: string) {
     // ToDo: here be the callback handle
 }
 
+destroy() {
+    if (this.Chart) {
+        this.Chart.destroy();
+    }
+}
+
 private changeUnitsForDset(dset, newUnit?: string) {
     if (dset.unit && dset.yAxisID !== 'hidden') {
         if (newUnit === undefined) {
