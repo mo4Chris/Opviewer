@@ -445,6 +445,42 @@ var upstreamSchema = new Schema({
 }, { versionKey: false });
 var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
 
+var wavedataSchema = new Schema({
+    site: String,
+    source: String,
+    active: Boolean,
+    date: Number,
+    wavedata: {
+        timeStamp: Array,
+        Hs: Array,
+        Tp: Array,
+        waveDir: Array,
+        wind: Array,
+        windDir: Array
+    },
+    meta: Object,
+}, { versionKey: false })
+var wavedataModel = mongo.model('wavedata', wavedataSchema, 'waveData');
+
+var waveSourceSchema = new Schema({
+    site: String,
+    name: String,
+    active: Boolean,
+    lon: Number,
+    lat: Number,
+    info: String,
+    clients: Array,
+    provider: String,
+    source: {
+        Hs: String,
+        Tp: String,
+        waveDir: String,
+        wind: String,
+        windDir: String
+    }
+}, { versionKey: false })
+var waveSourceModel = mongo.model('waveSource', waveSourceSchema, 'waveSources');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -2326,6 +2362,103 @@ app.post("/api/saveFleetRequest", function (req, res) {
         }
     });
 });
+
+app.post("/api/getWavedataForDay", function (req, res) {
+    let token = verifyToken(req, res);
+    let date  = req.body.date;
+    let site  = req.body.site;
+
+    wavedataModel.findOne({
+        date: date,
+        site: site,
+        active: {$ne: false}
+    }, (err, data) => {
+        if (err) {
+            res.send(err);
+        } else if (data === null) {
+            // Did not find valid data
+            res.status(204).send('Not found');
+        } else {
+            waveSourceModel.findById(data.source, (err, meta) => {
+                let company = token.userCompany;
+                let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
+                    meta.clients === company : meta.clients.some(client => client == company))
+                if (err) {
+                    res.send(err);
+                }  else if (!hasAccessRights) {
+                    res.status(401).send('Access denied');
+                } else {
+                    data.meta = meta;
+                    res.send(data);
+                }
+            })
+        }
+    });
+});
+
+app.post("/api/getWavedataForRange", function (req, res) {
+    let token = verifyToken(req, res);
+    let startDate  = req.body.startDate;
+    let stopDate  = req.body.stopDate;
+    let site  = req.body.site;
+
+    wavedataModel.find({
+        date: {$gte: startDate, $lte: stopDate},
+        site: site,
+        active: {$ne: false}
+    }, (err, datas) => {
+        if (err) {
+            res.send(err);
+        } else if (datas === null) {
+            // Did not find valid data
+            res.status(204).send('Not found');
+        } else {
+            datas.forEach( data =>
+                waveSourceModel.findById(data.source, (err, meta) => {
+                    let company = token.userCompany;
+                    let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
+                        meta.clients === company : meta.clients.some(client => client == company))
+                    if (hasAccessRights) {
+                        data.meta = meta;
+                    } else {
+                        data = null;
+                    }
+                })
+            );
+            res.send(datas);
+        }
+    });
+});
+
+app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === 'admin') {
+        waveSourceModel.distinct(
+            "site",
+            (data, err) => {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    } else {
+        waveSourceModel.distinct(
+            "site",
+            {
+                company: {$contains: token.userCompany}
+            },
+            (data, err) => {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    }
+})
 
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');

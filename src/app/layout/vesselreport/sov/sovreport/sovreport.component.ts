@@ -12,6 +12,7 @@ import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 import { isArray } from 'util';
+import { WeatherOverviewChart } from '../../models/weatherChart';
 
 @Component({
     selector: 'app-sovreport',
@@ -482,16 +483,9 @@ export class SovreportComponent implements OnInit {
     createWeatherOverviewChart() {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
-            let hasData = false;
-            const timeStamps = Array();
-            weather.time.forEach((timeObj, index) => {
-                timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
-                });
-            const Hs = Array();
-            const Tp = Array();
-            const waveDirection = Array();
-            const windGust = Array();
-            const windAvg  = Array();
+            this.weatherOverviewChartCalculated = true;
+            const timeStamps = weather.time.map(matlabTime => this.datetimeService.MatlabDateToUnixEpoch(matlabTime));
+            const dsets = [];
             let chartTitle;
             if (weather.wavesource === '_NaN_') {
                 // chartTitle = 'Weather overview';
@@ -502,51 +496,54 @@ export class SovreportComponent implements OnInit {
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (this.testValidWeatherField(weather.waveHs)) {
-                hasData = true;
-                weather.waveHs.forEach((val, index) => {
-                    Hs[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.waveTp)) {
-                hasData = true;
-                weather.waveTp.forEach((val, index) => {
-                    Tp[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.waveDirection)) {
-                hasData = true;
-                weather.waveDirection.forEach((val, index) => {
-                    waveDirection[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.windGust)) {
-                hasData = true;
-                weather.windGust.forEach((val, index) => {
-                    windGust[index] = {
-                        x: timeStamps[index],
-                        y: val / 3.6
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.windAvg)) {
-                hasData = true;
-                weather.windAvg.forEach((val, index) => {
-                    windAvg[index] = {
-                        x: timeStamps[index],
-                        y: val / 3.6
-                    };
-                });
-            }
+            const waveParams = Object.keys(weather).filter(key => key !== 'time' && key !== 'wavesource');
+            waveParams.forEach(param => {
+                const data = weather[param];
+                if (isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])) {
+                    const label = param.replace('waveHs', 'Hs').replace('waveTp', 'Tp');
+                    let unit = '';
+                    let axisID = 'hidden';
+                    switch (label) {
+                        case 'Hs':
+                            unit = 'm';
+                            axisID = 'Hs';
+                            break;
+                        case 'waveDirection': case 'windDirection': case 'waveDir': case 'windDir':
+                            unit = 'deg';
+                            axisID = 'waveDir';
+                            break;
+                        case 'Tp':
+                            unit = 's';
+                            axisID = 'Tp';
+                            break;
+                        case 'Wind': case 'WindAvg': case 'WindGust': case 'windAvg': case 'windGust':
+                            unit = 'km/h';
+                            axisID = 'Wind';
+                            break;
+                        default:
+                            console.error('Unhandled unit: ' + label);
+                    }
+                    dsets.push({
+                        data: data.map((dataElt, i) => {
+                            if (typeof(dataElt) === 'number' && dataElt >= 0) {
+                                return {x: timeStamps[i], y: dataElt};
+                            } else {
+                                return {x: timeStamps[i], y: NaN};
+                            }
+                        }),
+                        label: label,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 30,
+                        unit: unit,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        fill: false,
+                        yAxisID: axisID,
+                        hidden: false // dsets.length !== 0
+                    });
+                }
+            });
+
             // Now create collection with all the dockings and v2v operations
             const dockingData = new Array;
             let start;
@@ -574,231 +571,22 @@ export class SovreportComponent implements OnInit {
                     dockingData.push({x: stop + 0.0001 , y: NaN});
                 });
             });
-            Chart.Tooltip.positioners.custom = function(elements, position) {
-                const item = this._data.datasets;
-                elements = elements.filter(function (value, _i) {
-                    return item[value._datasetIndex].yAxisID !== 'hidden';
-                });
-                let x_mean = 0;
-                elements.forEach(elt => {
-                    x_mean += elt._model.x;
-                });
-                x_mean = x_mean / elements.length;
-                let y_mean = 0;
-                elements.forEach(elt => {
-                    y_mean += elt._model.y;
-                });
-                y_mean = y_mean / elements.length;
-                return{
-                    x: x_mean,
-                    y: y_mean
-                };
-              };
-
-            if (timeStamps.length > 0 && hasData) {
-                if (this.weatherOverviewChartCalculated) {
-                    this.destroyOldCharts();
-                }
-                this.weatherOverviewChartCalculated = true;
-                setTimeout(() => {
-                    this.weatherOverviewChart = new Chart('weatherOverview', {
-                        type: 'line',
-                        data: {
-                            datasets: [
-                                {
-                                    label: 'Hs (m)',
-                                    data: Hs,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'blue',
-                                    borderColor: 'blue',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: Hs.length === 0,
-                                    yAxisID: 'Hs'
-                                },
-                                {
-                                    label: 'Tp (s)',
-                                    data: Tp,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'red',
-                                    borderColor: 'red',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Tp'
-                                },
-                                {
-                                    label: 'Wave direction (deg)',
-                                    data: waveDirection,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'green',
-                                    borderColor: 'green',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Direction'
-                                },
-                                {
-                                    label: 'Wind gust (m/s)',
-                                    data: windGust,
-                                    pointRadius: 0,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    backgroundColor: 'magenta',
-                                    borderColor: 'magenta',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Wind'
-                                },
-                                {
-                                    label: 'Wind average (m/s)',
-                                    data: windAvg,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'orange',
-                                    borderColor: 'orange',
-                                    borderWidth: 2.5,
-                                    fill: false,
-                                    hidden: windAvg.length === 0,
-                                    yAxisID: 'Wind'
-                                },
-                                {
-                                    label: 'Vessel tranfers',
-                                    data: dockingData,
-                                    pointHoverRadius: 0,
-                                    pointHitRadius: 0,
-                                    pointRadius: 0,
-                                    borderWidth: 0,
-                                    yAxisID: 'hidden',
-                                    lineTension: 0,
-                                }
-                            ],
-                        },
-                        options: {
-                            title: {
-                                display: chartTitle !== '',
-                                position: 'right',
-                                text: chartTitle,
-                                fontSize: 15,
-                                padding: 5,
-                                fontStyle: 'normal',
-                            },
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            animation: {
-                                duration: 0
-                            },
-                            hover: {
-                                animationDuration: 0
-                            },
-                            responsiveAnimationDuration: 0,
-                            scales : {
-                                xAxes: [{
-                                  scaleLabel: {
-                                    display: true,
-                                    labelString: 'Local time'
-                                  },
-                                  type: 'time',
-                                  time: {
-                                    min: this.datetimeService.MatlabDateToUnixEpoch(weather.time[0]),
-                                    max: this.datetimeService.MatlabDateToUnixEpoch(weather.time[-1]),
-                                    unit: 'hour'
-                                }
-                                }],
-                                yAxes: [{
-                                    id: 'Wind',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Wind speed (m/s)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                    },
-                                },
-                                {
-                                    id: 'Hs',
-                                    display: 'auto',
-                                    suggestedMax: 2,
-                                    beginAtZero: true,
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Hs (m)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                    }
-                                },
-                                {
-                                    id: 'Tp',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Tp (s)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                    },
-                                },
-                                {
-                                    id: 'Direction',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Direction (deg)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                        suggestedMax: 360
-                                    },
-                                }, {
-                                    id: 'hidden',
-                                    display: false,
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        min: 0,
-                                        suggestedMax: 1
-                                    },
-                                }]
-                            },
-                            tooltips: {
-                                position: 'custom',
-                                callbacks: {
-                                    label: function(tooltipItem, data) {
-                                        const dset = data.datasets[tooltipItem.datasetIndex];
-                                        let label = dset.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                            label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
-                                        }
-                                        return label;
-                                    },
-                                },
-                                mode: 'index',
-                                filter: function (tooltip, data) {
-                                    return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
-                                },
-                            }
-                        }
-                    });
-                });
+            dsets.push({
+                data: dockingData,
+                label: 'Vessel transfers',
+                pointHoverRadius: 0,
+                pointHitRadius: 0,
+                pointRadius: 0,
+                borderWidth: 0,
+                yAxisID: 'hidden',
+                lineTension: 0,
+            });
+            if (this.weatherOverviewChart) {
+                this.weatherOverviewChart.destroy();
             }
+            setTimeout(() => {
+                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, chartTitle);
+            }, 300);
         }
     }
     datasetIsActive(dset, dsetIndex, chart) {

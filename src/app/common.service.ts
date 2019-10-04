@@ -2,6 +2,8 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
+import { Observable } from 'rxjs';
+import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 
 @Injectable()
 export class CommonService {
@@ -339,9 +341,40 @@ export class CommonService {
     validFields: any[],
     limitHs: null,
     requestTime: null
-}) {
+}): Observable<any> {
     return this.post(environment.DB_IP + '/api/saveFleetRequest', request).pipe(
       map((response: Response) => response.json()));
+  }
+
+  getWavedataForDay(request: {
+    date: number,
+    site: string,
+  }): Observable<WavedataModel> {
+    return this.post(environment.DB_IP + '/api/getWavedataForDay', request).pipe(
+      map((response: Response) => {
+        if (response.status === 204) {
+          return null;
+        } else {
+          return new WavedataModel(response.json());
+        }
+      }));
+  }
+
+  getWavedataForRange(request: {
+    startDate: number,
+    stopDate: number,
+    site: string,
+  }): Observable<WavedataModel[]> {
+    return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
+      map((response: Response) => {
+        return response.json().map( wavedata => new WavedataModel(wavedata));
+      }));
+  }
+
+  getFieldsWithWaveSourcesByCompany(): Observable<string[]> {
+    // TODO this is not yet on server.js
+    return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
+    map((response: Response) => response.json()));
   }
 }
 
