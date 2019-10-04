@@ -11,8 +11,10 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
+
 
 @Component({
     selector: 'app-sovreport',
@@ -61,6 +63,88 @@ export class SovreportComponent implements OnInit {
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
+    HOCArray = [];
+    HOCTotal = 0;
+    HOCTotalOld = 0;
+    HOCTotalNew = 0;
+    ToolboxArray = [];
+    ToolboxTotal = 0;
+    ToolboxTotalOld = 0;
+    ToolboxTotalNew = 0;
+    VesselNonAvailabilityArray = [];
+    WeatherDowntimeArray = [];
+    fuelChanged = false;
+    incidentsChanged = false;
+    nonAvailabilityChanged = false;
+    weatherDowntimeChanged = false;
+    cateringChanged = false;
+    remarksChanged = false;
+    alert = {type : '', message: ''};
+    times = [];
+
+
+    showAlert = false;
+    timeout;
+    remarks = '';
+
+    cateringObject = {};
+    liquidsObject = {
+        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+    };
+
+    updateHOCTotal() {
+        this.HOCTotal = 0;
+        this.HOCTotalNew = this.HOCTotalOld;
+        if (this.HOCArray.length !== 0) {
+            this.HOCArray.forEach(element => {
+                this.HOCTotal = this.HOCTotal + +element.amount;
+                this.HOCTotalNew = this.HOCTotalNew + +element.amount;
+            });
+        }
+    }
+
+    updateToolboxTotal() {
+        this.ToolboxTotal = 0;
+        this.ToolboxTotalNew = this.ToolboxTotalOld;
+        if (this.ToolboxArray.length !== 0) {
+            this.ToolboxArray.forEach(element => {
+                this.ToolboxTotal = this.ToolboxTotal + +element.amount;
+                this.ToolboxTotalNew = this.ToolboxTotalNew + +element.amount;
+            });
+        }
+    }
+
+    createTimes() {
+        const quarterHours = ['00', '15', '30', '45'];
+        for (let i = 0; i < 24; i++) {
+            for (let j = 0; j < 4; j++) {
+                let time = i + ':' + quarterHours[j];
+                if (i < 10) {
+                time = '0' + time;
+                }
+                this.times.push(time);
+            }
+        }
+    }
+
+    updateFuel() {
+        this.liquidsObject.fuel.newValue = (this.liquidsObject.fuel.oldValue + this.liquidsObject.fuel.loaded - this.liquidsObject.fuel.consumed - this.liquidsObject.fuel.discharged);
+    }
+
+    updateLuboil() {
+        this.liquidsObject.luboil.newValue = (this.liquidsObject.luboil.oldValue + this.liquidsObject.luboil.loaded - this.liquidsObject.luboil.consumed - this.liquidsObject.luboil.discharged);
+    }
+
+    updateDomwater() {
+        this.liquidsObject.domwater.newValue = (this.liquidsObject.domwater.oldValue + this.liquidsObject.domwater.loaded - this.liquidsObject.domwater.consumed - this.liquidsObject.domwater.discharged);
+    }
+
+    updatePotwater() {
+        this.liquidsObject.potwater.newValue = (this.liquidsObject.potwater.oldValue + this.liquidsObject.potwater.loaded - this.liquidsObject.potwater.consumed - this.liquidsObject.potwater.discharged);
+    }
 
     constructor(
         private commonService: CommonService,
@@ -71,10 +155,10 @@ export class SovreportComponent implements OnInit {
         ) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
-        const map = document.getElementById('routeMap');
+        const routemap = document.getElementById('routeMap');
         const v2vHandler = new Vessel2VesselActivity({
             sovModel: this.sovModel,
-            htmlMap: map,
+            htmlMap: routemap,
             vessel: vesselname,
             mmsi: toMMSI,
             turbineLocations: this.turbineLocations
@@ -112,7 +196,85 @@ export class SovreportComponent implements OnInit {
         return this.calculationService.GetDecimalValueForNumber(value, endpoint);
     }
 
+    addHoCToArray() {
+        this.HOCArray.push({value: '', amount: 1});
+    }
+
+    addToolboxToArray() {
+        this.ToolboxArray.push({value: '', amount: 1});
+    }
+
+    addVesselNonAvailabilityToArray() {
+        this.VesselNonAvailabilityArray.push({reason: 'DC small breakdown', from: '00:00', to: '00:00'});
+    }
+    addWeatherDowntimeToArray() {
+        this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
+    }
+
+    removeLastFromToolboxArray() {
+        this.ToolboxArray.pop();
+    }
+
+    removeLastFromHOCArray() {
+        this.HOCArray.pop();
+    }
+
+    removeLastFromVesselNonAvailabilityArray() {
+        this.VesselNonAvailabilityArray.pop();
+    }
+
+    removeLastFromWeatherDowntimeArray() {
+        this.WeatherDowntimeArray.pop();
+    }
+
+    savePlatformPaxInput(transfer) {
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveTurbinePaxInput(transfer) {
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
     ngOnInit() {
+        this.createTimes();
         Chart.pluginService.register(annotation);
     }
 
@@ -161,6 +323,24 @@ export class SovreportComponent implements OnInit {
                 }, null, () => {
                     this.cycleTimeLoaded = true;
                     this.checkIfAllLoaded();
+                });
+                this.commonService.getSovDprInput({mmsi: this.sovModel.sovInfo.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+                    if (SovDprInput.length > 0) {
+                        this.HOCArray = SovDprInput[0].hoc;
+                        this.ToolboxArray = SovDprInput[0].toolbox;
+                        this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
+                        this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
+                        this.liquidsObject = SovDprInput[0].liquids;
+                        this.remarks = SovDprInput[0].remarks;
+                        this.cateringObject = SovDprInput[0].catering;
+                        this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
+                        this.HOCTotalNew = SovDprInput[0].HOCAmountNew;
+                        this.ToolboxTotalOld = SovDprInput[0].ToolboxAmountOld;
+                        this.ToolboxTotalNew = SovDprInput[0].ToolboxAmountNew;
+                    }
+
+                }, null, () => {
+
                 });
                 this.locShowContent = true;
             } else {
@@ -336,7 +516,7 @@ export class SovreportComponent implements OnInit {
         this.sovModel.summary = summaryModel;
     }
 
-    // Common used by platform and turbine
+    // ToDo: Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
         model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.Hs; })));
         model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
@@ -346,6 +526,156 @@ export class SovreportComponent implements OnInit {
     GetMatlabDurationToMinutes(serial) {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
+
+    // universe functie van maken ipv 6x dezelfde functie
+    saveFuelStats() {
+        this.commonService.saveFuelStatsSovDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, liquids: this.liquidsObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                console.log('danger');
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.fuelChanged = false;
+    }
+
+    saveIncidentStats() {
+
+        this.ToolboxArray = this.ToolboxArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
+        this.HOCArray = this.HOCArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
+        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray, ToolboxAmountNew: this.ToolboxTotalNew, HOCAmountNew: this.HOCTotalNew}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.incidentsChanged = false;
+    }
+
+    saveNonAvailabilityStats() {
+        this.commonService.saveNonAvailabilityDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, vesselNonAvailability: this.VesselNonAvailabilityArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveWeatherDowntimeStats() {
+        this.commonService.saveWeatherDowntimeDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, weatherDowntime: this.WeatherDowntimeArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.weatherDowntimeChanged = false;
+    }
+
+    saveCateringStats() {
+        this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    saveRemarksStats() {
+        this.commonService.saveRemarksStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, remarks: this.remarks}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.remarksChanged = false;
+    }
+
 
     // Properly change undefined values to N/a
     // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
@@ -611,6 +941,12 @@ export class SovreportComponent implements OnInit {
         this.v2vLoaded = false;
         this.cycleTimeLoaded = false;
         this.sovLoaded = false;
+        this.fuelChanged = false;
+        this.incidentsChanged = false;
+        this.nonAvailabilityChanged = false;
+        this.weatherDowntimeChanged = false;
+        this.cateringChanged = false;
+        this.remarksChanged = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();

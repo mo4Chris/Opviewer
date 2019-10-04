@@ -231,7 +231,9 @@ var SovPlatformTransfers = new Schema({
     lat: { type: Number },
     paxCntEstimate: { type: String },
     TexitExclusionZone: { type: Number },
-    date: { type: Number }
+    date: { type: Number },
+    paxUp: { type: Number },
+    paxDown: { type: Number }
 }, { versionKey: false });
 var SovPlatformTransfersmodel = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
 
@@ -270,7 +272,9 @@ var SovTurbineTransfers = new Schema({
     gangwayUtilisationTrace: { type: String },
     positionalStability: { type: String },
     windArray: { type: Object },
-    date: { type: Number }
+    date: { type: Number },
+    paxUp: { type: Number },
+    paxDown: { type: Number }
 });
 var SovTurbineTransfersmodel = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
@@ -301,6 +305,23 @@ var SovVessel2vesselTransfers = new Schema({
     mmsi: { type: Number }
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
+
+var SovDprInput = new Schema({
+    liquids: { type: Object },
+    toolbox: { type: Array },
+    hoc: { type: Array },
+    vesselNonAvailability: { type: Array },
+    weatherDowntime: { type: Array },
+    remarks: {type: String},
+    catering: {type: Object},
+    date: { type: Number },
+    mmsi: { type: Number },
+    ToolboxAmountOld: { type: Number },
+    ToolboxAmountNew: { type: Number },
+    HOCAmountOld: { type: Number },
+    HOCAmountNew: { type: Number }
+});
+var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
 var SovCycleTimes = new Schema({
     startTime: { type: String },
@@ -987,9 +1008,9 @@ app.post("/api/getVesselsForCompany", function (req, res) {
         return res.status(401).send('Access denied');
     }
     let filter = { client: companyName, active: {$ne: false} };
-    if (!req.body[0].notHired) {
-        filter.onHire = 1;
-    }
+    // if (!req.body[0].notHired) {
+    //     filter.onHire = 1;
+    // }
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -1301,6 +1322,233 @@ app.post("/api/getDatesWithValues", function (req, res) {
             }
         });
     });
+});
+
+
+app.post("/api/getSovDprInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, null, {}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                if (data.length > 0) {
+                    res.send(data);
+                } else {
+                    SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            let dprData = {};
+                            if (data == null){
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "remarks": '',
+                                    "ToolboxAmountOld": 0,
+                                    "ToolboxAmountNew": 0,
+                                    "HOCAmountOld": 0,
+                                    "HOCAmountNew": 0,
+                                    "catering": {
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    }
+                                };
+                            } else {
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "ToolboxAmountOld": data.ToolboxAmountNew,
+                                    "ToolboxAmountNew": data.ToolboxAmountNew,
+                                    "HOCAmountOld": data.HOCAmountNew,
+                                    "HOCAmountNew": data.HOCAmountNew,
+                                    "remarks": '',
+                                    "catering": {
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    }
+                                };
+                            }
+                            let sovDprData = new SovDprInputmodel(dprData);
+                            
+                            sovDprData.save((error, dprData) => {
+                                if (error) {
+                                    console.log(error);
+                                    return res.send(error);
+                                } else {
+                                    res.send([dprData]);
+                                }
+                            });
+                        }
+                    });
+                }
+                
+            }
+        });
+    });
+});
+
+app.post("/api/saveFuelStatsSovDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the fuel input" });
+            }
+        });
+});
+
+app.post("/api/saveIncidentDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the incident input" });
+            }
+        });
+});
+
+app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+});
+
+app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+});
+
+app.post("/api/saveNonAvailabilityDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the non-availability input" });
+            }
+        });
+});
+
+app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the weather downtime input" });
+            }
+        });
+});
+
+app.post("/api/saveRemarksStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved your remarks" });
+            }
+        });
+});
+
+app.post("/api/saveCateringStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the catering input" });
+            }
+        });
 });
 
 app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
