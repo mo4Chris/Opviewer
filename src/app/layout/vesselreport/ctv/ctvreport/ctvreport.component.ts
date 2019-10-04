@@ -7,7 +7,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { WavedataModel } from '../../../../models/wavedataModel';
-import { WeatherOverviewChart, ExtendedChartDataset } from '../../models/weatherChart';
+import { WeatherOverviewChart } from '../../models/weatherChart';
 
 @Component({
     selector: 'app-ctvreport',
@@ -221,7 +221,7 @@ export class CtvreportComponent implements OnInit {
             const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
             const validLabels = this.wavedata.availableWaveParameters();
             // Parsing the main datasets
-            const dsets: ExtendedChartDataset[] = [];
+            const dsets: any[] = [];
             validLabels.forEach((label, __i) => {
                 dsets.push({
                     label: label,
@@ -345,7 +345,7 @@ export class CtvreportComponent implements OnInit {
         return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
             map(
                 (transfers) => {
-                    this.visitedPark = transfers[0].fieldname;
+                    this.visitedPark = transfers[0] ? transfers[0].fieldname : '';
                     // ToDo: map this to the nice fieldname & make sure to handle v2v events etc. (maybe use mode if multipe?)
                     this.transferData = transfers;
                     if (transfers !== 0) {
