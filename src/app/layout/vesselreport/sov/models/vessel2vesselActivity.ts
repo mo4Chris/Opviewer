@@ -85,7 +85,7 @@ export class Vessel2VesselActivity {
                         }
                     });
                 }
-            })
+            });
         }
     }
 

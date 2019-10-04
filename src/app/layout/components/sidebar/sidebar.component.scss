@@ -1,4 +1,11 @@
 $topnav-background-color: #222;
+
+@media print {
+    .sidebar {
+        display:none;
+    }
+}
+
 .sidebar {
     border-radius: 0;
     position: fixed;
