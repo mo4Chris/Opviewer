@@ -79,6 +79,7 @@ export class SovreportComponent implements OnInit {
     cateringChanged = false;
     remarksChanged = false;
     alert = {type : '', message: ''};
+    times = [];
 
 
     showAlert = false;
@@ -112,6 +113,19 @@ export class SovreportComponent implements OnInit {
                 this.ToolboxTotal = this.ToolboxTotal + +element.amount;
                 this.ToolboxTotalNew = this.ToolboxTotalNew + +element.amount;
             });
+        }
+    }
+
+    createTimes() {
+        const quarterHours = ['00', '15', '30', '45'];
+        for (let i = 0; i < 24; i++) {
+            for (let j = 0; j < 4; j++) {
+                let time = i + ':' + quarterHours[j];
+                if (i < 10) {
+                time = '0' + time;
+                }
+                this.times.push(time);
+            }
         }
     }
 
@@ -259,6 +273,7 @@ export class SovreportComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.createTimes();
         Chart.pluginService.register(annotation);
     }
 
@@ -500,7 +515,7 @@ export class SovreportComponent implements OnInit {
         this.sovModel.summary = summaryModel;
     }
 
-    // Common used by platform and turbine
+    // ToDo: Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
         model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.Hs; })));
         model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
