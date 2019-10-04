@@ -22,6 +22,7 @@ import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../supportModules/gmap.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
+import { EventEmitter } from 'protractor';
 
 @Component({
   selector: 'app-vesselreport',
@@ -81,6 +82,7 @@ export class VesselreportComponent implements OnInit {
   platformsLoaded = true;
   googleMapLoaded = false;
   mapPixelWidth = 0;
+
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
@@ -364,6 +366,7 @@ export class VesselreportComponent implements OnInit {
     }
   }
 
+
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
     this.resetRoutes();
@@ -399,8 +402,14 @@ export class VesselreportComponent implements OnInit {
     this.googleMapLoaded = false;
   }
 
-  setMapReady(googleMap) {
+
+  setMapReady(googleMap: google.maps.Map) {
     this.googleMap = googleMap;
+    if (this.ctvChild) {
+      this.ctvChild.onMapLoaded(googleMap);
+    } else {
+
+    }
     this.googleMapLoaded = true;
     this.buildPageWhenLoaded();
   }
@@ -409,5 +418,5 @@ export class VesselreportComponent implements OnInit {
     this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
   }
-}
 
+}

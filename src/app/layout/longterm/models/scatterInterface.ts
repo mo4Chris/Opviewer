@@ -8,11 +8,12 @@ export interface ComprisonArrayElt {
     dataType: string;
     info?: string;
     annotation?: () => {};
+    barCallback?: (data: RawScatterData) => {x: any, y: any}[];
 }
 
 export interface RawScatterData {
     _id: number;
     label: string[];
-    xVal: number[];
-    yVal: number[];
+    date: number[];
+    queryFields: {[prop: string]: string};
 }

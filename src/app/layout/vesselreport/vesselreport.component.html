@@ -68,7 +68,7 @@
                 </agm-map>
             </div>
         </div>
-        <!-- No idea -->
+        <!-- This builds the CTV / SOV subpages -->
         <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
             [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)" (sailDates)="getDatesHasSailed($event)"
             (mapZoomLvl)="getMapZoomLvl($event)" (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 
 @Injectable({
@@ -188,6 +188,11 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     } else {
       return '-';
     }
+  }
+
+  objectToMatlabDate(dateObj: NgbDate) {
+    const unixTime =  moment.utc(dateObj).add({month: -1}).unix();
+    return this.unixEpochtoMatlabDate(unixTime);
   }
 
   hoursSinceMoment(dateString: string) {
