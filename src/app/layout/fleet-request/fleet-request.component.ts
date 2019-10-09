@@ -63,17 +63,17 @@ export class FleetRequestComponent implements OnInit {
 
     ngOnInit() {
         this.selectClientSettings.singleSelection = true;
-        if (this.tokenInfo.userPermission != 'admin' && this.tokenInfo.userPermission != 'Logistics specialist') {
+        if (this.tokenInfo.userPermission !== 'admin' && this.tokenInfo.userPermission !== 'Logistics specialist') {
             this._router.navigate(['access-denied']);
         }
         this.getBoats();
-        if(this.tokenInfo.userPermission == 'admin'){
+        if(this.tokenInfo.userPermission === 'admin') {
             this.newService.getCompanies().subscribe(data => this.companies = data);
         }
     }
 
     getBoats() {
-        if (this.tokenInfo.userPermission == 'admin') {
+        if (this.tokenInfo.userPermission === 'admin') {
             this.newService.getVessel().subscribe(data => {
                 this.boats = data.map(v => v.nicename);
             });

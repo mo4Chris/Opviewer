@@ -26,7 +26,7 @@
         </thead>
         <tbody>
             <tr *ngFor="let fleet of fleets;let ind = index">
-                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()>getNewMoment() && selectedCompany==fleet.client">
+                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()>getNewMoment() && (selectedCompany=='all' || selectedCompany==fleet.client)">
                     <td>{{ind + 1}}</td>
                     <td>{{humanize(fleet.campaignName)}}</td>
                     <td *ngIf="tokenInfo.userPermission == 'admin'">{{fleet.client}}</td>
@@ -57,7 +57,7 @@
         </thead>
         <tbody>
             <tr *ngFor="let fleet of fleets;let ind = index">
-                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()<=getNewMoment() && selectedCompany==fleet.client">
+                <ng-container *ngIf="MatlabDateToUnixEpoch(fleet.stopDate).add(1, 'day').valueOf()<=getNewMoment() && (selectedCompany=='all' || selectedCompany==fleet.client)">
                     <td>{{ind + 1}}</td>
                     <td>{{humanize(fleet.campaignName)}}</td>
                     <td *ngIf="tokenInfo.userPermission == 'admin'">{{fleet.client}}</td>
