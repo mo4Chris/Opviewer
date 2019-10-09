@@ -338,7 +338,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  saveCTVGeneralStats(generalStats: {date: number, mmsi: number, fuelConsumption: number, landedOil: number, landedGarbage: number, toolboxConducted: any[], customInput: string}) {
+  saveCTVGeneralStats(generalStats: Object) {
     return this.post(environment.DB_IP + '/api/saveCTVGeneralStats/', generalStats).pipe(
       map((response: Response) => response.json()));
   }
