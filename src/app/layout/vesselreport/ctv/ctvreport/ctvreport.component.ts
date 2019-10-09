@@ -62,11 +62,12 @@ export class CtvreportComponent implements OnInit {
     toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
         'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
         'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
+    drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
     toolboxConducted = [];
     hseOptions = [];
 
 
-    generalInputStats = { date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, hseReports: '', toolboxConducted: [], customInput: '' };
+    generalInputStats = { date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, toolboxConducted: [], drillsConducted: [], observations: false, incidents: false, passengers: false,  customInput: '' };
 
     googleMap: google.maps.Map;
     wavedata: WavedataModel;
@@ -555,19 +556,25 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.mmsi = this.vesselObject.mmsi;
                 this.generalInputStats.date = this.vesselObject.date;
                 this.generalInputStats.fuelConsumption = general.data[0].inputStats.fuelConsumption;
-                this.generalInputStats.hseReports = general.data[0].inputStats.hseReports;
+                this.generalInputStats.observations = general.data[0].inputStats.observations;
                 this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
                 this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
                 this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
+                this.generalInputStats.incidents = general.data[0].inputStats.incidents;
+                this.generalInputStats.drillsConducted = general.data[0].inputStats.drillsConducted;
+                this.generalInputStats.passengers = general.data[0].inputStats.passengers;
                 this.generalInputStats.customInput = general.data[0].inputStats.customInput;
             } else {
                 this.generalInputStats.mmsi = this.vesselObject.mmsi;
                 this.generalInputStats.date = this.vesselObject.date;
                 this.generalInputStats.fuelConsumption = 0;
-                this.generalInputStats.hseReports = 'N/a';
                 this.generalInputStats.landedGarbage = 0;
                 this.generalInputStats.landedOil = 0;
                 this.generalInputStats.toolboxConducted = [null];
+                this.generalInputStats.observations = false;
+                this.generalInputStats.incidents = false;
+                this.generalInputStats.drillsConducted = [null];
+                this.generalInputStats.passengers = false;
                 this.generalInputStats.customInput = 'N/a';
             }
             if (general.data && general.data.length > 0 && general.data[0].lon) {
