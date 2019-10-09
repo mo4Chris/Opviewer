@@ -23,7 +23,7 @@
                     <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="true" name="observations"> Yes
                     <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="false" name="observations"> No
                 </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.customInput}}</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.observations) ? 'Yes' : 'No'}}</td>
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
@@ -42,7 +42,7 @@
                     <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="true" name="hseReports"> Yes
                     <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="false" name="hseReports"> No
                 </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.incidents}}</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.incidents) ? 'Yes' : 'No'}}</td>
             </tr>
             <tr>
                 <td>MSI outbound</td>
@@ -80,7 +80,7 @@
                         [settings]="multiSelectSettings">
                     </ng-multiselect-dropdown>
                 </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'N/a' : generalInputStats.toolboxConducted }}</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'None' : generalInputStats.toolboxConducted }}</td>
             </tr>
             <tr>
                 <td>Number of dockings</td>
@@ -91,7 +91,7 @@
                 <td></td>
                 <td></td>
                 <td>Drills conducted</td>
-                <td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                     <ng-multiselect-dropdown 
                         class="d-inline-block msdd" 
                         [placeholder]="'Select drills'"
@@ -101,6 +101,7 @@
                     </ng-multiselect-dropdown>
 
                 </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'"> {{(generalInputStats.drillsConducted == '') ? 'None' : generalInputStats.drillsConducted }} </td>
                 <td>Drills involved passengers</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" > 
                     <fieldset [disabled]="generalInputStats.drillsConducted.length == 0">
@@ -108,7 +109,7 @@
                         <input type="radio" [(ngModel)]="generalInputStats.passengers" [value]="false" name="passengers"> No
                     </fieldset>
                 </td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.passengers}}</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.passengers) ? 'Yes' : 'No'}}</td>
             </tr>
             <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
                 <td class="SubmitRowColSpan" colspan="11"></td>
