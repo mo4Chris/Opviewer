@@ -33,10 +33,13 @@ export class FleetsComponent implements OnInit {
     ngOnInit() {
         this.getMsg();
         if (this.tokenInfo.userPermission === 'admin') {
-            this.newService.getCompanies().subscribe(data => this.companies = data);
+            this.newService.getCompanies().subscribe(data => {
+                this.companies = ['all'].concat(data);
+            });
             this.newService.getTurbineWarranty().subscribe(data => this.fleets = data);
+            this.selectedCompany = 'all';
         } else {
-            this.newService.getTurbineWarrantyForCompany({ client: this.tokenInfo.userCompany }).subscribe(data => { 
+            this.newService.getTurbineWarrantyForCompany({ client: this.tokenInfo.userCompany }).subscribe(data => {
                 this.fleets = data;
                 if(this.fleets.length < 1) {
                     this._router.navigate(['access-denied']);
@@ -44,7 +47,7 @@ export class FleetsComponent implements OnInit {
 
             });
         }
-        if (this.msg != undefined) {
+        if (this.msg !== undefined) {
             console.log(this.msg);
             this.setAlert('success', this.msg);
         }
@@ -76,7 +79,7 @@ export class FleetsComponent implements OnInit {
     }
 
     humanize(str) {
-        return this.stringMutationService.changeToNicename(str, true);  
+        return this.stringMutationService.changeToNicename(str, true);
     }
 
     getNewMoment() {
