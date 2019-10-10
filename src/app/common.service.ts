@@ -127,7 +127,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string }) {
+  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[] }) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -409,7 +409,7 @@ export class CommonService {
   getWavedataForRange(request: {
     startDate: number,
     stopDate: number,
-    site: string,
+    source: string,
   }): Observable<WavedataModel[]> {
     return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
       map((response: Response) => {
@@ -417,8 +417,7 @@ export class CommonService {
       }));
   }
 
-  getFieldsWithWaveSourcesByCompany(): Observable<string[]> {
-    // TODO this is not yet on server.js
+  getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
     return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
     map((response: Response) => response.json()));
   }

@@ -2645,14 +2645,14 @@ app.post("/api/getWavedataForDay", function (req, res) {
 });
 
 app.post("/api/getWavedataForRange", function (req, res) {
-    let token = verifyToken(req, res);
-    let startDate  = req.body.startDate;
-    let stopDate  = req.body.stopDate;
-    let site  = req.body.site;
+    let token       = verifyToken(req, res);
+    let startDate   = req.body.startDate;
+    let stopDate    = req.body.stopDate;
+    let source      = req.body.source;
 
     wavedataModel.find({
         date: {$gte: startDate, $lte: stopDate},
-        site: site,
+        source: source,
         active: {$ne: false}
     }, (err, datas) => {
         if (err) {
@@ -2681,8 +2681,14 @@ app.post("/api/getWavedataForRange", function (req, res) {
 app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        waveSourceModel.distinct(
-            "site",
+        waveSourceModel.find({},
+            {
+                site: 1,
+                name: 1
+            },
+            {
+                sort: {site: 1}
+            },
             (data, err) => {
                 if (err) {
                     res.send(err);
@@ -2692,10 +2698,16 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             }
         )
     } else {
-        waveSourceModel.distinct(
-            "site",
+        waveSourceModel.find(
             {
-                company: {$contains: token.userCompany}
+                company: {$contains: token.userCompany},
+            },
+            {
+                site: 1,
+                name: 1,
+            },
+            {
+                sort: {site: 1}
             },
             (data, err) => {
                 if (err) {
@@ -2729,3 +2741,4 @@ Number.prototype.padLeft = function(base,chr){
     var  len = (String(base || 10).length - String(this).length)+1;
     return len > 0? new Array(len).join(chr || '0')+this : this;
 }
+
