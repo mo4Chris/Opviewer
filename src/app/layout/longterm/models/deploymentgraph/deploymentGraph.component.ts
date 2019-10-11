@@ -56,15 +56,8 @@ export class DeploymentGraphComponent implements OnInit {
         this.updateChart();
     }
 
-    getDataFrequencyHour() {
-        // Returns number of data entries per hour
-        return 3;
-    }
-
     checkGoodSailingDay(dayNum: number): boolean {
         // Tests if a vessel should have sailed on given day
-        const dataFreqHour = this.getDataFrequencyHour(); // Once per 20 mns
-        const minPeriod = dataFreqHour * this.MinContinuousWorkingHours;
         const relHs: number[] = [];
         const startTime = dayNum + this.WorkdayStartTimeHours / 24;
         const stopTime  = dayNum + this.WorkdayStopTimeHours / 24;
@@ -73,6 +66,8 @@ export class DeploymentGraphComponent implements OnInit {
                 relHs.push(this.wavedata.Hs[_i]);
             }
         });
+        const dataFreqHour = Math.max(3, relHs.length / (this.WorkdayStopTimeHours - this.WorkdayStartTimeHours)); // At least once per 20 mns
+        const minPeriod = dataFreqHour * this.MinContinuousWorkingHours;
 
         let goodSailingDay = false;
         let isContinuous = false;
