@@ -44,7 +44,7 @@ export class DeploymentGraphComponent implements OnInit {
         notSailedBadWeather: 'black',
         noWeatherData: 'gray',
     };
-    RawTransitData: RawTransitDataModel[];
+    RawData: RawGeneralModel[][];
     SailingHoursPerDay: number[][];
     MinContinuousWorkingHours = 4;
     WorkdayStartTimeHours = 8;
@@ -57,7 +57,7 @@ export class DeploymentGraphComponent implements OnInit {
 
     checkGoodSailingDay(dayNum: number): WeatherInfo {
         // Tests if a vessel should have sailed on given day
-        const relHs: number[] = [];
+        let relHs: number[] = [];
         const startTime = dayNum + this.WorkdayStartTimeHours / 24;
         const stopTime  = dayNum + this.WorkdayStopTimeHours / 24;
         this.wavedata.timeStamp.forEach((T, _i) => {
@@ -172,9 +172,9 @@ export class DeploymentGraphComponent implements OnInit {
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
                 // Looping over vessels
-                if (this.RawTransitData[_i] && this.RawTransitData[_i].label && this.RawTransitData[_i].label.length >= 1) {
+                if (this.RawData[_i] && this.RawData[_i][0]) {
                     const dset = {
-                        label: this.RawTransitData[_i].label[0],
+                        label: this.RawData[_i][0].vesselname,
                         backgroundColor: [],
                         data: [],
                         weatherInfo: goodSailingDays,
@@ -227,13 +227,21 @@ export class DeploymentGraphComponent implements OnInit {
     }
 
     getChartData(cb: (data: number[][]) => void) {
-        this.newService.getTransitsForVesselByRange({
+        this.newService.getGeneralForRange({
+            vesselType: 'CTV',
             mmsi: this.vesselObject.mmsi,
-            dateMin: this.vesselObject.dateMin,
-            dateMax: this.vesselObject.dateMax,
-            reqFields: ['date', 'startTime', 'transitTimeMinutes']
-        }).subscribe((rawdata: RawTransitDataModel[]) => {
-            this.RawTransitData = rawdata;
+            startDate: this.vesselObject.dateMin,
+            stopDate: this.vesselObject.dateMax,
+            projection: {
+                _id: 0,
+                minutesFloating: 1,
+                minutesInField: 1,
+                date: 1,
+                mmsi: 1,
+                vesselname: 1,
+            }
+        }).subscribe((rawdata: RawGeneralModel[][]) => {
+            this.RawData = rawdata;
             this.SailingHoursPerDay = rawdata.map(rawvesseldata => {
                 return this.parseRawData(rawvesseldata);
             });
@@ -243,35 +251,14 @@ export class DeploymentGraphComponent implements OnInit {
         });
     }
 
-    parseRawData(rawTransitData: RawTransitDataModel) {
-        const dailySailingHours: number[] = [];
-        const startTimes = rawTransitData.date.map((date, _i) => {
-            return rawTransitData.startTime[_i];
+    parseRawData(rawData: RawGeneralModel[]) {
+        const dailySailingHours: number[] = rawData.map((genStat, _i) => {
+            return genStat.minutesFloating / 60 + genStat.minutesInField / 60;
         });
-        const stopTimes = rawTransitData.date.map((date, _i) => {
-            return rawTransitData.startTime[_i] + rawTransitData.transitTimeMinutes[_i] / 60 / 24;
-        });
-        for (let day = this.vesselObject.dateMin; day <= this.vesselObject.dateMax; day++) {
-            const startTime: number[] = [];
-            const stopTime: number[] = [];
-            rawTransitData.date.forEach((transitdate, _i) => {
-                if (transitdate === day) {
-                    startTime.push(startTimes[_i]);
-                    stopTime.push(stopTimes[_i]);
-                }
-            });
-            if (startTime.length === 0) {
-                dailySailingHours.push(0);
-            } else {
-                const minStartTime = this.calculationService.getNanMin(startTime);
-                const maxStartTime = this.calculationService.getNanMax(stopTime);
-                dailySailingHours.push((maxStartTime - minStartTime) * 24);
-            }
-        }
         return dailySailingHours;
     }
 
-    filterNaNs(Arr: []) {
+    filterNaNs(Arr: any[] ) {
         return Arr.filter(elt => {
             return !isNaN(elt) && elt !== '_NaN_';
         });
@@ -283,7 +270,7 @@ export class DeploymentGraphComponent implements OnInit {
         const dateService = this.dateTimeService;
         const getWavedata = (index) => this.getWavedataAtIndex(index);
         const vesselDidSail = (tooltipItem, data) => {
-            return data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index].hasSailed;
+            return tooltipItem.yLabel !== 8;
         };
         const getSailingWindowLength = (tooltipItem, data) => {
             const info: WeatherInfo = data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index];
@@ -402,11 +389,12 @@ export class DeploymentGraphComponent implements OnInit {
     }
 }
 
-interface RawTransitDataModel {
-    date: number[];
-    label: string[];
-    startTime: number[];
-    transitTimeMinutes: number[];
+interface RawGeneralModel {
+    date: number;
+    mmsi: number;
+    vesselname: string;
+    minutesInField: number;
+    minutesFloating: number;
 }
 
 interface WeatherInfo {

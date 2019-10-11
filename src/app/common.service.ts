@@ -226,7 +226,6 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/updateSOVPlatformPaxInput/', transfer).pipe(
       map((response: Response) => response.json()));
   }
-  
 
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
     return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
@@ -415,6 +414,17 @@ export class CommonService {
       map((response: Response) => {
         return response.json().map( wavedata => new WavedataModel(wavedata));
       }));
+  }
+
+  getGeneralForRange(request: {
+    startDate: number,
+    stopDate: number,
+    mmsi: number | number[],
+    vesselType: 'CTV' | 'SOV' | 'OSV',
+    projection?: any,
+  }): Observable<any[]> {
+    return this.post(environment.DB_IP + '/api/getGeneralForRange', request).pipe(
+      map((response: Response) => response.json()));
   }
 
   getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
