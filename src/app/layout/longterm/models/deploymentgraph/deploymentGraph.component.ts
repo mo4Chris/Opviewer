@@ -53,7 +53,6 @@ export class DeploymentGraphComponent implements OnInit {
     MaxAllowedHsMeter = 1.5;
 
     ngOnInit() {
-        console.log('-----------------');
         this.updateChart();
     }
 
@@ -153,6 +152,21 @@ export class DeploymentGraphComponent implements OnInit {
                 labels: dateLabels,
                 datasets: [],
             };
+            dsets.datasets.push({
+                label: 'Hs',
+                type: 'line',
+                data: this.wavedata.Hs.map((elt, _idx) => {
+                    return {x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]), y: elt};
+                }),
+                showLine: true,
+                pointRadius: 0,
+                pointHitRadius: 0,
+                fill: false,
+                xAxisID: 'x-axis-time',
+                yAxisID: 'Hs',
+                borderColor: 'rgb(0, 51, 204)',
+                backgroundColor: 'rgb(0, 51, 204)',
+            });
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
                 if (this.RawTransitData[_i] && this.RawTransitData[_i].label && this.RawTransitData[_i].label.length >= 1) {
@@ -173,41 +187,26 @@ export class DeploymentGraphComponent implements OnInit {
                     sailingHours.forEach((hour, _j) => {
                         if (hour > 0) {
                             dset.data.push(hour);
-                            if (goodSailingDays[_j] === true) {
-                                dset.backgroundColor.push(this.Colors.hasSailedGoodWeather);
-                            } else if (!goodSailingDays[_j] === false) {
-                                dset.backgroundColor.push(this.Colors.hasSailedBadWeather);
-                            } else {
+                            if (goodSailingDays[_j] === undefined) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
+                            }if (goodSailingDays[_j]) {
+                                dset.backgroundColor.push(this.Colors.hasSailedGoodWeather);
+                            } else {
+                                dset.backgroundColor.push(this.Colors.hasSailedBadWeather);
                             }
                         } else {
                             dset.data.push(8);
-                            if (goodSailingDays[_j] === true) {
-                                dset.backgroundColor.push(this.Colors.notSailedGoodWeather);
-                            } else if (goodSailingDays[_j] === false) {
-                                dset.backgroundColor.push(this.Colors.notSailedBadWeather);
-                            } else {
+                            if (goodSailingDays[_j] === undefined) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
+                            } else if (goodSailingDays[_j]) {
+                                dset.backgroundColor.push(this.Colors.notSailedGoodWeather);
+                            } else {
+                                dset.backgroundColor.push(this.Colors.notSailedBadWeather);
                             }
                         }
                     });
                     dsets.datasets.push(dset);
                 }
-            });
-            dsets.datasets.push({
-                label: 'Hs',
-                type: 'line',
-                data: this.wavedata.Hs.map((elt, _idx) => {
-                    return {x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]), y: elt};
-                }),
-                showLine: true,
-                pointRadius: 0,
-                pointHitRadius: 0,
-                fill: false,
-                xAxisID: 'x-axis-time',
-                yAxisID: 'Hs',
-                borderColor: 'rgb(0, 0, 0, 0.5);',
-                backgroundColor: 'rgb(0, 0, 0, 0.5);',
             });
             if (this.Chart) {
                 // Update the chart
@@ -346,7 +345,7 @@ export class DeploymentGraphComponent implements OnInit {
                   if (this.lastClick !== undefined && now() - this.lastClick < 300) {
                     // Two clicks < 300ms ==> double click
                     if (chartElt.length > 0) {
-                      chartElt = chartElt[0];
+                      chartElt = chartElt[chartElt.length ];
                       const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex];
                       if (dataElt.callback !== undefined) {
                         dataElt.callback(chartElt._index);
