@@ -65,6 +65,7 @@ export class DeploymentGraphComponent implements OnInit {
                 relHs.push(this.wavedata.Hs[_i]);
             }
         });
+        relHs = this.filterNaNs(relHs);
         const dataFreqHour = Math.max(3, relHs.length / (this.WorkdayStopTimeHours - this.WorkdayStartTimeHours)); // At least once per 20 mns
         const minPeriod = dataFreqHour * this.MinContinuousWorkingHours;
 
@@ -189,20 +190,21 @@ export class DeploymentGraphComponent implements OnInit {
                     };
                     sailingHours.forEach((hour, _j) => {
                         // Looping over dates
+                        const localWeatherInfo = goodSailingDays[_j];
                         if (hour > 0) {
                             dset.data.push(hour);
-                            if (!goodSailingDays[_j].hasWeatherData) {
+                            if (localWeatherInfo.hasWeatherData === false) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
-                            }if (goodSailingDays[_j].goodWeather) {
+                            } else if (localWeatherInfo.goodWeather) {
                                 dset.backgroundColor.push(this.Colors.hasSailedGoodWeather);
                             } else {
                                 dset.backgroundColor.push(this.Colors.hasSailedBadWeather);
                             }
                         } else {
                             dset.data.push(8);
-                            if (!goodSailingDays[_j].hasWeatherData) {
+                            if (localWeatherInfo.hasWeatherData === false) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
-                            } else if (goodSailingDays[_j].goodWeather) {
+                            } else if (localWeatherInfo.goodWeather) {
                                 dset.backgroundColor.push(this.Colors.notSailedGoodWeather);
                             } else {
                                 dset.backgroundColor.push(this.Colors.notSailedBadWeather);
@@ -267,6 +269,12 @@ export class DeploymentGraphComponent implements OnInit {
             }
         }
         return dailySailingHours;
+    }
+
+    filterNaNs(Arr: []) {
+        return Arr.filter(elt => {
+            return !isNaN(elt) && elt !== '_NaN_';
+        });
     }
 
     constructNewChart(
