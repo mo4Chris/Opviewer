@@ -4,7 +4,6 @@ import { CommonService } from '../../../../common.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import * as Chart from 'chart.js';
-import { routerTransition } from '../../../../router.animations';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { now } from 'moment';
 
@@ -56,7 +55,7 @@ export class DeploymentGraphComponent implements OnInit {
         this.updateChart();
     }
 
-    checkGoodSailingDay(dayNum: number): boolean {
+    checkGoodSailingDay(dayNum: number): WeatherInfo {
         // Tests if a vessel should have sailed on given day
         const relHs: number[] = [];
         const startTime = dayNum + this.WorkdayStartTimeHours / 24;
@@ -70,17 +69,23 @@ export class DeploymentGraphComponent implements OnInit {
         const minPeriod = dataFreqHour * this.MinContinuousWorkingHours;
 
         let goodSailingDay = false;
+        let hasWeatherData = false;
         let isContinuous = false;
         let streakSize = 0;
+        let maxStreakSize = 0;
         if (relHs.length > minPeriod) {
+            hasWeatherData = true;
             relHs.forEach((val, _i) => {
                 if (val <= this.MaxAllowedHsMeter) {
                     if (isContinuous) {
                         streakSize ++;
-                        if (streakSize === minPeriod) {
+                        if (streakSize >= minPeriod) {
                             goodSailingDay = true;
                         }
                     } else {
+                        if (streakSize > maxStreakSize) {
+                            maxStreakSize = streakSize;
+                        }
                         streakSize = 1;
                         isContinuous = true;
                     }
@@ -89,9 +94,10 @@ export class DeploymentGraphComponent implements OnInit {
                 }
             });
         } else {
-            goodSailingDay = undefined;
+            goodSailingDay = false;
         }
-        return goodSailingDay;
+        maxStreakSize = Math.max(maxStreakSize, streakSize);
+        return {hasWeatherData: hasWeatherData, goodWeather: goodSailingDay, maxStablePeriod: maxStreakSize / dataFreqHour};
     }
 
     getWavedataAtTimestamp(matlabTimestamp: number) {
@@ -164,11 +170,13 @@ export class DeploymentGraphComponent implements OnInit {
             });
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
+                // Looping over vessels
                 if (this.RawTransitData[_i] && this.RawTransitData[_i].label && this.RawTransitData[_i].label.length >= 1) {
                     const dset = {
                         label: this.RawTransitData[_i].label[0],
                         backgroundColor: [],
                         data: [],
+                        weatherInfo: goodSailingDays,
                         hidden: _i !== 0,
                         xAxisID: 'x-axis-0',
                         yAxisID: 'y-axis-0',
@@ -180,20 +188,21 @@ export class DeploymentGraphComponent implements OnInit {
                         }
                     };
                     sailingHours.forEach((hour, _j) => {
+                        // Looping over dates
                         if (hour > 0) {
                             dset.data.push(hour);
-                            if (goodSailingDays[_j] === undefined) {
+                            if (!goodSailingDays[_j].hasWeatherData) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
-                            }if (goodSailingDays[_j]) {
+                            }if (goodSailingDays[_j].goodWeather) {
                                 dset.backgroundColor.push(this.Colors.hasSailedGoodWeather);
                             } else {
                                 dset.backgroundColor.push(this.Colors.hasSailedBadWeather);
                             }
                         } else {
                             dset.data.push(8);
-                            if (goodSailingDays[_j] === undefined) {
+                            if (!goodSailingDays[_j].hasWeatherData) {
                                 dset.backgroundColor.push(this.Colors.noWeatherData);
-                            } else if (goodSailingDays[_j]) {
+                            } else if (goodSailingDays[_j].goodWeather) {
                                 dset.backgroundColor.push(this.Colors.notSailedGoodWeather);
                             } else {
                                 dset.backgroundColor.push(this.Colors.notSailedBadWeather);
@@ -206,6 +215,8 @@ export class DeploymentGraphComponent implements OnInit {
             if (this.Chart) {
                 // Update the chart
                 this.Chart.data = dsets;
+                this.Chart.scales['x-axis-time'].options.time.min = dateLabels[0];
+                this.Chart.scales['x-axis-time'].options.time.max = dateLabels[-1];
                 this.Chart.update();
             } else {
                 this.constructNewChart(dsets);
@@ -263,6 +274,18 @@ export class DeploymentGraphComponent implements OnInit {
     ) {
         const dateService = this.dateTimeService;
         const getWavedata = (index) => this.getWavedataAtIndex(index);
+        const vesselDidSail = (tooltipItem, data) => {
+            return data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index].hasSailed;
+        };
+        const getSailingWindowLength = (tooltipItem, data) => {
+            const info: WeatherInfo = data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index];
+            if (info.hasWeatherData) {
+                return +Math.round(info.maxStablePeriod * 100) / 100 + ' hours';
+            } else {
+                return 'N/a';
+            }
+        };
+
         this.Chart = new Chart('deploymentGraph', {
             type: 'bar',
             data: dsets,
@@ -279,16 +302,23 @@ export class DeploymentGraphComponent implements OnInit {
                     },
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
-                            return data.datasets[tooltipItem.datasetIndex].label;
+                            const curr_date: Date = data.labels[tooltipItem.index];
+                            return [
+                                data.datasets[tooltipItem.datasetIndex].label,
+                                dateService.jsDateToDMYString(curr_date),
+                            ];
                         },
                         label: function (tooltipItem, data) {
-                            const curr_date: Date = data.labels[tooltipItem.index];
-                            return dateService.jsDateToDMYString(curr_date);
+                            if (vesselDidSail(tooltipItem, data)) {
+                                return 'Sailed: ' + Math.round(tooltipItem.yLabel * 100) / 100 + ' hours';
+                            } else {
+                                return 'Did not sail';
+                            }
                         },
                         afterLabel: function (tooltipItem, data) {
                             const waveParams = getWavedata(tooltipItem.index);
-                            return ['Hours: ' + Math.round(tooltipItem.yLabel * 100) / 100,
-                                'Hs: ' + waveParams.Hs + ' m'
+                                return [waveParams.Hs !== 'N/a' ? 'Hs: ' + waveParams.Hs + ' m' : 'Hs: N/a',
+                                'Max stable period: ' + getSailingWindowLength(tooltipItem, data)
                             ];
                         },
                         title: function (tooltipItem, data) {
@@ -304,11 +334,21 @@ export class DeploymentGraphComponent implements OnInit {
                         id: 'x-axis-0',
                         stacked: true,
                         display: false,
+                        min: 0,
                     }, {
                         id: 'x-axis-time',
                         type: 'time',
                         display: true,
-                        beginAtZero: false
+                        beginAtZero: false,
+                        time: {
+                            unit: 'day',
+                            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
+                            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+                        },
+                        ticks: {
+                            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
+                            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+                        }
                     }],
                     yAxes: [{
                         id: 'y-axis-0',
@@ -334,20 +374,20 @@ export class DeploymentGraphComponent implements OnInit {
                       }],
                 },
                 annotation: {
-                  events: ['mouseover', 'mouseout', 'dblclick', 'click'],
+                    events: ['mouseover', 'mouseout', 'dblclick', 'click'],
                 },
-                onClick: function(clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
-                  if (this.lastClick !== undefined && now() - this.lastClick < 300) {
-                    // Two clicks < 300ms ==> double click
-                    if (chartElt.length > 0) {
-                      chartElt = chartElt[chartElt.length ];
-                      const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex];
-                      if (dataElt.callback !== undefined) {
-                        dataElt.callback(chartElt._index);
-                      }
+                onClick: function (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
+                    if (this.lastClick !== undefined && now() - this.lastClick < 300) {
+                        // Two clicks < 300ms ==> double click
+                        if (chartElt.length > 0) {
+                            chartElt = chartElt[chartElt.length - 1];
+                            const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex];
+                            if (dataElt.callback !== undefined) {
+                                dataElt.callback(chartElt._index);
+                            }
+                        }
                     }
-                  }
-                  this.lastClick = now();
+                    this.lastClick = now();
                 }
             }
         });
@@ -359,4 +399,10 @@ interface RawTransitDataModel {
     label: string[];
     startTime: number[];
     transitTimeMinutes: number[];
+}
+
+interface WeatherInfo {
+    hasWeatherData: boolean;
+    goodWeather: boolean;
+    maxStablePeriod: number;
 }
