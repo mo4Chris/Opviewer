@@ -23,7 +23,7 @@ export class TablesComponent implements OnInit {
         ) { }
     Repdata: VesselModel[];
     tokenInfo = new TokenModel(this.userService);
-    ScatterplotCompanies = ['BMO', 'SSE Beatrice', 'Vattenfall', 'Seazip', 'Orsted'];
+    ScatterplotCompanies = ['BMO', 'SSE Beatrice', 'Vattenfall', 'Seazip'];
     ScatterplotPermission: Boolean;
     filter = [];
     sortedData: VesselModel[];
