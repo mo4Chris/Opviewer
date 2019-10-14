@@ -4,6 +4,7 @@ import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+import { isArray } from 'util';
 
 @Injectable()
 export class CommonService {
@@ -37,7 +38,18 @@ export class CommonService {
 
   getVessel2vesselsForSov(mmsi: number, date: number) {
     return this.get(environment.DB_IP + '/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+      map((response: Response) => {
+        const v2vs = response.json();
+        v2vs.forEach(v2v => {
+          if (!isArray(v2v.transfers)) {
+            v2v.transfers = [v2v.transfers];
+          }
+          if (!isArray(v2v.CTVactivity)) {
+            v2v.CTVactivity = [v2v.CTVactivity];
+          }
+        });
+        return v2vs;
+      }));
   }
 
   getCycleTimesForSov(mmsi: number, date: number) {
