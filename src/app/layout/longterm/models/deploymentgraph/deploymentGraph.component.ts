@@ -267,10 +267,11 @@ export class DeploymentGraphComponent implements OnInit {
     constructNewChart(
         dsets: any,
     ) {
+        const cleanCodeDefaultNumberOfHoursAVesselIsToldToHaveBeenSailingIfItReallyDidNotSail = 8;
         const dateService = this.dateTimeService;
         const getWavedata = (index) => this.getWavedataAtIndex(index);
         const vesselDidSail = (tooltipItem, data) => {
-            return tooltipItem.yLabel !== 8;
+            return tooltipItem.yLabel !== cleanCodeDefaultNumberOfHoursAVesselIsToldToHaveBeenSailingIfItReallyDidNotSail;
         };
         const getSailingWindowLength = (tooltipItem, data) => {
             const info: WeatherInfo = data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index];
