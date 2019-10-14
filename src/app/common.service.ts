@@ -4,12 +4,19 @@ import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
+import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 
 @Injectable()
 export class CommonService {
 
   constructor(private http: Http) { }
+
+  getActiveConnections() {
+    return this.get(environment.DB_IP + '/api/getActiveConnections/').pipe(
+      map((response: Response) => response.json()));
+  }
 
   saveVessel(vessel) {
     return this.post(environment.DB_IP + '/api/saveVessel/', vessel).pipe(
@@ -36,7 +43,18 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVessel2vesselsForSov(mmsi: number, date: number) {
+  getLatestTwaUpdate() {
+    return this.get(environment.DB_IP + '/api/getLatestTwaUpdate/').pipe(
+      map((response: Response) => {
+        console.log('TWA_update checker')
+        console.log(response)
+        let resp = response.json();
+        console.log('TWA_update checker done')
+        return resp;
+      }));
+  }
+
+  getVessel2vesselsForSov(mmsi: number, date: number): Observable<Vessel2vesselModel[]> {
     return this.get(environment.DB_IP + '/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => {
         const v2vs = response.json();
@@ -97,7 +115,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getLatestBoatLocation() {
+  getLatestBoatLocation(): Observable<AisMarkerModel[]> {
     return this.get(environment.DB_IP + '/api/getLatestBoatLocation/').pipe(
       map((response: Response) => response.json()));
   }
@@ -124,7 +142,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getLatestBoatLocationForCompany(company: string) {
+  getLatestBoatLocationForCompany(company: string): Observable<AisMarkerModel[]> {
     return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));
   }

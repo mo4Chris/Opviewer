@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit {
         private commonService: CommonService,
         private mapService: GmapService,
      ) {   }
-    locationData;
+    locationData: AisMarkerModel[];
 
     // Map settings
     googleMap: google.maps.Map;
@@ -77,19 +77,19 @@ export class DashboardComponent implements OnInit {
     @ViewChild(VesselMasterComponent)
     private vesselMasterComponent: VesselMasterComponent;
 
-    getLocationData(locationData: any[]): void {
-        let lastUpdatedHours;
+    getLocationData(locationData: AisMarkerModel[]): void {
+        let lastUpdatedHours: number;
         this.locationData = locationData;
         this.locationData.forEach(marker => {
-                lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
-                if (lastUpdatedHours < 1) {
-                    marker.markerIcon = GmapService.iconVesselLive;
-                } else if (lastUpdatedHours < 6) {
-                    marker.markerIcon = GmapService.iconVesselHours;
-                } else {
-                    marker.markerIcon = GmapService.iconVesselOld;
-                }
-                });
+            lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
+            if (lastUpdatedHours < 1) {
+                marker.markerIcon = GmapService.iconVesselLive;
+            } else if (lastUpdatedHours < 6) {
+                marker.markerIcon = GmapService.iconVesselHours;
+            } else {
+                marker.markerIcon = GmapService.iconVesselOld;
+            }
+        });
     }
 
     getZoominfo(zoominfo: any): void {
@@ -148,7 +148,7 @@ export class DashboardComponent implements OnInit {
         }, 60000);
     }
 
-    buildGoogleMap( googleMap ) {
+    buildGoogleMap( googleMap: google.maps.Map ) {
         this.googleMap = googleMap;
         const harbourLocations = this.commonService.getHarbourLocations();
         this.mapService.plotHarbours(this.googleMap, harbourLocations);
@@ -217,7 +217,7 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    redirectDailyVesselReport(mmsi) {
+    redirectDailyVesselReport(mmsi: number) {
         this.eventService.closeLatestAgmInfoWindow();
         this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
     }
@@ -232,4 +232,13 @@ export class DashboardComponent implements OnInit {
             }, 1000);
         }
     }
+}
+
+export interface AisMarkerModel {
+    _id: string;
+    TIMESTAMP: string;
+    LON: number;
+    LAT: number;
+    vesselInformation: any[];
+    markerIcon: mapMarkerIcon;
 }

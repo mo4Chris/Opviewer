@@ -216,7 +216,7 @@ export class ScatterplotComponent {
             }
           }
           this.lastClick = now();
-      }
+        }
       },
       plugins: [
         {

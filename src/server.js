@@ -585,6 +585,15 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
 //#################   Endpoints   #########################
 //#########################################################
 
+app.get("/api/getActiveConnections", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === "admin") {
+        res.send(
+            'This is not yet tracked'
+        );
+    }
+})
+
 app.post("/api/registerUser", function (req, res) {
     let userData = req.body;
     let token = verifyToken(req, res);
@@ -2781,6 +2790,13 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
                 }
             }
         )
+    }
+})
+
+app.get('/api/getLatestTwaUpdate/', function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === 'admin') {
+        res.send('TEST PHASE')
     }
 })
 
