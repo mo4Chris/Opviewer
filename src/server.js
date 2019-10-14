@@ -1627,6 +1627,70 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
     });
 });
 
+app.post("/api/getGeneralForRange", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+    });
+    var startDate = req.body.startDate;
+    var stopDate = req.body.stopDate;
+    var mmsi = req.body.mmsi;
+    if (typeof(mmsi) === 'number') {
+        mmsi = [mmsi];
+    }
+    var query = {
+        mmsi: {$in: mmsi},
+        date: {
+            $gte: startDate,
+            $lte: stopDate
+        }
+    };
+    projection = req.body.projection;
+    if (projection === undefined) {
+        projection = null
+    }
+
+    switch(req.body.vesselType) {
+        case 'CTV':
+            return generalmodel.aggregate([
+                {$match: query}, 
+                { "$sort": {date: -1}},
+                {$project: projection},
+                {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
+            ]).exec((err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data.map(elt => {
+                        elt.stats.mmsi = elt._id;
+                        return elt.stats;
+                    }));
+                }
+            });
+        case 'SOV': case 'OSV':
+            return SovModel.aggregate([
+                {$match: query}, 
+                { "$sort": {date: -1}},
+                {$project: projection},
+                {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
+            ]).exec((err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data.map(elt => {
+                        elt.stats.mmsi = elt._id;
+                        return elt.stats;
+                    }));
+                }
+            });
+        default: 
+            res.status(201).send('Invalid vessel type!')
+    }
+});
+
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
@@ -2645,14 +2709,14 @@ app.post("/api/getWavedataForDay", function (req, res) {
 });
 
 app.post("/api/getWavedataForRange", function (req, res) {
-    let token = verifyToken(req, res);
-    let startDate  = req.body.startDate;
-    let stopDate  = req.body.stopDate;
-    let site  = req.body.site;
+    let token       = verifyToken(req, res);
+    let startDate   = req.body.startDate;
+    let stopDate    = req.body.stopDate;
+    let source      = req.body.source;
 
     wavedataModel.find({
         date: {$gte: startDate, $lte: stopDate},
-        site: site,
+        source: source,
         active: {$ne: false}
     }, (err, datas) => {
         if (err) {
@@ -2681,8 +2745,14 @@ app.post("/api/getWavedataForRange", function (req, res) {
 app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        waveSourceModel.distinct(
-            "site",
+        waveSourceModel.find({},
+            {
+                site: 1,
+                name: 1
+            },
+            {
+                sort: {site: 1}
+            },
             (data, err) => {
                 if (err) {
                     res.send(err);
@@ -2692,10 +2762,16 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             }
         )
     } else {
-        waveSourceModel.distinct(
-            "site",
+        waveSourceModel.find(
             {
-                company: {$contains: token.userCompany}
+                company: {$contains: token.userCompany},
+            },
+            {
+                site: 1,
+                name: 1,
+            },
+            {
+                sort: {site: 1}
             },
             (data, err) => {
                 if (err) {
@@ -2729,3 +2805,4 @@ Number.prototype.padLeft = function(base,chr){
     var  len = (String(base || 10).length - String(this).length)+1;
     return len > 0? new Array(len).join(chr || '0')+this : this;
 }
+

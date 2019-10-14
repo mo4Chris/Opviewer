@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
 import { CommonService } from '../../../common.service';
 
 import { map, catchError, reduce } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 import { CorrelationGraph } from '../models/correlationgraph/correlationgraph.component';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
+import { DeploymentGraphComponent } from '../models/deploymentgraph/deploymentGraph.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -88,6 +89,10 @@ export class LongtermCTVComponent implements OnInit {
             wind: any[],
             windDir: any[]
         };
+    wavedataAvailabe = false;
+
+    @ViewChild(DeploymentGraphComponent)
+    deploymentGraph: DeploymentGraphComponent;
 
     // On (re)load
     ngOnInit() {
@@ -208,7 +213,7 @@ export class LongtermCTVComponent implements OnInit {
                         y = this.processData(this.comparisonArray[graphIndex].y, _y);
                         const matlabDate = Math.floor(data.date[__i]);
                         const navToDPRByDate = () => {
-                            return this.navigateToVesselreport.emit({mmsi: data._id, matlabDate: matlabDate});
+                            return this.navigateToDPR({mmsi: data._id, matlabDate: matlabDate});
                         };
                         scatterData.push({x: x, y: y, callback: navToDPRByDate});
                     });
@@ -223,6 +228,10 @@ export class LongtermCTVComponent implements OnInit {
             default:
                 console.error('Undefined graphtype detected in parseRawData!');
         }
+    }
+
+    navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
+        this.navigateToVesselreport.emit(navItem);
     }
 
     usagePerMonth(rawScatterData: RawScatterData) {
@@ -330,10 +339,11 @@ export class LongtermCTVComponent implements OnInit {
         this.newService.getWavedataForRange({
             startDate: this.dateTimeService.objectToMatlabDate(this.fromDate),
             stopDate: this.dateTimeService.objectToMatlabDate(this.toDate),
-            site: this.fieldname,
+            source: this.fieldname,
         }).subscribe( wavedata => {
             this.wavedataArray = wavedata;
             this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
+            this.wavedataAvailabe = true;
             this.addWavedataToGraphs();
         });
     }
@@ -351,13 +361,14 @@ export class LongtermCTVComponent implements OnInit {
         });
     }
 
-    updateActiveField(fieldname: string) {
+    updateActiveField(source_id: string) {
         // Called whenever longterm.components selects / deselects field
-        this.fieldname = fieldname;
+        this.fieldname = source_id;
         this.clearWavedataFromGraphs();
-        if (fieldname === '') {
+        if (source_id === '') {
             this.wavedataArray = null;
             this.mergedWavedata = null;
+            this.wavedataAvailabe = false;
         } else {
             this.loadWavedata();
         }
@@ -387,6 +398,14 @@ export class LongtermCTVComponent implements OnInit {
                 graph.update();
             }
         });
+        this.updateDeploymentGraph();
+    }
+
+    updateDeploymentGraph() {
+        const graph = this.deploymentGraph;
+        if (graph) {
+            this.deploymentGraph.updateChart();
+        }
     }
 
     // Utility

@@ -50,7 +50,9 @@ export class LongtermComponent implements OnInit {
   fieldSelectSettings = {
     allowSearchFilter: true,
     singleSelection: true,
-    closeDropDownOnSelection: true
+    closeDropDownOnSelection: true,
+    textFields: 'text',
+    idField: '_id',
   };
 
   vesselType: string;
@@ -63,8 +65,8 @@ export class LongtermComponent implements OnInit {
     operationsClass: string, speednotifylimit: any, vesselname: string}[];
   showContent: boolean;
   loaded = {Vessels: false, vesselType: false};
-  fieldsWithWavedata: string[] = [];
-  selectedField: string = '';
+  fieldsWithWavedata: {_id: string, site: string, name: string, text?: string}[] = [];
+  selectedField = '';
 
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
@@ -83,6 +85,9 @@ export class LongtermComponent implements OnInit {
         Chart.pluginService.register(ChartAnnotation);
         this.newService.getFieldsWithWaveSourcesByCompany().subscribe(fields => {
           this.fieldsWithWavedata = fields;
+          this.fieldsWithWavedata.forEach(elt => {
+            elt.text = elt.site + ' - ' + elt.name;
+          });
         });
         this.noPermissionForData = false;
         if (this.tokenInfo.userPermission === 'admin') {
@@ -139,8 +144,8 @@ export class LongtermComponent implements OnInit {
   }
 
   searchTransfersByNewSpecificDate() { // Sets new date and selected vessel values
-    const minValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
-    const maxpickerValueAsMomentDate = moment(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
+    const minValueAsMomentDate = moment.utc(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
+    const maxpickerValueAsMomentDate = moment.utc(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
     minValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     minValueAsMomentDate.format();
     maxpickerValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -216,8 +221,8 @@ export class LongtermComponent implements OnInit {
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
-  selectField(event: string) {
-    this.selectedField = event;
+  selectField(event: {_id: string, text: string, isDisabled: boolean}) {
+    this.selectedField = event._id;
     this.updateWavedataForChild();
   }
 

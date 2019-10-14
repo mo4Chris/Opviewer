@@ -4,6 +4,7 @@ import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+import { isArray } from 'util';
 
 @Injectable()
 export class CommonService {
@@ -37,7 +38,18 @@ export class CommonService {
 
   getVessel2vesselsForSov(mmsi: number, date: number) {
     return this.get(environment.DB_IP + '/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+      map((response: Response) => {
+        const v2vs = response.json();
+        v2vs.forEach(v2v => {
+          if (!isArray(v2v.transfers)) {
+            v2v.transfers = [v2v.transfers];
+          }
+          if (!isArray(v2v.CTVactivity)) {
+            v2v.CTVactivity = [v2v.CTVactivity];
+          }
+        });
+        return v2vs;
+      }));
   }
 
   getCycleTimesForSov(mmsi: number, date: number) {
@@ -127,7 +139,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string }) {
+  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[] }) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -226,7 +238,6 @@ export class CommonService {
     return this.post(environment.DB_IP + '/api/updateSOVPlatformPaxInput/', transfer).pipe(
       map((response: Response) => response.json()));
   }
-  
 
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
     return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
@@ -409,7 +420,7 @@ export class CommonService {
   getWavedataForRange(request: {
     startDate: number,
     stopDate: number,
-    site: string,
+    source: string,
   }): Observable<WavedataModel[]> {
     return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
       map((response: Response) => {
@@ -417,8 +428,18 @@ export class CommonService {
       }));
   }
 
-  getFieldsWithWaveSourcesByCompany(): Observable<string[]> {
-    // TODO this is not yet on server.js
+  getGeneralForRange(request: {
+    startDate: number,
+    stopDate: number,
+    mmsi: number | number[],
+    vesselType: 'CTV' | 'SOV' | 'OSV',
+    projection?: any,
+  }): Observable<any[]> {
+    return this.post(environment.DB_IP + '/api/getGeneralForRange', request).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
     return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
     map((response: Response) => response.json()));
   }
