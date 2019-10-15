@@ -1,0 +1,61 @@
+<div class="row">
+    <div class="col-lg-8">
+        <canvas id="deploymentGraph"></canvas>
+    </div>
+    <div class="col-lg-3">
+        This graph shows the performance of vessels over time, distinguished by whether
+        or not they should have sailed. Such an opportunity is defined as a continuous period
+        of at least {{MinContinuousWorkingHours}} hours in which Hs stayes below the max 
+        accepted wave height. This limit can be changed below. Any opportunity must occur
+        during working hours ({{WorkdayStartTimeHours}}-{{WorkdayStopTimeHours}}).
+       
+        <table class="custom-table">
+            <tr>
+                <td>
+                    Sailed good weather:
+                </td>
+                <td>
+                    {{Colors.hasSailedGoodWeather}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Missed opportunity:
+                </td>
+                <td>
+                    {{Colors.notSailedGoodWeather}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Weather day:
+                </td>
+                <td>
+                    {{Colors.notSailedBadWeather}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Sailed bad weather:
+                </td>
+                <td>
+                    {{Colors.hasSailedBadWeather}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    No wave data available:
+                </td>
+                <td>
+                    {{Colors.noWeatherData}}
+                </td>
+            </tr>
+        </table>
+        When the vessel has not sailed the bar is
+        always set to 8 hours to keep the bars visible, but they have no further meaning.
+        <br><br>
+        Max accepted wave height:
+        <input class="wavelimit-input" id='wavelimit-input' [placeholder]="150"> cm
+        <button class="btn" (click)="updateHsLimit()">Update</button>
+    </div>
+</div>
