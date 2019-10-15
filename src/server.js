@@ -319,7 +319,10 @@ var SovDprInput = new Schema({
     ToolboxAmountOld: { type: Number },
     ToolboxAmountNew: { type: Number },
     HOCAmountOld: { type: Number },
-    HOCAmountNew: { type: Number }
+    HOCAmountNew: { type: Number },
+    missedPaxCargo : { type: Object },
+    helicopterPaxCargo: { type: Object }
+    
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
@@ -927,6 +930,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
+                console.log(data);
                 res.send(data);
             }
         });
@@ -1367,6 +1371,18 @@ app.post("/api/getSovDprInput", function (req, res) {
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
+                                    },
+                                    "missedPaxCargo": {
+                                        paxUp: 0,
+                                        paxDown: 0,
+                                        cargoUp: 0,
+                                        cargoDown: 0
+                                    },
+                                    "helicopterPaxCargo": {
+                                        paxUp: 0,
+                                        paxDown: 0,
+                                        cargoUp: 0,
+                                        cargoDown: 0
                                     }
                                 };
                             } else {
@@ -1374,10 +1390,10 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "mmsi": req.body.mmsi,
                                     "date": req.body.date,
                                     "liquids": {
-                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue:data.liquids.fuel.newValue },
+                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.luboil.newValue },
+                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.domwater.newValue },
+                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.potwater.newValue }
                                     },
                                     "toolbox": [],
                                     "hoc": [],
@@ -1393,6 +1409,18 @@ app.post("/api/getSovDprInput", function (req, res) {
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
+                                    },
+                                    "missedPaxCargo": {
+                                        paxIn: 0,
+                                        paxOut: 0,
+                                        cargoIn: 0,
+                                        cargoOut: 0
+                                    },
+                                    "helicopterPaxCargo": {
+                                        paxIn: 0,
+                                        paxOut: 0,
+                                        cargoIn: 0,
+                                        cargoOut: 0
                                     }
                                 };
                             }

@@ -38,4 +38,8 @@ export class PlatformTransfer {
     paxCntEstimate: string;
     TexitExclusionZone: number;
     date: { type: Number };
+    paxIn: { type: Number };
+    paxOut: { type: Number };
+    cargoIn: { type: Number };
+    cargoOut: { type: Number };
 }
