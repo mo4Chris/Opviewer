@@ -1462,7 +1462,7 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1479,7 +1479,7 @@ app.post("/api/saveIncidentDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1530,7 +1530,7 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1547,7 +1547,7 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1564,7 +1564,7 @@ app.post("/api/saveRemarksStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1581,7 +1581,7 @@ app.post("/api/saveCateringStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1598,7 +1598,7 @@ app.post("/api/savePoBStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
         function (err, data) {
             if (err) {
                 res.send(err);
