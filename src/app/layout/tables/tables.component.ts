@@ -7,6 +7,8 @@ import { UserService } from '../../shared/services/user.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
+import { Hotkeys } from '../../supportModules/hotkey.service';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-tables',
@@ -19,7 +21,8 @@ export class TablesComponent implements OnInit {
         private stringMutationService: StringMutationService,
         private newService: CommonService,
         private _router: Router,
-        private userService: UserService
+        private userService: UserService,
+        private hotkeys: Hotkeys
         ) { }
     Repdata: VesselModel[];
     tokenInfo = new TokenModel(this.userService);
@@ -38,6 +41,12 @@ export class TablesComponent implements OnInit {
             } else {
                 this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
             }
+            this.hotkeys.addShortcut({
+                keys: 'control.f',
+            }).subscribe((hotkeyEvent) => {
+                const inputElt = <HTMLInputElement> document.getElementsByClassName('form-control search')[0];
+                inputElt.select();
+            });
         } else {
             localStorage.removeItem('isLoggedin');
             localStorage.removeItem('token');
