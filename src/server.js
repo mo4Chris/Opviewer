@@ -319,7 +319,11 @@ var SovDprInput = new Schema({
     ToolboxAmountOld: { type: Number },
     ToolboxAmountNew: { type: Number },
     HOCAmountOld: { type: Number },
-    HOCAmountNew: { type: Number }
+    HOCAmountNew: { type: Number },
+    missedPaxCargo : { type: Object },
+    helicopterPaxCargo: { type: Object },
+    PoB : {type: Object}
+    
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
@@ -1363,10 +1367,28 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "HOCAmountOld": 0,
                                     "HOCAmountNew": 0,
                                     "catering": {
+                                        project:0,
                                         extraMeals : 0,
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
+                                    },
+                                    "PoB" : {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
+                                    },
+                                    "missedPaxCargo": {
+                                        paxUp: 0,
+                                        paxDown: 0,
+                                        cargoUp: 0,
+                                        cargoDown: 0
+                                    },
+                                    "helicopterPaxCargo": {
+                                        paxUp: 0,
+                                        paxDown: 0,
+                                        cargoUp: 0,
+                                        cargoDown: 0
                                     }
                                 };
                             } else {
@@ -1374,10 +1396,10 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "mmsi": req.body.mmsi,
                                     "date": req.body.date,
                                     "liquids": {
-                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
-                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue:data.liquids.fuel.newValue },
+                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.luboil.newValue },
+                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.domwater.newValue },
+                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.potwater.newValue }
                                     },
                                     "toolbox": [],
                                     "hoc": [],
@@ -1389,11 +1411,29 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "HOCAmountNew": data.HOCAmountNew,
                                     "remarks": '',
                                     "catering": {
+                                        project:0,
                                         extraMeals : 0,
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
-                                    }
+                                    },
+                                    "missedPaxCargo": {
+                                        paxIn: 0,
+                                        paxOut: 0,
+                                        cargoIn: 0,
+                                        cargoOut: 0
+                                    },
+                                    "helicopterPaxCargo": {
+                                        paxIn: 0,
+                                        paxOut: 0,
+                                        cargoIn: 0,
+                                        cargoOut: 0
+                                    },
+                                    "PoB": {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
+                                    },
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1422,7 +1462,7 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1439,7 +1479,7 @@ app.post("/api/saveIncidentDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1490,7 +1530,7 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1507,7 +1547,7 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1524,7 +1564,7 @@ app.post("/api/saveRemarksStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
         function (err, data) {
             if (err) {
                 res.send(err);
@@ -1541,12 +1581,29 @@ app.post("/api/saveCateringStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
         function (err, data) {
             if (err) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the catering input" });
+            }
+        });
+});
+
+app.post("/api/savePoBStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the PoB input" });
             }
         });
 });

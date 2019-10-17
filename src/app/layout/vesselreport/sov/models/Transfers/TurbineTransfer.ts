@@ -34,4 +34,8 @@ export class TurbineTransfer {
     positionalStability: string;
     windArray: any;
     date: number;
+    paxIn: { type: Number };
+    paxOut: { type: Number };
+    cargoIn: { type: Number };
+    cargoOut: { type: Number };
 }
