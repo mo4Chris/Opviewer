@@ -64,14 +64,17 @@ export class TablesComponent implements OnInit {
     }
 
     applyFilter(filterValue: string) {
-        filterValue = filterValue.trim();
-        filterValue = filterValue.toLowerCase();
+        filterValue = filterValue.trim().toLowerCase();
         if (filterValue === '') {
             this.filter = this.Repdata;
             this.sortData(this.sort);
             return;
         }
-        this.filter = this.Repdata.filter(s => s.nicename.toLowerCase().includes(filterValue) || (s.mmsi + '').includes(filterValue));
+        this.filter = this.Repdata.filter(s => {
+            return s.nicename.toLowerCase().includes(filterValue) ||
+                ('' + s.mmsi).includes(filterValue) ||
+                s.client.some(client => client.toLowerCase().includes(filterValue));
+        });
         this.sortData(this.sort);
     }
 
