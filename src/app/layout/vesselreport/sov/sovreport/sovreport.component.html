@@ -265,7 +265,7 @@
                                         <div class="tableRow">
                                             <input class="form-control col-xl-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
-                                                [value]="HoC.value">
+                                                [(ngModel)]="HoC.value" [value]="HoC.value">
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
                                                 class="form-control col-xl-5">
@@ -299,7 +299,7 @@
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
                                             <input class="form-control col-xl-7" type="text"
-                                                (change)="incidentsChanged = true;" placeholder="input reason"
+                                                (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value" placeholder="input reason"
                                                 [value]="toolbox.value">
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
@@ -1475,4 +1475,5 @@
             </div>
         </div>
     </div>
+</div>
 <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
