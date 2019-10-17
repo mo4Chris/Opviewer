@@ -262,7 +262,6 @@ export class SovreportComponent implements OnInit {
     }
 
     addVesselNonAvailabilityToArray() {
-        console.log(this.weatherDowntimeChanged);
         this.VesselNonAvailabilityArray.push({reason: 'DC small breakdown', from: '00:00', to: '00:00'});
     }
     addWeatherDowntimeToArray() {
@@ -278,7 +277,6 @@ export class SovreportComponent implements OnInit {
     }
 
     removeLastFromVesselNonAvailabilityArray() {
-        console.log(this.weatherDowntimeChanged);
         this.VesselNonAvailabilityArray.pop();
     }
 

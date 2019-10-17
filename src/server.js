@@ -931,7 +931,6 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                console.log(data);
                 res.send(data);
             }
         });
@@ -1599,7 +1598,6 @@ app.post("/api/savePoBStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    console.log(req.body);
     SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
         function (err, data) {
             if (err) {
