@@ -431,7 +431,7 @@
                                         [(value)]="liquidsObject.potwater.discharged"></td>
                             </tr>
                             <tr>
-                                <th>ROB</th>
+                                <th>Remaining on board</th>
                                 <td>{{liquidsObject.fuel.newValue}}</td>
                                 <td>{{liquidsObject.luboil.newValue}}</td>
                                 <td>{{liquidsObject.domwater.newValue}}</td>
@@ -453,26 +453,25 @@
                             </tr>
                             <tr>
                                 <th>Marine</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="20"></td>
+                                <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.marine" [(value)]="peopleonBoard.marine"></td>
                             </tr>
                             <tr>
                                 <th>Marine contractors</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="0"></td>
+                                <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.marineContractors" [(value)]="peopleonBoard.marineContractors"></td>
                             </tr>
                             <tr>
                                 <th>Project</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="22"></td>
+                                <td><input (change)="poBChanged = true; updatePoB()" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.project" [(value)]="peopleonBoard.project" ></td>
                             </tr>
                             <tr>
-                                <th>Total POB</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="42"></td>
+                                <th>Total People on board</th>
+                                <td> {{PoBTotal}}</td>
                             </tr>
-                            <tr *ngIf="cateringChanged == true">
-                                <td colspan="2" class="submitbtnclass"> <button (click)="saveCateringStats();"
+                            <tr *ngIf="poBChanged == true">
+                                <td colspan="2" class="submitbtnclass"> <button (click)="savePoBStats();"
                                         class="btn btn-lg btn-primary" style="float:right" type="button">Save</button>
                                 </td>
                             </tr>
@@ -498,8 +497,8 @@
                             <tr>
                                 <td></td>
                                 <td>Project</td>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="42"></td>
+                                <td><input (change)="caterinChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.project" [(value)]="cateringObject.project"></td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -541,12 +540,13 @@
                         </table>
                     </div>
                     <div class="col-xl-6 dailySummary">
-                        <h4>Vessel Operations/remarks</h4>
-                        <textarea (change)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="10"
-                            cols="70"></textarea><br>
-
-                        <button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
-                            (click)="saveRemarksStats();" type="button">Save</button>
+                        <table class="table table-bordered">
+                            <tr><td><h4>Vessel Operations/remarks</h4></td></tr>
+                            <tr><td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="10"
+                                cols="70"></textarea></td></tr>
+                            <tr *ngIf="remarksChanged == true"><td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
+                                (click)="saveRemarksStats();" type="button">Save</button></td></tr>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1354,7 +1354,7 @@
                                         [(value)]="liquidsObject.potwater.discharged"></td>
                             </tr>
                             <tr>
-                                <th>ROB</th>
+                                <th>Remaining on board</th>
                                 <td>{{liquidsObject.fuel.newValue}}</td>
                                 <td>{{liquidsObject.luboil.newValue}}</td>
                                 <td>{{liquidsObject.domwater.newValue}}</td>
@@ -1376,26 +1376,25 @@
                             </tr>
                             <tr>
                                 <th>Marine</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="20"></td>
+                                <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.marine" [(value)]="peopleonBoard.marine"></td>
                             </tr>
                             <tr>
                                 <th>Marine contractors</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="0"></td>
+                                <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.marineContractors" [(value)]="peopleonBoard.marineContractors"></td>
                             </tr>
                             <tr>
                                 <th>Project</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="22"></td>
+                                <td><input (change)="poBChanged = true; updatePoB()" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="peopleonBoard.project" [(value)]="peopleonBoard.project" ></td>
                             </tr>
                             <tr>
-                                <th>Total POB</th>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="42"></td>
+                                <th>Total People on board</th>
+                                <td> {{PoBTotal}}</td>
                             </tr>
-                            <tr *ngIf="cateringChanged == true">
-                                <td colspan="2" class="submitbtnclass"> <button (click)="saveCateringStats();"
+                            <tr *ngIf="poBChanged == true">
+                                <td colspan="2" class="submitbtnclass"> <button (click)="savePoBStats();"
                                         class="btn btn-lg btn-primary" style="float:right" type="button">Save</button>
                                 </td>
                             </tr>
@@ -1421,8 +1420,8 @@
                             <tr>
                                 <td></td>
                                 <td>Project</td>
-                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
-                                        max="10000" value="42"></td>
+                                <td><input (change)="caterinChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.project" [(value)]="cateringObject.project"></td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -1464,16 +1463,16 @@
                         </table>
                     </div>
                     <div class="col-xl-6 dailySummary">
-                        <h4>Vessel Operations/remarks</h4>
-                        <textarea (change)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="10"
-                            cols="70"></textarea><br>
-
-                        <button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
-                            (click)="saveRemarksStats();" type="button">Save</button>
+                        <table class="table table-bordered">
+                            <tr><td><h4>Vessel Operations/remarks</h4></td></tr>
+                            <tr><td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="10"
+                                cols="70"></textarea></td></tr>
+                            <tr *ngIf="remarksChanged == true"><td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
+                                (click)="saveRemarksStats();" type="button">Save</button></td></tr>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>

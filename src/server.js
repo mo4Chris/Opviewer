@@ -321,7 +321,8 @@ var SovDprInput = new Schema({
     HOCAmountOld: { type: Number },
     HOCAmountNew: { type: Number },
     missedPaxCargo : { type: Object },
-    helicopterPaxCargo: { type: Object }
+    helicopterPaxCargo: { type: Object },
+    PoB : {type: Object}
     
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
@@ -1367,10 +1368,16 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "HOCAmountOld": 0,
                                     "HOCAmountNew": 0,
                                     "catering": {
+                                        project:0,
                                         extraMeals : 0,
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
+                                    },
+                                    "PoB" : {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
                                     },
                                     "missedPaxCargo": {
                                         paxUp: 0,
@@ -1405,6 +1412,7 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "HOCAmountNew": data.HOCAmountNew,
                                     "remarks": '',
                                     "catering": {
+                                        project:0,
                                         extraMeals : 0,
                                         packedLunches: 0,
                                         marine: 0,
@@ -1421,7 +1429,12 @@ app.post("/api/getSovDprInput", function (req, res) {
                                         paxOut: 0,
                                         cargoIn: 0,
                                         cargoOut: 0
-                                    }
+                                    },
+                                    "PoB": {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
+                                    },
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1575,6 +1588,24 @@ app.post("/api/saveCateringStats", function (req, res) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the catering input" });
+            }
+        });
+});
+
+app.post("/api/savePoBStats", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    console.log(req.body);
+    SovDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the PoB input" });
             }
         });
 });

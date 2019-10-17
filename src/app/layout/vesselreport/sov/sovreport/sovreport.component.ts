@@ -79,6 +79,7 @@ export class SovreportComponent implements OnInit {
     weatherDowntimeChanged = false;
     cateringChanged = false;
     remarksChanged = false;
+    poBChanged = false;
     alert = {type : '', message: ''};
     times = [];
     totalCargoIn = 0;
@@ -91,6 +92,13 @@ export class SovreportComponent implements OnInit {
     remarks = '';
 
     cateringObject = {};
+    peopleonBoard = {
+        marine: 0,
+        marineContractors: 0,
+        project: 0
+    };
+    PoBTotal = 0;
+
     liquidsObject = {
         fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
         luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
@@ -148,19 +156,24 @@ export class SovreportComponent implements OnInit {
     }
 
     updateFuel() {
-        this.liquidsObject.fuel.newValue = (+this.liquidsObject.fuel.oldValue + +this.liquidsObject.fuel.loaded - +this.liquidsObject.fuel.consumed - +this.liquidsObject.fuel.discharged);
+        this.liquidsObject.fuel.newValue = +(+this.liquidsObject.fuel.oldValue + +this.liquidsObject.fuel.loaded - +this.liquidsObject.fuel.consumed - +this.liquidsObject.fuel.discharged).toFixed(1);
     }
 
     updateLuboil() {
-        this.liquidsObject.luboil.newValue = (+this.liquidsObject.luboil.oldValue + +this.liquidsObject.luboil.loaded - +this.liquidsObject.luboil.consumed - +this.liquidsObject.luboil.discharged);
+        this.liquidsObject.luboil.newValue = +(+this.liquidsObject.luboil.oldValue + +this.liquidsObject.luboil.loaded - +this.liquidsObject.luboil.consumed - +this.liquidsObject.luboil.discharged).toFixed(1);
     }
 
     updateDomwater() {
-        this.liquidsObject.domwater.newValue = (+this.liquidsObject.domwater.oldValue + +this.liquidsObject.domwater.loaded - +this.liquidsObject.domwater.consumed - +this.liquidsObject.domwater.discharged);
+        this.liquidsObject.domwater.newValue = +(+this.liquidsObject.domwater.oldValue + +this.liquidsObject.domwater.loaded - +this.liquidsObject.domwater.consumed - +this.liquidsObject.domwater.discharged).toFixed(1);
     }
 
     updatePotwater() {
-        this.liquidsObject.potwater.newValue = (+this.liquidsObject.potwater.oldValue + +this.liquidsObject.potwater.loaded - +this.liquidsObject.potwater.consumed - this.liquidsObject.potwater.discharged);
+        this.liquidsObject.potwater.newValue = +(+this.liquidsObject.potwater.oldValue + +this.liquidsObject.potwater.loaded - +this.liquidsObject.potwater.consumed - this.liquidsObject.potwater.discharged).toFixed(1);
+    }
+
+    updatePoB() {
+        this.PoBTotal = 0;
+        this.PoBTotal = (+this.PoBTotal + +this.peopleonBoard.marineContractors + +this.peopleonBoard.marine + +this.peopleonBoard.project);
     }
 
     updatePaxCargoTotal() {
@@ -281,6 +294,7 @@ export class SovreportComponent implements OnInit {
                 this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
                 this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
                 this.liquidsObject = SovDprInput[0].liquids;
+                this.peopleonBoard = SovDprInput[0].PoB;
                 this.remarks = SovDprInput[0].remarks;
                 this.cateringObject = SovDprInput[0].catering;
                 this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
@@ -348,7 +362,7 @@ export class SovreportComponent implements OnInit {
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
         this.buildPageWhenRouteLoaded();
-        
+
     }
 
     buildPageWhenRouteLoaded() {
@@ -368,6 +382,9 @@ export class SovreportComponent implements OnInit {
                         }, null, () => {
                             this.turbinesLoaded = true;
                             this.updatePaxCargoTotal();
+                            this.updateHOCTotal();
+                            this.updatePoB();
+                            this.updateToolboxTotal();
                             this.checkIfAllLoaded();
                         });
                     } else {
@@ -375,6 +392,9 @@ export class SovreportComponent implements OnInit {
                         this.sovModel.sovType = SovType.Platform;
                         this.turbinesLoaded = true;
                         this.updatePaxCargoTotal();
+                        this.updateHOCTotal();
+                        this.updatePoB();
+                        this.updateToolboxTotal();
                         this.checkIfAllLoaded();
                     }
                     this.getVesselRoute();
@@ -706,6 +726,29 @@ export class SovreportComponent implements OnInit {
             }, 7000);
         });
         this.cateringChanged = false;
+    }
+
+    savePoBStats() {
+        this.commonService.savePoBStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, peopleonBoard: this.peopleonBoard}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.poBChanged = false;
     }
 
     saveRemarksStats() {

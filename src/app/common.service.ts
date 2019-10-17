@@ -254,6 +254,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  savePoBStats(sovpobstats) {
+    return this.post(environment.DB_IP + '/api/savePoBStats/', sovpobstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveRemarksStats(sovremarks) {
     return this.post(environment.DB_IP + '/api/saveRemarksStats/', sovremarks).pipe(
       map((response: Response) => response.json()));
