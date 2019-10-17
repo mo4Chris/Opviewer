@@ -5,6 +5,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
+var moment = require('moment');
 
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
@@ -588,9 +589,11 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
 app.get("/api/getActiveConnections", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === "admin") {
-        res.send(
-            'This is not yet tracked'
-        );
+        res.send({
+            body: 'This is not yet tracked'
+        });
+    } else {
+        return res.status(401).send('Unauthorized request!');
     }
 })
 
@@ -2796,7 +2799,23 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
 app.get('/api/getLatestTwaUpdate/', function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        res.send('TEST PHASE')
+        let currMatlabDate = Math.floor((moment() / 864e5) + 719529);
+        turbineWarrantymodel.find({
+            stopDate: {$gte: currMatlabDate},
+        }, {
+            lastUpdated: 1
+        }, (err, data) => {
+            if (err) {
+                res.send(err);
+            } else if (data) {
+                let latestUpdate = data.reduce((prev, curr) => {
+                    return Math.max(prev, curr.lastUpdated);
+                }, 0)
+                res.send({lastUpdate: latestUpdate});
+            } else {
+                res.status(400).send('No active TWA requests found!')
+            }
+        })
     }
 })
 

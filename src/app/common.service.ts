@@ -7,6 +7,7 @@ import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
 import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { UserModel } from './models/userModel';
 
 @Injectable()
 export class CommonService {
@@ -43,14 +44,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getLatestTwaUpdate() {
+  getLatestTwaUpdate(): Observable<number> {
     return this.get(environment.DB_IP + '/api/getLatestTwaUpdate/').pipe(
       map((response: Response) => {
-        console.log('TWA_update checker')
-        console.log(response)
-        let resp = response.json();
-        console.log('TWA_update checker done')
-        return resp;
+        const res = response.json();
+        return res.lastUpdate;
       }));
   }
 
@@ -212,22 +210,22 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getUsers() {
+  getUsers(): Observable<UserModel[]> {
     return this.get(environment.DB_IP + '/api/getUsers/').pipe(
       map((response: Response) => response.json()));
   }
 
-  getUsersForCompany(client: {client: any}[]) {
+  getUsersForCompany(client: {client: any}[]): Observable<UserModel[]> {
     return this.post(environment.DB_IP + '/api/getUsersForCompany/', client).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserByUsername(username: {username: any}) {
+  getUserByUsername(username: {username: any}): Observable<UserModel> {
     return this.post(environment.DB_IP + '/api/getUserByUsername/', username).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserClientById(user: any, client: {client: any}) {
+  getUserClientById(user: any, client: {client: any}): Observable<{_id: string, client: string}> {
     return this.get(environment.DB_IP + '/api/getUserClientById/' + user + '/' + client).pipe(
       map((response: Response) => response.json()));
   }
