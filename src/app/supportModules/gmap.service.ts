@@ -6,6 +6,7 @@ import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
 import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
 import { isArray } from 'util';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -282,15 +283,16 @@ export class GmapService {
         parkLayer.draw();
     }
 
-    plotHarbours(googleMap, harbourLocations, minZoom = 7, maxZoom = 30) {
+    plotHarbours(googleMap, harbourLocations: Observable<HarbourModel[]>, minZoom = 7, maxZoom = 30) {
         const harbourLayer = new MapZoomLayer(googleMap, minZoom, maxZoom);
-        harbourLocations.forEach(harbourList => {
+        harbourLocations.subscribe(harbourList => {
             harbourList.forEach(harbour => {
                 harbourLayer.addData(new MapZoomData(
                     harbour.centroid.lon,
                     harbour.centroid.lat,
                     GmapService.iconHarbour,
                     GmapService.iconHarbour.description,
+                    harbour.name.split('_').join(' '),
                 ));
             });
         });
@@ -314,5 +316,17 @@ export class GmapService {
             });
         });
         platformLayer.draw();
+    }
+}
+
+interface HarbourModel {
+    lon: number[];
+    lat: number[];
+    _id: string;
+    name: string;
+    centroid: {
+        lon: number;
+        lat: number;
+        radius: number;
     }
 }
