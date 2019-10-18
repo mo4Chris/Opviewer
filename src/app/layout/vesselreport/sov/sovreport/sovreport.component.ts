@@ -383,7 +383,7 @@ export class SovreportComponent implements OnInit {
                             this.updateHOCTotal();
                             this.updatePoB();
                             this.updateToolboxTotal();
-                            this.checkIfAllLoaded();
+                            this.getVesselRoute();
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
@@ -393,9 +393,8 @@ export class SovreportComponent implements OnInit {
                         this.updateHOCTotal();
                         this.updatePoB();
                         this.updateToolboxTotal();
-                        this.checkIfAllLoaded();
+                        this.getVesselRoute();
                     }
-                    this.getVesselRoute();
                 }, null, () => {
                     this.platformsLoaded = true;
                     this.checkIfAllLoaded();
