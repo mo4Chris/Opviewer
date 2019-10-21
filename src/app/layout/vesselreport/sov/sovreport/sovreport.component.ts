@@ -72,6 +72,7 @@ export class SovreportComponent implements OnInit {
     ToolboxTotalOld = 0;
     ToolboxTotalNew = 0;
     VesselNonAvailabilityArray = [];
+    dpArray = [];
     WeatherDowntimeArray = [];
     fuelChanged = false;
     incidentsChanged = false;
@@ -80,8 +81,11 @@ export class SovreportComponent implements OnInit {
     cateringChanged = false;
     remarksChanged = false;
     poBChanged = false;
+    dpChanged = false;
     alert = {type : '', message: ''};
     times = [];
+    allHours = [];
+    all5Minutes = [];
     totalCargoIn = 0;
     totalCargoOut = 0;
     totalPaxIn = 0;
@@ -152,6 +156,26 @@ export class SovreportComponent implements OnInit {
                 }
                 this.times.push(time);
             }
+        }
+    }
+
+    createSeperateTimes() {
+        this.allHours = [];
+        this.all5Minutes = []
+        
+        for (let i = 0; i < 24; i++) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.allHours.push(time);
+        }
+        for (let i = 0; i < 60; i+=5) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.all5Minutes.push(time);
         }
     }
 
@@ -268,6 +292,13 @@ export class SovreportComponent implements OnInit {
         this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
     }
 
+    addDPToArray() {
+        this.dpArray.push({from: {hour: '00', minutes: '00'}, to: {hour: '00', minutes: '00'}});
+    }
+    removeLastFromDPArray() {
+        this.dpArray.pop();
+    }
+
     removeLastFromToolboxArray() {
         this.ToolboxArray.pop();
     }
@@ -295,6 +326,7 @@ export class SovreportComponent implements OnInit {
                 this.peopleonBoard = SovDprInput[0].PoB;
                 this.remarks = SovDprInput[0].remarks;
                 this.cateringObject = SovDprInput[0].catering;
+                this.dpArray = SovDprInput[0].dp;
                 this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
                 this.HOCTotalNew = SovDprInput[0].HOCAmountNew;
                 this.ToolboxTotalOld = SovDprInput[0].ToolboxAmountOld;
@@ -307,7 +339,7 @@ export class SovreportComponent implements OnInit {
     }
 
     savePlatformPaxInput(transfer) {
-        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut:transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -330,7 +362,7 @@ export class SovreportComponent implements OnInit {
     }
 
     saveTurbinePaxInput(transfer) {
-        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut:transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -354,6 +386,7 @@ export class SovreportComponent implements OnInit {
 
     ngOnInit() {
         this.createTimes();
+        this.createSeperateTimes();
         Chart.pluginService.register(annotation);
     }
 
@@ -705,6 +738,29 @@ export class SovreportComponent implements OnInit {
 
     saveCateringStats() {
         this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    saveDPStats() {
+        this.commonService.saveDPStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dp: this.dpArray}).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';

@@ -542,11 +542,73 @@
                     <div class="col-xl-6 dailySummary">
                         <table class="table table-bordered">
                             <tr><td><h4>Vessel Operations/remarks</h4></td></tr>
-                            <tr><td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="10"
+                            <tr><td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control" rows="6"
                                 cols="70"></textarea></td></tr>
                             <tr *ngIf="remarksChanged == true"><td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
                                 (click)="saveRemarksStats();" type="button">Save</button></td></tr>
                         </table>
+
+                        <table class="table table-bordered">
+                            <tr><td colspan="2"><h4>DP usage</h4></td></tr>
+                            <tr>
+                                <th>On DP</th>
+                                <th>Off DP</th>
+                            </tr>
+                            <ng-container *ngFor="let dp of dpArray">
+                                <tr>
+                                    <td>
+                                        <div class="tableRow">
+                                            HH:
+                                            <select [(ngModel)]="dp.from.hour"
+                                            (change)="dpChanged = true;" class="form-control col-xl-4" > 
+                                                <option *ngFor="let hour of allHours" [value]="dp.from.hour">
+                                                        {{hour}}
+                                                </option>
+                                            </select>
+                                                MM: 
+                                            <select [(ngModel)]="dp.from.minutes"
+                                            (change)="dpChanged = true;" class="form-control col-xl-4">
+                                                <option *ngFor="let minutes of all5Minutes" [value]="dp.from.minutes">
+                                                        {{minutes}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="tableRow">
+                                            HH:
+                                            <select [(ngModel)]="dp.to.hour"
+                                            (change)="dpChanged = true;" class="form-control col-xl-4" > 
+                                                <option *ngFor="let hour of allHours" [value]="dp.to.hour">
+                                                        {{hour}}
+                                                </option>
+                                            </select>
+                                                MM: 
+                                            <select [(ngModel)]="dp.to.minutes"
+                                            (change)="dpChanged = true;" class="form-control col-xl-4">
+                                                <option *ngFor="let minutes of all5Minutes" [value]="dp.to.minutes">
+                                                        {{minutes}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-container>
+                            <tr>
+                                <td colspan="2">
+                                    <button class="btn btn-sm btn-success"
+                                        (click)="addDPToArray(); dpChanged = true;"
+                                        type="button">add line</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        (click)="removeLastFromDPArray(); dpChanged = true;"
+                                        type="button">remove last</button>
+                                    <button *ngIf="dpChanged == true" class="btn btn-lg btn-primary"
+                                        style="float:right" (click)="saveDPStats();"
+                                        type="button">Save</button>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
                 </div>
             </div>
@@ -627,9 +689,9 @@
                                         <td>{{platformTransfer.totalDuration}} minutes</td>
                                         <td>
                                             <input type="number" min="0" class="form-control-sm col-sm-5"
-                                                [(ngModel)]="platformTransfer.paxUp" [(ngModel)]="platformTransfer.paxIn" (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
+                                                [(ngModel)]="platformTransfer.paxIn" [(ngModel)]="platformTransfer.paxIn" (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
                                             <input type="number" min="0" class="form-control-sm col-sm-5"
-                                                [(ngModel)]="platformTransfer.paxDown" [(ngModel)]="platformTransfer.paxOut" (ngModelChange)="updatePaxCargoTotal()"> outgoing
+                                                [(ngModel)]="platformTransfer.paxOut" [(ngModel)]="platformTransfer.paxOut" (ngModelChange)="updatePaxCargoTotal()"> outgoing
                                         </td>
                                         <td>
                                             <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.cargoIn" (ngModelChange)="updatePaxCargoTotal()"> kg incoming <br>
@@ -922,7 +984,7 @@
                                             <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                             <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                             <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
-                                            <td>{{transfer.peakWindGust / 3.6}}</td>
+                                            <td>{{GetDecimalValueForNumber(transfer.peakWindGust / 3.6)}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                         </tr>
                                     </ng-container>
