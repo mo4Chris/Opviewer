@@ -25,8 +25,8 @@ export class VesselMasterComponent implements OnInit {
   vesselInfo: VesselModel;
   defaultZoomInfo = {
     latitude: 55,
-    longitude: 0,
-    zoomlvl: 6.0
+    longitude: 0.1,
+    zoomlvl: 5.5
   };
   matlabDate = this.dateService.getMatlabDateYesterday() + 1;
   unassignedTransfers: UnassignedTransferModel[] = [];
@@ -41,7 +41,7 @@ export class VesselMasterComponent implements OnInit {
         this.getUnassignedTransfers();
       });
     });
-}
+  }
 
   getLocations() {
     this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
@@ -68,7 +68,7 @@ export class VesselMasterComponent implements OnInit {
   }
 
   getUnassignedTransfers() {
-    const lookback = 14;
+    const lookback = 34;
     const unassigned: UnassignedTransferModel[] = [];
     if (this.vesselInfo.operationsClass === 'CTV') {
       this.newService.getTransfersForVesselByRange({
@@ -110,7 +110,7 @@ export class VesselMasterComponent implements OnInit {
 
 }
 
-interface UnassignedTransferModel {
+export interface UnassignedTransferModel {
   mmsi: number;
   vessel: string;
   turbine: string;
