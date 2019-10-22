@@ -44,6 +44,16 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
+    // For both CTV and SOV!
+    return this.get(environment.DB_IP + '/api/getLatestGeneral/').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getLatestGeneralForCompany(opts: {client: string, vesselname?: string}) {
+    // For both CTV and SOV!
+  }
+
   getLatestTwaUpdate(): Observable<number> {
     return this.get(environment.DB_IP + '/api/getLatestTwaUpdate/').pipe(
       map((response: Response) => {

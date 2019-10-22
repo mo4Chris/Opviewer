@@ -2078,6 +2078,55 @@ app.post("/api/saveUserBoats", function (req, res) {
         });
 });
 
+app.get('/api/getLatestGeneral', function (req, res) {
+    let token = verifyToken(req, res);
+    let ctvData;
+    let sovData;
+    // Callback only sends data if both CTV and SOV succefully loaded, error otherwise
+    const cb = () => {
+        if (ctvData !== undefined && sovData !== undefined) {
+            res.send(ctvData.concat(sovData));
+        }
+    }
+
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Access denied');
+    } else {
+        generalmodel.aggregate([
+            {
+                $group: {
+                    _id: '$mmsi',
+                    'date': {$last: '$date'},
+                    'vesselname': {$last: '$vesselname'},
+                }
+            }
+        ]).exec((err, data) => {
+            if (err) {
+                res.send(err)
+            } else {
+                ctvData = data;
+                cb();
+            }
+        });
+        SovModelmodel.aggregate([
+            {
+                $group: {
+                    _id: '$mmsi',
+                    'date': {$last: '$dayNum'},
+                    'vesselname': {$last: '$vesselName'},
+                }
+            }
+        ]).exec((err, data) => {
+            if (err) {
+                res.send(err)
+            } else {
+                sovData = data;
+                cb();
+            }
+        });
+    }
+})
+
 app.post("/api/getVideoRequests", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
         if (validated.length < 1) {
