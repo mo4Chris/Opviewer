@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
+import { TokenModel } from '../../../../../models/tokenModel';
 
 @Component({
   selector: 'app-logistics-specialist',
@@ -8,10 +9,10 @@ import { CommonService } from '../../../../../common.service';
 })
 export class LogisticsSpecialistComponent implements OnInit {
 
-  @Input() tokenInfo;
+  @Input() tokenInfo: TokenModel;
   @Output() locationData: EventEmitter<any[]> = new EventEmitter<any[]>();
   @Output() zoominfo: EventEmitter<any> = new EventEmitter<any>();
-  
+
   constructor(private newService: CommonService) { }
 
   ngOnInit() {
@@ -31,7 +32,7 @@ export class LogisticsSpecialistComponent implements OnInit {
       latitude: 55,
       longitude: 0,
       zoomlvl: 6.0
-    }
-    this.zoominfo.emit(zoominfo)
+    };
+    this.zoominfo.emit(zoominfo);
   }
 }

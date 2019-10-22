@@ -4,6 +4,7 @@
 
 export class VesselModel {
     // Database return array of this template
+    Site: string;
     client: string[];
     vesselname: string;
     nicename: string;

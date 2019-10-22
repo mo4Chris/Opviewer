@@ -8,6 +8,7 @@ import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
 import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { UserModel } from './models/userModel';
+import { TurbineLocation } from './layout/vesselreport/models/TurbineLocation';
 
 @Injectable()
 export class CommonService {
@@ -130,6 +131,15 @@ export class CommonService {
 
   getSpecificPark(park: {park: string[]}) {
     return this.post(environment.DB_IP + '/api/getSpecificPark/', park).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getParkByNiceName(park: string): Observable<{
+    centroid: {lon: number, lat: number, radius: number},
+    SiteName: string,
+    name: string[]
+  }> {
+    return this.get(environment.DB_IP + '/api/getParkByNiceName/' + park).pipe(
       map((response: Response) => response.json()));
   }
 

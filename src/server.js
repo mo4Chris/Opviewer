@@ -1130,6 +1130,21 @@ app.post("/api/getSpecificPark", function (req, res) {
     });
 });
 
+app.get("/api/getParkByNiceName/:parkName", function (req, res) {
+    const parkName = req.params.parkName;
+    LatLonmodel.findOne({
+        SiteName: parkName,
+        active: {$ne: false}
+    }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
 app.get("/api/getLatestBoatLocation", function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
@@ -2528,7 +2543,7 @@ app.get("/api/getParkLocations", function (req, res) {
     });
 });
 
-app.get("/api/getParkLocationForCompany/:company", function (req, res) {
+app.get("/api/getParkLocationForVessels", function (req, res) {
     //ToDo: windfields do not yet have associated companies
     //ToDo: netjes afvangen als client een streepje bevat
     let companyName = req.params.company.replace('--_--', ' ');

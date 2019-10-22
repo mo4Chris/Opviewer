@@ -209,7 +209,7 @@ export class GmapService {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
         vesselRoutes.forEach(route => {
-            new google.maps.Polyline({
+            return new google.maps.Polyline({
                 clickable: false,
                 map: googleMap,
                 path: this.lonlatService.lonlatarrayToLatLngArray(route),
