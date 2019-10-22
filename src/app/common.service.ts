@@ -254,8 +254,18 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  saveDPStats(sovcateringstats) {
-    return this.post(environment.DB_IP + '/api/saveDPStats/', sovcateringstats).pipe(
+  saveDPStats(dpstats) {
+    return this.post(environment.DB_IP + '/api/saveDPStats/', dpstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveMissedPaxCargo(missedpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveMissedPaxCargo/', missedpaxcargo).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveHelicopterPaxCargo(helicopterpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveHelicopterPaxCargo/', helicopterpaxcargo).pipe(
       map((response: Response) => response.json()));
   }
 

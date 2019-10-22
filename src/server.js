@@ -324,8 +324,8 @@ var SovDprInput = new Schema({
     ToolboxAmountNew: { type: Number },
     HOCAmountOld: { type: Number },
     HOCAmountNew: { type: Number },
-    missedPaxCargo : { type: Object },
-    helicopterPaxCargo: { type: Object },
+    missedPaxCargo : { type: Array },
+    helicopterPaxCargo: { type: Array },
     PoB : {type: Object},
     dp: {type: Array}
     
@@ -1383,18 +1383,8 @@ app.post("/api/getSovDprInput", function (req, res) {
                                         marineContractors: 0,
                                         project: 0
                                     },
-                                    "missedPaxCargo": {
-                                        paxUp: 0,
-                                        paxDown: 0,
-                                        cargoUp: 0,
-                                        cargoDown: 0
-                                    },
-                                    "helicopterPaxCargo": {
-                                        paxUp: 0,
-                                        paxDown: 0,
-                                        cargoUp: 0,
-                                        cargoDown: 0
-                                    },
+                                    "missedPaxCargo": [],
+                                    "helicopterPaxCargo": [],
                                     "dp": []
                                 };
                             } else {
@@ -1423,18 +1413,8 @@ app.post("/api/getSovDprInput", function (req, res) {
                                         marine: 0,
                                         marineContractors: 0
                                     },
-                                    "missedPaxCargo": {
-                                        paxIn: 0,
-                                        paxOut: 0,
-                                        cargoIn: 0,
-                                        cargoOut: 0
-                                    },
-                                    "helicopterPaxCargo": {
-                                        paxIn: 0,
-                                        paxOut: 0,
-                                        cargoIn: 0,
-                                        cargoOut: 0
-                                    },
+                                    "missedPaxCargo": [],
+                                    "helicopterPaxCargo": [],
                                     "PoB": {
                                         marine: 0,
                                         marineContractors: 0,
@@ -1612,6 +1592,41 @@ app.post("/api/saveDPStats", function (req, res) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the DP input" });
+            }
+        });
+});
+
+app.post("/api/saveMissedPaxCargo", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { missedPaxCargo: req.body.MissedPaxCargo},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the missed transfer input" });
+            }
+        });
+});
+
+app.post("/api/saveHelicopterPaxCargo", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    console.log(req.body);
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { helicopterPaxCargo: req.body.HelicopterPaxCargo},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the helicopter transfer input" });
             }
         });
 });
