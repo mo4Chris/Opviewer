@@ -537,10 +537,12 @@ function validatePermissionToViewData(req, res, callback) {
         } else {
             filter.client = token.userCompany;
         }
+        filter.client = token.userCompany;
     } else if (token.userPermission === "Logistics specialist") {
         filter.client = token.userCompany;
     } else if (token.userPermission === "Contract manager") {
         // TODO
+        filter.client = token.userCompany;
     }
     Vesselmodel.find(filter, function (err, data) {
         if (err) {
@@ -1132,7 +1134,7 @@ app.post("/api/getSpecificPark", function (req, res) {
 
 app.get("/api/getParkByNiceName/:parkName", function (req, res) {
     const parkName = req.params.parkName;
-    LatLonmodel.findOne({
+    LatLonmodel.find({
         SiteName: parkName,
         active: {$ne: false}
     }, function (err, data) {

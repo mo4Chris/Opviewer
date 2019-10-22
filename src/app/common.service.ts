@@ -138,9 +138,9 @@ export class CommonService {
     centroid: {lon: number, lat: number, radius: number},
     SiteName: string,
     name: string[]
-  }> {
+  } | undefined> {
     return this.get(environment.DB_IP + '/api/getParkByNiceName/' + park).pipe(
-      map((response: Response) => response.json()));
+      map((response: Response) => response.json()[0]));
   }
 
   getParkLocations() {
