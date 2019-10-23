@@ -306,7 +306,11 @@ var SovVessel2vesselTransfers = new Schema({
     transfers: { type: Object },
     CTVactivity: { type: Object },
     date: { type: Number },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    paxIn: { type: Number},
+    paxOut: { type: Number},
+    cargoIn: { type: Number},
+    cargoOut: { type: Number}
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
@@ -1489,6 +1493,25 @@ app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+});
+
+
+app.post("/api/updateSOVv2vPaxInput", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        return res.status(401).send('Access denied');
+    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        return res.status(401).send('Access denied');
+    }
+    
+    SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { transfers: req.body.transfers },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the v2v transfer stats" });
             }
         });
 });

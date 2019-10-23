@@ -91,6 +91,11 @@ export class SovreportComponent implements OnInit {
     totalPaxIn = 0;
     totalPaxOut = 0;
 
+    v2vCargoIn = 0;
+    v2vCargoOut = 0;
+    v2vPaxIn = 0;
+    v2vPaxOut = 0;
+
     showAlert = false;
     timeout;
     remarks = '';
@@ -133,6 +138,21 @@ export class SovreportComponent implements OnInit {
                 this.ToolboxTotal = this.ToolboxTotal + +element.amount;
                 this.ToolboxTotalNew = this.ToolboxTotalNew + +element.amount;
             });
+        }
+    }
+
+    updatev2vPaxCargoTotal() {
+        this.v2vCargoIn = 0;
+        this.v2vCargoOut = 0;
+        this.v2vPaxIn = 0;
+        this.v2vPaxOut = 0;
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.v2vPaxIn = this.v2vPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.v2vPaxIn + 0;
+                this.v2vPaxOut = this.v2vPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.v2vPaxOut + 0;
+                this.v2vCargoIn = this.v2vCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.v2vCargoIn + 0;
+                this.v2vCargoOut = this.v2vCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.v2vCargoOut + 0;
+            }
         }
     }
 
@@ -226,6 +246,15 @@ export class SovreportComponent implements OnInit {
                 this.totalPaxOut = this.totalPaxOut + +this.helicopterPaxCargo[i].paxOut;
                 this.totalCargoIn = this.totalCargoIn + +this.helicopterPaxCargo[i].cargoIn ;
                 this.totalCargoOut = this.totalCargoOut + +this.helicopterPaxCargo[i].cargoOut;
+            }
+        }
+
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.totalPaxIn + 0;
+                this.totalPaxOut = this.totalPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.totalPaxOut + 0;
+                this.totalCargoIn = this.totalCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.totalCargoIn + 0;
+                this.totalCargoOut = this.totalCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.totalCargoOut + 0;
             }
         }
     }
@@ -405,6 +434,30 @@ export class SovreportComponent implements OnInit {
         this.nonAvailabilityChanged = false;
     }
 
+    savev2vPaxInput() {
+        this.commonService.updateSOVv2vPaxInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, transfers: this.sovModel.vessel2vessels[0] .transfers}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+
     savePlatformPaxInput(transfer) {
         this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
@@ -483,6 +536,7 @@ export class SovreportComponent implements OnInit {
                             this.updateHOCTotal();
                             this.updatePoB();
                             this.updateToolboxTotal();
+                            this.updatev2vPaxCargoTotal();
                             this.getVesselRoute();
                         });
                     } else {
@@ -493,6 +547,7 @@ export class SovreportComponent implements OnInit {
                         this.updateHOCTotal();
                         this.updatePoB();
                         this.updateToolboxTotal();
+                        this.updatev2vPaxCargoTotal();
                         this.getVesselRoute();
                     }
                 }, null, () => {

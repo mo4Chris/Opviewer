@@ -239,6 +239,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  updateSOVv2vPaxInput(transfer) {
+    return this.post(environment.DB_IP + '/api/updateSOVv2vPaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
     return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
       map((response: Response) => response.json()));

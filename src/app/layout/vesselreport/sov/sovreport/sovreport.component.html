@@ -747,6 +747,20 @@
                                             (click)="savePlatformPaxInput(platformTransfer)"
                                             type="button">Save</button></td>
                                     </tr>
+                                    <tr *ngIf="sovModel.vessel2vessels.length > 0" class="tableTotal">
+                                            <th>V2V transfers</th> 
+                                            <td colspan="6"></td>
+                                            <td>
+                                                {{v2vPaxIn}} incoming <br>
+                                                {{v2vPaxOut}} outgoing
+                                            </td>
+                                            <td>
+                                                {{v2vCargoIn}} kg incoming <br>
+                                                {{v2vCargoOut}} kg outgoing
+                                            </td>
+                                            <td colspan="3"></td>
+        
+                                        </tr>
                                     <tr class="tableTotal">
                                         <th>Total</th> 
                                         <td colspan="6"></td>
@@ -908,6 +922,20 @@
                                         (click)="saveHelicopterPaxCargo()"
                                         type="button">Save</button></td>
                                 </tr>
+                                <tr *ngIf="sovModel.vessel2vessels.length > 0" class="tableTotal">
+                                        <th>V2V transfers</th> 
+                                        <td colspan="4"></td>
+                                        <td>
+                                            {{v2vPaxIn}} incoming <br>
+                                            {{v2vPaxOut}} outgoing
+                                        </td>
+                                        <td>
+                                            {{v2vCargoIn}} kg incoming <br>
+                                            {{v2vCargoOut}} kg outgoing
+                                        </td>
+                                        <td colspan="3"></td>
+    
+                                    </tr>
                                 <tr class="tableTotal">
                                     <th>Total amount</th> 
                                     <td colspan="4"></td>
@@ -1030,6 +1058,9 @@
                                 <th>Duration [mns]</th>
                                 <th>Peak wind gust [m/s]</th>
                                 <th>Peak heave [m]</th>
+                                <th>Pax in/out</th>
+                                <th>Cargo in/out</th>
+                                <th>save</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1049,10 +1080,35 @@
                                             <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakWindGust / 3.6)}}</td>
                                             <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
+                                            <td>
+                                                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxIn" [value]="transfer.paxIn" (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()"> incoming <br>
+                                                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxOut" [value]="transfer.paxOut" (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()"> outgoing
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn" (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()"> kg incoming <br>
+                                                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut" (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()"> kg outgoing
+                                            </td>
+                                            <td><button class="btn btn-lg btn-primary submitBtnDate"
+                                                (click)="savev2vPaxInput()"
+                                                type="button">Save</button></td>
                                         </tr>
                                     </ng-container>
                                 </ng-container>
                             </ng-container>
+                            <tr *ngIf="sovModel.vessel2vessels.length > 0" class="tableTotal">
+                                    <th>V2V transfers total</th> 
+                                    <td colspan="6"></td>
+                                    <td>
+                                        {{v2vPaxIn}} incoming <br>
+                                        {{v2vPaxOut}} outgoing
+                                    </td>
+                                    <td>
+                                        {{v2vCargoIn}} kg incoming <br>
+                                        {{v2vCargoOut}} kg outgoing
+                                    </td>
+                                    <td></td>
+
+                                </tr>
                         </tbody>
                     </table>
                 </div>
