@@ -26,7 +26,7 @@ export class AdminComponent implements OnInit {
   numberActiveSessions = 'Currently not recorded';
   activeUsers = [{user: '', client: ''}];
 
-  last_TWA_Update: string = 'N/A';
+  last_TWA_Update = 'N/A';
   last_AIS_update: 'N/A' | number = 'N/A';
   num_active_accounts = 0;
   currentMatlabDate = this.dateService.getMatlabDateYesterday() + 1;
@@ -93,7 +93,7 @@ export class AdminComponent implements OnInit {
           if (isOnHire && genInfo.date <= this.currentMatlabDate - 2) {
             this.noActivityVessels.push({
               matlabDate: genInfo.date,
-              name: genInfo.vesselname,
+              name: genInfo.vesselname.split('_').join(' '),
               client: vesselInfo.client[0],
               lastActive: this.dateService.MatlabDateToJSDateYMD(genInfo.date),
               lastActiveDays: this.calcService.roundNumber(this.currentMatlabDate - genInfo.date, 1),

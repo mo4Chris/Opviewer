@@ -532,11 +532,14 @@ function validatePermissionToViewData(req, res, callback) {
     let token = verifyToken(req, res);
     let filter = { mmsi: req.body.mmsi };
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
-        if (!token.userBoats.find(x => x.mmsi === req.body.mmsi)) {
-            return [];
-        } else {
-            filter.client = token.userCompany;
-        }
+        // if (!token.userBoats.some(x => {
+        //         return filter.mmsi.some(y => x.mmsi ===y )
+        //     })
+        // ){
+        //     return res.status(401).send('Unauthorized request');
+        // } else {
+        //     filter.client = token.userCompany;
+        // }
         filter.client = token.userCompany;
     } else if (token.userPermission === "Logistics specialist") {
         filter.client = token.userCompany;
@@ -683,7 +686,7 @@ app.post("/api/login", function (req, res) {
                                     userBoats: user.boats, 
                                     username: user.username,
                                     expires: expireDate.setMonth(expireDate.getMonth()+1).valueOf(),
-                                    hasCampaigns: data.length >= 1
+                                    hasCampaigns: data.length >= 1 && (user.permissions!== "Vessel master")
                                 };
                                 let token = jwt.sign(payload, 'secretKey');
                                 if (user.active == 0){
@@ -2452,7 +2455,7 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
 
 app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client && token.hasCampaigns) {
         return res.status(401).send('Access denied');
     }
     turbineWarrantymodel.find({ client: req.body.client, active: {$ne: false} }, function (err, data) {
