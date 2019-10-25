@@ -1608,7 +1608,6 @@ app.post("/api/saveDPStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    console.log(req.body.dp);
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { dp: req.body.dp},
         function (err, data) {
             if (err) {
@@ -1643,7 +1642,6 @@ app.post("/api/saveHelicopterPaxCargo", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    console.log(req.body);
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { helicopterPaxCargo: req.body.HelicopterPaxCargo},
         function (err, data) {
             if (err) {
