@@ -2871,8 +2871,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
@@ -2882,7 +2883,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
     } else {
         waveSourceModel.find(
             {
-                company: {$contains: token.userCompany},
+                company: {$in: [token.userCompany]},
             },
             {
                 site: 1,
@@ -2891,8 +2892,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
