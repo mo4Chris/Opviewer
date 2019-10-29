@@ -796,7 +796,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.userCompany === 'Bibby Marine') {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });

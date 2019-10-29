@@ -8,7 +8,6 @@ import { CommonService } from '../common.service';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
-import { userInfo } from 'os';
 
 @Component({
   selector: 'app-set-password',
