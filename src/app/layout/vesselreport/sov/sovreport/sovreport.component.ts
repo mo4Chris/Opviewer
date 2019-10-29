@@ -72,6 +72,7 @@ export class SovreportComponent implements OnInit {
     ToolboxTotalOld = 0;
     ToolboxTotalNew = 0;
     VesselNonAvailabilityArray = [];
+    dpArray = [];
     WeatherDowntimeArray = [];
     fuelChanged = false;
     incidentsChanged = false;
@@ -80,12 +81,20 @@ export class SovreportComponent implements OnInit {
     cateringChanged = false;
     remarksChanged = false;
     poBChanged = false;
+    dpChanged = false;
     alert = {type : '', message: ''};
     times = [];
+    allHours = [];
+    all5Minutes = [];
     totalCargoIn = 0;
     totalCargoOut = 0;
     totalPaxIn = 0;
     totalPaxOut = 0;
+
+    v2vCargoIn = 0;
+    v2vCargoOut = 0;
+    v2vPaxIn = 0;
+    v2vPaxOut = 0;
 
     showAlert = false;
     timeout;
@@ -106,19 +115,9 @@ export class SovreportComponent implements OnInit {
         potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
     };
 
-    missedPaxCargo = {
-        paxIn: 0,
-        paxOut: 0,
-        cargoIn: 0,
-        cargoOut: 0
-    };
+    missedPaxCargo = [];
 
-    helicopterPaxCargo = {
-        paxIn: 0,
-        paxOut: 0,
-        cargoIn: 0,
-        cargoOut: 0
-    };
+    helicopterPaxCargo = [];
 
     updateHOCTotal() {
         this.HOCTotal = 0;
@@ -142,6 +141,21 @@ export class SovreportComponent implements OnInit {
         }
     }
 
+    updatev2vPaxCargoTotal() {
+        this.v2vCargoIn = 0;
+        this.v2vCargoOut = 0;
+        this.v2vPaxIn = 0;
+        this.v2vPaxOut = 0;
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.v2vPaxIn = this.v2vPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.v2vPaxIn + 0;
+                this.v2vPaxOut = this.v2vPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.v2vPaxOut + 0;
+                this.v2vCargoIn = this.v2vCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.v2vCargoIn + 0;
+                this.v2vCargoOut = this.v2vCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.v2vCargoOut + 0;
+            }
+        }
+    }
+
     createTimes() {
         const quarterHours = ['00', '15', '30', '45'];
         for (let i = 0; i < 24; i++) {
@@ -152,6 +166,26 @@ export class SovreportComponent implements OnInit {
                 }
                 this.times.push(time);
             }
+        }
+    }
+
+    createSeperateTimes() {
+        this.allHours = [];
+        this.all5Minutes = [];
+
+        for (let i = 0; i < 24; i++) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.allHours.push(time);
+        }
+        for (let i = 0; i < 60; i += 5) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.all5Minutes.push(time);
         }
     }
 
@@ -197,10 +231,32 @@ export class SovreportComponent implements OnInit {
                 this.totalCargoOut = this.totalCargoOut + +this.sovModel.platformTransfers[i].cargoOut || this.totalCargoOut + 0;
             }
         }
-        this.totalPaxIn = this.totalPaxIn + +this.missedPaxCargo.paxIn + +this.helicopterPaxCargo.paxIn;
-        this.totalPaxOut = this.totalPaxOut + +this.missedPaxCargo.paxOut + +this.helicopterPaxCargo.paxOut;
-        this.totalCargoIn = this.totalCargoIn + +this.missedPaxCargo.cargoIn + +this.helicopterPaxCargo.cargoIn;
-        this.totalCargoOut = this.totalCargoOut + +this.missedPaxCargo.cargoOut + +this.helicopterPaxCargo.cargoOut;
+
+        if (this.missedPaxCargo.length > 0) {
+            for (let i = 0; i < this.missedPaxCargo.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.missedPaxCargo[i].paxIn;
+                this.totalPaxOut = this.totalPaxOut + +this.missedPaxCargo[i].paxOut;
+                this.totalCargoIn = this.totalCargoIn + +this.missedPaxCargo[i].cargoIn;
+                this.totalCargoOut = this.totalCargoOut + +this.missedPaxCargo[i].cargoOut;
+            }
+        }
+        if (this.helicopterPaxCargo.length > 0) {
+            for (let i = 0; i < this.helicopterPaxCargo.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.helicopterPaxCargo[i].paxIn ;
+                this.totalPaxOut = this.totalPaxOut + +this.helicopterPaxCargo[i].paxOut;
+                this.totalCargoIn = this.totalCargoIn + +this.helicopterPaxCargo[i].cargoIn ;
+                this.totalCargoOut = this.totalCargoOut + +this.helicopterPaxCargo[i].cargoOut;
+            }
+        }
+
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.totalPaxIn + 0;
+                this.totalPaxOut = this.totalPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.totalPaxOut + 0;
+                this.totalCargoIn = this.totalCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.totalCargoIn + 0;
+                this.totalCargoOut = this.totalCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.totalCargoOut + 0;
+            }
+        }
     }
 
     constructor(
@@ -268,6 +324,29 @@ export class SovreportComponent implements OnInit {
         this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
     }
 
+    addMissedTransferToArray() {
+        this.missedPaxCargo.push({location: '', from: {hour: '00', minutes: '00' }, to: {hour: '00', minutes: '00'}, paxIn: 0, paxOut: 0, cargoIn: 0, cargoOut: 0});
+    }
+
+    addHelicopterTransferToArray() {
+        this.helicopterPaxCargo.push({from: {hour: '00', minutes: '00' }, to: {hour: '00', minutes: '00'}, paxIn: 0, paxOut: 0, cargoIn: 0, cargoOut: 0});
+    }
+
+    addDPToArray() {
+        this.dpArray.push({from: {hour: '00', minutes: '00'}, to: {hour: '00', minutes: '00'}});
+    }
+
+    removeLastFromMissedTransferArray() {
+        this.missedPaxCargo.pop();
+    }
+
+    removeLastFromHelicopterTransferArray() {
+        this.helicopterPaxCargo.pop();
+    }
+    removeLastFromDPArray() {
+        this.dpArray.pop();
+    }
+
     removeLastFromToolboxArray() {
         this.ToolboxArray.pop();
     }
@@ -295,10 +374,13 @@ export class SovreportComponent implements OnInit {
                 this.peopleonBoard = SovDprInput[0].PoB;
                 this.remarks = SovDprInput[0].remarks;
                 this.cateringObject = SovDprInput[0].catering;
+                this.dpArray = SovDprInput[0].dp;
                 this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
                 this.HOCTotalNew = SovDprInput[0].HOCAmountNew;
                 this.ToolboxTotalOld = SovDprInput[0].ToolboxAmountOld;
                 this.ToolboxTotalNew = SovDprInput[0].ToolboxAmountNew;
+                this.missedPaxCargo = SovDprInput[0].missedPaxCargo;
+                this.helicopterPaxCargo = SovDprInput[0].helicopterPaxCargo;
             }
 
         }, null, () => {
@@ -306,8 +388,78 @@ export class SovreportComponent implements OnInit {
         });
     }
 
+    saveMissedPaxCargo() {
+        this.commonService.saveMissedPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, MissedPaxCargo: this.missedPaxCargo }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveHelicopterPaxCargo() {
+        this.commonService.saveHelicopterPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, HelicopterPaxCargo: this.helicopterPaxCargo }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    savev2vPaxInput() {
+        this.commonService.updateSOVv2vPaxInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, transfers: this.sovModel.vessel2vessels[0] .transfers}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+
     savePlatformPaxInput(transfer) {
-        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -330,7 +482,7 @@ export class SovreportComponent implements OnInit {
     }
 
     saveTurbinePaxInput(transfer) {
-        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxUp: transfer.paxUp, paxDown: transfer.paxDown}).pipe(
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -354,6 +506,7 @@ export class SovreportComponent implements OnInit {
 
     ngOnInit() {
         this.createTimes();
+        this.createSeperateTimes();
         Chart.pluginService.register(annotation);
     }
 
@@ -383,7 +536,8 @@ export class SovreportComponent implements OnInit {
                             this.updateHOCTotal();
                             this.updatePoB();
                             this.updateToolboxTotal();
-                            this.checkIfAllLoaded();
+                            this.updatev2vPaxCargoTotal();
+                            this.getVesselRoute();
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
@@ -393,9 +547,9 @@ export class SovreportComponent implements OnInit {
                         this.updateHOCTotal();
                         this.updatePoB();
                         this.updateToolboxTotal();
-                        this.checkIfAllLoaded();
+                        this.updatev2vPaxCargoTotal();
+                        this.getVesselRoute();
                     }
-                    this.getVesselRoute();
                 }, null, () => {
                     this.platformsLoaded = true;
                     this.checkIfAllLoaded();
@@ -705,6 +859,29 @@ export class SovreportComponent implements OnInit {
 
     saveCateringStats() {
         this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    saveDPStats() {
+        this.commonService.saveDPStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dp: this.dpArray}).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';

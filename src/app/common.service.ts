@@ -239,6 +239,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  updateSOVv2vPaxInput(transfer) {
+    return this.post(environment.DB_IP + '/api/updateSOVv2vPaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
     return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
       map((response: Response) => response.json()));
@@ -251,6 +256,21 @@ export class CommonService {
 
   saveCateringStats(sovcateringstats) {
     return this.post(environment.DB_IP + '/api/saveCateringStats/', sovcateringstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveDPStats(dpstats) {
+    return this.post(environment.DB_IP + '/api/saveDPStats/', dpstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveMissedPaxCargo(missedpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveMissedPaxCargo/', missedpaxcargo).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveHelicopterPaxCargo(helicopterpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveHelicopterPaxCargo/', helicopterpaxcargo).pipe(
       map((response: Response) => response.json()));
   }
 

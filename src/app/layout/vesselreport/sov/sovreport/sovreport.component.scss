@@ -60,6 +60,7 @@ agm-map {
 .tableRow{
     display: flex;
     flex-wrap: wrap;
+    line-height: calc(2.25rem + 2px);
 }
 
 .helpBtn {
