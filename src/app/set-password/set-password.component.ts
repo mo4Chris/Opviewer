@@ -8,6 +8,7 @@ import { CommonService } from '../common.service';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
+import { userInfo } from 'os';
 
 @Component({
   selector: 'app-set-password',
@@ -21,6 +22,8 @@ export class SetPasswordComponent implements OnInit {
     showAlert = false;
     passwords = { password: '', confirmPassword: '', confirm2fa: '' };
     user = '';
+    userCompany;
+    userPermissions;
     token = this.getTokenFromParameter();
     noUser = false;
     showAfterscreen = false;
@@ -48,6 +51,8 @@ export class SetPasswordComponent implements OnInit {
         this._auth.getUserByToken({ passwordToken: token, user: this.getUsernameFromParameter() }).subscribe(data => {
             if (data.username) {
                 this.user = data.username;
+                this.userCompany = data.userCompany;
+                this.userPermissions = data.permissions;
             } else {
                 this.noUser = true;
             }
@@ -97,7 +102,6 @@ export class SetPasswordComponent implements OnInit {
     }
 
     setUserPassword() {
-
         if (this.passwords.password.length < 7) {
             this.alert.type = 'danger';
             this.alert.message = 'Your password does not meet the minimum length of 7 characters';
@@ -108,8 +112,8 @@ export class SetPasswordComponent implements OnInit {
             this.alert.message = 'Your passwords are not the same.';
             this.showAlert = true;
         } else {
-            if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) !== null) {
-                this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword, secret2fa: this.secretAsBase32 }).pipe(
+            if (this.userCompany === 'Bibby Marine' && this.userPermissions === 'Vessel master') {
+                this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).pipe(
                     map(
                         (res) => {
                             this.showAfterscreen = true;
@@ -124,10 +128,26 @@ export class SetPasswordComponent implements OnInit {
                     })
                 ).subscribe();
             } else {
-                this.alert.type = 'danger';
-                this.alert.message = 'Your two factor authentication code is incorrect or has expired. Please try again';
-                this.showAlert = true;
-
+                if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) !== null) {
+                    this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword, secret2fa: this.secretAsBase32 }).pipe(
+                        map(
+                            (res) => {
+                                this.showAfterscreen = true;
+                                setTimeout(() => this.router.navigate(['/login']), 3000);
+                            }
+                        ),
+                        catchError(error => {
+                            this.alert.type = 'danger';
+                            this.alert.message = error._body;
+                            this.showAlert = true;
+                            throw error;
+                        })
+                    ).subscribe();
+                } else {
+                    this.alert.type = 'danger';
+                    this.alert.message = 'Your two factor authentication code is incorrect or has expired. Please try again';
+                    this.showAlert = true;
+                }
             }
         }
     }
