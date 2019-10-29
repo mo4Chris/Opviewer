@@ -684,7 +684,7 @@ app.post("/api/login", function (req, res) {
                                 if (user.active == 0){
                                     return res.status(401).send('User has been deactivated');
                                 }
-                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine')  {
                                     return res.status(200).send({ token });
                                 } else {
 
@@ -796,7 +796,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });
@@ -2357,7 +2357,7 @@ app.post("/api/getUserByToken", function (req, res) {
             res.send(err);
         } else {
             if (data) {
-                res.send({ username: data.username });
+                res.send({ username: data.username, userCompany: data.client, permissions: data.permissions });
             } else {
                 res.send({ err: "No user" });
             }
