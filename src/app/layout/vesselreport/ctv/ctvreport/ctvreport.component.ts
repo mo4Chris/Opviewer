@@ -561,7 +561,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
                 this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
                 this.generalInputStats.incidents = general.data[0].inputStats.incidents;
-                this.generalInputStats.drillsConducted = general.data[0].inputStats.drillsConducted;
+                this.generalInputStats.drillsConducted = general.data[0].inputStats.drillsConducted || [];
                 this.generalInputStats.passengers = general.data[0].inputStats.passengers;
                 this.generalInputStats.customInput = general.data[0].inputStats.customInput;
             } else {

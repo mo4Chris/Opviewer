@@ -1,6 +1,6 @@
-<h2 class="text-muted">Vessel report <small> {{ getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
+<h2 class="text-muted">Vessel report <small> {{' || ' +  vesselname + ' || ' + getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
 <!-- Date picker vessel reports-->
-<div class="form-inline" >
+<div class="form-inline no-print" >
     <div class="form-group">
         <div class="input-group datepicker-input">
             <button id="prevDayButton" (click)="changeDay(-1)">

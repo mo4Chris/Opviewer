@@ -114,3 +114,9 @@ ngb-alert {
         position: absolute;
     }
 }
+
+@media print {
+    .no-print {
+       display: none;
+    }
+}
