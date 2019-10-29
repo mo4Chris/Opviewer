@@ -684,7 +684,7 @@ app.post("/api/login", function (req, res) {
                                 if (user.active == 0){
                                     return res.status(401).send('User has been deactivated');
                                 }
-                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine')  {
                                     return res.status(200).send({ token });
                                 } else {
 
@@ -796,7 +796,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });
@@ -1608,7 +1608,6 @@ app.post("/api/saveDPStats", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    console.log(req.body.dp);
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { dp: req.body.dp},
         function (err, data) {
             if (err) {
@@ -1643,7 +1642,6 @@ app.post("/api/saveHelicopterPaxCargo", function (req, res) {
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
         return res.status(401).send('Access denied');
     }
-    console.log(req.body);
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { helicopterPaxCargo: req.body.HelicopterPaxCargo},
         function (err, data) {
             if (err) {
@@ -2359,7 +2357,7 @@ app.post("/api/getUserByToken", function (req, res) {
             res.send(err);
         } else {
             if (data) {
-                res.send({ username: data.username });
+                res.send({ username: data.username, userCompany: data.client, permissions: data.permissions });
             } else {
                 res.send({ err: "No user" });
             }
@@ -2873,8 +2871,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
@@ -2884,7 +2883,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
     } else {
         waveSourceModel.find(
             {
-                company: {$contains: token.userCompany},
+                company: {$in: [token.userCompany]},
             },
             {
                 site: 1,
@@ -2893,8 +2892,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);

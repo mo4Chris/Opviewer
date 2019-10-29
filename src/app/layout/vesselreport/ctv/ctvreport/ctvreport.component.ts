@@ -575,7 +575,7 @@ export class CtvreportComponent implements OnInit {
                 this.generalInputStats.incidents = false;
                 this.generalInputStats.drillsConducted = [null];
                 this.generalInputStats.passengers = false;
-                this.generalInputStats.customInput = 'N/a';
+                this.generalInputStats.customInput = '-';
             }
             if (general.data && general.data.length > 0 && general.data[0].lon) {
                 const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);

@@ -54,8 +54,8 @@
                 <td>WBV, Vessel Crew</td>
                 <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
                 <td>Garbage landed</td>
-                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m3</td>
-                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m3</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m<sup>3</sup></td>
                 <td rowspan='2'>Comments field</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4' [(ngModel)]="generalInputStats.customInput"></textarea></td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>{{generalInputStats.customInput}}</td>

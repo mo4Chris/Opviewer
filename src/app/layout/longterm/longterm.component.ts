@@ -62,7 +62,7 @@ export class LongtermComponent implements OnInit {
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
   Vessels: {Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
-    operationsClass: string, speednotifylimit: any, vesselname: string}[];
+    operationsClass: string, speednotifylimit: any, vesselname: string}[] = [];
   showContent: boolean;
   loaded = {Vessels: false, vesselType: false};
   fieldsWithWavedata: {_id: string, site: string, name: string, text?: string}[] = [];
@@ -124,18 +124,8 @@ export class LongtermComponent implements OnInit {
   testIfAllInit () {
     if (this.loaded.Vessels && this.loaded.vesselType) {
       this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
-      if (this === undefined) {
-        console.log(this); // Debugging this === undefined bug
-        console.log(this.Vessels); // Debugging this === undefined bug
-        console.log(this.vesselType); // Debugging this === undefined bug
-        console.error('Somehow failed to load page :( Debug info above');
-      }
       this.buildPageWithCurrentInformation();
     }
-  }
-
-  testIfAllLoaded() {
-
   }
 
   onSelectVessel(event: {mmsi: number, nicename: string}[]) {
@@ -172,13 +162,15 @@ export class LongtermComponent implements OnInit {
   }
 
   buildPageWithCurrentInformation() {
-    if (this.vesselType === 'CTV') {
-      // Build CTV module
-      this.ctvChild.buildPageWithCurrentInformation();
-    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-      // Build SOV module
-      this.sovChild.buildPageWithCurrentInformation();
-    }
+    setTimeout(() => {
+      if (this.vesselType === 'CTV') {
+        // Build CTV module
+        this.ctvChild.buildPageWithCurrentInformation();
+      } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+        // Build SOV module
+        this.sovChild.buildPageWithCurrentInformation();
+      }
+    });
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
