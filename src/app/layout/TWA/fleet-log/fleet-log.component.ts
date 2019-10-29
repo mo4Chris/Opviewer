@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
+import { routerTransition } from '../../../router.animations';
 import { ActivatedRoute } from '@angular/router';
-import { CommonService } from '../../common.service';
-import { UserService } from '../../shared/services/user.service';
-import { Router } from '../../../../node_modules/@angular/router';
-import { DatetimeService } from '../../supportModules/datetime.service';
+import { CommonService } from '../../../common.service';
+import { UserService } from '../../../shared/services/user.service';
+import { Router } from '@angular/router';
+import { DatetimeService } from '../../../supportModules/datetime.service';
 import * as moment from 'moment';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
-import { UserModel } from '../../models/userModel';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { UserModel } from '../../../models/userModel';
 
 @Component({
     selector: 'app-fleet-log',
@@ -168,7 +168,7 @@ export class FleetLogComponent implements OnInit {
             for (let i = 0; i < this.sailDayChanged.length; i++) {
                 this.formatDate(this.sailDayChanged[i], this.sailDayChanged[i].changeDate);
             }
-        } else if (this.type == 'Active listings') {
+        } else if (this.type === 'Active listings') {
             for (let i = 0; i < this.activeListings.length; i++) {
                 this.formatDate(this.activeListings[i], this.activeListings[i].dateChanged);
             }
@@ -181,7 +181,7 @@ export class FleetLogComponent implements OnInit {
     }
 
     formatDate(data, date) {
-        if (moment(date).format('YYYY MMM') == this.selectedMonth) {
+        if (moment(date).format('YYYY MMM') === this.selectedMonth) {
             this.edits.push(data);
         }
     }

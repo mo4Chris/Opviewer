@@ -9,6 +9,7 @@ import { isArray } from 'util';
 import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { UserModel } from './models/userModel';
 import { TurbineLocation } from './layout/vesselreport/models/TurbineLocation';
+import { CampaignModel } from './layout/TWA/models/campaignModel';
 
 @Injectable()
 export class CommonService {
@@ -375,7 +376,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTurbineWarrantyForCompany(client: {client: string}) {
+  getTurbineWarrantyForCompany(client: {client: string}): Observable<CampaignModel[]> {
     return this.post(environment.DB_IP + '/api/getTurbineWarrantyForCompany/', client).pipe(
       map((response: Response) => response.json()));
   }

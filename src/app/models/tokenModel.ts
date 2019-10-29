@@ -6,6 +6,10 @@ export class TokenModel {
     userCompany: string;
     userBoats: {mmsi: number, nicename: string}[];
     username: string;
+    hasCampaigns: boolean;
+
+    expires: number;
+    iat: number;
 
     constructor (userService: UserService) {
         return userService.getDecodedAccessToken(localStorage.getItem('token'));

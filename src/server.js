@@ -1059,6 +1059,7 @@ app.get("/api/getCompanies", function (req, res) {
     Vesselmodel.find({ active: {$ne: false}}).distinct('client', function (err, data) {
         if (err) {
             res.send(err);
+            console.log(err);
         } else {
             let BusinessData = data + '';
             let arrayOfCompanies = [];
@@ -1075,6 +1076,7 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
         }
         Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let fieldnameData = data + '';
@@ -1096,6 +1098,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
         }
         SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let fieldnameData = data + '';
@@ -1369,6 +1372,7 @@ app.post("/api/getSovDprInput", function (req, res) {
 
         SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, null, {}, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 if (data.length > 0) {
@@ -1376,6 +1380,7 @@ app.post("/api/getSovDprInput", function (req, res) {
                 } else {
                     SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
                         if (err) {
+                            console.log(err);
                             res.send(err);
                         } else {
                             let dprData = {};
@@ -1497,6 +1502,7 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the fuel input" });
@@ -1514,6 +1520,7 @@ app.post("/api/saveIncidentDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the incident input" });
@@ -1531,6 +1538,7 @@ app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
     SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the transfer stats" });
@@ -1548,6 +1556,7 @@ app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
     SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the transfer stats" });
@@ -1565,6 +1574,7 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the non-availability input" });
@@ -1582,6 +1592,7 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the weather downtime input" });
@@ -1599,6 +1610,7 @@ app.post("/api/saveRemarksStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved your remarks" });
@@ -1616,6 +1628,7 @@ app.post("/api/saveCateringStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the catering input" });
@@ -1633,6 +1646,7 @@ app.post("/api/savePoBStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the PoB input" });
@@ -1813,6 +1827,7 @@ app.post("/api/getTransfersForVesselByRange", function (req, res) {
             { "$group": groupObj}
         ]).exec(function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -2003,6 +2018,7 @@ app.get("/api/getUsers", function (req, res) {
             }
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -2027,6 +2043,7 @@ app.post("/api/getUsersForCompany", function (req, res) {
 
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -2046,6 +2063,7 @@ app.post("/api/getUserByUsername", function (req, res) {
 
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
@@ -2068,6 +2086,7 @@ app.get("/api/getUserClientById/:id/:client", function (req, res) {
     }
     Usermodel.find({_id: id, active: {$ne: false}}, ['_id', 'client'], function(err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2091,6 +2110,7 @@ app.post("/api/saveUserBoats", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { boats: req.body.boats },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the permissions" });
@@ -2122,6 +2142,7 @@ app.get('/api/getLatestGeneral', function (req, res) {
             }
         ]).exec((err, data) => {
             if (err) {
+                console.log(err);
                 res.send(err)
             } else {
                 ctvData = data;
@@ -2138,6 +2159,7 @@ app.get('/api/getLatestGeneral', function (req, res) {
             }
         ]).exec((err, data) => {
             if (err) {
+                console.log(err);
                 res.send(err)
             } else {
                 sovData = data;
@@ -2172,6 +2194,7 @@ app.post("/api/getVideoRequests", function (req, res) {
             }
         ]).exec(function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -2192,6 +2215,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
 
             }, function (err, data) {
                 if (err) {
+                    console.log(err);
                     return res.send(err);
                 } else {
                     var videoBudget = data[0];
@@ -2206,6 +2230,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
                             data[0].currentBudget = 0;
                             data[0].save(function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send(data);
@@ -2236,15 +2261,18 @@ app.post("/api/saveVideoRequest", function (req, res) {
         videoRequest.username = token.username;
         videoRequest.save(function (err, data) {
             if (err) {
+                console.log(err);
                 return res.send(err);
             } else {
                 videoBudgetmodel.findOne({ mmsi: req.body.mmsi, active: {$ne: false} }, function (err, data) {
                     if (err) {
+                        console.log(err);
                         return res.send(err);
                     } else {
                         if (data) {
                             videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi, active: {$ne: false} }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send({ data: "Succesfully saved the video request" });
@@ -2259,6 +2287,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
                             budget.resetDate = date.setMonth(date.getMonth() + 1);
                             budget.save(function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send({ data: "Succesfully saved the video request" });
@@ -2285,6 +2314,7 @@ app.post("/api/resetPassword", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { token: randomToken },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let serveradres = process.env.IP_USER.split(',');
@@ -2307,6 +2337,7 @@ app.post("/api/setActive", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 1 },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 var userActivity = new UserActivitymodel();
@@ -2335,6 +2366,7 @@ app.post("/api/setInactive", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 var userActivity = new UserActivitymodel();
@@ -2346,6 +2378,7 @@ app.post("/api/setInactive", function (req, res) {
                 userActivity.save(function (err, data) {
                     if (err) {
                         console.log(err);
+                        return res.send({data: 'Failed to deactivate user!'})
                     }
                 });
                 res.send({ data: "Succesfully deactivated this user" });
@@ -2374,6 +2407,7 @@ app.post("/api/sendFeedback", function (req, res) {
 app.post("/api/getUserByToken", function (req, res) {
     Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user, active: {$ne: false} }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             if (data) {
@@ -2393,6 +2427,7 @@ app.post("/api/setPassword", function (req, res) {
     Usermodel.findOneAndUpdate({ token: req.body.passwordToken, active: {$ne: false} }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully reset the password" });
@@ -2407,6 +2442,7 @@ app.post("/api/getGeneral", function (req, res) {
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: data });
@@ -2422,6 +2458,7 @@ app.get("/api/getTurbineWarranty", function (req, res) {
     }
     turbineWarrantymodel.find({active: {$ne: false}}, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2458,8 +2495,12 @@ app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client && token.hasCampaigns) {
         return res.status(401).send('Access denied');
     }
-    turbineWarrantymodel.find({ client: req.body.client, active: {$ne: false} }, function (err, data) {
+    turbineWarrantymodel.find({
+        client: req.body.client,
+        active: {$ne: false}
+    }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2502,6 +2543,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
     }
     vesselsToAddToFleetmodel.find(filter, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             if (data.length === 0) {
@@ -2520,6 +2562,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
                 }
                 vesselToAdd.save(function (err, data) {
                     if (err) {
+                        console.log(err);
                         return res.send(err);
                     } else {
                         return res.send({ data: "Vessel added to fleet (could take up to a day to process)" });
@@ -2610,6 +2653,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (r
         }
     ]).exec(function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             var activeVessels = [];
@@ -2644,6 +2688,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (r
             }
             turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function (err, twa) {
                 if (err) {
+                    console.log(err);
                     return res.status(401).send('Something went went wrong with getting the active listings');
                 } else {
                     return res.send({ data: data, twa: twa });
@@ -2661,6 +2706,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function (req, res) {
     }
     activeListingsModel.find({ fleetID: fleetID, active: {$ne: false} }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2724,6 +2770,7 @@ app.post("/api/setActiveListings", function (req, res) {
             }
             activeListing.save(function (err, data) {
                 if (err) {
+                    console.log(err);
                     return res.status(401).send('Something went went wrong with updating one or more listing');
                 }
             });
@@ -2745,6 +2792,7 @@ app.post("/api/getHasSailedDatesCTV", function (req, res) {
         }
         hasSailedModelCTV.find({ mmsi: req.body.mmsi, active: {$ne: false}}, ['date', 'distancekm'], function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: data });
@@ -2761,6 +2809,7 @@ app.post("/api/getVesselsToAddToFleet", function (req, res) {
     }
     vesselsToAddToFleetmodel.find({ campaignName: req.body.campaignName, active: {$ne: false}, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2789,6 +2838,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
     request.requestTime = req.body.requestTime;
     request.save(function(err,data) {
         if (err) {
+            console.log(err);
             return res.send(err);
         } else {
             startDate = new Date(request.startDate);
@@ -2824,6 +2874,7 @@ app.post("/api/getWavedataForDay", function (req, res) {
         active: {$ne: false}
     }, (err, data) => {
         if (err) {
+            console.log(err);
             res.send(err);
         } else if (data === null) {
             // Did not find valid data
@@ -2834,6 +2885,7 @@ app.post("/api/getWavedataForDay", function (req, res) {
                 let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
                     meta.clients === company : meta.clients.some(client => client == company))
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 }  else if (!hasAccessRights) {
                     res.status(401).send('Access denied');
@@ -2858,6 +2910,7 @@ app.post("/api/getWavedataForRange", function (req, res) {
         active: {$ne: false}
     }, (err, datas) => {
         if (err) {
+            console.log(err);
             res.send(err);
         } else if (datas === null) {
             // Did not find valid data
@@ -2893,6 +2946,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             },
             (data, err) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
@@ -2913,6 +2967,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             },
             (data, err) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
@@ -2932,6 +2987,7 @@ app.get('/api/getLatestTwaUpdate/', function (req, res) {
             lastUpdated: 1
         }, (err, data) => {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else if (data) {
                 let latestUpdate = data.reduce((prev, curr) => {

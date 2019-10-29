@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
+import { routerTransition } from '../../../router.animations';
+import { CommonService } from '../../../common.service';
 import * as Chart from 'chart.js';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -8,13 +8,13 @@ import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment';
-import { UserService } from '../../shared/services/user.service';
-import { DialogService } from '../../dialog.service';
-import { DatetimeService } from '../../supportModules/datetime.service';
-import { CalculationService } from '../../supportModules/calculation.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { UserService } from '../../../shared/services/user.service';
+import { DialogService } from '../../../dialog.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { UserModel } from '../../models/userModel';
+import { UserModel } from '../../../models/userModel';
 
 
 @Component({
@@ -25,9 +25,17 @@ import { UserModel } from '../../models/userModel';
     encapsulation: ViewEncapsulation.None,
 })
 export class FleetavailabilityComponent implements OnInit {
-    constructor(public router: Router, private newService: CommonService, private modalService: NgbModal, private route: ActivatedRoute,
-        private dateTimeService: DatetimeService, private userService: UserService, public dialogService: DialogService,
-        private calculationService: CalculationService, private stringMutationService: StringMutationService) { }
+    constructor(
+        public router: Router,
+        private newService: CommonService,
+        private modalService: NgbModal,
+        private route: ActivatedRoute,
+        private dateTimeService: DatetimeService,
+        private userService: UserService,
+        public dialogService: DialogService,
+        private calculationService: CalculationService,
+        private stringMutationService: StringMutationService
+    ) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     myChart;

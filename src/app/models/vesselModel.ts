@@ -15,5 +15,5 @@ export class VesselModel {
     speedNotifyLimit: number | {};
     impactNotifyLimit: number | {};
     videoResetDay: number;
-    videobuget: number;
+    videobudget: number;
 }

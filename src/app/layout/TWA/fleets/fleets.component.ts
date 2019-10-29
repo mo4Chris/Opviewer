@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
-import { DatetimeService } from '../../supportModules/datetime.service';
+import { routerTransition } from '../../../router.animations';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
 
-import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
-import { UserService } from '../../shared/services/user.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { UserService } from '../../../shared/services/user.service';
+import { CommonService } from '../../../common.service';
 import * as moment from 'moment';
 
 @Component({
@@ -15,7 +15,10 @@ import * as moment from 'moment';
     animations: [routerTransition()]
 })
 export class FleetsComponent implements OnInit {
-    constructor(private stringMutationService: StringMutationService, private dateTimeService: DatetimeService, private newService: CommonService, 
+    constructor(
+        private stringMutationService: StringMutationService,
+        private dateTimeService: DatetimeService,
+        private newService: CommonService,
         private _router: Router, private route: ActivatedRoute, private userService: UserService) { }
     fleets;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
