@@ -14,4 +14,8 @@ export class V2vTransfer {
     Hs: string;
     Ts: string;
     turbineActivity: string;
+    paxIn: number;
+    paxOut: number;
+    cargoIn: number;
+    cargoOut: number;
 }
