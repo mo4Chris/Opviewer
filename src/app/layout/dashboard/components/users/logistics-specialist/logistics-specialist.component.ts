@@ -3,9 +3,9 @@ import { CommonService } from '../../../../../common.service';
 import { TokenModel } from '../../../../../models/tokenModel';
 import { VesselModel } from '../../../../../models/vesselModel';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { Router } from '@angular/router';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
 import { AisMarkerModel } from '../../../dashboard.component';
+import { RouterService } from '../../../../../supportModules/router.service';
 
 @Component({
   selector: 'app-logistics-specialist',
@@ -21,12 +21,13 @@ export class LogisticsSpecialistComponent implements OnInit {
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
-    private _router: Router,
+    private routerService: RouterService,
     private calcService: CalculationService
     ) { }
   activeVessels: VesselInfo[] = [];
   vesselInfos: VesselModel[] = [];
   campaignInfo: CampaignInfo[] = [];
+  locData: AisMarkerModel[] = [];
 
   defaultZoomInfo = {
     latitude: 55,
@@ -59,15 +60,18 @@ export class LogisticsSpecialistComponent implements OnInit {
       return typeof(value) === 'string' && self.indexOf(value) === index;
     });
 
-    console.log(this.vesselInfos);
     const isLoaded = [];
     const cb = () => {
       if (activeFields.length > 0) {
         // Do smart stuff
-        const props = this.calcService.GetPropertiesForMap(400,
-          activeFields.map(field => field.centroid.lat),
-          activeFields.map( field => field.centroid.lon)
-        );
+        const lats = [];
+        const lons = [];
+        activeFields.forEach(field => {
+          lats.push(field.centroid.lat);
+          lons.push(field.centroid.lon);
+        });
+
+        const props = this.calcService.GetPropertiesForMap(400, lats, lons);
         this.zoominfo.emit({
           zoomlvl: Math.min(props.zoomLevel, 8.5),
           latitude: props.avgLatitude,
@@ -108,19 +112,18 @@ export class LogisticsSpecialistComponent implements OnInit {
         Usage: '50%',
       });
     });
-    console.log(this.activeVessels);
   }
 
   getCampaigns() {
-    console.log(this.tokenInfo);
     if (this.tokenInfo.hasCampaigns || true) {
       this.newService.getTurbineWarrantyForCompany({client: this.tokenInfo.userCompany}).subscribe(campains => {
         campains.forEach(campaign => {
           this.campaignInfo.push({
             Name: campaign.campaignName,
             Site: campaign.windField,
-            Progress: -6,
-            RemDays: campaign.stopDate
+            Progress: NaN,
+            RemDays: Math.max(0, campaign.stopDate - this.dateService.getMatlabDateYesterday() - 1),
+            StartDate: campaign.startDate,
           });
         });
       });
@@ -130,18 +133,17 @@ export class LogisticsSpecialistComponent implements OnInit {
       Site: 'Graggy Gappert',
       Progress: -3,
       RemDays: 10,
+      StartDate: 737727,
     });
   }
 
   routeToDprFromVesselInfo(vesselInfo: VesselInfo) {
-    this._router.navigate(['vesselreport', {
-      boatmmsi: vesselInfo.mmsi
-    }]);
+    this.routerService.routeToDPR({
+      mmsi: vesselInfo.mmsi
+    });
   }
 
   routeToLtmFromVesselInfo(vesselInfo: VesselInfo) {
-    // ToDo
-    console.log('ToDo: route to LTM');
     let rawVesselName = '';
     this.vesselInfos.some(info => {
       if (info.mmsi === vesselInfo.mmsi) {
@@ -150,16 +152,21 @@ export class LogisticsSpecialistComponent implements OnInit {
       }
       return false;
     });
-    console.log(rawVesselName);
-    this._router.navigate(['longterm', {
-      boatmmsi: vesselInfo.mmsi,
-      vesselName: rawVesselName
-    }]);
+    this.routerService.routeToDPR({
+      mmsi: vesselInfo.mmsi
+    });
+    this.routerService.routeToLTM({
+      mmsi: vesselInfo.mmsi,
+      name: rawVesselName
+    });
   }
 
   routeTCampaign(campaign: CampaignInfo) {
-    // ToDo
-    console.log('ToDo: route to TWA');
+    this.routerService.routeToCampaign({
+      name: campaign.Name,
+      windField: campaign.Site,
+      startDate: campaign.StartDate
+    });
   }
 
 }
@@ -177,6 +184,7 @@ interface VesselInfo {
 interface CampaignInfo {
   Name: string;
   Site: string;
+  StartDate: number;
   Progress: number;
   RemDays: number;
 }

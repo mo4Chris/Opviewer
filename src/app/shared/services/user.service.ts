@@ -8,7 +8,9 @@ import { Router } from '@angular/router';
 })
 export class UserService {
 
-    constructor(public router: Router) { }
+    constructor(
+        public router: Router
+    ) { }
 
     getDecodedAccessToken(token: string): any {
         const decoded = jwt_decode(token);
