@@ -111,6 +111,7 @@ export class SetPasswordComponent implements OnInit {
             this.alert.message = 'Your passwords are not the same.';
             this.showAlert = true;
         } else {
+            // TO DO: Make sure that bibby fixes their stuff and then re-activate 2fa for them
             if (this.userCompany === 'Bibby Marine' && this.userPermissions === 'Vessel master') {
                 this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).pipe(
                     map(
