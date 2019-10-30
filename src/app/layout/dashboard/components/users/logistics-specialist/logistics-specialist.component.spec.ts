@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LogisticsSpecialistComponent } from './logistics-specialist.component';
+import { AgmCoreModule } from '@agm/core';
+import { HttpModule } from '@angular/http';
+import { CommonService } from '../../../../../common.service';
 
 describe('LogisticsSpecialistComponent', () => {
   let component: LogisticsSpecialistComponent;
@@ -8,7 +11,11 @@ describe('LogisticsSpecialistComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LogisticsSpecialistComponent ]
+      declarations: [ LogisticsSpecialistComponent ],
+      imports: [
+        AgmCoreModule.forRoot(),
+        HttpModule],
+      providers: [CommonService]
     })
     .compileComponents();
   }));

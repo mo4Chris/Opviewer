@@ -9,6 +9,8 @@ import { PageHeaderModule } from '../../shared';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UsersRoutingModule } from './users-routing.module';
+import { AgmCoreModule } from '@agm/core';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -16,12 +18,15 @@ describe('UsersComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ 
-        FormsModule,  
-        NgbModule.forRoot(), 
+      imports: [
+        FormsModule,
+        NgbModule.forRoot(),
+        AgmCoreModule.forRoot(),
         PageHeaderModule,
         HttpModule,
+        HttpClientModule,
         RouterTestingModule,
+        UsersRoutingModule,
         BrowserAnimationsModule],
       declarations: [ UsersComponent ],
       providers: [CommonService],

@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VesselMasterComponent } from './vessel-master.component';
+import { AgmCoreModule } from '@agm/core';
+import { CommonService } from '../../../../../common.service';
+import { HttpModule } from '@angular/http';
 
 describe('VesselMasterComponent', () => {
   let component: VesselMasterComponent;
@@ -8,7 +11,11 @@ describe('VesselMasterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VesselMasterComponent ]
+      declarations: [ VesselMasterComponent ],
+      imports: [
+        AgmCoreModule.forRoot(),
+        HttpModule],
+      providers: [CommonService]
     })
     .compileComponents();
   }));
