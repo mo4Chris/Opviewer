@@ -3,7 +3,7 @@ import { CommonService } from '../../../../../common.service';
 import { TokenModel } from '../../../../../models/tokenModel';
 import { VesselModel } from '../../../../../models/vesselModel';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
-import { Router } from '@angular/router';
+import { RouterService } from '../../../../../supportModules/router.service';
 
 @Component({
   selector: 'app-vessel-master',
@@ -19,7 +19,7 @@ export class VesselMasterComponent implements OnInit {
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
-    private _router: Router,
+    private routerService: RouterService
     ) { }
 
   vesselInfo: VesselModel;
@@ -30,6 +30,7 @@ export class VesselMasterComponent implements OnInit {
   };
   matlabDate = this.dateService.getMatlabDateYesterday() + 1;
   unassignedTransfers: UnassignedTransferModel[] = [];
+  unassignedTransferLookback = 14;
 
   ngOnInit() {
     setTimeout(() => {
@@ -68,12 +69,11 @@ export class VesselMasterComponent implements OnInit {
   }
 
   getUnassignedTransfers() {
-    const lookback = 34;
     const unassigned: UnassignedTransferModel[] = [];
     if (this.vesselInfo.operationsClass === 'CTV') {
       this.newService.getTransfersForVesselByRange({
         mmsi: [this.tokenInfo.userBoats[0].mmsi],
-        dateMin: this.matlabDate - lookback,
+        dateMin: this.matlabDate - this.unassignedTransferLookback,
         dateMax: this.matlabDate,
         reqFields: ['comment', 'location']
       }).subscribe(_transfers => {
@@ -102,10 +102,14 @@ export class VesselMasterComponent implements OnInit {
   }
 
   routeToDprFromTransfer(transfer: UnassignedTransferModel) {
-    this._router.navigate(['vesselreport', {
-      boatmmsi: transfer.mmsi,
+    this.routerService.routeToDPR({
+      mmsi: transfer.mmsi,
       date: Math.floor(transfer.date),
-    }]);
+    });
+  }
+
+  routeToLastDPR() {
+    this.routerService.routeToDPR({mmsi: this.vesselInfo.mmsi});
   }
 
 }

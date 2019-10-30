@@ -6,6 +6,7 @@ import { UnassignedTransferModel } from '../vessel-master/vessel-master.componen
 import { VesselModel } from '../../../../../models/vesselModel';
 import { Router } from '@angular/router';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
+import { RouterService } from '../../../../../supportModules/router.service';
 
 @Component({
   selector: 'app-marine-controller',
@@ -21,7 +22,7 @@ export class MarineControllerComponent implements OnInit {
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
-    private _router: Router,
+    private routerService: RouterService,
     private calcService: CalculationService
   ) { }
 
@@ -129,10 +130,10 @@ export class MarineControllerComponent implements OnInit {
   }
 
   routeToDprFromTransfer(transfer: UnassignedTransferModel) {
-    this._router.navigate(['vesselreport', {
-      boatmmsi: transfer.mmsi,
+    this.routerService.routeToDPR({
+      mmsi: transfer.mmsi,
       date: Math.floor(transfer.date),
-    }]);
+    });
   }
 
 }
