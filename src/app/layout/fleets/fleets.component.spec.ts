@@ -36,12 +36,12 @@ describe('FleetComponent', () => {
     beforeEach(() => {
         spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
         spyOn(FleetsComponent.prototype, 'getMsg');
-        spyOn(CommonService.prototype, 'getCompanies').and.returnValue(toObservable([]));
-        spyOn(CommonService.prototype, 'getTurbineWarranty').and.returnValue(toObservable(['Windcat_mcTesty']));
-        spyOn(CommonService.prototype, 'getTurbineWarrantyForCompany').and.returnValue(toObservable(['Windcat_mcTesty']));
-        spyOn(FleetsComponent.prototype, 'redirectFleetAvailability');
-        spyOn(FleetsComponent.prototype, 'redirectFleetLog');
-        spyOn(FleetsComponent.prototype, 'redirectFleetRequest');
+        // spyOn(CommonService.prototype, 'getCompanies').and.returnValue(toObservable([]));
+        // spyOn(CommonService.prototype, 'getTurbineWarranty').and.returnValue(toObservable(['Windcat_mcTesty']));
+        // spyOn(CommonService.prototype, 'getTurbineWarrantyForCompany').and.returnValue(toObservable(['Windcat_mcTesty']));
+        // spyOn(FleetsComponent.prototype, 'redirectFleetAvailability');
+        // spyOn(FleetsComponent.prototype, 'redirectFleetLog');
+        // spyOn(FleetsComponent.prototype, 'redirectFleetRequest');
 
         fixture = TestBed.createComponent(FleetsComponent);
         component = fixture.componentInstance;
