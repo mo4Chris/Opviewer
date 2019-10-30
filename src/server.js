@@ -231,7 +231,11 @@ var SovPlatformTransfers = new Schema({
     lat: { type: Number },
     paxCntEstimate: { type: String },
     TexitExclusionZone: { type: Number },
-    date: { type: Number }
+    date: { type: Number },
+    paxIn: { type: Number },
+    paxOut: { type: Number },
+    cargoIn: { type: Number },
+    cargoOut: { type: Number}
 }, { versionKey: false });
 var SovPlatformTransfersmodel = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
 
@@ -270,7 +274,11 @@ var SovTurbineTransfers = new Schema({
     gangwayUtilisationTrace: { type: String },
     positionalStability: { type: String },
     windArray: { type: Object },
-    date: { type: Number }
+    date: { type: Number },
+    paxIn: { type: Number },
+    paxOut: { type: Number },
+    cargoIn: { type: Number },
+    cargoOut: { type: Number}
 });
 var SovTurbineTransfersmodel = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
 
@@ -298,9 +306,35 @@ var SovVessel2vesselTransfers = new Schema({
     transfers: { type: Object },
     CTVactivity: { type: Object },
     date: { type: Number },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    paxIn: { type: Number},
+    paxOut: { type: Number},
+    cargoIn: { type: Number},
+    cargoOut: { type: Number}
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
+
+var SovDprInput = new Schema({
+    liquids: { type: Object },
+    toolbox: { type: Array },
+    hoc: { type: Array },
+    vesselNonAvailability: { type: Array },
+    weatherDowntime: { type: Array },
+    remarks: {type: String},
+    catering: {type: Object},
+    date: { type: Number },
+    mmsi: { type: Number },
+    ToolboxAmountOld: { type: Number },
+    ToolboxAmountNew: { type: Number },
+    HOCAmountOld: { type: Number },
+    HOCAmountNew: { type: Number },
+    missedPaxCargo : { type: Array },
+    helicopterPaxCargo: { type: Array },
+    PoB : {type: Object},
+    dp: {type: Array}
+    
+});
+var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
 var SovCycleTimes = new Schema({
     startTime: { type: String },
@@ -444,6 +478,42 @@ var upstreamSchema = new Schema({
     content: Object,
 }, { versionKey: false });
 var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
+
+var wavedataSchema = new Schema({
+    site: String,
+    source: String,
+    active: Boolean,
+    date: Number,
+    wavedata: {
+        timeStamp: Array,
+        Hs: Array,
+        Tp: Array,
+        waveDir: Array,
+        wind: Array,
+        windDir: Array
+    },
+    meta: Object,
+}, { versionKey: false })
+var wavedataModel = mongo.model('wavedata', wavedataSchema, 'waveData');
+
+var waveSourceSchema = new Schema({
+    site: String,
+    name: String,
+    active: Boolean,
+    lon: Number,
+    lat: Number,
+    info: String,
+    clients: Array,
+    provider: String,
+    source: {
+        Hs: String,
+        Tp: String,
+        waveDir: String,
+        wind: String,
+        windDir: String
+    }
+}, { versionKey: false })
+var waveSourceModel = mongo.model('waveSource', waveSourceSchema, 'waveSources');
 
 //#########################################################
 //#################   Functionality   #####################
@@ -614,7 +684,7 @@ app.post("/api/login", function (req, res) {
                                 if (user.active == 0){
                                     return res.status(401).send('User has been deactivated');
                                 }
-                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine')  {
                                     return res.status(200).send({ token });
                                 } else {
 
@@ -726,7 +796,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });
@@ -951,9 +1021,9 @@ app.post("/api/getVesselsForCompany", function (req, res) {
         return res.status(401).send('Access denied');
     }
     let filter = { client: companyName, active: {$ne: false} };
-    if (!req.body[0].notHired) {
-        filter.onHire = 1;
-    }
+    // if (!req.body[0].notHired) {
+    //     filter.onHire = 1;
+    // }
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
         filter.mmsi = [];
         for (var i = 0; i < token.userBoats.length; i++) {
@@ -1267,6 +1337,338 @@ app.post("/api/getDatesWithValues", function (req, res) {
     });
 });
 
+
+app.post("/api/getSovDprInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, null, {}, function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                if (data.length > 0) {
+                    res.send(data);
+                } else {
+                    SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            let dprData = {};
+                            if (data == null){
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+                                        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "remarks": '',
+                                    "ToolboxAmountOld": 0,
+                                    "ToolboxAmountNew": 0,
+                                    "HOCAmountOld": 0,
+                                    "HOCAmountNew": 0,
+                                    "catering": {
+                                        project:0,
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    },
+                                    "PoB" : {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
+                                    },
+                                    "missedPaxCargo": [],
+                                    "helicopterPaxCargo": [],
+                                    "dp": []
+                                };
+                            } else {
+                                dprData = {
+                                    "mmsi": req.body.mmsi,
+                                    "date": req.body.date,
+                                    "liquids": {
+                                        fuel: {oldValue: data.liquids.fuel.newValue , loaded: 0, consumed: 0, discharged: 0, newValue:data.liquids.fuel.newValue },
+                                        luboil: {oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.luboil.newValue },
+                                        domwater: {oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.domwater.newValue },
+                                        potwater: {oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.potwater.newValue }
+                                    },
+                                    "toolbox": [],
+                                    "hoc": [],
+                                    "vesselNonAvailability": [],
+                                    "weatherDowntime":[],
+                                    "ToolboxAmountOld": data.ToolboxAmountNew,
+                                    "ToolboxAmountNew": data.ToolboxAmountNew,
+                                    "HOCAmountOld": data.HOCAmountNew,
+                                    "HOCAmountNew": data.HOCAmountNew,
+                                    "remarks": '',
+                                    "catering": {
+                                        project:0,
+                                        extraMeals : 0,
+                                        packedLunches: 0,
+                                        marine: 0,
+                                        marineContractors: 0
+                                    },
+                                    "missedPaxCargo": [],
+                                    "helicopterPaxCargo": [],
+                                    "PoB": {
+                                        marine: 0,
+                                        marineContractors: 0,
+                                        project: 0
+                                    },
+                                    "dp": []
+                                };
+                            }
+                            let sovDprData = new SovDprInputmodel(dprData);
+                            
+                            sovDprData.save((error, dprData) => {
+                                if (error) {
+                                    console.log(error);
+                                    return res.send(error);
+                                } else {
+                                    res.send([dprData]);
+                                }
+                            });
+                        }
+                    });
+                }
+                
+            }
+        });
+    });
+});
+
+app.post("/api/saveFuelStatsSovDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the fuel input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveIncidentDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the incident input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+    }
+});
+});
+
+
+app.post("/api/updateSOVv2vPaxInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    
+    SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { transfers: req.body.transfers },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the v2v transfer stats" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the transfer stats" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveNonAvailabilityDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the non-availability input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the weather downtime input" });
+            }
+        });
+        }
+    });
+});
+
+app.post("/api/saveRemarksStats", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved your remarks" });
+            }
+        });
+        }
+    });
+});
+
+app.post("/api/saveCateringStats", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the catering input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveDPStats", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { dp: req.body.dp},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the DP input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveMissedPaxCargo", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { missedPaxCargo: req.body.MissedPaxCargo},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the missed transfer input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/saveHelicopterPaxCargo", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { helicopterPaxCargo: req.body.HelicopterPaxCargo},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the helicopter transfer input" });
+            }
+        });
+    }
+});
+});
+
+app.post("/api/savePoBStats", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
+        function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the PoB input" });
+            }
+        });
+    }
+});
+});
+
 app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
     let mmsi = parseInt(req.params.mmsi);
     req.body.mmsi = mmsi;
@@ -1341,6 +1743,70 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
             }
         });
     });
+});
+
+app.post("/api/getGeneralForRange", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+    });
+    var startDate = req.body.startDate;
+    var stopDate = req.body.stopDate;
+    var mmsi = req.body.mmsi;
+    if (typeof(mmsi) === 'number') {
+        mmsi = [mmsi];
+    }
+    var query = {
+        mmsi: {$in: mmsi},
+        date: {
+            $gte: startDate,
+            $lte: stopDate
+        }
+    };
+    projection = req.body.projection;
+    if (projection === undefined) {
+        projection = null
+    }
+
+    switch(req.body.vesselType) {
+        case 'CTV':
+            return generalmodel.aggregate([
+                {$match: query}, 
+                { "$sort": {date: -1}},
+                {$project: projection},
+                {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
+            ]).exec((err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data.map(elt => {
+                        elt.stats.mmsi = elt._id;
+                        return elt.stats;
+                    }));
+                }
+            });
+        case 'SOV': case 'OSV':
+            return SovModel.aggregate([
+                {$match: query}, 
+                { "$sort": {date: -1}},
+                {$project: projection},
+                {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
+            ]).exec((err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data.map(elt => {
+                        elt.stats.mmsi = elt._id;
+                        return elt.stats;
+                    }));
+                }
+            });
+        default: 
+            res.status(201).send('Invalid vessel type!')
+    }
 });
 
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
@@ -1891,7 +2357,7 @@ app.post("/api/getUserByToken", function (req, res) {
             res.send(err);
         } else {
             if (data) {
-                res.send({ username: data.username });
+                res.send({ username: data.username, userCompany: data.client, permissions: data.permissions });
             } else {
                 res.send({ err: "No user" });
             }
@@ -2327,6 +2793,117 @@ app.post("/api/saveFleetRequest", function (req, res) {
     });
 });
 
+app.post("/api/getWavedataForDay", function (req, res) {
+    let token = verifyToken(req, res);
+    let date  = req.body.date;
+    let site  = req.body.site;
+
+    wavedataModel.findOne({
+        date: date,
+        site: site,
+        active: {$ne: false}
+    }, (err, data) => {
+        if (err) {
+            res.send(err);
+        } else if (data === null) {
+            // Did not find valid data
+            res.status(204).send('Not found');
+        } else {
+            waveSourceModel.findById(data.source, (err, meta) => {
+                let company = token.userCompany;
+                let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
+                    meta.clients === company : meta.clients.some(client => client == company))
+                if (err) {
+                    res.send(err);
+                }  else if (!hasAccessRights) {
+                    res.status(401).send('Access denied');
+                } else {
+                    data.meta = meta;
+                    res.send(data);
+                }
+            })
+        }
+    });
+});
+
+app.post("/api/getWavedataForRange", function (req, res) {
+    let token       = verifyToken(req, res);
+    let startDate   = req.body.startDate;
+    let stopDate    = req.body.stopDate;
+    let source      = req.body.source;
+
+    wavedataModel.find({
+        date: {$gte: startDate, $lte: stopDate},
+        source: source,
+        active: {$ne: false}
+    }, (err, datas) => {
+        if (err) {
+            res.send(err);
+        } else if (datas === null) {
+            // Did not find valid data
+            res.status(204).send('Not found');
+        } else {
+            datas.forEach( data =>
+                waveSourceModel.findById(data.source, (err, meta) => {
+                    let company = token.userCompany;
+                    let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
+                        meta.clients === company : meta.clients.some(client => client == company))
+                    if (hasAccessRights) {
+                        data.meta = meta;
+                    } else {
+                        data = null;
+                    }
+                })
+            );
+            res.send(datas);
+        }
+    });
+});
+
+app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === 'admin') {
+        waveSourceModel.find({},
+            {
+                site: 1,
+                name: 1
+            },
+            {
+                sort: {site: 1}
+            },
+            (err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    } else {
+        waveSourceModel.find(
+            {
+                company: {$in: [token.userCompany]},
+            },
+            {
+                site: 1,
+                name: 1,
+            },
+            {
+                sort: {site: 1}
+            },
+            (err, data) => {
+                if (err) {
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            }
+        )
+    }
+})
+
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');
     // Why is this port hardcoded instead of calling the environment.ts file?
@@ -2348,3 +2925,4 @@ Number.prototype.padLeft = function(base,chr){
     var  len = (String(base || 10).length - String(this).length)+1;
     return len > 0? new Array(len).join(chr || '0')+this : this;
 }
+

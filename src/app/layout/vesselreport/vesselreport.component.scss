@@ -71,3 +71,46 @@ ngb-alert {
     left: 50%;
     top: 50%;
 }
+
+.weatherOverview{
+    display: inline-block;
+    position: relative;
+    align-self: center;
+    width: 90%;
+    canvas{
+        position: relative;
+    }
+}
+
+.weatherMap{
+    padding-top: 25px;
+}
+
+.helpBtn {
+    margin: 0 !important;
+    padding: 0;
+    border-radius: 13px;
+    width: 26px;
+    height: 26px;
+    color: #427ded;
+    border-color: #427ded;
+    &::active, &::hover {
+        background-color: #427ded;
+        color: white;
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+    }
+
+    &::focus {
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+    }
+
+    .totalsHelpBtn {
+        color: white;
+        border-color: white;
+    }
+
+    .addVesselHelp {
+        right: 60px;
+        position: absolute;
+    }
+}

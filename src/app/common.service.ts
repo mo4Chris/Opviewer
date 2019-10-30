@@ -2,6 +2,9 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
+import { Observable } from 'rxjs';
+import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+import { isArray } from 'util';
 
 @Injectable()
 export class CommonService {
@@ -35,7 +38,18 @@ export class CommonService {
 
   getVessel2vesselsForSov(mmsi: number, date: number) {
     return this.get(environment.DB_IP + '/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+      map((response: Response) => {
+        const v2vs = response.json();
+        v2vs.forEach(v2v => {
+          if (!isArray(v2v.transfers)) {
+            v2v.transfers = [v2v.transfers];
+          }
+          if (!isArray(v2v.CTVactivity)) {
+            v2v.CTVactivity = [v2v.CTVactivity];
+          }
+        });
+        return v2vs;
+      }));
   }
 
   getCycleTimesForSov(mmsi: number, date: number) {
@@ -125,7 +139,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string }) {
+  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[] }) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -205,8 +219,78 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveFuelStatsSovDpr(sovfuelstats) {
+    return this.post(environment.DB_IP + '/api/saveFuelStatsSovDpr/', sovfuelstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveIncidentDpr(sovincidentstats) {
+    return this.post(environment.DB_IP + '/api/saveIncidentDpr/', sovincidentstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateSOVTurbinePaxInput(transfer) {
+    return this.post(environment.DB_IP + '/api/updateSOVTurbinePaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateSOVPlatformPaxInput(transfer) {
+    return this.post(environment.DB_IP + '/api/updateSOVPlatformPaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateSOVv2vPaxInput(transfer) {
+    return this.post(environment.DB_IP + '/api/updateSOVv2vPaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveNonAvailabilityDpr(sovnonavailabilitystats) {
+    return this.post(environment.DB_IP + '/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveWeatherDowntimeDpr(weatherdowntime) {
+    return this.post(environment.DB_IP + '/api/saveWeatherDowntimeDpr/', weatherdowntime).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveCateringStats(sovcateringstats) {
+    return this.post(environment.DB_IP + '/api/saveCateringStats/', sovcateringstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveDPStats(dpstats) {
+    return this.post(environment.DB_IP + '/api/saveDPStats/', dpstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveMissedPaxCargo(missedpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveMissedPaxCargo/', missedpaxcargo).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveHelicopterPaxCargo(helicopterpaxcargo) {
+    return this.post(environment.DB_IP + '/api/saveHelicopterPaxCargo/', helicopterpaxcargo).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  savePoBStats(sovpobstats) {
+    return this.post(environment.DB_IP + '/api/savePoBStats/', sovpobstats).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveRemarksStats(sovremarks) {
+    return this.post(environment.DB_IP + '/api/saveRemarksStats/', sovremarks).pipe(
+      map((response: Response) => response.json()));
+  }
+
   sendFeedback(feedback: {message: string, page: string, person: any}) {
     return this.post(environment.DB_IP + '/api/sendFeedback/', feedback).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getSovDprInput(vessel) {
+    return this.post(environment.DB_IP + '/api/getSovDprInput/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -290,7 +374,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  saveCTVGeneralStats(generalStats: {date: number, mmsi: number, fuelConsumption: number, landedOil: number, landedGarbage: number, hseReports: string, toolboxConducted: any[], customInput: string}) {
+  saveCTVGeneralStats(generalStats: Object) {
     return this.post(environment.DB_IP + '/api/saveCTVGeneralStats/', generalStats).pipe(
       map((response: Response) => response.json()));
   }
@@ -339,9 +423,50 @@ export class CommonService {
     validFields: any[],
     limitHs: null,
     requestTime: null
-}) {
+}): Observable<any> {
     return this.post(environment.DB_IP + '/api/saveFleetRequest', request).pipe(
       map((response: Response) => response.json()));
+  }
+
+  getWavedataForDay(request: {
+    date: number,
+    site: string,
+  }): Observable<WavedataModel> {
+    return this.post(environment.DB_IP + '/api/getWavedataForDay', request).pipe(
+      map((response: Response) => {
+        if (response.status === 204) {
+          return null;
+        } else {
+          return new WavedataModel(response.json());
+        }
+      }));
+  }
+
+  getWavedataForRange(request: {
+    startDate: number,
+    stopDate: number,
+    source: string,
+  }): Observable<WavedataModel[]> {
+    return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
+      map((response: Response) => {
+        return response.json().map( wavedata => new WavedataModel(wavedata));
+      }));
+  }
+
+  getGeneralForRange(request: {
+    startDate: number,
+    stopDate: number,
+    mmsi: number | number[],
+    vesselType: 'CTV' | 'SOV' | 'OSV',
+    projection?: any,
+  }): Observable<any[]> {
+    return this.post(environment.DB_IP + '/api/getGeneralForRange', request).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
+    return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
+    map((response: Response) => response.json()));
   }
 }
 

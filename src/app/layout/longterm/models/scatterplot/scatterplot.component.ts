@@ -2,8 +2,7 @@ import * as Chart from 'chart.js';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
-import { Duration, Moment, now } from 'moment';
-import { CompileDirectiveMetadata } from '@angular/compiler';
+import { now } from 'moment';
 
 
 export class ScatterplotComponent {
@@ -275,7 +274,7 @@ export class ScatterplotComponent {
           stack: vesseldata.label,
           showInLegend: _i === 0,
           borderWidth: 1,
-          borderColor: 'rgba(0,0,0,1)',
+          borderColor: 'rgba(0,0,0,0.7)',
           backgroundColor: vesseldata.backgroundColor.replace('1)', (vesseldata.data.length - _i) / (vesseldata.data.length) + ')'),
         });
       });
@@ -595,6 +594,17 @@ export class ScatterplotComponent {
                 display: true,
                 labelString: Label
               }
+            }, {
+              id: 'Hs',
+              scaleLabel: {
+                display: true,
+                labelString: 'Hs (m)'
+              },
+              ticks: {
+                min: 0,
+                max: 3,
+              },
+              display: false,
             }];
         }
         break;

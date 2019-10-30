@@ -47,6 +47,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToUnixEpochViaDate(serial: number) {
+    // Creates a Date object. Input is assumed ms since 1970 UTC
     const time_info = new Date((serial - 719529) * 864e5);
     return time_info;
   }
@@ -133,12 +134,16 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  jsDateToMDHMString(date) {
-    let hours = date.getHours();
-    let mins  = date.getMinutes();
+  jsDateToMDHMString(date: Date) {
+    let hours: number | string = date.getHours();
+    let mins: number | string  = date.getMinutes();
     if (hours < 10) {hours = '0' + hours; }
     if (mins < 10) {mins = '0' + mins; }
     return DatetimeService.shortMonths[date.getMonth()] + ' ' + date.getDate() + ', ' + hours + ':' + mins;
+  }
+
+  jsDateToDMYString(date: Date) {
+    return date.getUTCDate() + ' ' + DatetimeService.shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear();
   }
 
   dateStringToEpoch(datestring: string) {

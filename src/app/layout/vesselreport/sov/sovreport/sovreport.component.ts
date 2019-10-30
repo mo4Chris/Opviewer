@@ -11,7 +11,10 @@ import { CalculationService } from '../../../../supportModules/calculation.servi
 import { GmapService } from '../../../../supportModules/gmap.service';
 import { MapZoomLayer } from '../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
+import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
+import { WeatherOverviewChart } from '../../models/weatherChart';
+
 
 @Component({
     selector: 'app-sovreport',
@@ -60,6 +63,201 @@ export class SovreportComponent implements OnInit {
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
+    HOCArray = [];
+    HOCTotal = 0;
+    HOCTotalOld = 0;
+    HOCTotalNew = 0;
+    ToolboxArray = [];
+    ToolboxTotal = 0;
+    ToolboxTotalOld = 0;
+    ToolboxTotalNew = 0;
+    VesselNonAvailabilityArray = [];
+    dpArray = [];
+    WeatherDowntimeArray = [];
+    fuelChanged = false;
+    incidentsChanged = false;
+    nonAvailabilityChanged = false;
+    weatherDowntimeChanged = false;
+    cateringChanged = false;
+    remarksChanged = false;
+    poBChanged = false;
+    dpChanged = false;
+    alert = {type : '', message: ''};
+    times = [];
+    allHours = [];
+    all5Minutes = [];
+    totalCargoIn = 0;
+    totalCargoOut = 0;
+    totalPaxIn = 0;
+    totalPaxOut = 0;
+
+    v2vCargoIn = 0;
+    v2vCargoOut = 0;
+    v2vPaxIn = 0;
+    v2vPaxOut = 0;
+
+    showAlert = false;
+    timeout;
+    remarks = '';
+
+    cateringObject = {};
+    peopleonBoard = {
+        marine: 0,
+        marineContractors: 0,
+        project: 0
+    };
+    PoBTotal = 0;
+
+    liquidsObject = {
+        fuel: {oldValue: 0 , loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        luboil: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        domwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
+        potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
+    };
+
+    missedPaxCargo = [];
+
+    helicopterPaxCargo = [];
+
+    updateHOCTotal() {
+        this.HOCTotal = 0;
+        this.HOCTotalNew = this.HOCTotalOld;
+        if (this.HOCArray.length !== 0) {
+            this.HOCArray.forEach(element => {
+                this.HOCTotal = this.HOCTotal + +element.amount;
+                this.HOCTotalNew = this.HOCTotalNew + +element.amount;
+            });
+        }
+    }
+
+    updateToolboxTotal() {
+        this.ToolboxTotal = 0;
+        this.ToolboxTotalNew = this.ToolboxTotalOld;
+        if (this.ToolboxArray.length !== 0) {
+            this.ToolboxArray.forEach(element => {
+                this.ToolboxTotal = this.ToolboxTotal + +element.amount;
+                this.ToolboxTotalNew = this.ToolboxTotalNew + +element.amount;
+            });
+        }
+    }
+
+    updatev2vPaxCargoTotal() {
+        this.v2vCargoIn = 0;
+        this.v2vCargoOut = 0;
+        this.v2vPaxIn = 0;
+        this.v2vPaxOut = 0;
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.v2vPaxIn = this.v2vPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.v2vPaxIn + 0;
+                this.v2vPaxOut = this.v2vPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.v2vPaxOut + 0;
+                this.v2vCargoIn = this.v2vCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.v2vCargoIn + 0;
+                this.v2vCargoOut = this.v2vCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.v2vCargoOut + 0;
+            }
+        }
+    }
+
+    createTimes() {
+        const quarterHours = ['00', '15', '30', '45'];
+        for (let i = 0; i < 24; i++) {
+            for (let j = 0; j < 4; j++) {
+                let time = i + ':' + quarterHours[j];
+                if (i < 10) {
+                time = '0' + time;
+                }
+                this.times.push(time);
+            }
+        }
+    }
+
+    createSeperateTimes() {
+        this.allHours = [];
+        this.all5Minutes = [];
+
+        for (let i = 0; i < 24; i++) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.allHours.push(time);
+        }
+        for (let i = 0; i < 60; i += 5) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.all5Minutes.push(time);
+        }
+    }
+
+    updateFuel() {
+        this.liquidsObject.fuel.newValue = +(+this.liquidsObject.fuel.oldValue + +this.liquidsObject.fuel.loaded - +this.liquidsObject.fuel.consumed - +this.liquidsObject.fuel.discharged).toFixed(1);
+    }
+
+    updateLuboil() {
+        this.liquidsObject.luboil.newValue = +(+this.liquidsObject.luboil.oldValue + +this.liquidsObject.luboil.loaded - +this.liquidsObject.luboil.consumed - +this.liquidsObject.luboil.discharged).toFixed(1);
+    }
+
+    updateDomwater() {
+        this.liquidsObject.domwater.newValue = +(+this.liquidsObject.domwater.oldValue + +this.liquidsObject.domwater.loaded - +this.liquidsObject.domwater.consumed - +this.liquidsObject.domwater.discharged).toFixed(1);
+    }
+
+    updatePotwater() {
+        this.liquidsObject.potwater.newValue = +(+this.liquidsObject.potwater.oldValue + +this.liquidsObject.potwater.loaded - +this.liquidsObject.potwater.consumed - this.liquidsObject.potwater.discharged).toFixed(1);
+    }
+
+    updatePoB() {
+        this.PoBTotal = 0;
+        this.PoBTotal = (+this.PoBTotal + +this.peopleonBoard.marineContractors + +this.peopleonBoard.marine + +this.peopleonBoard.project);
+    }
+
+    updatePaxCargoTotal() {
+        this.totalPaxIn = 0;
+        this.totalPaxOut = 0;
+        this.totalCargoIn = 0;
+        this.totalCargoOut = 0;
+
+        if (this.sovModel.sovType === this.SovTypeEnum.Turbine && this.sovModel.turbineTransfers.length > 0) {
+            for (let i = 0; i < this.sovModel.turbineTransfers.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.sovModel.turbineTransfers[i].paxIn || this.totalPaxIn + 0;
+                this.totalPaxOut = this.totalPaxOut + +this.sovModel.turbineTransfers[i].paxOut || this.totalPaxOut + 0;
+                this.totalCargoIn = this.totalCargoIn + +this.sovModel.turbineTransfers[i].cargoIn || this.totalCargoIn + 0;
+                this.totalCargoOut = this.totalCargoOut + +this.sovModel.turbineTransfers[i].cargoOut || this.totalCargoOut + 0;
+            }
+        } else if (this.sovModel.sovType === this.SovTypeEnum.Platform && this.sovModel.platformTransfers.length > 0) {
+            for (let i = 0; i < this.sovModel.turbineTransfers.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.sovModel.platformTransfers[i].paxIn || this.totalPaxIn + 0;
+                this.totalPaxOut = this.totalPaxOut + +this.sovModel.platformTransfers[i].paxOut || this.totalPaxOut + 0;
+                this.totalCargoIn = this.totalCargoIn + +this.sovModel.platformTransfers[i].cargoIn || this.totalCargoIn + 0;
+                this.totalCargoOut = this.totalCargoOut + +this.sovModel.platformTransfers[i].cargoOut || this.totalCargoOut + 0;
+            }
+        }
+
+        if (this.missedPaxCargo.length > 0) {
+            for (let i = 0; i < this.missedPaxCargo.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.missedPaxCargo[i].paxIn;
+                this.totalPaxOut = this.totalPaxOut + +this.missedPaxCargo[i].paxOut;
+                this.totalCargoIn = this.totalCargoIn + +this.missedPaxCargo[i].cargoIn;
+                this.totalCargoOut = this.totalCargoOut + +this.missedPaxCargo[i].cargoOut;
+            }
+        }
+        if (this.helicopterPaxCargo.length > 0) {
+            for (let i = 0; i < this.helicopterPaxCargo.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.helicopterPaxCargo[i].paxIn ;
+                this.totalPaxOut = this.totalPaxOut + +this.helicopterPaxCargo[i].paxOut;
+                this.totalCargoIn = this.totalCargoIn + +this.helicopterPaxCargo[i].cargoIn ;
+                this.totalCargoOut = this.totalCargoOut + +this.helicopterPaxCargo[i].cargoOut;
+            }
+        }
+
+        if (this.sovModel.vessel2vessels.length > 0) {
+            for (let i = 0; i < this.sovModel.vessel2vessels[0].transfers.length; i++) {
+                this.totalPaxIn = this.totalPaxIn + +this.sovModel.vessel2vessels[0].transfers[i].paxIn || this.totalPaxIn + 0;
+                this.totalPaxOut = this.totalPaxOut + +this.sovModel.vessel2vessels[0].transfers[i].paxOut || this.totalPaxOut + 0;
+                this.totalCargoIn = this.totalCargoIn + +this.sovModel.vessel2vessels[0].transfers[i].cargoIn || this.totalCargoIn + 0;
+                this.totalCargoOut = this.totalCargoOut + +this.sovModel.vessel2vessels[0].transfers[i].cargoOut || this.totalCargoOut + 0;
+            }
+        }
+    }
 
     constructor(
         private commonService: CommonService,
@@ -70,10 +268,10 @@ export class SovreportComponent implements OnInit {
         ) { }
 
     openVesselMap(content, vesselname: string, toMMSI: number) {
-        const map = document.getElementById('routeMap');
+        const routemap = document.getElementById('routeMap');
         const v2vHandler = new Vessel2VesselActivity({
             sovModel: this.sovModel,
-            htmlMap: map,
+            htmlMap: routemap,
             vessel: vesselname,
             mmsi: toMMSI,
             turbineLocations: this.turbineLocations
@@ -111,13 +309,211 @@ export class SovreportComponent implements OnInit {
         return this.calculationService.GetDecimalValueForNumber(value, endpoint);
     }
 
+    addHoCToArray() {
+        this.HOCArray.push({value: '', amount: 1});
+    }
+
+    addToolboxToArray() {
+        this.ToolboxArray.push({value: '', amount: 1});
+    }
+
+    addVesselNonAvailabilityToArray() {
+        this.VesselNonAvailabilityArray.push({reason: 'DC small breakdown', from: '00:00', to: '00:00'});
+    }
+    addWeatherDowntimeToArray() {
+        this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
+    }
+
+    addMissedTransferToArray() {
+        this.missedPaxCargo.push({location: '', from: {hour: '00', minutes: '00' }, to: {hour: '00', minutes: '00'}, paxIn: 0, paxOut: 0, cargoIn: 0, cargoOut: 0});
+    }
+
+    addHelicopterTransferToArray() {
+        this.helicopterPaxCargo.push({from: {hour: '00', minutes: '00' }, to: {hour: '00', minutes: '00'}, paxIn: 0, paxOut: 0, cargoIn: 0, cargoOut: 0});
+    }
+
+    addDPToArray() {
+        this.dpArray.push({from: {hour: '00', minutes: '00'}, to: {hour: '00', minutes: '00'}});
+    }
+
+    removeLastFromMissedTransferArray() {
+        this.missedPaxCargo.pop();
+    }
+
+    removeLastFromHelicopterTransferArray() {
+        this.helicopterPaxCargo.pop();
+    }
+    removeLastFromDPArray() {
+        this.dpArray.pop();
+    }
+
+    removeLastFromToolboxArray() {
+        this.ToolboxArray.pop();
+    }
+
+    removeLastFromHOCArray() {
+        this.HOCArray.pop();
+    }
+
+    removeLastFromVesselNonAvailabilityArray() {
+        this.VesselNonAvailabilityArray.pop();
+    }
+
+    removeLastFromWeatherDowntimeArray() {
+        this.WeatherDowntimeArray.pop();
+    }
+
+    setDPRInputFields() {
+        this.commonService.getSovDprInput({mmsi: this.sovModel.sovInfo.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+            if (SovDprInput.length > 0) {
+                this.HOCArray = SovDprInput[0].hoc;
+                this.ToolboxArray = SovDprInput[0].toolbox;
+                this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
+                this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
+                this.liquidsObject = SovDprInput[0].liquids;
+                this.peopleonBoard = SovDprInput[0].PoB;
+                this.remarks = SovDprInput[0].remarks;
+                this.cateringObject = SovDprInput[0].catering;
+                this.dpArray = SovDprInput[0].dp;
+                this.HOCTotalOld = SovDprInput[0].HOCAmountOld;
+                this.HOCTotalNew = SovDprInput[0].HOCAmountNew;
+                this.ToolboxTotalOld = SovDprInput[0].ToolboxAmountOld;
+                this.ToolboxTotalNew = SovDprInput[0].ToolboxAmountNew;
+                this.missedPaxCargo = SovDprInput[0].missedPaxCargo;
+                this.helicopterPaxCargo = SovDprInput[0].helicopterPaxCargo;
+            }
+
+        }, null, () => {
+
+        });
+    }
+
+    saveMissedPaxCargo() {
+        this.commonService.saveMissedPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, MissedPaxCargo: this.missedPaxCargo }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveHelicopterPaxCargo() {
+        this.commonService.saveHelicopterPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, HelicopterPaxCargo: this.helicopterPaxCargo }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    savev2vPaxInput() {
+        this.commonService.updateSOVv2vPaxInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, transfers: this.sovModel.vessel2vessels[0] .transfers}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+
+    savePlatformPaxInput(transfer) {
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
+    saveTurbinePaxInput(transfer) {
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.nonAvailabilityChanged = false;
+    }
+
     ngOnInit() {
+        this.createTimes();
+        this.createSeperateTimes();
         Chart.pluginService.register(annotation);
     }
 
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
         this.buildPageWhenRouteLoaded();
+
     }
 
     buildPageWhenRouteLoaded() {
@@ -136,15 +532,24 @@ export class SovreportComponent implements OnInit {
                             }
                         }, null, () => {
                             this.turbinesLoaded = true;
-                            this.checkIfAllLoaded();
+                            this.updatePaxCargoTotal();
+                            this.updateHOCTotal();
+                            this.updatePoB();
+                            this.updateToolboxTotal();
+                            this.updatev2vPaxCargoTotal();
+                            this.getVesselRoute();
                         });
                     } else {
                         this.sovModel.platformTransfers = platformTransfers;
                         this.sovModel.sovType = SovType.Platform;
                         this.turbinesLoaded = true;
-                        this.checkIfAllLoaded();
+                        this.updatePaxCargoTotal();
+                        this.updateHOCTotal();
+                        this.updatePoB();
+                        this.updateToolboxTotal();
+                        this.updatev2vPaxCargoTotal();
+                        this.getVesselRoute();
                     }
-                    this.getVesselRoute();
                 }, null, () => {
                     this.platformsLoaded = true;
                     this.checkIfAllLoaded();
@@ -161,10 +566,15 @@ export class SovreportComponent implements OnInit {
                     this.cycleTimeLoaded = true;
                     this.checkIfAllLoaded();
                 });
+                this.setDPRInputFields();
                 this.locShowContent = true;
             } else {
                 // Skip check if all data is loaded if there is none
                 this.buildPageWhenAllLoaded();
+                if (sov.length > 0) {
+                    this.sovModel.sovInfo = sov[0];
+                }
+                this.setDPRInputFields();
                 this.locShowContent = false;
             }
             this.showContent.emit(this.locShowContent);
@@ -335,7 +745,7 @@ export class SovreportComponent implements OnInit {
         this.sovModel.summary = summaryModel;
     }
 
-    // Common used by platform and turbine
+    // ToDo: Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
         model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.Hs; })));
         model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
@@ -345,6 +755,200 @@ export class SovreportComponent implements OnInit {
     GetMatlabDurationToMinutes(serial) {
         return this.datetimeService.MatlabDurationToMinutes(serial);
     }
+
+    // universe functie van maken ipv 6x dezelfde functie
+    saveFuelStats() {
+        this.commonService.saveFuelStatsSovDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, liquids: this.liquidsObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                console.log('danger');
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.fuelChanged = false;
+    }
+
+    saveIncidentStats() {
+
+        this.ToolboxArray = this.ToolboxArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
+        this.HOCArray = this.HOCArray.filter(function (result, _i) {
+            return +result.amount !== 0;
+        });
+
+        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray, ToolboxAmountNew: this.ToolboxTotalNew, HOCAmountNew: this.HOCTotalNew}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.incidentsChanged = false;
+    }
+
+
+    saveWeatherDowntimeStats() {
+        this.commonService.saveNonAvailabilityDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, vesselNonAvailability: this.VesselNonAvailabilityArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+
+        this.commonService.saveWeatherDowntimeDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, weatherDowntime: this.WeatherDowntimeArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.weatherDowntimeChanged = false;
+    }
+
+    saveCateringStats() {
+        this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    saveDPStats() {
+        this.commonService.saveDPStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dp: this.dpArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.cateringChanged = false;
+    }
+
+    savePoBStats() {
+        this.commonService.savePoBStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, peopleonBoard: this.peopleonBoard}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.poBChanged = false;
+    }
+
+    saveRemarksStats() {
+        this.commonService.saveRemarksStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, remarks: this.remarks}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+        this.remarksChanged = false;
+    }
+
 
     // Properly change undefined values to N/a
     // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
@@ -482,16 +1086,9 @@ export class SovreportComponent implements OnInit {
     createWeatherOverviewChart() {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined) {
-            let hasData = false;
-            const timeStamps = Array();
-            weather.time.forEach((timeObj, index) => {
-                timeStamps[index] = this.datetimeService.MatlabDateToUnixEpoch(timeObj);
-                });
-            const Hs = Array();
-            const Tp = Array();
-            const waveDirection = Array();
-            const windGust = Array();
-            const windAvg  = Array();
+            this.weatherOverviewChartCalculated = true;
+            const timeStamps = weather.time.map(matlabTime => this.datetimeService.MatlabDateToUnixEpoch(matlabTime));
+            const dsets = [];
             let chartTitle;
             if (weather.wavesource === '_NaN_') {
                 // chartTitle = 'Weather overview';
@@ -502,51 +1099,54 @@ export class SovreportComponent implements OnInit {
                     'Source: ' + weather.wavesource];
             }
             // Loading each of the weather sources if they exist and are not NaN
-            if (this.testValidWeatherField(weather.waveHs)) {
-                hasData = true;
-                weather.waveHs.forEach((val, index) => {
-                    Hs[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.waveTp)) {
-                hasData = true;
-                weather.waveTp.forEach((val, index) => {
-                    Tp[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.waveDirection)) {
-                hasData = true;
-                weather.waveDirection.forEach((val, index) => {
-                    waveDirection[index] = {
-                        x: timeStamps[index],
-                        y: val
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.windGust)) {
-                hasData = true;
-                weather.windGust.forEach((val, index) => {
-                    windGust[index] = {
-                        x: timeStamps[index],
-                        y: val / 3.6
-                    };
-                });
-            }
-            if (this.testValidWeatherField(weather.windAvg)) {
-                hasData = true;
-                weather.windAvg.forEach((val, index) => {
-                    windAvg[index] = {
-                        x: timeStamps[index],
-                        y: val / 3.6
-                    };
-                });
-            }
+            const waveParams = Object.keys(weather).filter(key => key !== 'time' && key !== 'wavesource');
+            waveParams.forEach(param => {
+                const data = weather[param];
+                if (isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])) {
+                    const label = param.replace('waveHs', 'Hs').replace('waveTp', 'Tp');
+                    let unit = '';
+                    let axisID = 'hidden';
+                    switch (label) {
+                        case 'Hs':
+                            unit = 'm';
+                            axisID = 'Hs';
+                            break;
+                        case 'waveDirection': case 'windDirection': case 'waveDir': case 'windDir':
+                            unit = 'deg';
+                            axisID = 'waveDir';
+                            break;
+                        case 'Tp':
+                            unit = 's';
+                            axisID = 'Tp';
+                            break;
+                        case 'Wind': case 'WindAvg': case 'WindGust': case 'windAvg': case 'windGust':
+                            unit = 'km/h';
+                            axisID = 'Wind';
+                            break;
+                        default:
+                            console.error('Unhandled unit: ' + label);
+                    }
+                    dsets.push({
+                        data: data.map((dataElt, i) => {
+                            if (typeof(dataElt) === 'number' && dataElt >= 0) {
+                                return {x: timeStamps[i], y: dataElt};
+                            } else {
+                                return {x: timeStamps[i], y: NaN};
+                            }
+                        }),
+                        label: label,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 30,
+                        unit: unit,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        fill: false,
+                        yAxisID: axisID,
+                        hidden: false // dsets.length !== 0
+                    });
+                }
+            });
+
             // Now create collection with all the dockings and v2v operations
             const dockingData = new Array;
             let start;
@@ -574,231 +1174,22 @@ export class SovreportComponent implements OnInit {
                     dockingData.push({x: stop + 0.0001 , y: NaN});
                 });
             });
-            Chart.Tooltip.positioners.custom = function(elements, position) {
-                const item = this._data.datasets;
-                elements = elements.filter(function (value, _i) {
-                    return item[value._datasetIndex].yAxisID !== 'hidden';
-                });
-                let x_mean = 0;
-                elements.forEach(elt => {
-                    x_mean += elt._model.x;
-                });
-                x_mean = x_mean / elements.length;
-                let y_mean = 0;
-                elements.forEach(elt => {
-                    y_mean += elt._model.y;
-                });
-                y_mean = y_mean / elements.length;
-                return{
-                    x: x_mean,
-                    y: y_mean
-                };
-              };
-
-            if (timeStamps.length > 0 && hasData) {
-                if (this.weatherOverviewChartCalculated) {
-                    this.destroyOldCharts();
-                }
-                this.weatherOverviewChartCalculated = true;
-                setTimeout(() => {
-                    this.weatherOverviewChart = new Chart('weatherOverview', {
-                        type: 'line',
-                        data: {
-                            datasets: [
-                                {
-                                    label: 'Hs (m)',
-                                    data: Hs,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'blue',
-                                    borderColor: 'blue',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: Hs.length === 0,
-                                    yAxisID: 'Hs'
-                                },
-                                {
-                                    label: 'Tp (s)',
-                                    data: Tp,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'red',
-                                    borderColor: 'red',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Tp'
-                                },
-                                {
-                                    label: 'Wave direction (deg)',
-                                    data: waveDirection,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'green',
-                                    borderColor: 'green',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Direction'
-                                },
-                                {
-                                    label: 'Wind gust (m/s)',
-                                    data: windGust,
-                                    pointRadius: 0,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    backgroundColor: 'magenta',
-                                    borderColor: 'magenta',
-                                    borderWidth: 2,
-                                    fill: false,
-                                    hidden: true,
-                                    yAxisID: 'Wind'
-                                },
-                                {
-                                    label: 'Wind average (m/s)',
-                                    data: windAvg,
-                                    pointHoverRadius: 5,
-                                    pointHitRadius: 30,
-                                    pointRadius: 0,
-                                    backgroundColor: 'orange',
-                                    borderColor: 'orange',
-                                    borderWidth: 2.5,
-                                    fill: false,
-                                    hidden: windAvg.length === 0,
-                                    yAxisID: 'Wind'
-                                },
-                                {
-                                    label: 'Vessel tranfers',
-                                    data: dockingData,
-                                    pointHoverRadius: 0,
-                                    pointHitRadius: 0,
-                                    pointRadius: 0,
-                                    borderWidth: 0,
-                                    yAxisID: 'hidden',
-                                    lineTension: 0,
-                                }
-                            ],
-                        },
-                        options: {
-                            title: {
-                                display: chartTitle !== '',
-                                position: 'right',
-                                text: chartTitle,
-                                fontSize: 15,
-                                padding: 5,
-                                fontStyle: 'normal',
-                            },
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            animation: {
-                                duration: 0
-                            },
-                            hover: {
-                                animationDuration: 0
-                            },
-                            responsiveAnimationDuration: 0,
-                            scales : {
-                                xAxes: [{
-                                  scaleLabel: {
-                                    display: true,
-                                    labelString: 'Local time'
-                                  },
-                                  type: 'time',
-                                  time: {
-                                    min: this.datetimeService.MatlabDateToUnixEpoch(weather.time[0]),
-                                    max: this.datetimeService.MatlabDateToUnixEpoch(weather.time[-1]),
-                                    unit: 'hour'
-                                }
-                                }],
-                                yAxes: [{
-                                    id: 'Wind',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Wind speed (m/s)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                    },
-                                },
-                                {
-                                    id: 'Hs',
-                                    display: 'auto',
-                                    suggestedMax: 2,
-                                    beginAtZero: true,
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Hs (m)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                    }
-                                },
-                                {
-                                    id: 'Tp',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Tp (s)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                    },
-                                },
-                                {
-                                    id: 'Direction',
-                                    display: 'auto',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Direction (deg)'
-                                    },
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        suggestedMin: 0,
-                                        suggestedMax: 360
-                                    },
-                                }, {
-                                    id: 'hidden',
-                                    display: false,
-                                    ticks: {
-                                        type: 'linear',
-                                        maxTicksLimit: 7,
-                                        min: 0,
-                                        suggestedMax: 1
-                                    },
-                                }]
-                            },
-                            tooltips: {
-                                position: 'custom',
-                                callbacks: {
-                                    label: function(tooltipItem, data) {
-                                        const dset = data.datasets[tooltipItem.datasetIndex];
-                                        let label = dset.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                            label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
-                                        }
-                                        return label;
-                                    },
-                                },
-                                mode: 'index',
-                                filter: function (tooltip, data) {
-                                    return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
-                                },
-                            }
-                        }
-                    });
-                });
+            dsets.push({
+                data: dockingData,
+                label: 'Vessel transfers',
+                pointHoverRadius: 0,
+                pointHitRadius: 0,
+                pointRadius: 0,
+                borderWidth: 0,
+                yAxisID: 'hidden',
+                lineTension: 0,
+            });
+            if (this.weatherOverviewChart) {
+                this.weatherOverviewChart.destroy();
             }
+            setTimeout(() => {
+                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, chartTitle);
+            }, 300);
         }
     }
     datasetIsActive(dset, dsetIndex, chart) {
@@ -812,9 +1203,6 @@ export class SovreportComponent implements OnInit {
         const final = !hidden;
         return (final);
     }
-    destroyOldCharts(): void {
-        this.weatherOverviewChart.destroy();
-    }
 
     private ResetTransfers() {
         this.routeLoaded = false;
@@ -823,6 +1211,12 @@ export class SovreportComponent implements OnInit {
         this.v2vLoaded = false;
         this.cycleTimeLoaded = false;
         this.sovLoaded = false;
+        this.fuelChanged = false;
+        this.incidentsChanged = false;
+        this.nonAvailabilityChanged = false;
+        this.weatherDowntimeChanged = false;
+        this.cateringChanged = false;
+        this.remarksChanged = false;
         this.sovModel = new SovModel();
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();

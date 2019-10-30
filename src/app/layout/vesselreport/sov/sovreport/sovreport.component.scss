@@ -12,6 +12,28 @@
     
 }
 
+.tableSummarySpecial {
+    background: gray;
+    color: white;
+    
+}
+.tableTotal {
+    border-top: 3px black solid;
+}
+
+ngb-alert {
+    position: fixed;
+    bottom: 0px;
+}
+
+.btn-danger{
+    margin-left: 2em;
+}
+
+.submitbtnclass{
+    background: white !important;
+}
+
 .tableSummary {
     border: 1px;
 }
@@ -33,6 +55,12 @@ agm-map {
     canvas{
         position: relative;
     }
+}
+
+.tableRow{
+    display: flex;
+    flex-wrap: wrap;
+    line-height: calc(2.25rem + 2px);
 }
 
 .helpBtn {

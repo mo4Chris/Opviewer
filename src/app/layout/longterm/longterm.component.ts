@@ -47,6 +47,13 @@ export class LongtermComponent implements OnInit {
     unSelectAllText: 'UnSelect All',
     singleSelection: false,
   };
+  fieldSelectSettings = {
+    allowSearchFilter: true,
+    singleSelection: true,
+    closeDropDownOnSelection: true,
+    textFields: 'text',
+    idField: '_id',
+  };
 
   vesselType: string;
   hoveredDate: NgbDate;
@@ -55,9 +62,11 @@ export class LongtermComponent implements OnInit {
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
   Vessels: {Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
-    operationsClass: string, speednotifylimit: any, vesselname: string}[];
+    operationsClass: string, speednotifylimit: any, vesselname: string}[] = [];
   showContent: boolean;
   loaded = {Vessels: false, vesselType: false};
+  fieldsWithWavedata: {_id: string, site: string, name: string, text?: string}[] = [];
+  selectedField = '';
 
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
@@ -71,10 +80,15 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
-
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
-         Chart.pluginService.register(ChartAnnotation);
+        Chart.pluginService.register(ChartAnnotation);
+        this.newService.getFieldsWithWaveSourcesByCompany().subscribe(fields => {
+          this.fieldsWithWavedata = fields;
+          this.fieldsWithWavedata.forEach(elt => {
+            elt.text = elt.site + ' - ' + elt.name;
+          });
+        });
         this.noPermissionForData = false;
         if (this.tokenInfo.userPermission === 'admin') {
           this.newService.getVessel().subscribe(data => {
@@ -82,47 +96,36 @@ export class LongtermComponent implements OnInit {
             this.loaded.Vessels = true;
           }, null, () => this.testIfAllInit());
         } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe( data => {
-              this.Vessels = data;
-              this.loaded.Vessels = true;
-            }, null, () => this.testIfAllInit());
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.Vessels = data;
+            this.loaded.Vessels = true;
+          }, null, () => this.testIfAllInit());
         }
         if (this.vesselObject.mmsi.length > 0) {
-            this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
-                validatedValue => {
-                  if (validatedValue.length === 1) {
-                      this.vesselType = validatedValue[0].operationsClass;
-                  } else {
-                      this.showContent = true;
-                      this.noPermissionForData = true;
-                  }
-                  this.loaded.vesselType = true;
+          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
+            validatedValue => {
+              if (validatedValue.length === 1) {
+                this.vesselType = validatedValue[0].operationsClass;
+              } else {
+                this.showContent = true;
+                this.noPermissionForData = true;
+              }
+              this.loaded.vesselType = true;
             }, null, () => this.testIfAllInit());
         }
       } else {
-          localStorage.removeItem('isLoggedin');
-          localStorage.removeItem('token');
-          this.router.navigate(['login']);
-        }
-      });
+        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
+        this.router.navigate(['login']);
+      }
+    });
   }
 
   testIfAllInit () {
-    try {
-      if (this.loaded.Vessels && this.loaded.vesselType) {
-        this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
-        this.buildPageWithCurrentInformation();
-      }
-    } catch (err) {
-      console.log('Failed to build page with current information');
-      console.log(this);
-      console.error(err);
+    if (this.loaded.Vessels && this.loaded.vesselType) {
+      this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
+      this.buildPageWithCurrentInformation();
     }
-  }
-
-  testIfAllLoaded() {
-    // Is this still used?
-    console.log('This is still called')
   }
 
   onSelectVessel(event: {mmsi: number, nicename: string}[]) {
@@ -131,8 +134,8 @@ export class LongtermComponent implements OnInit {
   }
 
   searchTransfersByNewSpecificDate() { // Sets new date and selected vessel values
-    const minValueAsMomentDate = moment(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
-    const maxpickerValueAsMomentDate = moment(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
+    const minValueAsMomentDate = moment.utc(this.fromDate.day + '-' + this.fromDate.month + '-' + this.fromDate.year, 'DD-MM-YYYY');
+    const maxpickerValueAsMomentDate = moment.utc(this.toDate.day + '-' + this.toDate.month + '-' + this.toDate.year, 'DD-MM-YYYY');
     minValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     minValueAsMomentDate.format();
     maxpickerValueAsMomentDate.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -153,10 +156,13 @@ export class LongtermComponent implements OnInit {
     }
     this.vesselObject.mmsi = mmsiArray;
     this.buildPageWithCurrentInformation();
+    setTimeout(() => {
+      this.updateWavedataForChild();
+    }, 1000);
   }
 
   buildPageWithCurrentInformation() {
-    setTimeout(() => { // Let CTV child object load
+    setTimeout(() => {
       if (this.vesselType === 'CTV') {
         // Build CTV module
         this.ctvChild.buildPageWithCurrentInformation();
@@ -164,7 +170,7 @@ export class LongtermComponent implements OnInit {
         // Build SOV module
         this.sovChild.buildPageWithCurrentInformation();
       }
-    }, 100);
+    });
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
@@ -190,12 +196,12 @@ export class LongtermComponent implements OnInit {
 
   onDateSelection(date: NgbDate) {
       if (!this.fromDate && !this.toDate) {
-      this.fromDate = date;
+        this.fromDate = date;
       } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
-      this.toDate = date;
+        this.toDate = date;
       } else {
-      this.toDate = null;
-      this.fromDate = date;
+        this.toDate = null;
+        this.fromDate = date;
       }
   }
 
@@ -207,6 +213,25 @@ export class LongtermComponent implements OnInit {
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
+  selectField(event: {_id: string, text: string, isDisabled: boolean}) {
+    this.selectedField = event._id;
+    this.updateWavedataForChild();
+  }
+
+  deselectField(event: string) {
+    this.selectedField = '';
+    this.updateWavedataForChild();
+  }
+
+  updateWavedataForChild() {
+    if (this.vesselType === 'CTV') {
+      // Build CTV module
+      this.ctvChild.updateActiveField(this.selectedField);
+    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+      // Build SOV module
+      // this.sovChild.buildPageWithCurrentInformation();
+    }
+  }
 
   // Utility
   getMatlabDateYesterday() {

@@ -181,4 +181,164 @@ export class CalculationService {
     });
     return counts;
   }
+
+  sortIndices(arr: any[], sortFcn?: (a: any, b: any) => number): number[] {
+    const indices = arr.map((_, _i) => _i);
+    if (sortFcn) {
+      return indices.sort((a, b) => sortFcn(arr[a], arr[b]) ? -1 : sortFcn(arr[a], arr[b]) ? 1 : 0);
+    } else {
+      return indices.sort((a, b) => arr[a] < arr[b] ? -1 : arr[a] > arr[b] ? 1 : 0);
+    }
+  }
+
+  sortViaIndex(arr: any[], indices: number[]) {
+    const out = [];
+    indices.forEach(idx => {
+      out.push(arr[idx]);
+    });
+    return out;
+  }
+
+  switchUnits(vals: number[], from: string, to: string): number[] {
+    if (from === to) {
+      return vals;
+    }
+    switch (from) {
+      case 'km/h': case 'm/s': case 'knots': case 'knt': case 'mph': case 'knot': case 'mp/h':
+        return this.switchSpeedUnits(vals, from, to);
+      case 'km': case 'm': case 'cm': case 'mile': case 'NM':
+        return this.switchDistanceUnits(vals, from, to);
+      case 'mns': case 'minute': case 'hour': case 'day': case 'week': case 'sec': case 'second': case 's':
+        return this.switchDurationUnits(vals, from, to);
+      case 'rad': case 'deg':
+        return this.switchDirectionUnits(vals, from, to);
+      default:
+        console.error('Invalid unit "' + from + '"!');
+        return vals;
+    }
+  }
+
+  switchDistanceUnits(vals: number[], from: string, to: string): number[] {
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'm':
+          return 1;
+        case 'km':
+          return 1000;
+        case 'mile':
+          return 1609;
+        case 'NM': case 'nautical mile': case 'nmi':
+          return 1852;
+        case 'cm':
+          return 1 / 100;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
+
+  switchSpeedUnits(vals: number[], from: string, to: string): number[] {
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'm/s':
+          return 1;
+        case 'knt': case 'knots': case 'knot':
+          return 1.9438445;
+        case 'kmh': case 'km/h':
+          return 3.6;
+        case 'mph': case 'mp/h':
+          return 2.2369363;
+        case 'ft/s':
+          return 3.2808399;
+        case 'mach':
+          return 0.0030184123;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(to) / getFactor(from);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
+
+  switchDurationUnits(vals: number[], from: string, to: string): number[] {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'second': case 'sec': case 's':
+          return 1 / 60;
+        case 'minute': case 'mns': case 'min':
+          return 1;
+        case 'hour':
+          return 60;
+        case 'day':
+          return 60 * 24;
+        case 'week':
+            return 60 * 24 * 7;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
+
+  switchDirectionUnits(vals: number[], from: string, to: string): number[] {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'deg': case 'degree':
+          return 360;
+        case 'rad': case 'radial':
+            return 2 * Math.PI;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(to) / getFactor(from);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
+
+  switchVolumeUnits(vals: number[], from: string, to: string): number[] {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'liter': case 'ltr':
+          return 1;
+        case 'm3': case 'cubmeter':
+          return 1000;
+        case 'bucket':
+          return 10;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(to) / getFactor(from);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
+
+  switchWeightUnits(vals: number[], from: string, to: string): number[] {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'kg':
+          return 1;
+        case 'gram':
+          return 0.001;
+        case 'ton':
+          return 1000;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(to) / getFactor(from);
+    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+  }
 }

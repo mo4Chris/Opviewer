@@ -121,13 +121,12 @@ export class MapZoomData extends MapZoomChild {
         lat: number,
         markerIcon: mapMarkerIcon,
         description: string,
-        info = '',
-        popupMode = 'mouseover',
-        zIndex = 2,
-        enableInfoWindow = true,
+        info: string = '',
+        popupMode: string = 'mouseover',
+        zIndex: number = 2,
+        enableInfoWindow: boolean = true,
     ) {
         super();
-
         if (isArray(lon)) {
             this.lon = lon[0];
             this.lat = lat[0];
@@ -164,7 +163,11 @@ export class MapZoomData extends MapZoomChild {
     }
 
     setMap(map: google.maps.Map) {
-        this.marker.setMap(map);
+        if (this.marker) {
+            this.marker.setMap(map);
+        } else {
+            this.createMarker(map);
+        }
     }
 
     setVisible(newStatus: boolean) {
@@ -177,16 +180,13 @@ export class MapZoomData extends MapZoomChild {
         }
     }
 
-    addDataToLayer( layer: MapZoomLayer ) {
-        if (this.isDrawn) {
-            return;
-        }
+    createMarker(map: google.maps.Map, eventService: EventService = new EventService) {
         const markerPosition = {lat: this.lat, lng: this.lon};
         this.marker = new google.maps.Marker({
             position: markerPosition,
             draggable: false,
             icon: this.markerIcon, // This is fine
-            map: layer.map,
+            map: map,
             zIndex: this.zIndex
         });
         // Adding infowindow if enabled
@@ -196,7 +196,7 @@ export class MapZoomData extends MapZoomChild {
                 disableAutoPan: true,
             });
             const openInfoWindowCB = () => {
-                layer.eventService.OpenAgmInfoWindow(this.infoWindow, [], layer.map, this.marker);
+                eventService.OpenAgmInfoWindow(this.infoWindow, [], map, this.marker);
             };
             this.marker.addListener(this.popupMode, function () {
                 openInfoWindowCB();
@@ -205,6 +205,13 @@ export class MapZoomData extends MapZoomChild {
             this.marker.setClickable(false);
         }
         this.isDrawn = true;
+    }
+
+    addDataToLayer( layer: MapZoomLayer ) {
+        if (this.isDrawn) {
+            return;
+        }
+        this.createMarker(layer.map, layer.eventService);
     }
 }
 

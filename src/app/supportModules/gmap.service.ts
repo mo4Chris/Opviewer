@@ -19,15 +19,15 @@ export class GmapService {
 
     }
     static iconWindfield: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/windTurbine.png',
-        'Windfield',
+        'assets/images/windTurbine.png',
+        'Wind farm',
         {
             width: 25,
             height: 25
         }
     );
     static iconTurbine: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/turbineIcon.png',
+        'assets/images/turbineIcon.png',
         '',
         {
             width: 5,
@@ -35,7 +35,7 @@ export class GmapService {
         }
     );
     static iconVisitedTurbine: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/visitedTurbineIcon.png',
+        'assets/images/visitedTurbineIcon.png',
         'Visited turbine',
         {
             width: 10,
@@ -43,7 +43,7 @@ export class GmapService {
         }
     );
     static iconPlatform: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/oil-platform.png',
+        'assets/images/oil-platform.png',
         'Platform',
         {
             width: 10,
@@ -51,7 +51,7 @@ export class GmapService {
         }
     );
     static iconVisitedPlatform: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/visitedPlatform.png',
+        'assets/images/visitedPlatform.png',
         'Visited platform',
         {
             width: 10,
@@ -59,7 +59,7 @@ export class GmapService {
         }
     );
     static iconHarbour: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/marina.png',
+        'assets/images/marina.png',
         'Harbour',
         {
             width: 20,
@@ -67,20 +67,28 @@ export class GmapService {
         }
     );
     static iconVesselLive: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/grn-circle.png',
+        'assets/images/grn-circle.png',
          'Updated last hour'
     );
     static iconVesselHours: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/ylw-circle.png',
+        'assets/images/ylw-circle.png',
         'Updated < 6 hours',
     );
     static iconVesselOld: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/images/red-circle.png',
+        'assets/images/red-circle.png',
         'Updated > 6 hours'
     );
     static iconVesselCluster: mapMarkerIcon = new mapMarkerIcon(
-        '../assets/clusterer/m1.png',
+        'assets/clusterer/m1.png',
         'Cluster of vessels'
+    );
+    static iconWaveSource: mapMarkerIcon = new mapMarkerIcon(
+        'assets/images/buoy.png',
+        'Wave source',
+        {
+            width: 20,
+            height: 20,
+        }
     );
     layersInitialized = false;
     vesselRouteTurbineLayer: MapZoomLayer;
