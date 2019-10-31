@@ -16,7 +16,7 @@ describe('VesselreportComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [        
+      imports: [
         AgmCoreModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,

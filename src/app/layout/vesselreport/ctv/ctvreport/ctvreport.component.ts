@@ -67,7 +67,19 @@ export class CtvreportComponent implements OnInit {
     hseOptions = [];
 
 
-    generalInputStats = { date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, toolboxConducted: [], drillsConducted: [], observations: false, incidents: false, passengers: false,  customInput: '' };
+    generalInputStats = {
+        date: NaN,
+        mmsi: NaN,
+        fuelConsumption: 0,
+        landedOil: 0,
+        landedGarbage: 0,
+        toolboxConducted: [],
+        drillsConducted: [],
+        observations: false,
+        incidents: false,
+        passengers: false,
+        customInput: '',
+    };
 
     googleMap: google.maps.Map;
     wavedata: WavedataModel;

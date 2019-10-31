@@ -12,7 +12,7 @@ export class UserTestService {
     constructor(
     ) { }
 
-    static getMockedAccessToken(config?: UserTokenOptions): any {
+    static getMockedAccessToken(config?: UserTokenOptions): UserModel {
         if (!config) {
             config = {};
         }
@@ -36,4 +36,18 @@ interface UserTokenOptions {
     userPermission?: 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist';
     hasCampaigns?: boolean;
     userBoats?: {mmsi: number, nicename: string}[];
+}
+
+interface UserModel {
+    userID: string;
+    userBoats: {
+        mmsi: number,
+        nicename: string
+    }[];
+    userCompany: string;
+    userPermission: 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist';
+    username: string;
+    hasCampaigns: true;
+    expires: number;
+    iat: number;
 }

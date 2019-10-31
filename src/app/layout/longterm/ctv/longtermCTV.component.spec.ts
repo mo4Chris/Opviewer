@@ -15,6 +15,7 @@ import { UserTestService } from '../../../shared/services/test.user.service';
 import { DeploymentGraphComponent } from '../models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
@@ -35,8 +36,8 @@ describe('Longterm_CTV', () => {
         HttpModule,
         HttpClientModule,
         CommonModule,
-        RouterModule.forRoot([]),
-        NgMultiSelectDropDownModule
+        NgMultiSelectDropDownModule.forRoot(),
+        RouterTestingModule
       ],
       declarations: [
         LongtermCTVComponent,
@@ -55,10 +56,10 @@ describe('Longterm_CTV', () => {
     component = fixture.componentInstance;
     component.vesselObject = {
       mmsi: [userBoats[0].mmsi],
-      dateMin: 1,
-      dateMax: 1,
-      dateNormalMin: '',
-      dateNormalMax: '',
+      dateMin: 747700,
+      dateMax: 747710,
+      dateNormalMin: 'Test date 1',
+      dateNormalMax: 'Test date 2',
     };
     component.tokenInfo = UserTestService.getMockedAccessToken({
       'userPermission': 'admin',

@@ -57,9 +57,7 @@ export class UserManagementComponent implements OnInit {
 
     getUser() {
         this.newService.getUserByUsername({ username: this.username }).subscribe(data => {
-            if (data[0].permissions === 'admin' || data[0].permissions === 'Logistics specialist' || data[0] == null) {
-                this.router.navigate(['/access-denied']);
-            }
+            // Loads the users this person is allowed to edit
             if (this.tokenInfo.userPermission !== 'admin') {
                 if (this.tokenInfo.userPermission !== 'Logistics specialist') {
                     this.router.navigate(['/access-denied']);
@@ -69,7 +67,12 @@ export class UserManagementComponent implements OnInit {
                     }
                 }
             }
-            this.newService.getVesselsForCompany([{ client: data[0].client, notHired: 1 }]).subscribe(data => { this.boats = data; });
+            this.newService.getVesselsForCompany([{
+                client: data[0].client,
+                notHired: 1 }]
+            ).subscribe(vessels => {
+                this.boats = vessels;
+            });
             this.user = data[0];
             this.multiSelectSettings.singleSelection = (data[0].permissions === 'Vessel master');
         });

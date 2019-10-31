@@ -11,6 +11,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UsersRoutingModule } from './users-routing.module';
 import { AgmCoreModule } from '@agm/core';
+import { UserTestService } from '../../shared/services/test.user.service';
+import { mockedObservable } from '../../models/testObservable';
+import { UserService } from '../../shared/services/user.service';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -34,13 +37,18 @@ describe('UsersComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(() => {
+  beforeEach(async(() => {
+    spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
+    spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
+    spyOn(CommonService.prototype, 'getUsers').and.returnValue(mockedObservable([]));
+    spyOn(CommonService.prototype, 'getUsersForCompany').and.returnValue(mockedObservable([]));
+
     fixture = TestBed.createComponent(UsersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }));
 
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });
