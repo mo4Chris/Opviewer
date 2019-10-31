@@ -14,6 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonService } from '../../common.service';
 import { UserTestService } from '../../shared/services/test.user.service';
 import { UserService } from '../../shared/services/user.service';
+import { mockedObservable } from '../../models/testObservable';
 
 describe('FleetRequestComponent', () => {
     let component: FleetRequestComponent;
@@ -38,11 +39,11 @@ describe('FleetRequestComponent', () => {
 
     beforeEach(() => {
         spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
-        spyOn(FleetRequestComponent.prototype, 'getBoats').and.callFake(() => {
-            this.boats = [];
-        });
+        spyOn(FleetRequestComponent.prototype, 'getBoats');
+        spyOn(CommonService.prototype, 'getCompanies').and.returnValue(mockedObservable([]));
         fixture = TestBed.createComponent(FleetRequestComponent);
         component = fixture.componentInstance;
+        component.boats = [];
         fixture.detectChanges();
     });
 

@@ -1,13 +1,13 @@
 import { FleetRequestModule } from './fleet-request.module';
 
 describe('FleetRequestModule', () => {
-    let usersModule: FleetRequestModule;
+    let testModule: FleetRequestModule;
 
     beforeEach(() => {
-        usersModule = new FleetRequestModule();
+        testModule = new FleetRequestModule();
     });
 
     it('should create an instance', () => {
-        expect(usersModule).toBeTruthy();
+        expect(testModule).toBeTruthy();
     });
 });

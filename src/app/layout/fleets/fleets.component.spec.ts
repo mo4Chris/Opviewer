@@ -10,7 +10,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AgmCoreModule } from '@agm/core';
 import { UserTestService } from '../../shared/services/test.user.service';
 import { UserService } from '../../shared/services/user.service';
-import { toObservable } from '@angular/forms/src/validators';
+import { mockedObservable } from '../../models/testObservable';
 
 describe('FleetComponent', () => {
     let component: FleetsComponent;
@@ -36,10 +36,10 @@ describe('FleetComponent', () => {
     beforeEach(() => {
         spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
         spyOn(FleetsComponent.prototype, 'getMsg');
-        // spyOn(CommonService.prototype, 'getCompanies').and.returnValue(toObservable([]));
-        // spyOn(CommonService.prototype, 'getTurbineWarranty').and.returnValue(toObservable(['Windcat_mcTesty']));
-        // spyOn(CommonService.prototype, 'getTurbineWarrantyForCompany').and.returnValue(toObservable(['Windcat_mcTesty']));
-        // spyOn(FleetsComponent.prototype, 'redirectFleetAvailability');
+        spyOn(CommonService.prototype, 'getCompanies').and.returnValue(mockedObservable([]));
+        spyOn(CommonService.prototype, 'getTurbineWarranty').and.returnValue(mockedObservable(['Windcat_mcTesty']));
+        spyOn(CommonService.prototype, 'getTurbineWarrantyForCompany').and.returnValue(mockedObservable(['Windcat_mcTesty']));
+        spyOn(FleetsComponent.prototype, 'redirectFleetAvailability');
         // spyOn(FleetsComponent.prototype, 'redirectFleetLog');
         // spyOn(FleetsComponent.prototype, 'redirectFleetRequest');
 

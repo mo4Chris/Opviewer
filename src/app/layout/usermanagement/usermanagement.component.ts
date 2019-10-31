@@ -15,7 +15,13 @@ import { UserService } from '../../shared/services/user.service';
 })
 export class UserManagementComponent implements OnInit {
 
-    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private userService: UserService) { }
+    constructor(
+        public router: Router,
+        private newService: CommonService,
+        private route: ActivatedRoute,
+        private userService: UserService
+    ) { }
+
     username = this.getUsernameFromParameter();
     user = this.getUser();
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
@@ -39,8 +45,8 @@ export class UserManagementComponent implements OnInit {
                 localStorage.removeItem('isLoggedin');
                 localStorage.removeItem('token');
                 this.router.navigate(['login']);
-              }
-            });
+            }
+        });
     }
 
     getUsernameFromParameter() {
@@ -51,21 +57,21 @@ export class UserManagementComponent implements OnInit {
 
     getUser() {
         this.newService.getUserByUsername({ username: this.username }).subscribe(data => {
-            if (data[0].permissions == "admin" || data[0].permissions == "Logistics specialist" || data[0] == null) {
+            if (data[0].permissions === 'admin' || data[0].permissions === 'Logistics specialist' || data[0] == null) {
                 this.router.navigate(['/access-denied']);
             }
-            if (this.tokenInfo.userPermission != "admin") {
-                if (this.tokenInfo.userPermission != "Logistics specialist") {
+            if (this.tokenInfo.userPermission !== 'admin') {
+                if (this.tokenInfo.userPermission !== 'Logistics specialist') {
                     this.router.navigate(['/access-denied']);
                 } else {
-                    if (this.tokenInfo.userCompany != data[0].client) {
+                    if (this.tokenInfo.userCompany !== data[0].client) {
                         this.router.navigate(['/access-denied']);
                     }
                 }
             }
             this.newService.getVesselsForCompany([{ client: data[0].client, notHired: 1 }]).subscribe(data => { this.boats = data; });
             this.user = data[0];
-            this.multiSelectSettings.singleSelection = (data[0].permissions == "Vessel master")
+            this.multiSelectSettings.singleSelection = (data[0].permissions === 'Vessel master');
         });
     }
 
@@ -90,5 +96,5 @@ export class UserManagementComponent implements OnInit {
             }, 7000);
         });
     }
-    
+
 }

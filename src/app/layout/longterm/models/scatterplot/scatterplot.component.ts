@@ -7,7 +7,13 @@ import { now } from 'moment';
 
 export class ScatterplotComponent {
   constructor(
-    vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string},
+    vesselObject: {
+      mmsi: number[],
+      dateMin: number,
+      dateMax: number,
+      dateNormalMin: string,
+      dateNormalMax: string
+    },
     comparisonArray: ComprisonArrayElt[],
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService

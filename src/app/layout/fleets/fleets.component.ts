@@ -54,7 +54,6 @@ export class FleetsComponent implements OnInit {
             });
         }
         if (this.msg !== undefined) {
-            console.log(this.msg);
             this.setAlert('success', this.msg);
         }
     }
