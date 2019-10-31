@@ -7,6 +7,8 @@ export class TokenModel {
     userBoats: string[];
     username: string;
 
+    hasCampaigns: boolean;
+
     constructor (userService: UserService) {
         return userService.getDecodedAccessToken(localStorage.getItem('token'));
     }

@@ -39,6 +39,7 @@ interface UserTokenOptions {
 }
 
 interface UserModel {
+    // This model should probably be replaced by the tokenModel on merge
     userID: string;
     userBoats: {
         mmsi: number,
