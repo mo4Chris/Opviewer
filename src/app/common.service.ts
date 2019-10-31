@@ -404,7 +404,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  get2faExistence(user: {userEmail: any}) {
+  get2faExistence(user: {userEmail: any}): Observable <{secret2fa: string}> {
     return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
       map((response: Response) => response.json()));
   }

@@ -14,8 +14,10 @@ import { PageHeaderModule, SharedPipesModule } from '../../../../shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CommonService } from '../../../../common.service';
+import { VesselreportComponent } from '../../vesselreport.component';
+import { HttpModule } from '@angular/http';
 
-describe('CtvreportComponent', () => {
+describe('CtvReportComponent', () => {
   let component: CtvreportComponent;
   let fixture: ComponentFixture<CtvreportComponent>;
 
@@ -34,19 +36,18 @@ describe('CtvreportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientModule,
         // AgmCoreModule.forRoot({
         //     apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         // }),
         FormsModule,
         ReactiveFormsModule,
-        NgbModule.forRoot(),
-        NgMultiSelectDropDownModule.forRoot(),
+        NgbModule,
+        NgMultiSelectDropDownModule,
         CommonModule,
-        VesselreportRoutingModule,
         PageHeaderModule,
         SharedPipesModule,
-        RouterTestingModule
+        RouterTestingModule,
+        HttpModule
       ],
       declarations: [ CtvreportComponent ],
       providers: [CommonService]
@@ -57,6 +58,7 @@ describe('CtvreportComponent', () => {
     fixture = TestBed.createComponent(CtvreportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+
     component.tokenInfo = tokenInfo;
     component.vesselObject = vesselObject;
     component.mapPixelWidth = mapPixelWidth;

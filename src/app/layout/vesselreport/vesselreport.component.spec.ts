@@ -10,7 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
 
-describe('VesselreportComponent', () => {
+describe('VesselReportComponent', () => {
   let component: VesselreportComponent;
   let fixture: ComponentFixture<VesselreportComponent>;
 
