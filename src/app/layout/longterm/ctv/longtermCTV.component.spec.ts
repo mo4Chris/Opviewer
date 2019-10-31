@@ -61,10 +61,12 @@ describe('Longterm_CTV', () => {
       dateNormalMin: 'Test date 1',
       dateNormalMax: 'Test date 2',
     };
-    component.tokenInfo = UserTestService.getMockedAccessToken({
+    const testToken: any = UserTestService.getMockedAccessToken({
       'userPermission': 'admin',
       'userBoats': userBoats
     });
+    testToken.userBoats = testToken.userBoats[0].nicename;
+    component.tokenInfo =  testToken;
     fixture.detectChanges();
   });
 
