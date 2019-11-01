@@ -128,8 +128,8 @@ export class CtvreportComponent implements OnInit {
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                    this.getComments(this.vesselObject).subscribe(_ => {
-                        this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    this.getComments(this.vesselObject).subscribe(__ => {
+                        this.getVideoRequests(this.vesselObject).subscribe(___ => {
                             this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
                                 if (data[0]) {
                                     this.videoBudget = data[0];
