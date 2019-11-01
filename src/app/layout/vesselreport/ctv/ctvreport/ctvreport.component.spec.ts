@@ -103,7 +103,7 @@ describe('CtvReportComponent', () => {
       expect(component.noPermissionForData).toBe(false);
       expect(component.transferData).toBeDefined(); // Might fail under timeouts
       expect(component.transferData.length).toEqual(1);
-    }, 2000);
+    });
   }));
 
   it('should create as vessel master', async(() => {
@@ -118,7 +118,7 @@ describe('CtvReportComponent', () => {
       expect(component.noPermissionForData).toBe(false);
       expect(component.transferData).toBeDefined(); // Might fail under timeouts
       expect(component.transferData.length).toEqual(1);
-    }, 2000);
+    });
   }));
 
   it('should create as marine controller', async(() => {
@@ -133,7 +133,7 @@ describe('CtvReportComponent', () => {
       expect(component.noPermissionForData).toBe(false);
       expect(component.transferData).toBeDefined(); // Might fail under timeouts
       expect(component.transferData.length).toEqual(1);
-    }, 2000);
+    });
   }));
 
   it('should create as logistic specialist', async(() => {
@@ -148,6 +148,6 @@ describe('CtvReportComponent', () => {
       expect(component.noPermissionForData).toBe(false);
       expect(component.transferData).toBeDefined(); // Might fail under timeouts
       expect(component.transferData.length).toEqual(1);
-    }, 2000);
+    });
   }));
 });

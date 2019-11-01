@@ -115,7 +115,6 @@ export class CtvreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         // At this point are loaded: tokenInfo, vesselObject
-
         this.visitedPark = '';
         if (this.weatherOverviewChart) {
             this.weatherOverviewChart.destroy();

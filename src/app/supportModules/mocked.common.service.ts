@@ -11,8 +11,16 @@ const emptyMatlabObject = {
 };
 
 export class MockedCommonService {
-    validatePermissionToViewData(opts: {mmsi: number}) {
-        return mockedObservable([{
+    validatePermissionToViewData(opts: {
+        mmsi?: number,
+        vesselname?: string,
+        nicename?: string,
+        client?: any,
+        Site?: string,
+        onHire?: 0 | 1,
+        operationsClass?: VesselType,
+    } = {}) {
+        const defaults = {
             vesselname: 'Test_BMO',
             nicename: 'TEST BMO',
             client: 'BMO',
@@ -22,9 +30,10 @@ export class MockedCommonService {
             operationsClass: 'CTV',
             Site: emptyMatlabObject,
             onHire: 1,
-            videobudget: '_NaN_',
-            videoResetDay: '_NaN_',
-        }]);
+            videobudget: 120,
+            videoResetDay: 19,
+        };
+        return mockedObservable([{...defaults, ...opts}]);
     }
 
     getDatesWithValues(vesselObject: VesselObjectModel) {
@@ -106,6 +115,7 @@ export class MockedCommonService {
             harbourEvents: [],
             jettyEvents: [],
             lockEvents: [],
+            time: [[date + 0.2458], [date + 0.2638], [date + 0.2888]],
             lat: [[27.94013], [27.94468], [27.97227]],
             lon: [[12.9398], [12.95748], [13.03988]],
             seCoverageHours: 0,
@@ -113,11 +123,80 @@ export class MockedCommonService {
             seCoverageSpanHours: 0,
             speed: [],
             speedRestrictedEvents: [],
-            time: [[737350.2458], [737350.2638], [737350.2888]],
             transitTime: '_NaN_',
             utcOffset: '_NaN_',
             vesselName: '_NaN_',
         }]});
+    }
+    getSov(vesselObject: VesselObjectModel) {
+        const date = vesselObject.date;
+        return mockedObservable([{
+            id: 'dummy',
+            date: vesselObject.date,
+            mmsi: vesselObject.mmsi,
+            AIScoverageHours: '_NaN_',
+            AIScoveragePerc: '_NaN_',
+            COMcoverageHours: '_NaN_',
+            COMcoveragePerc: '_NaN_',
+            DPRstats: '_NaN_',
+            ENGINEcoverageHours: '_NaN_',
+            ENGINEcoveragePerc: '_NaN_',
+            GPScoverageHours: '_NaN_',
+            GPScoveragePerc: '_NaN_',
+            MTIcoverageHours: '_NaN_',
+            MTIcoveragePerc: '_NaN_',
+            activityLog: '',
+            arrivalAtBerth: emptyMatlabObject,
+            arrivalAtBerthNum: emptyMatlabObject,
+            arrivalAtHarbour: '_NaN_',
+            arrivalAtHarbourNum: emptyMatlabObject,
+            arrivalAtJetty: emptyMatlabObject,
+            arrivalAtJettyNum: emptyMatlabObject,
+            arrivalAtLockNum: emptyMatlabObject,
+            computerTimeOffset: '_NaN_',
+            coverageHours: 21.957672,
+            coverageOutageHours: 1.990607997,
+            day: '2019-10-2',
+            dayNum: vesselObject.date,
+            departureFromBerth: emptyMatlabObject,
+            departureFromBerthNum: emptyMatlabObject,
+            departureFromHarbour: '_NaN_',
+            departureFromHarbourNum: emptyMatlabObject,
+            departureFromJetty: emptyMatlabObject,
+            departureFromJettyNum: emptyMatlabObject,
+            departureFromLockNum: emptyMatlabObject,
+            distancekm: 61.01372287,
+            fuelConsumed: '_NaN_',
+            fuelEconomy: '_NaN_',
+            harbourEvents: emptyMatlabObject,
+            jettyEvents: emptyMatlabObject,
+            lockEvents: emptyMatlabObject,
+            minutesFloating: '_NaN_',
+            minutesInField: '_NaN_',
+            seCoverageHours: '_NaN_',
+            seCoverageOutageHours: 0,
+            seCoverageSpanHours: 23.94828,
+            speedRestrictedEvents: emptyMatlabObject,
+            time: [[date + 0.2458], [date + 0.2638], [date + 0.2888]],
+            lat: [[27.94013], [27.94468], [27.97227]],
+            lon: [[12.9398], [12.95748], [13.03988]],
+            speed: [['_NaN_'], ['_NaN_'], ['_NaN_']],
+            timeBreakdown: {
+                hoursSailing: 5.08,
+                hoursAtTurbine: 1.878,
+                hoursOfCTVops: 2.951,
+                hoursWaiting: 14.089,
+            },
+            transitTime: '_NaN_',
+            utcOffset: '_NaN_',
+            vesselName: 'SOV_example',
+            weatherConditions: mockWeatherConditions(vesselObject.date),
+        }]);
+    }
+
+    getSovDprInput(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
     }
 
     getTransfersForVessel(mmsi: number, date: number) {
@@ -145,13 +224,37 @@ export class MockedCommonService {
             videoCoverage: 112
         }]);
     }
-
     getCommentsForVessel(vesselObject: VesselObjectModel) {
         return mockedObservable([]);
     }
+    getTurbineTransfers(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
+    }
+    getPlatformTransfers(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
+    }
+    getVessel2vesselsForSov(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
+    }
+    getCycleTimesForSov(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
+    }
+    getTransitsForSov(mmsi: number, date: number) {
+        // ToDo
+        return mockedObservable([]);
+    }
+
     getDistinctFieldnames(vesselObject: VesselObjectModel) {
         return mockedObservable([]);
     }
+    getSOVDistinctFieldnames(vesselObject: VesselObjectModel) {
+        return mockedObservable([]);
+    }
+
     getSpecificPark(parkname: string) {
         const Names = [];
         const Lons = [];
@@ -181,6 +284,10 @@ export class MockedCommonService {
             outlineLatCoordinates: [28.259194567759, 28.328068592315, 28.327769362833],
         });
     }
+    getPlatformLocations() {
+        // ToDo
+        return mockedObservable([]);
+    }
     getVideoBudgetByMmsi(mmsi: number) {
         return mockedObservable([120]);
     }
@@ -206,6 +313,19 @@ function mockSlipGraph(startTime: number, stopTime: number) {
         transferPossible: T.map((_, _i) => _i === 0 || _i === T.length ? 0 : 1),
         yLimits: [0, 1.5],
         slipLimit: 0.3,
+    };
+}
+
+function mockWeatherConditions(date: number) {
+    date = Math.floor(date);
+    const time = linspace(date, date + 1, 1 / 24 / 6);
+    return {
+        time: time,
+        waveHs: time.map(() => 1),
+        waveTp: time.map(() => 1),
+        windAvg: time.map(() => 1),
+        windGust: time.map(() => 1),
+        windDirection: time.map(x => 180 * (x - date)),
     };
 }
 
