@@ -684,7 +684,7 @@ app.post("/api/login", function (req, res) {
                                 if (user.active == 0){
                                     return res.status(401).send('User has been deactivated');
                                 }
-                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine')  {
                                     return res.status(200).send({ token });
                                 } else {
 
@@ -796,7 +796,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {}) {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });
@@ -1447,12 +1447,10 @@ app.post("/api/getSovDprInput", function (req, res) {
 });
 
 app.post("/api/saveFuelStatsSovDpr", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
@@ -1461,15 +1459,15 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
                 res.send({ data: "Succesfully saved the fuel input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveIncidentDpr", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
@@ -1478,15 +1476,15 @@ app.post("/api/saveIncidentDpr", function (req, res) {
                 res.send({ data: "Succesfully saved the incident input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
         function (err, data) {
             if (err) {
@@ -1495,16 +1493,16 @@ app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
                 res.send({ data: "Succesfully saved the transfer stats" });
             }
         });
+    }
+});
 });
 
 
 app.post("/api/updateSOVv2vPaxInput", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     
     SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { transfers: req.body.transfers },
         function (err, data) {
@@ -1514,15 +1512,15 @@ app.post("/api/updateSOVv2vPaxInput", function (req, res) {
                 res.send({ data: "Succesfully saved the v2v transfer stats" });
             }
         });
+    }
+});
 });
 
 app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
         function (err, data) {
             if (err) {
@@ -1531,15 +1529,15 @@ app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
                 res.send({ data: "Succesfully saved the transfer stats" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveNonAvailabilityDpr", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
         function (err, data) {
             if (err) {
@@ -1548,15 +1546,15 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
                 res.send({ data: "Succesfully saved the non-availability input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
         function (err, data) {
             if (err) {
@@ -1565,15 +1563,15 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
                 res.send({ data: "Succesfully saved the weather downtime input" });
             }
         });
+        }
+    });
 });
 
 app.post("/api/saveRemarksStats", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
         function (err, data) {
             if (err) {
@@ -1582,15 +1580,15 @@ app.post("/api/saveRemarksStats", function (req, res) {
                 res.send({ data: "Succesfully saved your remarks" });
             }
         });
+        }
+    });
 });
 
 app.post("/api/saveCateringStats", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
         function (err, data) {
             if (err) {
@@ -1599,16 +1597,15 @@ app.post("/api/saveCateringStats", function (req, res) {
                 res.send({ data: "Succesfully saved the catering input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveDPStats", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
-    console.log(req.body.dp);
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { dp: req.body.dp},
         function (err, data) {
             if (err) {
@@ -1617,15 +1614,15 @@ app.post("/api/saveDPStats", function (req, res) {
                 res.send({ data: "Succesfully saved the DP input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveMissedPaxCargo", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { missedPaxCargo: req.body.MissedPaxCargo},
         function (err, data) {
             if (err) {
@@ -1634,16 +1631,15 @@ app.post("/api/saveMissedPaxCargo", function (req, res) {
                 res.send({ data: "Succesfully saved the missed transfer input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/saveHelicopterPaxCargo", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
-    console.log(req.body);
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { helicopterPaxCargo: req.body.HelicopterPaxCargo},
         function (err, data) {
             if (err) {
@@ -1652,15 +1648,15 @@ app.post("/api/saveHelicopterPaxCargo", function (req, res) {
                 res.send({ data: "Succesfully saved the helicopter transfer input" });
             }
         });
+    }
+});
 });
 
 app.post("/api/savePoBStats", function (req, res) {
-    let token = verifyToken(req, res);
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        return res.status(401).send('Access denied');
-    } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        return res.status(401).send('Access denied');
-    }
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
         function (err, data) {
             if (err) {
@@ -1669,6 +1665,8 @@ app.post("/api/savePoBStats", function (req, res) {
                 res.send({ data: "Succesfully saved the PoB input" });
             }
         });
+    }
+});
 });
 
 app.get("/api/getDatesWithTransferForSov/:mmsi", function (req, res) {
@@ -2359,7 +2357,7 @@ app.post("/api/getUserByToken", function (req, res) {
             res.send(err);
         } else {
             if (data) {
-                res.send({ username: data.username });
+                res.send({ username: data.username, userCompany: data.client, permissions: data.permissions });
             } else {
                 res.send({ err: "No user" });
             }
@@ -2873,8 +2871,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
@@ -2884,7 +2883,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
     } else {
         waveSourceModel.find(
             {
-                company: {$contains: token.userCompany},
+                company: {$in: [token.userCompany]},
             },
             {
                 site: 1,
@@ -2893,8 +2892,9 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
             {
                 sort: {site: 1}
             },
-            (data, err) => {
+            (err, data) => {
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 } else {
                     res.send(data);
