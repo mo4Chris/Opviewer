@@ -459,7 +459,7 @@ export class SovreportComponent implements OnInit {
 
 
     savePlatformPaxInput(transfer) {
-        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, mmsi: this.vesselObject.mmsi, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -482,7 +482,7 @@ export class SovreportComponent implements OnInit {
     }
 
     saveTurbinePaxInput(transfer) {
-        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, mmsi: this.vesselObject.mmsi, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
