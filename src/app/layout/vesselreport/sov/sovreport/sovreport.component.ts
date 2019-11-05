@@ -365,7 +365,7 @@ export class SovreportComponent implements OnInit {
     }
 
     setDPRInputFields() {
-        this.commonService.getSovDprInput({mmsi: this.sovModel.sovInfo.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+        this.commonService.getSovDprInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
             if (SovDprInput.length > 0) {
                 this.HOCArray = SovDprInput[0].hoc;
                 this.ToolboxArray = SovDprInput[0].toolbox;
