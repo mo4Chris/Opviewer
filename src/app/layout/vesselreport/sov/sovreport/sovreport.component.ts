@@ -992,6 +992,7 @@ export class SovreportComponent implements OnInit {
                 transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
                 transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
             });
+            this.gangwayActive = naCountGangway !== this.sovModel.turbineTransfers.length;
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
                 transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
@@ -1000,12 +1001,11 @@ export class SovreportComponent implements OnInit {
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
-        }
-        if (naCountGangway === this.sovModel.turbineTransfers.length || naCountGangway === this.sovModel.platformTransfers.length) {
-            this.gangwayActive = false;
+            this.gangwayActive = naCountGangway !== this.sovModel.platformTransfers.length;
         } else {
-            this.gangwayActive = true;
+            this.gangwayActive = false;
         }
+
         if (this.sovModel.transits.length > 0) {
             this.sovModel.transits.forEach(transit => {
                 transit = this.calculationService.ReplaceEmptyColumnValues(transit);
