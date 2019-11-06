@@ -58,7 +58,7 @@ export class SovreportComponent implements OnInit {
     private v2v_data_layer: MapZoomLayer;
     operationsChart;
     gangwayLimitationsChart;
-    weatherOverviewChart;
+    weatherOverviewChart: WeatherOverviewChart;
     operationalChartCalculated = false;
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
@@ -508,6 +508,15 @@ export class SovreportComponent implements OnInit {
         this.createTimes();
         this.createSeperateTimes();
         Chart.pluginService.register(annotation);
+        window.onbeforeprint = (evt) => {
+            const chart = <HTMLCanvasElement> document.getElementById('weatherOverview');
+            chart.style.width = '260mm';
+            this.weatherOverviewChart.Chart.options.maintainAspectRatio = true;
+            this.weatherOverviewChart.Chart.update();
+        };
+        window.onafterprint = (evt) => {
+            this.createWeatherOverviewChart();
+        };
     }
 
     buildPageWithCurrentInformation() {
