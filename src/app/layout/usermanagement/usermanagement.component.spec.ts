@@ -11,17 +11,21 @@ import { CommonService } from '../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
+import { UserService } from '../../shared/services/user.service';
+import { UserTestService } from '../../shared/services/test.user.service';
+import { mockedObservable } from '../../models/testObservable';
 
 describe('UsermanagementComponent', () => {
-    let component: UserManagementComponent;
-    let fixture: ComponentFixture<UserManagementComponent>;
+  let component: UserManagementComponent;
+  let fixture: ComponentFixture<UserManagementComponent>;
+  const user = UserTestService.getMockedAccessToken();
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ 
-        FormsModule, 
-        PageHeaderModule, 
-        NgbModule.forRoot(), 
+      imports: [
+        FormsModule,
+        PageHeaderModule,
+        NgbModule.forRoot(),
         NgMultiSelectDropDownModule.forRoot(),
         RouterTestingModule,
         BrowserAnimationsModule,
@@ -33,11 +37,18 @@ describe('UsermanagementComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(() => {
-      fixture = TestBed.createComponent(UserManagementComponent);
+  beforeEach(async(() => {
+    spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
+    spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
+    spyOn(CommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([user]));
+    spyOn(CommonService.prototype, 'getVesselsForCompany').and.returnValue(mockedObservable(user.userBoats));
+
+    spyOn(UserManagementComponent.prototype, 'getUsernameFromParameter').and.returnValue(user.username);
+
+    fixture = TestBed.createComponent(UserManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

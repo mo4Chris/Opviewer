@@ -15,7 +15,12 @@ import * as moment from 'moment';
     encapsulation: ViewEncapsulation.None,
 })
 export class FleetRequestComponent implements OnInit {
-    constructor(private newService: CommonService, private userService: UserService, private _router: Router, private dateTimeService: DatetimeService) { }
+    constructor(
+        private newService: CommonService,
+        private userService: UserService,
+        private _router: Router,
+        private dateTimeService: DatetimeService
+    ) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats = [];
@@ -67,7 +72,7 @@ export class FleetRequestComponent implements OnInit {
             this._router.navigate(['access-denied']);
         }
         this.getBoats();
-        if(this.tokenInfo.userPermission === 'admin') {
+        if (this.tokenInfo.userPermission === 'admin') {
             this.newService.getCompanies().subscribe(data => this.companies = data);
         }
     }
@@ -91,13 +96,15 @@ export class FleetRequestComponent implements OnInit {
         this.emptyRequired.stopDate = !this.request.stopDate.year || !this.request.stopDate.month || !this.request.stopDate.day;
         this.emptyRequired.numContractedVessels = !this.request.numContractedVessels;
         this.emptyRequired.weatherDayTarget = !this.request.weatherDayTarget;
-        if (this.tokenInfo.userPermission != 'admin') {
+        if (this.tokenInfo.userPermission !== 'admin') {
             this.request.client = this.tokenInfo.userCompany;
         }
-        this.emptyRequired.boats = this.request.boats.length<=0;
+        this.emptyRequired.boats = this.request.boats.length <= 0;
         this.emptyRequired.client = !this.request.client;
-        for (let obj in this.emptyRequired) {
-            if (this.emptyRequired[obj]) return;
+        for (const obj in this.emptyRequired) {
+            if (this.emptyRequired[obj]) {
+                return;
+            }
         }
         this.request.jsTime.startDate = this.dateTimeService.convertObjectToMoment(this.request.startDate.year, this.request.startDate.month, this.request.startDate.day).valueOf();
         this.request.jsTime.stopDate = this.dateTimeService.convertObjectToMoment(this.request.stopDate.year, this.request.stopDate.month, this.request.stopDate.day).valueOf();

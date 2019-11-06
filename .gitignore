@@ -46,3 +46,4 @@ testem.log
 Thumbs.db
 .vs/
 .vscode/
+TESTS-*.xml

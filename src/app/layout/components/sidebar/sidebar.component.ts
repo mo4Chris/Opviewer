@@ -11,12 +11,12 @@ import { EventService } from '../../../supportModules/event.service';
     styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
-    isActive: boolean = false;
-    showMenu: string = '';
-    pushRightClass: string = 'push-right';
+    isActive = false;
+    showMenu = '';
+    pushRightClass = 'push-right';
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    userCreatePermission = this.tokenInfo.userPermission == 'admin' || this.tokenInfo.userPermission == 'Logistics specialist';
+    userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
 
     constructor(private translate: TranslateService, public router: Router, private userService: UserService, public eventService: EventService) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de']);

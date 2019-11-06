@@ -1,13 +1,13 @@
 import { UserManagementModule } from './usermanagement.module';
 
-describe('UsersModule', () => {
-    let usersModule: UserManagementModule;
+describe('UsersManagementModule', () => {
+    let testModule: UserManagementModule;
 
     beforeEach(() => {
-        usersModule = new UserManagementModule();
+        testModule = new UserManagementModule();
     });
 
     it('should create an instance', () => {
-        expect(usersModule).toBeTruthy();
+        expect(testModule).toBeTruthy();
     });
 });
