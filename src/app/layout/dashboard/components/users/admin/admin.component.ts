@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
+import { TokenModel } from '../../../../../models/tokenModel';
 
 @Component({
   selector: 'app-admin',
@@ -8,17 +9,17 @@ import { CommonService } from '../../../../../common.service';
 })
 export class AdminComponent implements OnInit {
 
-  @Input() tokenInfo;
+  @Input() tokenInfo: TokenModel;
   @Output() locationData: EventEmitter<any[]> = new EventEmitter<any[]>();
   @Output() zoominfo: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private newService: CommonService) { }
-  numberActiveUsers = 0
-  activeUsers = [{user: '', client: ''}]
+  numberActiveUsers = 0;
+  activeUsers = [{user: '', client: ''}];
 
   ngOnInit() {
     this.getActiveUsers();
-    
+
     setTimeout(() => {
       this.setZoomLevel();
   });
@@ -30,16 +31,16 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  getActiveUsers(){
+  getActiveUsers() {
     this.numberActiveUsers = 1;
   }
-  
+
   setZoomLevel() {
     const zoominfo = {
       latitude: 55,
       longitude: 0.1,
       zoomlvl: 5.5
-    }
-    this.zoominfo.emit(zoominfo)
+    };
+    this.zoominfo.emit(zoominfo);
   }
 }

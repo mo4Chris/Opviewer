@@ -7,14 +7,14 @@ import { now } from 'moment';
 
 export class ScatterplotComponent {
   constructor(
-    vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string},
+    vesselObject: VesselObjectModel,
     comparisonArray: ComprisonArrayElt[],
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
-    ) {
-      this.vesselObject = vesselObject;
-      this.comparisonArray = comparisonArray;
-    }
+  ) {
+    this.vesselObject = vesselObject;
+    this.comparisonArray = comparisonArray;
+  }
 
   backgroundcolors = [
     'rgba(255,0,0,1)',
@@ -62,7 +62,7 @@ export class ScatterplotComponent {
   defaultVesselName = '';
   graphXLabels = { scales: {} };
   public scatterChartLegend = false;
-  vesselObject: {mmsi: number[], dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string};
+  vesselObject: VesselObjectModel;
   comparisonArray: ComprisonArrayElt[];
 
   myChart: Chart[] = [];
@@ -766,4 +766,12 @@ interface LegendEntryCallbackElement {
   strokeStyle: any;
   // Point style of the legend box (only used if usePointStyle is true)
   pointStyle: string;
+}
+
+interface VesselObjectModel {
+  mmsi: number[];
+  dateMin: number;
+  dateMax: number;
+  dateNormalMin: string;
+  dateNormalMax: string;
 }

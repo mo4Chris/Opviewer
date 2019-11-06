@@ -199,17 +199,17 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getUsersForCompany(client: {client: any}[]) {
+  getUsersForCompany(client: any[]) {
     return this.post(environment.DB_IP + '/api/getUsersForCompany/', client).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserByUsername(username: {username: any}) {
+  getUserByUsername(username: any) {
     return this.post(environment.DB_IP + '/api/getUserByUsername/', username).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserClientById(user: any, client: {client: any}) {
+  getUserClientById(user: any, client: any) {
     return this.get(environment.DB_IP + '/api/getUserClientById/' + user + '/' + client).pipe(
       map((response: Response) => response.json()));
   }
@@ -404,7 +404,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  get2faExistence(user: {userEmail: any}) {
+  get2faExistence(user: {userEmail: any}): Observable <{secret2fa: string}> {
     return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
       map((response: Response) => response.json()));
   }

@@ -32,7 +32,13 @@ export class SetPasswordComponent implements OnInit {
     initiate2fa;
     modalReference: NgbModalRef;
 
-    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, private _auth: AuthService) { }
+    constructor(
+        public router: Router,
+        private newService: CommonService,
+        private route: ActivatedRoute,
+        private modalService: NgbModal,
+        private _auth: AuthService,
+    ) { }
 
     getTokenFromParameter() {
         let _token;

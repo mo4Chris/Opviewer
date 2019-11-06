@@ -133,7 +133,11 @@ export class FleetLogComponent implements OnInit {
     }
 
     getSailDayChanged() {
-        this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
+        this.newService.getTurbineWarrantyOne({
+            campaignName: this.params.campaignName,
+            windfield: this.params.windfield,
+            startDate: this.params.startDate
+        }).subscribe(data => {
             this.sailDayChanged = data.sailDayChanged;
             this.sailDayChanged.reverse();
             this.fleetId = data.data._id;
@@ -167,7 +171,7 @@ export class FleetLogComponent implements OnInit {
             for (let i = 0; i < this.sailDayChanged.length; i++) {
                 this.formatDate(this.sailDayChanged[i], this.sailDayChanged[i].changeDate);
             }
-        } else if (this.type == 'Active listings') {
+        } else if (this.type === 'Active listings') {
             for (let i = 0; i < this.activeListings.length; i++) {
                 this.formatDate(this.activeListings[i], this.activeListings[i].dateChanged);
             }
@@ -180,7 +184,7 @@ export class FleetLogComponent implements OnInit {
     }
 
     formatDate(data, date) {
-        if (moment(date).format('YYYY MMM') == this.selectedMonth) {
+        if (moment(date).format('YYYY MMM') === this.selectedMonth) {
             this.edits.push(data);
         }
     }
