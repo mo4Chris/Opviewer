@@ -92,7 +92,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSovDistinctFieldnames(mmsi: number, date: number) {
+  getSovDistinctFieldnames(mmsi: number, date: number): Observable<string[]> {
     return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
