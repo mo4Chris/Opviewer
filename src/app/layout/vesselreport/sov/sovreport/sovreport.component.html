@@ -631,26 +631,24 @@
     </div>
 
     <div *ngIf="weatherOverviewChartCalculated">
-        <div class="row singlepage-print-port">
-            <div class="col-xl-12 col-lg-24 singlepage-print-port">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Weather overview
-                        <ng-template #popContentWeatherOverview class="helpContent">
-                            Weather overview for selected day and vessel.
-                            By default, only Hs and avg wind speed are shown.
-                            Hidden or missing data is crossed through. To show or
-                            hide a particular dataset, click on the colored
-                            bars in the legend. Hovering over the graph will
-                            display the recorded values at any time.
-                        </ng-template>
-                        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
-                            [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-                    </div>
-                        <div class="weatherOverview" style="height: 400px; width:50%">
-                            <canvas id="weatherOverview"></canvas>
-                        </div>
-                    </div>
+        <div class="card mb-3">
+            <div class="card-header">
+                Weather overview
+                <ng-template #popContentWeatherOverview class="helpContent">
+                    Weather overview for selected day and vessel.
+                    By default, only Hs and avg wind speed are shown.
+                    Hidden or missing data is crossed through. To show or
+                    hide a particular dataset, click on the colored
+                    bars in the legend. Hovering over the graph will
+                    display the recorded values at any time.
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+                    [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+            </div>
+            <div class="card-body">
+                <div class="weatherOverview chartContainer" style="height: 400px;">
+                    <canvas id="weatherOverview"></canvas>
+                </div>
             </div>
         </div>
     </div>

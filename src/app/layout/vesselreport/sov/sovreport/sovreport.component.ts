@@ -58,7 +58,7 @@ export class SovreportComponent implements OnInit {
     private v2v_data_layer: MapZoomLayer;
     operationsChart;
     gangwayLimitationsChart;
-    weatherOverviewChart;
+    weatherOverviewChart: WeatherOverviewChart;
     operationalChartCalculated = false;
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
@@ -508,6 +508,22 @@ export class SovreportComponent implements OnInit {
         this.createTimes();
         this.createSeperateTimes();
         Chart.pluginService.register(annotation);
+        window.onbeforeprint = (evt) => {
+            // Only update size of the container: the graphs will auto rescale
+            const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+            for (let _i = 0; _i < containers.length; _i++) {
+                const container = <HTMLDivElement> containers[_i];
+                container.style.width = '260mm';
+            }
+        };
+        window.onafterprint = (evt) => {
+            // Only update size of the container: the graphs will auto rescale
+            const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+            for (let _i = 0; _i < containers.length; _i++) {
+                const container = <HTMLDivElement> containers[_i];
+                container.style.width = '100%';
+            }
+        };
     }
 
     buildPageWithCurrentInformation() {

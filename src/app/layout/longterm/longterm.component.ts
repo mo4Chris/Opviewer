@@ -31,7 +31,7 @@ export class LongtermComponent implements OnInit {
     private userService: UserService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
-    ) {
+  ) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
@@ -61,11 +61,13 @@ export class LongtermComponent implements OnInit {
   toDate: NgbDate;
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
-  Vessels: {Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
-    operationsClass: string, speednotifylimit: any, vesselname: string}[] = [];
+  Vessels: {
+    Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
+    operationsClass: string, speednotifylimit: any, vesselname: string
+  }[] = [];
   showContent: boolean;
-  loaded = {Vessels: false, vesselType: false};
-  fieldsWithWavedata: {_id: string, site: string, name: string, text?: string}[] = [];
+  loaded = { Vessels: false, vesselType: false };
+  fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
   selectedField = '';
 
   noPermissionForData = false;
@@ -119,16 +121,33 @@ export class LongtermComponent implements OnInit {
         this.router.navigate(['login']);
       }
     });
+    // Setting some global print options
+    window.onbeforeprint = (evt) => {
+      // Only update size of the container: the graphs will auto rescale
+      const containers = <HTMLCollection>document.getElementsByClassName('chartContainer');
+      for (let _i = 0; _i < containers.length; _i++) {
+        const container = <HTMLDivElement>containers[_i];
+        container.style.width = '210mm';
+      }
+    };
+    window.onafterprint = (evt) => {
+      // Only update size of the container: the graphs will auto rescale
+      const containers = <HTMLCollection>document.getElementsByClassName('chartContainer');
+      for (let _i = 0; _i < containers.length; _i++) {
+        const container = <HTMLDivElement>containers[_i];
+        container.style.width = '100%';
+      }
+    };
   }
 
-  testIfAllInit () {
+  testIfAllInit() {
     if (this.loaded.Vessels && this.loaded.vesselType) {
       this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
       this.buildPageWithCurrentInformation();
     }
   }
 
-  onSelectVessel(event: {mmsi: number, nicename: string}[]) {
+  onSelectVessel(event: { mmsi: number, nicename: string }[]) {
     this.vesselObject.mmsi = event.map(x => x.mmsi);
     this.buildPageWithCurrentInformation();
   }
@@ -191,29 +210,29 @@ export class LongtermComponent implements OnInit {
   }
 
   closeModal() {
-      this.modalReference.close();
+    this.modalReference.close();
   }
 
   onDateSelection(date: NgbDate) {
-      if (!this.fromDate && !this.toDate) {
-        this.fromDate = date;
-      } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
-        this.toDate = date;
-      } else {
-        this.toDate = null;
-        this.fromDate = date;
-      }
+    if (!this.fromDate && !this.toDate) {
+      this.fromDate = date;
+    } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
+      this.toDate = date;
+    } else {
+      this.toDate = null;
+      this.fromDate = date;
+    }
   }
 
-  navigateToVesselreport(vesselObject: {mmsi: number, matlabDate: number}) {
-    this.router.navigate(['vesselreport', {boatmmsi: vesselObject.mmsi, date: vesselObject.matlabDate}]);
+  navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
+    this.router.navigate(['vesselreport', { boatmmsi: vesselObject.mmsi, date: vesselObject.matlabDate }]);
   }
 
   isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
   isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
   isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
 
-  selectField(event: {_id: string, text: string, isDisabled: boolean}) {
+  selectField(event: { _id: string, text: string, isDisabled: boolean }) {
     this.selectedField = event._id;
     this.updateWavedataForChild();
   }
@@ -240,7 +259,7 @@ export class LongtermComponent implements OnInit {
   getMatlabDateLastMonth() {
     return this.dateTimeService.getMatlabDateLastMonth();
   }
-    getJSDateYesterdayYMD() {
+  getJSDateYesterdayYMD() {
     return this.dateTimeService.getJSDateYesterdayYMD();
   }
   getJSDateLastMonthYMD() {
