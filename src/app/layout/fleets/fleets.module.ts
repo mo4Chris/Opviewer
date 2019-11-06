@@ -24,6 +24,4 @@ import {CommonService} from '../../common.service';
     providers: [CommonService],
     bootstrap: [FleetsComponent]
 })
-export class FleetsModule {
-    //
-}
+export class FleetsModule {}
