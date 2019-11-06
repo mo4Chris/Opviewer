@@ -28,7 +28,6 @@ export class LongtermCTVComponent implements OnInit {
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
         ) {
-            console.log("We are in the matrix");
     }
     @Input() vesselObject: {dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[]};
     @Input() tokenInfo: TokenModel;

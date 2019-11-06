@@ -509,13 +509,20 @@ export class SovreportComponent implements OnInit {
         this.createSeperateTimes();
         Chart.pluginService.register(annotation);
         window.onbeforeprint = (evt) => {
-            const chart = <HTMLCanvasElement> document.getElementById('weatherOverview');
-            chart.style.width = '260mm';
-            this.weatherOverviewChart.Chart.options.maintainAspectRatio = true;
-            this.weatherOverviewChart.Chart.update();
+            // Only update size of the container: the graphs will auto rescale
+            const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+            for (let _i = 0; _i < containers.length; _i++) {
+                const container = <HTMLDivElement> containers[_i];
+                container.style.width = '260mm';
+            }
         };
         window.onafterprint = (evt) => {
-            this.createWeatherOverviewChart();
+            // Only update size of the container: the graphs will auto rescale
+            const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+            for (let _i = 0; _i < containers.length; _i++) {
+                const container = <HTMLDivElement> containers[_i];
+                container.style.width = '100%';
+            }
         };
     }
 
