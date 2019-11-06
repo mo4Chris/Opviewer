@@ -119,6 +119,15 @@ export class SovreportComponent implements OnInit {
 
     helicopterPaxCargo = [];
 
+    constructor(
+        private commonService: CommonService,
+        private datetimeService: DatetimeService,
+        private modalService: NgbModal,
+        private calculationService: CalculationService,
+        private gmapService: GmapService
+    ) { }
+
+
     updateHOCTotal() {
         this.HOCTotal = 0;
         this.HOCTotalNew = this.HOCTotalOld;
@@ -259,14 +268,6 @@ export class SovreportComponent implements OnInit {
         }
     }
 
-    constructor(
-        private commonService: CommonService,
-        private datetimeService: DatetimeService,
-        private modalService: NgbModal,
-        private calculationService: CalculationService,
-        private gmapService: GmapService
-        ) { }
-
     openVesselMap(content, vesselname: string, toMMSI: number) {
         const routemap = document.getElementById('routeMap');
         const v2vHandler = new Vessel2VesselActivity({
@@ -364,7 +365,7 @@ export class SovreportComponent implements OnInit {
     }
 
     setDPRInputFields() {
-        this.commonService.getSovDprInput({mmsi: this.sovModel.sovInfo.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+        this.commonService.getSovDprInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
             if (SovDprInput.length > 0) {
                 this.HOCArray = SovDprInput[0].hoc;
                 this.ToolboxArray = SovDprInput[0].toolbox;
@@ -435,7 +436,11 @@ export class SovreportComponent implements OnInit {
     }
 
     savev2vPaxInput() {
-        this.commonService.updateSOVv2vPaxInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, transfers: this.sovModel.vessel2vessels[0] .transfers}).pipe(
+        this.commonService.updateSOVv2vPaxInput({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            transfers: this.sovModel.vessel2vessels[0] .transfers
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -459,7 +464,14 @@ export class SovreportComponent implements OnInit {
 
 
     savePlatformPaxInput(transfer) {
-        this.commonService.updateSOVPlatformPaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+        this.commonService.updateSOVPlatformPaxInput({
+            _id: transfer._id,
+            mmsi: this.vesselObject.mmsi,
+            paxIn: transfer.paxIn,
+            paxOut: transfer.paxOut,
+            cargoIn: transfer.cargoIn,
+            cargoOut: transfer.cargoOut
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -482,7 +494,7 @@ export class SovreportComponent implements OnInit {
     }
 
     saveTurbinePaxInput(transfer) {
-        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, mmsi: this.vesselObject.mmsi, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -660,6 +672,18 @@ export class SovreportComponent implements OnInit {
         }
         // Loads in relevant turbine data for visited parks
         this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
+            if (this.sovModel.vessel2vessels.length > 0) {
+                this.sovModel.vessel2vessels[0].CTVactivity.forEach(activity => {
+                    if (isArray(activity.turbineVisits)) {
+                        activity.turbineVisits.forEach(visit => {
+                            if (!data.some(elt => elt === visit.fieldname)) {
+                                data.push(visit.fieldname);
+                            }
+                        });
+                    }
+                });
+            }
+
             this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
                 if (locdata.length !== 0) {
                     // this.turbineLocations = locdata;
@@ -968,6 +992,7 @@ export class SovreportComponent implements OnInit {
                 transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
                 transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
             });
+            this.gangwayActive = naCountGangway !== this.sovModel.turbineTransfers.length;
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
                 transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
@@ -976,12 +1001,11 @@ export class SovreportComponent implements OnInit {
                 transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
-        }
-        if (naCountGangway === this.sovModel.turbineTransfers.length || naCountGangway === this.sovModel.platformTransfers.length) {
-            this.gangwayActive = false;
+            this.gangwayActive = naCountGangway !== this.sovModel.platformTransfers.length;
         } else {
-            this.gangwayActive = true;
+            this.gangwayActive = false;
         }
+
         if (this.sovModel.transits.length > 0) {
             this.sovModel.transits.forEach(transit => {
                 transit = this.calculationService.ReplaceEmptyColumnValues(transit);
