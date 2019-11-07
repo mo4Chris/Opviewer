@@ -145,6 +145,7 @@ export class VesselreportComponent implements OnInit {
 
 
   printPage() {
+
     window.print();
   }
 
@@ -330,6 +331,23 @@ export class VesselreportComponent implements OnInit {
         this.router.navigate(['login']);
       }
     });
+
+    window.onbeforeprint = (evt) => {
+      // Only update size of the container: the graphs will auto rescale
+      const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+      for (let _i = 0; _i < containers.length; _i++) {
+          const container = <HTMLDivElement> containers[_i];
+          container.style.width = '225mm';
+      }
+  };
+  window.onafterprint = (evt) => {
+      // Only update size of the container: the graphs will auto rescale
+      const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+      for (let _i = 0; _i < containers.length; _i++) {
+          const container = <HTMLDivElement> containers[_i];
+          container.style.width = '100%';
+      }
+  };
   }
 
   // TODO: make complient with the newly added usertypes
