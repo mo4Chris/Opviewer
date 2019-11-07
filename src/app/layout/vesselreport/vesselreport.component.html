@@ -30,6 +30,11 @@
             <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
         </select>
     </div>
+    <div class="form-group">
+            <button class="btn btn-lg boatSelectDropdown "
+            (click)="printPage();"
+            type="button">Print DPR</button>
+    </div>
 </div>
 <!-- Plotting map-->
 <br>

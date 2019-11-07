@@ -143,6 +143,11 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
+
+  printPage() {
+    window.print();
+  }
+
   getPlatformLocationData(platformLocationData: any): void {
     this.platformsLoaded = false;
     const locationData = platformLocationData.turbineLocations;

@@ -508,6 +508,7 @@ export class SovreportComponent implements OnInit {
         this.createTimes();
         this.createSeperateTimes();
         Chart.pluginService.register(annotation);
+        
         window.onbeforeprint = (evt) => {
             // Only update size of the container: the graphs will auto rescale
             const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
