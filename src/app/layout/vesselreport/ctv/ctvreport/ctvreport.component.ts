@@ -200,6 +200,8 @@ export class CtvreportComponent implements OnInit {
 
 
     loadWaveData() {
+        this.wavedataLoaded = false;
+        this.wavedata = null;
         this.turbineLocationData.subscribe(turbData => {
             this.visitedPark = turbData.turbineLocations[0] ? turbData.turbineLocations[0].SiteName : null;
             this.newService.getWavedataForDay({
