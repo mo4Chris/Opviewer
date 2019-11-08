@@ -19,7 +19,10 @@ export class FleetsComponent implements OnInit {
         private stringMutationService: StringMutationService,
         private dateTimeService: DatetimeService,
         private newService: CommonService,
-        private _router: Router, private route: ActivatedRoute, private userService: UserService) { }
+        private _router: Router,
+        private route: ActivatedRoute,
+        private userService: UserService
+    ) { }
     fleets;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     msg = '';
@@ -44,14 +47,13 @@ export class FleetsComponent implements OnInit {
         } else {
             this.newService.getTurbineWarrantyForCompany({ client: this.tokenInfo.userCompany }).subscribe(data => {
                 this.fleets = data;
-                if(this.fleets.length < 1) {
+                if (this.fleets.length < 1) {
                     this._router.navigate(['access-denied']);
                 }
 
             });
         }
         if (this.msg !== undefined) {
-            console.log(this.msg);
             this.setAlert('success', this.msg);
         }
     }
@@ -81,7 +83,7 @@ export class FleetsComponent implements OnInit {
         this._router.navigate(['campaign-request']);
     }
 
-    humanize(str) {
+    humanize(str: string) {
         return this.stringMutationService.changeToNicename(str, true);
     }
 

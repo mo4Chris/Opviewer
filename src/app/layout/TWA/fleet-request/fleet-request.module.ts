@@ -13,7 +13,13 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import {CommonService} from '../../../common.service';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, FleetRequestRoutingModule, PageHeaderModule, NgbModule.forRoot(), NgMultiSelectDropDownModule.forRoot()],
+    imports: [CommonModule,
+        HttpClientModule,
+        FormsModule,
+        FleetRequestRoutingModule,
+        PageHeaderModule,
+        NgbModule.forRoot(),
+        NgMultiSelectDropDownModule.forRoot()],
     declarations: [FleetRequestComponent],
     providers: [CommonService],
     bootstrap: [FleetRequestComponent]

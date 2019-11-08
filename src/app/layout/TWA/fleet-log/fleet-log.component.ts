@@ -134,7 +134,11 @@ export class FleetLogComponent implements OnInit {
     }
 
     getSailDayChanged() {
-        this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
+        this.newService.getTurbineWarrantyOne({
+            campaignName: this.params.campaignName,
+            windfield: this.params.windfield,
+            startDate: this.params.startDate
+        }).subscribe(data => {
             this.sailDayChanged = data.sailDayChanged;
             this.sailDayChanged.reverse();
             this.fleetId = data.data._id;

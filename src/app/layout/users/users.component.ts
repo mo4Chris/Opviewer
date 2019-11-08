@@ -13,7 +13,12 @@ import { StringMutationService } from '../../shared/services/stringMutation.serv
     animations: [routerTransition()]
 })
 export class UsersComponent implements OnInit {
-    constructor(private newService: CommonService, private _router: Router, private userService: UserService, private stringMutationService: StringMutationService ) { }
+    constructor(
+        private newService: CommonService,
+        private _router: Router,
+        private userService: UserService,
+        private stringMutationService: StringMutationService
+    ) { }
     errData;
     userData;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
@@ -27,8 +32,8 @@ export class UsersComponent implements OnInit {
     ngOnInit() {
         this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive === true) {
-                if (this.userPermission != "admin") {
-                    if (this.userPermission != "Logistics specialist") {
+                if (this.userPermission !== 'admin') {
+                    if (this.userPermission !== 'Logistics specialist') {
                         this._router.navigate(['/access-denied']);
                     } else {
                         this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
@@ -40,8 +45,8 @@ export class UsersComponent implements OnInit {
                 localStorage.removeItem('isLoggedin');
                 localStorage.removeItem('token');
                 this._router.navigate(['login']);
-              }
-            });
+            }
+        });
     }
 
     redirectManageBoats(username) {
@@ -71,7 +76,7 @@ export class UsersComponent implements OnInit {
     }
 
     setActive(user) {
-        this.newService.setActive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
+        this.newService.setActive({ _id: user._id, user: this.tokenInfo.username }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -94,7 +99,7 @@ export class UsersComponent implements OnInit {
     }
 
     setInactive(user) {
-        this.newService.setInactive({ _id: user._id, user:  this.tokenInfo.username }).pipe(
+        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';

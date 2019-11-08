@@ -12,7 +12,14 @@ import { FormsModule } from '@angular/forms';
 import {CommonService} from '../../../common.service';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, NgbModule.forRoot(), FleetsRoutingModule, PageHeaderModule],
+    imports: [
+        CommonModule,
+        HttpClientModule,
+        FormsModule,
+        NgbModule.forRoot(),
+        FleetsRoutingModule,
+        PageHeaderModule
+    ],
     declarations: [FleetsComponent],
     providers: [CommonService],
     bootstrap: [FleetsComponent]

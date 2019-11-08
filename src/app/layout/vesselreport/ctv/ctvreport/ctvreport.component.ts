@@ -67,7 +67,19 @@ export class CtvreportComponent implements OnInit {
     hseOptions = [];
 
 
-    generalInputStats = { date: NaN, mmsi: NaN, fuelConsumption: 0, landedOil: 0, landedGarbage: 0, toolboxConducted: [], drillsConducted: [], observations: false, incidents: false, passengers: false,  customInput: '' };
+    generalInputStats = {
+        date: NaN,
+        mmsi: NaN,
+        fuelConsumption: 0,
+        landedOil: 0,
+        landedGarbage: 0,
+        toolboxConducted: [],
+        drillsConducted: [],
+        observations: false,
+        incidents: false,
+        passengers: false,
+        customInput: '',
+    };
 
     googleMap: google.maps.Map;
     wavedata: WavedataModel;
@@ -103,7 +115,6 @@ export class CtvreportComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         // At this point are loaded: tokenInfo, vesselObject
-
         this.visitedPark = '';
         if (this.weatherOverviewChart) {
             this.weatherOverviewChart.destroy();
@@ -116,8 +127,8 @@ export class CtvreportComponent implements OnInit {
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
             if (validatedValue.length === 1) {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
-                    this.getComments(this.vesselObject).subscribe(_ => {
-                        this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    this.getComments(this.vesselObject).subscribe(__ => {
+                        this.getVideoRequests(this.vesselObject).subscribe(___ => {
                             this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
                                 if (data[0]) {
                                     this.videoBudget = data[0];
@@ -189,6 +200,8 @@ export class CtvreportComponent implements OnInit {
 
 
     loadWaveData() {
+        this.wavedataLoaded = false;
+        this.wavedata = null;
         this.turbineLocationData.subscribe(turbData => {
             this.visitedPark = turbData.turbineLocations[0] ? turbData.turbineLocations[0].SiteName : null;
             this.newService.getWavedataForDay({

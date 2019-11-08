@@ -246,7 +246,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getUserClientById(user: any, client: {client: any}): Observable<{_id: string, client: string}> {
+  getUserClientById(user: any, client: any): Observable<{_id: string, client: string}> {
     return this.get(environment.DB_IP + '/api/getUserClientById/' + user + '/' + client).pipe(
       map((response: Response) => response.json()));
   }

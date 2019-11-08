@@ -15,6 +15,7 @@ import { CalculationService } from '../../../supportModules/calculation.service'
 import { StringMutationService } from '../../../shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { UserModel } from '../../../models/userModel';
+import { isArray } from 'util';
 
 
 @Component({
@@ -26,7 +27,7 @@ import { UserModel } from '../../../models/userModel';
 })
 export class FleetavailabilityComponent implements OnInit {
     constructor(
-        public router: Router,
+        private router: Router,
         private newService: CommonService,
         private modalService: NgbModal,
         private route: ActivatedRoute,
@@ -41,7 +42,7 @@ export class FleetavailabilityComponent implements OnInit {
     myChart;
     hideText = false;
     edit = false;
-    turbineWarrenty;
+    turbineWarrenty: TurbineWarrentyModel;
     loaded = false;
     selectedMonth = 'Last 2 weeks';
     availableMonths = [];
@@ -107,12 +108,17 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     buildData(init = false) {
-        this.newService.getTurbineWarrantyOne({ campaignName: this.params.campaignName, windfield: this.params.windfield, startDate: this.params.startDate }).subscribe(data => {
+        this.newService.getTurbineWarrantyOne({
+            campaignName: this.params.campaignName,
+            windfield: this.params.windfield,
+            startDate: this.params.startDate
+        }).subscribe(data => {
             if (data.data != null) {
-                this.turbineWarrenty = data.data;
-                if (!(this.turbineWarrenty.sailMatrix[0][0] >= 0) && this.turbineWarrenty.sailMatrix[0][0] !== '_NaN_') {
-                    this.turbineWarrenty.sailMatrix = [this.turbineWarrenty.sailMatrix];
+                console.log(data)
+                if (!isArray(data.data.sailMatrix[0])) {
+                    data.data.sailMatrix = [data.data.sailMatrix];
                 }
+                this.turbineWarrenty = data.data;
                 let date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
                 this.startDate = this.convertMomentToObject(date);
                 date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
@@ -150,11 +156,14 @@ export class FleetavailabilityComponent implements OnInit {
             if (init) {
                 this.getAvailableMonths();
                 if (this.tokenInfo.userPermission === 'admin') {
-                    this.newService.getVessel().subscribe(data => {
-                        this.existingVessels = data.map(v => v.nicename);
+                    this.newService.getVessel().subscribe(_vessel => {
+                        this.existingVessels = _vessel.map(v => v.nicename);
                     });
                 } else {
-                    this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
+                    this.newService.getVesselsForCompany([{
+                        client: this.tokenInfo.userCompany,
+                        notHired: 1
+                    }]).subscribe(_vessel => {
                         this.existingVessels = data.map(v => v.nicename);
                     });
                 }
@@ -756,7 +765,9 @@ export class FleetavailabilityComponent implements OnInit {
 
     deleteListing(deleteItem, vesselnumber) {
         this.listings[vesselnumber].forEach((item, index) => {
-            if (item === deleteItem) { this.listings[vesselnumber].splice(index, 1); }
+            if (item === deleteItem) {
+                this.listings[vesselnumber].splice(index, 1);
+            }
         });
         if (deleteItem.listingID) {
             deleteItem.deleted = true;
@@ -794,4 +805,24 @@ export class FleetavailabilityComponent implements OnInit {
 
 interface ExtendedUserModel extends UserModel {
     findIndex ?: (any) => number;
+}
+
+export interface TurbineWarrentyModel {
+    campaignName: string;
+    startDate: number;
+    stopDate: number;
+    client: string;
+    windfield: string;
+
+    fullFleet: string[];
+    activeFleet: string[];
+
+    numContractedVessels: number;
+    weatherDayTarget: number;
+    weatherDayForecast: number;
+
+    Dates: number[];
+    sailMatrix: Array<number|'_NaN_'>[];
+    lastUpdated: number;
+    _id: string;
 }

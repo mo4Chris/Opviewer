@@ -9,20 +9,25 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { HttpModule } from '@angular/http';
+import { UserTestService } from '../shared/services/test.user.service';
+import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { mockedObservable } from '../models/testObservable';
 
 describe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;
   let fixture: ComponentFixture<SetPasswordComponent>;
+  const userToken = UserTestService.getMockedAccessToken();
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientModule,
-        NgbModule.forRoot(),
+        NgbModule,
         FormsModule,
         RouterTestingModule,
         BrowserAnimationsModule,
-        HttpModule
+        NgxQRCodeModule,
+        HttpModule,
       ],
       declarations: [ SetPasswordComponent ],
       providers: [ CommonService, AuthService ]
@@ -31,6 +36,11 @@ describe('SetPasswordComponent', () => {
   }));
 
   beforeEach(() => {
+    spyOn(SetPasswordComponent.prototype, 'getTokenFromParameter').and.returnValue(userToken);
+    spyOn(SetPasswordComponent.prototype, 'getUsernameFromParameter').and.returnValue(userToken.username);
+    spyOn(SetPasswordComponent.prototype, 'getUserByToken');
+    spyOn(CommonService.prototype, 'get2faExistence').and.returnValue(mockedObservable({secret2fa: 'test123'}));
+
     fixture = TestBed.createComponent(SetPasswordComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

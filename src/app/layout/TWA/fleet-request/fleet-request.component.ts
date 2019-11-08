@@ -15,7 +15,12 @@ import * as moment from 'moment';
     encapsulation: ViewEncapsulation.None,
 })
 export class FleetRequestComponent implements OnInit {
-    constructor(private newService: CommonService, private userService: UserService, private _router: Router, private dateTimeService: DatetimeService) { }
+    constructor(
+        private newService: CommonService,
+        private userService: UserService,
+        private _router: Router,
+        private dateTimeService: DatetimeService
+    ) { }
 
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats = [];
