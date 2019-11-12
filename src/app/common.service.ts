@@ -23,7 +23,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVessel() {
+  getVessel(): Observable<VesselModel[]> {
     return this.get(environment.DB_IP + '/api/getVessel/').pipe(
       map((response: Response) => response.json()));
   }

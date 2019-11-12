@@ -12,6 +12,7 @@ import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
+import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -91,6 +92,8 @@ export class LongtermCTVComponent implements OnInit {
 
     @ViewChild(DeploymentGraphComponent)
     deploymentGraph: DeploymentGraphComponent;
+    @ViewChild(VesselinfoComponent)
+    vesselinfoChild: VesselinfoComponent;
 
     // On (re)load
     ngOnInit() {
@@ -99,6 +102,7 @@ export class LongtermCTVComponent implements OnInit {
 
     buildPageWithCurrentInformation() {
         this.scatterPlot.vesselObject = this.vesselObject;
+        this.vesselinfoChild.update();
         if (this.vesselObject.mmsi.length > 0) {
             this.getVesselLabels({
                 mmsi: this.vesselObject.mmsi,
