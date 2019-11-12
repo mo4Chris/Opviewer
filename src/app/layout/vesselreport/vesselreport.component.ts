@@ -145,9 +145,15 @@ export class VesselreportComponent implements OnInit {
 
 
   printPage() {
+    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
 
-    window.print();
+    for (let _i = 0; _i < containers.length; _i++) {
+        const container = <HTMLDivElement> containers[_i];
+        container.style.width = '225mm';
+    }
+    setTimeout(function() {  window.print(); }, 50);
   }
+
 
   getPlatformLocationData(platformLocationData: any): void {
     this.platformsLoaded = false;
@@ -335,6 +341,7 @@ export class VesselreportComponent implements OnInit {
     window.onbeforeprint = (evt) => {
       // Only update size of the container: the graphs will auto rescale
       const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+
       for (let _i = 0; _i < containers.length; _i++) {
           const container = <HTMLDivElement> containers[_i];
           container.style.width = '225mm';
@@ -345,7 +352,7 @@ export class VesselreportComponent implements OnInit {
       const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
       for (let _i = 0; _i < containers.length; _i++) {
           const container = <HTMLDivElement> containers[_i];
-          container.style.width = '100%';
+          container.style.width = '90%';
       }
   };
   }

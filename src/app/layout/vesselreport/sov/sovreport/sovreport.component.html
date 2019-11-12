@@ -512,6 +512,13 @@
                                         [(value)]="cateringObject.marine"></td>
                             </tr>
                             <tr>
+                                <td></td>
+                                <td>Marine contractors</td>
+                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.marineContractors"
+                                        [(value)]="cateringObject.marineContractors"></td>
+                            </tr>
+                            <tr>
                                 <th>Extra meals</th>
                             </tr>
                             <tr>
@@ -645,6 +652,7 @@
                 <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
                     [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
             </div>
+            <div class="form-group">
             <div class="card-body">
                 <div class="weatherOverview chartContainer" style="height: 400px;">
                     <canvas id="weatherOverview"></canvas>
@@ -753,17 +761,17 @@
                                     <td><input type="text" min="0" class="form-control-sm col-sm-8"
                                             [value]="transfer.location" [(ngModel)]="transfer.location"
                                             (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
@@ -816,14 +824,16 @@
                                     <th></th>
                                     <td><input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.from.hour" [value]="transfer.from.hour"
-                                            (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">:
+                                            (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">
+                                            <span class="col-print-1">:</span>
                                         <input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
                                     <td><input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
                                         <input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
@@ -966,17 +976,19 @@
                                     <td><input type="text" min="0" class="form-control-sm col-sm-8"
                                             [value]="transfer.location" [(ngModel)]="transfer.location"
                                             (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
@@ -1763,6 +1775,13 @@
                                 <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
                                         max="10000" [(ngModel)]="cateringObject.marine"
                                         [(value)]="cateringObject.marine"></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Marine contractors</td>
+                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.marineContractors"
+                                        [(value)]="cateringObject.marineContractors"></td>
                             </tr>
                             <tr>
                                 <th>Extra meals</th>
