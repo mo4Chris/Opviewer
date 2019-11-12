@@ -9,7 +9,7 @@ var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
-var db = mongo.connect("mongodb://test:test123@ds117225-a0.mlab.com:17225,ds117225-a1.mlab.com:17225/bmo_dataviewer?replicaSet=rs-ds117225", { useNewUrlParser: true }, function (err, response) {
+var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function (err, response) {
     // Why is this address hardcoded instead of calling the environment.ts file?
     if (err) { console.log(err); }
     else { console.log('Connected to Database'); }
