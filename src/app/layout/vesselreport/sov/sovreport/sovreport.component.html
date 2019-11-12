@@ -1,5 +1,4 @@
 <div *ngIf="locShowContent">
-    <br />
     <div class="row">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
@@ -124,7 +123,7 @@
         </div>
     </div>
     <div class="col-xl-12 col-lg-24">
-        <div class="card mb-3">
+        <div class="card mb-3 singlepage-print-port">
             <div class="card-header">DPR input</div>
             <div class="card-body">
                 <div class="row">
@@ -173,7 +172,7 @@
                                     <td></td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;"
@@ -234,7 +233,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
@@ -263,12 +262,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let HoC of HOCArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
                                                 [(ngModel)]="HoC.value" [value]="HoC.value">
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
-                                                class="form-control col-xl-5">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 (remove)</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -298,12 +297,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value"
                                                 placeholder="input reason" [value]="toolbox.value">
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
-                                                class="form-control col-xl-5">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 times</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -339,7 +338,7 @@
                 <hr>
                 <hr>
 
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
                             <tr>
@@ -483,7 +482,7 @@
                 </div>
 
                 <hr>
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
 
@@ -510,6 +509,13 @@
                                 <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
                                         max="10000" [(ngModel)]="cateringObject.marine"
                                         [(value)]="cateringObject.marine"></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Marine contractors</td>
+                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.marineContractors"
+                                        [(value)]="cateringObject.marineContractors"></td>
                             </tr>
                             <tr>
                                 <th>Extra meals</th>
@@ -552,7 +558,7 @@
                             </tr>
                             <tr>
                                 <td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
-                                        class="form-control" rows="6" cols="70"></textarea></td>
+                                        class="form-control" rows="10" cols="70"></textarea></td>
                             </tr>
                             <tr *ngIf="remarksChanged == true">
                                 <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary"
@@ -577,14 +583,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.from.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.from.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -595,14 +601,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.to.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.to.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -611,7 +617,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="2">
                                     <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;"
                                         type="button">add line</button>
@@ -631,32 +637,31 @@
     </div>
 
     <div *ngIf="weatherOverviewChartCalculated">
-        <div class="row">
-            <div class="col-xl-12 col-lg-24">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Weather overview
-                        <ng-template #popContentWeatherOverview class="helpContent">
-                            Weather overview for selected day and vessel.
-                            By default, only Hs and avg wind speed are shown.
-                            Hidden or missing data is crossed through. To show or
-                            hide a particular dataset, click on the colored
-                            bars in the legend. Hovering over the graph will
-                            display the recorded values at any time.
-                        </ng-template>
-                        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
-                            [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-                    </div>
-                    <div class="weatherOverview" style="height: 400px">
-                        <canvas id="weatherOverview"></canvas>
-                    </div>
+        <div class="card mb-3">
+            <div class="card-header">
+                Weather overview
+                <ng-template #popContentWeatherOverview class="helpContent">
+                    Weather overview for selected day and vessel.
+                    By default, only Hs and avg wind speed are shown.
+                    Hidden or missing data is crossed through. To show or
+                    hide a particular dataset, click on the colored
+                    bars in the legend. Hovering over the graph will
+                    display the recorded values at any time.
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+                    [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+            </div>
+            <div class="form-group">
+            <div class="card-body">
+                <div class="weatherOverview chartContainer" style="height: 400px;">
+                    <canvas id="weatherOverview"></canvas>
                 </div>
             </div>
         </div>
     </div>
     <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
         <br />
-        <div class="col-xl-12 col-lg-24">
+        <div class="col-xl-12 col-lg-24 singlepage-print-port">
             <div *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
                 <div class="card mb-3">
                     <div class="card-header">Platform docking list</div>
@@ -755,17 +760,17 @@
                                     <td><input type="text" min="0" class="form-control-sm col-sm-8"
                                             [value]="transfer.location" [(ngModel)]="transfer.location"
                                             (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
@@ -818,14 +823,16 @@
                                     <th></th>
                                     <td><input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.from.hour" [value]="transfer.from.hour"
-                                            (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">:
+                                            (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">
+                                            <span class="col-print-1">:</span>
                                         <input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
                                     <td><input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
                                         <input type="text" min="0" class="form-control-sm col-sm-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
@@ -939,7 +946,7 @@
                                         </td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
                                         <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
-                                        <td><button class="btn btn-lg btn-primary submitBtnDate"
+                                        <td class="plsdonotprintthisforfsake"><button class="btn btn-lg btn-primary submitBtnDate"
                                                 (click)="saveTurbinePaxInput(turbineTransfer)"
                                                 type="button">Save</button></td>
                                     </tr>
@@ -968,17 +975,19 @@
                                     <td><input type="text" min="0" class="form-control-sm col-sm-8"
                                             [value]="transfer.location" [(ngModel)]="transfer.location"
                                             (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.from.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
-                                    <td><input type="text" min="0" class="form-control-sm col-sm-3"
+                                    <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.hour" (ngModelChange)="updatePaxCargoTotal()"
-                                            placeholder="HH">:
-                                        <input type="text" min="0" class="form-control-sm col-sm-3"
+                                            placeholder="HH">
+                                            <span class="col-print-1">:</span>
+                                        <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
                                             [(ngModel)]="transfer.to.minutes" (ngModelChange)="updatePaxCargoTotal()"
                                             placeholder="MM">
                                     </td>
@@ -1208,7 +1217,7 @@
                                 <ng-container *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
                                     <tr>
                                         <th>{{sovModel.sovInfo.vesselName}}</th>
-                                        <th colspan="6"><a href="javascript:void(0)"
+                                        <th colspan="9"><a href="javascript:void(0)"
                                                 (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a>
                                         </th>
                                     </tr>
@@ -1376,10 +1385,11 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
 <div *ngIf="!locShowContent">
     <div class="col-xl-12 col-lg-24">
-        <div class="card mb-3">
+        <div class="card mb-3 singlepage-print-port">
             <div class="card-header">DPR input</div>
             <div class="card-body">
                 <div class="row">
@@ -1428,7 +1438,7 @@
                                     <td></td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;"
@@ -1489,7 +1499,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
@@ -1518,12 +1528,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let HoC of HOCArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
                                                 [(ngModel)]="HoC.value" [value]="HoC.value">
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
-                                                class="form-control col-xl-5">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 (remove)</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -1553,12 +1563,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value"
                                                 placeholder="input reason" [value]="toolbox.value">
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
-                                                class="form-control col-xl-5">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 times</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -1594,7 +1604,7 @@
                 <hr>
                 <hr>
 
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
                             <tr>
@@ -1738,7 +1748,7 @@
                 </div>
 
                 <hr>
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
 
@@ -1765,6 +1775,13 @@
                                 <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
                                         max="10000" [(ngModel)]="cateringObject.marine"
                                         [(value)]="cateringObject.marine"></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Marine contractors</td>
+                                <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0"
+                                        max="10000" [(ngModel)]="cateringObject.marineContractors"
+                                        [(value)]="cateringObject.marineContractors"></td>
                             </tr>
                             <tr>
                                 <th>Extra meals</th>
@@ -1807,7 +1824,7 @@
                             </tr>
                             <tr>
                                 <td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
-                                        class="form-control" rows="6" cols="70"></textarea></td>
+                                        class="form-control" rows="10" cols="70"></textarea></td>
                             </tr>
                             <tr *ngIf="remarksChanged == true">
                                 <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary"
@@ -1832,14 +1849,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.from.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.from.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -1850,14 +1867,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.to.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.to.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -1866,7 +1883,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="2">
                                     <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;"
                                         type="button">add line</button>

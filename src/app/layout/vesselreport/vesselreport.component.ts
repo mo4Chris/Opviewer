@@ -48,6 +48,7 @@ export class VesselreportComponent implements OnInit {
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
   vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': '', 'vesselType': '' };
+  vesselname = '';
 
   parkNamesData;
   boatLocationData = [];
@@ -141,6 +142,18 @@ export class VesselreportComponent implements OnInit {
       this.buildPageWhenLoaded();
     });
   }
+
+
+  printPage() {
+    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+
+    for (let _i = 0; _i < containers.length; _i++) {
+        const container = <HTMLDivElement> containers[_i];
+        container.style.width = '225mm';
+    }
+    setTimeout(function() {  window.print(); }, 50);
+  }
+
 
   getPlatformLocationData(platformLocationData: any): void {
     this.platformsLoaded = false;
@@ -339,6 +352,7 @@ export class VesselreportComponent implements OnInit {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
+        this.vesselname = validatedValue[0].nicename;
         this.vesselObject.vesselType = validatedValue[0].operationsClass;
         const map = document.getElementById('routeMap');
         if (map != null) {

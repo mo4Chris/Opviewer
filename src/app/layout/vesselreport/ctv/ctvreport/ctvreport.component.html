@@ -1,6 +1,6 @@
 <div *ngIf="showContent">
     <br><br>
-    <div class="divContainer" *ngIf="transferData?.length > 0">
+    <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
         <h3 *ngIf="noTransits">There is no transit data available</h3>
         <table class="table table-bordered table-responsive transitTable">
             <tr>
@@ -147,7 +147,7 @@
         <br><br>
     </div>
 
-    <div class="divContainer" *ngIf="transferData?.length > 0">
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
         <h3>Dockings</h3>
         <table class="table table-hover table-striped">
             <thead>
@@ -163,8 +163,8 @@
                     <th>Cargo in/out</th>
                     <th>comment</th>
                     <th>detector</th>
-                    <th>save</th>
-                    <th *ngIf="videoRequestPermission">video request</th>
+                    <th class="plsdonotprintthisforfsake">save</th>
+                    <th class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">video request</th>
                 </tr>
             </thead>
             <tbody>
@@ -207,10 +207,10 @@
                         </span>
                     </td>
                      <td>{{transfer_Data.detector}}</td>
-                    <td>
+                    <td class="plsdonotprintthisforfsake">
                         <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
                     </td>
-                    <td *ngIf="videoRequestPermission">
+                    <td class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">
                         <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
                     </td>
                 </tr>
@@ -218,13 +218,16 @@
         </table> 
         <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
     </div>
-    <div class="row">
-        <div class="col-lg-8" *ngFor="let transfer_Data of transferData;let ind = index">
+    <div class="row singlepage-print singlepage-print-port"></div>
+    <div class="row singlepage-print singlepage-print-port">
+        <div class="col-lg-7 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
             <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0">
                 <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
                     {{roundNumber(transfer_Data.score, 10)}}</h3>
             </span>
-            <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
+            <div class="chartContainer">
+                <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
+            </div>
         </div>
     </div>
     <div class="videoRequestLoading" *ngIf="videoRequestLoading">
