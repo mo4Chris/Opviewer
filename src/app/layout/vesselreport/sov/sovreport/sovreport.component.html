@@ -1,5 +1,4 @@
 <div *ngIf="locShowContent">
-    <br />
     <div class="row">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
@@ -1386,10 +1385,11 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
 <div *ngIf="!locShowContent">
     <div class="col-xl-12 col-lg-24">
-        <div class="card mb-3">
+        <div class="card mb-3 singlepage-print-port">
             <div class="card-header">DPR input</div>
             <div class="card-body">
                 <div class="row">
@@ -1438,7 +1438,7 @@
                                     <td></td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;"
@@ -1499,7 +1499,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="4">
                                     <button class="btn btn-sm btn-success"
                                         (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
@@ -1528,12 +1528,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let HoC of HOCArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7 col-lg-14" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
                                                 [(ngModel)]="HoC.value" [value]="HoC.value">
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
-                                                class="form-control col-xl-5 col-lg-10">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 (remove)</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -1563,12 +1563,12 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7" type="text"
+                                            <input class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value"
                                                 placeholder="input reason" [value]="toolbox.value">
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
-                                                class="form-control col-xl-5">
+                                                class="form-control col-xl-5 col-print-5">
                                                 <option value=0>0 times</option>
                                                 <option value=1>1 times</option>
                                                 <option value=2>2 times</option>
@@ -1604,7 +1604,7 @@
                 <hr>
                 <hr>
 
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
                             <tr>
@@ -1617,7 +1617,7 @@
                                 <th>FUEL OIL (m<sup>3</sup>)</th>
                                 <th>LUB OIL (Litres)</th>
                                 <th>Dom. Pot Water (m<sup>3</sup>)</th>
-                                <th>Cargo Pot Water(m<sup>3</sup>)</th>
+                                <th>Cargo Pot Water()</th>
                             </tr>
                             <tr>
                                 <th>Start of day</th>
@@ -1748,7 +1748,7 @@
                 </div>
 
                 <hr>
-                <div class="row">
+                <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
 
@@ -1824,7 +1824,7 @@
                             </tr>
                             <tr>
                                 <td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
-                                        class="form-control printTextArea" rows="8" cols="70"></textarea></td>
+                                        class="form-control" rows="10" cols="70"></textarea></td>
                             </tr>
                             <tr *ngIf="remarksChanged == true">
                                 <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary"
@@ -1849,14 +1849,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.from.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.from.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -1867,14 +1867,14 @@
                                         <div class="tableRow">
                                             HH:
                                             <select [(ngModel)]="dp.to.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let hour of allHours" [value]="hour">
                                                     {{hour}}
                                                 </option>
                                             </select>
                                             MM:
                                             <select [(ngModel)]="dp.to.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4">
+                                                class="form-control col-xl-4 col-print-4">
                                                 <option *ngFor="let minutes of all5Minutes" [value]="minutes">
                                                     {{minutes}}
                                                 </option>
@@ -1883,7 +1883,7 @@
                                     </td>
                                 </tr>
                             </ng-container>
-                            <tr>
+                            <tr class="plsdonotprintthisforfsake">
                                 <td colspan="2">
                                     <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;"
                                         type="button">add line</button>

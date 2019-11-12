@@ -629,6 +629,7 @@ export class SovreportComponent implements OnInit {
             this.sovLoaded = true;
             this.checkIfAllLoaded();
         });
+        console.log(this.locShowContent);
     }
 
     checkIfAllLoaded() {
