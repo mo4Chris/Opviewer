@@ -17,7 +17,8 @@ import { CommonService } from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { LongtermCTVModule } from './ctv/longtermCTV.module';
-import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
+import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -33,7 +34,7 @@ import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGra
         PageHeaderModule,
         LongtermCTVModule
     ],
-    declarations: [LongtermComponent, LongtermCTVComponent, LongtermSOVComponent, DeploymentGraphComponent],
+    declarations: [LongtermComponent, LongtermCTVComponent, LongtermSOVComponent, DeploymentGraphComponent, UtilizationGraphComponent],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent]
 })

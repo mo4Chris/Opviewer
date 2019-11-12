@@ -10,9 +10,8 @@ import { CalculationService } from '../../../supportModules/calculation.service'
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { CorrelationGraph } from '../models/correlationgraph/correlationgraph.component';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
-import { DeploymentGraphComponent } from '../models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -78,7 +77,6 @@ export class LongtermCTVComponent implements OnInit {
         this.calculationService,
         this.dateTimeService
         );
-    CorrelationGraph: CorrelationGraph;
     fieldname: string;
     wavedataArray: WavedataModel[];
     mergedWavedata: {
@@ -170,7 +168,6 @@ export class LongtermCTVComponent implements OnInit {
             x: compElt.x,
             y: compElt.y
         };
-
         switch (compElt.dataType) {
             case 'transfer':
                 this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
@@ -281,13 +278,13 @@ export class LongtermCTVComponent implements OnInit {
         }
     }
 
-    groupDataByMonth(data: {date: number[], [prop: string]: any} ) {
+    groupDataByMonth(data: {date: number[], score?: number[], [prop: string]: any} ) {
         const month = Object.create(this.fromDate);
         month.year = this.fromDate.year;
         month.month = this.fromDate.month;
         month.day = 0;
         const monthLabels = [];
-        const dataPerMonth = [];
+        const dataPerMonth = []; // : Array<{dates: number[], score: number[]}> = [];
         let matlabStartDate: number;
         let matlabStopDate: number;
         while (!month.after(this.toDate)) {

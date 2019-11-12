@@ -12,7 +12,7 @@ import { LongtermCTVComponent } from './longtermCTV.component';
 import { LongtermComponent } from '../longterm.component';
 import { UserService } from '../../../shared/services/user.service';
 import { UserTestService } from '../../../shared/services/test.user.service';
-import { DeploymentGraphComponent } from '../models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { RouterTestingModule } from '@angular/router/testing';

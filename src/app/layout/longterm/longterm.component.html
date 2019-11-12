@@ -56,7 +56,7 @@
                         [(ngModel)]="dropdownValues"
                         [settings]="multiSelectSettings">
                     </ng-multiselect-dropdown>
-                    <ng-multiselect-dropdown
+                    <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0"
                         name="selectField" 
                         (onOpen)="openVesselModal($event)" 
                         id ="selectField"

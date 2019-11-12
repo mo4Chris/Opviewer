@@ -1,10 +1,12 @@
-import { map } from 'rxjs/operators';
+import { map, takeUntil, takeLast } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, observable, timer } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { isArray } from 'util';
+import { ObserveOnSubscriber } from 'rxjs/internal/operators/observeOn';
+import { TimedObservable } from './supportModules/timed_observable';
 
 @Injectable()
 export class CommonService {
@@ -134,27 +136,27 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransfersForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[]}) {
+  getTransfersForVesselByRange(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransfersForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[] }) {
+  getTransitsForVesselByRange(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTurbineTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getPlatformTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -469,4 +471,11 @@ export class CommonService {
     map((response: Response) => response.json()));
   }
 }
+
+interface StatsRangeRequest {
+  mmsi: number[];
+  dateMin: number;
+  dateMax: number;
+  reqFields: string[];
+} 
 

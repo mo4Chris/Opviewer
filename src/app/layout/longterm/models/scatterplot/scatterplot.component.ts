@@ -16,7 +16,7 @@ export class ScatterplotComponent {
     this.comparisonArray = comparisonArray;
   }
 
-  backgroundcolors = [
+ backgroundcolors = [
     'rgba(255,0,0,1)',
     'rgba(0,155,0,1)',
     'rgba(0, 100, 255 , 1)',
@@ -112,7 +112,7 @@ export class ScatterplotComponent {
           datasets: this.datasetValues[_j],
           graphIndex: _j,
           axisType: axisTypes,
-          bins: this.calculationService.linspace(0, 2, 0.2),
+          bins: this.calculationService.linspace(0, 5, 0.2),
         };
         switch (graph) {
           case 'bar':
@@ -128,10 +128,14 @@ export class ScatterplotComponent {
             console.error('Invalid graph type used!');
         }
         const hmtlElt = document.getElementById('hideIfNoData' + _j);
-        hmtlElt.setAttribute('style', 'normal');
+        if (hmtlElt) {
+          hmtlElt.setAttribute('style', 'normal');
+        }
       } else {
         const hmtlElt = document.getElementById('hideIfNoData' + _j);
-        hmtlElt.setAttribute('style', 'display: none');
+        if (hmtlElt) {
+          hmtlElt.setAttribute('style', 'display: none');
+        }
       }
     }
   }
@@ -270,6 +274,7 @@ export class ScatterplotComponent {
       vesseldata.data.forEach((stackdata, _i) => {
         dataSets.push({
           label: vesseldata.label,
+          key: stackdata.key,
           data: stackdata.y,
           stack: vesseldata.label,
           showInLegend: _i === 0,
@@ -286,6 +291,16 @@ export class ScatterplotComponent {
         datasets: dataSets,
       },
       options: {
+        tooltips: {
+          callbacks: {
+            label: function (tooltipItem, data) {
+              return data.datasets[tooltipItem.datasetIndex].label;
+            },
+            afterLabel: function(tooltipItem, data) {
+              return data.datasets[tooltipItem.datasetIndex].key + ' ' + tooltipItem.value;
+            },
+          }
+        },
         title: {
           display: true,
           fontSize: 20,
@@ -740,6 +755,7 @@ interface ScatterValueArray {
 interface ScatterDataElt {
   x: number|Date;
   y: number|Date;
+  key?: string;
   callback?: Function;
 }
 

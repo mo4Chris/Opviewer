@@ -39,7 +39,7 @@
                                 <td>{{rd.mmsi}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a></td>
                                 <td *ngIf="ScatterplotPermission">
-                                    <div *ngIf="rd.operationsClass==='CTV'"><a class="btn rounded-btn" (click)="redirectLongterm(rd.mmsi, rd.nicename)"> Long term reports </a></div>
+                                    <div><a class="btn rounded-btn" (click)="redirectLongterm(rd.mmsi, rd.nicename)"> Long term reports </a></div>
                                 </td> 
                             </tr>
                         </tbody>
