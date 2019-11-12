@@ -121,23 +121,6 @@ export class LongtermComponent implements OnInit {
         this.router.navigate(['login']);
       }
     });
-    // Setting some global print options
-    window.onbeforeprint = (evt) => {
-      // Only update size of the container: the graphs will auto rescale
-      const containers = <HTMLCollection>document.getElementsByClassName('chartContainer');
-      for (let _i = 0; _i < containers.length; _i++) {
-        const container = <HTMLDivElement>containers[_i];
-        container.style.width = '210mm';
-      }
-    };
-    window.onafterprint = (evt) => {
-      // Only update size of the container: the graphs will auto rescale
-      const containers = <HTMLCollection>document.getElementsByClassName('chartContainer');
-      for (let _i = 0; _i < containers.length; _i++) {
-        const container = <HTMLDivElement>containers[_i];
-        container.style.width = '100%';
-      }
-    };
   }
 
   testIfAllInit() {
