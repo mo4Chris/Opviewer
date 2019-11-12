@@ -151,7 +151,7 @@ export class VesselreportComponent implements OnInit {
         const container = <HTMLDivElement> containers[_i];
         container.style.width = '225mm';
     }
-    setTimeout(function() {  window.print(); }, 50);
+    setTimeout(function() {  window.print(); }, 500);
   }
 
 

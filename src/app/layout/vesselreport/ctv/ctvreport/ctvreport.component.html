@@ -220,7 +220,7 @@
     </div>
     <div class="row singlepage-print singlepage-print-port"></div>
     <div class="row singlepage-print singlepage-print-port">
-        <div class="col-lg-8 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
+        <div class="col-lg-7 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
             <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0">
                 <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
                     {{roundNumber(transfer_Data.score, 10)}}</h3>
