@@ -1732,7 +1732,12 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ mmsi: mmsi, date: date, active: {$ne: false}, detector: {$ne: 'impact'}}).sort({
+        Transfermodel.find({
+            mmsi: mmsi,
+            date: date,
+            active: {$ne: false},
+            detector: {$ne: 'impact'}
+        }).sort({
                 startTime: 1
         }).exec(function (err, data) {
             if (err) {
@@ -1788,7 +1793,7 @@ app.post("/api/getGeneralForRange", function (req, res) {
                 }
             });
         case 'SOV': case 'OSV':
-            return SovModel.aggregate([
+            return SovModelmodel.aggregate([
                 {$match: query}, 
                 { "$sort": {date: -1}},
                 {$project: projection},
@@ -1810,215 +1815,23 @@ app.post("/api/getGeneralForRange", function (req, res) {
 });
 
 app.post("/api/getTransfersForVesselByRange", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        testObj = {
-            vesselname: 1,
-            mmsi: 1,
-            startTime: 1,
-        }
-        groupObj = {
-            _id: "$mmsi",
-            label: {$push: "$vesselname"},
-            date: {$push: "$startTime"}
-        }
-        const reqFields = req.body.reqFields;
-        reqFields.forEach( key => {
-            testObj[key] = 1;
-            groupObj[key] = {$push: '$' + key};
-        })
-
-        Transfermodel.aggregate([
-            {
-                "$match": {
-                    mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
-                }
-            },
-            { "$sort": {startTime: -1}},
-            { "$project": testObj },
-            { "$group": groupObj}
-        ]).exec(function (err, data) {
-            if (err) {
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-
-    });
-});
-
-app.post("/api/getTransitsForVesselByRange", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        testObj = {
-            vesselname: 1,
-            mmsi: 1,
-            startTime: 1,
-        }
-        groupObj = {
-            _id: "$mmsi",
-            label: {$push: "$vesselname"},
-            date: {$push: "$startTime"}
-        }
-        const reqFields = req.body.reqFields;
-        reqFields.forEach( key => {
-            testObj[key] = 1;
-            groupObj[key] = {$push: '$' + key};
-        })
-        transitsmodel.aggregate([
-            {
-                "$match": {
-                    mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax },
-                    combinedId: {$in: [12, 21]}
-                }
-            },
-            {"$sort": {startTime: -1}},
-            { "$project": testObj },
-            { "$group" : groupObj}
-        ]).exec(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-    });
+    aggregateStatsOverModel(Transfermodel, req, res);
 });
 
 app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        
-        testObj = {};
-        testObj[req.body.x] = 1;
-        testObj[req.body.y] = 1;
-        testObj['vesselname'] = 1;
-        testObj['mmsi'] = 1;
-        dataArray = [];
-        xGroup = {$push: '$'+req.body.x};
-        yGroup = {$push: '$'+req.body.y};
-
-        SovTurbineTransfersmodel.aggregate([
-            {
-                "$match": {
-                    mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
-                }
-            },
-            {"$sort": {startTime: -1}},
-            { "$project": testObj },
-            { "$group" : { 
-                _id : "$mmsi",
-                label: {$push: "$vesselname"},
-                xVal: xGroup,
-                yVal:  yGroup  
-            }
-            }
-        ]).exec(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-
-    });
+    aggregateStatsOverModel(SovTurbineTransfersmodel, req, res);
 });
 
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        
-        testObj = {};
-        testObj[req.body.x] = 1;
-        testObj[req.body.y] = 1;
-        testObj['vesselname'] = 1;
-        testObj['mmsi'] = 1;
-        dataArray = [];
-        xGroup = {$push: '$'+req.body.x};
-        yGroup = {$push: '$'+req.body.y};
+    aggregateStatsOverModel(SovPlatformTransfersmodel, req, res);
+});
 
-        SovPlatformTransfersmodel.aggregate([
-            {
-                "$match": {
-                    mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
-                }
-            },
-            {"$sort": {arrivalTimePlatform: -1}},
-            { "$project": testObj },
-            { "$group" : { 
-                _id : "$mmsi",
-                label: {$push: "$vesselname"},
-                xVal: xGroup,
-                yVal:  yGroup  
-            }
-            }
-        ]).exec(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-
-    });
+app.post("/api/getTransitsForVesselByRange", function (req, res) {
+    aggregateStatsOverModel(transitsmodel, req, res);
 });
 
 app.post("/api/getTransitsForVesselByRangeForSOV", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        testObj = {};
-        testObj[req.body.x] = 1;
-        testObj[req.body.y] = 1;
-        testObj['vesselname'] = 1;
-        testObj['mmsi'] = 1;
-        dataArray = [];
-        xGroup = {$push: '$'+req.body.x};
-        yGroup = {$push: '$'+req.body.y};
-
-        SovTransitsmodel.aggregate([
-            {
-                "$match": {
-                    mmsi: { $in: req.body.mmsi},
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
-                }
-            },
-            {"$sort": {dayNum: -1}},
-            { "$project": testObj },
-            { "$group" : { 
-                _id : "$mmsi",
-                label: {$push: "$vesselname"},
-                xVal: xGroup,
-                yVal:  yGroup  
-            }
-            }
-        ]).exec(function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-
-    });
+    aggregateStatsOverModel(SovTransitsmodel, req, res);
 });
 
 app.get("/api/getUsers", function (req, res) {
@@ -2132,14 +1945,12 @@ app.post("/api/getVideoRequests", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        videoRequestedmodel.aggregate([
-            {
+        videoRequestedmodel.aggregate([{
                 "$match": {
                     mmsi: { $in: [req.body.mmsi] }, 
                     active: {$ne: false}
                 }
-            },
-            {
+            }, {
                 $group: {
                     _id: "$videoPath",
                     "mmsi": { "$last": "$mmsi" },
@@ -2169,7 +1980,6 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
             mmsi: req.body.mmsi, 
             active: {$ne: false}
         }, null, {
-
             }, function (err, data) {
                 if (err) {
                     return res.send(err);
@@ -2334,7 +2144,6 @@ app.post("/api/setInactive", function (req, res) {
 });
 
 app.post("/api/sendFeedback", function (req, res) {
-
     Usermodel.findOne({ _id: req.body.person, active: {$ne: false} }, function (err, data) {
         if (err) {
             res.send(err);
@@ -2919,6 +2728,47 @@ function getUTCstring() {
         d.getUTCMinutes().padLeft(),
         d.getUTCSeconds().padLeft()].join(':');
     return dformat
+}
+
+function aggregateStatsOverModel(model, req, res){
+    // Default aggregation function for turbine, transfer or transit stats
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        testObj = {
+            vesselname: 1,
+            mmsi: 1,
+            startTime: 1,
+        }
+        groupObj = {
+            _id: "$mmsi",
+            label: {$push: "$vesselname"},
+            date: {$push: "$startTime"}
+        }
+        const reqFields = req.body.reqFields;
+        reqFields.forEach( key => {
+            testObj[key] = 1;
+            groupObj[key] = {$push: '$' + key};
+        })
+        model.aggregate([
+            {
+                "$match": {
+                    mmsi: { $in: req.body.mmsi},
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                }
+            },
+            { "$sort": {startTime: -1}},
+            { "$project": testObj },
+            { "$group": groupObj}
+        ]).exec(function (err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
 }
 
 Number.prototype.padLeft = function(base,chr){
