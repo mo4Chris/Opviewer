@@ -13,6 +13,7 @@ import { DatetimeService } from '../../supportModules/datetime.service';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
+import { VesselModel } from '../../models/vesselModel';
 
 @Component({
   selector: 'app-longterm',
@@ -37,7 +38,13 @@ export class LongtermComponent implements OnInit {
   }
 
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
-  vesselObject = { 'dateMin': this.getMatlabDateLastMonth(), 'mmsi': [this.getMMSIFromParameter()], 'dateNormalMin': this.getJSDateLastMonthYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD() };
+  vesselObject: LongtermVesselObjectModel = {
+    mmsi: [this.getMMSIFromParameter()],
+    dateMin: this.getMatlabDateLastMonth(),
+    dateNormalMin: this.getJSDateLastMonthYMD(),
+    dateMax: this.getMatlabDateYesterday(),
+    dateNormalMax: this.getJSDateYesterdayYMD()
+  };
 
   multiSelectSettings = {
     idField: 'mmsi',
@@ -61,8 +68,7 @@ export class LongtermComponent implements OnInit {
   toDate: NgbDate;
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
-  Vessels: {Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
-    operationsClass: string, speednotifylimit: any, vesselname: string}[] = [];
+  Vessels: VesselModel[] = [];
   showContent: boolean;
   loaded = {Vessels: false, vesselType: false};
   fieldsWithWavedata: {_id: string, site: string, name: string, text?: string}[] = [];
@@ -268,4 +274,12 @@ export class LongtermComponent implements OnInit {
   MatlabDateToUnixEpochViaDate(serial) {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
+}
+
+export interface LongtermVesselObjectModel {
+  mmsi: number[];
+  dateMin: number;
+  dateMax: number;
+  dateNormalMin: string;
+  dateNormalMax: string;
 }

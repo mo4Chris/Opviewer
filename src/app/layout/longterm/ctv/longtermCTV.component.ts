@@ -13,6 +13,7 @@ import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
+import { LongtermVesselObjectModel } from '../longterm.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -29,7 +30,7 @@ export class LongtermCTVComponent implements OnInit {
         private dateTimeService: DatetimeService,
         ) {
     }
-    @Input() vesselObject: {dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[]};
+    @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
@@ -432,3 +433,4 @@ export class LongtermCTVComponent implements OnInit {
         return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
     }
 }
+

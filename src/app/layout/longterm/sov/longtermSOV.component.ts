@@ -11,6 +11,7 @@ import { ScatterplotComponent } from '../models/scatterplot/scatterplot.componen
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
+import { LongtermVesselObjectModel } from '../longterm.component';
 
 @Component({
 selector: 'app-longterm-sov',
@@ -25,7 +26,7 @@ export class LongtermSOVComponent implements OnInit {
         private dateTimeService: DatetimeService,
         ) {
     }
-    @Input() vesselObject: {dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[]};
+    @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;

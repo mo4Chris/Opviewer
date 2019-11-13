@@ -4,12 +4,13 @@
 
 export class VesselModel {
     // Database return array of this template
-    client: string | string[];
-    Operator: string;
+    client: string[];
+    Operator: MongoString;
     vesselname: string;
     nicename: string;
     mmsi: number;
     onHire: boolean;
+    Site: MongoString;
 
     operationsClass: 'CTV' | 'OSV' | 'SOV';
     vessel_length: number;
@@ -19,8 +20,17 @@ export class VesselModel {
     mothercraft_mmsi?: number;
     Propulsion_type?: string;
 
-    speednotifylimit: number | {};
-    impactnotifylimit: number | {};
-    videoResetDay: number;
-    videobuget: number;
+    speednotifylimit: MongoNumber;
+    impactnotifylimit: MongoNumber;
+    videoResetDay: MongoNumber;
+    videobudget: MongoNumber;
+}
+
+type MongoString = string | EmptyMatlabObject;
+type MongoNumber = number | EmptyMatlabObject;
+
+interface EmptyMatlabObject {
+    _ArrayType_: string;
+    _ArraySize_: number[];
+    _ArrayData_: null;
 }

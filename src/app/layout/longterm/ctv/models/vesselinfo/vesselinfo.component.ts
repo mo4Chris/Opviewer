@@ -1,6 +1,7 @@
 import { Component, OnInit, ɵConsole, Input, Output, EventEmitter } from '@angular/core';
 import { TokenModel } from '../../../../../models/tokenModel';
 import { CommonService } from '../../../../../common.service';
+import { LongtermVesselObjectModel } from '../../../longterm.component';
 
 @Component({
   selector: 'app-vesselinfo',
@@ -10,7 +11,7 @@ import { CommonService } from '../../../../../common.service';
 export class VesselinfoComponent implements OnInit {
   constructor() {}
 
-  @Input() vesselObject: {dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[]};
+  @Input() vesselObject: LongtermVesselObjectModel;
   @Input() tokenInfo: TokenModel;
   @Input() newService: CommonService;
   @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
@@ -27,12 +28,11 @@ export class VesselinfoComponent implements OnInit {
       this.vesselObject.mmsi.forEach(_mmsi => {
         _vessels.forEach(vessel => {
           if (vessel.mmsi === _mmsi) {
-            console.log(vessel)
             this.vessels.push({
               mmsi: vessel.mmsi,
               Name: assertString(vessel.nicename),
               Length: assertNumber(vessel.vessel_length, 'm'),
-              Displacement: assertNumber(vessel.displacement / 1000, 'ton'),
+              Displacement: assertNumber(vessel.displacement, 'ton', 1 / 1000),
               Operator: assertString(vessel.Operator),
               PropType: assertString(vessel.Propulsion_type),
             });
@@ -64,8 +64,11 @@ function assertString(str) {
   }
 }
 
-function assertNumber(num, support_string = ''): string {
+function assertNumber(num, support_string = '', scalar?: number): string {
   if (typeof(num) === 'number') {
+    if (scalar) {
+      num = num * scalar;
+    }
     return num.toFixed(0) + ' ' + support_string;
   } else {
     return '-';
