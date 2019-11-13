@@ -7,11 +7,38 @@ import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { isArray } from 'util';
 import { ObserveOnSubscriber } from 'rxjs/internal/operators/observeOn';
 import { TimedObservable } from './supportModules/timed_observable';
+import { VesselModel } from './models/vesselModel';
+import { VesselObjectModel } from './supportModules/mocked.common.service';
 
 @Injectable()
 export class CommonService {
 
   constructor(private http: Http) { }
+
+  get(url: string) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.get(url, {
+      headers: headers
+    });
+  }
+
+  post(url: string, data: any) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.post(url, data, {
+      headers: headers
+    });
+  }
+
+  createAuthorizationHeader(headers: Headers) {
+    headers.append('authorization', localStorage.getItem('token'));
+  }
+
+  validatePermissionToViewData(vessel: { mmsi: number}) {
+    return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
 
   saveVessel(vessel) {
     return this.post(environment.DB_IP + '/api/saveVessel/', vessel).pipe(
@@ -28,8 +55,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSov(mmsi: number, date: number) {
-    return this.get(environment.DB_IP + '/api/getSov/' + mmsi + '/' + date).pipe(
+  getSov(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getSov/' + vessel.mmsi + '/' + vessel.date).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -161,37 +188,37 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getCrewRouteForBoat(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getCrewRouteForBoat(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getCrewRouteForBoat/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsRouteForBoat(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getTransitsRouteForBoat(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getTransitsRouteForBoat/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getDatesWithValues(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getDatesWithValues(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));
   }
 
-  getDatesWithValuesFromGeneralStats(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getDatesWithValuesFromGeneralStats(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getHasSailedDatesCTV/', vessel).pipe(
        map((response: Response) => response.json()));
   }
 
-  getDatesShipHasSailedForSov(mmsi: number) {
-    return this.get(environment.DB_IP + '/api/getDatesShipHasSailedForSov/' + mmsi).pipe(
+  getDatesShipHasSailedForSov(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getDatesShipHasSailedForSov/' + vessel.mmsi).pipe(
       map((response: Response) => response.json()));
   }
 
-  getDatesWithTransfersForSOV(mmsi: number) {
-    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + mmsi).pipe(
+  getDatesWithTransfersForSOV(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + vessel.mmsi).pipe(
       map((response: Response) => response.json()));
   }
 
-  getCommentsForVessel(vessel: number) {
+  getCommentsForVessel(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getCommentsForVessel/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -291,33 +318,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSovDprInput(vessel) {
+  getSovDprInput(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getSovDprInput/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  get(url: string) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.get(url, {
-      headers: headers
-    });
-  }
-
-  post(url: string, data: any) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.post(url, data, {
-      headers: headers
-    });
-  }
-
-  createAuthorizationHeader(headers: Headers) {
-    headers.append('authorization', localStorage.getItem('token'));
-  }
-
-  validatePermissionToViewData(vessel: { mmsi: number}) {
-    return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -336,7 +338,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVideoRequests(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getVideoRequests(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -346,12 +348,12 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVideoBudgetByMmsi(mmsi: {mmsi: number}) {
-    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', mmsi).pipe(
+  getVideoBudgetByMmsi(vessel: VesselObjectModel) {
+    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', {mmsi: vessel.mmsi}).pipe(
       map((response: Response) => response.json()));
   }
 
-  getGeneral(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getGeneral(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getGeneral/', vessel).pipe(
       map((response: Response) => response.json()));
   }

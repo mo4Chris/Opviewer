@@ -1,7 +1,7 @@
-import { type } from 'os';
-import { CalculationService } from './calculation.service';
 import { CommonService } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
+import { VesselModel } from '../models/vesselModel';
+import { Observable } from 'rxjs';
 
 
 const emptyMatlabObject = {
@@ -10,7 +10,25 @@ const emptyMatlabObject = {
     _ArrayData_: null,
 };
 
-export class MockedCommonService {
+export class MockedCommonService extends CommonService {
+    constructor() {
+        // We build the superclass CommonService using a null http class (since we dont want internet traffic)
+        super(null);
+    }
+
+    // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
+    get(request_url: string) {
+         console.error('Server attempt to request external resource: ' + request_url);
+         const Response: any = 0;
+         return Response;
+    }
+
+    post(request_url: string, payload = []) {
+         console.error('Server attempt to request external resource: ' + request_url);
+         const Response: any = 0;
+         return Response;
+    }
+
     validatePermissionToViewData(opts: {
         mmsi?: number,
         vesselname?: string,
@@ -20,19 +38,7 @@ export class MockedCommonService {
         onHire?: 0 | 1,
         operationsClass?: VesselType,
     } = {}) {
-        const defaults = {
-            vesselname: 'Test_BMO',
-            nicename: 'TEST BMO',
-            client: 'BMO',
-            mmsi: 123456789,
-            speednotifylimit: emptyMatlabObject,
-            impactnotifylimit: emptyMatlabObject,
-            operationsClass: 'CTV',
-            Site: emptyMatlabObject,
-            onHire: 1,
-            videobudget: 120,
-            videoResetDay: 19,
-        };
+        const defaults = this.getVesselDefault()[0];
         return mockedObservable([{...defaults, ...opts}]);
     }
 
@@ -53,7 +59,6 @@ export class MockedCommonService {
         const T = linspace(vesselObject.date - 15, vesselObject.date - 5, 1);
         return mockedObservable(T);
     }
-
 
     getGeneral(vesselObject: VesselObjectModel) {
         const date = vesselObject.date;
@@ -128,6 +133,7 @@ export class MockedCommonService {
             vesselName: '_NaN_',
         }]});
     }
+
     getSov(vesselObject: VesselObjectModel) {
         const date = vesselObject.date;
         return mockedObservable([{
@@ -194,7 +200,33 @@ export class MockedCommonService {
         }]);
     }
 
-    getSovDprInput(mmsi: number, date: number) {
+    getVesselDefault(): VesselModel[] {
+        return [{
+            vesselname: 'Test_BMO',
+            nicename: 'TEST BMO',
+            client: ['BMO'],
+            mmsi: 123456789,
+            speednotifylimit: emptyMatlabObject,
+            impactnotifylimit: emptyMatlabObject,
+            operationsClass: 'CTV',
+            Site: <string><unknown> emptyMatlabObject,
+            onHire: true,
+            videobudget: 120,
+            videoResetDay: 19,
+            isDaughterCraft: false,
+            Operator: 'BMO',
+            vessel_length: 20,
+            displacement: 38620,
+            Propulsion_type: 'CPP'
+        }];
+    }
+
+    getVessel(): Observable<VesselModel[]> {
+        const mock = mockedObservable(this.getVesselDefault());
+        return mock;
+    }
+
+    getSovDprInput(vessel: VesselObjectModel) {
         // ToDo
         return mockedObservable([]);
     }
@@ -255,10 +287,11 @@ export class MockedCommonService {
         return mockedObservable([]);
     }
 
-    getSpecificPark(parkname: string) {
+    getSpecificPark(park: {park: string[]}) {
         const Names = [];
         const Lons = [];
         const Lats = [];
+        const parkname = park ? park[0] : '';
         for (let _i = 1; _i < 65; _i++) {
             if (_i < 10) {
                 Names.push('T0' + _i);
@@ -286,12 +319,30 @@ export class MockedCommonService {
     }
     getPlatformLocations() {
         // ToDo
-        return mockedObservable([]);
+        return mockedObservable([{
+            filename: 'test123',
+            name: ['PE-F15-PA'],
+            lat: [[0]],
+            lon: [[0]],
+            centroid: {
+                lat: 53,
+                lon: 4,
+                UTMzone: 31,
+                UTMletter: 'N',
+            }
+        }]);
     }
-    getVideoBudgetByMmsi(mmsi: number) {
+    getVideoBudgetByMmsi(vessel: VesselObjectModel) {
         return mockedObservable([120]);
     }
 }
+
+// Replace the CommonService propvider with this provider to completely mock the common service!
+// Providing the mocked class directly wont work because the interpreter wont know which provider this service is mocking.
+export const MockedCommonServiceProvider = {
+    provide: CommonService,
+    useClass: MockedCommonService,
+};
 
 
 // Class support functions
@@ -333,9 +384,9 @@ type VesselType = 'CTV' | 'OSV' | 'SOV';
 type nanModel = '_NaN_' | null | undefined | number;
 
 
-interface VesselObjectModel {
+export interface VesselObjectModel {
     mmsi: number;
     date: number;
-    dateNormal?: string;
+    dateNormal?: string | Date;
     vesselType: VesselType;
 }

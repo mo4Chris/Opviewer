@@ -365,7 +365,7 @@ export class SovreportComponent implements OnInit {
     }
 
     setDPRInputFields() {
-        this.commonService.getSovDprInput({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date}).subscribe(SovDprInput => {
+        this.commonService.getSovDprInput(this.vesselObject).subscribe(SovDprInput => {
             if (SovDprInput.length > 0) {
                 this.HOCArray = SovDprInput[0].hoc;
                 this.ToolboxArray = SovDprInput[0].toolbox;
@@ -530,7 +530,7 @@ export class SovreportComponent implements OnInit {
 
     buildPageWhenRouteLoaded() {
         this.GetAvailableRouteDatesForVessel();
-        this.commonService.getSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(sov => {
+        this.commonService.getSov(this.vesselObject).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
@@ -618,14 +618,14 @@ export class SovreportComponent implements OnInit {
     }
 
     GetAvailableRouteDatesForVessel() {
-        this.commonService.getDatesShipHasSailedForSov(this.vesselObject.mmsi).subscribe(genData => {
+        this.commonService.getDatesShipHasSailedForSov(this.vesselObject).subscribe(genData => {
             this.dateData.general = genData;
         }, null,
             () => {
                 this.pushSailingDates();
             }
         );
-        this.commonService.getDatesWithTransfersForSOV(this.vesselObject.mmsi).subscribe(transferDates => {
+        this.commonService.getDatesWithTransfersForSOV(this.vesselObject).subscribe(transferDates => {
             this.dateData.transfer = transferDates;
         }, null,
             () => {
@@ -708,13 +708,16 @@ export class SovreportComponent implements OnInit {
         // Loads in relevant data for visited platforms
         this.commonService.getPlatformLocations('').subscribe(locdata => {
             if (locdata.length !== 0) {
-                // this.turbineLocations = locdata;
                 const transfers = this.sovModel.platformTransfers;
-                // /const sovType = 'Platform';
-                const locationData = {'turbineLocations': locdata, 'transfers': transfers, 'type': 'Platforms', 'vesselType': 'SOV' };
+                const locationData = {
+                    turbineLocations: locdata,
+                    transfers: transfers,
+                    type: 'Platforms',
+                    vesselType: 'SOV'
+                };
                 this.platformLocationData.emit(locationData);
             } else {
-                console.log('Request to get platform locations returned 0 results!');
+                console.error('Request to get platform locations returned 0 results!');
             }
         });
     }

@@ -8,6 +8,7 @@ import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { WavedataModel } from '../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
+import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
 
 @Component({
     selector: 'app-ctvreport',
@@ -26,7 +27,7 @@ export class CtvreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject: { date: number, mmsi: number, dateNormal: Date, vesselType: string };
+    @Input() vesselObject: VesselObjectModel
     @Input() tokenInfo;
     @Input() mapPixelWidth: number;
     @Input() mapPromise: Promise<google.maps.Map>;
@@ -129,7 +130,7 @@ export class CtvreportComponent implements OnInit {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getComments(this.vesselObject).subscribe(__ => {
                         this.getVideoRequests(this.vesselObject).subscribe(___ => {
-                            this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                            this.newService.getVideoBudgetByMmsi(this.vesselObject).subscribe(data => {
                                 if (data[0]) {
                                     this.videoBudget = data[0];
                                 } else {
@@ -507,7 +508,7 @@ export class CtvreportComponent implements OnInit {
         return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
     }
 
-    getComments(vessel) {
+    getComments(vessel: VesselObjectModel) {
         return this.newService.getCommentsForVessel(vessel).pipe(
             map(changed => {
                 this.commentsChanged = changed;
@@ -773,7 +774,7 @@ export class CtvreportComponent implements OnInit {
                         this.videoRequestLoading = false;
                     });
                     this.newService
-                        .getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi })
+                        .getVideoBudgetByMmsi(this.vesselObject)
                         .subscribe(data => (this.videoBudget = data[0]));
                     clearTimeout(this.timeout);
                     this.showAlert = true;

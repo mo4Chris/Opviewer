@@ -9,13 +9,15 @@ import { RouterModule } from '@angular/router';
 import { PageHeaderModule } from '../../../shared';
 import { CommonService } from '../../../common.service';
 import { LongtermCTVComponent } from './longtermCTV.component';
-import { LongtermComponent } from '../longterm.component';
+import { LongtermComponent, LongtermVesselObjectModel } from '../longterm.component';
 import { UserService } from '../../../shared/services/user.service';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { RouterTestingModule } from '@angular/router/testing';
+import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
+import { MockedCommonService } from '../../../supportModules/mocked.common.service';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
@@ -42,9 +44,10 @@ describe('Longterm_CTV', () => {
       declarations: [
         LongtermCTVComponent,
         DeploymentGraphComponent,
+        VesselinfoComponent
       ],
       providers: [
-        CommonService,
+        {provide: CommonService, useClass: MockedCommonService},
         UserService
       ]
     })
@@ -54,7 +57,7 @@ describe('Longterm_CTV', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LongtermCTVComponent);
     component = fixture.componentInstance;
-    component.vesselObject = {
+    component.vesselObject = <LongtermVesselObjectModel> {
       mmsi: [userBoats[0].mmsi],
       dateMin: 747700,
       dateMax: 747710,
