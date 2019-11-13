@@ -321,6 +321,7 @@ var SovDprInput = new Schema({
     hoc: { type: Array },
     vesselNonAvailability: { type: Array },
     weatherDowntime: { type: Array },
+    standBy: { type: Array },
     remarks: {type: String},
     catering: {type: Object},
     date: { type: Number },
@@ -1585,7 +1586,7 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the non-availability input" });
+                res.send({ data: "Succesfully saved the downtime input" });
             }
         });
     }
@@ -1603,7 +1604,25 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the weather downtime input" });
+                res.send({ data: "Succesfully saved the downtime input" });
+            }
+        });
+        }
+    });
+});
+
+app.post("/api/saveStandByDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { standBy: req.body.standBy},
+        function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the downtime input" });
             }
         });
         }

@@ -291,6 +291,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveStandByDpr(weatherdowntime) {
+    return this.post(environment.DB_IP + '/api/saveStandByDpr/', weatherdowntime).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveCateringStats(sovcateringstats) {
     return this.post(environment.DB_IP + '/api/saveCateringStats/', sovcateringstats).pipe(
       map((response: Response) => response.json()));

@@ -129,6 +129,57 @@
                 <div class="row">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
+                                <tr>
+                                        <th colspan="4">
+                                            <h4>Stand by</h4>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>Reason</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th></th>
+                                    </tr>
+                                    <ng-container *ngFor="let standby of standByArray">
+                                        <tr>
+                                            <td>
+                                                <select [(ngModel)]="standby.reason"
+                                                    (change)="weatherDowntimeChanged = true;" class="form-control">
+                                                    <option value="No work planned">No work planned</option>
+                                                    <option value="EHS issues">EHS issues</option>
+                                                    <option value="Delay Siemens">Delay Siemens</option>
+                                                    <option value="Delay vessel">Delay vessel</option>
+                                                </select></td>
+                                            <td>
+                                                <select (change)="weatherDowntimeChanged = true;"
+                                                    [(ngModel)]="standby.from" class="form-control">
+                                                    <option *ngFor="let time of times" [value]="time">
+                                                        {{time}}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select (change)="weatherDowntimeChanged = true;"
+                                                    [(ngModel)]="standby.to" class="form-control">
+                                                    <option *ngFor="let time of times" [value]="time">
+                                                        {{time}}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </ng-container>
+                                    <tr class="plsdonotprintthisforfsake">
+                                        <td colspan="4">
+                                            <button class="btn btn-sm btn-success"
+                                                (click)="addStandByToArray(); weatherDowntimeChanged = true;"
+                                                type="button">add line</button>
+                                            <button class="btn btn-sm btn-danger"
+                                                (click)="removeLastFromStandByArray(); weatherDowntimeChanged = true;"
+                                                type="button">remove last</button>
+                                        </td>
+                                    </tr>
+                                    <!-- split between -->
                             <tr>
                                 <th colspan="4">
                                     <h4>Technical downtime</h4>
@@ -550,6 +601,68 @@
                         </table>
                     </div>
                     <div class="col-xl-6 dailySummary">
+                            <table class="table table-bordered">
+                                    <tr>
+                                        <td colspan="2">
+                                            <h4>DP usage</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>On DP</th>
+                                        <th>Off DP</th>
+                                    </tr>
+                                    <ng-container *ngFor="let dp of dpArray">
+                                        <tr>
+                                            <td>
+                                                <div class="tableRow">
+                                                    HH:
+                                                    <select [(ngModel)]="dp.from.hour" (change)="dpChanged = true;"
+                                                        class="form-control col-xl-4 col-print-4">
+                                                        <option *ngFor="let hour of allHours" [value]="hour">
+                                                            {{hour}}
+                                                        </option>
+                                                    </select>
+                                                    MM:
+                                                    <select [(ngModel)]="dp.from.minutes" (change)="dpChanged = true;"
+                                                        class="form-control col-xl-4 col-print-4">
+                                                        <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                                                            {{minutes}}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="tableRow">
+                                                    HH:
+                                                    <select [(ngModel)]="dp.to.hour" (change)="dpChanged = true;"
+                                                        class="form-control col-xl-4 col-print-4">
+                                                        <option *ngFor="let hour of allHours" [value]="hour">
+                                                            {{hour}}
+                                                        </option>
+                                                    </select>
+                                                    MM:
+                                                    <select [(ngModel)]="dp.to.minutes" (change)="dpChanged = true;"
+                                                        class="form-control col-xl-4 col-print-4">
+                                                        <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                                                            {{minutes}}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </ng-container>
+                                    <tr class="plsdonotprintthisforfsake">
+                                        <td colspan="2">
+                                            <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;"
+                                                type="button">add line</button>
+                                            <button class="btn btn-sm btn-danger"
+                                                (click)="removeLastFromDPArray(); dpChanged = true;" type="button">remove
+                                                last</button>
+                                            <button *ngIf="dpChanged == true" class="btn btn-lg btn-primary" style="float:right"
+                                                (click)="saveDPStats();" type="button">Save</button>
+                                        </td>
+                                    </tr>
+                                </table>
                         <table class="table table-bordered">
                             <tr>
                                 <td>
@@ -566,70 +679,6 @@
                                 </td>
                             </tr>
                         </table>
-
-                        <table class="table table-bordered">
-                            <tr>
-                                <td colspan="2">
-                                    <h4>DP usage</h4>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>On DP</th>
-                                <th>Off DP</th>
-                            </tr>
-                            <ng-container *ngFor="let dp of dpArray">
-                                <tr>
-                                    <td>
-                                        <div class="tableRow">
-                                            HH:
-                                            <select [(ngModel)]="dp.from.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4 col-print-4">
-                                                <option *ngFor="let hour of allHours" [value]="hour">
-                                                    {{hour}}
-                                                </option>
-                                            </select>
-                                            MM:
-                                            <select [(ngModel)]="dp.from.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4 col-print-4">
-                                                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                                                    {{minutes}}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="tableRow">
-                                            HH:
-                                            <select [(ngModel)]="dp.to.hour" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4 col-print-4">
-                                                <option *ngFor="let hour of allHours" [value]="hour">
-                                                    {{hour}}
-                                                </option>
-                                            </select>
-                                            MM:
-                                            <select [(ngModel)]="dp.to.minutes" (change)="dpChanged = true;"
-                                                class="form-control col-xl-4 col-print-4">
-                                                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                                                    {{minutes}}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </ng-container>
-                            <tr class="plsdonotprintthisforfsake">
-                                <td colspan="2">
-                                    <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;"
-                                        type="button">add line</button>
-                                    <button class="btn btn-sm btn-danger"
-                                        (click)="removeLastFromDPArray(); dpChanged = true;" type="button">remove
-                                        last</button>
-                                    <button *ngIf="dpChanged == true" class="btn btn-lg btn-primary" style="float:right"
-                                        (click)="saveDPStats();" type="button">Save</button>
-                                </td>
-                            </tr>
-                        </table>
-
                     </div>
                 </div>
             </div>
