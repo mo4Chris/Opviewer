@@ -58,7 +58,7 @@ export class SovreportComponent implements OnInit {
     private v2v_data_layer: MapZoomLayer;
     operationsChart;
     gangwayLimitationsChart;
-    weatherOverviewChart;
+    weatherOverviewChart: WeatherOverviewChart;
     operationalChartCalculated = false;
     weatherOverviewChartCalculated = false;
     sovHasLimiters = false;
@@ -439,7 +439,7 @@ export class SovreportComponent implements OnInit {
         this.commonService.updateSOVv2vPaxInput({
             mmsi: this.vesselObject.mmsi,
             date: this.vesselObject.date,
-            transfers: this.sovModel.vessel2vessels[0] .transfers
+            transfers: this.sovModel.vessel2vessels[0].transfers
         }).pipe(
             map(
                 (res) => {
@@ -467,10 +467,10 @@ export class SovreportComponent implements OnInit {
         this.commonService.updateSOVPlatformPaxInput({
             _id: transfer._id,
             mmsi: this.vesselObject.mmsi,
-            paxIn: transfer.paxIn,
-            paxOut: transfer.paxOut,
-            cargoIn: transfer.cargoIn,
-            cargoOut: transfer.cargoOut
+            paxIn: transfer.paxIn || 0,
+            paxOut: transfer.paxOut || 0,
+            cargoIn: transfer.cargoIn || 0,
+            cargoOut: transfer.cargoOut || 0
         }).pipe(
             map(
                 (res) => {
@@ -493,8 +493,25 @@ export class SovreportComponent implements OnInit {
         this.nonAvailabilityChanged = false;
     }
 
+    printPage() {
+        const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+
+        for (let _i = 0; _i < containers.length; _i++) {
+            const container = <HTMLDivElement> containers[_i];
+            container.style.width = '225mm';
+        }
+        setTimeout(function() {  window.print(); }, 50);
+      }
+
     saveTurbinePaxInput(transfer) {
-        this.commonService.updateSOVTurbinePaxInput({_id: transfer._id, mmsi: this.vesselObject.mmsi, paxIn: transfer.paxIn, paxOut: transfer.paxOut, cargoIn: transfer.cargoIn, cargoOut: transfer.cargoOut }).pipe(
+        this.commonService.updateSOVTurbinePaxInput({
+            _id: transfer._id,
+            mmsi: this.vesselObject.mmsi,
+            paxIn: transfer.paxIn || 0,
+            paxOut: transfer.paxOut || 0,
+            cargoIn: transfer.cargoIn || 0,
+            cargoOut: transfer.cargoOut || 0
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
