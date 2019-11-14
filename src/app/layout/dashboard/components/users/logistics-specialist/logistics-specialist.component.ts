@@ -28,6 +28,8 @@ export class LogisticsSpecialistComponent implements OnInit {
   vesselInfos: VesselModel[] = [];
   campaignInfo: CampaignInfo[] = [];
   locData: AisMarkerModel[] = [];
+  uniqueParkNames: string[];
+  lastMonth: string;
 
   defaultZoomInfo = {
     latitude: 55,
@@ -56,7 +58,7 @@ export class LogisticsSpecialistComponent implements OnInit {
 
   setZoomLevel() {
     const activeFields = [];
-    const uniqueParkNames = this.vesselInfos.map(info => info.Site).filter((value, index, self) => {
+    this.uniqueParkNames = this.vesselInfos.map(info => info.Site).filter((value, index, self) => {
       return typeof(value) === 'string' && self.indexOf(value) === index;
     });
 
@@ -82,10 +84,10 @@ export class LogisticsSpecialistComponent implements OnInit {
       }
     };
 
-    if (uniqueParkNames.length > 0) {
-      uniqueParkNames.forEach((parkname, _i) => {
+    if (this.uniqueParkNames.length > 0) {
+      this.uniqueParkNames.forEach((parkname, _i) => {
         isLoaded.push(false);
-        this.newService.getParkByNiceName(parkname).subscribe(park => {
+        this.newService.getParkByNiceName(<string> parkname).subscribe(park => {
           isLoaded[_i] = true;
           if (park) {
             activeFields.push(park);
@@ -101,15 +103,45 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   getVesselInfo() {
+    const startDate = this.dateService.getMatlabDateLastMonth();
+    this.lastMonth = this.dateService.MatlabDateToJSDate(startDate);
+    const stopDate = this.dateService.getMatlabDateYesterday();
+    const numDays = stopDate - startDate + 1;
     this.vesselInfos.forEach(vInfo => {
-      this.activeVessels.push({
-        Name: vInfo.nicename,
+      this.newService.getGeneralForRange({
+        startDate: startDate,
+        stopDate: stopDate,
         mmsi: vInfo.mmsi,
-        LastSailed: 'ToDo',
-        Site: 'ToDo',
-        Type: vInfo.operationsClass,
-        Budget: vInfo.videobudget > 0 ? vInfo.videobudget : null,
-        Usage: '50%',
+        vesselType: vInfo.operationsClass,
+        projection: {
+          date: 1,
+          minutesFloating: 1
+        }
+      }).subscribe(genInfos => {
+        genInfos = genInfos.length === 1 ? genInfos[0] : [];
+        let lastSailed = 0;
+        const hasSailed: number[] = genInfos.map(info => {
+          if (info.minutesFloating > 0) {
+            if (info.date > lastSailed) {
+              lastSailed = info.date;
+            }
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+        const numSailingDays = hasSailed.reduce((prev, curr, _i) => {
+          return curr ? prev + 1 : prev;
+        }, 0);
+        this.activeVessels.push({
+          Name: vInfo.nicename,
+          mmsi: vInfo.mmsi,
+          LastSailed: lastSailed > 0 ? this.dateService.MatlabDateToJSDate(lastSailed) : '-',
+          Site: typeof(vInfo.Site) === 'string' ? vInfo.Site : 'N/a',
+          Type: vInfo.operationsClass,
+          Budget: vInfo.videobudget > 0 ? <number> vInfo.videobudget : null,
+          Usage: (numSailingDays / numDays * 100).toFixed(0) + '%',
+        });
       });
     });
   }
@@ -128,13 +160,13 @@ export class LogisticsSpecialistComponent implements OnInit {
         });
       });
     }
-    this.campaignInfo.push({
-      Name: 'Test',
-      Site: 'Graggy Gappert',
-      Progress: -3,
-      RemDays: 10,
-      StartDate: 737727,
-    });
+    // this.campaignInfo.push({
+    //   Name: 'Test',
+    //   Site: 'Graggy Gappert',
+    //   Progress: -3,
+    //   RemDays: 10,
+    //   StartDate: 737727,
+    // });
   }
 
   routeToDprFromVesselInfo(vesselInfo: VesselInfo) {

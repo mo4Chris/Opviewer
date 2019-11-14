@@ -6,7 +6,7 @@
                 <tr>
                     <th>#</th>
                     <th>Vessel name</th>
-                    <th>Last sailed</th>
+                    <th><div [ngbTooltip]="vesselLastSailed">Last sailed</div></th>
                     <th>Site</th>
                     <th>Vessel type</th>
                     <th><div [ngbTooltip]="vesselUsage">
@@ -20,7 +20,7 @@
                 </tr>
                 <ng-container *ngFor="let vessel of activeVessels; let i = index">
                     <tr>
-                        <td>{{i}}</td>
+                        <td>{{i + 1}}</td>
                         <td>{{vessel.Name}}</td>
                         <td>{{vessel.LastSailed}}</td>
                         <td>{{vessel.Site}}</td>
@@ -54,7 +54,7 @@
                 </tr>
                 <ng-container *ngFor="let campaign of campaignInfo; let i = index">
                     <tr>
-                        <td>{{i}}</td>
+                        <td>{{i + 1}}</td>
                         <td>{{campaign.Name}}</td>
                         <td>{{campaign.Site}}</td>
                         <td>{{campaign.Progress}} days</td>
@@ -73,8 +73,11 @@
 </ng-template>
 
 <ng-template #vesselUsage class="helpContent">
-    Percentage of days the vessel has sailed for the last month
+    Percentage of days the vessel has sailed for the last month (since {{lastMonth}})
 </ng-template>
 <ng-template #vesselBudget class="helpContent">
-    Number of minutes left in the video budget for the current month
+    Number of minutes left in the video budget for the current month 
+</ng-template>
+<ng-template #vesselLastSailed class="helpContent">
+    Date the vessel last sailed. If it did not sail last month, this is empty.
 </ng-template>
