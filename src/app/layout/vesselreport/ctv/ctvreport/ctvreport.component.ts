@@ -9,6 +9,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { WavedataModel } from '../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
 import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
+import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 
 @Component({
     selector: 'app-ctvreport',
@@ -677,8 +678,8 @@ export class CtvreportComponent implements OnInit {
             });
     }
 
-    matchVideoRequestWithTransfer(transfer) {
-        let vid;
+    matchVideoRequestWithTransfer(transfer): VideoRequestModel {
+        let vid: VideoRequestModel;
         if (!this.videoRequests) {
             vid = { text: 'Not requested', disabled: false };
             return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
@@ -707,7 +708,7 @@ export class CtvreportComponent implements OnInit {
         }
     }
 
-    checkVideoBudget(duration, vid) {
+    checkVideoBudget(duration: number, vid: VideoRequestModel) {
         if (!vid.active) {
             if (
                 this.videoBudget.maxBudget >= 0 &&
@@ -813,4 +814,11 @@ export class CtvreportComponent implements OnInit {
                 }, 7000);
             });
     }
+}
+
+interface VideoRequestModel {
+    text: string;
+    disabled: boolean;
+    status?: string;
+    active?: boolean;
 }

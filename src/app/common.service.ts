@@ -5,8 +5,6 @@ import { environment } from '../environments/environment';
 import { Observable, observable, timer } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { isArray } from 'util';
-import { ObserveOnSubscriber } from 'rxjs/internal/operators/observeOn';
-import { TimedObservable } from './supportModules/timed_observable';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 

@@ -1,6 +1,9 @@
-import { defer } from "rxjs";
+import { defer, Observable, of } from "rxjs";
 
 
-export function mockedObservable(data: any) {
-    return defer(() => Promise.resolve(data));
+// export function mockedObservable(data: any): Observable<any> {
+//     return defer(() => Promise.resolve(data));
+// }
+export function mockedObservable(data: any): Observable<any> {
+    return of(data);
 }

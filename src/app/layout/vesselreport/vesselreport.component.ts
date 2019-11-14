@@ -57,7 +57,7 @@ export class VesselreportComponent implements OnInit {
   vessels: VesselModel[];
   general = {};
 
-  tokenInfo = new TokenModel(this.userService);
+  tokenInfo: TokenModel = TokenModel.load(this.userService);
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;

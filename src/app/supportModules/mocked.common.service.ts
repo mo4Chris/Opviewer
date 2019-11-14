@@ -2,6 +2,7 @@ import { CommonService } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
 import { VesselModel } from '../models/vesselModel';
 import { Observable } from 'rxjs';
+import { UserTestService } from '../shared/services/test.user.service';
 
 
 const emptyMatlabObject = {
@@ -18,13 +19,13 @@ export class MockedCommonService extends CommonService {
 
     // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
     get(request_url: string) {
-         console.error('Server attempt to request external resource: ' + request_url);
+         console.error('Uncaught get request: ' + request_url);
          const Response: any = 0;
          return Response;
     }
 
     post(request_url: string, payload = []) {
-         console.error('Server attempt to request external resource: ' + request_url);
+         console.error('Uncaught post request: ' + request_url);
          const Response: any = 0;
          return Response;
     }
@@ -133,7 +134,6 @@ export class MockedCommonService extends CommonService {
             vesselName: '_NaN_',
         }]});
     }
-
     getSov(vesselObject: VesselObjectModel) {
         const date = vesselObject.date;
         return mockedObservable([{
@@ -199,7 +199,10 @@ export class MockedCommonService extends CommonService {
             weatherConditions: mockWeatherConditions(vesselObject.date),
         }]);
     }
-
+    getVessel(): Observable<VesselModel[]> {
+        const mock = mockedObservable(this.getVesselDefault());
+        return mock;
+    }
     getVesselDefault(): VesselModel[] {
         return [{
             vesselname: 'Test_BMO',
@@ -221,9 +224,13 @@ export class MockedCommonService extends CommonService {
         }];
     }
 
-    getVessel(): Observable<VesselModel[]> {
-        const mock = mockedObservable(this.getVesselDefault());
-        return mock;
+    getUserByUsername(username: string) {
+        return mockedObservable([
+            UserTestService.getMockedAccessToken()
+        ]);
+    }
+    checkUserActive(username: string) {
+        return mockedObservable(true);
     }
 
     getSovDprInput(vessel: VesselObjectModel) {
@@ -318,7 +325,6 @@ export class MockedCommonService extends CommonService {
         });
     }
     getPlatformLocations() {
-        // ToDo
         return mockedObservable([{
             filename: 'test123',
             name: ['PE-F15-PA'],
@@ -334,6 +340,16 @@ export class MockedCommonService extends CommonService {
     }
     getVideoBudgetByMmsi(vessel: VesselObjectModel) {
         return mockedObservable([120]);
+    }
+    getVideoRequests(vessel: VesselObjectModel) {
+        return mockedObservable([]);
+    }
+
+    saveTransfer(transfer) {
+        return mockedObservable({data: 'saveTransfer'});
+    }
+    saveVideoRequest(transfer) {
+        return mockedObservable({data: 'saveVideoRequest'});
     }
 }
 

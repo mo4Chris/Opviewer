@@ -12,12 +12,12 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CommonService } from '../../../../common.service';
 import { HttpModule } from '@angular/http';
 import { MockedCommonService, VesselObjectModel, MockedCommonServiceProvider } from '../../../../supportModules/mocked.common.service';
+import { cpus } from 'os';
 
 
 describe('CtvReportComponent', () => {
   let component: CtvreportComponent;
   let fixture: ComponentFixture<CtvreportComponent>;
-  const mockService = new MockedCommonService();
 
   const tokenInfo = {
     admin: UserTestService.getMockedAccessToken({
@@ -47,9 +47,6 @@ describe('CtvReportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        // AgmCoreModule.forRoot({
-        //     apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
-        // }),
         FormsModule,
         ReactiveFormsModule,
         NgbModule,
@@ -68,7 +65,6 @@ describe('CtvReportComponent', () => {
   }));
 
   beforeEach(async(() => {
-    spyOn(CommonService.prototype, 'getVideoRequests').and.returnValue(mockedObservable([]));
     spyOn(CtvreportComponent.prototype, 'createCharts');
 
 
@@ -138,4 +134,86 @@ describe('CtvReportComponent', () => {
       expect(component.transferData.length).toEqual(1);
     });
   }));
+
+  it('Should save comments', () => {
+    component.tokenInfo = tokenInfo.admin;
+    component.saveComment({
+      comment: 'Test',
+      commentChanged: {
+        otherComment: '',
+      },
+    });
+      expect(component.alert.message).toEqual('saveTransfer');
+  });
+
+  it('Should make requests', (done) => {
+    component.tokenInfo = tokenInfo.admin;
+    component.transferData = [];
+    const transfer = {
+      videoAvailable: true,
+      video_requested: {
+        text: 'Not Requested'
+      },
+    };
+    component.videoBudget = {
+      maxBudget: 100,
+      currentBudget: 50,
+    };
+    expect(component).toBeTruthy();
+    component.setRequest(transfer);
+    expect(component.alert).toBeTruthy();
+    expect(component.alert.message).toEqual('saveVideoRequest');
+    done();
+  });
+
+  it('Should check the video budget', () => {
+    component.videoBudget = {
+      maxBudget: 100,
+      currentBudget: 50,
+    };
+    expect(component.checkVideoBudget(10, {
+      text: 'test_1',
+      disabled: false,
+      status: 'superb',
+      active: true,
+    })).toEqual({
+      text: 'test_1',
+      disabled: false,
+      status: 'superb',
+      active: true,
+    });
+    expect(component.checkVideoBudget(10, {
+      text: 'test_2',
+      disabled: false,
+      status: 'superb',
+      active: false,
+    })).not.toEqual({
+      text: 'test_2',
+      disabled: false,
+      status: 'superb',
+      active: true,
+    });
+    expect(component.checkVideoBudget(80, {
+      text: 'test_3',
+      disabled: true,
+      status: 'superb',
+      active: false,
+    })).not.toEqual({
+      text: 'test_3',
+      disabled: true,
+      status: 'superb',
+      active: false,
+    });
+    expect(component.checkVideoBudget(80, {
+      text: 'test_4',
+      disabled: true,
+      status: 'denied',
+      active: false,
+    })).toEqual({
+      text: 'test_4',
+      disabled: true,
+      status: 'denied',
+      active: false,
+    });
+  });
 });
