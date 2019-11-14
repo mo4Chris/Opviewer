@@ -4,12 +4,22 @@ import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
+import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { UserModel } from './models/userModel';
+import { TurbineLocation } from './layout/vesselreport/models/TurbineLocation';
+import { CampaignModel } from './layout/TWA/models/campaignModel';
 
 @Injectable()
 export class CommonService {
 
   constructor(private http: Http) { }
+
+  getActiveConnections() {
+    return this.get(environment.DB_IP + '/api/getActiveConnections/').pipe(
+      map((response: Response) => response.json()));
+  }
 
   saveVessel(vessel) {
     return this.post(environment.DB_IP + '/api/saveVessel/', vessel).pipe(
@@ -36,7 +46,25 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVessel2vesselsForSov(mmsi: number, date: number) {
+  getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
+    // For both CTV and SOV!
+    return this.get(environment.DB_IP + '/api/getLatestGeneral/').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getLatestGeneralForCompany(opts: {client: string, vesselname?: string}) {
+    // For both CTV and SOV!
+  }
+
+  getLatestTwaUpdate(): Observable<number> {
+    return this.get(environment.DB_IP + '/api/getLatestTwaUpdate/').pipe(
+      map((response: Response) => {
+        const res = response.json();
+        return res.lastUpdate;
+      }));
+  }
+
+  getVessel2vesselsForSov(mmsi: number, date: number): Observable<Vessel2vesselModel[]> {
     return this.get(environment.DB_IP + '/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => {
         const v2vs = response.json();
@@ -92,12 +120,12 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSovDistinctFieldnames(mmsi: number, date: number): Observable<string[]> {
+  getSovDistinctFieldnames(mmsi: number, date: number) {
     return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
 
-  getLatestBoatLocation() {
+  getLatestBoatLocation(): Observable<AisMarkerModel[]> {
     return this.get(environment.DB_IP + '/api/getLatestBoatLocation/').pipe(
       map((response: Response) => response.json()));
   }
@@ -105,6 +133,15 @@ export class CommonService {
   getSpecificPark(park: {park: string[]}) {
     return this.post(environment.DB_IP + '/api/getSpecificPark/', park).pipe(
       map((response: Response) => response.json()));
+  }
+
+  getParkByNiceName(park: string): Observable<{
+    centroid: {lon: number, lat: number, radius: number},
+    SiteName: string,
+    name: string[]
+  } | undefined> {
+    return this.get(environment.DB_IP + '/api/getParkByNiceName/' + park).pipe(
+      map((response: Response) => response.json()[0]));
   }
 
   getParkLocations() {
@@ -124,7 +161,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getLatestBoatLocationForCompany(company: string) {
+  getLatestBoatLocationForCompany(company: string): Observable<AisMarkerModel[]> {
     return this.get(environment.DB_IP + '/api/getLatestBoatLocationForCompany/' + company).pipe(
       map((response: Response) => response.json()));
   }
@@ -194,22 +231,22 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getUsers() {
+  getUsers(): Observable<UserModel[]> {
     return this.get(environment.DB_IP + '/api/getUsers/').pipe(
       map((response: Response) => response.json()));
   }
 
-  getUsersForCompany(client: any[]) {
+  getUsersForCompany(client: {client: any}[]): Observable<UserModel[]> {
     return this.post(environment.DB_IP + '/api/getUsersForCompany/', client).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserByUsername(username: any) {
+  getUserByUsername(username: {username: any}): Observable<UserModel> {
     return this.post(environment.DB_IP + '/api/getUserByUsername/', username).pipe(
       map((response: Response) => response.json()));
   }
 
-  getUserClientById(user: any, client: any) {
+  getUserClientById(user: any, client: any): Observable<{_id: string, client: string}> {
     return this.get(environment.DB_IP + '/api/getUserClientById/' + user + '/' + client).pipe(
       map((response: Response) => response.json()));
   }
@@ -251,6 +288,11 @@ export class CommonService {
 
   saveWeatherDowntimeDpr(weatherdowntime) {
     return this.post(environment.DB_IP + '/api/saveWeatherDowntimeDpr/', weatherdowntime).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveStandByDpr(weatherdowntime) {
+    return this.post(environment.DB_IP + '/api/saveStandByDpr/', weatherdowntime).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -359,7 +401,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTurbineWarrantyForCompany(client: {client: string}) {
+  getTurbineWarrantyForCompany(client: {client: string}): Observable<CampaignModel[]> {
     return this.post(environment.DB_IP + '/api/getTurbineWarrantyForCompany/', client).pipe(
       map((response: Response) => response.json()));
   }
@@ -404,7 +446,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  get2faExistence(user: {userEmail: any}): Observable <{secret2fa: string}> {
+  get2faExistence(user: {userEmail: any}) {
     return this.post(environment.DB_IP + '/api/get2faExistence', user).pipe(
       map((response: Response) => response.json()));
   }

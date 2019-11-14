@@ -75,15 +75,13 @@ export class CalculationService {
     return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
   }
 
-  GetPropertiesForMap(mapPixelWidth, latitudes, longitudes) {
-
-    function latRad(lat) {
+  GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
+    function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
       const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
       return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
     }
-
-    function zoom(mapPx, worldPx, fraction) {
+    function zoom(mapPx: number, worldPx: number, fraction: number) {
         return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
     }
 

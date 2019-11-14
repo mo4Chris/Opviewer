@@ -7,6 +7,7 @@ import { UserService } from '../../shared/services/user.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
+import { RouterService } from '../../supportModules/router.service';
 
 @Component({
     selector: 'app-tables',
@@ -18,9 +19,9 @@ export class TablesComponent implements OnInit {
     constructor(
         private stringMutationService: StringMutationService,
         private newService: CommonService,
-        private _router: Router,
-        private userService: UserService
-        ) { }
+        private userService: UserService,
+        private routerService: RouterService,
+    ) { }
     Repdata: VesselModel[];
     tokenInfo = new TokenModel(this.userService);
     ScatterplotCompanies = ['BMO', 'SSE Beatrice', 'Vattenfall', 'Seazip'];
@@ -41,17 +42,17 @@ export class TablesComponent implements OnInit {
         } else {
             localStorage.removeItem('isLoggedin');
             localStorage.removeItem('token');
-            this._router.navigate(['login']);
+            this.routerService.routeToLogin();
           }
         });
     }
 
-    redirectDailyVesselReport(mmsi: Number) {
-        this._router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+    redirectDailyVesselReport(mmsi: number) {
+        this.routerService.routeToDPR({mmsi: mmsi});
     }
 
-    redirectLongterm(mmsi: Number, vesselName: String) {
-        this._router.navigate(['longterm', {boatmmsi: mmsi, vesselName: vesselName}]);
+    redirectLongterm(mmsi: number, vesselName: string) {
+        this.routerService.routeToLTM({mmsi: mmsi, name: vesselName});
     }
 
     applyFilter(filterValue: string) {

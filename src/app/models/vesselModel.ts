@@ -4,6 +4,7 @@
 
 export class VesselModel {
     // Database return array of this template
+    Site: string;
     client: string[];
     vesselname: string;
     nicename: string;
@@ -14,5 +15,5 @@ export class VesselModel {
     speedNotifyLimit: number | {};
     impactNotifyLimit: number | {};
     videoResetDay: number;
-    videobuget: number;
+    videobudget: number;
 }

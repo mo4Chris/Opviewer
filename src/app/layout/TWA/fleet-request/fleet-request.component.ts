@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
-import { UserService } from '../../shared/services/user.service';
+import { routerTransition } from '../../../router.animations';
+import { CommonService } from '../../../common.service';
+import { UserService } from '../../../shared/services/user.service';
 import { Router } from '@angular/router';
-import { DatetimeService } from '../../supportModules/datetime.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
 import { catchError, map } from 'rxjs/operators';
 import * as moment from 'moment';
 

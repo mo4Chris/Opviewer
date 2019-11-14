@@ -208,4 +208,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
       return null;
     }
   }
+
+  currentMatlabDate(): number {
+    const curr = <number> moment().valueOf();
+    return (curr / 864e5) + 719529;
+  }
+
+  daysSinceMatlabDate(serial: number) {
+    return this.currentMatlabDate() - serial;
+  }
 }

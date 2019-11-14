@@ -21,6 +21,7 @@ import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { EventService } from '../../supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { RouterService } from '../../supportModules/router.service';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -36,7 +37,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
         PageHeaderModule,
         SharedPipesModule],
     declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
-    providers: [CommonService, CalculationService, UserService, EventService],
+    providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [VesselreportComponent]
 })
 export class VesselreportModule {}
