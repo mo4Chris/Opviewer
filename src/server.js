@@ -1777,13 +1777,6 @@ app.post("/api/getGeneralForRange", function (req, res) {
     if (typeof(mmsi) === 'number') {
         mmsi = [mmsi];
     }
-    var query = {
-        mmsi: {$in: mmsi},
-        date: {
-            $gte: startDate,
-            $lte: stopDate
-        }
-    };
     projection = req.body.projection;
     if (projection === undefined) {
         projection = null
@@ -1791,8 +1784,15 @@ app.post("/api/getGeneralForRange", function (req, res) {
 
     switch(req.body.vesselType) {
         case 'CTV':
+            var query = {
+                mmsi: {$in: mmsi},
+                date: {
+                    $gte: startDate,
+                    $lte: stopDate
+                }
+            };
             return generalmodel.aggregate([
-                {$match: query}, 
+                {$match: query},
                 { "$sort": {date: -1}},
                 {$project: projection},
                 {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
@@ -1808,10 +1808,17 @@ app.post("/api/getGeneralForRange", function (req, res) {
                 }
             });
         case 'SOV': case 'OSV':
+            var query = {
+                mmsi: {$in: mmsi},
+                dayNum: {
+                    $gte: startDate,
+                    $lte: stopDate
+                }
+            };
             return SovModelmodel.aggregate([
                 {$match: query}, 
-                { "$sort": {date: -1}},
                 {$project: projection},
+                { "$sort": {date: -1}},
                 {$group: {_id: '$mmsi', stats:{ $push: "$$ROOT"}}},
             ]).exec((err, data) => {
                 if (err) {

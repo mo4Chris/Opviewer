@@ -3,6 +3,7 @@ import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
 import { now } from 'moment';
+import { LongtermColorScheme } from '../../models/color_scheme';
 
 
 export class ScatterplotComponent {
@@ -16,41 +17,10 @@ export class ScatterplotComponent {
     this.comparisonArray = comparisonArray;
   }
 
- backgroundcolors = [
-    'rgba(255,0,0,1)',
-    'rgba(0,155,0,1)',
-    'rgba(0, 100, 255 , 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(255, 99, 132, 1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(255,255,0,1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 206, 86, 1)',
-    'rgba(0,0,0,0.4)'
-  ];
-  bordercolors = [
-    'rgba(255,0,0,1)',
-    'rgba(0,155,0,1)',
-    'rgba(0, 100, 255 , 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(255,99,132,1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(255,255,0,1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 206, 86, 1)',
-    'rgba(0,0,0,1)'
-  ];
-  pointStyles = [
-    'circle',
-    'rect',
-    'triangle',
-    'star',
-    'crossRot',
-    'cross',
-    'dash',
-    'RectRounded',
-  ];
-  borderWidth = [1, 1, 1, 1, 3, 3, 4, 1];
+  backgroundcolors = LongtermColorScheme.backgroundColors;
+  bordercolors = LongtermColorScheme.bordercolors;
+  pointStyles = LongtermColorScheme.pointStyles;
+  borderWidth = LongtermColorScheme.borderWidth;
 
   allGraphsEmpty = false;
   scatterData;

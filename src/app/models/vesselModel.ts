@@ -4,7 +4,7 @@
 
 export class VesselModel {
     // Database return array of this template
-    Site: MongoString;
+    Site: string;
     client: string[];
     Operator: MongoString;
     vesselname: string;

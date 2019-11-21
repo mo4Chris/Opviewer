@@ -6,7 +6,7 @@ import { TokenModel } from '../../../../models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { now } from 'moment';
-import { ScatterplotComponent } from '../../models/scatterplot/scatterplot.component';
+import { LongtermColorScheme } from '../../models/color_scheme';
 
 
 @Component({
@@ -30,70 +30,83 @@ export class UtilizationGraphComponent implements OnInit {
     @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
     Chart: Chart;
-    RawData: RawGeneralModel[][];
-    TimeBreakdown: TimeBreakdown[][];
+    RawData: RawGeneralModel[];
+    TimeBreakdown: TimeBreakdown[];
+    vesselName: string;
 
-    breakdownKeys = ['hoursOfCTVops', 'hoursSailing', 'hoursWaiting'];
-    breakdownKeysNiceName = ['CTV operations', 'Sailing', 'Waiting'];
-    backgroundcolors = [
-       'rgba(255,0,0,1)',
-       'rgba(0,155,0,1)',
-       'rgba(0, 100, 255 , 1)',
-       'rgba(255, 159, 64, 1)',
-       'rgba(255, 99, 132, 1)',
-       'rgba(75, 192, 192, 1)',
-       'rgba(255,255,0,1)',
-       'rgba(153, 102, 255, 1)',
-       'rgba(255, 206, 86, 1)',
-       'rgba(0,0,0,0.4)'
-     ];
+    breakdownKeys = ['hoursWaiting', 'hoursSailing', 'hoursOfCTVops', 'hoursAtTurbine', 'hoursAtPlatform'];
+    breakdownKeysNiceName = ['Waiting', 'Sailing', 'CTV operations', 'Turbine operations', 'Platform operations'];
+    backgroundcolors = LongtermColorScheme.backgroundColors;
 
     ngOnInit() {
         this.updateChart();
     }
 
     updateChart() {
-        this.getChartData((TimeBreakdowns: TimeBreakdown[][]) => {
-            const matlabDates = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
+        this.getChartData((TimeBreakdowns: TimeBreakdown[], breakdownDates: number[]) => {
+            const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
             const dateLabels = matlabDates.map((daynum: number) => {
                 return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
-            });
+            }); // Can only have one vessel
             const dsets = {
                 labels: dateLabels,
                 datasets: [],
             };
-            TimeBreakdowns.forEach((_TimeBreakdown, _i) => {
-                // Looping over vessels
-                const vesselname = this.RawData[_i][0].vesselName;
-                const vColor = this.backgroundcolors[_i];
-                if (this.RawData[_i] && this.RawData[_i][0]) {
-                    this.breakdownKeys.forEach((breakdownKey, _j) => {
-                        const dset = {
-                            label: vesselname,
-                            data: [],
-                            stack: vesselname,
-                            showInLegend: _j === 0,
-                            xAxisID: 'x-axis-0',
-                            yAxisID: 'y-axis-0',
-                            backgroundColor: vColor.replace('1)', (3 - _j) / 3 + ')'),
-                            callback: (index: number) => {
-                                this.navigateToDPR({
-                                    mmsi: this.vesselObject.mmsi[_i],
-                                    matlabDate: matlabDates[index],
-                                });
-                            }
-                        };
-                        _TimeBreakdown.forEach((dailyBreakdown, _j) => {
-                            if (dailyBreakdown[breakdownKey]) {
-                                dset.data.push(dailyBreakdown[breakdownKey]);
-                            } else {
-                                dset.data.push(0);
-                            }
-                        });
-                        dsets.datasets.push(dset);
+            let validIdx: number;
+            const dset = {};
+            this.breakdownKeys.forEach((key, _j) => {
+                dset[key] = {
+                    label: this.breakdownKeysNiceName[_j],
+                    data: [],
+                    stack: this.vesselName,
+                    showInLegend: true,
+                    xAxisID: 'x-axis-0',
+                    yAxisID: 'y-axis-0',
+                    backgroundColor: this.backgroundcolors[_j], // vColor.replace('1)', (5 - _j) / 5 + ')'),
+                    callback: (index: number) => this.navigateToDPR({
+                        mmsi: this.vesselObject.mmsi[0],
+                        matlabDate: matlabDates[index],
+                    })
+                };
+            });
+            const missingData = {
+                label: 'No data',
+                data: [],
+                stack: this.vesselName,
+                showInLegend: true,
+                xAxisID: 'x-axis-0',
+                yAxisID: 'y-axis-0',
+                backgroundColor: LongtermColorScheme.missingData, // vColor.replace('1)', (5 - _j) / 5 + ')'),
+                callback: (index: number) => this.navigateToDPR({
+                    mmsi: this.vesselObject.mmsi[0],
+                    matlabDate: matlabDates[index],
+                })
+            };
+            matlabDates.forEach(day => {
+                // Loop over days
+                validIdx = breakdownDates.findIndex(date => date === day);
+                if (validIdx === -1 || isInvalidData(this.breakdownKeys, TimeBreakdowns[validIdx]) ) {
+                    this.breakdownKeys.forEach(key => {
+                        dset[key].data.push(0);
                     });
+                    missingData.data.push(24);
+                } else {
+                    const activeBreakdown = TimeBreakdowns[validIdx];
+                    this.breakdownKeys.forEach(key => {
+                        if (activeBreakdown[key]) {
+                            dset[key].data.push(activeBreakdown[key]);
+                        } else {
+                            dset[key].data.push(0);
+                        }
+                    });
+                    missingData.data.push(0);
                 }
             });
+
+            this.breakdownKeys.forEach(key => {
+                dsets.datasets.push(dset[key]);
+            });
+            dsets.datasets.push(missingData);
             if (this.Chart) {
                 // Update the chart
                 this.Chart.data = dsets;
@@ -104,13 +117,23 @@ export class UtilizationGraphComponent implements OnInit {
                 this.constructNewChart(dsets);
             }
         });
+
+        function isInvalidData(keys: string[], data: TimeBreakdown) {
+            return !keys.some((key: string) => {
+                if (data[key]) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
     }
 
     navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
         this.navigateToVesselreport.emit(navItem);
     }
 
-    getChartData(cb: (data: TimeBreakdown[][]) => void) {
+    getChartData(cb: (data: TimeBreakdown[], matlabDates: number[]) => void) {
         this.newService.getGeneralForRange({
             vesselType: 'SOV',
             mmsi: this.vesselObject.mmsi,
@@ -118,18 +141,17 @@ export class UtilizationGraphComponent implements OnInit {
             stopDate: this.vesselObject.dateMax,
             projection: {
                 _id: 0,
-                date: 1,
+                dayNum: 1,
                 mmsi: 1,
                 vesselName: 1,
                 timeBreakdown: 1,
             }
         }).subscribe((rawdata: RawGeneralModel[][]) => {
-            this.RawData = rawdata;
-            this.TimeBreakdown = rawdata.map(rawvesseldata => {
-                return this.parseRawData(rawvesseldata);
-            });
+            this.RawData = rawdata[0];
+            this.vesselName = this.RawData[0].vesselName;
+            this.TimeBreakdown = this.parseRawData(rawdata[0]);
             if (cb) {
-                cb(this.TimeBreakdown);
+                cb(this.TimeBreakdown, this.RawData.map(rawDataElt => rawDataElt.dayNum));
             }
         });
     }
@@ -267,7 +289,7 @@ export class UtilizationGraphComponent implements OnInit {
 }
 
 interface RawGeneralModel {
-    date: number;
+    dayNum: number;
     mmsi: number;
     vesselName: string;
     timeBreakdown: TimeBreakdown;
@@ -277,4 +299,5 @@ interface TimeBreakdown {
     hoursOfCTVops: number;
     hoursSailing: number;
     hoursWaiting: number;
+    hoursAtTurbine: number;
 }
