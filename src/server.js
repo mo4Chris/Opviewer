@@ -1196,58 +1196,6 @@ app.post("/api/getRouteForBoat", function (req, res) {
     });
 });
 
-app.post("/api/getCrewRouteForBoat", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        boatCrewLocationmodel.find({
-            "date": req.body.date,
-            "mmsi": req.body.mmsi,
-            active: {$ne: false}
-        }, function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                res.send(data);
-            }
-        });
-    });
-});
-
-app.post("/api/getTransitsRouteForBoat", function (req, res) {
-    validatePermissionToViewData(req, res, function (validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        }
-        transitsmodel.find({
-            "date": req.body.date,
-            "mmsi": req.body.mmsi, 
-            active: {$ne: false}
-        }, function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(err);
-            } else {
-                let lat = [];
-                let lon = [];
-
-                for (let i = 0; i < data.length; i++) {
-                    for (let j = 0; j < data[i].lat.length; j++) {
-                        if(data[i].lat[j][0] != "_NaN_"){
-                            lat.push(data[i].lat[j][0]);
-                            lon.push(data[i].lon[j][0]);
-                        }
-                    }
-                }
-
-                res.send([{"lat": lat, "lon":lon}]);
-            }
-        });
-    });
-});
-
 app.get("/api/getLatestBoatLocationForCompany/:company", function (req, res) {
     let companyName = req.params.company;
     let companyMmsi = [];

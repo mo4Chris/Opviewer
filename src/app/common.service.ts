@@ -6,7 +6,6 @@ import { Observable, observable, timer } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { isArray } from 'util';
 import { ObserveOnSubscriber } from 'rxjs/internal/operators/observeOn';
-import { TimedObservable } from './supportModules/timed_observable';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 
@@ -198,7 +197,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getDatesWithValues(vessel: VesselObjectModel) {
+  getDatesWithValues(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));
   }
