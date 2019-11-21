@@ -72,6 +72,7 @@ export class SovreportComponent implements OnInit {
     ToolboxTotalOld = 0;
     ToolboxTotalNew = 0;
     VesselNonAvailabilityArray = [];
+    standByArray = [];
     dpArray = [];
     WeatherDowntimeArray = [];
     fuelChanged = false;
@@ -321,6 +322,11 @@ export class SovreportComponent implements OnInit {
     addVesselNonAvailabilityToArray() {
         this.VesselNonAvailabilityArray.push({reason: 'DC small breakdown', from: '00:00', to: '00:00'});
     }
+
+    addStandByToArray() {
+        this.standByArray.push({reason: 'No work planned', from: '00:00', to: '00:00'});
+    }
+
     addWeatherDowntimeToArray() {
         this.WeatherDowntimeArray.push({decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway'});
     }
@@ -360,6 +366,10 @@ export class SovreportComponent implements OnInit {
         this.VesselNonAvailabilityArray.pop();
     }
 
+    removeLastFromStandByArray() {
+        this.standByArray.pop();
+    }
+
     removeLastFromWeatherDowntimeArray() {
         this.WeatherDowntimeArray.pop();
     }
@@ -370,6 +380,7 @@ export class SovreportComponent implements OnInit {
                 this.HOCArray = SovDprInput[0].hoc;
                 this.ToolboxArray = SovDprInput[0].toolbox;
                 this.VesselNonAvailabilityArray = SovDprInput[0].vesselNonAvailability;
+                this.standByArray = SovDprInput[0].standBy || [];
                 this.WeatherDowntimeArray = SovDprInput[0].weatherDowntime;
                 this.liquidsObject = SovDprInput[0].liquids;
                 this.peopleonBoard = SovDprInput[0].PoB;
@@ -898,6 +909,27 @@ export class SovreportComponent implements OnInit {
                 this.showAlert = false;
             }, 7000);
         });
+
+        this.commonService.saveStandByDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, standBy: this.standByArray}).pipe(
+            map(
+                (res) => {
+                    this.alert.type = 'success';
+                    this.alert.message = res.data;
+                }
+            ),
+            catchError(error => {
+                this.alert.type = 'danger';
+                this.alert.message = error;
+                throw error;
+            })
+        ).subscribe(_ => {
+            clearTimeout(this.timeout);
+            this.showAlert = true;
+            this.timeout = setTimeout(() => {
+                this.showAlert = false;
+            }, 7000);
+        });
+
         this.weatherDowntimeChanged = false;
     }
 

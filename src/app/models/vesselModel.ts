@@ -4,13 +4,13 @@
 
 export class VesselModel {
     // Database return array of this template
+    Site: MongoString;
     client: string[];
     Operator: MongoString;
     vesselname: string;
     nicename: string;
     mmsi: number;
     onHire: boolean;
-    Site: MongoString;
 
     operationsClass: 'CTV' | 'OSV' | 'SOV';
     vessel_length: number;

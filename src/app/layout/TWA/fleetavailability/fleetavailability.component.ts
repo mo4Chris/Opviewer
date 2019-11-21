@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
+import { routerTransition } from '../../../router.animations';
+import { CommonService } from '../../../common.service';
 import * as Chart from 'chart.js';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -8,12 +8,13 @@ import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment';
-import { UserService } from '../../shared/services/user.service';
-import { DialogService } from '../../dialog.service';
-import { DatetimeService } from '../../supportModules/datetime.service';
-import { CalculationService } from '../../supportModules/calculation.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { UserService } from '../../../shared/services/user.service';
+import { DialogService } from '../../../dialog.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
+import { UserModel } from '../../../models/userModel';
 import { isArray } from 'util';
 
 
@@ -73,7 +74,7 @@ export class FleetavailabilityComponent implements OnInit {
     errorListing = [[]];
     numberNewListings = 0;
     isActive = [[]];
-    changedUsers = [];
+    changedUsers: ExtendedUserModel[][] = [];
     noData = false;
 
     @ViewChild('instance') instance: NgbTypeahead;
@@ -113,8 +114,9 @@ export class FleetavailabilityComponent implements OnInit {
             startDate: this.params.startDate
         }).subscribe(data => {
             if (data.data != null) {
-                if (!isArray(data.sailMatrix[0])) {
-                    data.sailMatrix = [data.sailMatrix];
+                console.log(data)
+                if (!isArray(data.data.sailMatrix[0])) {
+                    data.data.sailMatrix = [data.data.sailMatrix];
                 }
                 this.turbineWarrenty = data.data;
                 let date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
@@ -140,7 +142,7 @@ export class FleetavailabilityComponent implements OnInit {
                         }
                     }
                 }
-                this.newService.getUserClientById(this.changedUsers, this.turbineWarrenty.client).subscribe(_data => {
+                this.newService.getUserClientById(this.changedUsers, this.turbineWarrenty.client).subscribe((_data: ExtendedUserModel) => {
                     const changed = [];
                     this.changedUsers.forEach(function(items, index) {
                         changed[index] = [];
@@ -799,6 +801,10 @@ export class FleetavailabilityComponent implements OnInit {
         this.turbineWarrenty.fullFleet = sorted.fleet;
         this.turbineWarrenty.sailMatrix = sorted.sailMatrix;
     }
+}
+
+interface ExtendedUserModel extends UserModel {
+    findIndex ?: (any) => number;
 }
 
 export interface TurbineWarrentyModel {

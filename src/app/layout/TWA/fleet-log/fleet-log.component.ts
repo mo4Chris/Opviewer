@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
+import { routerTransition } from '../../../router.animations';
 import { ActivatedRoute } from '@angular/router';
-import { CommonService } from '../../common.service';
-import { UserService } from '../../shared/services/user.service';
-import { Router } from '../../../../node_modules/@angular/router';
-import { DatetimeService } from '../../supportModules/datetime.service';
+import { CommonService } from '../../../common.service';
+import { UserService } from '../../../shared/services/user.service';
+import { Router } from '@angular/router';
+import { DatetimeService } from '../../../supportModules/datetime.service';
 import * as moment from 'moment';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { UserModel } from '../../../models/userModel';
 
 @Component({
     selector: 'app-fleet-log',
@@ -33,7 +34,7 @@ export class FleetLogComponent implements OnInit {
     sailDayChanged: any[];
     activeListings;
     vesselsToAdd;
-    users: {_id: string, username: string}[];
+    users: UserModel[];
     loading = true;
     availableMonths = [];
     selectedMonth: string;

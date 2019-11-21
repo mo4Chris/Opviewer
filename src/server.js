@@ -5,6 +5,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
+var moment = require('moment');
 
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
@@ -320,6 +321,7 @@ var SovDprInput = new Schema({
     hoc: { type: Array },
     vesselNonAvailability: { type: Array },
     weatherDowntime: { type: Array },
+    standBy: { type: Array },
     remarks: {type: String},
     catering: {type: Object},
     date: { type: Number },
@@ -540,15 +542,20 @@ function validatePermissionToViewData(req, res, callback) {
     let token = verifyToken(req, res);
     let filter = { mmsi: req.body.mmsi };
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
-        if (!token.userBoats.find(x => x.mmsi === req.body.mmsi)) {
-            return [];
-        } else {
-            filter.client = token.userCompany;
-        }
+        // if (!token.userBoats.some(x => {
+        //         return filter.mmsi.some(y => x.mmsi ===y )
+        //     })
+        // ){
+        //     return res.status(401).send('Unauthorized request');
+        // } else {
+        //     filter.client = token.userCompany;
+        // }
+        filter.client = token.userCompany;
     } else if (token.userPermission === "Logistics specialist") {
         filter.client = token.userCompany;
     } else if (token.userPermission === "Contract manager") {
         // TODO
+        filter.client = token.userCompany;
     }
     Vesselmodel.find(filter, function (err, data) {
         if (err) {
@@ -597,6 +604,17 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
 //#########################################################
 //#################   Endpoints   #########################
 //#########################################################
+
+app.get("/api/getActiveConnections", function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === "admin") {
+        res.send({
+            body: 'This is not yet tracked'
+        });
+    } else {
+        return res.status(401).send('Unauthorized request!');
+    }
+})
 
 app.post("/api/registerUser", function (req, res) {
     let userData = req.body;
@@ -678,7 +696,7 @@ app.post("/api/login", function (req, res) {
                                     userBoats: user.boats, 
                                     username: user.username,
                                     expires: expireDate.setMonth(expireDate.getMonth()+1).valueOf(),
-                                    hasCampaigns: data.length >= 1
+                                    hasCampaigns: data.length >= 1 && (user.permissions!== "Vessel master")
                                 };
                                 let token = jwt.sign(payload, 'secretKey');
                                 if (user.active == 0){
@@ -1051,6 +1069,7 @@ app.get("/api/getCompanies", function (req, res) {
     Vesselmodel.find({ active: {$ne: false}}).distinct('client', function (err, data) {
         if (err) {
             res.send(err);
+            console.log(err);
         } else {
             let BusinessData = data + '';
             let arrayOfCompanies = [];
@@ -1067,6 +1086,7 @@ app.post("/api/getDistinctFieldnames", function (req, res) {
         }
         Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let fieldnameData = data + '';
@@ -1088,6 +1108,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function (req, res) {
         }
         SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: {$ne: false} }).distinct('fieldname', function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let fieldnameData = data + '';
@@ -1116,6 +1137,21 @@ app.post("/api/getPlatformLocations", function (req, res) {
 app.post("/api/getSpecificPark", function (req, res) {
     LatLonmodel.find({
         filename: { $in: req.body.park }, 
+        active: {$ne: false}
+    }, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+app.get("/api/getParkByNiceName/:parkName", function (req, res) {
+    const parkName = req.params.parkName;
+    LatLonmodel.find({
+        SiteName: parkName,
         active: {$ne: false}
     }, function (err, data) {
         if (err) {
@@ -1294,6 +1330,7 @@ app.post("/api/getSovDprInput", function (req, res) {
 
         SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, null, {}, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 if (data.length > 0) {
@@ -1301,6 +1338,7 @@ app.post("/api/getSovDprInput", function (req, res) {
                 } else {
                     SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
                         if (err) {
+                            console.log(err);
                             res.send(err);
                         } else {
                             let dprData = {};
@@ -1318,6 +1356,7 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "hoc": [],
                                     "vesselNonAvailability": [],
                                     "weatherDowntime":[],
+                                    "standBy": [],
                                     "remarks": '',
                                     "ToolboxAmountOld": 0,
                                     "ToolboxAmountNew": 0,
@@ -1352,7 +1391,8 @@ app.post("/api/getSovDprInput", function (req, res) {
                                     "toolbox": [],
                                     "hoc": [],
                                     "vesselNonAvailability": [],
-                                    "weatherDowntime":[],
+                                    "weatherDowntime": [],
+                                    "standBy" :[],
                                     "ToolboxAmountOld": data.ToolboxAmountNew,
                                     "ToolboxAmountNew": data.ToolboxAmountNew,
                                     "HOCAmountOld": data.HOCAmountNew,
@@ -1402,6 +1442,7 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the fuel input" });
@@ -1419,6 +1460,7 @@ app.post("/api/saveIncidentDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the incident input" });
@@ -1436,6 +1478,7 @@ app.post("/api/updateSOVTurbinePaxInput", function (req, res) {
     SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the transfer stats" });
@@ -1472,6 +1515,7 @@ app.post("/api/updateSOVPlatformPaxInput", function (req, res) {
     SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the transfer stats" });
@@ -1489,9 +1533,10 @@ app.post("/api/saveNonAvailabilityDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { vesselNonAvailability: req.body.vesselNonAvailability},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the non-availability input" });
+                res.send({ data: "Succesfully saved the downtime input" });
             }
         });
     }
@@ -1506,9 +1551,28 @@ app.post("/api/saveWeatherDowntimeDpr", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { weatherDowntime: req.body.weatherDowntime},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
-                res.send({ data: "Succesfully saved the weather downtime input" });
+                res.send({ data: "Succesfully saved the downtime input" });
+            }
+        });
+        }
+    });
+});
+
+app.post("/api/saveStandByDpr", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { standBy: req.body.standBy},
+        function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send({ data: "Succesfully saved the downtime input" });
             }
         });
         }
@@ -1523,6 +1587,7 @@ app.post("/api/saveRemarksStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { remarks: req.body.remarks},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved your remarks" });
@@ -1540,6 +1605,7 @@ app.post("/api/saveCateringStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { catering: req.body.catering},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the catering input" });
@@ -1608,6 +1674,7 @@ app.post("/api/savePoBStats", function (req, res) {
     SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { PoB: req.body.peopleonBoard},
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the PoB input" });
@@ -1793,6 +1860,7 @@ app.get("/api/getUsers", function (req, res) {
             }
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -1817,6 +1885,7 @@ app.post("/api/getUsersForCompany", function (req, res) {
 
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -1836,6 +1905,7 @@ app.post("/api/getUserByUsername", function (req, res) {
 
         }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
@@ -1858,6 +1928,7 @@ app.get("/api/getUserClientById/:id/:client", function (req, res) {
     }
     Usermodel.find({_id: id, active: {$ne: false}}, ['_id', 'client'], function(err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -1881,12 +1952,64 @@ app.post("/api/saveUserBoats", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { boats: req.body.boats },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully saved the permissions" });
             }
         });
 });
+
+app.get('/api/getLatestGeneral', function (req, res) {
+    let token = verifyToken(req, res);
+    let ctvData;
+    let sovData;
+    // Callback only sends data if both CTV and SOV succefully loaded, error otherwise
+    const cb = () => {
+        if (ctvData !== undefined && sovData !== undefined) {
+            res.send(ctvData.concat(sovData));
+        }
+    }
+
+    if (token.userPermission !== 'admin') {
+        return res.status(401).send('Access denied');
+    } else {
+        generalmodel.aggregate([
+            {
+                $group: {
+                    _id: '$mmsi',
+                    'date': {$last: '$date'},
+                    'vesselname': {$last: '$vesselname'},
+                }
+            }
+        ]).exec((err, data) => {
+            if (err) {
+                console.log(err);
+                res.send(err)
+            } else {
+                ctvData = data;
+                cb();
+            }
+        });
+        SovModelmodel.aggregate([
+            {
+                $group: {
+                    _id: '$mmsi',
+                    'date': {$last: '$dayNum'},
+                    'vesselname': {$last: '$vesselName'},
+                }
+            }
+        ]).exec((err, data) => {
+            if (err) {
+                console.log(err);
+                res.send(err)
+            } else {
+                sovData = data;
+                cb();
+            }
+        });
+    }
+})
 
 app.post("/api/getVideoRequests", function (req, res) {
     validatePermissionToViewData(req, res, function (validated) {
@@ -1911,6 +2034,7 @@ app.post("/api/getVideoRequests", function (req, res) {
             }
         ]).exec(function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send(data);
@@ -1930,6 +2054,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
         }, null, {
             }, function (err, data) {
                 if (err) {
+                    console.log(err);
                     return res.send(err);
                 } else {
                     var videoBudget = data[0];
@@ -1944,6 +2069,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
                             data[0].currentBudget = 0;
                             data[0].save(function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send(data);
@@ -1974,15 +2100,18 @@ app.post("/api/saveVideoRequest", function (req, res) {
         videoRequest.username = token.username;
         videoRequest.save(function (err, data) {
             if (err) {
+                console.log(err);
                 return res.send(err);
             } else {
                 videoBudgetmodel.findOne({ mmsi: req.body.mmsi, active: {$ne: false} }, function (err, data) {
                     if (err) {
+                        console.log(err);
                         return res.send(err);
                     } else {
                         if (data) {
                             videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi, active: {$ne: false} }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send({ data: "Succesfully saved the video request" });
@@ -1997,6 +2126,7 @@ app.post("/api/saveVideoRequest", function (req, res) {
                             budget.resetDate = date.setMonth(date.getMonth() + 1);
                             budget.save(function (_err, _data) {
                                 if (_err) {
+                                    console.log(_err);
                                     return res.send(_err);
                                 } else {
                                     return res.send({ data: "Succesfully saved the video request" });
@@ -2023,6 +2153,7 @@ app.post("/api/resetPassword", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { token: randomToken },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 let serveradres = process.env.IP_USER.split(',');
@@ -2045,6 +2176,7 @@ app.post("/api/setActive", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 1 },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 var userActivity = new UserActivitymodel();
@@ -2073,6 +2205,7 @@ app.post("/api/setInactive", function (req, res) {
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 var userActivity = new UserActivitymodel();
@@ -2084,6 +2217,7 @@ app.post("/api/setInactive", function (req, res) {
                 userActivity.save(function (err, data) {
                     if (err) {
                         console.log(err);
+                        return res.send({data: 'Failed to deactivate user!'})
                     }
                 });
                 res.send({ data: "Succesfully deactivated this user" });
@@ -2111,6 +2245,7 @@ app.post("/api/sendFeedback", function (req, res) {
 app.post("/api/getUserByToken", function (req, res) {
     Usermodel.findOne({ token: req.body.passwordToken, username: req.body.user, active: {$ne: false} }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             if (data) {
@@ -2130,6 +2265,7 @@ app.post("/api/setPassword", function (req, res) {
     Usermodel.findOneAndUpdate({ token: req.body.passwordToken, active: {$ne: false} }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
         function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: "Succesfully reset the password" });
@@ -2144,6 +2280,7 @@ app.post("/api/getGeneral", function (req, res) {
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: data });
@@ -2159,6 +2296,7 @@ app.get("/api/getTurbineWarranty", function (req, res) {
     }
     turbineWarrantymodel.find({active: {$ne: false}}, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2192,11 +2330,15 @@ app.post("/api/getTurbineWarrantyOne", function (req, res) {
 
 app.post("/api/getTurbineWarrantyForCompany", function (req, res) {
     let token = verifyToken(req, res);
-    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
+    if (token.userPermission !== 'admin' && token.userCompany !== req.body.client && token.hasCampaigns) {
         return res.status(401).send('Access denied');
     }
-    turbineWarrantymodel.find({ client: req.body.client, active: {$ne: false} }, function (err, data) {
+    turbineWarrantymodel.find({
+        client: req.body.client,
+        active: {$ne: false}
+    }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2239,6 +2381,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
     }
     vesselsToAddToFleetmodel.find(filter, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             if (data.length === 0) {
@@ -2257,6 +2400,7 @@ app.post("/api/addVesselToFleet", function (req, res) {
                 }
                 vesselToAdd.save(function (err, data) {
                     if (err) {
+                        console.log(err);
                         return res.send(err);
                     } else {
                         return res.send({ data: "Vessel added to fleet (could take up to a day to process)" });
@@ -2285,7 +2429,7 @@ app.get("/api/getParkLocations", function (req, res) {
     });
 });
 
-app.get("/api/getParkLocationForCompany/:company", function (req, res) {
+app.get("/api/getParkLocationForVessels", function (req, res) {
     //ToDo: windfields do not yet have associated companies
     //ToDo: netjes afvangen als client een streepje bevat
     let companyName = req.params.company.replace('--_--', ' ');
@@ -2347,6 +2491,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (r
         }
     ]).exec(function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             var activeVessels = [];
@@ -2381,6 +2526,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function (r
             }
             turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function (err, twa) {
                 if (err) {
+                    console.log(err);
                     return res.status(401).send('Something went went wrong with getting the active listings');
                 } else {
                     return res.send({ data: data, twa: twa });
@@ -2398,6 +2544,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function (req, res) {
     }
     activeListingsModel.find({ fleetID: fleetID, active: {$ne: false} }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2461,6 +2608,7 @@ app.post("/api/setActiveListings", function (req, res) {
             }
             activeListing.save(function (err, data) {
                 if (err) {
+                    console.log(err);
                     return res.status(401).send('Something went went wrong with updating one or more listing');
                 }
             });
@@ -2482,6 +2630,7 @@ app.post("/api/getHasSailedDatesCTV", function (req, res) {
         }
         hasSailedModelCTV.find({ mmsi: req.body.mmsi, active: {$ne: false}}, ['date', 'distancekm'], function (err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({ data: data });
@@ -2498,6 +2647,7 @@ app.post("/api/getVesselsToAddToFleet", function (req, res) {
     }
     vesselsToAddToFleetmodel.find({ campaignName: req.body.campaignName, active: {$ne: false}, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
         if (err) {
+            console.log(err);
             res.send(err);
         } else {
             res.send(data);
@@ -2526,6 +2676,7 @@ app.post("/api/saveFleetRequest", function (req, res) {
     request.requestTime = req.body.requestTime;
     request.save(function(err,data) {
         if (err) {
+            console.log(err);
             return res.send(err);
         } else {
             startDate = new Date(request.startDate);
@@ -2561,6 +2712,7 @@ app.post("/api/getWavedataForDay", function (req, res) {
         active: {$ne: false}
     }, (err, data) => {
         if (err) {
+            console.log(err);
             res.send(err);
         } else if (data === null) {
             // Did not find valid data
@@ -2571,6 +2723,7 @@ app.post("/api/getWavedataForDay", function (req, res) {
                 let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string'? 
                     meta.clients === company : meta.clients.some(client => client == company))
                 if (err) {
+                    console.log(err);
                     res.send(err);
                 }  else if (!hasAccessRights) {
                     res.status(401).send('Access denied');
@@ -2595,6 +2748,7 @@ app.post("/api/getWavedataForRange", function (req, res) {
         active: {$ne: false}
     }, (err, datas) => {
         if (err) {
+            console.log(err);
             res.send(err);
         } else if (datas === null) {
             // Did not find valid data
@@ -2658,6 +2812,30 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
                 }
             }
         )
+    }
+})
+
+app.get('/api/getLatestTwaUpdate/', function (req, res) {
+    let token = verifyToken(req, res);
+    if (token.userPermission === 'admin') {
+        let currMatlabDate = Math.floor((moment() / 864e5) + 719529);
+        turbineWarrantymodel.find({
+            stopDate: {$gte: currMatlabDate},
+        }, {
+            lastUpdated: 1
+        }, (err, data) => {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else if (data) {
+                let latestUpdate = data.reduce((prev, curr) => {
+                    return Math.max(prev, curr.lastUpdated);
+                }, 0)
+                res.send({lastUpdate: latestUpdate});
+            } else {
+                res.status(400).send('No active TWA requests found!')
+            }
+        })
     }
 })
 

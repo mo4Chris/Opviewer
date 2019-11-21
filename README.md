@@ -10,6 +10,9 @@ sonar-scanner.bat -Dsonar.projectKey=BMO-Opviewer -Dsonar.organization=tcwchris-
 ##Start api server on remote server
 ng serve --host 0.0.0.0
 
+##Fix crypto bug
+node patch.js
+
 ##.Htaccess code (In case of deletion)
 Order Deny,Allow
 Deny from all
