@@ -33,9 +33,6 @@ export class UtilizationGraphComponent implements OnInit {
     RawData: RawGeneralModel[];
     TimeBreakdown: TimeBreakdown[];
     vesselName: string;
-
-    breakdownKeys = ['hoursWaiting', 'hoursSailing', 'hoursOfCTVops', 'hoursAtTurbine', 'hoursAtPlatform'];
-    breakdownKeysNiceName = ['Waiting', 'Sailing', 'CTV operations', 'Turbine operations', 'Platform operations'];
     backgroundcolors = LongtermColorScheme.backgroundColors;
 
     ngOnInit() {
@@ -48,65 +45,83 @@ export class UtilizationGraphComponent implements OnInit {
             const dateLabels = matlabDates.map((daynum: number) => {
                 return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
             }); // Can only have one vessel
-            const dsets = {
-                labels: dateLabels,
-                datasets: [],
-            };
             let validIdx: number;
-            const dset = {};
-            this.breakdownKeys.forEach((key, _j) => {
-                dset[key] = {
-                    label: this.breakdownKeysNiceName[_j],
+            const getDset = (options: object) => {
+                const def = {
+                    label: 'No data',
                     data: [],
                     stack: this.vesselName,
                     showInLegend: true,
                     xAxisID: 'x-axis-0',
                     yAxisID: 'y-axis-0',
-                    backgroundColor: this.backgroundcolors[_j], // vColor.replace('1)', (5 - _j) / 5 + ')'),
+                    backgroundColor: LongtermColorScheme.missingData, // vColor.replace('1)', (5 - _j) / 5 + ')'),
                     callback: (index: number) => this.navigateToDPR({
                         mmsi: this.vesselObject.mmsi[0],
                         matlabDate: matlabDates[index],
                     })
                 };
-            });
-            const missingData = {
-                label: 'No data',
-                data: [],
-                stack: this.vesselName,
-                showInLegend: true,
-                xAxisID: 'x-axis-0',
-                yAxisID: 'y-axis-0',
-                backgroundColor: LongtermColorScheme.missingData, // vColor.replace('1)', (5 - _j) / 5 + ')'),
-                callback: (index: number) => this.navigateToDPR({
-                    mmsi: this.vesselObject.mmsi[0],
-                    matlabDate: matlabDates[index],
-                })
+                return {... def, ...options};
             };
+
+            const waiting = getDset({
+                label: 'Waiting',
+                backgroundColor: this.backgroundcolors[0],
+            });
+            const sailing = getDset({
+                label: 'Sailing',
+                backgroundColor: this.backgroundcolors[1],
+            });
+            const ops = getDset({
+                label: 'Operations',
+                backgroundColor: this.backgroundcolors[2],
+            });
+            const missing = getDset({
+                label: 'No data',
+                backgroundColor: LongtermColorScheme.missingData,
+            });
             matlabDates.forEach(day => {
                 // Loop over days
                 validIdx = breakdownDates.findIndex(date => date === day);
-                if (validIdx === -1 || isInvalidData(this.breakdownKeys, TimeBreakdowns[validIdx]) ) {
-                    this.breakdownKeys.forEach(key => {
-                        dset[key].data.push(0);
-                    });
-                    missingData.data.push(24);
+                if (validIdx === -1 || isInvalidData(TimeBreakdowns[validIdx]) ) {
+                    waiting.data.push(0);
+                    sailing.data.push(0);
+                    ops.data.push(0);
+                    missing.data.push(24);
                 } else {
-                    const activeBreakdown = TimeBreakdowns[validIdx];
-                    this.breakdownKeys.forEach(key => {
-                        if (activeBreakdown[key]) {
-                            dset[key].data.push(activeBreakdown[key]);
-                        } else {
-                            dset[key].data.push(0);
+                    const local = TimeBreakdowns[validIdx];
+                    const hours = {
+                        ops: 0,
+                        sailing: 0,
+                        waiting: 0,
+                        other: 0,
+                    };
+                    Object.keys(local).forEach(key => {
+                        // 'hoursWaiting', 'hoursSailing', 'hoursOfCTVops', 'hoursAtTurbine', 'hoursAtPlatform'
+                        switch (key) {
+                            case 'hoursWaiting':
+                                hours.waiting = local[key];
+                                break;
+                            case 'hoursSailing':
+                                hours.sailing = local[key];
+                                break;
+                            case 'hoursOfCTVops': case 'hoursAtTurbine': case 'hoursAtPlatform':
+                                hours.ops += local[key];
+                                break;
+                            default:
+                                hours.other += local[key];
                         }
                     });
-                    missingData.data.push(0);
+                    waiting.data.push(hours.waiting);
+                    sailing.data.push(hours.sailing);
+                    ops.data.push(hours.ops);
+                    missing.data.push(hours.other);
                 }
             });
 
-            this.breakdownKeys.forEach(key => {
-                dsets.datasets.push(dset[key]);
-            });
-            dsets.datasets.push(missingData);
+            const dsets = {
+                labels: dateLabels,
+                datasets: [waiting, sailing, ops, missing],
+            };
             if (this.Chart) {
                 // Update the chart
                 this.Chart.data = dsets;
@@ -118,8 +133,8 @@ export class UtilizationGraphComponent implements OnInit {
             }
         });
 
-        function isInvalidData(keys: string[], data: TimeBreakdown) {
-            return !keys.some((key: string) => {
+        function isInvalidData(data: TimeBreakdown) {
+            return ['_ArrayType_'].some((key: string) => {
                 if (data[key]) {
                     return true;
                 } else {
@@ -170,7 +185,7 @@ export class UtilizationGraphComponent implements OnInit {
         dsets: any,
     ) {
         const calcService = this.calculationService;
-        const niceNames = this.breakdownKeysNiceName;
+        const dateService = this.dateTimeService;
         this.Chart = new Chart('utilizationGraph', {
             type: 'bar',
             data: dsets,
@@ -187,23 +202,21 @@ export class UtilizationGraphComponent implements OnInit {
                     },
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
+                            const date: Date = data.labels[tooltipItem.index];
                             return [
                                 data.datasets[tooltipItem.datasetIndex].stack,
+                                dateService.jsDateToDMYString(date),
                             ];
                         },
-                        label: function (tooltipItem, data) {
+                        label: () => {}, // Disable to default color cb
+                        afterLabel: function (tooltipItem, data) {
                             const info = [];
                             data.datasets.forEach((dset, _i) => {
-                                info.push(niceNames[_i] + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
+                                if (dset.data[tooltipItem.index] > 0) {
+                                    info.push(dset.label + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
+                                }
                             });
                             return info;
-                        },
-                        labelColor: function (tooltipItem, chart) {
-                            const bg_color = chart.data.datasets[0].backgroundColor;
-                            return {
-                                borderColor: bg_color,
-                                backgroundColor: bg_color,
-                            };
                         },
                         title: function (tooltipItem, data) {
                             // Prevents a bug from showing up in the bar chart tooltip
@@ -237,6 +250,8 @@ export class UtilizationGraphComponent implements OnInit {
                 scales: {
                     xAxes: [{
                         id: 'x-axis-0',
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0,
                         stacked: true,
                         display: false,
                         min: 0,
@@ -262,8 +277,9 @@ export class UtilizationGraphComponent implements OnInit {
                             labelString: 'Number of hours',
                         },
                         ticks: {
-                            beginAtZero: true,
+                            min: 0,
                             max: 24,
+                            stepSize: 4,
                         }
                     }],
                 },

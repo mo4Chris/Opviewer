@@ -2,8 +2,8 @@
 export class LongtermColorScheme {
     // Provides a consistent use of colors for usage throughout the longterm component
     static backgroundColors = [
-        'rgba(44,127,184,1)',
         'rgba(217,95,14,1)',
+        'rgba(44,127,184,1)',
         'rgba(49,163,84,1)',
         'rgba(197,27,138,1)',
         'rgba(117,107,177,1)',
@@ -11,8 +11,8 @@ export class LongtermColorScheme {
         'rgba(240,59,32,1)',
     ];
     static bordercolors = [
-        'rgba(44,127,184,1)',
         'rgba(217,95,14,1)',
+        'rgba(44,127,184,1)',
         'rgba(49,163,84,1)',
         'rgba(197,27,138,1)',
         'rgba(117,107,177,1)',
@@ -20,8 +20,8 @@ export class LongtermColorScheme {
         'rgba(240,59,32,1)',
     ];
     static backgroundColorsNiceName = [
-        'blue',
         'orange',
+        'blue',
         'green',
         'magenta',
         'purple',

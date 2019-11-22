@@ -78,7 +78,9 @@ export class LongtermSOVComponent implements OnInit {
             this.scatterPlot.destroyCurrentCharts();
         }
         this.myChart = this.scatterPlot.myChart;
-        this.utilizationGraph.updateChart();
+        if (this.vesselObject.mmsi.length > 0) {
+            this.utilizationGraph.updateChart();
+        }
     }
 
     getGraphDataPerComparison() {
