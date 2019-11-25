@@ -65,7 +65,7 @@ export class UtilizationGraphComponent implements OnInit {
 
             const waiting = getDset({
                 label: 'Waiting',
-                backgroundColor: this.backgroundcolors[0],
+                backgroundColor: this.backgroundcolors[0].replace('1)', '0.7'),
             });
             const sailing = getDset({
                 label: 'Sailing',

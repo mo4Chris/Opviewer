@@ -8,7 +8,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../../supportModules/datetime.service';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
-import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
+import { ComprisonArrayElt, RawScatterData, SOVRawScatterData } from '../models/scatterInterface';
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
@@ -48,7 +48,14 @@ export class LongtermSOVComponent implements OnInit {
         { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'turbine',
         info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+        annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+        {
+            x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
+                `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
+            Only bins in which the vessels have been deployed are shown. Both turbine and platform transfers are shown.
+            `, barCallback: (data: SOVRawScatterData) => this.usagePerHsBin(data),
+            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+        },
         { x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'platform',
         info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
@@ -190,6 +197,48 @@ export class LongtermSOVComponent implements OnInit {
             platInfo.y = data.platform.groups.dates.map(elts => elts.length);
         }
         return [turbInfo, platInfo];
+    }
+
+    usagePerHsBin(rawScatterData: SOVRawScatterData) {
+        let groupedData: {data: number[][], labels: string[]};
+        const hsBins = this.calculationService.linspace(0, 5, 0.2);
+        if (rawScatterData.turbine) {
+            groupedData = this.groupDataByBin(rawScatterData.turbine, {param: 'Hs', val: hsBins});
+        }
+        if (rawScatterData.platform) {
+            const groupedPlatforms = this.groupDataByBin(rawScatterData.turbine, {param: 'Hs', val: hsBins});
+            if (groupedData) {
+                groupedData.data.forEach((elt, _i) => {
+                    elt.concat(groupedPlatforms.data[_i]);
+                });
+            } else {
+                groupedData = groupedPlatforms;
+            }
+        }
+        const largestDataBin = groupedData.data.reduce((prev, curr, _i) => {
+            if (curr.length > 0) {
+                return <number> _i;
+            } else {
+                return <number> prev;
+            }
+        }, 0);
+        return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length) }];
+    }
+    groupDataByBin(data: RawScatterData, binData: {param: string, val: number[] }): {data: number[][], labels: string[]} {
+        const binParam: string = binData.param;
+        const bins: number[] = binData.val;
+        bins[0] = 0.0001; // To stop roundNumber from returning 0 as N/a
+        const labels = [];
+        const binnedData = [];
+        for (let _i = 0; _i < bins.length - 1; _i++) {
+            const lower = bins[_i];
+            const upper = bins[_i + 1];
+            // Creating nice labels to show in the bar plots
+            labels.push(this.calculationService.roundNumber(lower, 10) + '-' + this.calculationService.roundNumber(upper, 10));
+            // Actually sorting the data
+            binnedData.push(data[binParam].filter(dateElt => dateElt >= lower && dateElt < upper));
+        }
+        return { data: binnedData, labels: labels };
     }
 
     getCombinedTransferObservable(queryElt: {

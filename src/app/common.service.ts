@@ -232,7 +232,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getDatesWithValues(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getDatesWithValues(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));
   }

@@ -40,7 +40,7 @@ export class LongtermCTVComponent implements OnInit {
                 `Number of turbine transfers per month. The lower (thick) part of the bins show the number of valid vessel to turbine
             transfers. The lighter part shows any other transfer made by the vessel (Tied off, impacts without properly attaching
             to the turbine, etc..).
-            `, barCallback: (data) => this.usagePerMonth(data)
+            `, barCallback: (data: RawScatterData) => this.usagePerMonth(data)
         },
         {
             x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
@@ -72,7 +72,7 @@ export class LongtermCTVComponent implements OnInit {
             x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
                 `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown.
-            `, barCallback: (data) => this.usagePerHsBin(data),
+            `, barCallback: (data: RawScatterData) => this.usagePerHsBin(data),
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
         },
         {
