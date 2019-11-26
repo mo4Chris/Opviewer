@@ -6,6 +6,7 @@ import * as jwt_decode from 'jwt-decode';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { UserService } from '../../shared/services/user.service';
+import { TokenModel } from '../../models/tokenModel';
 
 @Component({
   selector: 'app-usermanagement',
@@ -23,8 +24,8 @@ export class UserManagementComponent implements OnInit {
     ) { }
 
     username = this.getUsernameFromParameter();
-    user = this.getUser();
-    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    user;
+    tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats;
     alert = { type: '', message: '' };
     showAlert = false;
@@ -45,6 +46,8 @@ export class UserManagementComponent implements OnInit {
                 localStorage.removeItem('isLoggedin');
                 localStorage.removeItem('token');
                 this.router.navigate(['login']);
+            } else {
+                this.getUser();
             }
         });
     }

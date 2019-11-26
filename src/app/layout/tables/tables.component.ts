@@ -23,7 +23,7 @@ export class TablesComponent implements OnInit {
         private routerService: RouterService,
     ) { }
     Repdata: VesselModel[];
-    tokenInfo = new TokenModel(this.userService);
+    tokenInfo: TokenModel = TokenModel.load(this.userService);
     ScatterplotCompanies = ['BMO', 'SSE Beatrice', 'Vattenfall', 'Seazip'];
     ScatterplotPermission: Boolean;
     filter = [];
