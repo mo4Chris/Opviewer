@@ -10,9 +10,8 @@ import { CalculationService } from '../../../supportModules/calculation.service'
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { CorrelationGraph } from '../models/correlationgraph/correlationgraph.component';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
-import { DeploymentGraphComponent } from '../models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -79,7 +78,6 @@ export class LongtermCTVComponent implements OnInit {
         this.calculationService,
         this.dateTimeService
         );
-    CorrelationGraph: CorrelationGraph;
     fieldname: string;
     wavedataArray: WavedataModel[];
     mergedWavedata: {

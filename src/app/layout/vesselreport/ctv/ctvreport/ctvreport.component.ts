@@ -602,58 +602,11 @@ export class CtvreportComponent implements OnInit {
                     this.mapZoomLvl.emit(mapProperties.zoomLevel);
                     this.routeFound.emit(true);
                 } else {
-                    this.legacyGetRouteInfo();
+                    this.routeFound.emit(false);
                 }
             } else {
                 this.routeFound.emit(false);
-            }
-        });
-    }
-
-    legacyGetRouteInfo() {
-        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-            if (routeData.length > 0) {
-                let latitudes = [];
-                let longitudes = [];
-
-                for (let i = 0; i < routeData.length; i++) {
-                    latitudes = latitudes.concat(routeData[i].lat);
-                    longitudes = longitudes.concat(routeData[i].lon);
-                }
-
-                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                const boatLocationData = routeData;
-                this.boatLocationData.emit(boatLocationData);
-                this.latitude.emit(mapProperties.avgLatitude);
-                this.longitude.emit(mapProperties.avgLongitude);
-                this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                this.routeFound.emit(true);
-            } else {
-                this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
-                    let latitudes = [];
-                    let longitudes = [];
-                    if (transitrouteData.length > 0) {
-                        for (let i = 0; i < transitrouteData.length; i++) {
-                            latitudes = latitudes.concat(transitrouteData[i].lat);
-                            longitudes = longitudes.concat(transitrouteData[i].lon);
-                        }
-                        if (latitudes.length > 0) {
-                            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                            const boatLocationData = transitrouteData;
-                            this.boatLocationData.emit(boatLocationData);
-                            this.latitude.emit(mapProperties.avgLatitude);
-                            this.longitude.emit(mapProperties.avgLongitude);
-                            this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                            this.routeFound.emit(true);
-                        } else {
-                            this.routeFound.emit(false);
-                        }
-                    } else {
-                        this.routeFound.emit(false);
-                        this.mapZoomLvl.emit(10);
-                    }
-                });
-
+                this.mapZoomLvl.emit(10);
             }
         });
     }

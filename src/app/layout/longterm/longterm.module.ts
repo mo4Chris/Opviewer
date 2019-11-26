@@ -16,8 +16,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonService } from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { LongtermCTVModule } from './ctv/longtermCTV.module';
-import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
 
 @NgModule({
     imports: [ HttpClientModule,
@@ -30,8 +29,7 @@ import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGra
         ReactiveFormsModule,
         CommonModule,
         LongtermRoutingModule,
-        PageHeaderModule,
-        LongtermCTVModule
+        PageHeaderModule
     ],
     declarations: [LongtermComponent, LongtermCTVComponent, LongtermSOVComponent, DeploymentGraphComponent],
     providers: [CommonService, UserService],
