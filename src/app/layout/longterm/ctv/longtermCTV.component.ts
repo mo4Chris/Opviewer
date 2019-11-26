@@ -12,8 +12,11 @@ import { TokenModel } from '../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
 import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
+<<<<<<< HEAD
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
+=======
+>>>>>>> Cleanup_legacy_code
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -90,7 +93,11 @@ export class LongtermCTVComponent implements OnInit {
         this.comparisonArray,
         this.calculationService,
         this.dateTimeService
+<<<<<<< HEAD
     );
+=======
+        );
+>>>>>>> Cleanup_legacy_code
     fieldname: string;
     wavedataArray: WavedataModel[];
     mergedWavedata: {

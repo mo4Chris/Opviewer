@@ -222,16 +222,6 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getCrewRouteForBoat(vessel: VesselObjectModel) {
-    return this.post(environment.DB_IP + '/api/getCrewRouteForBoat/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  getTransitsRouteForBoat(vessel: VesselObjectModel) {
-    return this.post(environment.DB_IP + '/api/getTransitsRouteForBoat/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
   getDatesWithValues(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));

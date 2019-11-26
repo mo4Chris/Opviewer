@@ -17,8 +17,11 @@ import { CommonService } from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
+<<<<<<< HEAD
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
+=======
+>>>>>>> Cleanup_legacy_code
 
 @NgModule({
     imports: [
@@ -33,6 +36,7 @@ import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.componen
         CommonModule,
         LongtermRoutingModule,
         PageHeaderModule
+<<<<<<< HEAD
     ],
     declarations: [
         LongtermComponent,
@@ -41,6 +45,8 @@ import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.componen
         DeploymentGraphComponent,
         UtilizationGraphComponent,
         VesselinfoComponent
+=======
+>>>>>>> Cleanup_legacy_code
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent]

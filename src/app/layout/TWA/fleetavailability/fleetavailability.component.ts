@@ -114,7 +114,6 @@ export class FleetavailabilityComponent implements OnInit {
             startDate: this.params.startDate
         }).subscribe(data => {
             if (data.data != null) {
-                console.log(data)
                 if (!isArray(data.data.sailMatrix[0])) {
                     data.data.sailMatrix = [data.data.sailMatrix];
                 }
