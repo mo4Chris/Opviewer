@@ -9,6 +9,7 @@ import { CommonService } from '../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
+import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
 describe('VesselReportComponent', () => {
   let component: VesselreportComponent;
@@ -17,16 +18,16 @@ describe('VesselReportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        AgmCoreModule.forRoot(),
+        AgmCoreModule,
         FormsModule,
         ReactiveFormsModule,
-        NgbModule.forRoot(),
+        NgbModule,
         PageHeaderModule,
         RouterTestingModule,
         BrowserAnimationsModule,
         HttpModule],
       declarations: [ VesselreportComponent ],
-      providers: [CommonService]
+      providers: [MockedCommonServiceProvider]
     })
     .compileComponents();
   }));

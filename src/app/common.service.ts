@@ -42,7 +42,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getActiveConnections() {
+  getActiveConnections(): Observable<string> {
     return this.get(environment.DB_IP + '/api/getActiveConnections/').pipe(
       map((response: Response) => response.json()));
   }
@@ -503,10 +503,10 @@ export class CommonService {
   }
 }
 
-interface StatsRangeRequest {
+export interface StatsRangeRequest {
   mmsi: number[];
   dateMin: number;
   dateMax: number;
   reqFields: string[];
-} 
+};
 

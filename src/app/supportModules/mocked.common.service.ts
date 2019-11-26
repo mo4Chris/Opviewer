@@ -1,8 +1,10 @@
-import { CommonService } from '../common.service';
+import { CommonService, StatsRangeRequest } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
 import { VesselModel } from '../models/vesselModel';
 import { Observable } from 'rxjs';
 import { UserTestService } from '../shared/services/test.user.service';
+import { UserModel } from '../models/userModel';
+import { CampaignModel } from '../layout/TWA/models/campaignModel';
 
 
 const emptyMatlabObject = {
@@ -38,7 +40,7 @@ export class MockedCommonService extends CommonService {
         Site?: string,
         onHire?: 0 | 1,
         operationsClass?: VesselType,
-    } = {}) {
+    } = {}): Observable<VesselModel> {
         const defaults = this.getVesselDefault()[0];
         return mockedObservable([{...defaults, ...opts}]);
     }
@@ -203,6 +205,9 @@ export class MockedCommonService extends CommonService {
         const mock = mockedObservable(this.getVesselDefault());
         return mock;
     }
+    getVesselsForCompany(): Observable<VesselModel[]> {
+        return mockedObservable(this.getVesselDefault());
+    }
     getVesselDefault(): VesselModel[] {
         return [{
             vesselname: 'Test_BMO',
@@ -224,7 +229,7 @@ export class MockedCommonService extends CommonService {
         }];
     }
 
-    getUserByUsername(username: string) {
+    getUserByUsername(username: any) {
         return mockedObservable([
             UserTestService.getMockedAccessToken()
         ]);
@@ -351,6 +356,43 @@ export class MockedCommonService extends CommonService {
     saveVideoRequest(transfer) {
         return mockedObservable({data: 'saveVideoRequest'});
     }
+
+    getActiveConnections() {
+        return mockedObservable('Not yet tracked!');
+    }
+    getLatestTwaUpdate() {
+        return mockedObservable(0);
+    }
+    getUsers(): Observable<UserModel[]> {
+        return mockedObservable([
+            UserTestService.getMockedAccessToken()
+        ]);
+    }
+    getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
+        return mockedObservable([]);
+    }
+    getGeneralForRange(request: GeneralForRangeInput) {
+        return this.getGeneral({
+            mmsi: <number> request.mmsi[0] ? request.mmsi[0] : request.mmsi,
+            date: request.startDate,
+            vesselType: request.vesselType,
+        });
+    }
+    getTransfersForVesselByRange(request: StatsRangeRequest) {
+        return mockedObservable([]);
+    }
+
+    getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {
+        return mockedObservable([{
+            campaignName: 'test',
+            fullFleet: ['Test_BMO'],
+            activeFleet: ['Test_BMO'],
+            validFields: ['Test_field'],
+            startDate: 0,
+            stopDate: 1,
+            windField: 'test123',
+        }]);
+    }
 }
 
 // Replace the CommonService propvider with this provider to completely mock the common service!
@@ -405,4 +447,12 @@ export interface VesselObjectModel {
     date: number;
     dateNormal?: string | Date;
     vesselType: VesselType;
+}
+
+export interface GeneralForRangeInput {
+    startDate: number;
+    stopDate: number;
+    mmsi: number | number[];
+    vesselType: VesselType;
+    projection?: any;
 }
