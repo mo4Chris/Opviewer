@@ -1,7 +1,4 @@
 import { Injectable } from '@angular/core';
-import * as jwt_decode from 'jwt-decode';
-import * as moment from 'moment';
-import { Router } from '@angular/router';
 import { TokenModel, UserType } from '../../models/tokenModel';
 
 @Injectable({
@@ -29,8 +26,6 @@ export class UserTestService {
         return {...defaults, ...config};
     }
 }
-
-// type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist';
 
 interface UserTokenOptions {
     userPermission?: UserType;
