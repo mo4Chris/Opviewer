@@ -4,8 +4,7 @@ import { CommonService } from '../../../../../common.service';
 
 @NgModule({
   imports: [
-    CommonModule,
-    NgModule
+    CommonModule
   ],
   providers: [CommonService],
   declarations: []

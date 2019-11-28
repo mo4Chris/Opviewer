@@ -16,24 +16,32 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonService } from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { LongtermCTVModule } from './ctv/longtermCTV.module';
-import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
+import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
+import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
+import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 
 @NgModule({
-    imports: [ HttpClientModule,
+    imports: [
+        HttpClientModule,
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
         FormsModule,
-        NgbModule.forRoot(),
-        NgMultiSelectDropDownModule.forRoot(),
+        NgbModule,
+        NgMultiSelectDropDownModule,
         ReactiveFormsModule,
         CommonModule,
         LongtermRoutingModule,
-        PageHeaderModule,
-        LongtermCTVModule
+        PageHeaderModule
     ],
-    declarations: [LongtermComponent, LongtermCTVComponent, LongtermSOVComponent, DeploymentGraphComponent],
+    declarations: [
+        LongtermComponent,
+        LongtermCTVComponent,
+        LongtermSOVComponent,
+        DeploymentGraphComponent,
+        UtilizationGraphComponent,
+        VesselinfoComponent
+    ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent]
 })

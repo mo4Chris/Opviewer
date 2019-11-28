@@ -6,34 +6,38 @@ export class TurbineTransfer {
     stopTime: number;
     duration: number;
     fieldname: string;
+    date: number;
+
     gangwayDeployedDuration: number;
     gangwayReadyDuration: number;
+    gangwayUtilisation: string;
+    gangwayUtilisationLimiter: string;
     timeGangwayDeployed: number;
     timeGangwayReady: string;
     timeGangwayRetracted: string;
     timeGangwayStowed: number;
+    DPutilisation: string;
+    angleToAsset: number;
+    alarmsPresent: string;
+    positionalStabilityRadius: string;
+
     peakWindGust: number;
     peakWindAvg: string;
-    gangwayUtilisation: string;
-    gangwayUtilisationLimiter: string;
-    alarmsPresent: string;
     motionsEnvelope: string;
     peakHeave: string;
-    angleToAsset: number;
-    DPutilisation: string;
-    positionalStabilityRadius: string;
-    current: string;
     approachTime: string;
+    windArray: any;
+    current: string;
     Hs: string;
     Ts: string;
     lon: number;
     lat: number;
+
     paxCntEstimate: string;
     detector: string;
     gangwayUtilisationTrace: string;
     positionalStability: string;
-    windArray: any;
-    date: number;
+
     paxIn: { type: Number };
     paxOut: { type: Number };
     cargoIn: { type: Number };

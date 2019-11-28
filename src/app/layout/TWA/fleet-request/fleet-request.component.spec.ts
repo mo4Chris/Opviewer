@@ -7,14 +7,14 @@ import { AgmCoreModule } from '@agm/core';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule } from '../../../shared';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FleetLogRoutingModule } from '../fleet-log/fleet-log-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonService } from '../../common.service';
-import { UserTestService } from '../../shared/services/test.user.service';
-import { UserService } from '../../shared/services/user.service';
-import { mockedObservable } from '../../models/testObservable';
+import { CommonService } from '../../../common.service';
+import { UserTestService } from '../../../shared/services/test.user.service';
+import { UserService } from '../../../shared/services/user.service';
+import { mockedObservable } from '../../../models/testObservable';
 
 describe('FleetRequestComponent', () => {
     let component: FleetRequestComponent;

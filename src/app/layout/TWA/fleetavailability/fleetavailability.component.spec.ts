@@ -4,14 +4,14 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FleetavailabilityComponent, TurbineWarrentyModel } from './fleetavailability.component';
 import { FormsModule } from '@angular/forms';
 import { AgmCoreModule } from '@agm/core';
-import { PageHeaderModule } from '../../shared';
-import { UserTestService } from '../../shared/services/test.user.service';
-import { UserService } from '../../shared/services/user.service';
-import { CommonService } from '../../common.service';
+import { PageHeaderModule } from '../../../shared';
+import { UserTestService } from '../../../shared/services/test.user.service';
+import { UserService } from '../../../shared/services/user.service';
+import { CommonService } from '../../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { mockedObservable } from '../../models/testObservable';
+import { mockedObservable } from '../../../models/testObservable';
 
 describe('FleetAvailabilityComponent', () => {
   let component: FleetavailabilityComponent;

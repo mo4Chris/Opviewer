@@ -1,7 +1,7 @@
 import { FleetsModule } from './fleets.module';
 import { FleetsComponent } from './fleets.component';
-import { CommonService } from '../../common.service';
-import { mockedObservable } from '../../models/testObservable';
+import { CommonService } from '../../../common.service';
+import { mockedObservable } from '../../../models/testObservable';
 
 describe('FleetsModule', () => {
     let testModule: FleetsModule;

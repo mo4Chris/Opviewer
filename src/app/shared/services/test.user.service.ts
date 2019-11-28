@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as jwt_decode from 'jwt-decode';
-import * as moment from 'moment';
-import { Router } from '@angular/router';
-import { TokenModel } from '../../models/tokenModel';
+import { TokenModel, UserType } from '../../models/tokenModel';
 
 @Injectable({
     providedIn: 'root'
@@ -12,8 +9,8 @@ export class UserTestService {
     constructor(
     ) { }
 
-    static getMockedAccessToken(config: UserTokenOptions = {}): UserModel {
-        const defaults: UserModel = {
+    static getMockedAccessToken(config: UserTokenOptions = {}): TokenModel {
+        const defaults: TokenModel = {
             userID: 'testyMcTest',
             userBoats: [{
                 mmsi: 123456789,
@@ -30,25 +27,9 @@ export class UserTestService {
     }
 }
 
-type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist';
-
 interface UserTokenOptions {
     userPermission?: UserType;
     hasCampaigns?: boolean;
     userBoats?: {mmsi: number, nicename: string}[];
 }
 
-interface UserModel {
-    // This model should probably be replaced by the tokenModel on merge
-    userID: string;
-    userBoats: {
-        mmsi: number,
-        nicename: string
-    }[];
-    userCompany: string;
-    userPermission: UserType;
-    username: string;
-    hasCampaigns: boolean;
-    expires: number;
-    iat: number;
-}

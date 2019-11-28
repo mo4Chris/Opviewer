@@ -32,10 +32,6 @@ export class FleetsComponent implements OnInit {
     companies = [];
     selectedCompany = this.tokenInfo.userCompany;
 
-    log(input) {
-        console.log(input);
-    }
-
     ngOnInit() {
         this.getMsg();
         if (this.tokenInfo.userPermission === 'admin') {

@@ -8,6 +8,8 @@ import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { WavedataModel } from '../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
+import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
+import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 
 @Component({
     selector: 'app-ctvreport',
@@ -26,7 +28,7 @@ export class CtvreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject: { date: number, mmsi: number, dateNormal: Date, vesselType: string };
+    @Input() vesselObject: VesselObjectModel
     @Input() tokenInfo;
     @Input() mapPixelWidth: number;
     @Input() mapPromise: Promise<google.maps.Map>;
@@ -129,7 +131,7 @@ export class CtvreportComponent implements OnInit {
                 this.getTransfersForVessel(this.vesselObject).subscribe(_ => {
                     this.getComments(this.vesselObject).subscribe(__ => {
                         this.getVideoRequests(this.vesselObject).subscribe(___ => {
-                            this.newService.getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi }).subscribe(data => {
+                            this.newService.getVideoBudgetByMmsi(this.vesselObject).subscribe(data => {
                                 if (data[0]) {
                                     this.videoBudget = data[0];
                                 } else {
@@ -507,7 +509,7 @@ export class CtvreportComponent implements OnInit {
         return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
     }
 
-    getComments(vessel) {
+    getComments(vessel: VesselObjectModel) {
         return this.newService.getCommentsForVessel(vessel).pipe(
             map(changed => {
                 this.commentsChanged = changed;
@@ -602,58 +604,11 @@ export class CtvreportComponent implements OnInit {
                     this.mapZoomLvl.emit(mapProperties.zoomLevel);
                     this.routeFound.emit(true);
                 } else {
-                    this.legacyGetRouteInfo();
+                    this.routeFound.emit(false);
                 }
             } else {
                 this.routeFound.emit(false);
-            }
-        });
-    }
-
-    legacyGetRouteInfo() {
-        this.newService.getCrewRouteForBoat(this.vesselObject).subscribe(routeData => {
-            if (routeData.length > 0) {
-                let latitudes = [];
-                let longitudes = [];
-
-                for (let i = 0; i < routeData.length; i++) {
-                    latitudes = latitudes.concat(routeData[i].lat);
-                    longitudes = longitudes.concat(routeData[i].lon);
-                }
-
-                const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                const boatLocationData = routeData;
-                this.boatLocationData.emit(boatLocationData);
-                this.latitude.emit(mapProperties.avgLatitude);
-                this.longitude.emit(mapProperties.avgLongitude);
-                this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                this.routeFound.emit(true);
-            } else {
-                this.newService.getTransitsRouteForBoat(this.vesselObject).subscribe(transitrouteData => {
-                    let latitudes = [];
-                    let longitudes = [];
-                    if (transitrouteData.length > 0) {
-                        for (let i = 0; i < transitrouteData.length; i++) {
-                            latitudes = latitudes.concat(transitrouteData[i].lat);
-                            longitudes = longitudes.concat(transitrouteData[i].lon);
-                        }
-                        if (latitudes.length > 0) {
-                            const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                            const boatLocationData = transitrouteData;
-                            this.boatLocationData.emit(boatLocationData);
-                            this.latitude.emit(mapProperties.avgLatitude);
-                            this.longitude.emit(mapProperties.avgLongitude);
-                            this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                            this.routeFound.emit(true);
-                        } else {
-                            this.routeFound.emit(false);
-                        }
-                    } else {
-                        this.routeFound.emit(false);
-                        this.mapZoomLvl.emit(10);
-                    }
-                });
-
+                this.mapZoomLvl.emit(10);
             }
         });
     }
@@ -676,8 +631,8 @@ export class CtvreportComponent implements OnInit {
             });
     }
 
-    matchVideoRequestWithTransfer(transfer) {
-        let vid;
+    matchVideoRequestWithTransfer(transfer): VideoRequestModel {
+        let vid: VideoRequestModel;
         if (!this.videoRequests) {
             vid = { text: 'Not requested', disabled: false };
             return this.checkVideoBudget(transfer.videoDurationMinutes, vid);
@@ -706,7 +661,7 @@ export class CtvreportComponent implements OnInit {
         }
     }
 
-    checkVideoBudget(duration, vid) {
+    checkVideoBudget(duration: number, vid: VideoRequestModel) {
         if (!vid.active) {
             if (
                 this.videoBudget.maxBudget >= 0 &&
@@ -773,7 +728,7 @@ export class CtvreportComponent implements OnInit {
                         this.videoRequestLoading = false;
                     });
                     this.newService
-                        .getVideoBudgetByMmsi({ mmsi: this.vesselObject.mmsi })
+                        .getVideoBudgetByMmsi(this.vesselObject)
                         .subscribe(data => (this.videoBudget = data[0]));
                     clearTimeout(this.timeout);
                     this.showAlert = true;
@@ -812,4 +767,11 @@ export class CtvreportComponent implements OnInit {
                 }, 7000);
             });
     }
+}
+
+interface VideoRequestModel {
+    text: string;
+    disabled: boolean;
+    status?: string;
+    active?: boolean;
 }

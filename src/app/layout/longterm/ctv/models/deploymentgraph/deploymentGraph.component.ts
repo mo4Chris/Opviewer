@@ -1,8 +1,8 @@
-import { TokenModel } from '../../../../models/tokenModel';
+import { TokenModel } from '../../../../../models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import { CommonService } from '../../../../common.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
+import { CommonService } from '../../../../../common.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { now } from 'moment';
@@ -11,7 +11,7 @@ import { now } from 'moment';
 @Component({
     selector: 'app-deployment-graph',
     templateUrl: './deployment.component.html',
-    styleUrls: ['../../ctv/longtermCTV.component.scss',
+    styleUrls: ['../../longtermCTV.component.scss',
         './deployment.component.scss']
 })
 export class DeploymentGraphComponent implements OnInit {
@@ -241,8 +241,8 @@ export class DeploymentGraphComponent implements OnInit {
                 vesselname: 1,
             }
         }).subscribe((rawdata: RawGeneralModel[][]) => {
-            this.RawData = rawdata;
-            this.SailingHoursPerDay = rawdata.map(rawvesseldata => {
+            this.RawData = rawdata.map(_raw => this.appendMissingDates(_raw));
+            this.SailingHoursPerDay = this.RawData.map(rawvesseldata => {
                 return this.parseRawData(rawvesseldata);
             });
             if (cb) {
@@ -253,9 +253,32 @@ export class DeploymentGraphComponent implements OnInit {
 
     parseRawData(rawData: RawGeneralModel[]) {
         const dailySailingHours: number[] = rawData.map((genStat, _i) => {
-            return genStat.minutesFloating / 60 + genStat.minutesInField / 60;
+            if (genStat.vesselname !== '') {
+                return genStat.minutesFloating / 60 + genStat.minutesInField / 60;
+            } else {
+                return null;
+            }
         });
         return dailySailingHours;
+    }
+
+    appendMissingDates(raw: RawGeneralModel[]) {
+        const appendedRaw = [];
+        const noData = (dnum: number) => {return {
+            date: dnum,
+            vesselname: '',
+            minutesFloating: 0,
+            minutesInField: 0,
+        }; };
+        for (let dnum = this.vesselObject.dateMin; dnum <= this.vesselObject.dateMax; dnum++) {
+            appendedRaw.push(raw.reduce((prev, curr) => {
+                if (curr.date === dnum) {
+                    return curr;
+                }
+                return prev;
+            }, noData(dnum)));
+        }
+        return appendedRaw;
     }
 
     filterNaNs(Arr: any[] ) {

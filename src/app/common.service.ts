@@ -6,9 +6,10 @@ import { Observable } from 'rxjs';
 import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
+import { VesselModel } from './models/vesselModel';
+import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { UserModel } from './models/userModel';
-import { TurbineLocation } from './layout/vesselreport/models/TurbineLocation';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 
 @Injectable()
@@ -16,7 +17,32 @@ export class CommonService {
 
   constructor(private http: Http) { }
 
-  getActiveConnections() {
+  get(url: string) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.get(url, {
+      headers: headers
+    });
+  }
+
+  post(url: string, data: any) {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    return this.http.post(url, data, {
+      headers: headers
+    });
+  }
+
+  createAuthorizationHeader(headers: Headers) {
+    headers.append('authorization', localStorage.getItem('token'));
+  }
+
+  validatePermissionToViewData(vessel: { mmsi: number}) {
+    return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getActiveConnections(): Observable<string> {
     return this.get(environment.DB_IP + '/api/getActiveConnections/').pipe(
       map((response: Response) => response.json()));
   }
@@ -31,13 +57,13 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVessel() {
+  getVessel(): Observable<VesselModel[]> {
     return this.get(environment.DB_IP + '/api/getVessel/').pipe(
       map((response: Response) => response.json()));
   }
 
-  getSov(mmsi: number, date: number) {
-    return this.get(environment.DB_IP + '/api/getSov/' + mmsi + '/' + date).pipe(
+  getSov(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getSov/' + vessel.mmsi + '/' + vessel.date).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -171,62 +197,52 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransfersForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[]}) {
+  getTransfersForVesselByRange(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransfersForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: {mmsi: number[], dateMin: number, dateMax: number, reqFields: string[] }) {
+  getTransitsForVesselByRange(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTurbineTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getPlatformTransfersForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRangeForSOV(vessel: {mmsi: number[], dateMin: number, dateMax: number, x: string, y: string}) {
+  getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest) {
     return this.post(environment.DB_IP + '/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getCrewRouteForBoat(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
-    return this.post(environment.DB_IP + '/api/getCrewRouteForBoat/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  getTransitsRouteForBoat(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
-    return this.post(environment.DB_IP + '/api/getTransitsRouteForBoat/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  getDatesWithValues(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getDatesWithValues(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));
   }
 
-  getDatesWithValuesFromGeneralStats(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getDatesWithValuesFromGeneralStats(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getHasSailedDatesCTV/', vessel).pipe(
        map((response: Response) => response.json()));
   }
 
-  getDatesShipHasSailedForSov(mmsi: number) {
-    return this.get(environment.DB_IP + '/api/getDatesShipHasSailedForSov/' + mmsi).pipe(
+  getDatesShipHasSailedForSov(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getDatesShipHasSailedForSov/' + vessel.mmsi).pipe(
       map((response: Response) => response.json()));
   }
 
-  getDatesWithTransfersForSOV(mmsi: number) {
-    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + mmsi).pipe(
+  getDatesWithTransfersForSOV(vessel: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getDatesWithTransferForSov/' + vessel.mmsi).pipe(
       map((response: Response) => response.json()));
   }
 
-  getCommentsForVessel(vessel: number) {
+  getCommentsForVessel(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getCommentsForVessel/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -331,33 +347,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSovDprInput(vessel) {
+  getSovDprInput(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getSovDprInput/', vessel).pipe(
-      map((response: Response) => response.json()));
-  }
-
-  get(url: string) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.get(url, {
-      headers: headers
-    });
-  }
-
-  post(url: string, data: any) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.post(url, data, {
-      headers: headers
-    });
-  }
-
-  createAuthorizationHeader(headers: Headers) {
-    headers.append('authorization', localStorage.getItem('token'));
-  }
-
-  validatePermissionToViewData(vessel: { mmsi: number}) {
-    return this.post(environment.DB_IP + '/api/validatePermissionToViewData/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -376,7 +367,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVideoRequests(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getVideoRequests(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getVideoRequests/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -386,12 +377,12 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getVideoBudgetByMmsi(mmsi: {mmsi: number}) {
-    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', mmsi).pipe(
+  getVideoBudgetByMmsi(vessel: VesselObjectModel) {
+    return this.post(environment.DB_IP + '/api/getVideoBudgetByMmsi/', {mmsi: vessel.mmsi}).pipe(
       map((response: Response) => response.json()));
   }
 
-  getGeneral(vessel: { date: number, mmsi: number, dateNormal: Date, vesselType: string }) {
+  getGeneral(vessel: VesselObjectModel) {
     return this.post(environment.DB_IP + '/api/getGeneral/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -511,4 +502,11 @@ export class CommonService {
     map((response: Response) => response.json()));
   }
 }
+
+export interface StatsRangeRequest {
+  mmsi: number[];
+  dateMin: number;
+  dateMax: number;
+  reqFields: string[];
+};
 

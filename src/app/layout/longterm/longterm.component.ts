@@ -13,6 +13,7 @@ import { DatetimeService } from '../../supportModules/datetime.service';
 import { CalculationService } from '../../supportModules/calculation.service';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
+import { VesselModel } from '../../models/vesselModel';
 
 @Component({
   selector: 'app-longterm',
@@ -36,8 +37,14 @@ export class LongtermComponent implements OnInit {
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
   }
 
-  maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
-  vesselObject = { 'dateMin': this.getMatlabDateLastMonth(), 'mmsi': [this.getMMSIFromParameter()], 'dateNormalMin': this.getJSDateLastMonthYMD(), 'dateMax': this.getMatlabDateYesterday(), 'dateNormalMax': this.getJSDateYesterdayYMD() };
+  maxDate = this.getMaxDate();
+  vesselObject: LongtermVesselObjectModel = {
+    mmsi: [this.getMMSIFromParameter()],
+    dateMin: this.getMatlabDateLastMonth(),
+    dateNormalMin: this.getJSDateLastMonthYMD(),
+    dateMax: this.getMatlabDateYesterday(),
+    dateNormalMax: this.getJSDateYesterdayYMD()
+  };
 
   multiSelectSettings = {
     idField: 'mmsi',
@@ -61,10 +68,7 @@ export class LongtermComponent implements OnInit {
   toDate: NgbDate;
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
-  Vessels: {
-    Site: string, client: any[], mmsi: number, nicename: string, onHire: number,
-    operationsClass: string, speednotifylimit: any, vesselname: string
-  }[] = [];
+  Vessels: VesselModel[] = [];
   showContent: boolean;
   loaded = { Vessels: false, vesselType: false };
   fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
@@ -164,6 +168,7 @@ export class LongtermComponent implements OnInit {
   }
 
   buildPageWithCurrentInformation() {
+    this.datePickerValue = this.fromDate;
     setTimeout(() => {
       if (this.vesselType === 'CTV') {
         // Build CTV module
@@ -225,6 +230,59 @@ export class LongtermComponent implements OnInit {
     this.updateWavedataForChild();
   }
 
+  switchMonthBackwards() {
+    if (this.fromDate.day === 1) {
+      if (this.fromDate.month === 1) {
+        this.fromDate.month = 12;
+        this.fromDate.year -= 1;
+      } else {
+        this.fromDate.month -= 1;
+      }
+    } else {
+      this.fromDate.day = 1;
+    }
+    if (this.fromDate.month === 12) {
+      this.toDate.year = this.fromDate.year += 1;
+      this.toDate.month = 1;
+    } else {
+      this.toDate.year = this.fromDate.year;
+      this.toDate.month = this.fromDate.month + 1;
+    }
+    this.toDate.day = 1;
+    this.searchTransfersByNewSpecificDate();
+  }
+
+  switchMonthForward() {
+    const nextMonth = new NgbDate(this.fromDate.year, this.fromDate.month, 1);
+    if (this.fromDate.month === 12) {
+      nextMonth.month = 1;
+      nextMonth.year += 1;
+    } else {
+      nextMonth.day = 1;
+      nextMonth.month += 1;
+    }
+    if (nextMonth.before(this.maxDate)) {
+      this.fromDate = nextMonth;
+    } else {
+      return;
+    }
+    if (this.fromDate.month === 12) {
+      this.toDate.year = this.fromDate.year += 1;
+      this.toDate.month = 1;
+    } else {
+      this.toDate.year = this.fromDate.year;
+      this.toDate.month = this.fromDate.month + 1;
+    }
+    this.toDate.day = 1;
+    if (this.toDate.after(this.maxDate)) {
+      // Cant copy maxdate here since otherwise maxDate would start changing when moving back months
+      this.toDate.year = this.maxDate.year;
+      this.toDate.month = this.maxDate.month;
+      this.toDate.day = this.maxDate.day;
+    }
+    this.searchTransfersByNewSpecificDate();
+  }
+
   updateWavedataForChild() {
     if (this.vesselType === 'CTV') {
       // Build CTV module
@@ -236,6 +294,13 @@ export class LongtermComponent implements OnInit {
   }
 
   // Utility
+  getMaxDate(): NgbDate {
+    const yesterday = moment().add(-1, 'days');
+    return new NgbDate(yesterday.year(), yesterday.month() + 1, yesterday.date());
+  }
+  monthForwardEnabled(): boolean {
+    return !this.maxDate.after(this.toDate);
+  }
   getMatlabDateYesterday() {
     return this.dateTimeService.getMatlabDateYesterday();
   }
@@ -270,4 +335,12 @@ export class LongtermComponent implements OnInit {
   MatlabDateToUnixEpochViaDate(serial) {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
+}
+
+export interface LongtermVesselObjectModel {
+  mmsi: number[];
+  dateMin: number;
+  dateMax: number;
+  dateNormalMin: string;
+  dateNormalMax: string;
 }

@@ -14,6 +14,7 @@ import { HttpModule } from '@angular/http';
 import { UserService } from '../../shared/services/user.service';
 import { UserTestService } from '../../shared/services/test.user.service';
 import { mockedObservable } from '../../models/testObservable';
+import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
 describe('UsermanagementComponent', () => {
   let component: UserManagementComponent;
@@ -32,15 +33,15 @@ describe('UsermanagementComponent', () => {
         HttpModule
       ],
         declarations: [UserManagementComponent ],
-        providers: [CommonService],
+        providers: [MockedCommonServiceProvider],
     })
     .compileComponents();
   }));
 
   beforeEach(async(() => {
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
-    spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
-    spyOn(CommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([user]));
+    // spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
+    // spyOn(CommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([user]));
     spyOn(CommonService.prototype, 'getVesselsForCompany').and.returnValue(mockedObservable(user.userBoats));
 
     spyOn(UserManagementComponent.prototype, 'getUsernameFromParameter').and.returnValue(user.username);
@@ -48,6 +49,7 @@ describe('UsermanagementComponent', () => {
     fixture = TestBed.createComponent(UserManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    component.tokenInfo = user;
   }));
 
   it('should create', () => {

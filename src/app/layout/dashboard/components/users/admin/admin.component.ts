@@ -63,7 +63,7 @@ export class AdminComponent implements OnInit {
 
   getActiveSessions() {
     this.newService.getActiveConnections().subscribe(users => {
-      this.activeUsers = users;
+      this.activeUsers = <any> users; // ToDo: fix this assignment once we can do actual tracking
     });
   }
 

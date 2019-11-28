@@ -2,17 +2,17 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetLogComponent } from './fleet-log.component';
-import { CommonService } from '../../common.service';
+import { CommonService } from '../../../common.service';
 import { AgmCoreModule } from '@agm/core';
 import { HttpModule } from '@angular/http';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule } from '../../../shared';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FleetLogRoutingModule } from './fleet-log-routing.module';
 import { RouterTestingModule } from '@angular/router/testing';
-import { UserService } from '../../shared/services/user.service';
+import { UserService } from '../../../shared/services/user.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { UserTestService } from '../../shared/services/test.user.service';
+import { UserTestService } from '../../../shared/services/test.user.service';
 
 describe('FleetLogComponent', () => {
     let component: FleetLogComponent;

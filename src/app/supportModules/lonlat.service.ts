@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
   })
   export class LonlatService {
 
-    lonlatarrayToLatLngArray(input) {
-        const latlngArray: Array<google.maps.LatLng> = [];
+    lonlatarrayToLatLngArray(input: {lon: any[], lat: any[]}): latlngArrayModel {
+        const latlngArray: latlngArrayModel = [];
         let latlng;
         input.lon.forEach((lon, index) => {
             if (input.lat[index][0]) {
@@ -25,3 +25,6 @@ import { Injectable } from '@angular/core';
         return latlngArray;
     }
   }
+
+  type latlngArrayModel = {lat: number, lng: number}[];
+

@@ -8,9 +8,9 @@ import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AgmCoreModule } from '@agm/core';
-import { UserTestService } from '../../shared/services/test.user.service';
-import { UserService } from '../../shared/services/user.service';
-import { mockedObservable } from '../../models/testObservable';
+import { UserTestService } from '../../../shared/services/test.user.service';
+import { UserService } from '../../../shared/services/user.service';
+import { mockedObservable } from '../../../models/testObservable';
 
 describe('FleetComponent', () => {
     let component: FleetsComponent;

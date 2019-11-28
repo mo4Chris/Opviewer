@@ -57,7 +57,7 @@ export class VesselreportComponent implements OnInit {
   vessels: VesselModel[];
   general = {};
 
-  tokenInfo = new TokenModel(this.userService);
+  tokenInfo: TokenModel = TokenModel.load(this.userService);
   public showContent = false;
   public showAlert = false;
   public noPermissionForData = false;
@@ -143,7 +143,6 @@ export class VesselreportComponent implements OnInit {
     });
   }
 
-
   printPage() {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
 
@@ -191,7 +190,7 @@ export class VesselreportComponent implements OnInit {
     }
     const source = from(platforms);
     const groupedTurbines = source.pipe(
-      groupBy(platforms => platforms.latitude),
+      groupBy(_platforms => _platforms.latitude),
       mergeMap(group => group.pipe(toArray()))
     );
     groupedTurbines.subscribe(val => this.platformLocations.turbineLocations.push(val), null, () => {
@@ -396,9 +395,7 @@ export class VesselreportComponent implements OnInit {
     const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
     datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     datepickerValueAsMomentDate.format();
-
     const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
-
     return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
   }
 

@@ -23,7 +23,7 @@ export class SignupComponent implements OnInit {
 
     businessNames;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    userPermission = this.tokenInfo.userPermission;
+    userPermission: string = this.tokenInfo.userPermission;
     permissions = ['Vessel master', 'Marine controller'];
     alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
     showAlert = false;
