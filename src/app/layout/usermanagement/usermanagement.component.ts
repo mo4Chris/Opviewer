@@ -56,7 +56,7 @@ export class UserManagementComponent implements OnInit {
     }
 
     getUser() {
-        this.newService.getUserByUsername(this.username).subscribe(data => {
+        this.newService.getUserByUsername({username: this.username}).subscribe(data => {
             // Loads the users this person is allowed to edit
             if (this.tokenInfo.userPermission !== 'admin') {
                 if (this.tokenInfo.userPermission !== 'Logistics specialist') {

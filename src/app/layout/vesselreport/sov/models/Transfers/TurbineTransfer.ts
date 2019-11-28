@@ -1,4 +1,5 @@
 export class TurbineTransfer {
+    _id: string;
     vesselname: string;
     mmsi: number;
     location: string;
@@ -34,8 +35,8 @@ export class TurbineTransfer {
     positionalStability: string;
     windArray: any;
     date: number;
-    paxIn: { type: Number };
-    paxOut: { type: Number };
-    cargoIn: { type: Number };
-    cargoOut: { type: Number };
+    paxIn: number ;
+    paxOut: number ;
+    cargoIn: number ;
+    cargoOut: number ;
 }

@@ -1,4 +1,4 @@
-<div *ngIf="showContent">
+<div *ngIf="transferData?.length > 0">
     <br><br>
     <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
         <h3 *ngIf="noTransits">There is no transit data available</h3>
@@ -237,4 +237,68 @@
             <div class="bounce3"></div>
         </div>
     </div>
+</div>
+<div *ngIf="transferData?.length == 0">
+    <div class="divContainer singlepage-print">
+        <div class="col-xl-6">
+            <div class="card mb-3">
+                <div class="card-header" >
+                    Non-sailing day input
+                </div>
+                <div>
+                    <table class="table table-bordered ">
+                        <tr>
+                            <th>Reason</th>
+                            <td> 
+                                <select class="form-control">
+                                    <option value="Siemens Gamesa">Siemens Gamesa</option>
+                                    <option value="Marine Coordinator">Marine Coordinator</option>
+                                    <option value="Vessel Master">Vessel Master</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Decided by</th>
+                            <td> 
+                                <select class="form-control">
+                                    <option value="Siemens Gamesa">Siemens Gamesa</option>
+                                    <option value="Marine Coordinator">Marine Coordinator</option>
+                                    <option value="Vessel Master">Vessel Master</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Time of decision</th>
+                            <td> 
+                                <div class="tableRow">
+                                    HH:
+                                    <select
+                                        class="form-control col-xl-4 col-print-4">
+                                        <option *ngFor="let hour of allHours" [value]="hour">
+                                            {{hour}}
+                                        </option>
+                                    </select>
+                                    MM:
+                                    <select
+                                        class="form-control col-xl-4 col-print-4">
+                                        <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                                            {{minutes}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                    <button class="btn btn-lg"
+                                    type="button">Save</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

@@ -75,7 +75,7 @@
                                 </tr>
                                 <tr>
                                     <td>Average time spent docking (vessels)</td>
-                                    <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
+                                    <td>{{GetDecimalValueForNumber(sovModel.summary.AvgTimeVesselDocking, ' minutes')}}</td>
 
                                 </tr>
                             </ng-container>
@@ -790,7 +790,7 @@
                                     </ng-container>
                                     <tr class="tableTotal">
                                         <th>Missed transfers</th>
-                                        <th colspan="">
+                                        <th >
                                             Start time transfer
                                         </th>
                                         <th>Stop time transfer</th>
@@ -806,7 +806,7 @@
                                                 type="button">remove last transfer</button>
                                         </td>
                                         <td><button class="btn btn-lg btn-primary submitBtnDate"
-                                                (click)="saveMissedPaxCargo()" type="button">Save</button></td>
+                                                (click)="saveMissedPaxCargo()" type="button">Save all</button></td>
                                     </tr>
                                     <tr *ngFor="let transfer of missedPaxCargo">
                                         <td><input type="text" min="0" class="form-control-sm col-sm-8"
@@ -871,7 +871,7 @@
                                                 type="button">remove last transfer</button>
                                         </td>
                                         <td><button class="btn btn-lg btn-primary submitBtnDate"
-                                                (click)="saveHelicopterPaxCargo()" type="button">Save</button></td>
+                                                (click)="saveHelicopterPaxCargo()" type="button">Save all</button></td>
                                     </tr>
                                     <tr *ngFor="let transfer of helicopterPaxCargo">
                                         <th></th>
@@ -1010,7 +1010,7 @@
                                     </ng-container>
                                     <tr class="tableTotal">
                                         <th>Missed transfers</th>
-                                        <th colspan="">
+                                        <th >
                                             Start time transfer
                                         </th>
                                         <th>Stop time transfer</th>
@@ -1026,7 +1026,7 @@
                                                 type="button">remove last transfer</button>
                                         </td>
                                         <td><button class="btn btn-lg btn-primary submitBtnDate"
-                                                (click)="saveMissedPaxCargo()" type="button">Save</button></td>
+                                                (click)="saveMissedPaxCargo()" type="button">Save all</button></td>
                                     </tr>
                                     <tr *ngFor="let transfer of missedPaxCargo">
                                         <td><input type="text" min="0" class="form-control-sm col-sm-8"
@@ -1091,7 +1091,7 @@
                                                 type="button">remove last transfer</button>
                                         </td>
                                         <td><button class="btn btn-lg btn-primary submitBtnDate"
-                                                (click)="saveHelicopterPaxCargo()" type="button">Save</button></td>
+                                                (click)="saveHelicopterPaxCargo()" type="button">Save all</button></td>
                                     </tr>
                                     <tr *ngFor="let transfer of helicopterPaxCargo">
                                         <th></th>
@@ -1157,7 +1157,11 @@
                                             {{totalCargoIn}} kg incoming <br>
                                             {{totalCargoOut}} kg outgoing
                                         </td>
-                                        <td colspan="3"></td>
+                                        <td colspan="2"></td>
+                                        <td>
+                                            <button class="btn btn-lg btn-primary submitBtnDate"
+                                                (click)="saveAllTurbineTransfers()" type="button">Save all</button>
+                                        </td>
 
                                     </tr>
                                 </tbody>
@@ -1328,7 +1332,8 @@
                                         {{v2vCargoIn}} kg incoming <br>
                                         {{v2vCargoOut}} kg outgoing
                                     </td>
-                                    <td></td>
+                                    <td><button class="btn btn-lg btn-primary submitBtnDate"
+                                        (click)="savev2vPaxInput()" type="button">Save all</button></td>
 
                                 </tr>
                             </tbody>
