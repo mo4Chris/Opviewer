@@ -47,7 +47,7 @@ describe('SovreportComponent', () => {
       vesselType: 'OSV',
     };
   };
-  const mapPixelWidth = 400;
+  let weatherSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -72,29 +72,9 @@ describe('SovreportComponent', () => {
   }));
 
   beforeEach(async(() => {
-    // spyOn(CommonService.prototype, 'validatePermissionToViewData').and.callFake((mmsi: number) => mockService.validatePermissionToViewData({
-    //   mmsi: mmsi,
-    //   operationsClass: 'OSV',
-    //   vesselname: 'SOV_example'
-    // }));
-    // spyOn(CommonService.prototype, 'getDatesShipHasSailedForSov').and.callFake(mockService.getDatesShipHasSailedForSov);
-    // spyOn(CommonService.prototype, 'getDatesWithTransfersForSOV').and.callFake(mockService.getDatesWithTransfersForSOV);
-    // spyOn(CommonService.prototype, 'getSov').and.callFake(mockService.getSov);
-    // spyOn(CommonService.prototype, 'getDistinctFieldnames').and.callFake(mockService.getDistinctFieldnames);
-    // spyOn(CommonService.prototype, 'getVideoBudgetByMmsi').and.callFake(mockService.getVideoBudgetByMmsi);
-    // spyOn(CommonService.prototype, 'getSpecificPark').and.callFake(mockService.getSpecificPark);
-    // spyOn(CommonService.prototype, 'getPlatformTransfers').and.callFake(mockService.getPlatformTransfers);
-    // spyOn(CommonService.prototype, 'getTurbineTransfers').and.callFake(mockService.getTurbineTransfers);
-    // spyOn(CommonService.prototype, 'getVessel2vesselsForSov').and.callFake(mockService.getVessel2vesselsForSov);
-    // spyOn(CommonService.prototype, 'getCycleTimesForSov').and.callFake(mockService.getCycleTimesForSov);
-    // spyOn(CommonService.prototype, 'getSovDprInput').and.callFake(mockService.getSovDprInput);
-    // spyOn(CommonService.prototype, 'getTransitsForSov').and.callFake(mockService.getTransitsForSov);
-    // spyOn(CommonService.prototype, 'getPlatformLocations').and.callFake(mockService.getPlatformLocations);
-    // spyOn(CommonService.prototype, 'getSovDistinctFieldnames').and.callFake(mockService.getSOVDistinctFieldnames);
-
     spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
     spyOn(SovreportComponent.prototype, 'createGangwayLimitationsChart');
-    spyOn(SovreportComponent.prototype, 'createWeatherOverviewChart');
+    weatherSpy = spyOn(SovreportComponent.prototype, 'createWeatherOverviewChart');
 
     fixture = TestBed.createComponent(SovreportComponent);
     component = fixture.componentInstance;
@@ -106,7 +86,6 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    tick();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
   }));
@@ -116,7 +95,6 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    tick();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
   }));
@@ -126,7 +104,6 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    tick();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
   }));
@@ -136,8 +113,30 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    tick();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
+  }));
+
+  it('should create weather charts', fakeAsync(() => {
+    // Allow this specific test to call the weather functionality
+    weatherSpy.and.callThrough();
+    component.sovModel.sovInfo.weatherConditions = {
+      time: [73760.1, 73760.2, 73760.3, 73760.4],
+      waveHs: [1.2, 1.3, 1.15, 1.2],
+      wavesource: 'TEST',
+      waveDirection: [],
+      waveTp: [],
+      windAvg: [],
+      windGust: [],
+    };
+    component.createWeatherOverviewChart();
+    component.locShowContent = true;
+    fixture.detectChanges();
+    tick(1000);
+    expect(component).toBeTruthy();
+    expect(component.weatherOverviewChart).toBeTruthy();
+    expect(component.weatherOverviewChart.Chart).toBeTruthy();
+    expect(component.weatherOverviewChart.Chart.canvas).toBeTruthy();
+    expect(component.weatherOverviewChartCalculated).toBe(true);
   }));
 });

@@ -639,11 +639,26 @@ export class SovreportComponent implements OnInit {
     }
 
     buildPageWhenAllLoaded() {
-        this.CalculateDailySummary();
-        this.createOperationalStatsChart();
-        this.createGangwayLimitationsChart();
-        this.createWeatherOverviewChart();
-        this.CheckForNullValues();
+        try {
+            this.CalculateDailySummary();
+        } catch (e) {
+            console.error(e);
+        }
+        try {
+            this.createGangwayLimitationsChart();
+        } catch (e) {
+            console.error(e);
+        }
+        try {
+            this.createWeatherOverviewChart();
+        } catch (e) {
+            console.error(e);
+        }
+        try {
+            this.CheckForNullValues();
+        } catch (e) {
+            console.error(e);
+        }
         this.loaded.emit(true);
     }
 
@@ -849,15 +864,12 @@ export class SovreportComponent implements OnInit {
     }
 
     saveIncidentStats() {
-
         this.ToolboxArray = this.ToolboxArray.filter(function (result, _i) {
             return +result.amount !== 0;
         });
-
         this.HOCArray = this.HOCArray.filter(function (result, _i) {
             return +result.amount !== 0;
         });
-
         this.commonService.saveIncidentDpr({
             mmsi: this.vesselObject.mmsi,
             date: this.vesselObject.date,
@@ -1231,7 +1243,7 @@ export class SovreportComponent implements OnInit {
                     let unit = '';
                     let axisID = 'hidden';
                     switch (label) {
-                        case 'Hs':
+                        case 'Hs': case 'Hmax':
                             unit = 'm';
                             axisID = 'Hs';
                             break;
