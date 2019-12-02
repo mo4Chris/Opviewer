@@ -47,7 +47,12 @@ export class VesselreportComponent implements OnInit {
   startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = { 'date': this.getInitialDate(), 'mmsi': this.getMMSIFromParameter(), 'dateNormal': '', 'vesselType': '' };
+  vesselObject = {
+    date: this.getInitialDate(),
+    mmsi: this.getMMSIFromParameter(),
+    dateNormal: '',
+    vesselType: '',
+  };
   vesselname = '';
 
   parkNamesData;
@@ -310,7 +315,7 @@ export class VesselreportComponent implements OnInit {
     return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
   }
 
-  GetDecimalValueForNumber(value, endpoint) {
+  GetDecimalValueForNumber(value: any, endpoint: string): string {
     return this.calculationService.GetDecimalValueForNumber(value, endpoint);
   }
 

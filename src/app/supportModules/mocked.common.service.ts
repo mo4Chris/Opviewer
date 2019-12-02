@@ -295,7 +295,7 @@ export class MockedCommonService extends CommonService {
     getDistinctFieldnames(vesselObject: VesselObjectModel) {
         return mockedObservable([]);
     }
-    getSOVDistinctFieldnames(vesselObject: VesselObjectModel) {
+    getSovDistinctFieldnames(vesselObject: VesselObjectModel) {
         return mockedObservable([]);
     }
 

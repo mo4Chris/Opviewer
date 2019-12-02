@@ -24,18 +24,20 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '../../supportModules/router.service';
 
 @NgModule({
-    imports: [ HttpClientModule,
+    imports: [
+        HttpClientModule,
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
         FormsModule,
         ReactiveFormsModule,
-        NgbModule.forRoot(),
-        NgMultiSelectDropDownModule.forRoot(),
+        NgbModule,
+        NgMultiSelectDropDownModule,
         CommonModule,
         VesselreportRoutingModule,
         PageHeaderModule,
-        SharedPipesModule],
+        SharedPipesModule
+    ],
     declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [VesselreportComponent]

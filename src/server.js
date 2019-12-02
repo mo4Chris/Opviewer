@@ -104,7 +104,7 @@ var LatLonSchema = new Schema({
     filename: { type: String },
     SiteName: { type: String },
     centroid: { type: Object },
-    outlineLonCoordinate: {type: Array },
+    outlineLonCoordinates: {type: Array },
     outlineLatCoordinates: {type: Array },
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
