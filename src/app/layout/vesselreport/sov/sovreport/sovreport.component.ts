@@ -1161,7 +1161,7 @@ export class SovreportComponent implements OnInit {
 
     createWeatherOverviewChart() {
         const weather =  this.sovModel.sovInfo.weatherConditions;
-        if (weather !== undefined) {
+        if (weather !== undefined && isArray(weather.time)) {
             this.weatherOverviewChartCalculated = true;
             const timeStamps = weather.time.map(matlabTime => this.datetimeService.MatlabDateToUnixEpoch(matlabTime));
             const dsets = [];
