@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 
 import { SovreportComponent } from './sovreport.component';
 import { HttpModule } from '@angular/http';
@@ -10,7 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AgmCoreModule } from '@agm/core';
 import { CommonService } from '../../../../common.service';
-import { MockedCommonService } from '../../../../supportModules/mocked.common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '../../../../supportModules/mocked.common.service';
 import { UserTestService } from '../../../../shared/services/test.user.service';
 
 describe('SovreportComponent', () => {
@@ -66,31 +66,31 @@ describe('SovreportComponent', () => {
         HttpModule
       ],
       declarations: [ SovreportComponent ],
-      providers: [CommonService]
+      providers: [MockedCommonServiceProvider]
     })
     .compileComponents();
   }));
 
   beforeEach(async(() => {
-    spyOn(CommonService.prototype, 'validatePermissionToViewData').and.callFake((mmsi: number) => mockService.validatePermissionToViewData({
-      mmsi: mmsi,
-      operationsClass: 'OSV',
-      vesselname: 'SOV_example'
-    }));
-    spyOn(CommonService.prototype, 'getDatesShipHasSailedForSov').and.callFake(mockService.getDatesShipHasSailedForSov);
-    spyOn(CommonService.prototype, 'getDatesWithTransfersForSOV').and.callFake(mockService.getDatesWithTransfersForSOV);
-    spyOn(CommonService.prototype, 'getSov').and.callFake(mockService.getSov);
-    spyOn(CommonService.prototype, 'getDistinctFieldnames').and.callFake(mockService.getDistinctFieldnames);
-    spyOn(CommonService.prototype, 'getVideoBudgetByMmsi').and.callFake(mockService.getVideoBudgetByMmsi);
-    spyOn(CommonService.prototype, 'getSpecificPark').and.callFake(mockService.getSpecificPark);
-    spyOn(CommonService.prototype, 'getPlatformTransfers').and.callFake(mockService.getPlatformTransfers);
-    spyOn(CommonService.prototype, 'getTurbineTransfers').and.callFake(mockService.getTurbineTransfers);
-    spyOn(CommonService.prototype, 'getVessel2vesselsForSov').and.callFake(mockService.getVessel2vesselsForSov);
-    spyOn(CommonService.prototype, 'getCycleTimesForSov').and.callFake(mockService.getCycleTimesForSov);
-    spyOn(CommonService.prototype, 'getSovDprInput').and.callFake(mockService.getSovDprInput);
-    spyOn(CommonService.prototype, 'getTransitsForSov').and.callFake(mockService.getTransitsForSov);
-    spyOn(CommonService.prototype, 'getPlatformLocations').and.callFake(mockService.getPlatformLocations);
-    spyOn(CommonService.prototype, 'getSovDistinctFieldnames').and.callFake(mockService.getSOVDistinctFieldnames);
+    // spyOn(CommonService.prototype, 'validatePermissionToViewData').and.callFake((mmsi: number) => mockService.validatePermissionToViewData({
+    //   mmsi: mmsi,
+    //   operationsClass: 'OSV',
+    //   vesselname: 'SOV_example'
+    // }));
+    // spyOn(CommonService.prototype, 'getDatesShipHasSailedForSov').and.callFake(mockService.getDatesShipHasSailedForSov);
+    // spyOn(CommonService.prototype, 'getDatesWithTransfersForSOV').and.callFake(mockService.getDatesWithTransfersForSOV);
+    // spyOn(CommonService.prototype, 'getSov').and.callFake(mockService.getSov);
+    // spyOn(CommonService.prototype, 'getDistinctFieldnames').and.callFake(mockService.getDistinctFieldnames);
+    // spyOn(CommonService.prototype, 'getVideoBudgetByMmsi').and.callFake(mockService.getVideoBudgetByMmsi);
+    // spyOn(CommonService.prototype, 'getSpecificPark').and.callFake(mockService.getSpecificPark);
+    // spyOn(CommonService.prototype, 'getPlatformTransfers').and.callFake(mockService.getPlatformTransfers);
+    // spyOn(CommonService.prototype, 'getTurbineTransfers').and.callFake(mockService.getTurbineTransfers);
+    // spyOn(CommonService.prototype, 'getVessel2vesselsForSov').and.callFake(mockService.getVessel2vesselsForSov);
+    // spyOn(CommonService.prototype, 'getCycleTimesForSov').and.callFake(mockService.getCycleTimesForSov);
+    // spyOn(CommonService.prototype, 'getSovDprInput').and.callFake(mockService.getSovDprInput);
+    // spyOn(CommonService.prototype, 'getTransitsForSov').and.callFake(mockService.getTransitsForSov);
+    // spyOn(CommonService.prototype, 'getPlatformLocations').and.callFake(mockService.getPlatformLocations);
+    // spyOn(CommonService.prototype, 'getSovDistinctFieldnames').and.callFake(mockService.getSOVDistinctFieldnames);
 
     spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
     spyOn(SovreportComponent.prototype, 'createGangwayLimitationsChart');
@@ -101,47 +101,43 @@ describe('SovreportComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('should create as admin', async(() => {
+  it('should create as admin', fakeAsync(() => {
     component.vesselObject = vesselObject(tokenInfo.admin);
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.locShowContent).toBe(true);
-    });
+    tick();
+    expect(component).toBeTruthy();
+    expect(component.locShowContent).toBe(true);
   }));
 
-  it('should create as vessel master', async(() => {
+  it('should create as vessel master', fakeAsync(() => {
     component.vesselObject = vesselObject(tokenInfo.admin);
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.locShowContent).toBe(true);
-    });
+    tick();
+    expect(component).toBeTruthy();
+    expect(component.locShowContent).toBe(true);
   }));
 
-  it('should create as marine controll', async(() => {
+  it('should create as marine controll', fakeAsync(() => {
     component.vesselObject = vesselObject(tokenInfo.admin);
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.locShowContent).toBe(true);
-    });
+    tick();
+    expect(component).toBeTruthy();
+    expect(component.locShowContent).toBe(true);
   }));
 
-  it('should create as logistic specialist', async(() => {
+  it('should create as logistic specialist', fakeAsync(() => {
     component.vesselObject = vesselObject(tokenInfo.admin);
     expect(component).toBeTruthy();
 
     component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.locShowContent).toBe(true);
-    });
+    tick();
+    expect(component).toBeTruthy();
+    expect(component.locShowContent).toBe(true);
   }));
 });

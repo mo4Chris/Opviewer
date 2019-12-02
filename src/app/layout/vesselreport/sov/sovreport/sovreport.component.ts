@@ -401,7 +401,11 @@ export class SovreportComponent implements OnInit {
     }
 
     saveMissedPaxCargo() {
-        this.commonService.saveMissedPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, MissedPaxCargo: this.missedPaxCargo }).pipe(
+        this.commonService.saveMissedPaxCargo({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            MissedPaxCargo: this.missedPaxCargo
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -424,7 +428,11 @@ export class SovreportComponent implements OnInit {
     }
 
     saveHelicopterPaxCargo() {
-        this.commonService.saveHelicopterPaxCargo({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, HelicopterPaxCargo: this.helicopterPaxCargo }).pipe(
+        this.commonService.saveHelicopterPaxCargo({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            HelicopterPaxCargo: this.helicopterPaxCargo
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -699,7 +707,7 @@ export class SovreportComponent implements OnInit {
             this.routeFound.emit(false);
         }
         // Loads in relevant turbine data for visited parks
-        this.commonService.getSovDistinctFieldnames(this.vesselObject.mmsi, this.vesselObject.date).subscribe(data => {
+        this.commonService.getSovDistinctFieldnames(this.vesselObject).subscribe(data => {
             if (this.sovModel.vessel2vessels.length > 0) {
                 this.sovModel.vessel2vessels[0].CTVactivity.forEach(activity => {
                     if (isArray(activity.turbineVisits)) {
@@ -813,7 +821,11 @@ export class SovreportComponent implements OnInit {
 
     // universe functie van maken ipv 6x dezelfde functie
     saveFuelStats() {
-        this.commonService.saveFuelStatsSovDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, liquids: this.liquidsObject}).pipe(
+        this.commonService.saveFuelStatsSovDpr({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            liquids: this.liquidsObject
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -846,7 +858,15 @@ export class SovreportComponent implements OnInit {
             return +result.amount !== 0;
         });
 
-        this.commonService.saveIncidentDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, toolbox: this.ToolboxArray, hoc: this.HOCArray, ToolboxAmountNew: this.ToolboxTotalNew, HOCAmountNew: this.HOCTotalNew}).pipe(
+        this.commonService.saveIncidentDpr({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            toolbox: this.ToolboxArray,
+            hoc: this.HOCArray,
+            ToolboxAmountNew:
+            this.ToolboxTotalNew,
+            HOCAmountNew: this.HOCTotalNew
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -870,7 +890,11 @@ export class SovreportComponent implements OnInit {
 
 
     saveWeatherDowntimeStats() {
-        this.commonService.saveNonAvailabilityDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, vesselNonAvailability: this.VesselNonAvailabilityArray}).pipe(
+        this.commonService.saveNonAvailabilityDpr({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            vesselNonAvailability: this.VesselNonAvailabilityArray
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -890,7 +914,11 @@ export class SovreportComponent implements OnInit {
             }, 7000);
         });
 
-        this.commonService.saveWeatherDowntimeDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, weatherDowntime: this.WeatherDowntimeArray}).pipe(
+        this.commonService.saveWeatherDowntimeDpr({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            weatherDowntime: this.WeatherDowntimeArray
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -910,7 +938,11 @@ export class SovreportComponent implements OnInit {
             }, 7000);
         });
 
-        this.commonService.saveStandByDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, standBy: this.standByArray}).pipe(
+        this.commonService.saveStandByDpr({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            standBy: this.standByArray
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -934,7 +966,11 @@ export class SovreportComponent implements OnInit {
     }
 
     saveCateringStats() {
-        this.commonService.saveCateringStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, catering: this.cateringObject}).pipe(
+        this.commonService.saveCateringStats({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            catering: this.cateringObject
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -957,7 +993,11 @@ export class SovreportComponent implements OnInit {
     }
 
     saveDPStats() {
-        this.commonService.saveDPStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dp: this.dpArray}).pipe(
+        this.commonService.saveDPStats({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            dp: this.dpArray
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -980,7 +1020,11 @@ export class SovreportComponent implements OnInit {
     }
 
     savePoBStats() {
-        this.commonService.savePoBStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, peopleonBoard: this.peopleonBoard}).pipe(
+        this.commonService.savePoBStats({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            peopleonBoard: this.peopleonBoard
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -1003,7 +1047,11 @@ export class SovreportComponent implements OnInit {
     }
 
     saveRemarksStats() {
-        this.commonService.saveRemarksStats({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, remarks: this.remarks}).pipe(
+        this.commonService.saveRemarksStats({
+            mmsi: this.vesselObject.mmsi,
+            date: this.vesselObject.date,
+            remarks: this.remarks
+        }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
