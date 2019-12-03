@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonService } from '../../common.service';
 import { isNumber } from 'util';
 import { UserService } from '../../shared/services/user.service';
-import { EventService } from '../../supportModules/event.service';
 import { SettingsService } from '../../supportModules/settings.service';
+import { AlertService } from '../../supportModules/alert.service';
 
 @Component({
   selector: 'app-user-settings',
@@ -15,17 +15,11 @@ export class UserSettingsComponent implements OnInit {
   token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   settingsOptions;
 
-  alert = {
-    active: false,
-    text: '',
-    type: '',
-    timeout: null,
-  };
-
   constructor(
     private newService: CommonService,
     private userService: UserService,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private alert: AlertService,
   ) {
     this.loadFromLocalStorage();
     this.settingsOptions = settings.options;
@@ -61,24 +55,7 @@ export class UserSettingsComponent implements OnInit {
   changeSetting(settingsType: string) {
     // Triggered by any of the dropdowns
     this.saveToLocalStorage(settingsType);
-    this.sendAlert({text: 'Settings saved!'});
-  }
-
-  sendAlert(opts: AlertOptions = {}) {
-    const defaultOptions: AlertOptions = {
-      text: '',
-      type: 'success'
-    };
-    opts = {...defaultOptions, ...opts};
-    if (this.alert.timeout) {
-      clearTimeout(this.alert.timeout);
-    }
-    this.alert.active = true;
-    this.alert.text = opts.text;
-    this.alert.type = opts.type;
-    this.alert.timeout = setTimeout(() => {
-      this.alert.active = false;
-    }, 2000);
+    this.alert.sendAlert({text: 'Settings saved!'});
   }
 
   loadFromLocalStorage() {
@@ -106,8 +83,3 @@ export class UserSettingsComponent implements OnInit {
   }
 }
 
-type AlertTypeOptions = 'success' | 'info' | 'warning' | 'danger' | 'primary' | 'secondary' | 'light' | 'dark';
-export interface AlertOptions {
-  text?: string;
-  type?: AlertTypeOptions;
-}
