@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import { TokenModel, UserType } from '../../models/tokenModel';
+import { UserService } from './user.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class UserTestService {
+export class UserTestService extends UserService {
 
     constructor(
-    ) { }
+    ) {
+        super(null);
+    }
 
     static getMockedAccessToken(config: UserTokenOptions = {}): TokenModel {
         const defaults: TokenModel = {
@@ -25,7 +28,17 @@ export class UserTestService {
         };
         return {...defaults, ...config};
     }
+
+    getDecodedAccessToken( token: string ) {
+        return UserTestService.getMockedAccessToken();
+    }
 }
+
+export const MockedUserServiceProvider = {
+    provide: UserService,
+    useClass: UserTestService,
+};
+
 
 interface UserTokenOptions {
     userPermission?: UserType;

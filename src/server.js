@@ -104,7 +104,7 @@ var LatLonSchema = new Schema({
     filename: { type: String },
     SiteName: { type: String },
     centroid: { type: Object },
-    outlineLonCoordinate: {type: Array },
+    outlineLonCoordinates: {type: Array },
     outlineLatCoordinates: {type: Array },
 }, { versionKey: false });
 var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
@@ -2825,7 +2825,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
 app.get('/api/getLatestTwaUpdate/', function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        let currMatlabDate = Math.floor((moment() / 864e5) + 719529);
+        let currMatlabDate = Math.floor((moment() / 864e5) + 719526);
         turbineWarrantymodel.find({
             stopDate: {$gte: currMatlabDate},
         }, {
