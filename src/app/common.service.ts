@@ -146,8 +146,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getSovDistinctFieldnames(mmsi: number, date: number) {
-    return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + mmsi + '/' + date).pipe(
+  getSovDistinctFieldnames(vesselObject: VesselObjectModel) {
+    return this.get(environment.DB_IP + '/api/getSovDistinctFieldnames/' + vesselObject.mmsi + '/' + vesselObject.date).pipe(
       map((response: Response) => response.json()));
   }
 
