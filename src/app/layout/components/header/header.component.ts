@@ -15,7 +15,7 @@ export class HeaderComponent implements OnInit {
     routerValue = '';
     pushRightClass = 'push-right';
     modalReference: NgbModalRef;
-    pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'login' ];
+    pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login' ];
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userCreatePermission;
     feedback: {message: string, page: string, person: any};

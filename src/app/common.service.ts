@@ -508,5 +508,5 @@ export interface StatsRangeRequest {
   dateMin: number;
   dateMax: number;
   reqFields: string[];
-};
+}
 
