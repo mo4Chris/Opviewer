@@ -132,6 +132,7 @@ describe('SovreportComponent', () => {
     component.createWeatherOverviewChart();
     component.locShowContent = true;
     fixture.detectChanges();
+    // Tick resolves any promises or timeouts within the period
     tick(1000);
     expect(component).toBeTruthy();
     expect(component.weatherOverviewChart).toBeTruthy();

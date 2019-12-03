@@ -170,7 +170,7 @@ agm-map {
     
 }
 
-@media (orientation: landscape) {
+@media only print and (orientation: landscape) {
     .singlepage-print {
         display: block;
         page-break-before: always;
