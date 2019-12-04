@@ -10,6 +10,7 @@ import { WavedataModel } from '../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
 import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
 import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
+import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 
 @Component({
     selector: 'app-ctvreport',
@@ -53,6 +54,7 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
+    utcOffset: number = 0;
     dateData = { transfer: undefined, general: undefined };
     modalReference: NgbModalRef;
     multiSelectSettings = {
@@ -75,8 +77,8 @@ export class CtvreportComponent implements OnInit {
         fuelConsumption: 0,
         landedOil: 0,
         landedGarbage: 0,
-        toolboxConducted: [],
-        drillsConducted: [],
+        toolboxConducted: [null],
+        drillsConducted: [null],
         observations: false,
         incidents: false,
         passengers: false,
@@ -559,58 +561,73 @@ export class CtvreportComponent implements OnInit {
     }
 
     getGeneralStats() {
+        // We reset these value - they are overwritten if the relevant data is present
+        this.generalInputStats.mmsi = this.vesselObject.mmsi;
+        this.generalInputStats.date = this.vesselObject.date;
+        this.utcOffset = 0;
+        this.resetInputStats();
+        this.noTransits = true;
+        this.general = {};
+
         this.newService.getGeneral(this.vesselObject).subscribe(general => {
-            if (general.data.length > 0 && general.data[0].DPRstats) {
-                this.noTransits = false;
-                this.general = general.data[0].DPRstats;
-            } else {
-                this.noTransits = true;
-                this.general = {};
-            }
-            if (general.data.length > 0 && general.data[0].inputStats) {
-                this.generalInputStats.mmsi = this.vesselObject.mmsi;
-                this.generalInputStats.date = this.vesselObject.date;
-                this.generalInputStats.fuelConsumption = general.data[0].inputStats.fuelConsumption;
-                this.generalInputStats.observations = general.data[0].inputStats.observations;
-                this.generalInputStats.landedGarbage = general.data[0].inputStats.landedGarbage;
-                this.generalInputStats.landedOil = general.data[0].inputStats.landedOil;
-                this.generalInputStats.toolboxConducted = general.data[0].inputStats.toolboxConducted;
-                this.generalInputStats.incidents = general.data[0].inputStats.incidents;
-                this.generalInputStats.drillsConducted = general.data[0].inputStats.drillsConducted || [];
-                this.generalInputStats.passengers = general.data[0].inputStats.passengers;
-                this.generalInputStats.customInput = general.data[0].inputStats.customInput;
-            } else {
-                this.generalInputStats.mmsi = this.vesselObject.mmsi;
-                this.generalInputStats.date = this.vesselObject.date;
-                this.generalInputStats.fuelConsumption = 0;
-                this.generalInputStats.landedGarbage = 0;
-                this.generalInputStats.landedOil = 0;
-                this.generalInputStats.toolboxConducted = [null];
-                this.generalInputStats.observations = false;
-                this.generalInputStats.incidents = false;
-                this.generalInputStats.drillsConducted = [null];
-                this.generalInputStats.passengers = false;
-                this.generalInputStats.customInput = '-';
-            }
-            if (general.data && general.data.length > 0 && general.data[0].lon) {
-                const longitudes = this.calculationService.parseMatlabArray(general.data[0].lon);
-                if (longitudes.length > 0) {
-                    const latitudes = this.calculationService.parseMatlabArray(general.data[0].lat);
-                    const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
-                    const route = [{ lat: latitudes, lon: longitudes }];
-                    this.boatLocationData.emit(route);
-                    this.latitude.emit(mapProperties.avgLatitude);
-                    this.longitude.emit(mapProperties.avgLongitude);
-                    this.mapZoomLvl.emit(mapProperties.zoomLevel);
-                    this.routeFound.emit(true);
+            if (general && general.data && general.data.length > 0) {
+                const _general: CTVGeneralStatsModel = general.data[0];
+                if (_general.utcOffset) {
+                    this.utcOffset = _general.utcOffset;
+                }
+                if (_general.DPRstats) {
+                    this.noTransits = false;
+                    this.general = _general.DPRstats;
+                }
+                if (_general.inputStats) {
+                    this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
+                    this.generalInputStats.observations = _general.inputStats.observations;
+                    this.generalInputStats.landedGarbage = _general.inputStats.landedGarbage;
+                    this.generalInputStats.landedOil = _general.inputStats.landedOil;
+                    this.generalInputStats.toolboxConducted = _general.inputStats.toolboxConducted;
+                    this.generalInputStats.incidents = _general.inputStats.incidents;
+                    this.generalInputStats.drillsConducted = _general.inputStats.drillsConducted || [];
+                    this.generalInputStats.passengers = _general.inputStats.passengers;
+                    this.generalInputStats.customInput = _general.inputStats.customInput;
+                }
+                if (_general.lon) {
+                    const longitudes = this.calculationService.parseMatlabArray(_general.lon);
+                    if (longitudes.length > 0) {
+                        const latitudes = this.calculationService.parseMatlabArray(_general.lat);
+                        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, latitudes, longitudes);
+                        const route = [{ lat: latitudes, lon: longitudes }];
+                        this.boatLocationData.emit(route);
+                        this.latitude.emit(mapProperties.avgLatitude);
+                        this.longitude.emit(mapProperties.avgLongitude);
+                        this.mapZoomLvl.emit(mapProperties.zoomLevel);
+                        this.routeFound.emit(true);
+                    } else {
+                        this.routeFound.emit(false);
+                        this.mapZoomLvl.emit(10);
+                    }
                 } else {
                     this.routeFound.emit(false);
+                    this.mapZoomLvl.emit(10);
                 }
             } else {
                 this.routeFound.emit(false);
                 this.mapZoomLvl.emit(10);
             }
         });
+    }
+
+    resetInputStats() {
+        this.generalInputStats.mmsi = this.vesselObject.mmsi;
+        this.generalInputStats.date = this.vesselObject.date;
+        this.generalInputStats.fuelConsumption = 0;
+        this.generalInputStats.landedGarbage = 0;
+        this.generalInputStats.landedOil = 0;
+        this.generalInputStats.toolboxConducted = [null];
+        this.generalInputStats.observations = false;
+        this.generalInputStats.incidents = false;
+        this.generalInputStats.drillsConducted = [null];
+        this.generalInputStats.passengers = false;
+        this.generalInputStats.customInput = '-';
     }
 
     saveGeneralStats() {

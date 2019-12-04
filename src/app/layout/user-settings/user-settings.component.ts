@@ -11,7 +11,6 @@ import { AlertService } from '../../supportModules/alert.service';
   styleUrls: ['./user-settings.component.scss']
 })
 export class UserSettingsComponent implements OnInit {
-  localTimeZoneOffset = 0;
   token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   settingsOptions;
 
@@ -29,25 +28,6 @@ export class UserSettingsComponent implements OnInit {
     return new Date(this.token.expires);
   }
 
-  getTimeOffset(vesselOffset: number = 0): number {
-    // Returns the time offset in hours according to the chosen timezone settings
-    // If a local offset is selected, the vesselOffset is used.
-    const timezone = this.settings.Timezone;
-    if (isNumber(timezone)) {
-      return timezone;
-    } else {
-      switch (timezone) {
-        case 'vessel':
-          return vesselOffset;
-        case 'own':
-          return this.localTimeZoneOffset;
-        case 'utc':
-          return 0;
-        default:
-          console.error('Invalid timezone setting!');
-      }
-    }
-  }
 
   ngOnInit() {
   }

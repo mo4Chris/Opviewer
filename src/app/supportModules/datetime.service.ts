@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,17 +9,16 @@ import * as moment from 'moment';
 export class DatetimeService {
 
 static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-
-
-  constructor() { }
+  constructor(
+    private setting: SettingsService
+  ) { }
+  vesselOffset = this.setting.localTimeZoneOffset; // Default to the local timezone
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   MatlabDurationToMinutes(serial, roundMinutes = true) {
     if (serial !== 'N/a') {
       serial = +serial;
     }
-
     let dur: moment.Duration;
     if (roundMinutes) {
       dur = moment.duration(serial + 0.5, 'minutes');
@@ -46,13 +46,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return time_info;
   }
 
-  MatlabDateToUnixEpochViaDate(serial: number) {
+  MatlabDateToUnixEpochViaDate(serial: number): Date {
     // Creates a Date object. Input is assumed ms since 1970 UTC
     const time_info = new Date((serial - 719529) * 864e5);
     return time_info;
   }
 
-  MatlabDateToJSDateYMD(serial: number) {
+  MatlabDateToJSDateYMD(serial: number): string {
     const datevar = this.MatlabDateToUnixEpoch(serial).format('YYYY-MM-DD');
     return datevar;
   }
@@ -63,9 +63,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return ObjectDate;
   }
 
-  MatlabDateToJSTime(serial: number) {
+  MatlabDateToJSTime(serial: number): string {
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
     if (serialMoment.isValid()) {
+      serialMoment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffset));
       const time_info = serialMoment.format('HH:mm:ss');
       return time_info;
     } else {
