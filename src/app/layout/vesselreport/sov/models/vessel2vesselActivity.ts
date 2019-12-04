@@ -115,7 +115,7 @@ export interface V2Voptions {
     // example: 'some example text';
 }
 
-interface TurbineLocsFromMongo {
+export interface TurbineLocsFromMongo {
     SiteName: string;
     filename: string;
     centroid: {lat: number, lon: number, UTMzone: number, UTMletter: string};
