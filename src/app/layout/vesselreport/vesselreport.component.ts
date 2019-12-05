@@ -23,6 +23,8 @@ import { GmapService } from '../../supportModules/gmap.service';
 import { VesselModel } from '../../models/vesselModel';
 import { TokenModel } from '../../models/tokenModel';
 import { EventEmitter } from 'protractor';
+import { Interface } from 'readline';
+import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 
 @Component({
   selector: 'app-vesselreport',
@@ -99,7 +101,7 @@ export class VesselreportComponent implements OnInit {
   @ViewChild(SovreportComponent)
   private sovChild: SovreportComponent;
 
-  getTurbineLocationData(turbineLocationData: any): void {
+  getTurbineLocationData(turbineLocationData: TurbLocDataModel): void {
     this.turbinesLoaded = false;
     const locationData = turbineLocationData.turbineLocations;
     const transfers = turbineLocationData.transfers;
@@ -120,7 +122,7 @@ export class VesselreportComponent implements OnInit {
               transferName = transfers[transferIndex].location;
             }
 
-            if (turbineLocation.name[index] === transferName) {
+            if (turbineLocation.name[index] === transferName && turbineLocation.filename === transfers[transferIndex].fieldname) {
               turbines.push(new TurbineLocation(turbineLocation.lat[index][0], turbineLocation.lon[index][0], transferName, transfers[transferIndex]));
               turbineIsVisited = true;
               this.transferVisitedAtLeastOneTurbine = true;
@@ -435,4 +437,11 @@ export class VesselreportComponent implements OnInit {
     this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
   }
 
+}
+
+interface TurbLocDataModel {
+  transfers: any[];
+  turbineLocations: TurbineLocsFromMongo[];
+  type: string,
+  vesselType: string;
 }
