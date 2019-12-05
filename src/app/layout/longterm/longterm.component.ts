@@ -255,6 +255,7 @@ export class LongtermComponent implements OnInit {
   switchMonthForward() {
     const nextMonth = new NgbDate(this.fromDate.year, this.fromDate.month, 1);
     if (this.fromDate.month === 12) {
+      nextMonth.day = 1;
       nextMonth.month = 1;
       nextMonth.year += 1;
     } else {
@@ -267,7 +268,7 @@ export class LongtermComponent implements OnInit {
       return;
     }
     if (this.fromDate.month === 12) {
-      this.toDate.year = this.fromDate.year += 1;
+      this.toDate.year = this.fromDate.year + 1;
       this.toDate.month = 1;
     } else {
       this.toDate.year = this.fromDate.year;

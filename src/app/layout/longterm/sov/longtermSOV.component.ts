@@ -225,6 +225,12 @@ export class LongtermSOVComponent implements OnInit {
         return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length) }];
     }
     groupDataByBin(data: RawScatterData, binData: {param: string, val: number[] }): {data: number[][], labels: string[]} {
+        if (data === null) {
+            return {
+                data: [],
+                labels: [],
+            }
+        }
         const binParam: string = binData.param;
         const bins: number[] = binData.val;
         bins[0] = 0.0001; // To stop roundNumber from returning 0 as N/a

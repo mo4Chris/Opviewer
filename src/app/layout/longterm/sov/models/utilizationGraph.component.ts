@@ -33,6 +33,7 @@ export class UtilizationGraphComponent implements OnInit {
     RawData: RawGeneralModel[];
     TimeBreakdown: TimeBreakdown[];
     vesselName: string;
+    noData = false;
     backgroundcolors = LongtermColorScheme.backgroundColors;
 
     ngOnInit() {
@@ -40,6 +41,7 @@ export class UtilizationGraphComponent implements OnInit {
     }
 
     updateChart() {
+        this.noData = false;
         this.getChartData((TimeBreakdowns: TimeBreakdown[], breakdownDates: number[]) => {
             const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
             const dateLabels = matlabDates.map((daynum: number) => {
@@ -162,9 +164,13 @@ export class UtilizationGraphComponent implements OnInit {
                 timeBreakdown: 1,
             }
         }).subscribe((rawdata: RawGeneralModel[][]) => {
-            this.RawData = rawdata[0];
-            this.vesselName = this.RawData[0].vesselName;
-            this.TimeBreakdown = this.parseRawData(rawdata[0]);
+            if (rawdata.length>0 && rawdata[0].length>0) {
+                this.RawData = rawdata[0];
+                this.vesselName = this.RawData[0].vesselName;
+                this.TimeBreakdown = this.parseRawData(rawdata[0]);
+            } else {
+                this.noData = true;
+            }
             if (cb) {
                 cb(this.TimeBreakdown, this.RawData.map(rawDataElt => rawDataElt.dayNum));
             }
