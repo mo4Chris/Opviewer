@@ -42,7 +42,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToUnixEpoch(serial: number) {
-    const time_info = moment((serial - 719529) * 864e5);
+    const time_info = moment.utc((serial - 719529) * 864e5);
     return time_info;
   }
 
@@ -63,10 +63,14 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return ObjectDate;
   }
 
+  applyTimeOffsetToMoment(_moment: moment.Moment) {
+    _moment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffset));
+  }
+
   MatlabDateToJSTime(serial: number): string {
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
     if (serialMoment.isValid()) {
-      serialMoment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffset));
+      this.applyTimeOffsetToMoment(serialMoment);
       const time_info = serialMoment.format('HH:mm:ss');
       return time_info;
     } else {
@@ -85,6 +89,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     if (!isNaN(serial)) {
       let time_info: string;
       const serialMoment = this.MatlabDateToUnixEpoch(serial);
+      this.applyTimeOffsetToMoment(serialMoment);
       if (serialMoment.isValid()) {
         time_info = serialMoment.format(format);
       } else {
@@ -104,7 +109,6 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     const serialEndMoment = this.MatlabDateToUnixEpoch(serialEnd).startOf('second');
     const serialBeginMoment = this.MatlabDateToUnixEpoch(serialBegin).startOf('second');
     const difference = serialEndMoment.diff(serialBeginMoment);
-
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
   }
 
@@ -112,14 +116,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     const matlabValueYesterday = moment().add(-1, 'days');
     matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
-
     const momentDateAsIso = moment(matlabValueYesterday).unix();
     const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
     return dateAsMatlab;
   }
 
   getJSDateYesterdayYMD() {
-    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).format('YYYY-MM-DD');
     return JSValueYesterday;
   }
 
@@ -135,12 +138,19 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
+  dateAddHours(dateObj: Date, hours: number) {
+    dateObj.setTime(dateObj.getTime() + hours * 60 * 60 * 1000);
+    return dateObj;
+  }
+
   jsDateToMDHMString(date: Date) {
-    let hours: number | string = date.getHours();
-    let mins: number | string  = date.getMinutes();
+    const offsetHours = this.setting.getTimeOffset(this.vesselOffset);
+    date = this.dateAddHours(date, offsetHours);
+    let hours: number | string = date.getUTCHours();
+    let mins: number | string  = date.getUTCMinutes();
     if (hours < 10) {hours = '0' + hours; }
     if (mins < 10) {mins = '0' + mins; }
-    return DatetimeService.shortMonths[date.getMonth()] + ' ' + date.getDate() + ', ' + hours + ':' + mins;
+    return DatetimeService.shortMonths[date.getUTCMonth()] + ' ' + date.getUTCDate() + ', ' + hours + ':' + mins;
   }
 
   jsDateToDMYString(date: Date) {
@@ -162,7 +172,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   getJSDateLastMonthYMD() {
-    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({
+      date: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0
+    }).format('YYYY-MM-DD');
     return JSValueYesterday;
   }
 

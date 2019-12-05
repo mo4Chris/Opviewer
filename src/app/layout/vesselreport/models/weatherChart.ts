@@ -1,6 +1,7 @@
 import * as Chart from 'chart.js';
 import { Moment } from 'moment';
 import { CalculationService } from '../../../supportModules/calculation.service';
+import * as moment from 'moment';
 
 export class WeatherOverviewChart {
 static weatherChartColors = [
@@ -70,6 +71,7 @@ constructor(
             dset.yAxisID = 'hidden';
         }
     });
+    const timezonOffset = this.getTimezoneOffset(dsets);
 
     // Actual chart creation
     this.Chart = new Chart('weatherOverview', {
@@ -105,8 +107,17 @@ constructor(
                     time: {
                         min: timeStamps[0],
                         max: timeStamps[timeStamps.length - 1],
-                        unit: 'hour'
-                    }
+                        unit: 'hour',
+                        displayFormats: 'HH:mm',
+                    },
+                    ticks: {
+                        callback: (value, index, values) => {
+                            if (!values[index]) {
+                                return;
+                            }
+                            return moment.utc(values[index]['value']).utcOffset(timezonOffset).format('HH:mm');
+                        }
+                    },
                 }],
                 yAxes: [{
                     id: 'Wind',
@@ -192,6 +203,11 @@ constructor(
             }
         }
     });
+}
+
+getTimezoneOffset(dsets: any[]): number {
+    // Returns the offset in minutes
+    return 0;
 }
 
 changeUnits(axisName: string, newUnit: string) {

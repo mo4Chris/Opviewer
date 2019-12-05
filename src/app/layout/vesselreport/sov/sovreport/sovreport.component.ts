@@ -14,6 +14,7 @@ import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
+import { SettingsService } from '../../../../supportModules/settings.service';
 
 
 @Component({
@@ -125,7 +126,8 @@ export class SovreportComponent implements OnInit {
         private datetimeService: DatetimeService,
         private modalService: NgbModal,
         private calculationService: CalculationService,
-        private gmapService: GmapService
+        private gmapService: GmapService,
+        private settings: SettingsService,
     ) { }
 
 
@@ -569,6 +571,9 @@ export class SovreportComponent implements OnInit {
         this.commonService.getSov(this.vesselObject).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
+                if (sov[0].utcOffset) {
+                    this.datetimeService.vesselOffset = sov[0].utcOffset;
+                }
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
@@ -1223,7 +1228,13 @@ export class SovreportComponent implements OnInit {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined && isArray(weather.time)) {
             this.weatherOverviewChartCalculated = true;
-            const timeStamps = weather.time.map(matlabTime => this.datetimeService.MatlabDateToUnixEpoch(matlabTime));
+            const offsetHours = this.settings.getTimeOffset(this.datetimeService.vesselOffset);
+            const timeStamps = weather.time.map(matlabTime => {
+                return this.datetimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false);
+                // const _time = this.datetimeService.MatlabDateToUnixEpochViaDate(matlabTime);
+                // return this.datetimeService.dateAddHours(_time, offsetHours);
+            });
+            console.log(timeStamps)
             const dsets = [];
             let chartTitle;
             if (weather.wavesource === '_NaN_') {
