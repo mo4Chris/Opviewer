@@ -59,15 +59,15 @@ constructor(
         if (dset.unit) {
             dset = this.changeUnitsForDset(dset);
         }
+        if (dset.yAxisID === undefined) {
+            dset.yAxisID = 'hidden';
+        }
         if (dset.yAxisID !== 'hidden') {
             dset.backgroundColor = WeatherOverviewChart.weatherChartColors[_i];
             dset.borderColor = WeatherOverviewChart.weatherChartColors[_i];
             if (_i > 0) {
-                dset.hidden = true;
+                dset.hidden = dset.label !== 'windGust';
             }
-        }
-        if (dset.yAxisID === undefined) {
-            dset.yAxisID = 'hidden';
         }
     });
 
