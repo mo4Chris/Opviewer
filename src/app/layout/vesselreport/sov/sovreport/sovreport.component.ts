@@ -1277,7 +1277,7 @@ export class SovreportComponent implements OnInit {
                     let unit = '';
                     let axisID = 'hidden';
                     switch (label) {
-                        case 'Hs': case 'Hmax':
+                        case 'Hs': case 'Hmax': case 'waveHmax':
                             unit = 'm';
                             axisID = 'Hs';
                             break;
@@ -1285,7 +1285,7 @@ export class SovreportComponent implements OnInit {
                             unit = 'deg';
                             axisID = 'waveDir';
                             break;
-                        case 'Tp':
+                        case 'Tp': case 'Tz': case 'T0':
                             unit = 's';
                             axisID = 'Tp';
                             break;
@@ -1312,7 +1312,7 @@ export class SovreportComponent implements OnInit {
                         borderWidth: 2,
                         fill: false,
                         yAxisID: axisID,
-                        hidden: false // dsets.length !== 0
+                        hidden: axisID === 'hidden' // By default, we will now hide data that isnt handled properly
                     });
                 }
             });
