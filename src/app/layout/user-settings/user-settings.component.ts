@@ -12,15 +12,13 @@ import { AlertService } from '../../supportModules/alert.service';
 })
 export class UserSettingsComponent implements OnInit {
   token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  settingsOptions;
+  settingsOptions: object;
 
   constructor(
-    private newService: CommonService,
     private userService: UserService,
-    private settings: SettingsService,
-    private alert: AlertService,
+    public settings: SettingsService,
+    public alert: AlertService,
   ) {
-    this.loadFromLocalStorage();
     this.settingsOptions = settings.options;
   }
 
@@ -28,38 +26,20 @@ export class UserSettingsComponent implements OnInit {
     return new Date(this.token.expires);
   }
 
+  changeSetting() {
+    this.alert.sendAlert({
+      text: 'Setting changed for current session'}
+    );
+  }
+
+  saveSettings() {
+    this.alert.sendAlert({
+      text: 'Settings saved!'
+    });
+    this.settings.saveSettings();
+  }
 
   ngOnInit() {
-  }
-
-  changeSetting(settingsType: string) {
-    // Triggered by any of the dropdowns
-    this.saveToLocalStorage(settingsType);
-    this.alert.sendAlert({text: 'Settings saved!'});
-  }
-
-  loadFromLocalStorage() {
-    // Get all settings from local storage, but use defaults if they are not stored
-    Object.keys(this.settings).forEach(key => {
-      const stored = localStorage.getItem('user-settings-' + key);
-      if (stored !== null) {
-        this.settings[key] = stored;
-      }
-    });
-  }
-
-  saveToLocalStorage(key ?: string) {
-    // Saves one or all settings to local storage
-    if (key) {
-        const val = this.settings[key];
-        if (val !== undefined) {
-          localStorage.setItem('user-settings-' + key, val);
-        }
-    } else {
-      Object.keys(this.settings).forEach((_key: string) => {
-        localStorage.setItem('user-settings-' + _key, this.settings[_key]);
-      });
-    }
   }
 }
 

@@ -10,7 +10,7 @@ export class AlertService {
     active = false;
     text = '';
     type = '';
-    timeout = 2000;
+    timeout = 3000;
 
     private timeoutRef: NodeJS.Timeout = null;
 

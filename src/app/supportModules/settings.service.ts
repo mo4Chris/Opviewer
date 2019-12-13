@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgModule } from '@angular/core';
 import { isNumber } from 'util';
 import * as moment from 'moment';
+import { CommonService } from '../common.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,6 +11,12 @@ export class SettingsService {
     unit_distance: distanceOptions = 'NM';
     unit_speed: speedOptions = 'knots';
     unit_weight: weightOptions = 'ton';
+
+    constructor (
+        private newService: CommonService
+    ) {
+        this.loadSettings();
+    }
 
     options = {
         time: ['vessel', 'own', 'utc'],
@@ -38,6 +45,28 @@ export class SettingsService {
                     console.error('Invalid timezone setting!');
             }
         }
+    }
+
+    private loadSettings() {
+        // loads the settings from the database
+        this.newService.loadUserSettings().subscribe(settings => {
+            console.log(settings)
+            const keys = Object.keys(settings);
+            keys.forEach(_key => {
+                if (this[_key]) {
+                    this[_key] = settings[_key];
+                }
+            });
+        });
+    }
+
+    saveSettings() {
+        this.newService.saveUserSettings({
+            Timezone: this.Timezone,
+            unit_distance: this.unit_distance,
+            unit_speed: this.unit_speed,
+            unit_weight: this.unit_weight,
+        });
     }
 }
 

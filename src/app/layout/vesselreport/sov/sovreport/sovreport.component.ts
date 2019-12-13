@@ -1335,7 +1335,7 @@ export class SovreportComponent implements OnInit {
                 this.weatherOverviewChart.destroy();
             }
             setTimeout(() => {
-                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, chartTitle);
+                this.weatherOverviewChart = new WeatherOverviewChart(dsets, <any>timeStamps, chartTitle);
             }, 300);
         }
     }

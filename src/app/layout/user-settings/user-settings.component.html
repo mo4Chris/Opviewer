@@ -21,7 +21,7 @@
             <tr [ngbTooltip]="helpTimeDisplay" placement="bottom">
               <td>Time display</td>
                 <td>
-                  <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting('Timezone')">
+                  <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting()">
                     <option *ngFor="let option of settings.options.time" class="dropdown-item">{{option}}</option>
                   </select>
 
@@ -41,7 +41,7 @@
               <tr>
                 <td>Distance</td>
                 <td>
-                  <select class="form-control selectType" [(ngModel)]="settings.unit_distance" (change)="changeSetting('unit_distance')">
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_distance" (change)="changeSetting()">
                     <option *ngFor="let option of settings.options.distance" class="dropdown-item">{{option}}</option>
                   </select>
                 </td>
@@ -49,7 +49,7 @@
               <tr>
                 <td>Speed</td>
                 <td>
-                  <select class="form-control selectType" [(ngModel)]="settings.unit_speed" (change)="changeSetting('unit_speed')">
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_speed" (change)="changeSetting()">
                     <option *ngFor="let option of settings.options.speed" class="dropdown-item">{{option}}</option>
                   </select>
                 </td>
@@ -57,7 +57,7 @@
               <tr>
                 <td>Weight</td>
                 <td>
-                  <select class="form-control selectType" [(ngModel)]="settings.unit_weight" (change)="changeSetting('unit_weight')">
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_weight" (change)="changeSetting()">
                     <option *ngFor="let option of settings.options.weight" class="dropdown-item">{{option}}</option>
                   </select>
                 </td>
@@ -67,6 +67,11 @@
         </div>
       </div>
     </div>
+  </div>
+  <div>
+    <button class="btn btn-outline-primary" (click)="saveSettings()">
+      Save all
+    </button>
   </div>
 </div>
 <ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
