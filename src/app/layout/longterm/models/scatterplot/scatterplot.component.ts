@@ -244,7 +244,7 @@ export class ScatterplotComponent {
       vesseldata.data.forEach((stackdata, _i) => {
         dataSets.push({
           label: vesseldata.label,
-          key: stackdata.key,
+          key: stackdata.key ? stackdata.key : 'Value:',
           data: stackdata.y,
           stack: vesseldata.label,
           showInLegend: _i === 0,

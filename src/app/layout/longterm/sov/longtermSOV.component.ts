@@ -222,7 +222,7 @@ export class LongtermSOVComponent implements OnInit {
                 return <number> prev;
             }
         }, 0);
-        return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length) }];
+        return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length), key: '# transfers:' }];
     }
     groupDataByBin(data: RawScatterData, binData: {param: string, val: number[] }): {data: number[][], labels: string[]} {
         if (data === null) {

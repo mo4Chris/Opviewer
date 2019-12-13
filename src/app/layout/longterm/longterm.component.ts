@@ -14,6 +14,7 @@ import { CalculationService } from '../../supportModules/calculation.service';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { VesselModel } from '../../models/vesselModel';
+import { SettingsService } from '../../supportModules/settings.service';
 
 @Component({
   selector: 'app-longterm',
@@ -31,7 +32,8 @@ export class LongtermComponent implements OnInit {
     public router: Router,
     private userService: UserService,
     private calculationService: CalculationService,
-    private dateTimeService: DatetimeService
+    private dateTimeService: DatetimeService,
+    private settings: SettingsService
   ) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
@@ -176,6 +178,8 @@ export class LongtermComponent implements OnInit {
       } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
         // Build SOV module
         this.sovChild.buildPageWithCurrentInformation();
+      } else {
+        console.error('Invalid DPR - no CTV or SOV child rendered!')
       }
     });
   }
