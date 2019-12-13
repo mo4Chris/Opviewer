@@ -622,6 +622,12 @@ export class SovreportComponent implements OnInit {
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
+                    this.sovModel.cycleTimes.forEach(cycle => {
+                        cycle['avgSpeed'] = this.switchUnit(cycle.avgSpeedKts, 'knots', this.settings.unit_speed);
+                        cycle['maxSpeed'] = this.switchUnit(cycle.maxSpeedKts, 'knots', this.settings.unit_speed);
+                        cycle['sailedDistance'] = this.switchUnit(cycle.sailedDistanceNM, 'NM', this.settings.unit_distance);
+                        cycle['turbineDistance'] = this.switchUnit(cycle.turbineDistanceNM, 'NM', this.settings.unit_distance);
+                    });
                 }, null, () => {
                     this.cycleTimeLoaded = true;
                     this.checkIfAllLoaded();
@@ -1130,8 +1136,8 @@ export class SovreportComponent implements OnInit {
                 transfer.gangwayDeployedDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
                 transfer.gangwayUtilisation = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayUtilisation);
-                transfer.peakWindGust = <any> this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
-                transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
+                transfer.peakWindGust = <any> this.switchUnit(transfer.peakWindGust, 'km/h', this.settings.unit_speed);
+                transfer.peakWindAvg = <any> this.switchUnit(transfer.peakWindAvg, 'km/h', this.settings.unit_speed);
             });
             this.gangwayActive = naCountGangway !== this.sovModel.turbineTransfers.length;
         } else if (this.sovModel.sovType === SovType.Platform) {
@@ -1158,8 +1164,8 @@ export class SovreportComponent implements OnInit {
                 vessel2vessel.transfers.forEach(transfer => {
                     transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
                     transfer.duration = <any> this.calculationService.GetDecimalValueForNumber(transfer.duration);
-                    transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
-                    transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
+                    transfer.peakWindGust = this.switchUnit(transfer.peakWindGust, 'km/h', this.settings.unit_speed);
+                    transfer.peakWindAvg = this.switchUnit(transfer.peakWindAvg, 'km/h', this.settings.unit_speed);
                 });
             });
         }

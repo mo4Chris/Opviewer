@@ -728,7 +728,7 @@
                                             Total duration</th>
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
-                                        <th>Peak gust wind [m/s]</th>
+                                        <th>Peak gust wind</th>
                                         <th>Hs [m]</th>
                                         <th>Save</th>
                                     </tr>
@@ -771,13 +771,7 @@
                                                     [(ngModel)]="platformTransfer.cargoOut"
                                                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                                             </td>
-                                            <td
-                                                *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) >= 10">
-                                                {{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
-                                            <td
-                                                *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) < 10">
-                                                &nbsp;{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}
-                                            </td>
+                                            <td>{{platformTransfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                             <td><button class="btn btn-lg btn-primary submitBtnDate"
                                                     (click)="savePlatformPaxInput(platformTransfer)"
@@ -966,7 +960,7 @@
                                             capacity [%]</th>
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
-                                        <th>Peak gust wind [m/s]</th>
+                                        <th>Peak gust wind</th>
                                         <th>Hs [m]</th>
                                         <th>Save</th>
                                     </tr>
@@ -996,7 +990,7 @@
                                                     [(ngModel)]="turbineTransfer.cargoOut"
                                                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                                             </td>
-                                            <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
+                                            <td>{{turbineTransfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                             <td class="plsdonotprintthisforfsake"><button
                                                     class="btn btn-lg btn-primary submitBtnDate"
@@ -1262,7 +1256,7 @@
                                     <th>Start time</th>
                                     <th>End time</th>
                                     <th>Duration [mns]</th>
-                                    <th>Peak wind gust [m/s]</th>
+                                    <th>Peak wind gust [{{settings.unit_speed}}]</th>
                                     <th>Peak heave [m]</th>
                                     <th>Pax in/out</th>
                                     <th>Cargo in/out</th>
@@ -1285,7 +1279,7 @@
                                                 <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                                 <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                                 <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
-                                                <td>{{GetDecimalValueForNumber(transfer.peakWindGust / 3.6)}}</td>
+                                                <td>{{transfer.peakWindGust}}</td>
                                                 <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                                 <td>
                                                     <input type="number" min="0" class="form-control-sm col-sm-5"
@@ -1408,10 +1402,10 @@
                                     <th>To turbine</th>
                                     <th colspan="2">Start time</th>
                                     <th>Duration</th>
-                                    <th>Sailed distance [nm]</th>
-                                    <th>Turbine distance [nm]</th>
-                                    <th>Average speed [kts]</th>
-                                    <th>Maximum speed [kts]</th>
+                                    <th>Sailed distance</th>
+                                    <th>Turbine distance</th>
+                                    <th>Average speed</th>
+                                    <th>Maximum speed</th>
                                     <th>Transfer time [mns]</th>
                                     <ng-template #helpCycleAbove5Knots class="helpContent">
                                         Percentage of time spend travelling above 5 knots.
@@ -1428,10 +1422,10 @@
                                         <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}
                                         </td>
                                         <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.maxSpeedKts)}}</td>
+                                        <td>{{cycleTime.sailedDistance}}</td>
+                                        <td>{{cycleTime.turbineDistance}}</td>
+                                        <td>{{cycleTime.avgSpeed}}</td>
+                                        <td>{{cycleTime.maxSpeed}}</td>
                                         <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins, ' minutes')}}</td>
                                         <td>{{GetDecimalValueForNumber(100 * cycleTime.movingSpeedAbove5ktsPerc, '%')}}
                                         </td>
