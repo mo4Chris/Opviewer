@@ -856,13 +856,8 @@ export class SovreportComponent implements OnInit {
         return model;
     }
 
-    private switchUnit(value: number | string, oldUnit: string, newUnit: string): string {
-        const newValues = this.calculationService.switchUnits([+value], oldUnit, newUnit);
-        if (newValues && newValues[0] && !isNaN(newValues[0])) {
-            return this.calculationService.GetDecimalValueForNumber(newValues[0], ' ' + newUnit);
-        } else {
-            return 'N/a';
-        }
+    private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
+        return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
     }
 
     GetMatlabDurationToMinutes(serial) {

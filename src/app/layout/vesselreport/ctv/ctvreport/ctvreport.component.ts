@@ -10,7 +10,8 @@ import { WavedataModel } from '../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
 import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
 import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
-import { CTVGeneralStatsModel } from '../../models/generalstats.model';
+import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstats.model';
+import { SettingsService } from '../../../../supportModules/settings.service';
 
 @Component({
     selector: 'app-ctvreport',
@@ -29,7 +30,7 @@ export class CtvreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() parkFound: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Input() vesselObject: VesselObjectModel
+    @Input() vesselObject: VesselObjectModel;
     @Input() tokenInfo;
     @Input() mapPixelWidth: number;
     @Input() mapPromise: Promise<google.maps.Map>;
@@ -54,7 +55,7 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
-    utcOffset: number = 0;
+    utcOffset = 0;
     dateData = { transfer: undefined, general: undefined };
     modalReference: NgbModalRef;
     multiSelectSettings = {
@@ -100,7 +101,8 @@ export class CtvreportComponent implements OnInit {
         private newService: CommonService,
         private calculationService: CalculationService,
         private modalService: NgbModal,
-        private dateTimeService: DatetimeService
+        private dateTimeService: DatetimeService,
+        private settings: SettingsService,
     ) {
     }
 
@@ -577,7 +579,13 @@ export class CtvreportComponent implements OnInit {
                 }
                 if (_general.DPRstats) {
                     this.noTransits = false;
-                    this.general = _general.DPRstats;
+                    const dpr = <any> _general.DPRstats;
+                    dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
+                    dpr.AvgSpeedInbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
+                    dpr.AvgSpeedOutboundUnrestricted = this.switchUnit(dpr.AvgSpeedOutboundUnrestricted, 'knots', this.settings.unit_speed);
+                    dpr.AvgSpeedInboundUnrestricted = this.switchUnit(dpr.AvgSpeedInboundUnrestricted, 'knots', this.settings.unit_speed);
+                    dpr.sailedDistance = this.switchUnit(dpr.sailedDistance, 'NM', this.settings.unit_distance);
+                    this.general = dpr;
                 }
                 if (_general.inputStats) {
                     this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
@@ -614,6 +622,10 @@ export class CtvreportComponent implements OnInit {
                 this.mapZoomLvl.emit(10);
             }
         });
+    }
+
+    private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
+        return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
     }
 
     resetInputStats() {
@@ -736,7 +748,7 @@ export class CtvreportComponent implements OnInit {
                     })
                 )
                 .subscribe(_ => {
-                    this.getVideoRequests(this.vesselObject).subscribe(_ => {
+                    this.getVideoRequests(this.vesselObject).subscribe(__ => {
                         for (let i = 0; i < this.transferData.length; i++) {
                             this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(
                                 this.transferData[i]

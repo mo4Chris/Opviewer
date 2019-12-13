@@ -472,7 +472,7 @@ export class CommonService {
         if (response.status === 204) {
           return null;
         } else {
-          return response.json();// new WavedataModel(response.json());
+          return response.json(); // new WavedataModel(response.json());
         }
       }));
   }
