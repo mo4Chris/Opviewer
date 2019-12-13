@@ -1,7 +1,10 @@
 export class SummaryModel {
     TotalSailDistance: string;
     HasSailed: boolean;
-    
+
+    departureFromHarbour: string;
+    arrivalAtHarbour: string;
+
     AvgTimeInWaitingZone: string;
     AvgTimeInExclusionZone: string;
     AvgTimeDocking: string;
@@ -11,11 +14,11 @@ export class SummaryModel {
     AvgTimeHelicopterDocking: number;
 
     NrOfVesselTransfers: number;
-    AvgTimeVesselDocking: number;
+    AvgTimeVesselDocking: string;
 
     NrOfDaughterCraftLaunches: number;
-    AvgTimeDaughterCraftDocking: number;
+    AvgTimeDaughterCraftDocking: string;
 
-    maxSignificantWaveHeightdDuringOperations: number;
-    maxWindSpeedDuringOperations: number;
+    maxSignificantWaveHeightdDuringOperations: string;
+    maxWindSpeedDuringOperations: string;
 }

@@ -50,7 +50,6 @@ export class SettingsService {
     private loadSettings() {
         // loads the settings from the database
         this.newService.loadUserSettings().subscribe(settings => {
-            console.log(settings)
             const keys = Object.keys(settings);
             keys.forEach(_key => {
                 if (this[_key]) {

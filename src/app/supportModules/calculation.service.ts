@@ -26,7 +26,7 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any, endpoint: string = null) {
+  GetDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
       if (type === 'number') {
           value = Math.round(value * 10) / 10;

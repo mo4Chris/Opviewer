@@ -9,15 +9,15 @@
                             <ng-container>
                                 <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
                                     <td>Departure from harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
+                                    <td>{{sovModel.summary.departureFromHarbour}}</td>
                                 </tr>
                                 <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">
                                     <td>Arrival at harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
+                                    <td>{{sovModel.summary.arrivalAtHarbour}}</td>
                                 </tr>
                                 <tr>
                                     <td>Distance sailed</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.sovInfo.distancekm, ' km')}} </td>
+                                    <td>{{sovModel.summary.TotalSailDistance}} </td>
                                 </tr>
                             </ng-container>
                             <ng-container
@@ -48,8 +48,7 @@
                                     <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
                                 </tr>
                             </ng-container>
-                            <ng-container
-                                *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
+                            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                                 <tr *ngIf="sovModel.turbineTransfers.length > 0">
                                     <td>Number of gangway transfers</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
@@ -65,18 +64,16 @@
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                                 <tr>
-
                                     <ng-template #helpNumV2VTransfers class="helpContent">
                                         Total number of transfers between this SOV and other CTVs.
                                     </ng-template>
                                     <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of
                                         CTV vessel to vessel transfers</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.summary.NrOfVesselTransfers)}}</td>
+                                    <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
                                 <tr>
                                     <td>Average time spent docking (vessels)</td>
                                     <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
-
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
@@ -101,12 +98,11 @@
                             </ng-container>
                             <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations > 0">
                                 <td>Maximum significant wave height during operations</td>
-                                <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}} m</td>
+                                <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}}</td>
                             </tr>
-                            <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
+                            <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations !== 'N/a'">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{GetDecimalValueForNumber(sovModel.summary.maxWindSpeedDuringOperations / 3.6)}}
-                                    m/s</td>
+                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}}</td>
                             </tr>
                         </table>
                     </div>
