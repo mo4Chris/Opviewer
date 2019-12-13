@@ -2869,10 +2869,8 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
 app.get('/api/getLatestTwaUpdate/', function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        let currMatlabDate = Math.floor((moment() / 864e5) + 719526);
-        turbineWarrantymodel.find({
-            stopDate: {$gte: currMatlabDate},
-        }, {
+        let currMatlabDate = Math.floor((moment() / 864e5) + 719529 - 3);
+        turbineWarrantymodel.find({}, {
             lastUpdated: 1
         }, (err, data) => {
             if (err) {
