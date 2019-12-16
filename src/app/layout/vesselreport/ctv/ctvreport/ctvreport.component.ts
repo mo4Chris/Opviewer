@@ -581,7 +581,7 @@ export class CtvreportComponent implements OnInit {
                 if (_general.utcOffset) {
                     this.utcOffset = _general.utcOffset;
                 }
-                if (_general.DPRstats) {
+                if (_general.DPRstats && typeof(_general.DPRstats) === 'object') {
                     this.noTransits = false;
                     const dpr = <any> _general.DPRstats;
                     dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
