@@ -281,7 +281,11 @@ export class CtvreportComponent implements OnInit {
                 lineTension: 0,
             });
             setTimeout(() => {
-                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, wavedataSourceName);
+                this.weatherOverviewChart = new WeatherOverviewChart({
+                    dsets: dsets,
+                    timeStamps: timeStamps,
+                    wavedataSourceName: wavedataSourceName
+                }, this.calculationService, this.settings);
             }, 100);
         }
     }

@@ -1279,7 +1279,7 @@ export class SovreportComponent implements OnInit {
                     let axisID = 'hidden';
                     switch (label) {
                         case 'Hs': case 'Hmax': case 'waveHmax':
-                            unit = 'm';
+                            unit = 'm'; // Indicates unit in database, not displayed unit
                             axisID = 'Hs';
                             break;
                         case 'waveDirection': case 'windDirection': case 'waveDir': case 'windDir':
@@ -1359,7 +1359,13 @@ export class SovreportComponent implements OnInit {
                 this.weatherOverviewChart.destroy();
             }
             setTimeout(() => {
-                this.weatherOverviewChart = new WeatherOverviewChart(dsets, <any>timeStamps, chartTitle);
+                this.weatherOverviewChart = new WeatherOverviewChart({
+                    dsets: dsets,
+                    timeStamps: <any>timeStamps,
+                    wavedataSourceName: chartTitle
+                },
+                this.calculationService,
+                this.settings);
             }, 300);
         }
     }

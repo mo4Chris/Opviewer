@@ -2,7 +2,12 @@ import * as Chart from 'chart.js';
 import { Moment } from 'moment';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import * as moment from 'moment';
+import { SettingsService } from '../../../supportModules/settings.service';
+import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
+@Component({
+    providers: [CalculationService, SettingsService]
+})
 export class WeatherOverviewChart {
 static weatherChartColors = [
   'rgba(0, 100, 255 , 1)',
@@ -18,20 +23,14 @@ static weatherChartColors = [
 ];
 
 Chart: Chart;
-// ToDO replace this by a call to the user defaults stored in his token
-Unit = {
-    Hs: 'm',
-    Tp: 's',
-    Direction: 'deg',
-    Wind: 'knot',
-};
 
 constructor(
-    dsets: any[],
-    timeStamps: Moment[],
-    wavedataSourceName: string = 'Source: unknown',
-    private calcService: CalculationService = new CalculationService
+    args: WeatherChartArguments,
+    private calcService: CalculationService,
+    private settings: SettingsService,
 ) {
+    console.log(this)
+    args = {... {wavedataSourceName: 'Source: unknown'}, ...args};
     // Support function for chart legend padding
     Chart.Tooltip.positioners.custom = function (elements, position) {
         const item = this._data.datasets;
@@ -55,7 +54,7 @@ constructor(
     };
 
     // Fixing dset units
-    dsets = this.sortByAxisID(dsets);
+    const dsets = this.sortByAxisID(args.dsets);
     dsets.forEach((dset, _i) => {
         if (dset.unit) {
             dset = this.changeUnitsForDset(dset);
@@ -81,9 +80,9 @@ constructor(
         },
         options: {
             title: {
-                display: wavedataSourceName !== '',
+                display: args.wavedataSourceName !== '',
                 position: 'right',
-                text: wavedataSourceName,
+                text: args.wavedataSourceName,
                 fontSize: 15,
                 padding: 5,
                 fontStyle: 'normal',
@@ -105,8 +104,8 @@ constructor(
                     },
                     type: 'time',
                     time: {
-                        min: timeStamps[0],
-                        max: timeStamps[timeStamps.length - 1],
+                        min: args.timeStamps[0],
+                        max: args.timeStamps[args.timeStamps.length - 1],
                         unit: 'hour',
                         displayFormats: 'HH:mm',
                     },
@@ -205,6 +204,14 @@ constructor(
     });
 }
 
+// ToDO replace this by a call to the user defaults stored in his token
+Unit = {
+    Hs: 'm',
+    Tp: 's',
+    Direction: 'deg',
+    Wind: this.settings.unit_speed,
+};
+
 getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
     return 0;
@@ -285,4 +292,8 @@ private getValueForAxis(ID: string) {
 }
 }
 
-
+interface WeatherChartArguments {
+    dsets: any[];
+    timeStamps: Moment[];
+    wavedataSourceName?: string;
+}
