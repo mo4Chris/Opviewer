@@ -51,7 +51,7 @@
                             <ng-container
                                 *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                                 <tr *ngIf="sovModel.turbineTransfers.length > 0">
-                                    <td>Number of gangway transfers</td>
+                                    <td>Number of gangway connections</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
                                 </tr>
                                 <tr>
@@ -313,9 +313,9 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let HoC of HOCArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7 col-print-7" type="text"
+                                            <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
-                                                [(ngModel)]="HoC.value" [value]="HoC.value">
+                                                [(ngModel)]="HoC.value" [value]="HoC.value"> </textarea>
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
                                                 class="form-control col-xl-5 col-print-5">
@@ -348,9 +348,9 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7 col-print-7" type="text"
+                                            <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value"
-                                                placeholder="input reason" [value]="toolbox.value">
+                                                placeholder="input reason" [minRows]="1" [value]="toolbox.value"> </textarea>
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
                                                 class="form-control col-xl-5 col-print-5">
@@ -361,7 +361,8 @@
                                                 <option value=4>4 times</option>
                                                 <option value=5>5 times</option>
                                             </select>
-                                        </div>
+                                            
+                                        </div><hr>
                                     </ng-container><br>
                                     <button class="btn btn-sm btn-success"
                                         (click)="addToolboxToArray(); incidentsChanged = true; updateToolboxTotal();"
@@ -386,8 +387,8 @@
                     </div>
                 </div>
 
-                <hr>
-                <hr>
+                <hr class="plsdonotprintthisforfsake">
+                <hr class="plsdonotprintthisforfsake">
 
                 <div class="row ">
                     <div class="col-xl-6">
@@ -532,7 +533,7 @@
                     </div>
                 </div>
 
-                <hr>
+                <hr class="plsdonotprintthisforfsake">
                 <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">
@@ -670,8 +671,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
-                                        class="form-control" rows="10" cols="70"></textarea></td>
+                                <td><textarea autosize (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
+                                        class="form-control" cols="70"></textarea></td>
                             </tr>
                             <tr *ngIf="remarksChanged == true">
                                 <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary"
@@ -1714,8 +1715,8 @@
                     </div>
                 </div>
 
-                <hr>
-                <hr>
+                <hr class="plsdonotprintthisforfsake">
+                <hr class="plsdonotprintthisforfsake">
 
                 <div class="row ">
                     <div class="col-xl-6">
@@ -1860,7 +1861,7 @@
                     </div>
                 </div>
 
-                <hr>
+                <hr class="plsdonotprintthisforfsake">
                 <div class="row ">
                     <div class="col-xl-6">
                         <table class="table table-bordered">

@@ -91,6 +91,8 @@ agm-map {
     }
 }
 
+textarea {resize: none}
+
 @media print {
     .plsdonotprintthisforfsake {
         display:none !important;
@@ -129,10 +131,6 @@ agm-map {
 
     .chartContainer {
         width: 225mm;
-    }
-
-    hr {
-        display: none;
     }
 
     .dropdown-toggle{
