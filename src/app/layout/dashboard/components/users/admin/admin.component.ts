@@ -22,11 +22,11 @@ export class AdminComponent implements OnInit {
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService
-    ) { }
+    ) {}
   numberActiveSessions = 'Currently not recorded';
   activeUsers = [{user: '', client: ''}];
 
-  last_TWA_Update = 'N/A';
+  last_TWA_Update = '>3 days ago';
   last_AIS_update: 'N/A' | number = 'N/A';
   num_active_accounts = 0;
   currentMatlabDate = this.dateService.getMatlabDateYesterday() + 1;
@@ -69,8 +69,14 @@ export class AdminComponent implements OnInit {
 
   getLatestTwaUpdate() {
     this.newService.getLatestTwaUpdate().subscribe(lastUpdate => {
-      const latestMatlabUpdate = this.dateService.daysSinceMatlabDate(lastUpdate) * 24;
-      this.last_TWA_Update = this.calcService.roundNumber(latestMatlabUpdate, 10, ' hour(s)');
+      if (lastUpdate > 0) {
+        const latestMatlabUpdate = this.dateService.daysSinceMatlabDate(lastUpdate);
+        if (lastUpdate < 2) {
+          this.last_TWA_Update = this.calcService.roundNumber(latestMatlabUpdate * 24, 10, ' hour(s)');
+        } else {
+          this.last_TWA_Update = this.calcService.roundNumber(latestMatlabUpdate, 10, ' days');
+        }
+      }
     });
   }
 

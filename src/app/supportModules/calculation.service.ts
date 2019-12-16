@@ -26,9 +26,9 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any, endpoint: string = null) {
+  GetDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
-      if (type === 'number') {
+      if (type === 'number' && !isNaN(value)) {
           value = Math.round(value * 10) / 10;
           if (value - Math.floor(value) === 0 ) {
             value = value + '.0';
@@ -195,6 +195,15 @@ export class CalculationService {
       out.push(arr[idx]);
     });
     return out;
+  }
+
+  switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
+    const newValues = this.switchUnits([+value], oldUnit, newUnit);
+    if (newValues && newValues[0] && !isNaN(newValues[0])) {
+      return this.GetDecimalValueForNumber(newValues[0], ' ' + newUnit);
+    } else {
+      return 'N/a';
+    }
   }
 
   switchUnits(vals: number[], from: string, to: string): number[] {

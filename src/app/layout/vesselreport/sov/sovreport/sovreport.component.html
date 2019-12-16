@@ -7,17 +7,17 @@
                     <div class="col-xl-6 dailySummary">
                         <table class="table table-responsive table-bordered tableSummary">
                             <ng-container>
-                                <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
+                                <tr *ngIf="sovModel.summary.departureFromHarbour != 'N/a'">
                                     <td>Departure from harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.departureFromHarbour)}}</td>
+                                    <td>{{sovModel.summary.departureFromHarbour}}</td>
                                 </tr>
-                                <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">
+                                <tr *ngIf="sovModel.summary.arrivalAtHarbour != 'N/a'">
                                     <td>Arrival at harbour</td>
-                                    <td>{{GetMatlabDateToJSTime(sovModel.sovInfo.arrivalAtHarbour)}}</td>
+                                    <td>{{sovModel.summary.arrivalAtHarbour}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="sovModel.summary.TotalSailDistance != 'N/a'">
                                     <td>Distance sailed</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.sovInfo.distancekm, ' km')}} </td>
+                                    <td>{{sovModel.summary.TotalSailDistance}} </td>
                                 </tr>
                             </ng-container>
                             <ng-container
@@ -48,8 +48,7 @@
                                     <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
                                 </tr>
                             </ng-container>
-                            <ng-container
-                                *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
+                            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
                                 <tr *ngIf="sovModel.turbineTransfers.length > 0">
                                     <td>Number of gangway transfers</td>
                                     <td>{{sovModel.turbineTransfers.length}}</td>
@@ -65,18 +64,16 @@
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
                                 <tr>
-
                                     <ng-template #helpNumV2VTransfers class="helpContent">
                                         Total number of transfers between this SOV and other CTVs.
                                     </ng-template>
                                     <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of
                                         CTV vessel to vessel transfers</td>
-                                    <td>{{GetDecimalValueForNumber(sovModel.summary.NrOfVesselTransfers)}}</td>
+                                    <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
                                 </tr>
                                 <tr>
                                     <td>Average time spent docking (vessels)</td>
                                     <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
-
                                 </tr>
                             </ng-container>
                             <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
@@ -101,12 +98,11 @@
                             </ng-container>
                             <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations > 0">
                                 <td>Maximum significant wave height during operations</td>
-                                <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}} m</td>
+                                <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}}</td>
                             </tr>
-                            <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations > 0">
+                            <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations !== 'N/a'">
                                 <td>Maximum wind speed during operations</td>
-                                <td>{{GetDecimalValueForNumber(sovModel.summary.maxWindSpeedDuringOperations / 3.6)}}
-                                    m/s</td>
+                                <td>{{sovModel.summary.maxWindSpeedDuringOperations}}</td>
                             </tr>
                         </table>
                     </div>
@@ -732,7 +728,7 @@
                                             Total duration</th>
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
-                                        <th>Peak gust wind [m/s]</th>
+                                        <th>Peak gust wind</th>
                                         <th>Hs [m]</th>
                                         <th>Save</th>
                                     </tr>
@@ -775,13 +771,7 @@
                                                     [(ngModel)]="platformTransfer.cargoOut"
                                                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                                             </td>
-                                            <td
-                                                *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) >= 10">
-                                                {{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}</td>
-                                            <td
-                                                *ngIf="GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6) < 10">
-                                                &nbsp;{{GetDecimalValueForNumber(platformTransfer.peakWindGust / 3.6)}}
-                                            </td>
+                                            <td>{{platformTransfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
                                             <td><button class="btn btn-lg btn-primary submitBtnDate"
                                                     (click)="savePlatformPaxInput(platformTransfer)"
@@ -970,7 +960,7 @@
                                             capacity [%]</th>
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
-                                        <th>Peak gust wind [m/s]</th>
+                                        <th>Peak gust wind</th>
                                         <th>Hs [m]</th>
                                         <th>Save</th>
                                     </tr>
@@ -1000,7 +990,7 @@
                                                     [(ngModel)]="turbineTransfer.cargoOut"
                                                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                                             </td>
-                                            <td>{{GetDecimalValueForNumber(turbineTransfer.peakWindGust / 3.6)}}</td>
+                                            <td>{{turbineTransfer.peakWindGust}}</td>
                                             <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
                                             <td class="plsdonotprintthisforfsake"><button
                                                     class="btn btn-lg btn-primary submitBtnDate"
@@ -1266,7 +1256,7 @@
                                     <th>Start time</th>
                                     <th>End time</th>
                                     <th>Duration [mns]</th>
-                                    <th>Peak wind gust [m/s]</th>
+                                    <th>Peak wind gust [{{settings.unit_speed}}]</th>
                                     <th>Peak heave [m]</th>
                                     <th>Pax in/out</th>
                                     <th>Cargo in/out</th>
@@ -1289,7 +1279,7 @@
                                                 <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
                                                 <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
                                                 <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
-                                                <td>{{GetDecimalValueForNumber(transfer.peakWindGust / 3.6)}}</td>
+                                                <td>{{transfer.peakWindGust}}</td>
                                                 <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                                                 <td>
                                                     <input type="number" min="0" class="form-control-sm col-sm-5"
@@ -1412,10 +1402,10 @@
                                     <th>To turbine</th>
                                     <th colspan="2">Start time</th>
                                     <th>Duration</th>
-                                    <th>Sailed distance [nm]</th>
-                                    <th>Turbine distance [nm]</th>
-                                    <th>Average speed [kts]</th>
-                                    <th>Maximum speed [kts]</th>
+                                    <th>Sailed distance</th>
+                                    <th>Turbine distance</th>
+                                    <th>Average speed</th>
+                                    <th>Maximum speed</th>
                                     <th>Transfer time [mns]</th>
                                     <ng-template #helpCycleAbove5Knots class="helpContent">
                                         Percentage of time spend travelling above 5 knots.
@@ -1432,10 +1422,10 @@
                                         <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}
                                         </td>
                                         <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.sailedDistanceNM)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.turbineDistanceNM)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.avgSpeedKts)}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.maxSpeedKts)}}</td>
+                                        <td>{{cycleTime.sailedDistance}}</td>
+                                        <td>{{cycleTime.turbineDistance}}</td>
+                                        <td>{{cycleTime.avgSpeed}}</td>
+                                        <td>{{cycleTime.maxSpeed}}</td>
                                         <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins, ' minutes')}}</td>
                                         <td>{{GetDecimalValueForNumber(100 * cycleTime.movingSpeedAbove5ktsPerc, '%')}}
                                         </td>

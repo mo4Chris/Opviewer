@@ -19,6 +19,10 @@ export class MockedCommonService extends CommonService {
         super(null);
     }
 
+    loadUserSettings() {
+        return mockedObservable({});
+    }
+
     // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
     get(request_url: string) {
          console.error('Uncaught get request: ' + request_url);

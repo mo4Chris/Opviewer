@@ -60,6 +60,7 @@ var userSchema = new Schema({
     token: { type: String },
     active: { type: Number },
     secret2fa: { type: String },
+    settings: { type: Object },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -779,22 +780,35 @@ app.post("/api/saveTransfer", function (req, res) {
             if (err) {
                 res.send(err);
             } else {
-                Transfermodel.findOneAndUpdate({ _id: req.body._id, active: {$ne: false} }, { paxUp: req.body.paxUp, paxDown: req.body.paxDown, cargoUp: req.body.cargoUp, cargoDown: req.body.cargoDown },
-                    function (err, data) {
-                        if (err) {
-                            res.send(err);
-                        } else {
-                            res.send({ data: "Succesfully saved the comment" });
-                        }
-                    });
+                Transfermodel.findOneAndUpdate({
+                    _id: req.body._id,
+                    active: {$ne: false}
+                }, {
+                    paxUp: req.body.paxUp,
+                    paxDown: req.body.paxDown,
+                    cargoUp: req.body.cargoUp,
+                    cargoDown: req.body.cargoDown
+                }, function (err, data) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the comment" });
+                    }
+                });
             }
         });
     });
 });
 
 app.post("/api/saveCTVGeneralStats", function(req, res){
-
-    generalmodel.findOneAndUpdate({mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false}},{inputStats: req.body}, function(err, data){
+    // Shouldn't we validate the token here?
+    generalmodel.findOneAndUpdate({
+        mmsi: req.body.mmsi,
+        date: req.body.date,
+        active: {$ne: false}
+    }, {
+        inputStats: req.body
+    }, function(err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -805,7 +819,6 @@ app.post("/api/saveCTVGeneralStats", function(req, res){
 
 app.post("/api/get2faExistence", function (req, res) {
     let userEmail = req.body.userEmail;
-
     Usermodel.findOne({ username: userEmail, active: {$ne: false} },
         function (err, user) {
             if (err) {
@@ -1336,7 +1349,12 @@ app.post("/api/getSovDprInput", function (req, res) {
                 if (data.length > 0) {
                     res.send(data);
                 } else {
-                    SovDprInputmodel.findOne({mmsi: req.body.mmsi, date: {$lt: req.body.date}}, null, {sort: {date: -1}}, function (err, data){
+                    SovDprInputmodel.findOne({
+                        mmsi: req.body.mmsi,
+                        date: {$lt: req.body.date}
+                    }, null, {
+                        sort: {date: -1}
+                    }, function (err, data){
                         if (err) {
                             console.log(err);
                             res.send(err);
@@ -1439,7 +1457,11 @@ app.post("/api/saveFuelStatsSovDpr", function (req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-    SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: {$ne: false} }, { liquids: req.body.liquids },
+    SovDprInputmodel.updateOne({
+        mmsi: req.body.mmsi,
+        date: req.body.date,
+        active: {$ne: false}
+    }, { liquids: req.body.liquids },
         function (err, data) {
             if (err) {
                 console.log(err);
@@ -2116,7 +2138,13 @@ app.post("/api/saveVideoRequest", function (req, res) {
                         return res.send(err);
                     } else {
                         if (data) {
-                            videoBudgetmodel.findOneAndUpdate({ mmsi: req.body.mmsi, active: {$ne: false} }, { maxBudget: req.body.maxBudget, currentBudget: req.body.currentBudget }, function (_err, _data) {
+                            videoBudgetmodel.findOneAndUpdate({
+                                mmsi: req.body.mmsi,
+                                active: {$ne: false}
+                            }, { 
+                                maxBudget: req.body.maxBudget,
+                                currentBudget: req.body.currentBudget
+                            }, function (_err, _data) {
                                 if (_err) {
                                     console.log(_err);
                                     return res.send(_err);
@@ -2269,8 +2297,14 @@ app.post("/api/setPassword", function (req, res) {
     if (userData.password !== userData.confirmPassword) {
         return res.status(401).send('Passwords do not match');
     }
-    Usermodel.findOneAndUpdate({ token: req.body.passwordToken, active: {$ne: false} }, { password: bcrypt.hashSync(req.body.password, 10), secret2fa: req.body.secret2fa, $unset: { token: 1 } },
-        function (err, data) {
+    Usermodel.findOneAndUpdate({
+        token: req.body.passwordToken,
+        active: {$ne: false}
+    }, {
+        password: bcrypt.hashSync(req.body.password, 10),
+        secret2fa: req.body.secret2fa,
+        $unset: { token: 1 }
+    }, function (err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -2313,7 +2347,12 @@ app.get("/api/getTurbineWarranty", function (req, res) {
 
 app.post("/api/getTurbineWarrantyOne", function (req, res) {
     let token = verifyToken(req, res);
-    turbineWarrantymodel.findOne({ campaignName: req.body.campaignName, active: {$ne: false}, windfield: req.body.windfield, startDate: req.body.startDate }, function (err, data) {
+    turbineWarrantymodel.findOne({
+        campaignName: req.body.campaignName,
+        active: {$ne: false},
+        windfield: req.body.windfield,
+        startDate: req.body.startDate
+    }, function (err, data) {
         if (err) {
             res.send(err);
         } else {
@@ -2378,7 +2417,12 @@ app.post("/api/addVesselToFleet", function (req, res) {
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
         return res.status(401).send('Access denied');
     }
-    filter = { campaignName: req.body.campaignName, startDate: req.body.startDate, active: {$ne: false}, windfield: req.body.windfield, status: "TODO" };
+    filter = {
+        campaignName: req.body.campaignName,
+        startDate: req.body.startDate,
+        active: {$ne: false},
+        windfield: req.body.windfield,
+        status: "TODO" };
     if (isNaN(req.body.vessel)) {
         filter.vesselname = req.body.vessel;
     } else if (req.body.vessel) {
@@ -2825,10 +2869,8 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function (req, res) {
 app.get('/api/getLatestTwaUpdate/', function (req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission === 'admin') {
-        let currMatlabDate = Math.floor((moment() / 864e5) + 719526);
-        turbineWarrantymodel.find({
-            stopDate: {$gte: currMatlabDate},
-        }, {
+        // let currMatlabDate = Math.floor((moment() / 864e5) + 719529 - 3);
+        turbineWarrantymodel.find({}, {
             lastUpdated: 1
         }, (err, data) => {
             if (err) {
@@ -2845,6 +2887,40 @@ app.get('/api/getLatestTwaUpdate/', function (req, res) {
         })
     }
 })
+
+app.get('/api/loadUserSettings', function (req, res) {
+    let token = verifyToken(req, res);
+    Usermodel.findOne({
+        username: token.username
+    }, {
+        settings: 1,
+        _id: 0,
+    }, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else if (data) {
+            res.send(data);
+        }
+    })
+});
+
+app.post('/api/saveUserSettings', function (req, res) {
+    let token = verifyToken(req, res);
+    let newSettings = req.body;
+    Usermodel.updateOne({
+        username: token.username,
+    }, {
+        settings: newSettings
+    }, (err, data) => {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else {
+            res.send(data);
+        }
+    });
+});
 
 app.listen(8080, function () {
     console.log('BMO Dataviewer listening on port 8080!');

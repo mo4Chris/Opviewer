@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
-import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
+// import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
 import { VesselModel } from './models/vesselModel';
@@ -12,7 +12,9 @@ import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/v
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CommonService {
 
   constructor(private http: Http) { }
@@ -427,8 +429,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  setActiveListings(listings: {listings: any, client: string, fleetID: string, stopDate: number}) {
-    return this.post(environment.DB_IP + '/api/setActiveListings/', listings).pipe(
+  setActiveListings(_listings: {listings: any, client: string, fleetID: string, stopDate: number}) {
+    return this.post(environment.DB_IP + '/api/setActiveListings/', _listings).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -464,13 +466,13 @@ export class CommonService {
   getWavedataForDay(request: {
     date: number,
     site: string,
-  }): Observable<WavedataModel> {
+  }): Observable<any> {// Observable<WavedataModel> {
     return this.post(environment.DB_IP + '/api/getWavedataForDay', request).pipe(
       map((response: Response) => {
         if (response.status === 204) {
           return null;
         } else {
-          return new WavedataModel(response.json());
+          return response.json(); // new WavedataModel(response.json());
         }
       }));
   }
@@ -479,10 +481,10 @@ export class CommonService {
     startDate: number,
     stopDate: number,
     source: string,
-  }): Observable<WavedataModel[]> {
+  }): Observable<any> {// Observable<WavedataModel[]> {
     return this.post(environment.DB_IP + '/api/getWavedataForRange', request).pipe(
       map((response: Response) => {
-        return response.json().map( wavedata => new WavedataModel(wavedata));
+        return response.json(); // .map( wavedata => new WavedataModel(wavedata));
       }));
   }
 
@@ -501,6 +503,16 @@ export class CommonService {
     return this.get(environment.DB_IP + '/api/getFieldsWithWaveSourcesByCompany').pipe(
     map((response: Response) => response.json()));
   }
+
+  saveUserSettings(settings: object): void {
+    this.post(environment.DB_IP + '/api/saveUserSettings/', settings).subscribe();
+  }
+
+  loadUserSettings(): Observable<object> {
+    return this.get(environment.DB_IP + '/api/loadUserSettings').pipe(
+      map((response: Response) => response.json().settings));
+  }
+
 }
 
 export interface StatsRangeRequest {

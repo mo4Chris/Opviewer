@@ -27,13 +27,13 @@
             </tr>
             <tr>
                 <td>Avg. speed outbound</td>
-                <td>{{roundNumber(general.AvgSpeedOutbound, 10, ' kts')}}</td>
+                <td>{{general.AvgSpeedOutbound}}</td>
                 <td>Avg. speed inbound</td>
-                <td>{{roundNumber(general.AvgSpeedInbound, 10, ' kts')}}</td>
+                <td>{{general.AvgSpeedInbound}}</td>
                 <td>Max. speed outbound</td>
-                <td>{{roundNumber(general.AvgSpeedOutboundUnrestricted, 10, ' kts')}}</td>
+                <td>{{general.AvgSpeedOutboundUnrestricted}}</td>
                 <td>Max. speed inbound</td>
-                <td>{{roundNumber(general.AvgSpeedInboundUnrestricted, 10, ' kts')}}</td>
+                <td>{{general.AvgSpeedInboundUnrestricted}}</td>
                 <td>Waste oil landed</td>
                 <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
                 <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
@@ -63,7 +63,7 @@
             </tr>
             <tr>
                 <td>Distance Sailed</td>
-                <td>{{roundNumber(general.sailedDistance, 10, ' NM')}}</td>
+                <td>{{general.sailedDistance}}</td>
                 <td>Fuel Consumed</td>
                 <td>{{roundNumber(general.TotalFuel, 10)}}</td>
                 <td>Fuel Economy</td>

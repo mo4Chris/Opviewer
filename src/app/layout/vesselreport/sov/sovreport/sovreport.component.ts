@@ -14,6 +14,8 @@ import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
+import { SettingsService } from '../../../../supportModules/settings.service';
+import { SovData } from '../models/SovData';
 
 
 @Component({
@@ -116,6 +118,12 @@ export class SovreportComponent implements OnInit {
         potwater: {oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
     };
 
+    summaryInfo = {
+        departureFromHarbour: 'N/a',
+        arrivalAtHarbour: 'N/a',
+        distance: 'N/a',
+    };
+
     missedPaxCargo = [];
 
     helicopterPaxCargo = [];
@@ -125,7 +133,8 @@ export class SovreportComponent implements OnInit {
         private datetimeService: DatetimeService,
         private modalService: NgbModal,
         private calculationService: CalculationService,
-        private gmapService: GmapService
+        private gmapService: GmapService,
+        private settings: SettingsService,
     ) { }
 
 
@@ -569,6 +578,9 @@ export class SovreportComponent implements OnInit {
         this.commonService.getSov(this.vesselObject).subscribe(sov => {
             if (sov.length !== 0 && sov[0].seCoverageSpanHours !== '_NaN_') {
                 this.sovModel.sovInfo = sov[0];
+                if (sov[0].utcOffset) {
+                    this.datetimeService.vesselOffset = sov[0].utcOffset;
+                }
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
@@ -610,6 +622,12 @@ export class SovreportComponent implements OnInit {
                 });
                 this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(cycleTimes => {
                     this.sovModel.cycleTimes = cycleTimes;
+                    this.sovModel.cycleTimes.forEach(cycle => {
+                        cycle['avgSpeed'] = this.switchUnit(cycle.avgSpeedKts, 'knots', this.settings.unit_speed);
+                        cycle['maxSpeed'] = this.switchUnit(cycle.maxSpeedKts, 'knots', this.settings.unit_speed);
+                        cycle['sailedDistance'] = this.switchUnit(cycle.sailedDistanceNM, 'NM', this.settings.unit_distance);
+                        cycle['turbineDistance'] = this.switchUnit(cycle.turbineDistanceNM, 'NM', this.settings.unit_distance);
+                    });
                 }, null, () => {
                     this.cycleTimeLoaded = true;
                     this.checkIfAllLoaded();
@@ -815,9 +833,11 @@ export class SovreportComponent implements OnInit {
                 totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
             });
             summaryModel.NrOfVesselTransfers = nmrVesselTransfers;
-            summaryModel.AvgTimeVesselDocking = this.calculationService.GetDecimalValueForNumber(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
+            summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
+        } else {
+            summaryModel = this.GetDailySummary(summaryModel, []);
         }
 
         this.sovModel.summary = summaryModel;
@@ -825,9 +845,20 @@ export class SovreportComponent implements OnInit {
 
     // ToDo: Common used by platform and turbine
     private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.Hs; })));
-        model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
+        const maxHs = this.calculationService.getNanMax(transfers.map(_t => _t.Hs));
+        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
+        const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => _t.peakWindGust));
+        model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
+
+        const info = this.sovModel.sovInfo;
+        model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
+        model.departureFromHarbour = this.GetMatlabDateToJSTime(info.departureFromHarbour);
+        model.arrivalAtHarbour = this.GetMatlabDateToJSTime(info.arrivalAtHarbour);
         return model;
+    }
+
+    private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
+        return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
     }
 
     GetMatlabDurationToMinutes(serial) {
@@ -1097,21 +1128,21 @@ export class SovreportComponent implements OnInit {
             this.sovModel.turbineTransfers.forEach(transfer => {
                 transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
-                transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
-                transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
-                transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
-                transfer.gangwayUtilisation = this.calculationService.GetDecimalValueForNumber(transfer.gangwayUtilisation);
-                transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
-                transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
+                transfer.duration = <any> this.calculationService.GetDecimalValueForNumber(transfer.duration);
+                transfer.gangwayDeployedDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
+                transfer.gangwayReadyDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
+                transfer.gangwayUtilisation = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayUtilisation);
+                transfer.peakWindGust = <any> this.switchUnit(transfer.peakWindGust, 'km/h', this.settings.unit_speed);
+                transfer.peakWindAvg = <any> this.switchUnit(transfer.peakWindAvg, 'km/h', this.settings.unit_speed);
             });
             this.gangwayActive = naCountGangway !== this.sovModel.turbineTransfers.length;
         } else if (this.sovModel.sovType === SovType.Platform) {
             this.sovModel.platformTransfers.forEach(transfer => {
                 transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;
                 transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
-                transfer.totalDuration = this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
-                transfer.gangwayDeployedDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
-                transfer.gangwayReadyDuration = this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
+                transfer.totalDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
+                transfer.gangwayDeployedDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
+                transfer.gangwayReadyDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
             });
             this.gangwayActive = naCountGangway !== this.sovModel.platformTransfers.length;
         } else {
@@ -1128,9 +1159,9 @@ export class SovreportComponent implements OnInit {
                 vessel2vessel.CTVactivity = this.calculationService.ReplaceEmptyColumnValues(vessel2vessel.CTVactivity);
                 vessel2vessel.transfers.forEach(transfer => {
                     transfer = this.calculationService.ReplaceEmptyColumnValues(transfer);
-                    transfer.duration = this.calculationService.GetDecimalValueForNumber(transfer.duration);
-                    transfer.peakWindGust = this.calculationService.GetDecimalValueForNumber(transfer.peakWindGust);
-                    transfer.peakWindAvg = this.calculationService.GetDecimalValueForNumber(transfer.peakWindAvg);
+                    transfer.duration = <any> this.calculationService.GetDecimalValueForNumber(transfer.duration);
+                    transfer.peakWindGust = this.switchUnit(transfer.peakWindGust, 'km/h', this.settings.unit_speed);
+                    transfer.peakWindAvg = this.switchUnit(transfer.peakWindAvg, 'km/h', this.settings.unit_speed);
                 });
             });
         }
@@ -1223,7 +1254,9 @@ export class SovreportComponent implements OnInit {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined && isArray(weather.time)) {
             this.weatherOverviewChartCalculated = true;
-            const timeStamps = weather.time.map(matlabTime => this.datetimeService.MatlabDateToUnixEpoch(matlabTime));
+            const timeStamps = weather.time.map(matlabTime => {
+                return this.datetimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false);
+            });
             const dsets = [];
             let chartTitle;
             if (weather.wavesource === '_NaN_') {
@@ -1244,7 +1277,7 @@ export class SovreportComponent implements OnInit {
                     let axisID = 'hidden';
                     switch (label) {
                         case 'Hs': case 'Hmax': case 'waveHmax':
-                            unit = 'm';
+                            unit = 'm'; // Indicates unit in database, not displayed unit
                             axisID = 'Hs';
                             break;
                         case 'waveDirection': case 'windDirection': case 'waveDir': case 'windDir':
@@ -1324,7 +1357,13 @@ export class SovreportComponent implements OnInit {
                 this.weatherOverviewChart.destroy();
             }
             setTimeout(() => {
-                this.weatherOverviewChart = new WeatherOverviewChart(dsets, timeStamps, chartTitle);
+                this.weatherOverviewChart = new WeatherOverviewChart({
+                    dsets: dsets,
+                    timeStamps: <any>timeStamps,
+                    wavedataSourceName: chartTitle
+                },
+                this.calculationService,
+                this.settings);
             }, 300);
         }
     }
