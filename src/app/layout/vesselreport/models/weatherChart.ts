@@ -5,9 +5,6 @@ import * as moment from 'moment';
 import { SettingsService } from '../../../supportModules/settings.service';
 import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
-@Component({
-    providers: [CalculationService, SettingsService]
-})
 export class WeatherOverviewChart {
 static weatherChartColors = [
   'rgba(0, 100, 255 , 1)',

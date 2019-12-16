@@ -7,12 +7,14 @@ import { async } from 'q';
 import { CommonModule } from '@angular/common';
 import { ComprisonArrayElt } from '../scatterInterface';
 import { UserTestService } from '../../../../shared/services/test.user.service';
+import { SettingsService } from '../../../../supportModules/settings.service';
+import { MockedCommonService } from '../../../../supportModules/mocked.common.service';
 
 describe('ScatterplotTest', () => {
   let component: ScatterplotComponent;
 
   const calcService = new CalculationService();
-  const dateService = new DatetimeService();
+  const dateService = new DatetimeService(new SettingsService(new MockedCommonService()));
   const user = UserTestService.getMockedAccessToken();
   const vesselObject = {
     mmsi: user.userBoats.map(boat => boat.mmsi),
