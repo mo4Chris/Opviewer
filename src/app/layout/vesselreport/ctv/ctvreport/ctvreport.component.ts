@@ -53,6 +53,9 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
+    times = [];
+    allHours = [];
+    all5Minutes = [];
     dateData = { transfer: undefined, general: undefined };
     modalReference: NgbModalRef;
     multiSelectSettings = {
@@ -112,6 +115,8 @@ export class CtvreportComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.createTimes();
+        this.createSeperateTimes();
         Chart.pluginService.register(ChartAnnotation);
     }
 
@@ -411,6 +416,39 @@ export class CtvreportComponent implements OnInit {
                 console.log('error ' + error);
                 throw error;
             }));
+    }
+
+    createTimes() {
+        const quarterHours = ['00', '15', '30', '45'];
+        for (let i = 0; i < 24; i++) {
+            for (let j = 0; j < 4; j++) {
+                let time = i + ':' + quarterHours[j];
+                if (i < 10) {
+                time = '0' + time;
+                }
+                this.times.push(time);
+            }
+        }
+    }
+
+    createSeperateTimes() {
+        this.allHours = [];
+        this.all5Minutes = [];
+
+        for (let i = 0; i < 24; i++) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.allHours.push(time);
+        }
+        for (let i = 0; i < 60; i += 5) {
+            let time = i + '';
+            if (i < 10) {
+            time = '0' + time;
+            }
+            this.all5Minutes.push(time);
+        }
     }
 
 

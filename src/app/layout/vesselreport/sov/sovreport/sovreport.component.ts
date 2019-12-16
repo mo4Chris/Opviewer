@@ -454,7 +454,88 @@ export class SovreportComponent implements OnInit {
         this.nonAvailabilityChanged = false;
     }
 
+    saveAllTurbineTransfers() {
+        for (let _i = 0; _i < this.sovModel.turbineTransfers.length; _i++) {
+            this.sovModel.turbineTransfers[_i].paxIn = this.sovModel.turbineTransfers[_i].paxIn || 0;
+            this.sovModel.turbineTransfers[_i].paxOut = this.sovModel.turbineTransfers[_i].paxOut || 0;
+            this.sovModel.turbineTransfers[_i].cargoIn = this.sovModel.turbineTransfers[_i].cargoIn || 0;
+            this.sovModel.turbineTransfers[_i].cargoOut = this.sovModel.turbineTransfers[_i].cargoOut || 0;
+                this.commonService.updateSOVTurbinePaxInput({
+                    _id:  this.sovModel.turbineTransfers[_i]._id,
+                    mmsi: this.sovModel.turbineTransfers[_i].mmsi,
+                    paxIn: this.sovModel.turbineTransfers[_i].paxIn,
+                    paxOut: this.sovModel.turbineTransfers[_i].paxOut,
+                    cargoIn: this.sovModel.turbineTransfers[_i].cargoIn,
+                    cargoOut: this.sovModel.turbineTransfers[_i].cargoOut
+                }).pipe(
+                    map(
+                        (res) => {
+                            this.alert.type = 'success';
+                            this.alert.message = res.data;
+                        }
+                    ),
+                    catchError(error => {
+                        this.alert.type = 'danger';
+                        this.alert.message = error;
+                        throw error;
+                    })
+                ).subscribe(_ => {
+                    clearTimeout(this.timeout);
+                    this.showAlert = true;
+                    this.timeout = setTimeout(() => {
+                        this.showAlert = false;
+                    }, 7000);
+                });
+                this.nonAvailabilityChanged = false;
+        }
+    }
+
+    saveAllPlatformTransfers() {
+        for (let _i = 0; _i < this.sovModel.platformTransfers.length; _i++) {
+
+            this.sovModel.platformTransfers[_i].paxIn = this.sovModel.platformTransfers[_i].paxIn || 0;
+            this.sovModel.platformTransfers[_i].paxOut = this.sovModel.platformTransfers[_i].paxOut || 0;
+            this.sovModel.platformTransfers[_i].cargoIn = this.sovModel.platformTransfers[_i].cargoIn || 0;
+            this.sovModel.platformTransfers[_i].cargoOut = this.sovModel.platformTransfers[_i].cargoOut || 0;
+
+                this.commonService.updateSOVPlatformPaxInput({
+                    _id:  this.sovModel.platformTransfers[_i]._id,
+                    mmsi: this.sovModel.platformTransfers[_i].mmsi,
+                    paxIn: this.sovModel.platformTransfers[_i].paxIn || 0,
+                    paxOut: this.sovModel.platformTransfers[_i].paxOut || 0,
+                    cargoIn: this.sovModel.platformTransfers[_i].cargoIn || 0,
+                    cargoOut: this.sovModel.platformTransfers[_i].cargoOut || 0
+                }).pipe(
+                    map(
+                        (res) => {
+                            this.alert.type = 'success';
+                            this.alert.message = res.data;
+                        }
+                    ),
+                    catchError(error => {
+                        this.alert.type = 'danger';
+                        this.alert.message = error;
+                        throw error;
+                    })
+                ).subscribe(_ => {
+                    clearTimeout(this.timeout);
+                    this.showAlert = true;
+                    this.timeout = setTimeout(() => {
+                        this.showAlert = false;
+                    }, 7000);
+                });
+                this.nonAvailabilityChanged = false;
+        }
+    }
+
     savev2vPaxInput() {
+        for (let _i = 0; _i < this.sovModel.vessel2vessels[0].transfers.length; _i++) {
+            this.sovModel.vessel2vessels[0].transfers[_i].paxIn =  this.sovModel.vessel2vessels[0].transfers[_i].paxIn || 0;
+            this.sovModel.vessel2vessels[0].transfers[_i].paxOut =  this.sovModel.vessel2vessels[0].transfers[_i].paxOut || 0;
+            this.sovModel.vessel2vessels[0].transfers[_i].cargoIn =  this.sovModel.vessel2vessels[0].transfers[_i].cargoIn || 0;
+            this.sovModel.vessel2vessels[0].transfers[_i].cargoOut =  this.sovModel.vessel2vessels[0].transfers[_i].cargoOut || 0;
+        }
+
         this.commonService.updateSOVv2vPaxInput({
             mmsi: this.vesselObject.mmsi,
             date: this.vesselObject.date,
@@ -807,8 +888,10 @@ export class SovreportComponent implements OnInit {
                 let totalDockingDurationOfVessel2vessel = 0;
                 vessel2vessel.transfers.forEach(transfer => {
                     if (transfer) {
-                        totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
-                        nmrVesselTransfers += 1;
+                        if (typeof (transfer.duration) !== 'string') {
+                            totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
+                            nmrVesselTransfers += 1;
+                        }
                     }
                 });
                 const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;

@@ -18,6 +18,12 @@ var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function 
 
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
+
+app.get("/api/connectionTest", function (req, res) {
+    console.log('Hello world');
+    res.send("Hello World");
+})
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function (req, res, next) {
@@ -1886,7 +1892,6 @@ app.post("/api/getUsersForCompany", function (req, res) {
     }
     Usermodel.find({
         client: companyName, 
-        active: {$ne: false},
         permissions: ["Vessel master", "Marine controller"]
     }, null, {
 
@@ -2204,9 +2209,14 @@ app.post("/api/setActive", function (req, res) {
 
 app.post("/api/setInactive", function (req, res) {
     let token = verifyToken(req, res);
+    console.log(token.userPermission);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
+        console.log(token.userPermission !== "admin" && token.userPermission !== "Logistics specialist");
         return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
+        console.log(token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany);
+        console.log(req.body);
+        console.log(token.userCompany);
         return res.status(401).send('Access denied');
     }
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },

@@ -257,7 +257,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getUserByUsername(username: {username: any}): Observable<UserModel> {
+  getUserByUsername(username: Object): Observable<UserModel> {
     return this.post(environment.DB_IP + '/api/getUserByUsername/', username).pipe(
       map((response: Response) => response.json()));
   }

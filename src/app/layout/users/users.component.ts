@@ -54,7 +54,7 @@ export class UsersComponent implements OnInit {
     }
 
     resetPassword(id) {
-        this.newService.resetPassword({ _id: id }).pipe(
+        this.newService.resetPassword({ _id: id, client: this.tokenInfo.userCompany }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -76,7 +76,7 @@ export class UsersComponent implements OnInit {
     }
 
     setActive(user) {
-        this.newService.setActive({ _id: user._id, user: this.tokenInfo.username }).pipe(
+        this.newService.setActive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
@@ -99,7 +99,7 @@ export class UsersComponent implements OnInit {
     }
 
     setInactive(user) {
-        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username }).pipe(
+        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
             map(
                 (res) => {
                     this.alert.type = 'success';
