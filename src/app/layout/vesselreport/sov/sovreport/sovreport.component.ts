@@ -1253,11 +1253,8 @@ export class SovreportComponent implements OnInit {
         const weather =  this.sovModel.sovInfo.weatherConditions;
         if (weather !== undefined && isArray(weather.time)) {
             this.weatherOverviewChartCalculated = true;
-            const offsetHours = this.settings.getTimeOffset(this.datetimeService.vesselOffset);
             const timeStamps = weather.time.map(matlabTime => {
                 return this.datetimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false);
-                // const _time = this.datetimeService.MatlabDateToUnixEpochViaDate(matlabTime);
-                // return this.datetimeService.dateAddHours(_time, offsetHours);
             });
             const dsets = [];
             let chartTitle;

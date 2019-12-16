@@ -29,7 +29,6 @@ constructor(
     private calcService: CalculationService,
     private settings: SettingsService,
 ) {
-    console.log(this)
     args = {... {wavedataSourceName: 'Source: unknown'}, ...args};
     // Support function for chart legend padding
     Chart.Tooltip.positioners.custom = function (elements, position) {
@@ -194,6 +193,11 @@ constructor(
                         }
                         return label;
                     },
+                    title: function (tooltipItem, data) {
+                        const xlabel = tooltipItem[0].xLabel;
+                        const _mom = moment.utc(xlabel).format('HH:mm');
+                        return _mom;
+                    }
                 },
                 mode: 'index',
                 filter: function (tooltip, data) {
@@ -204,7 +208,6 @@ constructor(
     });
 }
 
-// ToDO replace this by a call to the user defaults stored in his token
 Unit = {
     Hs: 'm',
     Tp: 's',
@@ -216,11 +219,6 @@ getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
     return 0;
 }
-
-changeUnits(axisName: string, newUnit: string) {
-    // ToDo: here be the callback handle
-}
-
 destroy() {
     if (this.Chart) {
         this.Chart.destroy();
