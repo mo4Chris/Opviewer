@@ -836,6 +836,8 @@ export class SovreportComponent implements OnInit {
             summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
+        } else {
+            summaryModel = this.GetDailySummary(summaryModel, []);
         }
 
         this.sovModel.summary = summaryModel;
@@ -850,6 +852,9 @@ export class SovreportComponent implements OnInit {
         model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
 
         const info = this.sovModel.sovInfo;
+        console.log(info)
+        console.log(model)
+        console.log({...{}, ...model});
         model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
         model.departureFromHarbour = this.GetMatlabDateToJSTime(info.departureFromHarbour);
         model.arrivalAtHarbour = this.GetMatlabDateToJSTime(info.arrivalAtHarbour);

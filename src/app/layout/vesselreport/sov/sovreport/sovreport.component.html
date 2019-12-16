@@ -7,15 +7,15 @@
                     <div class="col-xl-6 dailySummary">
                         <table class="table table-responsive table-bordered tableSummary">
                             <ng-container>
-                                <tr *ngIf="sovModel.sovInfo.departureFromHarbour != 'N/a'">
+                                <tr *ngIf="sovModel.summary.departureFromHarbour != 'N/a'">
                                     <td>Departure from harbour</td>
                                     <td>{{sovModel.summary.departureFromHarbour}}</td>
                                 </tr>
-                                <tr *ngIf="sovModel.sovInfo.arrivalAtHarbour != 'N/a'">
+                                <tr *ngIf="sovModel.summary.arrivalAtHarbour != 'N/a'">
                                     <td>Arrival at harbour</td>
                                     <td>{{sovModel.summary.arrivalAtHarbour}}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="sovModel.summary.TotalSailDistance != 'N/a'">
                                     <td>Distance sailed</td>
                                     <td>{{sovModel.summary.TotalSailDistance}} </td>
                                 </tr>

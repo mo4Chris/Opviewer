@@ -28,7 +28,7 @@ export class CalculationService {
 
   GetDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
-      if (type === 'number') {
+      if (type === 'number' && !isNaN(value)) {
           value = Math.round(value * 10) / 10;
           if (value - Math.floor(value) === 0 ) {
             value = value + '.0';
