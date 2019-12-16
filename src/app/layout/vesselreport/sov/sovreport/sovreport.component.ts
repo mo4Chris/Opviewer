@@ -848,13 +848,9 @@ export class SovreportComponent implements OnInit {
         const maxHs = this.calculationService.getNanMax(transfers.map(_t => _t.Hs));
         model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
         const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => _t.peakWindGust));
-        // model.maxWindSpeedDuringOperations = this.calculationService.GetDecimalValueForNumber(Math.max.apply(Math, transfers.map(function (o) { return o.peakWindGust; })));
         model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
 
         const info = this.sovModel.sovInfo;
-        console.log(info)
-        console.log(model)
-        console.log({...{}, ...model});
         model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
         model.departureFromHarbour = this.GetMatlabDateToJSTime(info.departureFromHarbour);
         model.arrivalAtHarbour = this.GetMatlabDateToJSTime(info.arrivalAtHarbour);
