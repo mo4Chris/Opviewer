@@ -217,6 +217,7 @@ Unit = {
 
 getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
+    // ToDo: properly implement the timezone check
     return 0;
 }
 destroy() {
