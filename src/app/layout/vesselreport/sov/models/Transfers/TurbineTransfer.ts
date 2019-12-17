@@ -38,8 +38,6 @@ export class TurbineTransfer {
     detector: string;
     gangwayUtilisationTrace: string;
     positionalStability: string;
-    windArray: any;
-    date: number;
     paxIn: number ;
     paxOut: number ;
     cargoIn: number ;
