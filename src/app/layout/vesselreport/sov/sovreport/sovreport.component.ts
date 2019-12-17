@@ -1372,7 +1372,7 @@ export class SovreportComponent implements OnInit {
             }, 300);
         }
     }
-    datasetIsActive(dset, dsetIndex, chart) {
+    datasetIsActive(dset, dsetIndex: number, chart: Chart) {
         const meta = chart.getDatasetMeta(dsetIndex);
         let hidden;
         if (meta.hidden === null) {
@@ -1385,7 +1385,7 @@ export class SovreportComponent implements OnInit {
     }
 
     formatGangwayLimiter(raw_limiter: string) {
-        switch(raw_limiter) {
+        switch (raw_limiter) {
             case 'tele_pos':
                 return 'Telescopic position';
             case 'boom_ang':

@@ -12,6 +12,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { mockedObservable } from '../../../models/testObservable';
+import { MockedCommonService, MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
 
 describe('FleetAvailabilityComponent', () => {
   let component: FleetavailabilityComponent;
@@ -45,7 +46,7 @@ describe('FleetAvailabilityComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule
       ],
-      providers: [CommonService],
+      providers: [MockedCommonServiceProvider],
       declarations: [ FleetavailabilityComponent ]
     })
     .compileComponents();
