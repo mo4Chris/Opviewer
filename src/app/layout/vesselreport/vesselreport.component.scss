@@ -8,7 +8,7 @@ agm-map {
 
 .divContainer {
     width:100%;
-    min-height: 200px;
+    //min-height: 200px;
     margin-top:1rem;
 }
 
@@ -51,6 +51,8 @@ ngb-alert {
 .has-sailed-transfer{
     background-color:rgb(198, 233, 255);
 }
+
+textarea {resize: none}
 
 .has-sailed-transit{
     background-color:rgb(255, 255, 211);

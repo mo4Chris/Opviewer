@@ -91,11 +91,21 @@ agm-map {
     }
 }
 
+textarea {resize: none}
+
 @media print {
     .plsdonotprintthisforfsake {
         display:none !important;
         z-index: 1;
     }
+
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 1px;
+        text-overflow: '';
+    }
+    
     .table-responsive {
         width: 100%;
         margin-left: 0;
@@ -129,10 +139,6 @@ agm-map {
 
     .chartContainer {
         width: 225mm;
-    }
-
-    hr {
-        display: none;
     }
 
     .dropdown-toggle{

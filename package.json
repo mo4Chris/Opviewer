@@ -49,6 +49,7 @@
     "morgan": "^1.9.0",
     "ng-multiselect-dropdown": "^0.2.3",
     "ng2-charts": "^1.6.0",
+    "ngx-autosize": "^1.7.1-next",
     "ngx-qrcode2": "0.0.9",
     "node-2fa": "^1.1.2",
     "nodemailer": "^4.7.0",

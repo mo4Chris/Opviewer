@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { AgmCoreModule } from '@agm/core';
+import { AutosizeModule } from 'ngx-autosize';
 
 import { VesselreportRoutingModule } from './vesselreport-routing.module';
 import { VesselreportComponent } from './vesselreport.component';
@@ -30,6 +31,7 @@ import { RouterService } from '../../supportModules/router.service';
             apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
         }),
         FormsModule,
+        AutosizeModule,
         ReactiveFormsModule,
         NgbModule,
         NgMultiSelectDropDownModule,
