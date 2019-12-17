@@ -101,6 +101,45 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
+  createTimesQuarterHour() {
+    const quarterHours = ['00', '15', '30', '45'];
+    const times = [];
+    for (let i = 0; i < 24; i++) {
+        for (let j = 0; j < 4; j++) {
+            let time = i + ':' + quarterHours[j];
+            if (i < 10) {
+            time = '0' + time;
+            }
+            times.push(time);
+        }
+    }
+    return times;
+  }
+
+  createHoursTimes() {
+      const allHours = [];
+      for (let i = 0; i < 60; i += 5) {
+          let time = i + '';
+          if (i < 10) {
+          time = '0' + time;
+          }
+          allHours.push(time);
+      }
+      return allHours;
+  }
+
+  createFiveMinutesTimes() {
+    const all5Minutes = [];
+    for (let i = 0; i < 24; i++) {
+        let time = i + '';
+        if (i < 10) {
+          time = '0' + time;
+        }
+        all5Minutes.push(time);
+    }
+    return all5Minutes;
+  }
+
   unixEpochtoMatlabDate(epochDate: number) {
     return (epochDate / 864e2) + 719529;
   }
