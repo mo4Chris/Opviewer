@@ -1620,9 +1620,9 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let HoC of HOCArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7 col-print-7" type="text"
+                                            <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" placeholder="input reason"
-                                                [(ngModel)]="HoC.value" [value]="HoC.value">
+                                                [(ngModel)]="HoC.value" [value]="HoC.value"> </textarea>
                                             <select [(ngModel)]="HoC.amount"
                                                 (change)="incidentsChanged = true; updateHOCTotal();"
                                                 class="form-control col-xl-5 col-print-5">
@@ -1633,7 +1633,7 @@
                                                 <option value=4>4 times</option>
                                                 <option value=5>5 times</option>
                                             </select>
-                                        </div>
+                                        </div><hr>
                                     </ng-container>
                                     <br>
                                     <button class="btn btn-sm btn-success"
@@ -1655,9 +1655,9 @@
                                 <td colspan="3">
                                     <ng-container *ngFor="let toolbox of ToolboxArray">
                                         <div class="tableRow">
-                                            <input class="form-control col-xl-7 col-print-7" type="text"
+                                            <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
                                                 (change)="incidentsChanged = true;" [(ngModel)]="toolbox.value"
-                                                placeholder="input reason" [value]="toolbox.value">
+                                                placeholder="input reason" [minRows]="1" [value]="toolbox.value"> </textarea>
                                             <select [(ngModel)]="toolbox.amount"
                                                 (change)="incidentsChanged = true; updateToolboxTotal();"
                                                 class="form-control col-xl-5 col-print-5">
@@ -1668,7 +1668,8 @@
                                                 <option value=4>4 times</option>
                                                 <option value=5>5 times</option>
                                             </select>
-                                        </div>
+                                            
+                                        </div><hr>
                                     </ng-container><br>
                                     <button class="btn btn-sm btn-success"
                                         (click)="addToolboxToArray(); incidentsChanged = true; updateToolboxTotal();"
@@ -1977,8 +1978,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><textarea (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
-                                        class="form-control" rows="10" cols="70"></textarea></td>
+                                <td><textarea autosize (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks"
+                                        class="form-control" cols="70"></textarea></td>
                             </tr>
                             <tr *ngIf="remarksChanged == true">
                                 <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary"
