@@ -1,5 +1,5 @@
 export class PlatformTransfer {
-
+    _id: string;
     vesselname: string;
     mmsi: number;
     locationname: string;
@@ -37,9 +37,9 @@ export class PlatformTransfer {
     lat: number;
     paxCntEstimate: string;
     TexitExclusionZone: number;
-    date: { type: Number };
-    paxIn: { type: Number };
-    paxOut: { type: Number };
-    cargoIn: { type: Number };
-    cargoOut: { type: Number };
+    date:  number ;
+    paxIn: number ;
+    paxOut: number ;
+    cargoIn: number ;
+    cargoOut: number ;
 }

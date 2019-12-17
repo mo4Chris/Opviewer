@@ -1,4 +1,5 @@
 export class TurbineTransfer {
+    _id: string;
     vesselname: string;
     mmsi: number;
     location: string;
@@ -37,9 +38,8 @@ export class TurbineTransfer {
     detector: string;
     gangwayUtilisationTrace: string;
     positionalStability: string;
-
-    paxIn: { type: Number };
-    paxOut: { type: Number };
-    cargoIn: { type: Number };
-    cargoOut: { type: Number };
+    paxIn: number ;
+    paxOut: number ;
+    cargoIn: number ;
+    cargoOut: number ;
 }

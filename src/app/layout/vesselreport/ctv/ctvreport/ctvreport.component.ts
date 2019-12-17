@@ -55,6 +55,9 @@ export class CtvreportComponent implements OnInit {
     vessels;
     noPermissionForData;
     vessel;
+    times = [];
+    allHours = [];
+    all5Minutes = [];
     utcOffset = 0;
     dateData = { transfer: undefined, general: undefined };
     modalReference: NgbModalRef;
@@ -116,6 +119,8 @@ export class CtvreportComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.createTimes();
+        this.createSeperateTimes();
         Chart.pluginService.register(ChartAnnotation);
     }
 
@@ -419,6 +424,15 @@ export class CtvreportComponent implements OnInit {
                 console.log('error ' + error);
                 throw error;
             }));
+    }
+
+    createTimes() {
+        this.times = this.dateTimeService.createTimesQuarterHour();
+    }
+
+    createSeperateTimes() {
+        this.allHours = this.dateTimeService.createHoursTimes();
+        this.all5Minutes = this.dateTimeService.createFiveMinutesTimes();
     }
 
 

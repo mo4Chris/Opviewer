@@ -18,6 +18,12 @@ var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function 
 
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
+
+app.get("/api/connectionTest", function (req, res) {
+    console.log('Hello world');
+    res.send("Hello World");
+})
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function (req, res, next) {
@@ -1912,7 +1918,6 @@ app.post("/api/getUsersForCompany", function (req, res) {
     }
     Usermodel.find({
         client: companyName, 
-        active: {$ne: false},
         permissions: ["Vessel master", "Marine controller"]
     }, null, {
 
