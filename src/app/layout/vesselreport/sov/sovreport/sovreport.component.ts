@@ -581,6 +581,7 @@ export class SovreportComponent implements OnInit {
                 if (sov[0].utcOffset) {
                     this.datetimeService.vesselOffset = sov[0].utcOffset;
                 }
+                // All code beyond this point should be changed to a forkJoin statement, which executes after all subscriptions have returned (which can be done in parallel)
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
                         this.commonService.getTurbineTransfers(this.vesselObject.mmsi, this.vesselObject.date).subscribe(turbineTransfers => {
@@ -1143,6 +1144,10 @@ export class SovreportComponent implements OnInit {
                 transfer.totalDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.totalDuration);
                 transfer.gangwayDeployedDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayDeployedDuration);
                 transfer.gangwayReadyDuration = <any> this.calculationService.GetDecimalValueForNumber(transfer.gangwayReadyDuration);
+                transfer.peakWindGust = <any> this.switchUnit(transfer.peakWindGust, 'km/h', this.settings.unit_speed);
+                transfer.peakWindAvg = <any> this.switchUnit(transfer.peakWindAvg, 'km/h', this.settings.unit_speed);
+                transfer.Hs = this.GetDecimalValueForNumber(transfer.Hs, ' m');
+                transfer.gangwayUtilisationLimiter = this.formatGangwayLimiter(transfer.gangwayUtilisationLimiter);
             });
             this.gangwayActive = naCountGangway !== this.sovModel.platformTransfers.length;
         } else {
@@ -1377,6 +1382,17 @@ export class SovreportComponent implements OnInit {
         }
         const final = !hidden;
         return (final);
+    }
+
+    formatGangwayLimiter(raw_limiter: string) {
+        switch(raw_limiter) {
+            case 'tele_pos':
+                return 'Telescopic position';
+            case 'boom_ang':
+                return 'Booming angle';
+            default:
+                return raw_limiter;
+        }
     }
 
     private ResetTransfers() {

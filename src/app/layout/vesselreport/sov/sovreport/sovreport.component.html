@@ -729,7 +729,7 @@
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
                                         <th>Peak gust wind</th>
-                                        <th>Hs [m]</th>
+                                        <th>Hs</th>
                                         <th>Save</th>
                                     </tr>
                                 </thead>
@@ -772,7 +772,7 @@
                                                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                                             </td>
                                             <td>{{platformTransfer.peakWindGust}}</td>
-                                            <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                                            <td>{{platformTransfer.Hs}}</td>
                                             <td><button class="btn btn-lg btn-primary submitBtnDate"
                                                     (click)="savePlatformPaxInput(platformTransfer)"
                                                     type="button">Save</button></td>
