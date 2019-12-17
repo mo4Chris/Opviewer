@@ -14,6 +14,7 @@ import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
+import { SettingsService } from '../../../supportModules/settings.service';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -25,6 +26,7 @@ export class LongtermCTVComponent implements OnInit {
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
+        private settings: SettingsService,
     ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
@@ -43,7 +45,7 @@ export class LongtermCTVComponent implements OnInit {
             `, barCallback: (data: RawScatterData) => this.usagePerMonth(data)
         },
         {
-            x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [knots]', dataType: 'transit', info:
+            x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [' + this.settings.unit_speed + ']', dataType: 'transit', info:
                 'Average speed of when sailing from or to the windfield. Aborted attempts are not shown.',
         },
         {
@@ -116,7 +118,6 @@ export class LongtermCTVComponent implements OnInit {
     buildPageWithCurrentInformation() {
         this.scatterPlot.vesselObject = this.vesselObject;
         if (this.vesselObject.mmsi.length > 0) {
-            this.vesselinfoChild.update();
             this.getVesselLabels({
                 mmsi: this.vesselObject.mmsi,
                 x: this.comparisonArray[0].x as string,
@@ -165,6 +166,9 @@ export class LongtermCTVComponent implements OnInit {
             if (loaded.reduce((x, y) => x && y, true)) {
                 this.scatterPlot.createValues();
                 this.showContent.emit(true);
+                if (this.vesselinfoChild) {
+                    this.vesselinfoChild.update();
+                }
             }
         };
         this.comparisonArray.forEach((compElt, _i) => {
@@ -289,7 +293,7 @@ export class LongtermCTVComponent implements OnInit {
             case 'date':
                 return elt;
             case 'speed': case 'speedInTransitAvgKMH': case 'speedInTransitKMH':
-                return elt / 1.852;
+                return this.calculationService.switchSpeedUnits([elt], 'km/h', this.settings.unit_speed)[0];
             default:
                 return NaN;
         }

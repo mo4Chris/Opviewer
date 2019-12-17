@@ -1,6 +1,9 @@
 import * as Chart from 'chart.js';
 import { Moment } from 'moment';
 import { CalculationService } from '../../../supportModules/calculation.service';
+import * as moment from 'moment';
+import { SettingsService } from '../../../supportModules/settings.service';
+import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
 export class WeatherOverviewChart {
 static weatherChartColors = [
@@ -17,20 +20,13 @@ static weatherChartColors = [
 ];
 
 Chart: Chart;
-// ToDO replace this by a call to the user defaults stored in his token
-Unit = {
-    Hs: 'm',
-    Tp: 's',
-    Direction: 'deg',
-    Wind: 'knot',
-};
 
 constructor(
-    dsets: any[],
-    timeStamps: Moment[],
-    wavedataSourceName: string = 'Source: unknown',
-    private calcService: CalculationService = new CalculationService
+    args: WeatherChartArguments,
+    private calcService: CalculationService,
+    private settings: SettingsService,
 ) {
+    args = {... {wavedataSourceName: 'Source: unknown'}, ...args};
     // Support function for chart legend padding
     Chart.Tooltip.positioners.custom = function (elements, position) {
         const item = this._data.datasets;
@@ -54,7 +50,7 @@ constructor(
     };
 
     // Fixing dset units
-    dsets = this.sortByAxisID(dsets);
+    const dsets = this.sortByAxisID(args.dsets);
     dsets.forEach((dset, _i) => {
         if (dset.unit) {
             dset = this.changeUnitsForDset(dset);
@@ -70,6 +66,7 @@ constructor(
             }
         }
     });
+    const timezonOffset = this.getTimezoneOffset(dsets);
 
     // Actual chart creation
     this.Chart = new Chart('weatherOverview', {
@@ -79,9 +76,9 @@ constructor(
         },
         options: {
             title: {
-                display: wavedataSourceName !== '',
+                display: args.wavedataSourceName !== '',
                 position: 'right',
-                text: wavedataSourceName,
+                text: args.wavedataSourceName,
                 fontSize: 15,
                 padding: 5,
                 fontStyle: 'normal',
@@ -103,10 +100,19 @@ constructor(
                     },
                     type: 'time',
                     time: {
-                        min: timeStamps[0],
-                        max: timeStamps[timeStamps.length - 1],
-                        unit: 'hour'
-                    }
+                        min: args.timeStamps[0],
+                        max: args.timeStamps[args.timeStamps.length - 1],
+                        unit: 'hour',
+                        displayFormats: 'HH:mm',
+                    },
+                    ticks: {
+                        callback: (value, index, values) => {
+                            if (!values[index]) {
+                                return;
+                            }
+                            return moment.utc(values[index]['value']).utcOffset(timezonOffset).format('HH:mm');
+                        }
+                    },
                 }],
                 yAxes: [{
                     id: 'Wind',
@@ -184,6 +190,11 @@ constructor(
                         }
                         return label;
                     },
+                    title: function (tooltipItem, data) {
+                        const xlabel = tooltipItem[0].xLabel;
+                        const _mom = moment.utc(xlabel).format('HH:mm');
+                        return _mom;
+                    }
                 },
                 mode: 'index',
                 filter: function (tooltip, data) {
@@ -194,10 +205,18 @@ constructor(
     });
 }
 
-changeUnits(axisName: string, newUnit: string) {
-    // ToDo: here be the callback handle
-}
+Unit = {
+    Hs: 'm',
+    Tp: 's',
+    Direction: 'deg',
+    Wind: this.settings.unit_speed,
+};
 
+getTimezoneOffset(dsets: any[]): number {
+    // Returns the offset in minutes
+    // ToDo: properly implement the timezone check
+    return 0;
+}
 destroy() {
     if (this.Chart) {
         this.Chart.destroy();
@@ -269,4 +288,8 @@ private getValueForAxis(ID: string) {
 }
 }
 
-
+interface WeatherChartArguments {
+    dsets: any[];
+    timeStamps: Moment[];
+    wavedataSourceName?: string;
+}

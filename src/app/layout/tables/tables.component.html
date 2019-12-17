@@ -10,26 +10,26 @@
                 <div class="card-body table-responsive">
                     <table class="table table-hover table-striped">
                         <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class='clickable' (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
-                                Vesselname
-                                <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
-                                    [class.fa-arrow-down]="!sort.isAsc"></i>
-                            </th>
-                            <th class='clickable' (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="tokenInfo.userPermission == 'admin'">
-                                Client
-                                <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
-                                    [class.fa-arrow-down]="!sort.isAsc"></i>
-                            </th>
-                            <th class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
-                                mmsi
-                                <i class="fa" [class.hidden]="sort.active!='mmsi'" [class.fa-arrow-up]="sort.isAsc"
-                                    [class.fa-arrow-down]="!sort.isAsc"></i>
-                            </th>
-                            <th> Daily vessel report </th>
-                            <th *ngIf="ScatterplotPermission">Long term reports</th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th class='clickable' (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
+                                    Vesselname
+                                    <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
+                                <th class='clickable' (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="tokenInfo.userPermission == 'admin'">
+                                    Client
+                                    <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
+                                <th class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
+                                    mmsi
+                                    <i class="fa" [class.hidden]="sort.active!='mmsi'" [class.fa-arrow-up]="sort.isAsc"
+                                        [class.fa-arrow-down]="!sort.isAsc"></i>
+                                </th>
+                                <th> Daily vessel report </th>
+                                <th *ngIf="ScatterplotPermission">Long term reports</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let rd of filter;let ind = index">
