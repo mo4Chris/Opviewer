@@ -806,20 +806,24 @@ app.post("/api/saveTransfer", function (req, res) {
     });
 });
 
-app.post("/api/saveCTVGeneralStats", function(req, res){
-    // Shouldn't we validate the token here?
-    generalmodel.findOneAndUpdate({
-        mmsi: req.body.mmsi,
-        date: req.body.date,
-        active: {$ne: false}
-    }, {
-        inputStats: req.body
-    }, function(err, data) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send({data: 'Data has been succesfully saved'});
+app.post("/api/saveCTVGeneralStats", function(req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
         }
+        generalmodel.findOneAndUpdate({
+            mmsi: req.body.mmsi,
+            date: req.body.date,
+            active: {$ne: false}
+        }, {
+            inputStats: req.body
+        }, function(err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({data: 'Data has been succesfully saved'});
+            }
+        });
     });
 });
 

@@ -219,6 +219,8 @@ export class CalculationService {
         return this.switchDurationUnits(vals, from, to);
       case 'rad': case 'deg':
         return this.switchDirectionUnits(vals, from, to);
+      case 'kg': case 'ton':
+        return this.switchWeightUnits(vals, from, to);
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;

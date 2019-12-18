@@ -14,6 +14,7 @@ import { AgmCoreModule } from '@agm/core';
 import { UserTestService } from '../../shared/services/test.user.service';
 import { mockedObservable } from '../../models/testObservable';
 import { UserService } from '../../shared/services/user.service';
+import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -32,7 +33,7 @@ describe('UsersComponent', () => {
         UsersRoutingModule,
         BrowserAnimationsModule],
       declarations: [ UsersComponent ],
-      providers: [CommonService],
+      providers: [MockedCommonServiceProvider],
     })
     .compileComponents();
   }));

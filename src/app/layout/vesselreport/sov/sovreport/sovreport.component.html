@@ -1037,7 +1037,7 @@
                                         <th>Pax in/out</th>
                                         <th>Cargo in/out</th>
                                         <th>Peak gust wind</th>
-                                        <th>Hs [m]</th>
+                                        <th>Hs</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1069,7 +1069,7 @@
                                                 {{platformTransfer.cargoOut}} kg outgoing
                                             </td>
                                             <td>{{platformTransfer.peakWindGust}}</td>
-                                            <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                                            <td>{{platformTransfer.Hs}}</td>
                                         </tr>
                                     </ng-container>
                                     <tr class="tableTotal">
