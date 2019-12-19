@@ -37,6 +37,7 @@ export class SovreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
     @Input() mapPixelWidth;
+    @Input() tokenInfo;
 
     sovModel: SovModel = new SovModel();
     private sovLoaded = false;
