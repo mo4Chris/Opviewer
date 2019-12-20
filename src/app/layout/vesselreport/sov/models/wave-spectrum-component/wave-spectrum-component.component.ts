@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SovWaveSpectum } from '../../sovreport/sovreport.component';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -23,10 +24,12 @@ export class WaveSpectrumComponentComponent implements OnInit {
     yaxis: {
       visible: false
     },
-    coloraxis: {
-      showscale: false,
+    colorbar: {
+      nticks: 10,
+      tickmode: 'array',
+      tickvals: this.calcService.linspace(0, 500, 50),
+      showticklabels: false,
     },
-
   };
 
   constructor(
@@ -37,47 +40,26 @@ export class WaveSpectrumComponentComponent implements OnInit {
   ngOnInit() {
     console.log('On init:');
     console.log(this.WaveSpectrum);
-    // const size = 100, x = new Array(size), y = new Array(size), z = new Array(size);
-
-    // for (let i = 0; i < size; i++) {
-    //   x[i] = y[i] = -2 * Math.PI + 4 * Math.PI * i / size;
-    //   z[i] = new Array(size);
-    // }
 
     const size = 100;
     const size_2 = (size - 1) / 2;
     const x = this.calcService.linspace(-size_2, size_2, 1);
     const y = this.calcService.linspace(-size_2, size_2, 1);
-    const z = new Array(size);
-
-    for (let i = 0; i < size; i++) {
-      z[i] = new Array(size);
-      for (let j = 0; j < size; j++) {
-        const r2 = x[i] * x[i] + y[j] * y[j];
-        z[i][j] = Math.sin(x[i]) * Math.cos(y[j]) * Math.sin(r2) / Math.log(r2 + 1);
-      }
-    }
-    // this.data = [{
-    //   x: x,
-    //   y: y,
-    //   z: z,
-    //   type: 'heatmap'
-    // }];
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
-      const dset = [{
-          x: x,
-          y: y,
-          z: this.limitByRadius(x, y, _spectrum, 50),
-          type: 'contour',
-          name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i])
-        }];
+      const dset = {
+          data: [{
+            x: x,
+            y: y,
+            z: _spectrum, // this.limitByRadius(x, y, _spectrum, 50),
+            type: 'contour',
+          }],
+          name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
+          group: 'norsea'
+        };
       if (_i === 0) {
-        this.data = dset;
+        this.data = dset.data;
       }
-      this.frames.push({
-        data: dset,
-        name: dset[0].name,
-      });
+      this.frames.push(dset);
     });
   }
 
@@ -94,21 +76,26 @@ export class WaveSpectrumComponentComponent implements OnInit {
     return z;
   }
 
-  createSpectralFrame(_index: number) {
-    // Renders a single frame
-
-    setTimeout(() => {
-      this.createSpectralFrame(_index + 1 % this.WaveSpectrum.spectrum.length);
-    }, 100);
+  startAnimation() {
+    // console.log(this);
+    PlotlyJS.animate('SOV_waveSpectrum', null, {
+      transition: {
+        duration: 500,
+        easing: 'cubic',
+      },
+      frame: {
+        duration: 500,
+        redraw: false
+      },
+      mode: 'immediate',
+    });
   }
 
   onPlotlyInit(figure: {data: any, layout: any, frames: any}) {
     console.log('------');
     console.log(figure);
     console.log(this);
-    figure.frames = this.frames;
-
-    const div = document.getElementsByClassName('spectrum')[0];
-    console.log(div);
+    PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
+    this.startAnimation();
   }
 }
