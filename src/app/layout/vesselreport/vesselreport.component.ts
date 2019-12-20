@@ -14,6 +14,7 @@ import { UserService } from '../../shared/services/user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
+// tslint:disable-next-line:import-blacklist
 import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../supportModules/event.service';
@@ -442,6 +443,6 @@ export class VesselreportComponent implements OnInit {
 interface TurbLocDataModel {
   transfers: any[];
   turbineLocations: TurbineLocsFromMongo[];
-  type: string,
+  type: string;
   vesselType: string;
 }

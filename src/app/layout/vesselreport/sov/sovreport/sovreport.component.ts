@@ -16,6 +16,7 @@ import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
 import { SettingsService } from '../../../../supportModules/settings.service';
 import { SovData } from '../models/SovData';
+import { animation } from '@angular/animations';
 
 
 @Component({
@@ -127,6 +128,7 @@ export class SovreportComponent implements OnInit {
     missedPaxCargo = [];
 
     helicopterPaxCargo = [];
+    WaveSpectrum: SovWaveSpectum = null;
 
     constructor(
         private commonService: CommonService,
@@ -607,7 +609,7 @@ export class SovreportComponent implements OnInit {
     buildPageWithCurrentInformation() {
         this.ResetTransfers();
         this.buildPageWhenRouteLoaded();
-
+        this.createSpectrumAnimation();
     }
 
     buildPageWhenRouteLoaded() {
@@ -1411,6 +1413,19 @@ export class SovreportComponent implements OnInit {
             }, 300);
         }
     }
+
+    createSpectrumAnimation() {
+        this.commonService.getSovWaveSpectrum({
+            date: this.vesselObject.date,
+            mmsi: this.vesselObject.mmsi
+        }).subscribe((_spectrum: SovWaveSpectum[]) => {
+            if (isArray(_spectrum) && _spectrum.length > 0) {
+                this.WaveSpectrum = _spectrum[0];
+            }
+        });
+    }
+
+
     datasetIsActive(dset, dsetIndex: number, chart: Chart) {
         const meta = chart.getDatasetMeta(dsetIndex);
         let hidden;
@@ -1448,6 +1463,7 @@ export class SovreportComponent implements OnInit {
         this.cateringChanged = false;
         this.remarksChanged = false;
         this.sovModel = new SovModel();
+        this.WaveSpectrum = null;
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();
             this.operationalChartCalculated = false;
@@ -1457,4 +1473,11 @@ export class SovreportComponent implements OnInit {
             this.sovHasLimiters = false;
         }
     }
+}
+
+export interface SovWaveSpectum {
+    date: number;
+    spectrum: number[][];
+    time: number[];
+    mmsi: number;
 }

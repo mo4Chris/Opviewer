@@ -1,3 +1,17 @@
+<div *ngIf="WaveSpectrum">
+    <div class="row">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header">Wave spectrum</div>
+                <div class="card-body">
+                    <app-wave-spectrum-component [WaveSpectrum]="WaveSpectrum">
+                    </app-wave-spectrum-component>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div *ngIf="locShowContent">
     <div class="row">
         <div class="col-xl-12 col-lg-24">

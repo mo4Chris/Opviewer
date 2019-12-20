@@ -524,6 +524,14 @@ var waveSourceSchema = new Schema({
 }, { versionKey: false })
 var waveSourceModel = mongo.model('waveSource', waveSourceSchema, 'waveSources');
 
+var sovWaveSpectrumSchema = new Schema({
+    date: Number,
+    time: Array,
+    spectrum: Array,
+    active: Boolean,
+}, { versionKey: false });
+var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema, 'SOV_waveSpectrum');
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
@@ -819,6 +827,7 @@ app.post("/api/saveCTVGeneralStats", function(req, res) {
             inputStats: req.body
         }, function(err, data) {
             if (err) {
+                console.log(err);
                 res.send(err);
             } else {
                 res.send({data: 'Data has been succesfully saved'});
@@ -845,6 +854,26 @@ app.post("/api/get2faExistence", function (req, res) {
                 }
             }
         });
+});
+
+app.post("/api/getSovWaveSpectrum", function (req, res) {
+    validatePermissionToViewData(req, res, function (validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        sovWaveSpectrumModel.find({
+            date: req.body.date,
+            mmsi: req.body.mmsi, 
+            active: {$ne: false}
+        }, function (err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
 });
 
 app.post("/api/getCommentsForVessel", function (req, res) {

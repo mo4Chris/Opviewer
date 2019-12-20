@@ -1,6 +1,7 @@
 import { CommonService, StatsRangeRequest } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
 import { VesselModel } from '../models/vesselModel';
+// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 import { UserTestService } from '../shared/services/test.user.service';
 import { UserModel } from '../models/userModel';

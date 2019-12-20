@@ -12,6 +12,11 @@ import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './shared';
 import { CommonService } from './common.service';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyModule } from 'angular-plotly.js';
+
+// PlotlyModule.plotlyjs = PlotlyJS;
+
 
 // AoT requires an exported function for factories
 export function createTranslateLoader(http: HttpClient) {
@@ -34,7 +39,8 @@ export function createTranslateLoader(http: HttpClient) {
                 deps: [HttpClient]
             }
         }),
-        AppRoutingModule
+        AppRoutingModule,
+        // PlotlyModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard, AuthService, CommonService],
