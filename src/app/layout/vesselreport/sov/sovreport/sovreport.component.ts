@@ -1477,7 +1477,7 @@ export class SovreportComponent implements OnInit {
 
 export interface SovWaveSpectum {
     date: number;
-    spectrum: number[][];
+    spectrum: number[][][];
     time: number[];
     mmsi: number;
 }
