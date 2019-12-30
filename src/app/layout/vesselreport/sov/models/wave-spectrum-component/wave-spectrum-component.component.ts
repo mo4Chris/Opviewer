@@ -16,6 +16,17 @@ export class WaveSpectrumComponentComponent implements OnInit {
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
   loaded = true;
+  numColors = 50;
+  maxValue = 500;
+  useInterpolation = true;
+
+  color: any[] = colormap({
+    colormap: 'jet',
+    nshades: this.numColors,
+    format: 'rgb',
+    alpha: 1,
+  })
+
   plotLayout = {
     title: 'Test',
     height: 600,
@@ -29,19 +40,16 @@ export class WaveSpectrumComponentComponent implements OnInit {
     colorbar: {
       nticks: 10,
       tickmode: 'array',
-      tickvals: this.calcService.linspace(0, 500, 50),
+      tickvals: this.calcService.linspace(0, this.maxValue, this.numColors),
       ticktext: ['0', '', '', '', '', '', 'medium', '', '', '', 'high'],
       showticklabels: false,
     },
     autocolorscale: false,
-    colorscale: 'Electric',
+    showscale: false,
+    zmin: 0,
+    zmax: 500,
+    zauto: false,
   };
-  color = colormap({
-    colormap: 'jet',
-    nshades: 50,
-    format: 'rgb',
-    alpha: 1,
-  })
 
   constructor(
     private calcService: CalculationService,
@@ -53,17 +61,30 @@ export class WaveSpectrumComponentComponent implements OnInit {
     console.log('On init:');
     console.log(this.WaveSpectrum);
 
-    const size = 100;
+    let size = 100;
     const size_2 = (size - 1) / 2;
     const x = this.calcService.linspace(-size_2, size_2, 1);
     const y = this.calcService.linspace(-size_2, size_2, 1);
+    let _x: number[], _y: number[];
+    if (this.useInterpolation) {
+      _x = this.calcService.linspace(-size_2, size_2, 1 / 2);
+      _y = this.calcService.linspace(-size_2, size_2, 1 / 2);
+    } else {
+      _x = x;
+      _y = y;
+    }
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
+      if (this.useInterpolation) {
+        // Interpolating spectrum
+        _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
+      }
+      _spectrum = this.limitByRadius(_x, _y, _spectrum, 50);
       const dset: PlotlyJS.Frame = {
           data: [{
-            x: x,
-            y: y,
-            z: this.limitByRadius(x, y, _spectrum, 50),
-            type: 'contour',
+            x: _x,
+            y: _y,
+            z: _spectrum, // this.toColor(_spectrum),
+            type: 'heatmap',
           }],
           name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
           group: 'norsea',
@@ -73,6 +94,17 @@ export class WaveSpectrumComponentComponent implements OnInit {
       }
       this.frames.push(dset);
     });
+  }
+
+  toColor(z: number[][]): number[][] {
+    return z;
+    for (let _i = 0; _i < z.length; _i++) {
+      for (let _j = 0; _j < z[_i].length; _j++) {
+        const cindex = Math.min(Math.floor(z[_i][_j] / this.maxValue * this.numColors), this.numColors - 1);
+        z[_i][_j] = this.color[cindex];
+      }
+    }
+    return z;
   }
 
   private limitByRadius(x: number[], y: number[], z: number[][], r: number): number[][] {
@@ -107,7 +139,6 @@ export class WaveSpectrumComponentComponent implements OnInit {
     console.log('------');
     console.log(figure);
     console.log(this);
-    console.log(PlotlyJS.addFrames);
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
     setTimeout(() => {
       this.startAnimation();
