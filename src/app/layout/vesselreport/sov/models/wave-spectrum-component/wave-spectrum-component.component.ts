@@ -18,13 +18,11 @@ export class WaveSpectrumComponentComponent implements OnInit {
   loaded = true;
 
   useInterpolation = true;
-  Kmax = 0.21;
+  Kmax = 2.096;
+  Kmin = 0.127
 
   plotLayout = {
-    title: {
-      text: 'Test',
-      y: 1
-    },
+    // General settings for the graph
     height: 600,
     width: 600,
     xaxis: {
@@ -39,6 +37,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
       showgrid: false,
       zeroline: false,
     },
+    // All the annotations for the plot go here (ie. the north east south west signs)
     annotations: [{
       text: 'N',
       showarrow: false,
@@ -67,7 +66,41 @@ export class WaveSpectrumComponentComponent implements OnInit {
       y: 0,
       xanchor: 'right',
       font: {size: 20}
-    },]
+    }],
+    // Supportings shapes (ie. outer edge to hide the interpolation) go here
+    shapes: [{
+      type: 'circle',
+      x0: -this.Kmax,
+      x1: this.Kmax,
+      y0: -this.Kmax,
+      y1: this.Kmax,
+      line: {width: 3},
+    },{
+      type: 'circle',
+      x0: -this.Kmin,
+      x1: this.Kmin,
+      y0: -this.Kmin,
+      y1: this.Kmin,
+      fillcolor: "rgba(0,0,0,1)",
+    },{
+      type: 'line',
+      x0: 0,
+      x1: 0,
+      y0: -this.Kmax,
+      y1: this.Kmax,
+      line: {width: 1},
+    },{
+      type: 'line',
+      x0: -this.Kmax,
+      x1: this.Kmax,
+      y0: 0,
+      y1: 0,
+      line: {width: 1},
+    }],
+    // Add images, menus or sliders if desired (eg. a ship in the middle?)
+    // images: [],
+    // updatemenus: [],
+    // sliders:[],
   };
 
   constructor(
@@ -99,15 +132,39 @@ export class WaveSpectrumComponentComponent implements OnInit {
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
       const dset: PlotlyJS.Frame = {
           data: [{
+            type: 'heatmap',
             x: _x,
             y: _y,
             z: _spectrum,
-            type: 'heatmap',
-            // name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
-            name: 'Trace ' + _i,
             textposition: 'bottom',
-            text: ['Hi'],
-          }],
+            meta: {
+              date: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i])
+            },
+            colorbar: {
+              nticks: 3,
+              // tickmode: 'Array',
+              // tickvals: this.calcService.linspace(0, 1000, 100),
+              // ticktext: ['No waves', 'Some energy', 'High energy']
+              title: {
+                text: 'Energy density',
+                titleside: 'Right',
+              }
+            },
+            // colorscale: 'jet',
+            // zauto: false,
+            // zmax: 300,
+            // zmin: 0,
+          }, 
+          {
+            type: 'scatter',
+            mode: 'text',
+            x: [0],
+            y: [1.2 * this.Kmax],
+            text: [this.dateService.MatlabDateToUnixEpoch(this.WaveSpectrum.time[_i]).format('HH:mm')],
+            textfont: { size: 20},
+            hoverinfo: 'skip', // Disables hover over the manually crafted title
+          },
+        ],
           text: 'Hi2',
           group: 'norsea',
         };
