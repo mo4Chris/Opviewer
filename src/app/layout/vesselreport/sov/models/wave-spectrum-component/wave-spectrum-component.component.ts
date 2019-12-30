@@ -13,8 +13,8 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 export class WaveSpectrumComponentComponent implements OnInit {
   @Input() WaveSpectrum: SovWaveSpectum;
   chart;
-  data: any[] = [];
-  frames: any[] = [];
+  data: PlotlyJS.Data[] = [];
+  frames: PlotlyJS.Frame[] = [];
   loaded = true;
   plotLayout = {
     title: 'Test',
@@ -30,8 +30,11 @@ export class WaveSpectrumComponentComponent implements OnInit {
       nticks: 10,
       tickmode: 'array',
       tickvals: this.calcService.linspace(0, 500, 50),
+      ticktext: ['0', '', '', '', '', '', 'medium', '', '', '', 'high'],
       showticklabels: false,
     },
+    autocolorscale: false,
+    colorscale: 'Electric',
   };
   color = colormap({
     colormap: 'jet',
@@ -55,11 +58,11 @@ export class WaveSpectrumComponentComponent implements OnInit {
     const x = this.calcService.linspace(-size_2, size_2, 1);
     const y = this.calcService.linspace(-size_2, size_2, 1);
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
-      const dset = {
+      const dset: PlotlyJS.Frame = {
           data: [{
             x: x,
             y: y,
-            z: _spectrum, // this.limitByRadius(x, y, _spectrum, 50),
+            z: this.limitByRadius(x, y, _spectrum, 50),
             type: 'contour',
           }],
           name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
@@ -106,6 +109,8 @@ export class WaveSpectrumComponentComponent implements OnInit {
     console.log(this);
     console.log(PlotlyJS.addFrames);
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
-    this.startAnimation();
+    setTimeout(() => {
+      this.startAnimation();
+    }, 500);
   }
 }
