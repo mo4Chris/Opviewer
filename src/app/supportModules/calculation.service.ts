@@ -395,9 +395,9 @@ function getBounds(arr: number[], point: number, prev: number = 0) {
         } else {
           const ratio = (point - arr[_i - 1]) / (arr[_i] - arr[_i -1]);
           return {
-            pl: ratio,
+            pl: 1 - ratio,
             il: _i - 1,
-            ph: 1 - ratio,
+            ph: ratio,
             ih: _i
           }
         }

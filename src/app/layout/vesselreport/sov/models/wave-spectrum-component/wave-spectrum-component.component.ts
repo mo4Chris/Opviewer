@@ -16,59 +16,77 @@ export class WaveSpectrumComponentComponent implements OnInit {
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
   loaded = true;
-  numColors = 50;
-  maxValue = 500;
-  useInterpolation = true;
 
-  color: any[] = colormap({
-    colormap: 'jet',
-    nshades: this.numColors,
-    format: 'rgb',
-    alpha: 1,
-  })
+  useInterpolation = true;
+  Kmax = 0.21;
 
   plotLayout = {
-    title: 'Test',
+    title: {
+      text: 'Test',
+      y: 1
+    },
     height: 600,
     width: 600,
     xaxis: {
-      visible: false
+      visible: false,
+      title: 'Kx [rad/m]',
+      showgrid: false,
+      zeroline: false,
     },
     yaxis: {
-      visible: false
+      visible: false,
+      title: 'Ky [rad/m]',
+      showgrid: false,
+      zeroline: false,
     },
-    colorbar: {
-      nticks: 10,
-      tickmode: 'array',
-      tickvals: this.calcService.linspace(0, this.maxValue, this.numColors),
-      ticktext: ['0', '', '', '', '', '', 'medium', '', '', '', 'high'],
-      showticklabels: false,
-    },
-    autocolorscale: false,
-    showscale: false,
-    zmin: 0,
-    zmax: 500,
-    zauto: false,
+    annotations: [{
+      text: 'N',
+      showarrow: false,
+      x: 0,
+      y: this.Kmax,
+      yanchor: 'bottom',
+      font: {size: 20}
+    },{
+      text: 'E',
+      showarrow: false,
+      x: this.Kmax,
+      y: 0,
+      xanchor: 'left',
+      font: {size: 20}
+    },{
+      text: 'S',
+      showarrow: false,
+      x: 0,
+      y: -this.Kmax,
+      yanchor: 'top',
+      font: {size: 20}
+    },{
+      text: 'W',
+      showarrow: false,
+      x: - this.Kmax,
+      y: 0,
+      xanchor: 'right',
+      font: {size: 20}
+    },]
   };
 
   constructor(
     private calcService: CalculationService,
     private dateService: DatetimeService
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     console.log('On init:');
     console.log(this.WaveSpectrum);
 
-    let size = 100;
-    const size_2 = (size - 1) / 2;
-    const x = this.calcService.linspace(-size_2, size_2, 1);
-    const y = this.calcService.linspace(-size_2, size_2, 1);
+    const N = this.WaveSpectrum.spectrum[0].length;
+    const step = 2 * this.Kmax / (N - 1);
+    const x = this.calcService.linspace(-this.Kmax, this.Kmax, step);
+    const y = this.calcService.linspace(-this.Kmax, this.Kmax, step);
     let _x: number[], _y: number[];
     if (this.useInterpolation) {
-      _x = this.calcService.linspace(-size_2, size_2, 1 / 2);
-      _y = this.calcService.linspace(-size_2, size_2, 1 / 2);
+      _x = this.calcService.linspace(-this.Kmax, this.Kmax, step / 4);
+      _y = this.calcService.linspace(-this.Kmax, this.Kmax, step / 4);
     } else {
       _x = x;
       _y = y;
@@ -78,15 +96,19 @@ export class WaveSpectrumComponentComponent implements OnInit {
         // Interpolating spectrum
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
-      _spectrum = this.limitByRadius(_x, _y, _spectrum, 50);
+      _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
       const dset: PlotlyJS.Frame = {
           data: [{
             x: _x,
             y: _y,
-            z: _spectrum, // this.toColor(_spectrum),
+            z: _spectrum,
             type: 'heatmap',
+            // name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
+            name: 'Trace ' + _i,
+            textposition: 'bottom',
+            text: ['Hi'],
           }],
-          name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
+          text: 'Hi2',
           group: 'norsea',
         };
       if (_i === 0) {
@@ -94,17 +116,6 @@ export class WaveSpectrumComponentComponent implements OnInit {
       }
       this.frames.push(dset);
     });
-  }
-
-  toColor(z: number[][]): number[][] {
-    return z;
-    for (let _i = 0; _i < z.length; _i++) {
-      for (let _j = 0; _j < z[_i].length; _j++) {
-        const cindex = Math.min(Math.floor(z[_i][_j] / this.maxValue * this.numColors), this.numColors - 1);
-        z[_i][_j] = this.color[cindex];
-      }
-    }
-    return z;
   }
 
   private limitByRadius(x: number[], y: number[], z: number[][], r: number): number[][] {
