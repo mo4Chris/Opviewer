@@ -37,6 +37,7 @@
     "chart.js": "^2.7.2",
     "chartjs-plugin-annotation": "^0.5.7",
     "classlist.js": "^1.1.20150312",
+    "colormap": "^2.3.1",
     "core-js": "^2.6.3",
     "dotenv": "^6.2.0",
     "express": "^4.16.3",

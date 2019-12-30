@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SovWaveSpectum } from '../../sovreport/sovreport.component';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
@@ -16,6 +17,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
   frames: any[] = [];
   loaded = true;
   plotLayout = {
+    title: 'Test',
     height: 600,
     width: 600,
     xaxis: {
@@ -31,11 +33,18 @@ export class WaveSpectrumComponentComponent implements OnInit {
       showticklabels: false,
     },
   };
+  color = colormap({
+    colormap: 'jet',
+    nshades: 50,
+    format: 'rgb',
+    alpha: 1,
+  })
 
   constructor(
     private calcService: CalculationService,
     private dateService: DatetimeService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     console.log('On init:');
@@ -54,7 +63,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
             type: 'contour',
           }],
           name: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
-          group: 'norsea'
+          group: 'norsea',
         };
       if (_i === 0) {
         this.data = dset.data;
@@ -95,6 +104,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
     console.log('------');
     console.log(figure);
     console.log(this);
+    console.log(PlotlyJS.addFrames);
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
     this.startAnimation();
   }
