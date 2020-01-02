@@ -18,8 +18,9 @@ export class WaveSpectrumComponentComponent implements OnInit {
   loaded = true;
 
   useInterpolation = true;
+  smoothFactor = 2;
   Kmax = 2.096;
-  Kmin = 0.127
+  Kmin = 0.127;
 
   plotLayout = {
     // General settings for the graph
@@ -45,21 +46,21 @@ export class WaveSpectrumComponentComponent implements OnInit {
       y: this.Kmax,
       yanchor: 'bottom',
       font: {size: 20}
-    },{
+    }, {
       text: 'E',
       showarrow: false,
       x: this.Kmax,
       y: 0,
       xanchor: 'left',
       font: {size: 20}
-    },{
+    }, {
       text: 'S',
       showarrow: false,
       x: 0,
       y: -this.Kmax,
       yanchor: 'top',
       font: {size: 20}
-    },{
+    }, {
       text: 'W',
       showarrow: false,
       x: - this.Kmax,
@@ -75,21 +76,21 @@ export class WaveSpectrumComponentComponent implements OnInit {
       y0: -this.Kmax,
       y1: this.Kmax,
       line: {width: 3},
-    },{
+    }, {
       type: 'circle',
       x0: -this.Kmin,
       x1: this.Kmin,
       y0: -this.Kmin,
       y1: this.Kmin,
-      fillcolor: "rgba(0,0,0,1)",
-    },{
+      fillcolor: 'rgba(0,0,0,1)',
+    }, {
       type: 'line',
       x0: 0,
       x1: 0,
       y0: -this.Kmax,
       y1: this.Kmax,
       line: {width: 1},
-    },{
+    }, {
       type: 'line',
       x0: -this.Kmax,
       x1: this.Kmax,
@@ -109,24 +110,20 @@ export class WaveSpectrumComponentComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log('On init:');
-    console.log(this.WaveSpectrum);
-
     const N = this.WaveSpectrum.spectrum[0].length;
     const step = 2 * this.Kmax / (N - 1);
     const x = this.calcService.linspace(-this.Kmax, this.Kmax, step);
     const y = this.calcService.linspace(-this.Kmax, this.Kmax, step);
     let _x: number[], _y: number[];
     if (this.useInterpolation) {
-      _x = this.calcService.linspace(-this.Kmax, this.Kmax, step / 4);
-      _y = this.calcService.linspace(-this.Kmax, this.Kmax, step / 4);
+      _x = this.calcService.linspace(-this.Kmax, this.Kmax, step / this.smoothFactor);
+      _y = this.calcService.linspace(-this.Kmax, this.Kmax, step / this.smoothFactor);
     } else {
       _x = x;
       _y = y;
     }
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
       if (this.useInterpolation) {
-        // Interpolating spectrum
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
@@ -136,12 +133,8 @@ export class WaveSpectrumComponentComponent implements OnInit {
             x: _x,
             y: _y,
             z: _spectrum,
-            textposition: 'bottom',
-            meta: {
-              date: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i])
-            },
             colorbar: {
-              nticks: 3,
+              nticks: 5,
               // tickmode: 'Array',
               // tickvals: this.calcService.linspace(0, 1000, 100),
               // ticktext: ['No waves', 'Some energy', 'High energy']
@@ -150,22 +143,23 @@ export class WaveSpectrumComponentComponent implements OnInit {
                 titleside: 'Right',
               }
             },
+            zsmooth: 'fast',
+            connectgaps: false,
             // colorscale: 'jet',
             // zauto: false,
             // zmax: 300,
             // zmin: 0,
-          }, 
+          },
           {
             type: 'scatter',
             mode: 'text',
             x: [0],
             y: [1.2 * this.Kmax],
-            text: [this.dateService.MatlabDateToUnixEpoch(this.WaveSpectrum.time[_i]).format('HH:mm')],
+            text: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
             textfont: { size: 20},
             hoverinfo: 'skip', // Disables hover over the manually crafted title
           },
         ],
-          text: 'Hi2',
           group: 'norsea',
         };
       if (_i === 0) {
@@ -204,9 +198,6 @@ export class WaveSpectrumComponentComponent implements OnInit {
   }
 
   onPlotlyInit(figure: {data: any, layout: any, frames: any}) {
-    console.log('------');
-    console.log(figure);
-    console.log(this);
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
     setTimeout(() => {
       this.startAnimation();

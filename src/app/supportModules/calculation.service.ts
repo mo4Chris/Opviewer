@@ -351,13 +351,25 @@ export class CalculationService {
     return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
   }
 
-  interp2(x: number[], y: number[], z: number[][], xnew: number[], ynew: number[]) : number[][] {
-    // Performs 2d interpolation without proper checks
+  interp1(x: number[], y: number[], xnew: number[]) {
+    // Fast 1d interpolation without checks
+    const ynew: number[] = new Array(xnew.length);
+    let _x = {pl: 0, il: 0, ph: 0, ih: 0};
+    for (let i = 0; i < xnew.length; i++) {
+      _x = getBounds(x, xnew[i], _x.il);
+      ynew[i] = _x.pl * y[_x.il] + _x.ph * y[_x.ph];
+    }
+    return ynew;
+  }
+
+  interp2(x: number[], y: number[], z: number[][], xnew: number[], ynew: number[]): number[][] {
+    // Performs 2d interpolation without proper checks. Computation of _y can still be improved
+    // to run in linear rather than quadratic time
     const znew: number[][] = new Array(xnew.length);
     let _x = {pl: 0, il: 0, ph: 0, ih: 0}, _y = {pl: 0, il: 0, ph: 0, ih: 0};
     for (let i = 0; i < xnew.length; i++) {
       znew[i] = new Array(ynew.length);
-      _x = getBounds(x, xnew[i], _x.il)
+      _x = getBounds(x, xnew[i], _x.il);
       _y = {
         pl: 0,
         il: 0,
@@ -366,7 +378,7 @@ export class CalculationService {
       };
       for (let j = 0; j < ynew.length; j++) {
         _y = getBounds(y, ynew[j], _y.il);
-        znew[i][j] = _x.pl * _y.pl * z[_x.il][_y.il] + _x.pl * _y.ph * z[_x.il][_y.ih] +_x.ph * _y.pl * z[_x.ih][_y.il] + _x.ph * _y.ph * z[_x.ih][_y.ih];
+        znew[i][j] = _x.pl * _y.pl * z[_x.il][_y.il] + _x.pl * _y.ph * z[_x.il][_y.ih] + _x.ph * _y.pl * z[_x.ih][_y.il] + _x.ph * _y.ph * z[_x.ih][_y.ih];
       }
     }
     return znew;
@@ -383,7 +395,7 @@ function getBounds(arr: number[], point: number, prev: number = 0) {
           il: 0,
           ph: 1,
           ih: _i,
-        }
+        };
       } else {
         if (_i === 0) {
           return {
@@ -391,15 +403,15 @@ function getBounds(arr: number[], point: number, prev: number = 0) {
             il: 0,
             ph: 0,
             ih: 0,
-          }
+          };
         } else {
-          const ratio = (point - arr[_i - 1]) / (arr[_i] - arr[_i -1]);
+          const ratio = (point - arr[_i - 1]) / (arr[_i] - arr[_i - 1]);
           return {
             pl: 1 - ratio,
             il: _i - 1,
             ph: ratio,
             ih: _i
-          }
+          };
         }
       }
     }
@@ -409,5 +421,5 @@ function getBounds(arr: number[], point: number, prev: number = 0) {
     il: 0,
     ph: 0,
     ih: 0,
-  }
+  };
 }
