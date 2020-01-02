@@ -1,6 +1,6 @@
 <tr>
-    <plotly-plot [divId]="'SOV_waveSpectrum'" [data]="data" [className]="'spectrum'" [layout]='plotLayout' (initialized)="onPlotlyInit($event)"
-        [frames]="frames">
+    <plotly-plot [divId]="'SOV_waveSpectrum'" [data]="data" [className]="'spectrum'" [layout]='plotLayout' 
+        (initialized)="onPlotlyInit($event)" [frames]="frames">
     </plotly-plot>
     The wavespectrum as computed by Norsea. It shows the wave energy over time relative to the ship.
     The closer the waves are to the center, the lower their frequency is, and therefore the longer the wave period.

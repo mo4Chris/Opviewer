@@ -12,15 +12,14 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 })
 export class WaveSpectrumComponentComponent implements OnInit {
   @Input() WaveSpectrum: SovWaveSpectum;
-  chart;
+
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
-  loaded = true;
 
   useInterpolation = true;
   smoothFactor = 2;
-  Kmax = 2.096;
-  Kmin = 0.127;
+  Kmax = 2.096; // Size of outer circle
+  Kmin = 0.127; // Size of inner circle
 
   plotLayout = {
     // General settings for the graph
@@ -101,7 +100,18 @@ export class WaveSpectrumComponentComponent implements OnInit {
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
     // updatemenus: [],
-    // sliders:[],
+    sliders: [{
+      // pad: {l: 130, t: 55},
+      x: 0,
+      y: 0,
+      prefix: '', // Date added dynamically
+      currentvalue: {
+        visible: true,
+        xanchor: 'center',
+        font: {size: 20},
+      },
+      steps: [], // The slider steps are added dynamically
+    }],
   };
 
   constructor(
@@ -122,11 +132,14 @@ export class WaveSpectrumComponentComponent implements OnInit {
       _x = x;
       _y = y;
     }
+    const sliderSteps = [];
+
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
       if (this.useInterpolation) {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
+      const timeString = this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]);
       const dset: PlotlyJS.Frame = {
           data: [{
             type: 'heatmap',
@@ -150,23 +163,35 @@ export class WaveSpectrumComponentComponent implements OnInit {
             // zmax: 300,
             // zmin: 0,
           },
-          {
-            type: 'scatter',
-            mode: 'text',
-            x: [0],
-            y: [1.2 * this.Kmax],
-            text: this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]),
-            textfont: { size: 20},
-            hoverinfo: 'skip', // Disables hover over the manually crafted title
-          },
+          // {
+          //   type: 'scatter',
+          //   mode: 'text',
+          //   x: [0],
+          //   y: [1.2 * this.Kmax],
+          //   text: timeString,
+          //   textfont: { size: 20},
+          //   hoverinfo: 'skip', // Disables hover over the manually crafted title
+          // },
         ],
-          group: 'norsea',
+          name: timeString,
+          group: timeString,
         };
+      sliderSteps.push({
+        method: 'animate',
+        label: timeString,
+        vertical: true,
+        args: [[timeString], {
+          mode: 'immediate',
+          transition: {duration: 300},
+          frame: {duration: 300},
+        }],
+      });
       if (_i === 0) {
         this.data = dset.data;
       }
       this.frames.push(dset);
     });
+    this.plotLayout.sliders[0].steps = sliderSteps;
   }
 
   private limitByRadius(x: number[], y: number[], z: number[][], r: number): number[][] {
@@ -183,24 +208,25 @@ export class WaveSpectrumComponentComponent implements OnInit {
   }
 
   startAnimation() {
-    // console.log(this);
     PlotlyJS.animate('SOV_waveSpectrum', null, {
       transition: {
         duration: 500,
-        easing: 'cubic',
       },
       frame: {
         duration: 500,
         redraw: false
       },
-      mode: 'immediate',
+      mode: 'afterall',
+      execute: true,
     });
   }
 
-  onPlotlyInit(figure: {data: any, layout: any, frames: any}) {
-    PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
-    setTimeout(() => {
+  onPlotlyInit(figure: {data: any, layout: any, frames: any}, other) {
+    console.log(this);
+    console.log(figure);
+    console.log(other);
+    PlotlyJS.addFrames('SOV_waveSpectrum', this.frames).then(() => {
       this.startAnimation();
-    }, 500);
+    });
   }
 }
