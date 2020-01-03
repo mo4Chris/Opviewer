@@ -4,6 +4,7 @@ import { CalculationService } from '../../../../../supportModules/calculation.se
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { container } from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -15,6 +16,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
 
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
+  animateActive = false;
 
   useInterpolation = true;
   smoothFactor = 2;
@@ -25,6 +27,8 @@ export class WaveSpectrumComponentComponent implements OnInit {
     // General settings for the graph
     height: 600,
     width: 600,
+    style: {margin: 'auto'},
+    center: true,
     xaxis: {
       visible: false,
       title: 'Kx [rad/m]',
@@ -99,15 +103,47 @@ export class WaveSpectrumComponentComponent implements OnInit {
     }],
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
-    // updatemenus: [],
+    updatemenus: [{
+      x: 1.2,
+      y: -0.15,
+      type: 'buttons',
+      yanchor: 'middle',
+      buttons: [{
+        method: 'animate',
+        label: 'Animate',
+        args: [null, {
+            mode: 'immediate',
+            transition: {
+              duration: 200,
+            },
+            frame: {
+              duration: 200,
+              redraw: false
+            },
+          }
+        ],
+        // Code below should implement play / pause behaviour, except the stop behaviour does not work (plotly version?)
+        // args2: [null, {
+        //     mode: 'next',
+        //     transition: {
+        //       duration: 200,
+        //     },
+        //     frame: {
+        //       duration: 200,
+        //       redraw: false
+        //     },
+        //   }
+        // ],
+      }]
+    }],
     sliders: [{
-      // pad: {l: 130, t: 55},
-      x: 0,
-      y: 0,
-      prefix: '', // Date added dynamically
+      x: 0.5,
+      y: -0.1,
+      xanchor: 'center',
+      yanchor: 'middle',
       currentvalue: {
-        visible: true,
         xanchor: 'center',
+        visible: true,
         font: {size: 20},
       },
       steps: [], // The slider steps are added dynamically
@@ -139,7 +175,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
-      const timeString = this.dateService.MatlabDateToJSTime(this.WaveSpectrum.time[_i]);
+      const timeString = this.dateService.MatlabDateToCustomJSTime(this.WaveSpectrum.time[_i], 'HH:mm');
       const dset: PlotlyJS.Frame = {
           data: [{
             type: 'heatmap',
@@ -163,15 +199,6 @@ export class WaveSpectrumComponentComponent implements OnInit {
             // zmax: 300,
             // zmin: 0,
           },
-          // {
-          //   type: 'scatter',
-          //   mode: 'text',
-          //   x: [0],
-          //   y: [1.2 * this.Kmax],
-          //   text: timeString,
-          //   textfont: { size: 20},
-          //   hoverinfo: 'skip', // Disables hover over the manually crafted title
-          // },
         ],
           name: timeString,
           group: timeString,
@@ -207,26 +234,41 @@ export class WaveSpectrumComponentComponent implements OnInit {
     return z;
   }
 
-  startAnimation() {
-    PlotlyJS.animate('SOV_waveSpectrum', null, {
-      transition: {
-        duration: 500,
-      },
-      frame: {
-        duration: 500,
-        redraw: false
-      },
-      mode: 'afterall',
-      execute: true,
-    });
+  onError(event) {
+    console.error('An error occured during SVG plot generation');
+    console.log(event);
   }
 
+  // startAnimation() {
+  //   PlotlyJS.animate('SOV_waveSpectrum', null, {
+  //     transition: {
+  //       duration: 200,
+  //     },
+  //     frame: {
+  //       duration: 200,
+  //       redraw: false
+  //     },
+  //     mode: 'afterall',
+  //     execute: true,
+  //   });
+  // }
+
+  // stopAnimation() {
+  //   PlotlyJS.animate('SOV_waveSpectrum', [], {
+  //     transition: {
+  //       duration: 200,
+  //     },
+  //     mode: 'next',
+  //   });
+  // }
+
   onPlotlyInit(figure: {data: any, layout: any, frames: any}, other) {
-    console.log(this);
-    console.log(figure);
-    console.log(other);
-    PlotlyJS.addFrames('SOV_waveSpectrum', this.frames).then(() => {
-      this.startAnimation();
-    });
+    PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
+
+    // This would be preferably be handled via the scss, but I couldnt make it work
+    const svgs = <any> document.getElementsByClassName('svg-container');
+    for (let _i = 0; _i < svgs.length; _i++) {
+      svgs[_i].style.margin = 'auto';
+    }
   }
 }
