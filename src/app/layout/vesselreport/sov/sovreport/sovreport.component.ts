@@ -1478,8 +1478,12 @@ export class SovreportComponent implements OnInit {
 }
 
 export interface SovWaveSpectum {
-    date: number;
-    spectrum: number[][][];
-    time: number[];
     mmsi: number;
+    date: number;
+
+    time: number[];
+    heading: number[];
+    spectrum: number[][][];
+
+    source: string;
 }

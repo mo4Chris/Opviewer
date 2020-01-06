@@ -70,6 +70,15 @@ export class WaveSpectrumComponentComponent implements OnInit {
       y: 0,
       xanchor: 'right',
       font: {size: 20}
+    }, {
+      text: '', // Assigned later
+      showarrow: false,
+      x: this.Kmax,
+      y: -this.Kmax,
+      // textangle: 90,
+      xanchor: 'right',
+      yanchor: 'top',
+      name: 'source'
     }],
     // Supportings shapes (ie. outer edge to hide the interpolation) go here
     shapes: [{
@@ -156,6 +165,12 @@ export class WaveSpectrumComponentComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    // Setting the source name
+    this.plotLayout.annotations.forEach(_annot => {
+      if (_annot.name && _annot.name === 'source') {
+        _annot.text = 'Source: ' + this.WaveSpectrum.source;
+      }
+    });
     const N = this.WaveSpectrum.spectrum[0].length;
     const step = 2 * this.Kmax / (N - 1);
     const x = this.calcService.linspace(-this.Kmax, this.Kmax, step);
@@ -176,6 +191,7 @@ export class WaveSpectrumComponentComponent implements OnInit {
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
       const timeString = this.dateService.MatlabDateToCustomJSTime(this.WaveSpectrum.time[_i], 'HH:mm');
+      const heading_radians = this.WaveSpectrum.heading[_i] * Math.PI / 180;
       const dset: PlotlyJS.Frame = {
           data: [{
             type: 'heatmap',
@@ -192,13 +208,25 @@ export class WaveSpectrumComponentComponent implements OnInit {
                 titleside: 'Right',
               }
             },
+            hoverinfo: 'skip',
             zsmooth: 'fast',
             connectgaps: false,
             // colorscale: 'jet',
             // zauto: false,
             // zmax: 300,
             // zmin: 0,
-          },
+          }, {
+            type: 'scatter',
+            mode: 'lines',
+            hovertext: ['', 'Vessel heading', ''],
+            hoverinfo: 'text',
+            x: [Math.sin(heading_radians - 0.05) * 1.03 * this.Kmax, Math.sin(heading_radians) * 1.08 * this.Kmax, Math.sin(heading_radians + 0.05) * 1.03 * this.Kmax],
+            y: [Math.cos(heading_radians - 0.05) * 1.03 * this.Kmax, Math.cos(heading_radians) * 1.08 * this.Kmax, Math.cos(heading_radians + 0.05) * 1.03 * this.Kmax],
+            line: {
+              width: 5,
+              color: 'red',
+            }
+          }
         ],
           name: timeString,
           group: timeString,
