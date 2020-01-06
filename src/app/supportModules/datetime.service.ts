@@ -113,16 +113,17 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
             times.push(time);
         }
     }
+    times.push('24:00');
     return times;
   }
 
   createHoursTimes() {
       const allHours = [];
-      for (let i = 0; i < 60; i += 5) {
-          let time = i + '';
-          if (i < 10) {
+      for (let i = 0; i < 24; i++) {
+        let time = i + '';
+        if (i < 10) {
           time = '0' + time;
-          }
+        }
           allHours.push(time);
       }
       return allHours;
@@ -130,11 +131,11 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   createFiveMinutesTimes() {
     const all5Minutes = [];
-    for (let i = 0; i < 24; i++) {
-        let time = i + '';
-        if (i < 10) {
+        for (let i = 0; i < 60; i += 5) {
+          let time = i + '';
+          if (i < 10) {
           time = '0' + time;
-        }
+          }
         all5Minutes.push(time);
     }
     return all5Minutes;
