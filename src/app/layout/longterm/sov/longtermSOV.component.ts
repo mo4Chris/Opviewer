@@ -229,7 +229,7 @@ export class LongtermSOVComponent implements OnInit {
             return {
                 data: [],
                 labels: [],
-            }
+            };
         }
         const binParam: string = binData.param;
         const bins: number[] = binData.val;
@@ -270,11 +270,12 @@ export class LongtermSOVComponent implements OnInit {
         };
         const queryEltTurb = { ... queryElt, ... {reqFields: ['startTime', 'duration', 'Hs']}};
         const queryEltPlatform = { ... queryElt, ... {reqFields: ['date', 'arrivalTimePlatform', 'visitDuration', 'Hs']}};
+
         return forkJoin(
             this.newService.getTurbineTransfersForVesselByRangeForSOV(queryEltTurb),
             this.newService.getPlatformTransfersForVesselByRangeForSOV(queryEltPlatform)
         ).pipe(
-            map(([turbine, platform]) => {
+            map(([turbine = null, platform = null]) => {
                 const output = [];
                 queryElt.mmsi.forEach((_mmsi: number, _i) => {
                     const local = {
@@ -299,30 +300,31 @@ export class LongtermSOVComponent implements OnInit {
     }
 
     groupDataByMonth(data: {date: number[]} ) {
-        const month = Object.create(this.fromDate);
-        month.year = this.fromDate.year;
-        month.month = this.fromDate.month;
-        month.day = 0;
+        const dateObj = Object.create(this.fromDate);
+        dateObj.year = this.fromDate.year;
+        dateObj.month = this.fromDate.month;
+        dateObj.day = 1;
         const monthLabels = [];
         const dataPerMonth = []; // : Array<{dates: number[], score: number[]}> = [];
         let matlabStartDate: number;
         let matlabStopDate: number;
-        while (!month.after(this.toDate)) {
+        let _counter = 0; // Safety feature to prevent this loop from continuing indefinitely
+        while (!dateObj.after(this.toDate) && _counter++ < 100) {
             // Creating nice labels to show in the bar plots
-            if (month.month === 0) {
-                monthLabels.push('Jan ' + month.year);
+            if (dateObj.month === 1) {
+                monthLabels.push('Jan ' + dateObj.year);
             } else {
-                monthLabels.push(DatetimeService.shortMonths[month.month - 1]);
+                monthLabels.push(DatetimeService.shortMonths[dateObj.month - 1]);
             }
-            matlabStartDate = this.dateTimeService.objectToMatlabDate(month);
-            // Getting the next month
-            if (month.month === 11) {
-                month.year += 1;
-                month.month = 0;
+            matlabStartDate = this.dateTimeService.objectToMatlabDate(dateObj);
+            // Getting the next month. Note: for NgbDates we have 1 januari means date.month === 1
+            if (dateObj.month > 11) {
+                dateObj.year += 1;
+                dateObj.month = 1;
             } else {
-                month.month += 1;
+                dateObj.month += 1;
             }
-            matlabStopDate = this.dateTimeService.objectToMatlabDate(month);
+            matlabStopDate = this.dateTimeService.objectToMatlabDate(dateObj) - 1;
             // Actually sorting the data
             const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate );
             dataPerMonth.push(
