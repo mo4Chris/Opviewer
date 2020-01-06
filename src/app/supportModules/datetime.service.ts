@@ -252,7 +252,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   objectToMatlabDate(dateObj: NgbDate) {
-    const unixTime =  moment.utc(dateObj).add({month: -1}).unix();
+    // Moment.utc can handles year/month/day object, but requires months to start at 0
+    const _dateObj = {
+      year: dateObj.year,
+      month: dateObj.month - 1,
+      day: dateObj.day,
+    };
+    const unixTime =  moment.utc(_dateObj).unix();
     return this.unixEpochtoMatlabDate(unixTime);
   }
 
