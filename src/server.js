@@ -717,7 +717,7 @@ app.post("/api/login", function (req, res) {
                                 if (user.active == 0){
                                     return res.status(401).send('User has been deactivated');
                                 }
-                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine')  {
+                                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || (user.client === 'Bibby Marine' && user.permissions == 'Vessel master'))  {
                                     return res.status(200).send({ token });
                                 } else {
 
@@ -846,7 +846,7 @@ app.post("/api/get2faExistence", function (req, res) {
                 if (!user) {
                     return res.status(401).send('User does not exist');
                 } else {
-                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || user.client === 'Bibby Marine') {
+                    if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} ||  (user.client === 'Bibby Marine' && user.permissions == 'Vessel master')) {
                         res.send({ secret2fa: "" });
                     } else {
                         res.send({ secret2fa: user.secret2fa });

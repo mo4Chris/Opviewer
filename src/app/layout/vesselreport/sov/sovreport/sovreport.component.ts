@@ -38,6 +38,7 @@ export class SovreportComponent implements OnInit {
     @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Input() vesselObject;
     @Input() mapPixelWidth;
+    @Input() tokenInfo;
 
     sovModel: SovModel = new SovModel();
     private sovLoaded = false;
@@ -380,6 +381,7 @@ export class SovreportComponent implements OnInit {
                 this.ToolboxTotalNew = SovDprInput[0].ToolboxAmountNew;
                 this.missedPaxCargo = SovDprInput[0].missedPaxCargo;
                 this.helicopterPaxCargo = SovDprInput[0].helicopterPaxCargo;
+                this.updatePoB();
             }
 
         }, null, () => {
