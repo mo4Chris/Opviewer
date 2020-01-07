@@ -179,7 +179,7 @@ export class LongtermComponent implements OnInit {
         // Build SOV module
         this.sovChild.buildPageWithCurrentInformation();
       } else {
-        console.error('Invalid DPR - no CTV or SOV child rendered!')
+        console.error('Invalid DPR - no CTV or SOV child rendered!');
       }
     });
   }
