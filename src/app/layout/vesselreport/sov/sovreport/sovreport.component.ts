@@ -620,6 +620,7 @@ export class SovreportComponent implements OnInit {
                 if (sov[0].utcOffset) {
                     this.datetimeService.vesselOffset = sov[0].utcOffset;
                 }
+                this.createOperationalStatsChart();
                 // All code beyond this point should be changed to a forkJoin statement, which executes after all subscriptions have returned (which can be done in parallel)
                 this.commonService.getPlatformTransfers(this.sovModel.sovInfo.mmsi, this.vesselObject.date).subscribe(platformTransfers => {
                     if (platformTransfers.length === 0) {
@@ -1257,9 +1258,16 @@ export class SovreportComponent implements OnInit {
     }
 
     createGangwayLimitationsChart() {
-        const strokedLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'stroke').length;
-        const boomAngleLimiterCounter = this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length + this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === 'boom angle').length;
-        if (strokedLimiterCounter > 0 || boomAngleLimiterCounter > 0) {
+        const getCounter = (limiter: string) => {
+            return this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === limiter).length +
+                this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === limiter).length;
+        };
+        const counter = {
+            stroke: getCounter('stroke'),
+            boomAngle: getCounter('boom angle'),
+            telescope: getCounter('telescope')
+        };
+        if (Object.keys(counter).some((key) => counter[key] > 0)) {
             this.sovHasLimiters = true;
             setTimeout(() => {
                 this.gangwayLimitationsChart = new Chart('gangwayLimitations', {
@@ -1267,14 +1275,14 @@ export class SovreportComponent implements OnInit {
                     data: {
                         datasets: [
                             {
-                                data: [strokedLimiterCounter, boomAngleLimiterCounter],
+                                data: [counter.stroke, counter.boomAngle, counter.telescope],
                                 backgroundColor: this.backgroundcolors,
                                 radius: 8,
                                 pointHoverRadius: 10,
                                 borderWidth: 1
                             }
                         ],
-                        labels: ['Stroke limited', 'Boom angle limited']
+                        labels: ['Stroke limited', 'Boom angle limited', 'Telescopic angle limited']
                     },
                     options: {
                         title: {
