@@ -48,6 +48,7 @@ describe('SovreportComponent', () => {
     };
   };
   let weatherSpy: jasmine.Spy;
+  let opsChartSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -72,7 +73,7 @@ describe('SovreportComponent', () => {
   }));
 
   beforeEach(async(() => {
-    spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
+    opsChartSpy = spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
     spyOn(SovreportComponent.prototype, 'createGangwayLimitationsChart');
     weatherSpy = spyOn(SovreportComponent.prototype, 'createWeatherOverviewChart');
 
@@ -88,6 +89,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
+    expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as vessel master', fakeAsync(() => {
@@ -97,6 +99,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
+    expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as marine controll', fakeAsync(() => {
@@ -106,6 +109,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
+    expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as logistic specialist', fakeAsync(() => {
@@ -115,6 +119,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
+    expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create weather charts', fakeAsync(() => {
