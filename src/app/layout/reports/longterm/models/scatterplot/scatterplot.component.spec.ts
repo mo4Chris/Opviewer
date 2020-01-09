@@ -1,14 +1,14 @@
 import { ScatterplotComponent } from './scatterplot.component';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { async } from 'q';
 import { CommonModule } from '@angular/common';
 import { ComprisonArrayElt } from '../scatterInterface';
-import { UserTestService } from '../../../../shared/services/test.user.service';
-import { SettingsService } from '../../../../supportModules/settings.service';
-import { MockedCommonService } from '../../../../supportModules/mocked.common.service';
+import { UserTestService } from '../../../../../shared/services/test.user.service';
+import { SettingsService } from '../../../../../supportModules/settings.service';
+import { MockedCommonService } from '../../../../../supportModules/mocked.common.service';
 
 describe('ScatterplotTest', () => {
   let component: ScatterplotComponent;

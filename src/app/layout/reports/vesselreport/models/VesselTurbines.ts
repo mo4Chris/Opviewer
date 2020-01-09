@@ -1,9 +1,9 @@
-import { TurbineLocation } from "./TurbineLocation";
+import { TurbineLocation } from './TurbineLocation';
 
 export class VesselTurbines {
 
     turbineLocations: Array<TurbineLocation[]>;
-    parkName: string = '';
+    parkName = '';
     parkBoundaryLongitudes: number[];
     parkBoundaryLatitudes: number[];
 
@@ -14,7 +14,7 @@ export class VesselTurbines {
     }
 }
 
-export class VesselPlatforms{
+export class VesselPlatforms {
 
     turbineLocations: Array<TurbineLocation[]>;
 

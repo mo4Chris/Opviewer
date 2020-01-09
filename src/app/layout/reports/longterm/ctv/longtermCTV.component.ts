@@ -1,20 +1,20 @@
 import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
-import { CommonService } from '../../../common.service';
+import { CommonService } from '../../../../common.service';
 
 import { map, catchError, reduce } from 'rxjs/operators';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../../supportModules/datetime.service';
-import { CalculationService } from '../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../supportModules/datetime.service';
+import { CalculationService } from '../../../../supportModules/calculation.service';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
-import { TokenModel } from '../../../models/tokenModel';
+import { TokenModel } from '../../../../models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { WavedataModel, WaveSourceModel } from '../../../models/wavedataModel';
+import { WavedataModel, WaveSourceModel } from '../../../../models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
-import { SettingsService } from '../../../supportModules/settings.service';
+import { SettingsService } from '../../../../supportModules/settings.service';
 
 @Component({
     selector: 'app-longterm-ctv',

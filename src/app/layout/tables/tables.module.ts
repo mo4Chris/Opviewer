@@ -11,12 +11,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { CommonService } from '../../common.service';
-import { VesselreportModule } from '../vesselreport/vesselreport.module';
-import { LongtermModule } from '../longterm/longterm.module';
 import { UserService } from '../../shared/services/user.service';
+import { LongtermModule } from '../reports/longterm/longterm.module';
 
 @NgModule({
-    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, VesselreportModule, LongtermModule],
+    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, LongtermModule],
     declarations: [TablesComponent, TablesComponent],
     providers: [CommonService, UserService],
     bootstrap: [TablesComponent]

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
-import { CommonService } from '../../../../common.service';
 import { platform } from 'os';
+import { CommonService } from '../../../common.service';
 
 @Component({
   selector: 'app-sov-siemens-monthly-kpi',

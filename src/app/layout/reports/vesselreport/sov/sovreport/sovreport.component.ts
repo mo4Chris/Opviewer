@@ -2,19 +2,19 @@ import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
-import { CommonService } from '../../../../common.service';
+import { CommonService } from '../../../../../common.service';
 import { SovModel } from '../models/SovModel';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
 import { SovType } from '../models/SovType';
 import { SummaryModel } from '../models/Summary';
-import { CalculationService } from '../../../../supportModules/calculation.service';
-import { GmapService } from '../../../../supportModules/gmap.service';
-import { MapZoomLayer } from '../../../../models/mapZoomLayer';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
+import { GmapService } from '../../../../../supportModules/gmap.service';
+import { MapZoomLayer } from '../../../../../models/mapZoomLayer';
 import { Vessel2VesselActivity } from '../models/vessel2vesselActivity';
 import { map, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
-import { SettingsService } from '../../../../supportModules/settings.service';
+import { SettingsService } from '../../../../../supportModules/settings.service';
 import { SovData } from '../models/SovData';
 
 

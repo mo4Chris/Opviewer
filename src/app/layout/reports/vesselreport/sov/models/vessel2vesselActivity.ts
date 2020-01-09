@@ -1,9 +1,9 @@
 import { SovModel } from './SovModel';
-import { CalculationService } from '../../../../supportModules/calculation.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { V2vCtvActivity } from './Transfers/vessel2vessel/V2vCtvActivity';
-import { MapZoomLayer, MapZoomPolygon, MapZoomData } from '../../../../models/mapZoomLayer';
+import { MapZoomLayer, MapZoomPolygon, MapZoomData } from '../../../../../models/mapZoomLayer';
 import { isArray } from 'util';
-import { GmapService } from '../../../../supportModules/gmap.service';
+import { GmapService } from '../../../../../supportModules/gmap.service';
 
 
 

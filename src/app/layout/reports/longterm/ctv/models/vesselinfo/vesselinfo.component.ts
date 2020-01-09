@@ -1,6 +1,6 @@
 import { Component, OnInit, ɵConsole, Input, Output, EventEmitter } from '@angular/core';
-import { TokenModel } from '../../../../../models/tokenModel';
-import { CommonService } from '../../../../../common.service';
+import { TokenModel } from '../../../../../../models/tokenModel';
+import { CommonService } from '../../../../../../common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 
 @Component({

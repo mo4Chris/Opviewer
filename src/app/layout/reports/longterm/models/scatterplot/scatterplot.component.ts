@@ -1,6 +1,6 @@
 import * as Chart from 'chart.js';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { ComprisonArrayElt } from '../scatterInterface';
 import { now } from 'moment';
 import { LongtermColorScheme } from '../../models/color_scheme';

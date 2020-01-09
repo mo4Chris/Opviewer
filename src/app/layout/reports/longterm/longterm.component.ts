@@ -1,20 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonService } from '../../common.service';
-import { routerTransition } from '../../router.animations';
+import { CommonService } from '../../../common.service';
+import { routerTransition } from '../../../router.animations';
 
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { UserService } from '../../shared/services/user.service';
+import { UserService } from '../../../shared/services/user.service';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../supportModules/datetime.service';
-import { CalculationService } from '../../supportModules/calculation.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
-import { VesselModel } from '../../models/vesselModel';
-import { SettingsService } from '../../supportModules/settings.service';
+import { VesselModel } from '../../../models/vesselModel';
+import { SettingsService } from '../../../supportModules/settings.service';
 
 @Component({
   selector: 'app-longterm',

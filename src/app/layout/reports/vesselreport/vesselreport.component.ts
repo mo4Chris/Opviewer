@@ -1,27 +1,27 @@
 /// <reference types="@types/googlemaps" />
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
+import { routerTransition } from '../../../router.animations';
+import { CommonService } from '../../../common.service';
 import { isArray } from 'util';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
-import { CalculationService } from '../../supportModules/calculation.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { DatetimeService } from '../../supportModules/datetime.service';
-import { UserService } from '../../shared/services/user.service';
+import { DatetimeService } from '../../../supportModules/datetime.service';
+import { UserService } from '../../../shared/services/user.service';
 
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
 import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
-import { EventService } from '../../supportModules/event.service';
+import { EventService } from '../../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
-import { GmapService } from '../../supportModules/gmap.service';
-import { VesselModel } from '../../models/vesselModel';
-import { TokenModel } from '../../models/tokenModel';
+import { GmapService } from '../../../supportModules/gmap.service';
+import { VesselModel } from '../../../models/vesselModel';
+import { TokenModel } from '../../../models/tokenModel';
 import { EventEmitter } from 'protractor';
 import { Interface } from 'readline';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
@@ -442,6 +442,6 @@ export class VesselreportComponent implements OnInit {
 interface TurbLocDataModel {
   transfers: any[];
   turbineLocations: TurbineLocsFromMongo[];
-  type: string,
+  type: string;
   vesselType: string;
 }

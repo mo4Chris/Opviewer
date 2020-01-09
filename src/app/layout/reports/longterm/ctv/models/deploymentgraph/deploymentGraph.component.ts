@@ -1,8 +1,8 @@
-import { TokenModel } from '../../../../../models/tokenModel';
+import { TokenModel } from '../../../../../../models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import { CommonService } from '../../../../../common.service';
-import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { CommonService } from '../../../../../../common.service';
+import { CalculationService } from '../../../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../../supportModules/datetime.service';
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { now } from 'moment';

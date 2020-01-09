@@ -4,17 +4,17 @@ import { VesselreportComponent } from './vesselreport.component';
 import { AgmCoreModule } from '@agm/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PageHeaderModule, SharedPipesModule } from '../../shared';
+import { PageHeaderModule, SharedPipesModule } from '../../../shared';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
-import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
-import { MockedUserServiceProvider } from '../../shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
+import { MockedUserServiceProvider } from '../../../shared/services/test.user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
-import { CalculationService } from '../../supportModules/calculation.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { GmapService } from '../../supportModules/gmap.service';
+import { GmapService } from '../../../supportModules/gmap.service';
 
 describe('VesselReportComponent', () => {
   let component: VesselreportComponent;

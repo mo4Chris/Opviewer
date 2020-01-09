@@ -1,15 +1,15 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvreportComponent } from './ctvreport.component';
-import { UserTestService } from '../../../../shared/services/test.user.service';
+import { UserTestService } from '../../../../../shared/services/test.user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { PageHeaderModule, SharedPipesModule } from '../../../../shared';
+import { PageHeaderModule, SharedPipesModule } from '../../../../../shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpModule } from '@angular/http';
-import { VesselObjectModel, MockedCommonServiceProvider } from '../../../../supportModules/mocked.common.service';
+import { VesselObjectModel, MockedCommonServiceProvider } from '../../../../../supportModules/mocked.common.service';
 
 
 describe('CtvReportComponent', () => {

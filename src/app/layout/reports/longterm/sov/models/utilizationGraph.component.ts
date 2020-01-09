@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { CommonService } from '../../../../common.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { TokenModel } from '../../../../models/tokenModel';
+import { CommonService } from '../../../../../common.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { TokenModel } from '../../../../../models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { now } from 'moment';
@@ -164,7 +164,7 @@ export class UtilizationGraphComponent implements OnInit {
                 timeBreakdown: 1,
             }
         }).subscribe((rawdata: RawGeneralModel[][]) => {
-            if (rawdata.length>0 && rawdata[0].length>0) {
+            if (rawdata.length > 0 && rawdata[0].length > 0) {
                 this.RawData = rawdata[0];
                 this.vesselName = this.RawData[0].vesselName;
                 this.TimeBreakdown = this.parseRawData(rawdata[0]);

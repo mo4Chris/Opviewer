@@ -1,17 +1,17 @@
 import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange } from '@angular/core';
-import { CommonService } from '../../../../common.service';
+import { CommonService } from '../../../../../common.service';
 import { map, catchError } from 'rxjs/operators';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
+import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { WavedataModel } from '../../../../models/wavedataModel';
+import { WavedataModel } from '../../../../../models/wavedataModel';
 import { WeatherOverviewChart } from '../../models/weatherChart';
-import { VesselObjectModel } from '../../../../supportModules/mocked.common.service';
+import { VesselObjectModel } from '../../../../../supportModules/mocked.common.service';
 import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstats.model';
-import { SettingsService } from '../../../../supportModules/settings.service';
+import { SettingsService } from '../../../../../supportModules/settings.service';
 
 @Component({
     selector: 'app-ctvreport',

@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { TablesComponent } from './tables.component';
-import { VesselreportComponent } from '../vesselreport/vesselreport.component';
-import { LongtermComponent } from '../longterm/longterm.component';
+import { VesselreportComponent } from '../reports/vesselreport/vesselreport.component';
+import { LongtermComponent } from '../reports/longterm/longterm.component';
 
 const routes: Routes = [
     {

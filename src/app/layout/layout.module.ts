@@ -11,7 +11,6 @@ import { HeaderComponent } from './components/header/header.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonService } from '../common.service';
 import { HttpClientModule } from '@angular/common/http';
-import { ReportcomponentComponent } from './reportcomponent/reportcomponent.component';
 import { ReportsComponent } from './reports/reports.component';
 
 @NgModule({
@@ -21,11 +20,11 @@ import { ReportsComponent } from './reports/reports.component';
         FormsModule,
         HttpClientModule,
         ReactiveFormsModule,
-        NgbModule.forRoot(),
+        NgbModule,
         TranslateModule,
-        NgbDropdownModule.forRoot()
+        NgbDropdownModule
     ],
-    declarations: [LayoutComponent, SidebarComponent, HeaderComponent, ReportcomponentComponent, ReportsComponent],
+    declarations: [LayoutComponent, SidebarComponent, HeaderComponent, ReportsComponent],
     providers: [CommonService]
 })
 export class LayoutModule {}

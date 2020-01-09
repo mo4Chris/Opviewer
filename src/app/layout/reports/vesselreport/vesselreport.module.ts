@@ -6,7 +6,7 @@ import { AutosizeModule } from 'ngx-autosize';
 
 import { VesselreportRoutingModule } from './vesselreport-routing.module';
 import { VesselreportComponent } from './vesselreport.component';
-import { PageHeaderModule, SharedPipesModule } from '../../shared';
+import { PageHeaderModule, SharedPipesModule } from '../../../shared';
 // import { DatePickerComponent } from './../bs-component/components'
 
 // modules mongoDB
@@ -14,17 +14,16 @@ import { PageHeaderModule, SharedPipesModule } from '../../shared';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import {CommonService} from '../../common.service';
-import { UserService } from '../../shared/services/user.service';
+import {CommonService} from '../../../common.service';
+import { UserService } from '../../../shared/services/user.service';
 
-import { CalculationService } from '../../supportModules/calculation.service';
+import { CalculationService } from '../../../supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
-import { EventService } from '../../supportModules/event.service';
+import { EventService } from '../../../supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { RouterService } from '../../supportModules/router.service';
+import { RouterService } from '../../../supportModules/router.service';
 import { PlotlyModule } from 'angular-plotly.js';
-import { SOVSiemensMonthlyKPIComponent } from './models/sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.component';
 
 @NgModule({
     imports: [
@@ -42,7 +41,7 @@ import { SOVSiemensMonthlyKPIComponent } from './models/sov-siemens-monthly-kpi/
         PageHeaderModule,
         SharedPipesModule
     ],
-    declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent, SOVSiemensMonthlyKPIComponent],
+    declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [VesselreportComponent]
 })

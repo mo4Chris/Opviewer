@@ -1,8 +1,8 @@
 import * as Chart from 'chart.js';
 import { Moment } from 'moment';
-import { CalculationService } from '../../../supportModules/calculation.service';
+import { CalculationService } from '../../../../supportModules/calculation.service';
 import * as moment from 'moment';
-import { SettingsService } from '../../../supportModules/settings.service';
+import { SettingsService } from '../../../../supportModules/settings.service';
 import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
 export class WeatherOverviewChart {

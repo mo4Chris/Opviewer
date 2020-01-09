@@ -1,5 +1,5 @@
-import { V2vTransfer } from "./V2vTransfer";
-import { V2vCtvActivity } from "./V2vCtvActivity";
+import { V2vTransfer } from './V2vTransfer';
+import { V2vCtvActivity } from './V2vCtvActivity';
 
 export class Vessel2vesselModel {
     transfers: V2vTransfer[];

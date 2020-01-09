@@ -7,14 +7,14 @@ import { LongtermRoutingModule } from './longterm-routing.module';
 import { LongtermComponent } from './longterm.component';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule } from '../../../shared';
 
 // modules mongoDB
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonService } from '../../common.service';
-import { UserService } from '../../shared/services/user.service';
+import { CommonService } from '../../../common.service';
+import { UserService } from '../../../shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
