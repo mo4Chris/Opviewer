@@ -2,15 +2,16 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
+// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 // import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { isArray } from 'util';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
-import { Vessel2vesselModel } from './layout/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
+import { Vessel2vesselModel } from './layout/reports/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 
 @Injectable({
   providedIn: 'root',
