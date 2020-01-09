@@ -270,6 +270,10 @@ export class SovreportComponent implements OnInit {
         this.vessel2vesselActivityRoute = v2vHandler;
     }
 
+    openWaveSpectrum(content) {
+        this.modalService.open(content, { size: 'xl', ariaLabelledBy: 'modal-basic-title' });
+    }
+
     build_v2v_map(googleMap) {
         if (this.v2v_data_layer === undefined) {
             this.v2v_data_layer = new MapZoomLayer(googleMap, 1);
