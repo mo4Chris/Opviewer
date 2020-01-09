@@ -184,14 +184,14 @@ export class WaveSpectrumComponentComponent implements OnInit {
       _y = y;
     }
     const sliderSteps = [];
-
+    const headings =  this.WaveSpectrum.heading;
     this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
       if (this.useInterpolation) {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
       const timeString = this.dateService.MatlabDateToCustomJSTime(this.WaveSpectrum.time[_i], 'HH:mm');
-      const heading_radians = this.WaveSpectrum.heading[_i] * Math.PI / 180;
+      const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
           data: [{
             type: 'heatmap',
