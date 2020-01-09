@@ -110,7 +110,7 @@
                                     <td></td>
                                 </tr>
                             </ng-container>
-                            <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations > 0">
+                            <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations !== 'N/a'">
                                 <td>Maximum significant wave height during operations</td>
                                 <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}}</td>
                             </tr>
@@ -161,6 +161,7 @@
                                        {{standby.to}}
                                     </td>
                                     <td></td>
+                                    
                                 </tr>
                             </ng-container>
                             <!-- split between -->
