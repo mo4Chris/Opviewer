@@ -14,7 +14,7 @@ import { UserService } from '../../../shared/services/user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
-import { from } from 'rxjs';
+import { from } from 'rxjs/Observable/from';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '../../../supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';

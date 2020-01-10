@@ -23,7 +23,6 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { EventService } from '../../../supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '../../../supportModules/router.service';
-import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
     imports: [

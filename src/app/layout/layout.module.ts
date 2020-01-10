@@ -24,7 +24,7 @@ import { ReportsComponent } from './reports/reports.component';
         TranslateModule,
         NgbDropdownModule
     ],
-    declarations: [LayoutComponent, SidebarComponent, HeaderComponent, ReportsComponent],
+    declarations: [LayoutComponent, SidebarComponent, HeaderComponent],
     providers: [CommonService]
 })
 export class LayoutModule {}

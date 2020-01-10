@@ -15,7 +15,7 @@ import { UserService } from '../../shared/services/user.service';
 import { LongtermModule } from '../reports/longterm/longterm.module';
 
 @NgModule({
-    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule, LongtermModule],
+    imports: [ HttpClientModule, FormsModule, CommonModule, TablesRoutingModule, PageHeaderModule],
     declarations: [TablesComponent, TablesComponent],
     providers: [CommonService, UserService],
     bootstrap: [TablesComponent]
