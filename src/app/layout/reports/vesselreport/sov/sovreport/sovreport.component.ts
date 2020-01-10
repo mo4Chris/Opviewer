@@ -56,6 +56,7 @@ export class SovreportComponent implements OnInit {
     gangwayActive = false;
     vessel2vesselActivityRoute: Vessel2VesselActivity;
     turbineLocations = new Array<any>();
+    fieldName = '';
 
     // Charts
     private v2v_data_layer: MapZoomLayer;
@@ -809,6 +810,10 @@ export class SovreportComponent implements OnInit {
                     const locationData = { 'turbineLocations': locdata, 'transfers': transfers, 'type': sovType, 'vesselType': 'SOV' };
                     this.turbineLocations = locationData.turbineLocations;
                     this.turbineLocationData.emit(locationData);
+                    // tslint:disable-next-line:whitespace
+                    if (this.turbineLocations[0].SiteName) {
+                        this.fieldName = this.turbineLocations[0].SiteName;
+                    }
                 }
             }, null, () => {
                 this.routeLoaded = true;
@@ -1458,6 +1463,7 @@ export class SovreportComponent implements OnInit {
         this.cateringChanged = false;
         this.remarksChanged = false;
         this.sovModel = new SovModel();
+        this.fieldName = '';
         if (this.operationsChart !== undefined) {
             this.operationsChart.destroy();
             this.operationalChartCalculated = false;
