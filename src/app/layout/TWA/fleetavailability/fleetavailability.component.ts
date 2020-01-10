@@ -312,7 +312,8 @@ export class FleetavailabilityComponent implements OnInit {
         const dateStart = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
         const dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
 
-        while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+        let _counter = 0;
+        while ((dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) && _counter++ < 200 ) {
             this.allMonths.push(dateStart.format('MMM YYYY'));
             if (dateStart < moment()) {
                 this.availableMonths.push(dateStart.format('MMM YYYY'));
@@ -465,7 +466,9 @@ export class FleetavailabilityComponent implements OnInit {
 
         this.forecastAfterRecorded[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
-        while (dateEnd >= dateForecast) {
+
+        let _counter = 0;
+        while (dateEnd >= dateForecast && _counter++ < 200) {
             const index = parseInt(dateForecast.format('M')) - 1;
             const forecast = this.turbineWarrenty.weatherDayForecast[index][0] * this.turbineWarrenty.numContractedVessels;
             this.forecastAfterRecorded.push({ x: moment(dateForecast), y: this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y - forecast });
