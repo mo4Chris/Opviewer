@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { VesselreportComponent } from './vesselreport.component';
+import { ReportDprComponent } from './report-dpr.component';
 
 
 const routes: Routes = [
-    {
-        path: '', component: VesselreportComponent
-    }
+    // {
+    //     path: '', component: ReportDprComponent
+    // }
 ];
 
 @NgModule({
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class VesselreportRoutingModule {
+export class ReportDprRoutingModule {
 }

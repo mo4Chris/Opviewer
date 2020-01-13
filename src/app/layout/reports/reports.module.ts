@@ -3,8 +3,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportsComponent } from './reports.component';
 import { RouterModule } from '@angular/router';
-import { VesselreportModule } from './vesselreport/vesselreport.module';
-import { VesselreportComponent } from './vesselreport/vesselreport.component';
+import { ReportsRoutingModule } from './reports-routing-module'
+import { ReportDprComponent } from './dpr/report-dpr.component';
+import { ReportDprModule } from './dpr/report-dpr.module';
+import { LongtermModule } from './longterm/longterm.module';
+import { SovSiemensMojnthlyKpiModule } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.module';
 
 // const routes = [
 //     {
@@ -20,11 +23,16 @@ import { VesselreportComponent } from './vesselreport/vesselreport.component';
 @NgModule({
     imports: [
         CommonModule,
+        ReportsRoutingModule,
+        ReportDprModule,
+        LongtermModule,
+        SovSiemensMojnthlyKpiModule
         // RouterModule.forChild(routes),
-        VesselreportModule,
+        // VesselreportModule,
+        // ReportsComponent
     ],
     exports: [RouterModule],
-    providers: [CommonService, ReportsComponent],
+    providers: [CommonService, ReportsComponent, ReportDprComponent],
     declarations: [ReportsComponent],
     bootstrap: [ReportsComponent],
 })

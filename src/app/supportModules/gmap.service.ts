@@ -6,7 +6,7 @@ import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
 import { isArray } from 'util';
 import { Observable } from 'rxjs';
-import { VesselTurbines, VesselPlatforms } from '../layout/reports/vesselreport/models/VesselTurbines';
+import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 
 @Injectable({
     providedIn: 'root'

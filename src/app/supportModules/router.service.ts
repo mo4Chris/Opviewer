@@ -17,18 +17,18 @@ export class RouterService {
         if (!isArray(destination)) {
             destination = [destination];
         }
-        this._router.navigate(destination);
+        this._router.navigate(<Array<any>> destination);
     }
 
     // Actual routes go below here
     routeToDPR(route: {mmsi: number, date?: number}) {
         if (route.date) {
-            this.route(['vesselreport', {
+            this.route(['report-dpr', {
                 boatmmsi: route.mmsi,
                 date: route.date,
             }]);
         } else {
-            this.route(['vesselreport', {
+            this.route(['report-dpr', {
                 boatmmsi: route.mmsi
             }]);
         }

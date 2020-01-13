@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 
-import { VesselreportComponent } from './vesselreport.component';
 import { AgmCoreModule } from '@agm/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -15,10 +14,11 @@ import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { GmapService } from '../../../supportModules/gmap.service';
+import { ReportDprComponent } from './report-dpr.component';
 
 describe('VesselReportComponent', () => {
-  let component: VesselreportComponent;
-  let fixture: ComponentFixture<VesselreportComponent>;
+  let component: ReportDprComponent;
+  let fixture: ComponentFixture<ReportDprComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -33,20 +33,20 @@ describe('VesselReportComponent', () => {
         NgMultiSelectDropDownModule,
         SharedPipesModule,
         HttpModule],
-      declarations: [ VesselreportComponent, CtvreportComponent, SovreportComponent ],
+      declarations: [ ReportDprComponent, CtvreportComponent, SovreportComponent ],
       providers: [MockedCommonServiceProvider, MockedUserServiceProvider, CalculationService]
     })
     .compileComponents();
 
-    spyOn(VesselreportComponent.prototype, 'getDateFromParameter').and.returnValue(NaN); // Equivalent to no date provided
-    spyOn(VesselreportComponent.prototype, 'getMMSIFromParameter').and.returnValue(123456789); // CTV test vessel - replace mmsi later if not desired
+    spyOn(ReportDprComponent.prototype, 'getDateFromParameter').and.returnValue(NaN); // Equivalent to no date provided
+    spyOn(ReportDprComponent.prototype, 'getMMSIFromParameter').and.returnValue(123456789); // CTV test vessel - replace mmsi later if not desired
     spyOn(GmapService.prototype, 'reset');
     spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
     spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
     spyOn(CtvreportComponent.prototype, 'buildPageWithCurrentInformation');
     spyOn(SovreportComponent.prototype, 'buildPageWithCurrentInformation');
 
-    fixture = TestBed.createComponent(VesselreportComponent);
+    fixture = TestBed.createComponent(ReportDprComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

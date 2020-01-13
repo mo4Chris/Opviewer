@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LayoutComponent } from './layout.component';
-import { VesselreportComponent } from './reports/vesselreport/vesselreport.component';
 import { ReportsModule } from './reports/reports.module';
 
 const routes: Routes = [
@@ -38,6 +37,5 @@ const routes: Routes = [
         ReportsModule
     ],
     exports: [RouterModule],
-    // declarations: [VesselreportComponent]
 })
 export class LayoutRoutingModule {}

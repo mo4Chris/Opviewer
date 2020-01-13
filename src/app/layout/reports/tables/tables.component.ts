@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
+import { routerTransition } from '../../../router.animations';
+import { CommonService } from '../../../common.service';
 
-import { Router } from '../../../../node_modules/@angular/router';
-import { UserService } from '../../shared/services/user.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
-import { VesselModel } from '../../models/vesselModel';
-import { TokenModel } from '../../models/tokenModel';
-import { RouterService } from '../../supportModules/router.service';
+import { Router } from '@angular/router';
+import { UserService } from '../../../shared/services/user.service';
+import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { VesselModel } from '../../../models/vesselModel';
+import { TokenModel } from '../../../models/tokenModel';
+import { RouterService } from '../../../supportModules/router.service';
 
 @Component({
     selector: 'app-tables',

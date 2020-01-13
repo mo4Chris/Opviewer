@@ -22,17 +22,15 @@ import { VesselPlatforms } from './models/VesselTurbines';
 import { GmapService } from '../../../supportModules/gmap.service';
 import { VesselModel } from '../../../models/vesselModel';
 import { TokenModel } from '../../../models/tokenModel';
-import { EventEmitter } from 'protractor';
-import { Interface } from 'readline';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 
 @Component({
-  selector: 'app-vesselreport',
-  templateUrl: './vesselreport.component.html',
-  styleUrls: ['./vesselreport.component.scss'],
+  selector: 'app-report-dpr',
+  templateUrl: './report-dpr.component.html',
+  styleUrls: ['./report-dpr.component.scss'],
   animations: [routerTransition()],
 })
-export class VesselreportComponent implements OnInit {
+export class ReportDprComponent implements OnInit {
   constructor(
     public router: Router,
     private newService: CommonService,

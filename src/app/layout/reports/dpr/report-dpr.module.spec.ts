@@ -1,10 +1,10 @@
-import { VesselreportModule } from './vesselreport.module';
+import { ReportDprModule } from './report-dpr.module';
 
 describe('VesselreportModule', () => {
-  let vesselreportModule: VesselreportModule;
+  let vesselreportModule: ReportDprModule;
 
   beforeEach(() => {
-    vesselreportModule = new VesselreportModule();
+    vesselreportModule = new ReportDprModule();
   });
 
   it('should create an instance', () => {

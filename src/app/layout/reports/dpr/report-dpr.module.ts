@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { AgmCoreModule } from '@agm/core';
 import { AutosizeModule } from 'ngx-autosize';
 
-import { VesselreportRoutingModule } from './vesselreport-routing.module';
-import { VesselreportComponent } from './vesselreport.component';
+import { ReportDprRoutingModule } from './report-dpr-routing.module';
+import { ReportDprComponent } from './report-dpr.component';
 import { PageHeaderModule, SharedPipesModule } from '../../../shared';
 // import { DatePickerComponent } from './../bs-component/components'
 
@@ -36,12 +36,12 @@ import { RouterService } from '../../../supportModules/router.service';
         NgbModule,
         NgMultiSelectDropDownModule,
         CommonModule,
-        VesselreportRoutingModule,
+        ReportDprRoutingModule,
         PageHeaderModule,
         SharedPipesModule
     ],
-    declarations: [VesselreportComponent, SovreportComponent, CtvreportComponent],
+    declarations: [ReportDprComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
-    bootstrap: [VesselreportComponent]
+    bootstrap: [ReportDprComponent]
 })
-export class VesselreportModule {}
+export class ReportDprModule {}

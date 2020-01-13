@@ -3,9 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { LongtermComponent } from './longterm.component';
 
 const routes: Routes = [
-    {
-        path: '', component: LongtermComponent
-    }
+    // {
+    //     path: '', component: LongtermComponent
+    // }
 ];
 
 @NgModule({

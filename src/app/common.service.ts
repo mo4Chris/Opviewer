@@ -11,7 +11,7 @@ import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
-import { Vessel2vesselModel } from './layout/reports/vesselreport/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 
 @Injectable({
   providedIn: 'root',

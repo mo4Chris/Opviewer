@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
-import { platform } from 'os';
 import { CommonService } from '../../../common.service';
 
 @Component({
