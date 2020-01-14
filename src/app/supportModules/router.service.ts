@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { isArray } from 'util';
 import { Injectable } from '@angular/core';
-import { CommonService } from '../common.service';
+import { CommonService } from '@app/common.service';
 
 
 @Injectable({
@@ -23,7 +23,7 @@ export class RouterService {
     // Actual routes go below here
     routeToDPR(route: {mmsi?: number, date?: number}) {
         if (! route.mmsi) {
-            this.route(['reports/dpr']);
+            this.route(['reports']);
         } else if (route.date) {
             this.route(['reports/dpr', {
                 mmsi: route.mmsi,

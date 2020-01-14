@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-reports',
@@ -6,9 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./reports.component.scss']
 })
 export class ReportsComponent implements OnInit {
-  constructor() { }
+  constructor(
+    private routerService: RouterService
+    ) {
+
+    }
 
   ngOnInit() {
+    console.log('INIT');
+    this.routerService.routeToDPR({
+      mmsi: 244090781,
+    });
   }
 
 }

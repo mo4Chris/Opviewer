@@ -221,7 +221,6 @@ export class DashboardComponent implements OnInit {
 
     redirectDailyVesselReport(mmsi: number) {
         this.eventService.closeLatestAgmInfoWindow();
-        // this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
         this.routerService.routeToDPR({mmsi: mmsi});
     }
 
