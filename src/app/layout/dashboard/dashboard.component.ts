@@ -15,6 +15,7 @@ import { CommonService } from '../../common.service';
 import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 import { GmapService } from '../../supportModules/gmap.service';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
+import { RouterService } from '../../supportModules/router.service';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class DashboardComponent implements OnInit {
         private dateTimeService: DatetimeService,
         private commonService: CommonService,
         private mapService: GmapService,
+        private routerService: RouterService,
      ) {   }
     locationData: AisMarkerModel[];
 
@@ -219,7 +221,8 @@ export class DashboardComponent implements OnInit {
 
     redirectDailyVesselReport(mmsi: number) {
         this.eventService.closeLatestAgmInfoWindow();
-        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+        // this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+        this.routerService.routeToDPR({mmsi: mmsi});
     }
 
     getAlert() {

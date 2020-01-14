@@ -217,7 +217,7 @@ export class LongtermComponent implements OnInit {
   }
 
   navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
-    this.router.navigate(['vesselreport', { boatmmsi: vesselObject.mmsi, date: vesselObject.matlabDate }]);
+    this.router.navigate(['report/dpr', { mmsi: vesselObject.mmsi, date: vesselObject.matlabDate }]);
   }
 
   isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
@@ -325,9 +325,9 @@ export class LongtermComponent implements OnInit {
     return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
   getMMSIFromParameter() {
-    let mmsi;
+    let mmsi: number;
     this.route.params.subscribe(params => {
-      mmsi = parseFloat(params.boatmmsi);
+      mmsi = parseFloat(params.mmsi);
     });
 
     return mmsi;

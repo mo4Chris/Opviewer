@@ -21,15 +21,17 @@ export class RouterService {
     }
 
     // Actual routes go below here
-    routeToDPR(route: {mmsi: number, date?: number}) {
-        if (route.date) {
-            this.route(['reports-dpr', {
-                boatmmsi: route.mmsi,
+    routeToDPR(route: {mmsi?: number, date?: number}) {
+        if (! route.mmsi) {
+            this.route(['reports/dpr']);
+        } else if (route.date) {
+            this.route(['reports/dpr', {
+                mmsi: route.mmsi,
                 date: route.date,
             }]);
         } else {
-            this.route(['reports-dpr', {
-                boatmmsi: route.mmsi
+            this.route(['reports/dpr', {
+                mmsi: route.mmsi
             }]);
         }
     }
@@ -39,8 +41,8 @@ export class RouterService {
             route.name = 'placeholder';
             // ToDo: get vesselname by mmsi
         } else {
-            this.route(['longterm', {
-                boatmmsi: route.mmsi,
+            this.route(['reports/longterm', {
+                mmsi: route.mmsi,
                 vesselName: route.name,
             }]);
         }

@@ -275,7 +275,7 @@ export class ReportsDprComponent implements OnInit {
 
   getMMSIFromParameter() {
     let mmsi: number;
-    this.route.params.subscribe(params => mmsi = parseFloat(params.boatmmsi));
+    this.route.params.subscribe(params => mmsi = parseFloat(params.mmsi));
     return mmsi;
   }
 
