@@ -1,23 +1,23 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonService } from '../../../common.service';
-import { routerTransition } from '../../../router.animations';
+import { CommonService } from '@app/common.service';
+import { routerTransition } from '@app/router.animations';
 
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { UserService } from '../../../shared/services/user.service';
+import { UserService } from '@app/shared/services/user.service';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../../supportModules/datetime.service';
-import { CalculationService } from '../../../supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
-import { VesselModel } from '../../../models/vesselModel';
-import { SettingsService } from '../../../supportModules/settings.service';
+import { VesselModel } from '@app/models/vesselModel';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 @Component({
-  selector: 'app-longterm',
+  selector: 'app-reports-longterm',
   templateUrl: './longterm.component.html',
   styleUrls: ['./longterm.component.scss'],
   animations: [routerTransition()],
@@ -157,7 +157,7 @@ export class LongtermComponent implements OnInit {
     this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
     this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
     const mmsiArray = [];
-    if (this.dropdownValues && this.dropdownValues.length > 0 && this.dropdownValues[0].mmsi !== []) {
+    if (this.dropdownValues && this.dropdownValues.length > 0 && <any> this.dropdownValues[0].mmsi !== []) {
       for (let _j = 0; _j < this.dropdownValues.length; _j++) {
         mmsiArray.push(this.dropdownValues[_j].mmsi);
       }

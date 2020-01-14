@@ -67,4 +67,13 @@ export class RouterService {
     routeToNotFound() {
         this.route('not-found');
     }
+
+    routeSecundary() {
+        this.route([{
+            outlets: {
+                primary: ['reports', 'dpr'],
+                reports: ['reports', 'dpr'],
+            }
+        }]);
+    }
 }

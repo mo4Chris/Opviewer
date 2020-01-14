@@ -17,6 +17,7 @@ import { LongtermModule } from '../longterm/longterm.module';
     imports: [ HttpClientModule, FormsModule, CommonModule, PageHeaderModule],
     declarations: [TablesComponent, TablesComponent],
     providers: [CommonService, UserService],
-    bootstrap: [TablesComponent]
+    bootstrap: [TablesComponent],
+    exports: [TablesComponent]
 })
 export class TablesModule {}
