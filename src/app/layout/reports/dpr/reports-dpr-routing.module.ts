@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ReportDprComponent } from './report-dpr.component';
+import { ReportsDprComponent } from './reports-dpr.component';
 
 
 const routes: Routes = [
@@ -13,5 +13,5 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class ReportDprRoutingModule {
+export class ReportsDprRoutingModule {
 }

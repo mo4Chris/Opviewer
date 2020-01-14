@@ -23,12 +23,12 @@ export class RouterService {
     // Actual routes go below here
     routeToDPR(route: {mmsi: number, date?: number}) {
         if (route.date) {
-            this.route(['report-dpr', {
+            this.route(['reports-dpr', {
                 boatmmsi: route.mmsi,
                 date: route.date,
             }]);
         } else {
-            this.route(['report-dpr', {
+            this.route(['reports-dpr', {
                 boatmmsi: route.mmsi
             }]);
         }

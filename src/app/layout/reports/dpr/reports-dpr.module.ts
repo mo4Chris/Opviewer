@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { AgmCoreModule } from '@agm/core';
 import { AutosizeModule } from 'ngx-autosize';
 
-import { ReportDprRoutingModule } from './report-dpr-routing.module';
-import { ReportDprComponent } from './report-dpr.component';
+import { ReportsDprRoutingModule } from './reports-dpr-routing.module';
+import { ReportsDprComponent } from './reports-dpr.component';
 import { PageHeaderModule, SharedPipesModule } from '../../../shared';
 // import { DatePickerComponent } from './../bs-component/components'
 
@@ -36,12 +36,12 @@ import { RouterService } from '../../../supportModules/router.service';
         NgbModule,
         NgMultiSelectDropDownModule,
         CommonModule,
-        ReportDprRoutingModule,
+        ReportsDprRoutingModule,
         PageHeaderModule,
         SharedPipesModule
     ],
-    declarations: [ReportDprComponent, SovreportComponent, CtvreportComponent],
+    declarations: [ReportsDprComponent, SovreportComponent, CtvreportComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
-    bootstrap: [ReportDprComponent]
+    bootstrap: [ReportsDprComponent]
 })
-export class ReportDprModule {}
+export class ReportsDprModule {}

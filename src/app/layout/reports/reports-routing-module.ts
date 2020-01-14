@@ -1,23 +1,23 @@
-import { ReportsComponent } from "./reports.component";
-import { Routes, RouterModule } from "@angular/router";
-import { NgModule } from "@angular/core";
-import { LongtermComponent } from "./longterm/longterm.component";
-import { SOVSiemensMonthlyKPIComponent } from "./sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.component";
-import { ReportDprComponent } from "./dpr/report-dpr.component";
+import { ReportsComponent } from './reports.component';
+import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { LongtermComponent } from './longterm/longterm.component';
+import { SOVSiemensMonthlyKPIComponent } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.component';
+import { ReportsDprComponent } from './dpr/reports-dpr.component';
 
 const routes: Routes = [
     {
-        path: '/reports', component: ReportsComponent
+        path: '', component: ReportsComponent
     }, {
-        path: '/report-dpr', component: ReportDprComponent
+        path: 'reports-dpr', component: ReportsDprComponent
     }, {
-        path: '/report-dpr/:mmsi', component: ReportDprComponent
+        path: 'reports-dpr/:mmsi', component: ReportsDprComponent
     }, {
-        path: '/longterm/:mmsi', component: LongtermComponent
+        path: 'longterm/:mmsi', component: LongtermComponent
     }, {
-        path: '/longterm', component: LongtermComponent
+        path: 'longterm', component: LongtermComponent
     }, {
-        path: '/siemens-kpi', component: SOVSiemensMonthlyKPIComponent,
+        path: 'siemens-kpi', component: SOVSiemensMonthlyKPIComponent,
     }
 ];
 

@@ -25,12 +25,12 @@ import { TokenModel } from '../../../models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 
 @Component({
-  selector: 'app-report-dpr',
-  templateUrl: './report-dpr.component.html',
-  styleUrls: ['./report-dpr.component.scss'],
+  selector: 'app-reports-dpr',
+  templateUrl: './reports-dpr.component.html',
+  styleUrls: ['./reports-dpr.component.scss'],
   animations: [routerTransition()],
 })
-export class ReportDprComponent implements OnInit {
+export class ReportsDprComponent implements OnInit {
   constructor(
     public router: Router,
     private newService: CommonService,

@@ -32,7 +32,7 @@ export class SettingsService {
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
         if (isNumber(timezone)) {
-            return timezone;
+            return <number> timezone;
         } else {
             switch (timezone) {
                 case 'vessel':
