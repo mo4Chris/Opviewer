@@ -9,7 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ReportsComponent implements OnInit {
 
-  selection: ReportsSelector = 'tables';
+  activeRoute: ReportsSelector = 'tables';
 
   constructor(
     private routerService: RouterService,
@@ -29,7 +29,7 @@ export class ReportsComponent implements OnInit {
         const path = urlSegment[0].path;
         switch (path) {
           case 'tables': case 'dpr': case 'longterm':
-            this.selection = path;
+            this.activeRoute = path;
             break;
           default:
             this.routerService.routeToNotFound();

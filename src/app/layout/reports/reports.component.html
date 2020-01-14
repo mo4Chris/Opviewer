@@ -1,7 +1,5 @@
-<p>
-  reports works!
-</p>
-
-<app-report-tables *ngIf="selection=='tables'"></app-report-tables>
-<app-reports-dpr *ngIf="selection=='dpr'"></app-reports-dpr>
-<app-reports-longterm *ngIf="selection=='longterm'"></app-reports-longterm>
+<app-report-header [activeRoute]="activeRoute"></app-report-header>
+<br>
+<app-report-tables *ngIf="activeRoute=='tables'"></app-report-tables>
+<app-reports-dpr *ngIf="activeRoute=='dpr'"></app-reports-dpr>
+<app-reports-longterm *ngIf="activeRoute=='longterm'"></app-reports-longterm>

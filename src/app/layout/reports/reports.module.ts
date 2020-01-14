@@ -13,6 +13,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { TablesModule } from './tables/tables.module';
+import { ReportHeaderComponent } from './report-header/report-header.component';
 // import { TablesModule } from './tables/tables.module';
 
 @NgModule({
@@ -34,7 +35,7 @@ import { TablesModule } from './tables/tables.module';
     ],
     exports: [RouterModule],
     providers: [CommonService],
-    declarations: [ReportsComponent],
+    declarations: [ReportsComponent, ReportHeaderComponent],
     bootstrap: [ReportsComponent],
 })
 export class ReportsModule {}
