@@ -3,7 +3,7 @@
         <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-dashboard"></i>&nbsp;{{ 'Dashboard' | translate }}
         </a>
-        <a [routerLink]="['/vesselsandreports']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
+        <a [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
         <a [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item" *ngIf="tokenInfo.hasCampaigns">

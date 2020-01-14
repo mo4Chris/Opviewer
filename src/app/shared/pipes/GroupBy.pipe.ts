@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { V2vTransfer } from '../../layout/vesselreport/sov/models/Transfers/vessel2vessel/V2vTransfer';
 
 @Pipe({
   name: 'groupBy'
@@ -7,12 +6,12 @@ import { V2vTransfer } from '../../layout/vesselreport/sov/models/Transfers/vess
 export class GroupByPipe implements PipeTransform {
 
   transform(collection: Array<object>, property: string): Array<object> {
-    if(!collection) {
+    if (!collection) {
         return null;
     }
 
-    const groupedCollection = collection.reduce((previous, current)=> {
-        if(!previous[current[property]]) {
+    const groupedCollection = collection.reduce((previous, current) => {
+        if (!previous[current[property]]) {
             previous[current[property]] = [current];
         } else {
             previous[current[property]].push(current);

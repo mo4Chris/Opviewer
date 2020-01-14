@@ -12,7 +12,7 @@ export class AlertService {
     type = '';
     timeout = 3000;
 
-    private timeoutRef: NodeJS.Timeout = null;
+    private timeoutRef = null;
 
     constructor() {
         // this.addHTMLCode();

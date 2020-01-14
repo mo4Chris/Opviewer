@@ -4,9 +4,9 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
-import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
 import { isArray } from 'util';
 import { Observable } from 'rxjs';
+import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 
 @Injectable({
     providedIn: 'root'
@@ -328,5 +328,5 @@ interface HarbourModel {
         lon: number;
         lat: number;
         radius: number;
-    }
+    };
 }
