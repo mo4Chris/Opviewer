@@ -163,11 +163,11 @@ export class CalculationService {
   }
 
   linspace(start: number, stop: number, step: number = 1) {
-    const linspace = [];
+    const linspace = new Array(Math.round((stop - start) / step));
     let curr = start;
-    while ( curr <= stop ) {
-      linspace.push(curr);
-      curr = curr + step;
+    for (let _i = 0; _i < linspace.length; _i++) {
+      linspace[_i] = curr;
+      curr += step;
     }
     return linspace;
   }

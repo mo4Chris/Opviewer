@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { UserTestService } from '../shared/services/test.user.service';
 import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
+import { CalculationService } from './calculation.service';
 
 
 const emptyMatlabObject = {
@@ -409,13 +410,8 @@ export const MockedCommonServiceProvider = {
 
 // Class support functions
 function linspace(start: number, stop: number, step: number = 1) {
-  const _linspace = [];
-  let curr = start;
-  while ( curr <= stop ) {
-    _linspace.push(curr);
-    curr = curr + step;
-  }
-  return _linspace;
+  const _calc = new CalculationService;
+  return _calc.linspace(start, stop, step);
 }
 
 function mockSlipGraph(startTime: number, stopTime: number) {

@@ -303,23 +303,24 @@ export class LongtermCTVComponent implements OnInit {
         const month = Object.create(this.fromDate);
         month.year = this.fromDate.year;
         month.month = this.fromDate.month;
-        month.day = 0;
+        month.day = 1;
         const monthLabels = [];
         const dataPerMonth = []; // : Array<{dates: number[], score: number[]}> = [];
         let matlabStartDate: number;
         let matlabStopDate: number;
-        while (!month.after(this.toDate)) {
+        let _counter = 0;
+        while (!month.after(this.toDate) && _counter++ < 100) {
             // Creating nice labels to show in the bar plots
-            if (month.month === 0) {
+            if (month.month === 1) {
                 monthLabels.push('Jan ' + month.year);
             } else {
                 monthLabels.push(DatetimeService.shortMonths[month.month - 1]);
             }
             matlabStartDate = this.dateTimeService.objectToMatlabDate(month);
             // Getting the next month
-            if (month.month === 11) {
+            if (month.month > 11) {
                 month.year += 1;
-                month.month = 0;
+                month.month = 1;
             } else {
                 month.month += 1;
             }
