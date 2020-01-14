@@ -1,7 +1,7 @@
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { SOVSiemensMonthlyKPIComponent } from "./sov-siemens-monthly-kpi.component";
-import { CommonService } from "../../../common.service";
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { SOVSiemensMonthlyKPIComponent } from './sov-siemens-monthly-kpi.component';
+import { CommonService } from '@app/common.service';
 
 @NgModule({
     imports: [
@@ -11,4 +11,4 @@ import { CommonService } from "../../../common.service";
     providers: [CommonService],
     bootstrap: [SOVSiemensMonthlyKPIComponent]
 })
-export class SovSiemensMojnthlyKpiModule {}
+export class SovSiemensMonthlyKpiModule {}

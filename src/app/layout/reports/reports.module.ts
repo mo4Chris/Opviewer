@@ -7,7 +7,7 @@ import { ReportsRoutingModule } from './reports-routing-module';
 import { ReportsDprComponent } from './dpr/reports-dpr.component';
 import { ReportsDprModule } from './dpr/reports-dpr.module';
 import { LongtermModule } from './longterm/longterm.module';
-import { SovSiemensMojnthlyKpiModule } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.module';
+import { SovSiemensMonthlyKpiModule } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.module';
 import { TablesComponent } from './tables/tables.component';
 import { TablesModule } from './tables/tables.module';
 
@@ -17,7 +17,7 @@ import { TablesModule } from './tables/tables.module';
         ReportsRoutingModule,
         ReportsDprModule,
         LongtermModule,
-        SovSiemensMojnthlyKpiModule,
+        SovSiemensMonthlyKpiModule,
         TablesModule
     ],
     exports: [RouterModule],
