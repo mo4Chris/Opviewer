@@ -2971,4 +2971,4 @@
         
             </div>
 </div>
-<ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+<ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>

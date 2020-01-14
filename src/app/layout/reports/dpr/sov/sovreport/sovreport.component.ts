@@ -16,6 +16,7 @@ import { isArray } from 'util';
 import { WeatherOverviewChart } from '../../models/weatherChart';
 import { SettingsService } from '../../../../../supportModules/settings.service';
 import { SovData } from '../models/SovData';
+import { AlertService } from '../../../../../supportModules/alert.service';
 
 
 @Component({
@@ -87,7 +88,6 @@ export class SovreportComponent implements OnInit {
     remarksChanged = false;
     poBChanged = false;
     dpChanged = false;
-    alert = {type : '', message: ''};
     times = [];
     allHours = [];
     all5Minutes = [];
@@ -101,8 +101,6 @@ export class SovreportComponent implements OnInit {
     v2vPaxIn = 0;
     v2vPaxOut = 0;
 
-    showAlert = false;
-    timeout;
     remarks = '';
 
     cateringObject = {};
@@ -135,9 +133,11 @@ export class SovreportComponent implements OnInit {
         private datetimeService: DatetimeService,
         private modalService: NgbModal,
         private calculationService: CalculationService,
-        private gmapService: GmapService,
         private settings: SettingsService,
-    ) { }
+        private alert: AlertService,
+    ) {
+        this.alert.timeout = 7000;
+    }
 
 
     updateHOCTotal() {
@@ -393,13 +393,23 @@ export class SovreportComponent implements OnInit {
             mmsi: this.vesselObject.mmsi,
             date: this.vesselObject.date,
             MissedPaxCargo: this.missedPaxCargo
-        }).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        }).pipe(
+            map(
+                (res) => {
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
+                }
+            ),
+            catchError(error => {
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
+                throw error;
+            })
+        ).subscribe();
         this.nonAvailabilityChanged = false;
     }
 
@@ -408,13 +418,23 @@ export class SovreportComponent implements OnInit {
             mmsi: this.vesselObject.mmsi,
             date: this.vesselObject.date,
             HelicopterPaxCargo: this.helicopterPaxCargo
-        }).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        }).pipe(
+            map(
+                (res) => {
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
+                }
+            ),
+            catchError(error => {
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
+                throw error;
+            })
+        ).subscribe();
         this.nonAvailabilityChanged = false;
     }
 
@@ -434,22 +454,20 @@ export class SovreportComponent implements OnInit {
                 }).pipe(
                     map(
                         (res) => {
-                            this.alert.type = 'success';
-                            this.alert.message = res.data;
+                            this.alert.sendAlert({
+                                type: 'success',
+                                text: res.data,
+                            });
                         }
                     ),
                     catchError(error => {
-                        this.alert.type = 'danger';
-                        this.alert.message = error;
+                        this.alert.sendAlert({
+                            type: 'danger',
+                            text: error,
+                        });
                         throw error;
                     })
-                ).subscribe(_ => {
-                    clearTimeout(this.timeout);
-                    this.showAlert = true;
-                    this.timeout = setTimeout(() => {
-                        this.showAlert = false;
-                    }, 7000);
-                });
+                ).subscribe();
                 this.nonAvailabilityChanged = false;
         }
         this.saveHelicopterPaxCargo();
@@ -474,22 +492,20 @@ export class SovreportComponent implements OnInit {
                 }).pipe(
                     map(
                         (res) => {
-                            this.alert.type = 'success';
-                            this.alert.message = res.data;
+                            this.alert.sendAlert({
+                                type: 'success',
+                                text: res.data,
+                            });
                         }
                     ),
                     catchError(error => {
-                        this.alert.type = 'danger';
-                        this.alert.message = error;
+                        this.alert.sendAlert({
+                            type: 'danger',
+                            text: error,
+                        });
                         throw error;
                     })
-                ).subscribe(_ => {
-                    clearTimeout(this.timeout);
-                    this.showAlert = true;
-                    this.timeout = setTimeout(() => {
-                        this.showAlert = false;
-                    }, 7000);
-                });
+                ).subscribe();
                 this.nonAvailabilityChanged = false;
         }
         this.saveHelicopterPaxCargo();
@@ -511,22 +527,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.nonAvailabilityChanged = false;
     }
 
@@ -542,22 +556,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.nonAvailabilityChanged = false;
     }
 
@@ -582,22 +594,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.nonAvailabilityChanged = false;
     }
 
@@ -922,23 +932,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
-                console.log('danger');
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.fuelChanged = false;
     }
 
@@ -960,22 +967,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.incidentsChanged = false;
     }
 
@@ -988,22 +993,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
 
         this.commonService.saveWeatherDowntimeDpr({
             mmsi: this.vesselObject.mmsi,
@@ -1012,22 +1015,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
 
         this.commonService.saveStandByDpr({
             mmsi: this.vesselObject.mmsi,
@@ -1036,22 +1037,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
 
         this.weatherDowntimeChanged = false;
     }
@@ -1064,22 +1063,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.cateringChanged = false;
     }
 
@@ -1091,22 +1088,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.cateringChanged = false;
     }
 
@@ -1118,22 +1113,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.poBChanged = false;
     }
 
@@ -1145,22 +1138,20 @@ export class SovreportComponent implements OnInit {
         }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        type: 'success',
+                        text: res.data,
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    type: 'danger',
+                    text: error,
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
         this.remarksChanged = false;
     }
 
