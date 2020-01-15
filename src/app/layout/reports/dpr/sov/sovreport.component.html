@@ -1,145 +1,44 @@
 <div *ngIf="locShowContent">
+  <br>
+  <ngb-tabset>
+    <ngb-tab title="Summary">
+      <ng-template ngbTabContent>
+        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
+        </app-sov-summary>
+        <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab title="Weather chart">
+      <ng-template ngbTabContent>
 
-    <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors"
-    [fieldName]="fieldName"></app-sov-summary>
-    
-    <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject"
-    [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+        <app-sov-v2v-transfers [tokenInfo]="tokenInfo" [vessel2vessels]="sovModel.vessel2vessels"
+          [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations"></app-sov-v2v-transfers>
 
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+          <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers"></app-sov-platform-transfers>
+        </ng-container>
 
-    <div *ngIf="weatherOverviewChartCalculated">
-        <div class="card mb-3">
-            <div class="card-header">
-                Weather overview
-                <ng-template #popContentWeatherOverview class="helpContent">
-                    Weather overview for selected day and vessel.
-                    By default, only Hs and avg wind speed are shown.
-                    Hidden or missing data is crossed through. To show or
-                    hide a particular dataset, click on the colored
-                    bars in the legend. Hovering over the graph will
-                    display the recorded values at any time.
-                </ng-template>
-                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
-                    [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-            </div>
-            <div class="form-group">
-                <div class="card-body">
-                    <div class="weatherOverview chartContainer" style="height: 400px;">
-                        <canvas id="weatherOverview"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- non vesselmasters have no input fields-->
-        
-       
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+          <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes">
+          </app-sov-turbine-transfers>
+        </ng-container>
+      </ng-template>
+    </ngb-tab>
 
-        <br />
-        <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
-            <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Gangway usage
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Location</th>
-                                    <ng-template #helpGangwayReady class="helpContent">
-                                        Starttime indicating the gangway is attached and ready for transfers
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready
-                                    </th>
-                                    <th>Gangway disengaged</th>
-                                    <ng-template #helpGangwayReadyDuaration class="helpContent">
-                                        Duration for which gangway is attached and ready for transfer
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration
-                                        [mns]</th>
-                                    <ng-template #helpGangwayReadyDeployed class="helpContent">
-                                        Duration for which the gangway was used active this tranfer, not just ready to
-                                        tranfers
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
-                                        Deployed duration [mns]</th>
-                                    <ng-template #helpGangwayUtil class="helpContent">
-                                        Performance of gangway relative to its performance limitations.
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity
-                                        [%]</th>
-                                    <ng-template #helpGangwayLimiter class="helpContent">
-                                        Indicates which part is the most limiting parameter for gangway utilisation.
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
-                                    <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers"></app-sov-platform-transfers>
-                                </ng-container>
-                                <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
-                                    <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers"></app-sov-turbine-transfers>
-                                </ng-container>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <br />
-        </div>
-        <!-- TODO: Discuss what information is visible for turbine and what for platform -->
-        <app-sov-v2v-transfers [tokenInfo]="tokenInfo" [vessel2vessels]="sovModel.vessel2vessels" 
-        [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations"></app-sov-v2v-transfers>
-        
-        <div class="row" *ngIf="sovModel.cycleTimes.length > 0">
-            <div class="col-xl-12 col-lg-24">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Cycle Times
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>From turbine</th>
-                                    <th>To turbine</th>
-                                    <th colspan="2">Start time</th>
-                                    <th>Duration</th>
-                                    <th>Sailed distance</th>
-                                    <th>Turbine distance</th>
-                                    <th>Average speed</th>
-                                    <th>Maximum speed</th>
-                                    <th>Transfer time [mns]</th>
-                                    <ng-template #helpCycleAbove5Knots class="helpContent">
-                                        Percentage of time spend travelling above 5 knots.
-                                    </ng-template>
-                                    <th [ngbTooltip]="helpCycleAbove5Knots" placement="top" container="body">Speed above
-                                        5 kts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngFor="let cycleTime of sovModel.cycleTimes">
-                                    <tr>
-                                        <th>{{cycleTime.fromTurbine}}</th>
-                                        <th>{{cycleTime.toTurbine}}</th>
-                                        <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}
-                                        </td>
-                                        <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
-                                        <td>{{cycleTime.sailedDistance}}</td>
-                                        <td>{{cycleTime.turbineDistance}}</td>
-                                        <td>{{cycleTime.avgSpeed}}</td>
-                                        <td>{{cycleTime.maxSpeed}}</td>
-                                        <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins, ' minutes')}}</td>
-                                        <td>{{GetDecimalValueForNumber(100 * cycleTime.movingSpeedAbove5ktsPerc, '%')}}
-                                        </td>
-                                    </tr>
-                                </ng-container>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <ngb-tab title="DPR input">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="HSE input" [disabled]="true">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
+  </ngb-tabset>
 </div>
-<ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
+
+<ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">
+  {{ alert.text }}</ngb-alert>

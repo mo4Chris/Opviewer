@@ -60,7 +60,6 @@ export class SovV2vTransfersComponent implements OnInit {
       mmsi: toMMSI,
       turbineLocations: this.turbineLocations
     });
-    console.log(content);
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
     this.vessel2vesselActivityRoute = v2vHandler;
   }

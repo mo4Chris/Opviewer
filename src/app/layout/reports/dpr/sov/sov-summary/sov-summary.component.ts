@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { SovType } from '../models/SovType';
 import * as Chart from 'chart.js';
+import { SummaryModel } from '../models/Summary';
+import { SovModel } from '../models/SovModel';
 
 @Component({
   selector: 'app-sov-summary',
@@ -9,11 +11,14 @@ import * as Chart from 'chart.js';
     '../sovreport.component.scss']
 })
 export class SovSummaryComponent implements OnChanges {
-  @Input() sovModel;
+  @Input() sovModel: SovModel;
   @Input() backgroundColors: any[];
   @Input() fieldName: string;
 
+  // Summary
+  summary: SummaryModel;
 
+  // Some dependency
   SovTypeEnum = SovType;
 
   // Ops chart
@@ -27,6 +32,7 @@ export class SovSummaryComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges() {
+    this.summary = this.sovModel.summary;
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
   }

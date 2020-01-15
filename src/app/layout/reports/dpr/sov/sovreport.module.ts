@@ -15,6 +15,7 @@ import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-read
 import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbine-transfers.component';
 import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
+import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
 
 @NgModule({
   imports: [
@@ -29,7 +30,7 @@ import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.
     }),
   ],
   providers: [CalculationService],
-  declarations: [SovreportComponent, SovSummaryComponent, SovSummaryComponent, SovDprInputComponent, SovDprInputVesselmasterComponent, SovDprInputReadonlyComponent, SovTurbineTransfersComponent, SovPlatformTransfersComponent, SovV2vTransfersComponent],
+  declarations: [SovreportComponent, SovSummaryComponent, SovSummaryComponent, SovDprInputComponent, SovDprInputVesselmasterComponent, SovDprInputReadonlyComponent, SovTurbineTransfersComponent, SovPlatformTransfersComponent, SovV2vTransfersComponent, SovWeatherchartComponent],
   exports: [SovreportComponent]
 })
 export class SovreportModule { }
