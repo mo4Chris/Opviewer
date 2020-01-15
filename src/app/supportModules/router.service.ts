@@ -39,6 +39,7 @@ export class RouterService {
     routeToLTM(route: {mmsi: number, name?: string}) {
         if (!route.name) {
             route.name = 'placeholder';
+            console.error('Navigation to LTM without name is currently not supported!');
             // ToDo: get vesselname by mmsi
         } else {
             this.route(['reports/longterm', {

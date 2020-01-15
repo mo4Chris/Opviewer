@@ -1,4 +1,6 @@
-<app-report-header [activeRoute]="activeRoute"></app-report-header>
+<div class="placeholder">
+    <app-report-header [activeRoute]="activeRoute"></app-report-header>
+</div>
 <br>
 <app-report-tables *ngIf="activeRoute=='tables'"></app-report-tables>
 <app-reports-dpr *ngIf="activeRoute=='dpr'"></app-reports-dpr>

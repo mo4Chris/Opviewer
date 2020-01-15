@@ -32,7 +32,7 @@ export class ReportHeaderComponent implements OnChanges {
     text: 'Longterm',
     status: 'active',
     route: 'longterm',
-    cb: () => this.router.routeToLTM({mmsi: 123456789})
+    cb: () => this.router.routeToLTM({mmsi: 244090781, name: 'Acta Auriga'})
   }, {
     text: 'Monthly KPI',
     status: 'active',
@@ -52,6 +52,14 @@ export class ReportHeaderComponent implements OnChanges {
         }
       }
     });
+  }
+
+  onClick(elt: MouseEvent) {
+    const activeText: string = elt.target['id'];
+    const navItem = this.navItems.find(_elt => _elt.route === activeText);
+    if (navItem) {
+      navItem.cb();
+    }
   }
 
 }

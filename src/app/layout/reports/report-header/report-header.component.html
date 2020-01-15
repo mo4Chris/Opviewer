@@ -1,41 +1,35 @@
-<ul role="tablist" class="nav nav-tabs justify-content-start">
+<ul role="tablist" class="nav nav-tabs justify-content-start static">
   <div *ngFor="let nav of navItems">
     <li class="nav-item ng-star-inserted">
       <a *ngIf="nav.status === 'selected'"
-        routerLink="nav"
         [routerLinkActive]="['router-link-active']"
         class="nav-link active"
         role="tab"
-        id="ngb-tab-0"
         aria-expanded="false"
         aria-controls="ngb-tab-0-panel"
       >
       {{nav.text}} 
       </a>
       <a *ngIf="nav.status === 'active'"
-        routerLink="nav"
         [routerLinkActive]="['router-link-active']"
-        class="nav-link"
-        role="tab"
-        id="ngb-tab-0"
+        class="nav-link a:link"
+        id="{{nav.route}}"
         aria-expanded="false"
         aria-controls="ngb-tab-0-panel"
+        (click)='onClick($event)'
       >
       {{nav.text}} 
       </a>
       <a *ngIf="nav.status === 'disabled'"
-        routerLink="nav"
         [routerLinkActive]="['router-link-active']"
         class="nav-link disabled"
         role="tab"
-        id="ngb-tab-0"
         aria-expanded="false"
         aria-controls="ngb-tab-0-panel"
       >
       {{nav.text}} 
       </a>
     </li>
-
   </div>
 </ul>
 
