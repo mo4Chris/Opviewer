@@ -1,0 +1,124 @@
+<div class="row">
+  <div class="col-xl-12 col-lg-24">
+    <div class="card mb-3">
+      <div class="card-header">Daily Summary</div>
+      <div class="card-body">
+      <div class="col-xl-6 dailySummary">
+        <table class="table table-responsive table-bordered tableSummary">
+            <ng-container>
+              <tr *ngIf="sovModel.summary.departureFromHarbour != 'N/a'">
+                <td>Departure from harbour</td>
+                <td>{{sovModel.summary.departureFromHarbour}}</td>
+              </tr>
+              <tr *ngIf="sovModel.summary.arrivalAtHarbour != 'N/a'">
+                <td>Arrival at harbour</td>
+                <td>{{sovModel.summary.arrivalAtHarbour}}</td>
+              </tr>
+              <tr *ngIf="sovModel.summary.TotalSailDistance != 'N/a'">
+                <td>Distance sailed</td>
+                <td>{{sovModel.summary.TotalSailDistance}} </td>
+              </tr>
+            </ng-container>
+            <ng-container
+              *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
+              <tr>
+                <td>Number of platforms visited</td>
+                <td>{{sovModel.platformTransfers.length}}</td>
+              </tr>
+              <tr>
+                <td>Average time in waiting zone</td>
+                <td>{{sovModel.summary.AvgTimeInWaitingZone}}</td>
+              </tr>
+              <tr>
+                <td>Average time in exclusion zone</td>
+                <td>{{sovModel.summary.AvgTimeInExclusionZone}}</td>
+              </tr>
+              <tr>
+                <ng-template #helpAvgDockingTime class="helpContent">
+                  Average time spend from entering exclusion zone until leaving the platform.
+                </ng-template>
+                <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">Average time
+                  spent docking</td>
+                <td>{{sovModel.summary.AvgTimeDocking}}</td>
+              </tr>
+              <tr>
+                <td>Average approachtime</td>
+                <td>{{sovModel.summary.AvgTimeTravelingToPlatforms}}</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
+              <tr *ngIf="sovModel.turbineTransfers.length > 0">
+                <td>Number of gangway connections</td>
+                <td>{{sovModel.turbineTransfers.length}}</td>
+              </tr>
+              <tr>
+                <ng-template #helpAvgDockingTime2 class="helpContent">
+                  Average time spend from entering exclusion zone until leaving the platform.
+                </ng-template>
+                <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time
+                  spent docking</td>
+                <td>{{sovModel.summary.AvgTimeDocking}}</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="sovModel.summary.NrOfVesselTransfers > 0">
+              <tr>
+                <ng-template #helpNumV2VTransfers class="helpContent">
+                  Total number of transfers between this SOV and other CTVs.
+                </ng-template>
+                <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of
+                  CTV vessel to vessel transfers</td>
+                <td>{{sovModel.summary.NrOfVesselTransfers}}</td>
+              </tr>
+              <tr>
+                <td>Average time spent docking (vessels)</td>
+                <td>{{sovModel.summary.AvgTimeVesselDocking}}</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="sovModel.summary.NrOfDaughterCraftLaunches > 0">
+              <tr>
+                <td>Number of daughter-craft launches</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>DC sailing time</td>
+                <td></td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="sovModel.summary.NrOfHelicopterVisits > 0">
+              <tr>
+                <td>Number of helicopter visits</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Average time helicopter on deck</td>
+                <td></td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="fieldName !== ''">
+              <tr>
+                <td>Field with transfers</td>
+                <td>{{fieldName}}</td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="sovModel.summary.maxSignificantWaveHeightdDuringOperations !== 'N/a'">
+              <td>Maximum significant wave height during operations</td>
+              <td>{{sovModel.summary.maxSignificantWaveHeightdDuringOperations}}</td>
+            </tr>
+            <tr *ngIf="sovModel.summary.maxWindSpeedDuringOperations !== 'N/a'">
+              <td>Maximum wind speed during operations</td>
+              <td>{{sovModel.summary.maxWindSpeedDuringOperations}}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-xl-6 dailySummary">
+          <div *ngIf="operationalChartCalculated">
+            <canvas id="operationalStats"></canvas>
+          </div>
+          <div *ngIf="sovHasLimiters">
+            <canvas id="gangwayLimitations"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

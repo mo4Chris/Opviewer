@@ -3,15 +3,15 @@ import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core
 import { SovreportComponent } from './sovreport.component';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
-import { SharedPipesModule, PageHeaderModule } from '../../../../../shared';
+import { SharedPipesModule, PageHeaderModule } from '@app/shared';
 import { CommonModule } from '@angular/common';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AgmCoreModule } from '@agm/core';
-import { CommonService } from '../../../../../common.service';
-import { MockedCommonService, MockedCommonServiceProvider } from '../../../../../supportModules/mocked.common.service';
-import { UserTestService } from '../../../../../shared/services/test.user.service';
+import { CommonService } from '@app/common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { UserTestService } from '@app/shared/services/test.user.service';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -48,7 +48,7 @@ describe('SovreportComponent', () => {
     };
   };
   let weatherSpy: jasmine.Spy;
-  let opsChartSpy: jasmine.Spy;
+  // let opsChartSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -73,7 +73,7 @@ describe('SovreportComponent', () => {
   }));
 
   beforeEach(async(() => {
-    opsChartSpy = spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
+    // opsChartSpy = spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
     spyOn(SovreportComponent.prototype, 'createGangwayLimitationsChart');
     weatherSpy = spyOn(SovreportComponent.prototype, 'createWeatherOverviewChart');
 
@@ -89,7 +89,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
-    expect(opsChartSpy).toHaveBeenCalled();
+    // expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as vessel master', fakeAsync(() => {
@@ -99,7 +99,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
-    expect(opsChartSpy).toHaveBeenCalled();
+    // expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as marine controll', fakeAsync(() => {
@@ -109,7 +109,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
-    expect(opsChartSpy).toHaveBeenCalled();
+    // expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create as logistic specialist', fakeAsync(() => {
@@ -119,7 +119,7 @@ describe('SovreportComponent', () => {
     component.buildPageWithCurrentInformation();
     expect(component).toBeTruthy();
     expect(component.locShowContent).toBe(true);
-    expect(opsChartSpy).toHaveBeenCalled();
+    // expect(opsChartSpy).toHaveBeenCalled();
   }));
 
   it('should create weather charts', fakeAsync(() => {

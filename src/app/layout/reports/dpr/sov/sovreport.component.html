@@ -1,0 +1,391 @@
+<div *ngIf="locShowContent">
+
+    <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors"
+    [fieldName]="fieldName"></app-sov-summary>
+    
+    <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject"
+    [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+
+
+    <div *ngIf="weatherOverviewChartCalculated">
+        <div class="card mb-3">
+            <div class="card-header">
+                Weather overview
+                <ng-template #popContentWeatherOverview class="helpContent">
+                    Weather overview for selected day and vessel.
+                    By default, only Hs and avg wind speed are shown.
+                    Hidden or missing data is crossed through. To show or
+                    hide a particular dataset, click on the colored
+                    bars in the legend. Hovering over the graph will
+                    display the recorded values at any time.
+                </ng-template>
+                <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+                    [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+            </div>
+            <div class="form-group">
+                <div class="card-body">
+                    <div class="weatherOverview chartContainer" style="height: 400px;">
+                        <canvas id="weatherOverview"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- non vesselmasters have no input fields-->
+        
+       
+
+        <br />
+        <div class="row" *ngIf="sovModel.platformTransfers.length > 0 || sovModel.turbineTransfers.length > 0">
+            <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Gangway usage
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <ng-template #helpGangwayReady class="helpContent">
+                                        Starttime indicating the gangway is attached and ready for transfers
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready
+                                    </th>
+                                    <th>Gangway disengaged</th>
+                                    <ng-template #helpGangwayReadyDuaration class="helpContent">
+                                        Duration for which gangway is attached and ready for transfer
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration
+                                        [mns]</th>
+                                    <ng-template #helpGangwayReadyDeployed class="helpContent">
+                                        Duration for which the gangway was used active this tranfer, not just ready to
+                                        tranfers
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
+                                        Deployed duration [mns]</th>
+                                    <ng-template #helpGangwayUtil class="helpContent">
+                                        Performance of gangway relative to its performance limitations.
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity
+                                        [%]</th>
+                                    <ng-template #helpGangwayLimiter class="helpContent">
+                                        Indicates which part is the most limiting parameter for gangway utilisation.
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+                                    <ng-container *ngFor="let platformTransfer of sovModel.platformTransfers">
+                                        <tr *ngIf="platformTransfer.gangwayDeployedDuration != 'N/a'">
+                                            <ng-container *ngIf="platformTransfer.locationname != undefined">
+                                                <th>{{platformTransfer.locationname}}</th>
+                                            </ng-container>
+                                            <ng-container *ngIf="platformTransfer.location != undefined">
+                                                <th>{{platformTransfer.location}}</th>
+                                            </ng-container>
+                                            <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayReady, 'HH:mm')}}
+                                            </td>
+                                            <td>{{getMatlabDateToCustomJSTime(platformTransfer.timeGangwayRetracted, 'HH:mm')}}
+                                            </td>
+                                            <td>{{GetMatlabDurationToMinutes(platformTransfer.gangwayReadyDuration)}}
+                                            </td>
+                                            <td>{{GetMatlabDurationToMinutes(platformTransfer.gangwayDeployedDuration)}}
+                                            </td>
+                                            <td>{{GetDecimalValueForNumber(platformTransfer.gangwayUtilisation, '%')}}
+                                            </td>
+                                            <td>{{platformTransfer.gangwayUtilisationLimiter}}</td>
+                                        </tr>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+                                    <tr *ngFor="let turbineTransfer of sovModel.turbineTransfers">
+                                        <th>{{turbineTransfer.location}}</th>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}
+                                        </td>
+                                        <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}
+                                        </td>
+                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
+                                        <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayDeployedDuration)}}</td>
+                                        <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
+                                        <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </div>
+        <!-- TODO: Discuss what information is visible for turbine and what for platform -->
+        <div class="row" *ngIf=" this.tokenInfo.userPermission == 'Vessel master' && sovModel.vessel2vessels.length > 0">
+            <div class="col-xl-12 col-lg-24">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Vessel Transfers
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>From vessel</th>
+                                    <th>To vessel</th>
+                                    <th>Start time</th>
+                                    <th>End time</th>
+                                    <th>Duration [mns]</th>
+                                    <th>Peak wind gust [{{settings.unit_speed}}]</th>
+                                    <th>Peak heave [m]</th>
+                                    <th>Pax in/out</th>
+                                    <th>Cargo in/out</th>
+                                    <th>save</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
+                                    <ng-container
+                                        *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
+                                        <tr>
+                                            <th>{{sovModel.sovInfo.vesselName}}</th>
+                                            <th colspan="9"><a href="javascript:void(0)"
+                                                    (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a>
+                                            </th>
+                                        </tr>
+                                        <ng-container *ngFor="let transfer of object.value">
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                                                <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                                                <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
+                                                <td>{{transfer.peakWindGust}}</td>
+                                                <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
+                                                <td>
+                                                    <input type="number" min="0" class="form-control-sm col-sm-5"
+                                                        [(ngModel)]="transfer.paxIn" [value]="transfer.paxIn"
+                                                        (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                                                    incoming <br>
+                                                    <input type="number" min="0" class="form-control-sm col-sm-5"
+                                                        [(ngModel)]="transfer.paxOut" [value]="transfer.paxOut"
+                                                        (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                                                    outgoing
+                                                </td>
+                                                <td>
+                                                    <input type="number" min="0" class="form-control-sm col-sm-5"
+                                                        [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn"
+                                                        (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                                                    kg incoming <br>
+                                                    <input type="number" min="0" class="form-control-sm col-sm-5"
+                                                        [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut"
+                                                        (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                                                    kg outgoing
+                                                </td>
+                                                <td><button class="btn btn-lg btn-primary submitBtnDate"
+                                                        (click)="savev2vPaxInput()" type="button">Save</button></td>
+                                            </tr>
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                                <tr *ngIf="sovModel.vessel2vessels.length > 0" class="tableTotal">
+                                    <th>V2V transfers total</th>
+                                    <td colspan="6"></td>
+                                    <td>
+                                        {{v2vPaxIn}} incoming <br>
+                                        {{v2vPaxOut}} outgoing
+                                    </td>
+                                    <td>
+                                        {{v2vCargoIn}} kg incoming <br>
+                                        {{v2vCargoOut}} kg outgoing
+                                    </td>
+                                    <td><button class="btn btn-lg btn-primary submitBtnDate"
+                                        (click)="savev2vPaxInput()" type="button">Save all</button></td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" *ngIf="this.tokenInfo.userPermission != 'Vessel master' && sovModel.vessel2vessels.length > 0">
+                <div class="col-xl-12 col-lg-24">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Vessel Transfers
+                        </div>
+                        <div class="card-body table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>From vessel</th>
+                                        <th>To vessel</th>
+                                        <th>Start time</th>
+                                        <th>End time</th>
+                                        <th>Duration [mns]</th>
+                                        <th>Peak wind gust [{{settings.unit_speed}}]</th>
+                                        <th>Peak heave [m]</th>
+                                        <th>Pax in/out</th>
+                                        <th>Cargo in/out</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ng-container *ngFor="let vessel2vessel of sovModel.vessel2vessels">
+                                        <ng-container
+                                            *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
+                                            <tr>
+                                                <th>{{sovModel.sovInfo.vesselName}}</th>
+                                                <th colspan="9"><a href="javascript:void(0)"
+                                                        (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a>
+                                                </th>
+                                            </tr>
+                                            <ng-container *ngFor="let transfer of object.value">
+                                                <tr>
+                                                    <td colspan="2"></td>
+                                                    <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                                                    <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                                                    <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
+                                                    <td>{{transfer.peakWindGust}}</td>
+                                                    <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
+                                                    <td>
+                                                        {{transfer.paxIn}} incoming <br>
+                                                        {{transfer.paxOut}} outgoing
+                                                    </td>
+                                                    <td>
+                                                        {{transfer.cargoIn}} kg incoming <br>
+                                                        {{transfer.cargoOut}} kg outgoing
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+                                    </ng-container>
+                                    <tr *ngIf="sovModel.vessel2vessels.length > 0" class="tableTotal">
+                                        <th>V2V transfers total</th>
+                                        <td colspan="6"></td>
+                                        <td>
+                                            {{v2vPaxIn}} incoming <br>
+                                            {{v2vPaxOut}} outgoing
+                                        </td>
+                                        <td>
+                                            {{v2vCargoIn}} kg incoming <br>
+                                            {{v2vCargoOut}} kg outgoing
+                                        </td>
+                                        <td></td>
+    
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <ng-template #content let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-basic-title">Vessel: {{vessel2vesselActivityRoute.vessel}}</h4>
+                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <ng-template #noTurbinesVisited>
+                <thead>
+                    <tr>
+                        <td colspan="5"> There were no turbines visited by this vessel</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </ng-template>
+            <div class="modal-body" *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
+                <p>Turbines visited by this vessel</p>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers;">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Location</th>
+                                    <th>Start time</th>
+                                    <th>End time</th>
+                                    <th>Duration [mns]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container
+                                    *ngFor="let object of (vessel2vesselActivityRoute.ctvActivity.turbineVisits | groupBy:'fieldname')">
+                                    <tr>
+                                        <th colspan="5">{{object.key}}</th>
+                                    </tr>
+                                    <ng-container *ngFor="let turbineVisit of object.value">
+                                        <tr>
+                                            <td></td>
+                                            <td>{{turbineVisit.location}}</td>
+                                            <td>{{getMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                                            <td>{{getMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                                            <td>{{GetMatlabDurationToMinutes(turbineVisit.durationMinutes)}}</td>
+                                        </tr>
+                                    </ng-container>
+                                </ng-container>
+                            </tbody>
+                        </ng-container>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="routeMap">
+                    <!-- Drawing popup map for CTV transfers-->
+                    <agm-map [latitude]="vessel2vesselActivityRoute.mapLat"
+                        [longitude]="vessel2vesselActivityRoute.mapLon" [zoom]="vessel2vesselActivityRoute.mapZoomLevel"
+                        [mapTypeId]="'roadmap'" [streetViewControl]=false (mapReady)="build_v2v_map($event)">
+                    </agm-map>
+                </div>
+            </div>
+        </ng-template>
+        <div class="row" *ngIf="sovModel.cycleTimes.length > 0">
+            <div class="col-xl-12 col-lg-24">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Cycle Times
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>From turbine</th>
+                                    <th>To turbine</th>
+                                    <th colspan="2">Start time</th>
+                                    <th>Duration</th>
+                                    <th>Sailed distance</th>
+                                    <th>Turbine distance</th>
+                                    <th>Average speed</th>
+                                    <th>Maximum speed</th>
+                                    <th>Transfer time [mns]</th>
+                                    <ng-template #helpCycleAbove5Knots class="helpContent">
+                                        Percentage of time spend travelling above 5 knots.
+                                    </ng-template>
+                                    <th [ngbTooltip]="helpCycleAbove5Knots" placement="top" container="body">Speed above
+                                        5 kts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let cycleTime of sovModel.cycleTimes">
+                                    <tr>
+                                        <th>{{cycleTime.fromTurbine}}</th>
+                                        <th>{{cycleTime.toTurbine}}</th>
+                                        <td colspan="2">{{getMatlabDateToCustomJSTime(cycleTime.startTimeNum, 'HH:mm')}}
+                                        </td>
+                                        <td>{{GetMatlabDurationToMinutes(cycleTime.durationMinutes)}}</td>
+                                        <td>{{cycleTime.sailedDistance}}</td>
+                                        <td>{{cycleTime.turbineDistance}}</td>
+                                        <td>{{cycleTime.avgSpeed}}</td>
+                                        <td>{{cycleTime.maxSpeed}}</td>
+                                        <td>{{GetDecimalValueForNumber(cycleTime.transferTimeMins, ' minutes')}}</td>
+                                        <td>{{GetDecimalValueForNumber(100 * cycleTime.movingSpeedAbove5ktsPerc, '%')}}
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>

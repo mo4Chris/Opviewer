@@ -19,10 +19,10 @@ import { UserService } from '@app/shared/services/user.service';
 
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
-import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
+import { SovreportModule } from './sov/sovreport.module';
 
 @NgModule({
     imports: [
@@ -37,9 +37,11 @@ import { RouterService } from '@app/supportModules/router.service';
         NgMultiSelectDropDownModule,
         CommonModule,
         PageHeaderModule,
-        SharedPipesModule
+        SharedPipesModule,
+
+        SovreportModule,
     ],
-    declarations: [SovreportComponent, CtvreportComponent, ReportsDprComponent],
+    declarations: [CtvreportComponent, ReportsDprComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [ReportsDprComponent],
     exports: [ReportsDprComponent],
