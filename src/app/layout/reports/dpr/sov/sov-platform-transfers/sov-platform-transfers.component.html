@@ -1,0 +1,11 @@
+<tr *ngFor="let turbineTransfer of turbineTransfers">
+  <th>{{turbineTransfer.location}}</th>
+  <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}
+  </td>
+  <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}
+  </td>
+  <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
+  <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayDeployedDuration)}}</td>
+  <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
+  <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
+</tr>

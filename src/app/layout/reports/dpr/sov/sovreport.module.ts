@@ -12,6 +12,9 @@ import { AgmCoreModule } from '@agm/core';
 import { SovDprInputComponent } from './sov-dpr-input/sov-dpr-input.component';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
 import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-readonly/sov-dpr-input-readonly.component';
+import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbine-transfers.component';
+import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
+import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 
 @NgModule({
   imports: [
@@ -26,7 +29,7 @@ import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-read
     }),
   ],
   providers: [CalculationService],
-  declarations: [SovreportComponent, SovSummaryComponent, SovSummaryComponent, SovDprInputComponent, SovDprInputVesselmasterComponent, SovDprInputReadonlyComponent],
+  declarations: [SovreportComponent, SovSummaryComponent, SovSummaryComponent, SovDprInputComponent, SovDprInputVesselmasterComponent, SovDprInputReadonlyComponent, SovTurbineTransfersComponent, SovPlatformTransfersComponent, SovV2vTransfersComponent],
   exports: [SovreportComponent]
 })
 export class SovreportModule { }

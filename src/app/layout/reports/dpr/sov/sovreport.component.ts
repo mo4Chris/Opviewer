@@ -55,16 +55,12 @@ export class SovreportComponent implements OnInit {
 
     locShowContent = false;
     gangwayActive = false;
-    vessel2vesselActivityRoute: Vessel2VesselActivity;
     turbineLocations = new Array<any>();
     fieldName = '';
 
     // Charts
-    private v2v_data_layer: MapZoomLayer;
-    gangwayLimitationsChart;
     weatherOverviewChart: WeatherOverviewChart;
     weatherOverviewChartCalculated = false;
-    sovHasLimiters = false;
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
     summaryInfo = {
@@ -77,7 +73,6 @@ export class SovreportComponent implements OnInit {
     constructor(
         private commonService: CommonService,
         private datetimeService: DatetimeService,
-        private modalService: NgbModal,
         private calculationService: CalculationService,
         private settings: SettingsService,
         private alert: AlertService,
@@ -87,31 +82,7 @@ export class SovreportComponent implements OnInit {
 
 
 
-    openVesselMap(content, vesselname: string, toMMSI: number) {
-        const routemap = document.getElementById('routeMap');
-        const v2vHandler = new Vessel2VesselActivity({
-            sovModel: this.sovModel,
-            htmlMap: routemap,
-            vessel: vesselname,
-            mmsi: toMMSI,
-            turbineLocations: this.turbineLocations
-        });
-        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-        this.vessel2vesselActivityRoute = v2vHandler;
-    }
 
-    build_v2v_map(googleMap) {
-        if (this.v2v_data_layer === undefined) {
-            this.v2v_data_layer = new MapZoomLayer(googleMap, 1);
-        } else {
-            this.v2v_data_layer.reset();
-            this.v2v_data_layer.setMap(googleMap);
-        }
-        // Set up for turbines locations view on map
-        this.vessel2vesselActivityRoute.addVesselRouteToMapZoomLayer(this.v2v_data_layer);
-        this.vessel2vesselActivityRoute.addTurbinesToMapZoomLayer(this.v2v_data_layer);
-        this.v2v_data_layer.draw();
-    }
 
     objectToInt(objectvalue) {
         return this.calculationService.objectToInt(objectvalue);
@@ -225,11 +196,6 @@ export class SovreportComponent implements OnInit {
     buildPageWhenAllLoaded() {
         try {
             this.CalculateDailySummary();
-        } catch (e) {
-            console.error(e);
-        }
-        try {
-            this.createGangwayLimitationsChart();
         } catch (e) {
             console.error(e);
         }
@@ -491,49 +457,6 @@ export class SovreportComponent implements OnInit {
         }
     }
 
-    createGangwayLimitationsChart() {
-        const getCounter = (limiter: string) => {
-            return this.sovModel.turbineTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === limiter).length +
-                this.sovModel.platformTransfers.filter((transfer) => transfer.gangwayUtilisationLimiter === limiter).length;
-        };
-        const counter = {
-            stroke: getCounter('stroke'),
-            boomAngle: getCounter('boom angle'),
-            telescope: getCounter('telescope')
-        };
-        if (Object.keys(counter).some((key) => counter[key] > 0)) {
-            this.sovHasLimiters = true;
-            setTimeout(() => {
-                this.gangwayLimitationsChart = new Chart('gangwayLimitations', {
-                    type: 'pie',
-                    data: {
-                        datasets: [
-                            {
-                                data: [counter.stroke, counter.boomAngle, counter.telescope],
-                                backgroundColor: this.backgroundcolors,
-                                radius: 8,
-                                pointHoverRadius: 10,
-                                borderWidth: 1
-                            }
-                        ],
-                        labels: ['Stroke limited', 'Boom angle limited', 'Telescopic angle limited']
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            position: 'top',
-                            text: 'Gangway Limitations',
-                            fontSize: 25
-                        },
-                        responsive: true,
-                        radius: 6,
-                        pointHoverRadius: 6
-                    }
-                });
-            }, 500);
-        }
-    }
-
     testValidWeatherField(weatherField: number[]) {
         return isArray(weatherField) && weatherField.reduce((curr: boolean, val: any) => curr || typeof(val) === 'number', false);
     }
@@ -691,9 +614,9 @@ export class SovreportComponent implements OnInit {
         //     this.operationsChart.destroy();
         //     this.operationalChartCalculated = false;
         // }
-        if (this.gangwayLimitationsChart !== undefined) {
-            this.gangwayLimitationsChart.destroy();
-            this.sovHasLimiters = false;
-        }
+        // if (this.gangwayLimitationsChart !== undefined) {
+        //     this.gangwayLimitationsChart.destroy();
+        //     this.sovHasLimiters = false;
+        // }
     }
 }

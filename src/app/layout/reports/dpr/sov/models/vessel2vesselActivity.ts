@@ -4,6 +4,7 @@ import { V2vCtvActivity } from './Transfers/vessel2vessel/V2vCtvActivity';
 import { MapZoomLayer, MapZoomPolygon, MapZoomData } from '../../../../../models/mapZoomLayer';
 import { isArray } from 'util';
 import { GmapService } from '../../../../../supportModules/gmap.service';
+import { Vessel2vesselModel } from './Transfers/vessel2vessel/Vessel2vessel';
 
 
 
@@ -29,15 +30,15 @@ export class Vessel2VesselActivity {
         this.mmsi = Options.mmsi;
         this.turbineLocations = Options.turbineLocations;
 
-        this.matchTurbines(Options.sovModel);
+        this.matchTurbines(Options.v2vs);
         if (this.ctvActivity !== undefined) {
             this.buildVesselRoute();
             this.setMapProperties(Options.htmlMap);
         }
     }
 
-    matchTurbines(sov: SovModel) {
-        sov.vessel2vessels.forEach(v2v => {
+    matchTurbines(v2vs: Vessel2vesselModel[]) {
+        v2vs.forEach(v2v => {
             v2v.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === this.mmsi) {
                     this.ctvActivity = ctvActivity;
@@ -72,7 +73,7 @@ export class Vessel2VesselActivity {
     }
 
     addTurbinesToMapZoomLayer(layer: MapZoomLayer) {
-        if (this.hasTurbineTransfers) {
+        if (this.hasTurbineTransfers && this.turbineLocations) {
             this.turbineLocations.forEach(turbineLocation => {
                 if (turbineLocation) {
                     turbineLocation.name.forEach((Name, idx) => {
@@ -106,7 +107,7 @@ export class Vessel2VesselActivity {
 
 export interface V2Voptions {
     // Mandatory
-    sovModel: SovModel;
+    v2vs: Vessel2vesselModel[];
     mmsi: number;
     turbineLocations: TurbineLocsFromMongo[];
     vessel: string;
