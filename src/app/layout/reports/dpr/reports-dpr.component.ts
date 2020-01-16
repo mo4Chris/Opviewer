@@ -1,27 +1,27 @@
 /// <reference types="@types/googlemaps" />
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
-import { CommonService } from '../../../common.service';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
 import { isArray } from 'util';
 
 import * as moment from 'moment';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
-import { CalculationService } from '../../../supportModules/calculation.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { DatetimeService } from '../../../supportModules/datetime.service';
-import { UserService } from '../../../shared/services/user.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { UserService } from '@app/shared/services/user.service';
 
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
-import { SovreportComponent } from './sov/sovreport/sovreport.component';
+import { SovreportComponent } from './sov/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
 import { from } from 'rxjs/Observable/from';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
-import { EventService } from '../../../supportModules/event.service';
+import { EventService } from '@app/supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
 import { VesselPlatforms } from './models/VesselTurbines';
-import { GmapService } from '../../../supportModules/gmap.service';
-import { VesselModel } from '../../../models/vesselModel';
-import { TokenModel } from '../../../models/tokenModel';
+import { GmapService } from '@app/supportModules/gmap.service';
+import { VesselModel } from '@app/models/vesselModel';
+import { TokenModel } from '@app/models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 
 @Component({

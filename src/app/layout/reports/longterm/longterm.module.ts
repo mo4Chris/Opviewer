@@ -35,14 +35,15 @@ import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.componen
         PageHeaderModule
     ],
     declarations: [
-        LongtermComponent,
         LongtermCTVComponent,
         LongtermSOVComponent,
         DeploymentGraphComponent,
         UtilizationGraphComponent,
-        VesselinfoComponent
+        VesselinfoComponent,
+        LongtermComponent,
     ],
     providers: [CommonService, UserService],
-    bootstrap: [LongtermComponent]
+    bootstrap: [LongtermComponent],
+    exports: [LongtermComponent]
 })
 export class LongtermModule {}

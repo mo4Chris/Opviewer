@@ -1,0 +1,44 @@
+<div *ngIf="locShowContent">
+  <br>
+  <ngb-tabset>
+    <ngb-tab title="Summary">
+      <ng-template ngbTabContent>
+        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
+        </app-sov-summary>
+        <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab title="Weather chart">
+      <ng-template ngbTabContent>
+
+        <app-sov-v2v-transfers [tokenInfo]="tokenInfo" [vessel2vessels]="sovModel.vessel2vessels"
+          [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations"></app-sov-v2v-transfers>
+
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+          <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers"></app-sov-platform-transfers>
+        </ng-container>
+
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+          <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes">
+          </app-sov-turbine-transfers>
+        </ng-container>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="DPR input">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="HSE input" [disabled]="true">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
+  </ngb-tabset>
+</div>
+
+<ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">
+  {{ alert.text }}</ngb-alert>

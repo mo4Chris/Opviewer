@@ -10,7 +10,7 @@ import { TokenModel } from '../../../models/tokenModel';
 import { RouterService } from '../../../supportModules/router.service';
 
 @Component({
-    selector: 'app-tables',
+    selector: 'app-report-tables',
     templateUrl: './tables.component.html',
     styleUrls: ['./tables.component.scss'],
     animations: [routerTransition()]

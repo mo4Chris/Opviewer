@@ -1,4 +1,7 @@
-<p>
-  reports works!
-</p>
-<router-outlet  name="reports"></router-outlet>  
+<!--<div class="placeholder">
+    <app-report-header [activeRoute]="activeRoute"></app-report-header>
+<br>
+</div> -->
+<app-report-tables *ngIf="activeRoute=='tables'"></app-report-tables>
+<app-reports-dpr *ngIf="activeRoute=='dpr'"></app-reports-dpr>
+<app-reports-longterm *ngIf="activeRoute=='longterm'"></app-reports-longterm>
