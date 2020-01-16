@@ -8,7 +8,7 @@
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>
     </ngb-tab>
-    <ngb-tab title="Weather chart">
+    <ngb-tab title="Commercial DPR">
       <ng-template ngbTabContent>
 
         <app-sov-v2v-transfers [tokenInfo]="tokenInfo" [vessel2vessels]="sovModel.vessel2vessels"
@@ -25,9 +25,17 @@
       </ng-template>
     </ngb-tab>
 
+    <ngb-tab title="DPR input [read only]">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="true"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
     <ngb-tab title="DPR input">
       <ng-template ngbTabContent>
-        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="false"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 
