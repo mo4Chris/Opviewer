@@ -90,10 +90,8 @@ export class SovSummaryComponent implements OnChanges {
             boomAngle: getCounter('boom angle'),
             telescope: getCounter('telescope')
         };
-        console.log(counter);
         if (Object.keys(counter).some((key) => counter[key] > 0)) {
             this.sovHasLimiters = true;
-            console.log('Limiters found');
             setTimeout(() => {
                 this.gangwayLimitationsChart = new Chart('gangwayLimitations', {
                     type: 'pie',

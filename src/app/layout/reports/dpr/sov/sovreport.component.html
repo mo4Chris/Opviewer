@@ -1,4 +1,4 @@
-<div *ngIf="locShowContent">
+<div *ngIf="showContent">
   <br>
   <ngb-tabset>
     <ngb-tab title="Summary">
@@ -9,29 +9,40 @@
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>
     </ngb-tab>
-    <ngb-tab title="Weather chart">
+    <ngb-tab title="Commercial DPR">
       <ng-template ngbTabContent>
 
-        <app-sov-v2v-transfers [tokenInfo]="tokenInfo" [vessel2vessels]="sovModel.vessel2vessels"
-          [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations"></app-sov-v2v-transfers>
+        <app-sov-v2v-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+          [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
+          [readonly]="tokenInfo.userPermission == 'Vessel master'"></app-sov-v2v-transfers>
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
           <br>
-          <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers"></app-sov-platform-transfers>
+          <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
+            [v2vPaxCargoTotals]="v2vPaxCargoTotals"></app-sov-platform-transfers>
         </ng-container>
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
           <br>
-          <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes">
+          <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
+          [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals">
           </app-sov-turbine-transfers>
         </ng-container>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="DPR input [read only]">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="true"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 
     <ngb-tab title="DPR input">
       <ng-template ngbTabContent>
         <br>
-        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="false"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 

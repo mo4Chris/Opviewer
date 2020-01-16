@@ -1,4 +1,4 @@
-export class Transit {
+export interface Transit {
     from: string;
     fromName: string;
     to: string;

@@ -1,5 +1,5 @@
 <!--Vessel master - with input-->
-<div class="row" *ngIf=" tokenInfo.userPermission == 'Vessel master' && vessel2vessels.length > 0">
+<div class="row" *ngIf="!readonly && vessel2vessels.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">
@@ -42,21 +42,21 @@
                     <td>
                       <input type="number" min="0" class="form-control-sm col-sm-5"
                         [(ngModel)]="transfer.paxIn" [value]="transfer.paxIn"
-                          (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
                         incoming <br>
                       <input type="number" min="0" class="form-control-sm col-sm-5"
                         [(ngModel)]="transfer.paxOut" [value]="transfer.paxOut"
-                        (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                        (ngModelChange)="updatev2vPaxCargoTotal();">
                       outgoing
                       </td>
                     <td>
                       <input type="number" min="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn"
-                          (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
                       kg incoming <br>
                       <input type="number" min="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut"
-                          (ngModelChange)="updatev2vPaxCargoTotal(); updatePaxCargoTotal()">
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
                       kg outgoing
                     </td>
                     <td><button class="btn btn-lg btn-primary submitBtnDate"
@@ -86,7 +86,7 @@
   </div>
 </div>
 <!--Not vessel master - without input-->
-<div class="row" *ngIf="tokenInfo.userPermission !== 'Vessel master' && vessel2vessels.length > 0">
+<div class="row" *ngIf="readonly && vessel2vessels.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">

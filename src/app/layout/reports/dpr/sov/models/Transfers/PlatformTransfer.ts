@@ -1,4 +1,4 @@
-export class PlatformTransfer {
+export interface PlatformTransfer {
     _id: string;
     vesselname: string;
     mmsi: number;
