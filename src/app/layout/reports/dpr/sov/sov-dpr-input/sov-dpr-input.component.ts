@@ -56,6 +56,10 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   totalPaxIn = 0;
   totalPaxOut = 0;
 
+  totalStandbyTime = '00:00';
+  totalTechnicalDowntimeTime = '00:00';
+  totalWeatherDowntimeTime = '00:00';
+
   v2vCargoIn = 0;
   v2vCargoOut = 0;
   v2vPaxIn = 0;
@@ -170,6 +174,22 @@ export class SovDprInputComponent implements OnInit, OnChanges {
     this.PoBTotal = 0;
     this.PoBTotal = (+this.PoBTotal + +this.peopleonBoard.marineContractors + +this.peopleonBoard.marine + +this.peopleonBoard.project);
   }
+
+  objectTimeDifference(object) {
+      return this.datetimeService.objectTimeDifference(object);
+    }
+
+    getTotalTimeStandby(standbyArray) {
+        this.totalStandbyTime = this.datetimeService.arrayTotalTime(standbyArray);
+    }
+
+    getTotalTimeVesselNonAvailability(VesselNonAvailabilityArray) {
+        this.totalTechnicalDowntimeTime = this.datetimeService.arrayTotalTime(VesselNonAvailabilityArray);
+    }
+
+    getTotalTimeWeatherDowntime(WeatherDowntimeArray) {
+        this.totalWeatherDowntimeTime = this.datetimeService.arrayTotalTime(WeatherDowntimeArray);
+    }
 
   updatePaxCargoTotal() {
     this.totalPaxIn = 0;
