@@ -365,7 +365,7 @@
         </tr>
         <tr>
           <th>Total People on board</th>
-          <td> {{PoBTotal}}</td>
+          <td> {{peopleOnVessel.Total}}</td>
         </tr>
         <tr *ngIf="poBChanged == true">
           <td colspan="2" class="submitbtnclass"> <button (click)="savePoBStats();" class="btn btn-lg btn-primary"
@@ -411,6 +411,8 @@
         </tr>
         <tr>
           <th>Extra meals</th>
+          <td></td>
+          <td></td>
         </tr>
         <tr>
           <td></td>

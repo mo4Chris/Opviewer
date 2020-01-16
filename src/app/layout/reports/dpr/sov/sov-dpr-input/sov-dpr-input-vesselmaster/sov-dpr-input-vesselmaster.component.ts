@@ -3,6 +3,7 @@ import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
 import { Observable } from 'rxjs/observable';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 
 @Component({
   selector: 'app-sov-dpr-input-vesselmaster',
@@ -25,31 +26,46 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
 
   constructor(
     private commonService: CommonService,
-    private alert: AlertService
+    private alert: AlertService,
+    private datetimeService: DatetimeService,
   ) { }
 
   fuelChanged = false;
   incidentsChanged = false;
-  nonAvailabilityChanged = false;
   weatherDowntimeChanged = false;
   cateringChanged = false;
   remarksChanged = false;
   poBChanged = false;
   dpChanged = false;
 
+  times = [];
+  allHours = [];
+  all5Minutes = [];
+
   ngOnInit() {
+    this.createTimes();
+    this.createSeperateTimes();
   }
 
   ngOnChanges() {
     this.fuelChanged = false;
     this.incidentsChanged = false;
-    this.nonAvailabilityChanged = false;
     this.weatherDowntimeChanged = false;
     this.cateringChanged = false;
     this.remarksChanged = false;
 
     // This one was in the onChanges, but the other update functions are not - can one be removed?
     this.updatePoB();
+  }
+
+
+  createTimes() {
+    this.times = this.datetimeService.createTimesQuarterHour();
+  }
+
+  createSeperateTimes() {
+    this.allHours = this.datetimeService.createHoursTimes();
+    this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
   }
 
   // Various save functions

@@ -12,14 +12,19 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() hoc: ReadonlyInput;
   @Input() toolbox: ReadonlyInput;
   @Input() liquids = {};
-  @Input() peopleOnVessel = {};
+  @Input() peopleOnVessel = {marine: 0, marineContractors: 0, project: 0, Total: 0};
   @Input() catering = {};
   @Input() dp = {};
   @Input() remarks = '';
 
-  constructor() { }
+  constructor() {}
 
   ngOnChanges() {
+    this.setTotalPob();
+  }
+
+  setTotalPob() {
+    this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
   }
 
 }

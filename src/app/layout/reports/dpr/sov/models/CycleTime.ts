@@ -1,4 +1,4 @@
-export class CycleTime {
+export interface CycleTime {
     
     startTime: string;
     durationMinutes: number;
