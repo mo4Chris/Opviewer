@@ -7,7 +7,7 @@ export class CalculationService {
 
   constructor() { }
 
-  objectToInt(objectvalue) {
+  objectToInt(objectvalue): number {
     return parseFloat(objectvalue);
   }
 

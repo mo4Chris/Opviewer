@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges } from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
 import { CommonService } from '@app/common.service';
@@ -14,6 +14,7 @@ import { TokenModel } from '@app/models/tokenModel';
 import {V2vPaxTotalModel} from './sov-v2v-transfers/sov-v2v-transfers.component'
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DprChildData } from '../reports-dpr.component';
 
 
 @Component({
@@ -21,18 +22,11 @@ import { map } from 'rxjs/operators';
     templateUrl: './sovreport.component.html',
     styleUrls: ['./sovreport.component.scss']
 })
-export class SovreportComponent implements OnInit {
-
-    @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-    @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
+export class SovreportComponent implements OnInit, OnChanges {
     @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
     @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
-    @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
-    @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
     @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
-    @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() sovChildData = new EventEmitter<DprChildData>();
 
     @Input() tokenInfo: TokenModel;
     @Input() vesselObject;
@@ -40,6 +34,11 @@ export class SovreportComponent implements OnInit {
 
     sovModel: SovModel = new SovModel();
     dprInput;
+    // This forces reload on all subcomponent, but reduces performance.
+    // In the future, we should move to a more workable version where sovModel is 
+    // replaced when all data is loaded, so reload of other components is automatic
+    // rather than having to redraw all html elements
+    showContent = false; 
 
     dateData = {general: undefined, transfer: undefined};
 
@@ -73,20 +72,14 @@ export class SovreportComponent implements OnInit {
     }
 
 
-
-
-
-
     ngOnInit() {
         Chart.pluginService.register(annotation);
-        this.loadPlatformLocations().subscribe();
+    }
+    ngOnChanges() {
+      this.ResetTransfers();
+      this.buildPageWhenRouteLoaded();
     }
 
-    buildPageWithCurrentInformation() {
-        this.ResetTransfers();
-        this.buildPageWhenRouteLoaded();
-        console.log(this)
-    }
 
     buildPageWhenRouteLoaded() {
         this.GetAvailableRouteDatesForVessel();
@@ -103,7 +96,8 @@ export class SovreportComponent implements OnInit {
                   this.commonService.getCycleTimesForSov(this.vesselObject.mmsi, this.vesselObject.date),
                   this.commonService.getSovDprInput(this.vesselObject),
                   this.commonService.getSovDistinctFieldnames(this.vesselObject),
-                ).subscribe(([platformTransfers, turbineTransfers, vessel2vessels, cycleTimes, dprInput, sovFieldNames]) => {
+                  this.commonService.getPlatformLocations(''),
+                ).subscribe(([platformTransfers, turbineTransfers, vessel2vessels, cycleTimes, dprInput, sovFieldNames, platformLocations]) => {
                   // All data is loaded beyond this point
                   if (platformTransfers.length > 0) {
                     this.sovModel.sovType = SovType.Turbine;
@@ -138,25 +132,53 @@ export class SovreportComponent implements OnInit {
                       }
                     });
                   }
-                  this.loadFieldFromFieldnames(sovFieldNames)
+                  this.loadFieldFromFieldnames(sovFieldNames);
+
+                  // Loading in platform content
+                  this.parsePlatformlocations(platformLocations);
 
                   // This should be intergrated in to the forkJoin
-                  this.getVesselRoute();
                   this.buildPageWhenAllLoaded();
-                  this.showContent.emit(true);
                 })
             } else {
                 // Skip check if all data is loaded if there is none
-                this.buildPageWhenAllLoaded();
                 if (sov.length > 0) {
                     this.sovModel.sovInfo = sov[0];
                 }
-                this.showContent.emit(false);
+                this.buildPageWhenAllLoaded();
             }
         }, null, () => {
             this.buildPageWhenAllLoaded();
         });
     }
+
+  notifyParent() {
+    const boatlocationData = [this.sovModel.sovInfo];
+    if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') {
+        const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, this.sovModel.sovInfo.lat, this.sovModel.sovInfo.lon);
+        this.sovChildData.emit({
+          routeFound: true,
+          boatLocationData: boatlocationData,
+          zoomInfo: {
+            latitude: mapProperties.avgLatitude,
+            longitude: mapProperties.avgLongitude,
+            mapZoomLvl: mapProperties.zoomLevel,
+          },
+          platformLocationData: null,
+        });
+    } else {
+        this.sovChildData.emit({
+          routeFound: false,
+          boatLocationData: boatlocationData,
+          zoomInfo: {
+            latitude: null,
+            longitude: null,
+            mapZoomLvl: null,
+          },
+          platformLocationData: null,
+        });
+    }
+  }
 
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({ 'park': data }).subscribe(locdata => {
@@ -179,41 +201,8 @@ export class SovreportComponent implements OnInit {
             this.fieldName = this.turbineLocations[0].SiteName;
         }
       }
-    }, null, () => {});
+    });
   }
-
-  loadPlatformLocations(): Observable<void> {
-    return this.commonService.getPlatformLocations('').pipe(map(locdata => {
-      if (locdata.length !== 0) {
-        const transfers = this.sovModel.platformTransfers;
-        const locationData = {
-          turbineLocations: locdata,
-          transfers: transfers,
-          type: 'Platforms',
-          vesselType: 'SOV'
-        };
-        this.platformLocationData.emit(locationData);
-      } else {
-        console.error('Request to get platform locations returned 0 results!');
-      }
-    }));
-  }
-
-    getVesselRoute() {
-      const boatlocationData = [this.sovModel.sovInfo];
-      if (('' + this.sovModel.sovInfo.lat) !== '_NaN_' && ('' + this.sovModel.sovInfo.lon) !== '_NaN_') {
-          const mapProperties = this.calculationService.GetPropertiesForMap(this.mapPixelWidth, this.sovModel.sovInfo.lat, this.sovModel.sovInfo.lon);
-          this.boatLocationData.emit(boatlocationData);
-          this.latitude.emit(mapProperties.avgLatitude);
-          this.longitude.emit(mapProperties.avgLongitude);
-          this.mapZoomLvl.emit(mapProperties.zoomLevel);
-          this.routeFound.emit(true);
-      } else {
-          this.routeFound.emit(false);
-      }
-  }
-  
-
 
     buildPageWhenAllLoaded() {
         try {
@@ -226,13 +215,21 @@ export class SovreportComponent implements OnInit {
         } catch (e) {
             console.error(e);
         }
-        this.loaded.emit(true);
+        this.showContent = true;
+        this.notifyParent();
     }
 
-    GetTransits() {
-        this.commonService.getTransitsForSov(this.vesselObject.mmsi, this.vesselObject.date).subscribe(transits => {
-            this.sovModel.transits = transits;
-        });
+    parsePlatformlocations(platformLocations) {
+      if (platformLocations.length !== 0) {
+        const transfers = this.sovModel.platformTransfers;
+        const locationData = {
+          turbineLocations: platformLocations,
+          transfers: transfers,
+          type: 'Platforms',
+          vesselType: 'SOV'
+        };
+        this.platformLocationData.emit(locationData);
+      }
     }
 
     GetAvailableRouteDatesForVessel() {
@@ -253,7 +250,6 @@ export class SovreportComponent implements OnInit {
     }
 
     updateV2vTotal(total) {
-      console.log(total)
       this.v2vPaxCargoTotals = total;
     }
 
@@ -289,23 +285,17 @@ export class SovreportComponent implements OnInit {
 
         if (this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType === SovType.Platform) {
             const platformTransfers = this.sovModel.platformTransfers;
-
             const avgTimeInWaitingZone = this.calculationService.getNanMean(platformTransfers.map(x => x.timeInWaitingZone));
             summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
-
             const avgTimeInExclusionZone = this.calculationService.getNanMean(platformTransfers.map(x => x.visitDuration));
             summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
-
             const avgTimeDocking = this.calculationService.getNanMean(platformTransfers.map(x => x.totalDuration));
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-
             const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(platformTransfers.map(x => x.approachTime));
             summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
-
             summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
         } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
             const turbineTransfers = this.sovModel.turbineTransfers;
-
             const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => x.duration));
             summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
             // Average time vessel docking
@@ -326,12 +316,10 @@ export class SovreportComponent implements OnInit {
             });
             summaryModel.NrOfVesselTransfers = nmrVesselTransfers;
             summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
-
             summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
         } else {
             summaryModel = this.GetDailySummary(summaryModel, []);
         }
-
         this.sovModel.summary = summaryModel;
     }
 
@@ -411,7 +399,7 @@ export class SovreportComponent implements OnInit {
         }
     }
 
-    objectToInt(objectvalue) {
+    objectToInt(objectvalue): number {
       return this.calculationService.objectToInt(objectvalue);
     }
 
@@ -449,6 +437,20 @@ export class SovreportComponent implements OnInit {
 
     private ResetTransfers() {
         this.sovModel = new SovModel();
+        this.showContent = false;
         this.fieldName = '';
     }
 }
+
+
+
+
+// @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
+// @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
+// @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
+// @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
+// @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
+// @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
+// @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
+// @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
+// @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();

@@ -96,8 +96,8 @@ export class ReportsDprComponent implements OnInit {
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
 
-  @ViewChild(SovreportComponent)
-  private sovChild: SovreportComponent;
+  // @ViewChild(SovreportComponent)
+  // private sovChild: SovreportComponent;
 
   getTurbineLocationData(turbineLocationData: TurbLocDataModel): void {
     this.turbinesLoaded = false;
@@ -209,18 +209,33 @@ export class ReportsDprComponent implements OnInit {
   getMapZoomLvl(mapZoomLvl: number): void {
     this.zoominfo.mapZoomLvl = mapZoomLvl;
   }
-
   getLongitude(longitude: any): void {
     this.zoominfo.longitude = longitude;
   }
-
   getLatitude(latitude: any): void {
     this.zoominfo.latitude = latitude;
   }
-
   getBoatLocationData(boatLocationData: any[]): void {
     this.boatLocationData = boatLocationData;
     this.showMap = true;
+  }
+  getShowContent(showContent: boolean): void {
+    this.showContent = showContent;
+  }
+  getRouteFound(routeFound: boolean): void {
+    this.routeFound = routeFound;
+    if (routeFound) {
+      this.buildPageWhenLoaded();
+    }
+  }
+  getParkFound(parkFound: boolean): void {
+    this.parkFound = parkFound;
+  }
+  isLoaded(loaded: boolean): void {
+    this.loaded = loaded;
+    if (loaded) {
+      this.buildPageWhenLoaded();
+    }
   }
 
   changeDay(changedDayCount: number) {
@@ -233,27 +248,18 @@ export class ReportsDprComponent implements OnInit {
     this.sailDates = sailDates;
   }
 
-  getShowContent(showContent: boolean): void {
-    this.showContent = showContent;
-  }
-
-  getRouteFound(routeFound: boolean): void {
-    this.routeFound = routeFound;
-    if (routeFound) {
-      this.buildPageWhenLoaded();
+  onChildLoaded(childData: DprChildData) {
+    this.routeFound = childData.routeFound;
+    this.loaded = true;
+    this.showContent = true;
+    if (this.routeFound) {
+      this.showMap = true;
+      this.boatLocationData = childData.boatLocationData;
+      this.zoominfo = childData.zoomInfo;
     }
   }
 
-  getParkFound(parkFound: boolean): void {
-    this.parkFound = parkFound;
-  }
 
-  isLoaded(loaded: boolean): void {
-    this.loaded = loaded;
-    if (loaded) {
-      this.buildPageWhenLoaded();
-    }
-  }
   ///////////////////////////////////////////////////
 
   hasSailedTransfer(date: NgbDateStruct) {
@@ -357,7 +363,13 @@ export class ReportsDprComponent implements OnInit {
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         this.vesselname = validatedValue[0].nicename;
-        this.vesselObject.vesselType = validatedValue[0].operationsClass;
+        // We overwrite the vesselObject to trigger the reload of subcomponents
+        this.vesselObject = {
+          date: this.vesselObject.date,
+          dateNormal: this.vesselObject.dateNormal,
+          vesselType: validatedValue[0].operationsClass,
+          mmsi: validatedValue[0].mmsi,
+        }
         const map = document.getElementById('routeMap');
         if (map != null) {
           this.mapPixelWidth = map.offsetWidth;
@@ -369,8 +381,8 @@ export class ReportsDprComponent implements OnInit {
       setTimeout(() => {
         if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
           this.ctvChild.buildPageWithCurrentInformation();
-        } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
-          this.sovChild.buildPageWithCurrentInformation();
+        // } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
+          // this.sovChild.buildPageWithCurrentInformation();
         }
       });
     });
@@ -442,4 +454,20 @@ interface TurbLocDataModel {
   turbineLocations: TurbineLocsFromMongo[];
   type: string;
   vesselType: string;
+}
+
+
+export interface DprChildData {
+  boatLocationData: any[];
+  zoomInfo: MapZoomInfo;
+  // turbineLocationData: any;
+  platformLocationData: any;
+  
+  routeFound: boolean;
+}
+
+interface MapZoomInfo {
+  latitude: number;
+  longitude: number;
+  mapZoomLvl: number;
 }
