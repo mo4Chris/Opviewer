@@ -22,17 +22,15 @@ export class SovTurbineTransfersComponent implements OnChanges {
   @Input() cycleTimes: CycleTime[] = [];
   @Input() v2vPaxCargoTotals: V2vPaxTotalModel;
 
-  gangwayActive = true;
+  @Input() missedPaxCargo = [];
+  @Input() helicopterPaxCargo = [];
 
+  gangwayActive = true;
   
   totalCargoIn = 0;
   totalCargoOut = 0;
   totalPaxIn = 0;
   totalPaxOut = 0;
-
-  // ToDo: properly load these
-  missedPaxCargo = [];
-  helicopterPaxCargo = [];
 
   constructor(
     private calcService: CalculationService,
@@ -44,7 +42,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
 
   ngOnChanges() {
     this.updatePaxCargoTotal();
-    console.log(this)
+    this.gangwayActive = this.turbineTransfers.some(transfer => transfer.gangwayDeployedDuration > 0);
   }
 
 
@@ -63,7 +61,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
         this.totalCargoOut += +this.turbineTransfers[i].cargoOut || 0;
       }
     }
-    if (this.missedPaxCargo.length > 0) {
+    if (this.missedPaxCargo && this.missedPaxCargo.length > 0) {
       for (let i = 0; i < this.missedPaxCargo.length; i++) {
         this.totalPaxIn += +this.missedPaxCargo[i].paxIn || 0;
         this.totalPaxOut += +this.missedPaxCargo[i].paxOut || 0;
@@ -71,7 +69,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
         this.totalCargoOut += +this.missedPaxCargo[i].cargoOut || 0;
       }
     }
-    if (this.helicopterPaxCargo.length > 0) {
+    if (this.helicopterPaxCargo && this.helicopterPaxCargo.length > 0) {
       for (let i = 0; i < this.helicopterPaxCargo.length; i++) {
         this.totalPaxIn += +this.helicopterPaxCargo[i].paxIn || 0;
         this.totalPaxOut += +this.helicopterPaxCargo[i].paxOut || 0;

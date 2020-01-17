@@ -53,11 +53,6 @@ export class SovreportComponent implements OnInit, OnChanges {
     // Charts
     backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
-    summaryInfo = {
-        departureFromHarbour: 'N/a',
-        arrivalAtHarbour: 'N/a',
-        distance: 'N/a',
-    };
     v2vPaxCargoTotals: V2vPaxTotalModel;
 
 
@@ -100,7 +95,7 @@ export class SovreportComponent implements OnInit, OnChanges {
                 ).subscribe(([platformTransfers, turbineTransfers, vessel2vessels, cycleTimes, dprInput, sovFieldNames, platformLocations]) => {
                   // All data is loaded beyond this point
                   if (platformTransfers.length > 0) {
-                    this.sovModel.sovType = SovType.Turbine;
+                    this.sovModel.sovType = SovType.Platform;
                   } else if (turbineTransfers.length > 0) {
                     this.sovModel.sovType = SovType.Turbine;
                   } else {
@@ -110,8 +105,7 @@ export class SovreportComponent implements OnInit, OnChanges {
                   this.sovModel.turbineTransfers = turbineTransfers;
                   this.sovModel.cycleTimes = cycleTimes;
                   this.sovModel.vessel2vessels = vessel2vessels;
-                  this.dprInput = dprInput;
-
+                  this.dprInput = dprInput[0];
                   // Setting cycle stats according to user settings -> this should be moved
                   this.sovModel.cycleTimes.forEach(cycle => {
                       cycle['avgSpeed'] = this.switchUnit(cycle.avgSpeedKts, 'knots', this.settings.unit_speed);
@@ -139,6 +133,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
                   // This should be intergrated in to the forkJoin
                   this.buildPageWhenAllLoaded();
+                  this.showContent = true;
                 })
             } else {
                 // Skip check if all data is loaded if there is none
@@ -146,6 +141,7 @@ export class SovreportComponent implements OnInit, OnChanges {
                     this.sovModel.sovInfo = sov[0];
                 }
                 this.buildPageWhenAllLoaded();
+                this.showContent = true;
             }
         }, null, () => {
             this.buildPageWhenAllLoaded();
@@ -206,16 +202,10 @@ export class SovreportComponent implements OnInit, OnChanges {
 
     buildPageWhenAllLoaded() {
         try {
-            this.CalculateDailySummary();
-        } catch (e) {
-            console.error(e);
-        }
-        try {
             this.CheckForNullValues();
         } catch (e) {
             console.error(e);
         }
-        this.showContent = true;
         this.notifyParent();
     }
 
@@ -276,67 +266,6 @@ export class SovreportComponent implements OnInit, OnChanges {
         }
     }
 
-    
-    CalculateDailySummary() {
-        let summaryModel = new SummaryModel();
-
-        summaryModel.NrOfDaughterCraftLaunches = 0;
-        summaryModel.NrOfHelicopterVisits = 0;
-
-        if (this.sovModel.platformTransfers.length > 0 && this.sovModel.sovType === SovType.Platform) {
-            const platformTransfers = this.sovModel.platformTransfers;
-            const avgTimeInWaitingZone = this.calculationService.getNanMean(platformTransfers.map(x => x.timeInWaitingZone));
-            summaryModel.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
-            const avgTimeInExclusionZone = this.calculationService.getNanMean(platformTransfers.map(x => x.visitDuration));
-            summaryModel.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
-            const avgTimeDocking = this.calculationService.getNanMean(platformTransfers.map(x => x.totalDuration));
-            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-            const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(platformTransfers.map(x => x.approachTime));
-            summaryModel.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
-            summaryModel = this.GetDailySummary(summaryModel, platformTransfers);
-        } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
-            const turbineTransfers = this.sovModel.turbineTransfers;
-            const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => x.duration));
-            summaryModel.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-            // Average time vessel docking
-            let totalVesselDockingDuration = 0;
-            let nmrVesselTransfers = 0;
-            this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-                let totalDockingDurationOfVessel2vessel = 0;
-                vessel2vessel.transfers.forEach(transfer => {
-                    if (transfer) {
-                        if (typeof (transfer.duration) !== 'string') {
-                            totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
-                            nmrVesselTransfers += 1;
-                        }
-                    }
-                });
-                const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;
-                totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
-            });
-            summaryModel.NrOfVesselTransfers = nmrVesselTransfers;
-            summaryModel.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
-            summaryModel = this.GetDailySummary(summaryModel, turbineTransfers);
-        } else {
-            summaryModel = this.GetDailySummary(summaryModel, []);
-        }
-        this.sovModel.summary = summaryModel;
-    }
-
-    // ToDo: Common used by platform and turbine
-    private GetDailySummary(model: SummaryModel, transfers: any[]) {
-        const maxHs = this.calculationService.getNanMax(transfers.map(_t => _t.Hs));
-        model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
-        const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => _t.peakWindGust));
-        model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
-
-        const info = this.sovModel.sovInfo;
-        model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
-        model.departureFromHarbour = this.GetMatlabDateToJSTime(info.departureFromHarbour);
-        model.arrivalAtHarbour = this.GetMatlabDateToJSTime(info.arrivalAtHarbour);
-        return model;
-    }
-
     private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
         return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
     }
@@ -351,7 +280,6 @@ export class SovreportComponent implements OnInit, OnChanges {
         let naCountGangway = 0;
         this.sovModel.sovInfo = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.sovInfo);
         this.sovModel.sovInfo.distancekm = this.calculationService.GetDecimalValueForNumber(this.sovModel.sovInfo.distancekm);
-        this.sovModel.summary = this.calculationService.ReplaceEmptyColumnValues(this.sovModel.summary);
         if (this.sovModel.sovType === SovType.Turbine) {
             this.sovModel.turbineTransfers.forEach(transfer => {
                 transfer.gangwayUtilisation === undefined || transfer.gangwayUtilisation === '_NaN_' ? naCountGangway ++ : naCountGangway = naCountGangway;

@@ -14,6 +14,8 @@ import { SovModel } from '../models/SovModel';
 })
 export class SovDprInputComponent implements OnInit, OnChanges {
   @Input() sovModel: SovModel;
+  @Input() dprInput;
+
   @Input() vesselObject;
   @Input() tokenInfo: TokenModel;
   @Input() readonly: boolean;
@@ -91,27 +93,22 @@ export class SovDprInputComponent implements OnInit, OnChanges {
     }
   }
   setDPRInputFields() {
-    this.commonService.getSovDprInput(this.vesselObject).subscribe(SovDprInput => {
-      if (SovDprInput.length > 0) {
-        this.hoc.Array = SovDprInput[0].hoc;
-        this.toolbox.Array = SovDprInput[0].toolbox;
-        this.vesselNonAvailability.Array = SovDprInput[0].vesselNonAvailability;
-        this.standBy.Array = SovDprInput[0].standBy || [];
-        this.weatherDowntime.Array = SovDprInput[0].weatherDowntime;
-        this.liquidsObject = SovDprInput[0].liquids;
-        this.peopleonBoard = SovDprInput[0].PoB;
-        this.remarks = SovDprInput[0].remarks;
-        this.catering = SovDprInput[0].catering;
-        this.dp.Array = SovDprInput[0].dp;
-        this.hoc.TotalOld = SovDprInput[0].HOCAmountOld;
-        this.hoc.TotalNew = SovDprInput[0].HOCAmountNew;
-        this.toolbox.TotalOld = SovDprInput[0].ToolboxAmountOld;
-        this.toolbox.TotalNew = SovDprInput[0].ToolboxAmountNew;
-      }
-
-    }, null, () => {
-
-    });
+    if (this.dprInput) {
+      this.hoc.Array = this.dprInput.hoc;
+      this.toolbox.Array = this.dprInput.toolbox;
+      this.vesselNonAvailability.Array = this.dprInput.vesselNonAvailability;
+      this.standBy.Array = this.dprInput.standBy || [];
+      this.weatherDowntime.Array = this.dprInput.weatherDowntime;
+      this.liquidsObject = this.dprInput.liquids;
+      this.peopleonBoard = this.dprInput.PoB;
+      this.remarks = this.dprInput.remarks;
+      this.catering = this.dprInput.catering;
+      this.dp.Array = this.dprInput.dp;
+      this.hoc.TotalOld = this.dprInput.HOCAmountOld;
+      this.hoc.TotalNew = this.dprInput.HOCAmountNew;
+      this.toolbox.TotalOld = this.dprInput.ToolboxAmountOld;
+      this.toolbox.TotalNew = this.dprInput.ToolboxAmountNew;
+    }
   }
 
 }

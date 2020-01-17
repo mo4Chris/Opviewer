@@ -17,32 +17,35 @@
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
-            [v2vPaxCargoTotals]="v2vPaxCargoTotals"></app-sov-platform-transfers>
+            [readonly]="false" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [missedPaxCargo]="dprInput.missedPaxCargo"
+            [helicopterPaxCargo]="dprInput.helicopterPaxCargo" 
+          ></app-sov-platform-transfers>
         </ng-container>
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
           <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
-          [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals">
-          </app-sov-turbine-transfers>
+            [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="true"
+            [missedPaxCargo]="dprInput.missedPaxCargo" [helicopterPaxCargo]="dprInput.helicopterPaxCargo"
+          ></app-sov-turbine-transfers>
         </ng-container>
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="DPR input [read only]">
+    <ngb-tab title="DPR input [read only]" *ngIf="true">
       <ng-template ngbTabContent>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
-          [readonly]="true"></app-sov-dpr-input>
+          [readonly]="true" [dprInput]="dprInput"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="DPR input">
+    <ngb-tab title="DPR input" *ngIf="true">
       <ng-template ngbTabContent>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
           [readonly]="false"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="HSE input" [disabled]="true">
+    <ngb-tab title="HSE input" [disabled]="true" *ngIf="true">
       <ng-template ngbTabContent>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
       </ng-template>

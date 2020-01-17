@@ -11,7 +11,7 @@ import { PlatformTransfer } from '../models/Transfers/PlatformTransfer';
 @Component({
   selector: 'app-sov-platform-transfers',
   templateUrl: './sov-platform-transfers.component.html',
-  styleUrls: ['./sov-platform-transfers.component.scss']
+  styleUrls: ['./sov-platform-transfers.component.scss', '../sovreport.component.scss']
 })
 export class SovPlatformTransfersComponent implements OnChanges {
   @Input() readonly: boolean = true;
@@ -28,6 +28,8 @@ export class SovPlatformTransfersComponent implements OnChanges {
   totalPaxIn = 0;
   totalPaxOut = 0;
 
+  gangwayActive = true;
+
   constructor(
     private calcService: CalculationService,
     private datetimeService: DatetimeService,
@@ -37,6 +39,7 @@ export class SovPlatformTransfersComponent implements OnChanges {
 
   ngOnChanges() {
     this.updatePaxCargoTotal();
+    this.gangwayActive = this.platformTransfers.some(transfer => transfer.gangwayDeployedDuration > 0);
   }
 
   // loadMissingHeliData() {
