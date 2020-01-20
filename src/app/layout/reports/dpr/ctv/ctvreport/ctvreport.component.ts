@@ -12,6 +12,7 @@ import { VesselObjectModel } from '../../../../../supportModules/mocked.common.s
 import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstats.model';
 import { SettingsService } from '../../../../../supportModules/settings.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-ctvreport',
@@ -475,25 +476,15 @@ export class CtvreportComponent implements OnInit {
             }));
     }
 
-    getDatesShipHasSailed(date) {
-        this.newService.getDatesWithValues(date).subscribe((transfers) => {
-            this.dateData.transfer = transfers;
-        },
-            catchError(error => {
-                console.log('error ' + error);
-                throw error;
-            }), () => {
-                this.pushSailingDates();
-            });
-        this.newService.getDatesWithValuesFromGeneralStats(date).subscribe((data) => {
-            this.dateData.general = data.data;
-        },
-            catchError(error => {
-                console.log('error ' + error);
-                throw error;
-            }), () => {
-                this.pushSailingDates();
-            });
+    getDatesShipHasSailed(date: VesselObjectModel) {
+      forkJoin(
+        this.newService.getDatesWithValues(date),
+        this.newService.getDatesWithValuesFromGeneralStats(date)
+      ).subscribe(([transfers, data]) => {
+        this.dateData.transfer = transfers
+        this.dateData.general = data.data;
+        this.pushSailingDates();
+      });
     }
 
     pushSailingDates() {

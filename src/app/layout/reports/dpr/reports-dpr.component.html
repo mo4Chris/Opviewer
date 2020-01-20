@@ -62,7 +62,8 @@
           </div>
           <agm-map id='googleMap' #gm [scrollwheel]='null' [scaleControl]="true" [latitude]="zoominfo.latitude"
             [longitude]="zoominfo.longitude" [zoom]="zoominfo.mapZoomLvl" [mapTypeId]="'roadmap'"
-            [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'" (mapReady)="setMapReady($event)">
+            [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'" (mapReady)="setMapReady($event)"
+            [styles]="mapStyle">
           </agm-map>
         </div>
       </div>

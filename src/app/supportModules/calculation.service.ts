@@ -91,7 +91,7 @@ export class CalculationService {
     const minLongitude = this.GetMinValueInMultipleDimensionArray(longitudes);
 
     const WORLD_DIM = { height: 256, width: 256 };
-    const ZOOM_MAX = 21;
+    const ZOOM_MAX = 15;
 
     const latFraction = (latRad(maxLatitude) - latRad(minLatitude)) / Math.PI;
 

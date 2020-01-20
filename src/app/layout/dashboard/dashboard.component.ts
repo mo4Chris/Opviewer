@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit {
 
     // Map settings
     googleMap: google.maps.Map;
+    mapStyle = GmapService.defaultMapStyle;
     zoominfo = {
         longitude: 0,
         latitude: 0,
