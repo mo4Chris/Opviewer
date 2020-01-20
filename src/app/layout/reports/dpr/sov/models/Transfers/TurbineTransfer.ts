@@ -1,4 +1,4 @@
-export class TurbineTransfer {
+export interface TurbineTransfer {
     _id: string;
     vesselname: string;
     mmsi: number;

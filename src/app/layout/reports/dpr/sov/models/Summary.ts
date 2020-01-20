@@ -1,24 +1,24 @@
 export class SummaryModel {
-    TotalSailDistance: string;
+    TotalSailDistance = 'N/a';
     HasSailed: boolean;
 
-    departureFromHarbour: string;
-    arrivalAtHarbour: string;
+    departureFromHarbour = 'N/a';
+    arrivalAtHarbour = 'N/a';
 
-    AvgTimeInWaitingZone: string;
-    AvgTimeInExclusionZone: string;
-    AvgTimeDocking: string;
-    AvgTimeTravelingToPlatforms: string;
+    AvgTimeInWaitingZone = 'N/a';
+    AvgTimeInExclusionZone = 'N/a';
+    AvgTimeDocking = 'N/a';
+    AvgTimeTravelingToPlatforms = 'N/a';
 
     NrOfHelicopterVisits: number;
     AvgTimeHelicopterDocking: number;
 
     NrOfVesselTransfers: number;
-    AvgTimeVesselDocking: string;
+    AvgTimeVesselDocking = 'N/a';
 
     NrOfDaughterCraftLaunches: number;
-    AvgTimeDaughterCraftDocking: string;
+    AvgTimeDaughterCraftDocking = 'N/a';
 
-    maxSignificantWaveHeightdDuringOperations: string;
-    maxWindSpeedDuringOperations: string;
+    maxSignificantWaveHeightdDuringOperations = 'N/a';
+    maxWindSpeedDuringOperations = 'N/a';
 }
