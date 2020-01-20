@@ -171,7 +171,7 @@ export class UtilizationGraphComponent implements OnInit {
             } else {
                 this.noData = true;
             }
-            if (cb) {
+            if (cb && typeof(this.RawData) === 'object') {
                 cb(this.TimeBreakdown, this.RawData.map(rawDataElt => rawDataElt.dayNum));
             }
         });

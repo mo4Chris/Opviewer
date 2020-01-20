@@ -1,6 +1,6 @@
 <!-- Turbine transfers-->
 <div class="row">
-  <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
+  <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers
@@ -235,17 +235,19 @@
               <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
           </thead>
           <tbody>
-            <tr *ngFor="let turbineTransfer of turbineTransfers">
-              <th>{{turbineTransfer.location}}</th>
-              <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}
-              </td>
-              <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}
-              </td>
-              <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
-              <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayDeployedDuration)}}</td>
-              <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
-              <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
-            </tr>
+            <ng-container *ngFor="let turbineTransfer of turbineTransfers">
+              <tr *ngIf="turbineTransfer.timeGangwayReady>0">
+                <th>{{turbineTransfer.location}}</th>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayReady, 'HH:mm')}}
+                </td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.timeGangwayRetracted, 'HH:mm')}}
+                </td>
+                <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayReadyDuration)}}</td>
+                <td>{{GetMatlabDurationToMinutes(turbineTransfer.gangwayDeployedDuration)}}</td>
+                <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}</td>
+                <td>{{turbineTransfer.gangwayUtilisationLimiter}}</td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>

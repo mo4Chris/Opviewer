@@ -44,6 +44,7 @@ export class ReportsDprComponent implements OnInit {
 
   }
 
+  mapStyle = GmapService.defaultMapStyle;
   startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
@@ -96,8 +97,100 @@ export class ReportsDprComponent implements OnInit {
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
 
-  @ViewChild(SovreportComponent)
-  private sovChild: SovreportComponent;
+
+  // Initial load
+  ngOnInit() {
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      if (userIsActive === true) {
+        if (this.tokenInfo.userPermission === 'admin') {
+          this.newService.getVessel().subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        } else {
+          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.vessels = data;
+          }, null, () => {
+            this.buildPageWithCurrentInformation();
+          });
+        }
+      } else {
+        localStorage.removeItem('isLoggedin');
+        localStorage.removeItem('token');
+        this.router.navigate(['login']);
+      }
+    });
+  }
+  
+  // For each change
+  onChange(): void {
+    this.eventService.closeLatestAgmInfoWindow();
+    this.resetRoutes();
+    this.mapService.reset();
+    const dateAsMatlab = this.getDateAsMatlab();
+    this.vesselObject.date = dateAsMatlab;
+    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
+
+    this.buildPageWithCurrentInformation();
+  }
+  onChildLoaded(childData: DprChildData) {
+    this.routeFound = childData.routeFound;
+    this.loaded = true;
+    this.showContent = true;
+    if (this.routeFound) {
+      this.showMap = !Object.keys(childData.zoomInfo).some(key => isNaN(childData.zoomInfo[key]));
+      this.boatLocationData = childData.boatLocationData;
+      this.zoominfo = childData.zoomInfo;
+    }
+  }
+
+  // TODO: make complient with the newly added usertypes
+  buildPageWithCurrentInformation() {
+    const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
+    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
+      htmlButton.disabled = true;
+    } else {
+      htmlButton.disabled = false;
+    }
+    this.resetRoutes();
+    this.mapService.reset();
+    this.noPermissionForData = false;
+    this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+      if (validatedValue.length === 1) {
+        this.vesselname = validatedValue[0].nicename;
+        // We overwrite the vesselObject to trigger the reload of subcomponents
+        this.vesselObject = {
+          date: this.vesselObject.date,
+          dateNormal: this.vesselObject.dateNormal,
+          vesselType: validatedValue[0].operationsClass,
+          mmsi: validatedValue[0].mmsi,
+        }
+        const map = document.getElementById('routeMap');
+        if (map != null) {
+          this.mapPixelWidth = map.offsetWidth;
+        }
+      } else {
+        this.noPermissionForData = true;
+      }
+    }, null, () => {
+      setTimeout(() => {
+        if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
+          this.ctvChild.buildPageWithCurrentInformation();
+        // } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
+          // this.sovChild.buildPageWithCurrentInformation();
+        }
+      });
+    });
+  }
+  buildPageWhenLoaded() {
+    const allDataLoaded = this.turbinesLoaded && this.googleMapLoaded &&
+      this.platformsLoaded && this.routeFound && this.loaded;
+    if (allDataLoaded) {
+      this.buildGoogleMap();
+    }
+  }
+
 
   getTurbineLocationData(turbineLocationData: TurbLocDataModel): void {
     this.turbinesLoaded = false;
@@ -147,18 +240,6 @@ export class ReportsDprComponent implements OnInit {
       this.buildPageWhenLoaded();
     });
   }
-
-  printPage() {
-    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
-
-    for (let _i = 0; _i < containers.length; _i++) {
-        const container = <HTMLDivElement> containers[_i];
-        container.style.width = '225mm';
-    }
-    setTimeout(function() {  window.print(); }, 50);
-  }
-
-
   getPlatformLocationData(platformLocationData: any): void {
     this.platformsLoaded = false;
     const locationData = platformLocationData.turbineLocations;
@@ -204,206 +285,6 @@ export class ReportsDprComponent implements OnInit {
       });
   }
 
-
-  // Handle events and get variables from child components//////////
-  getMapZoomLvl(mapZoomLvl: number): void {
-    this.zoominfo.mapZoomLvl = mapZoomLvl;
-  }
-
-  getLongitude(longitude: any): void {
-    this.zoominfo.longitude = longitude;
-  }
-
-  getLatitude(latitude: any): void {
-    this.zoominfo.latitude = latitude;
-  }
-
-  getBoatLocationData(boatLocationData: any[]): void {
-    this.boatLocationData = boatLocationData;
-    this.showMap = true;
-  }
-
-  changeDay(changedDayCount: number) {
-    const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
-    const newDate = oldDate.add(changedDayCount, 'day');
-    this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
-    this.onChange();
-  }
-  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
-    this.sailDates = sailDates;
-  }
-
-  getShowContent(showContent: boolean): void {
-    this.showContent = showContent;
-  }
-
-  getRouteFound(routeFound: boolean): void {
-    this.routeFound = routeFound;
-    if (routeFound) {
-      this.buildPageWhenLoaded();
-    }
-  }
-
-  getParkFound(parkFound: boolean): void {
-    this.parkFound = parkFound;
-  }
-
-  isLoaded(loaded: boolean): void {
-    this.loaded = loaded;
-    if (loaded) {
-      this.buildPageWhenLoaded();
-    }
-  }
-  ///////////////////////////////////////////////////
-
-  hasSailedTransfer(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
-  }
-
-  hasSailedTransit(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
-  }
-
-  hasSailedOther(date: NgbDateStruct) {
-    return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
-  }
-
-
-  getMatlabDateToJSDate(serial) {
-    return this.dateTimeService.MatlabDateToJSDate(serial);
-  }
-
-  getMMSIFromParameter() {
-    let mmsi: number;
-    this.route.params.subscribe(params => mmsi = parseFloat(params.mmsi));
-    return mmsi;
-  }
-
-  getDateFromParameter() {
-    let matlabDate: number;
-    this.route.params.subscribe(params => matlabDate = parseFloat(params.date));
-    return matlabDate;
-  }
-
-  getInitialDate() {
-    const matlabDate = this.getDateFromParameter();
-    if (isNaN(matlabDate)) {
-      return this.dateTimeService.getMatlabDateYesterday();
-    } else {
-      return matlabDate;
-    }
-  }
-
-  getInitialDateObject() {
-    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
-  }
-
-  getInitialDateNormal() {
-    const paramDate = this.getDateFromParameter();
-    if (isNaN(paramDate)) {
-      return this.dateTimeService.getJSDateYesterdayYMD();
-    } else {
-      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
-    }
-  }
-
-  objectToInt(objectvalue) {
-    return this.calculationService.objectToInt(objectvalue);
-  }
-
-  getMatlabDateToCustomJSTime(serial, format) {
-    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
-  }
-
-  GetDecimalValueForNumber(value: any, endpoint: string): string {
-    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
-  }
-
-  ngOnInit() {
-    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        if (this.tokenInfo.userPermission === 'admin') {
-          this.newService.getVessel().subscribe(data => {
-            this.vessels = data;
-          }, null, () => {
-            this.buildPageWithCurrentInformation();
-          });
-        } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-            this.vessels = data;
-          }, null, () => {
-            this.buildPageWithCurrentInformation();
-          });
-        }
-      } else {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.router.navigate(['login']);
-      }
-    });
-  }
-
-  // TODO: make complient with the newly added usertypes
-  buildPageWithCurrentInformation() {
-    const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
-    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
-      htmlButton.disabled = true;
-    } else {
-      htmlButton.disabled = false;
-    }
-    this.resetRoutes();
-    this.mapService.reset();
-    this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
-      if (validatedValue.length === 1) {
-        this.vesselname = validatedValue[0].nicename;
-        this.vesselObject.vesselType = validatedValue[0].operationsClass;
-        const map = document.getElementById('routeMap');
-        if (map != null) {
-          this.mapPixelWidth = map.offsetWidth;
-        }
-      } else {
-        this.noPermissionForData = true;
-      }
-    }, null, () => {
-      setTimeout(() => {
-        if (this.vesselObject.vesselType === 'CTV' && this.ctvChild !== undefined) {
-          this.ctvChild.buildPageWithCurrentInformation();
-        } else if ((this.vesselObject.vesselType === 'SOV' || this.vesselObject.vesselType === 'OSV') && this.sovChild !== undefined) {
-          this.sovChild.buildPageWithCurrentInformation();
-        }
-      });
-    });
-  }
-
-  buildPageWhenLoaded() {
-    const allDataLoaded = this.turbinesLoaded && this.googleMapLoaded &&
-      this.platformsLoaded && this.routeFound && this.loaded;
-    if (allDataLoaded) {
-      this.buildGoogleMap();
-    }
-  }
-
-
-  onChange(): void {
-    this.eventService.closeLatestAgmInfoWindow();
-    this.resetRoutes();
-    this.mapService.reset();
-    const dateAsMatlab = this.getDateAsMatlab();
-    this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
-
-    this.buildPageWithCurrentInformation();
-  }
-
-  getDateAsMatlab(): any {
-    const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    datepickerValueAsMomentDate.format();
-    const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
-    return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
-  }
-
   resetRoutes() {
     this.vesselTurbines = new VesselTurbines();
     this.platformLocations = new VesselPlatforms();
@@ -419,6 +300,19 @@ export class ReportsDprComponent implements OnInit {
   }
 
 
+
+  ///
+  printPage() {
+    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+
+    for (let _i = 0; _i < containers.length; _i++) {
+        const container = <HTMLDivElement> containers[_i];
+        container.style.width = '225mm';
+    }
+    setTimeout(function() {  window.print(); }, 50);
+  }
+
+  // Handle events and get variables from child components//////////
   setMapReady(googleMap: google.maps.Map) {
     this.googleMap = googleMap;
     if (this.ctvChild) {
@@ -429,12 +323,110 @@ export class ReportsDprComponent implements OnInit {
     this.googleMapLoaded = true;
     this.buildPageWhenLoaded();
   }
-
   buildGoogleMap() {
     this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
   }
+  getMapZoomLvl(mapZoomLvl: number): void {
+    this.zoominfo.mapZoomLvl = mapZoomLvl;
+  }
+  getLongitude(longitude: any): void {
+    this.zoominfo.longitude = longitude;
+  }
+  getLatitude(latitude: any): void {
+    this.zoominfo.latitude = latitude;
+  }
+  getBoatLocationData(boatLocationData: any[]): void {
+    this.boatLocationData = boatLocationData;
+    this.showMap = true;
+  }
+  getShowContent(showContent: boolean): void {
+    this.showContent = showContent;
+  }
+  getRouteFound(routeFound: boolean): void {
+    this.routeFound = routeFound;
+    if (routeFound) {
+      this.buildPageWhenLoaded();
+    }
+  }
+  getParkFound(parkFound: boolean): void {
+    this.parkFound = parkFound;
+  }
+  isLoaded(loaded: boolean): void {
+    this.loaded = loaded;
+    if (loaded) {
+      this.buildPageWhenLoaded();
+    }
+  }
+  
+  ///////////////////////////////////////////////////
+  hasSailedTransfer(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
+  }
+  hasSailedTransit(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
+  }
+  hasSailedOther(date: NgbDateStruct) {
+    return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
+  }
+  getMatlabDateToJSDate(serial) {
+    return this.dateTimeService.MatlabDateToJSDate(serial);
+  }
+  getMMSIFromParameter() {
+    let mmsi: number;
+    this.route.params.subscribe(params => mmsi = parseFloat(params.mmsi));
+    return mmsi;
+  }
+  getDateFromParameter() {
+    let matlabDate: number;
+    this.route.params.subscribe(params => matlabDate = parseFloat(params.date));
+    return matlabDate;
+  }
+  getInitialDate() {
+    const matlabDate = this.getDateFromParameter();
+    if (isNaN(matlabDate)) {
+      return this.dateTimeService.getMatlabDateYesterday();
+    } else {
+      return matlabDate;
+    }
+  }
+  getDateAsMatlab(): any {
+    const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
+    datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    datepickerValueAsMomentDate.format();
+    const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
+    return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
+  }
+  getInitialDateObject() {
+    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
+  }
+  getInitialDateNormal() {
+    const paramDate = this.getDateFromParameter();
+    if (isNaN(paramDate)) {
+      return this.dateTimeService.getJSDateYesterdayYMD();
+    } else {
+      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
+    }
+  }
+  changeDay(changedDayCount: number) {
+    const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
+    const newDate = oldDate.add(changedDayCount, 'day');
+    this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
+    this.onChange();
+  }
+  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
+    this.sailDates = sailDates;
+  }
 
+  objectToInt(objectvalue) {
+    return this.calculationService.objectToInt(objectvalue);
+  }
+  getMatlabDateToCustomJSTime(serial, format) {
+    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
+  }
+  GetDecimalValueForNumber(value: any, endpoint: string): string {
+    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+  }
 }
 
 interface TurbLocDataModel {
@@ -442,4 +434,20 @@ interface TurbLocDataModel {
   turbineLocations: TurbineLocsFromMongo[];
   type: string;
   vesselType: string;
+}
+
+
+export interface DprChildData {
+  boatLocationData: any[];
+  zoomInfo: MapZoomInfo;
+  // turbineLocationData: any;
+  platformLocationData: any;
+  
+  routeFound: boolean;
+}
+
+interface MapZoomInfo {
+  latitude: number;
+  longitude: number;
+  mapZoomLvl: number;
 }

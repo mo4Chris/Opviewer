@@ -3,6 +3,9 @@ import { SovType } from '../models/SovType';
 import * as Chart from 'chart.js';
 import { SummaryModel } from '../models/Summary';
 import { SovModel } from '../models/SovModel';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 @Component({
   selector: 'app-sov-summary',
@@ -29,12 +32,86 @@ export class SovSummaryComponent implements OnChanges {
   gangwayLimitationsChart;
   sovHasLimiters = false;
 
-  constructor() { }
+  
+  summaryInfo = {
+    departureFromHarbour: 'N/a',
+    arrivalAtHarbour: 'N/a',
+    distance: 'N/a',
+  };
+
+  constructor(
+    private calculationService: CalculationService,
+    private datetimeService: DatetimeService,
+    private settings: SettingsService
+  ) { }
 
   ngOnChanges() {
-    this.summary = this.sovModel.summary;
+    this.CalculateDailySummary();
+    this.summary = this.calculationService.ReplaceEmptyColumnValues(this.summary);
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
+  }
+
+  
+  CalculateDailySummary() {
+    let _summary = new SummaryModel();
+    
+    // Average time vessel docking
+    let totalVesselDockingDuration = 0;
+    let nmrVesselTransfers = 0;
+    this.sovModel.vessel2vessels.forEach(vessel2vessel => {
+      let totalDockingDurationOfVessel2vessel = 0;
+      vessel2vessel.transfers.forEach(transfer => {
+        if (transfer) {
+          if (typeof (transfer.duration) !== 'string') {
+              totalDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel + transfer.duration;
+              nmrVesselTransfers += 1;
+          }
+        }
+      });
+      const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;
+      totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
+    });
+    _summary.NrOfVesselTransfers = nmrVesselTransfers;
+    _summary.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
+
+    _summary.NrOfDaughterCraftLaunches = 0;
+    _summary.NrOfHelicopterVisits = 0;
+
+    if (this.sovModel.sovType === SovType.Platform && this.sovModel.platformTransfers.length > 0) {
+        const transfers = this.sovModel.platformTransfers;
+        const avgTimeInWaitingZone = this.calculationService.getNanMean(transfers.map(x => x.timeInWaitingZone));
+        _summary.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
+        const avgTimeInExclusionZone = this.calculationService.getNanMean(transfers.map(x => x.visitDuration));
+        _summary.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
+        const avgTimeDocking = this.calculationService.getNanMean(transfers.map(x => parseFloat(<any> x.totalDuration)));
+        _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+        const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(transfers.map(x => x.approachTime));
+        _summary.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
+        _summary = this.GetDailySummary(_summary, transfers);
+    } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
+        const turbineTransfers = this.sovModel.turbineTransfers;
+        const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => x.duration));
+        _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+        _summary = this.GetDailySummary(_summary, turbineTransfers);
+    } else {
+      _summary = this.GetDailySummary(_summary, []);
+    }
+    this.summary = _summary;
+}
+
+// ToDo: Common used by platform and turbine
+  private GetDailySummary(model: SummaryModel, transfers: any[]) {
+    const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any> _t.Hs)));
+    model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
+    const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any> _t.peakWindGust)));
+    model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
+
+    const info = this.sovModel.sovInfo;
+    model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
+    model.departureFromHarbour = this.datetimeService.MatlabDateToJSTime(<any> info.departureFromHarbour);
+    model.arrivalAtHarbour = this.datetimeService.MatlabDateToJSTime(<any> info.arrivalAtHarbour);
+    return model;
   }
 
     createOperationalStatsChart() {
@@ -122,5 +199,10 @@ export class SovSummaryComponent implements OnChanges {
             }, 500);
         }
     }
+
+    
+    private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
+      return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
+  }
 
 }
