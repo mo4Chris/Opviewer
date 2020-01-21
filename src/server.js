@@ -885,6 +885,31 @@ app.post("/api/getSovWaveSpectrum", function(req, res) {
         });
     });
 });
+app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        sovWaveSpectrumModel.find({
+            mmsi: req.body.mmsi,
+            active: { $ne: false }
+        }, {
+            date: 1
+        }, function(err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send({
+                    vesselHasData: data.length > 0,
+                    dateHasData: data.some(elt => elt.date === req.body.date)
+                })
+            }
+        })
+    });
+});
+
+
 
 app.post("/api/getCommentsForVessel", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
@@ -1565,7 +1590,15 @@ app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
+            SovTurbineTransfersmodel.findOneAndUpdate({
+                    _id: req.body._id,
+                    active: { $ne: false }
+                }, {
+                    paxIn: req.body.paxIn,
+                    paxOut: req.body.paxOut,
+                    cargoIn: req.body.cargoIn,
+                    cargoOut: req.body.cargoOut
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);

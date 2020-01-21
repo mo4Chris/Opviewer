@@ -8,9 +8,8 @@
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>
     </ngb-tab>
-    <ngb-tab title="Commercial DPR" [disabled]="!hasDprData">
+    <ngb-tab title="Commercial DPR" [id]="commercial" [disabled]="!hasDprData">
       <ng-template ngbTabContent>
-
         <app-sov-v2v-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
           [readonly]="tokenInfo.userPermission == 'Vessel master'"></app-sov-v2v-transfers>
@@ -51,6 +50,11 @@
       </ng-template>
     </ngb-tab>
 
+    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable">
+      <ng-template ngbTabContent>
+        <app-wave-spectrum-component [vesselObject]="vesselObject"></app-wave-spectrum-component>
+      </ng-template>
+    </ngb-tab>
   </ngb-tabset>
 </div>
 

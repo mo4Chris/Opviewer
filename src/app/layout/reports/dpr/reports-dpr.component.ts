@@ -76,7 +76,7 @@ export class ReportsDprComponent implements OnInit {
   googleMap: google.maps.Map;
 
   streetViewControl = false;
-  changedCommentObj = { 'newComment': '', 'otherComment': '' };
+  changedCommentObj = { newComment: '', otherComment: '' };
   alert = { type: '', message: '' };
   showMap = false;
   parkFound = false;
@@ -89,7 +89,6 @@ export class ReportsDprComponent implements OnInit {
   platformsLoaded = true;
   googleMapLoaded = false;
   mapPixelWidth = 0;
-
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();

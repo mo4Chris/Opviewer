@@ -16,6 +16,8 @@ import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbin
 import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
+import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
+import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
   imports: [
@@ -28,9 +30,22 @@ import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherc
     AgmCoreModule.forRoot({
         apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
     }),
+    PlotlyModule,
   ],
   providers: [CalculationService],
-  declarations: [SovreportComponent, SovSummaryComponent, SovSummaryComponent, SovDprInputComponent, SovDprInputVesselmasterComponent, SovDprInputReadonlyComponent, SovTurbineTransfersComponent, SovPlatformTransfersComponent, SovV2vTransfersComponent, SovWeatherchartComponent],
+  declarations: [
+    SovreportComponent,
+    SovSummaryComponent,
+    SovSummaryComponent,
+    SovDprInputComponent,
+    SovDprInputVesselmasterComponent,
+    SovDprInputReadonlyComponent,
+    SovTurbineTransfersComponent,
+    SovPlatformTransfersComponent,
+    SovV2vTransfersComponent,
+    SovWeatherchartComponent,
+    WaveSpectrumComponentComponent,
+  ],
   exports: [SovreportComponent]
 })
 export class SovreportModule { }

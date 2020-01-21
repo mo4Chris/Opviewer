@@ -1,17 +1,20 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 import { container } from '@angular/core/src/render3';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CommonService } from '@app/common.service';
 
 @Component({
   selector: 'app-wave-spectrum-component',
   templateUrl: './wave-spectrum-component.component.html',
   styleUrls: ['./wave-spectrum-component.component.scss']
 })
-export class WaveSpectrumComponentComponent implements OnInit {
-  @Input() WaveSpectrum: SovWaveSpectum;
+export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
+  @Input() vesselObject: any;
+  
+  waveSpectrum: SovWaveSpectum;
 
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
@@ -160,17 +163,30 @@ export class WaveSpectrumComponentComponent implements OnInit {
 
   constructor(
     private calcService: CalculationService,
-    private dateService: DatetimeService
+    private dateService: DatetimeService,
+    private newService: CommonService,
   ) { }
 
   ngOnInit() {
+
+  }
+
+  ngOnChanges() {
     // Setting the source name
+    this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
+      this.waveSpectrum = spectrums[0];
+      this.parseSpectrum();
+    })
+  }
+
+
+  parseSpectrum(){
     this.plotLayout.annotations.forEach(_annot => {
       if (_annot.name && _annot.name === 'source') {
-        _annot.text = 'Source: ' + this.WaveSpectrum.source;
+        _annot.text = 'Source: ' + this.waveSpectrum.source;
       }
     });
-    const N = this.WaveSpectrum.spectrum[0].length;
+    const N = this.waveSpectrum.spectrum[0].length;
     const step = 2 * this.Kmax / (N - 1);
     const x = this.calcService.linspace(-this.Kmax, this.Kmax, step);
     const y = this.calcService.linspace(-this.Kmax, this.Kmax, step);
@@ -183,13 +199,13 @@ export class WaveSpectrumComponentComponent implements OnInit {
       _y = y;
     }
     const sliderSteps = [];
-    const headings =  this.WaveSpectrum.heading;
-    this.WaveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
+    const headings =  this.waveSpectrum.heading;
+    this.waveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
       if (this.useInterpolation) {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
-      const timeString = this.dateService.MatlabDateToCustomJSTime(this.WaveSpectrum.time[_i], 'HH:mm');
+      const timeString = this.dateService.MatlabDateToCustomJSTime(this.waveSpectrum.time[_i], 'HH:mm');
       const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
           data: [{

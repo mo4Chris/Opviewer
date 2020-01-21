@@ -47,6 +47,9 @@ export class SovreportComponent implements OnInit, OnChanges {
   showContent = false;
   hasDprData = false;
 
+  vesselHasWavespectrum = false;
+  waveSpectrumAvailable = false;
+
   dateData = { general: undefined, transfer: undefined };
 
   // used for comparison in the HTML
@@ -92,6 +95,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           if (sov[0].utcOffset) {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
+          this.getWaveSpectrumAvailable();
           forkJoin(
             this.commonService.getPlatformTransfers(
               this.sovModel.sovInfo.mmsi,
@@ -243,6 +247,14 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
+  
+  getWaveSpectrumAvailable() {
+    this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
+      console.log(status)
+      this.vesselHasWavespectrum = status.vesselHasData || false;
+      this.waveSpectrumAvailable = status.dateHasData || false;
+    });
+  }
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({
       park: data 
