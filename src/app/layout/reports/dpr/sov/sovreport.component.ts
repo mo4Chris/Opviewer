@@ -249,18 +249,19 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   
   getWaveSpectrumAvailable() {
-    this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
-      console.log(status)
-      this.vesselHasWavespectrum = status.vesselHasData || false;
-      this.waveSpectrumAvailable = status.dateHasData || false;
-    });
+    if (this.tokenInfo.userPermission === 'Logistics specialist' || this.tokenInfo.userPermission === 'admin') {
+      this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
+        this.vesselHasWavespectrum = status.vesselHasData || false;
+        this.waveSpectrumAvailable = status.dateHasData || false;
+      });
+    }
   }
+  
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({
       park: data 
     }).subscribe(locdata => {
       if (locdata.length !== 0) {
-        // this.turbineLocations = locdata;
         let transfers: Array<any>;
         let sovType = "Unknown";
         if (this.sovModel.sovType === SovType.Platform) {
@@ -278,7 +279,6 @@ export class SovreportComponent implements OnInit, OnChanges {
         };
         this.turbineLocations = locationData.turbineLocations;
         this.turbineLocationData.emit(locationData);
-        // tslint:disable-next-line:whitespace
         if (this.turbineLocations[0].SiteName) {
           this.fieldName = this.turbineLocations[0].SiteName;
         }
