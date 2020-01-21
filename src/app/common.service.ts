@@ -455,6 +455,10 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getSovWaveSpectrumAvailable(vessel: {date:  number, mmsi: number}) {
+    return this.post('/api/getSovWaveSpectrumAvailable', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
   getSovWaveSpectrum(vessel: {date:  number, mmsi: number}) {
     return this.post('/api/getSovWaveSpectrum', vessel).pipe(
       map((response: Response) => response.json()));
