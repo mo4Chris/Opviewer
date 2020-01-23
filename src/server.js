@@ -344,6 +344,15 @@ var SovDprInput = new Schema({
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
+var SovHseDprInput = new Schema({
+    date: { type: Number },
+    mmsi: { type: Number },
+    dprFields: { type: Object},
+    hseFields: { type: Object}
+
+});
+var SovHseDprInputmodel = mongo.model('SOV_hseDprInput', SovHseDprInput, 'SOV_hseDprInput');
+
 var SovCycleTimes = new Schema({
     startTime: { type: String },
     durationMinutes: { type: Number },
@@ -1517,6 +1526,114 @@ app.post("/api/getSovDprInput", function(req, res) {
 
             }
         });
+    });
+});
+
+app.post("/api/getSovHseDprInput", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        SovHseDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, null, {}, function(err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                if (data.length > 0) {
+                    res.send(data[0]);
+                } else {
+                    let hseData = {};
+                    hseData = {
+                        "mmsi": req.body.mmsi,
+                        "date": req.body.date,
+                        "hseFields": {
+                            lostTimeInjuries: { value: 0, comment: '' },
+                            restrictedWorkday: { value: 0, comment: '' },
+                            MedicalTreatment: { value: 0, comment: '' },
+                            firstAid: { value: 0, comment: '' },
+                            environmentalIncidents: { value: 0, comment: '' },
+                            equipmentDamage: { value: 0, comment: '' },
+                            proactiveReports: { value: 0, comment: '' },
+                            nearHitMisses: { value: 0, comment: '' },
+                        
+                            safetyComitteeMeeting: { value: 0, comment: '' },
+                            marineDrillsAndTraining: { value: 0, comment: '' },
+                            managementVisits: { value: 0, comment: '' },
+                        
+                            shorePower: { value: 0, comment: '' },
+                            plasticIncinerated: { value: 0, comment: '' },
+                            plasticLanded: { value: 0, comment: '' },
+                            foodIncinerated: { value: 0, comment: '' },
+                            foodLanded: { value: 0, comment: '' },
+                            foodMacerated: { value: 0, comment: '' },
+                            domWasteLanded: { value: 0, comment: '' },
+                            domWasteIncinerated: { value: 0, comment: '' },
+                            cookingoilLanded: { value: 0, comment: '' },
+                            opsWasteLanded: { value: 0, comment: '' },
+                            opsWasteIncinerated: { value: 0, comment: '' },
+                        
+                            remarks: ''
+                        },
+                        "dprFields": {
+                            marineCount: {value: 0, comment: ''},
+                            clientCrewCount: {value: 0, comment: ''},
+                            hocAmount: {value: 0, comment: ''},
+                            toolboxAmount: {value: 0, comment: ''},
+                            technicalBreakdownAmount: {value: 0, comment: ''},
+                            fuelConsumption: {value: 0, comment: ''},
+                            lubOilConsumption: {value: 0, comment: ''},
+                            waterConsumption: {value: 0, comment: ''}
+                        }
+                    };
+                    let sovHseDprData = new SovHseDprInputmodel(hseData);
+
+                    sovHseDprData.save((error, hseData) => {
+                        if (error) {
+                            console.log(error);
+                            return res.send(error);
+                        } else {
+                            res.send(hseData);
+                        }
+                    });
+                }
+            }
+        });
+    });
+});
+
+app.post("/api/updateSOVHseDpr", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { hseFields: req.body.hseFields },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the transfer stats" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { dprFields: req.body.dprFields },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the transfer stats" });
+                    }
+                });
+        }
     });
 });
 
