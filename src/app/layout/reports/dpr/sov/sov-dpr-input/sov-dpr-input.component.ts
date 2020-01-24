@@ -46,6 +46,9 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   weatherDowntime = {Array: []};
 
 
+  totalStandbyTime = '00:00';
+  totalTechnicalDowntimeTime = '00:00';
+  totalWeatherDowntimeTime = '00:00';
   remarks = '';
 
   catering = {};
@@ -92,6 +95,18 @@ export class SovDprInputComponent implements OnInit, OnChanges {
       });
     }
   }
+    getTotalTimeStandby(standbyArray) {
+        this.totalStandbyTime = this.datetimeService.arrayTotalTime(standbyArray);
+    }
+    getTotalTimeVesselNonAvailability(VesselNonAvailabilityArray) {
+        this.totalTechnicalDowntimeTime = this.datetimeService.arrayTotalTime(VesselNonAvailabilityArray);
+    }
+    getTotalTimeWeatherDowntime(WeatherDowntimeArray) {
+        this.totalWeatherDowntimeTime = this.datetimeService.arrayTotalTime(WeatherDowntimeArray);
+    }
+  objectTimeDifference(object) {
+      return this.datetimeService.objectTimeDifference(object);
+    }
   setDPRInputFields() {
     if (this.dprInput) {
       this.hoc.Array = this.dprInput.hoc;

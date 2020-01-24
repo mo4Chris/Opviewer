@@ -18,6 +18,9 @@ import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
 import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
 import { PlotlyModule } from 'angular-plotly.js';
+import { SovHseDprInputComponent } from './sov-hse-dpr-input/sov-hse-dpr-input.component';
+import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
+import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 
 @NgModule({
   imports: [
@@ -45,6 +48,9 @@ import { PlotlyModule } from 'angular-plotly.js';
     SovV2vTransfersComponent,
     SovWeatherchartComponent,
     WaveSpectrumComponentComponent,
+    SovHseDprInputComponent,
+    SovHseDprInputReadonlyComponent,
+    SovHseDprInputVesselmasterComponent,
   ],
   exports: [SovreportComponent]
 })

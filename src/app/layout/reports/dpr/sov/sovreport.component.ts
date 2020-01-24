@@ -1,32 +1,32 @@
 import {
-    Component,
-    OnInit,
-    Output,
-    EventEmitter,
-    Input,
-    OnChanges
-} from "@angular/core";
-import * as Chart from "chart.js";
-import * as annotation from "chartjs-plugin-annotation";
-import { CommonService } from "@app/common.service";
-import { SovModel } from "./models/SovModel";
-import { DatetimeService } from "@app/supportModules/datetime.service";
-import { SovType } from "./models/SovType";
-import { SummaryModel } from "./models/Summary";
-import { CalculationService } from "@app/supportModules/calculation.service";
-import { isArray } from "util";
-import { SettingsService } from "@app/supportModules/settings.service";
-import { AlertService } from "@app/supportModules/alert.service";
-import { TokenModel } from "@app/models/tokenModel";
-import { V2vPaxTotalModel } from "./sov-v2v-transfers/sov-v2v-transfers.component";
-import { forkJoin, Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { DprChildData } from "../reports-dpr.component";
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  Input,
+  OnChanges
+} from '@angular/core';
+import * as Chart from 'chart.js';
+import * as annotation from 'chartjs-plugin-annotation';
+import { CommonService } from '@app/common.service';
+import { SovModel } from './models/SovModel';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { SovType } from './models/SovType';
+import { SummaryModel } from './models/Summary';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { isArray } from 'util';
+import { SettingsService } from '@app/supportModules/settings.service';
+import { AlertService } from '@app/supportModules/alert.service';
+import { TokenModel } from '@app/models/tokenModel';
+import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { DprChildData } from '../reports-dpr.component';
 
 @Component({
-    selector: "app-sovreport",
-    templateUrl: "./sovreport.component.html",
-    styleUrls: ["./sovreport.component.scss"]
+  selector: 'app-sovreport',
+  templateUrl: './sovreport.component.html',
+  styleUrls: ['./sovreport.component.scss']
 })
 export class SovreportComponent implements OnInit, OnChanges {
   @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
@@ -58,10 +58,10 @@ export class SovreportComponent implements OnInit, OnChanges {
   locShowContent = false;
   gangwayActive = false;
   turbineLocations = new Array<any>();
-  fieldName = "";
+  fieldName = '';
 
   // Charts
-  backgroundcolors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"];
+  backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
 
   v2vPaxCargoTotals: V2vPaxTotalModel;
 
@@ -76,11 +76,11 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-      Chart.pluginService.register(annotation);
+    Chart.pluginService.register(annotation);
   }
   ngOnChanges() {
-      this.ResetTransfers();
-      this.buildPageWhenRouteLoaded();
+    this.ResetTransfers();
+    this.buildPageWhenRouteLoaded();
   }
 
   buildPageWhenRouteLoaded() {
@@ -88,8 +88,8 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.commonService.getSov(this.vesselObject).subscribe(
       sov => {
         if (
-            sov.length !== 0 &&
-            sov[0].seCoverageSpanHours !== "_NaN_"
+          sov.length !== 0 &&
+          sov[0].seCoverageSpanHours !== '_NaN_'
         ) {
           this.sovModel.sovInfo = sov[0];
           if (sov[0].utcOffset) {
@@ -117,7 +117,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
-            this.commonService.getPlatformLocations("")
+            this.commonService.getPlatformLocations('')
           ).subscribe(
             ([
               platformTransfers,
@@ -143,24 +143,24 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.dprInput = dprInput[0];
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
-                cycle["avgSpeed"] = this.switchUnit(
+                cycle['avgSpeed'] = this.switchUnit(
                   cycle.avgSpeedKts,
-                  "knots",
+                  'knots',
                   this.settings.unit_speed
                 );
-                cycle["maxSpeed"] = this.switchUnit(
+                cycle['maxSpeed'] = this.switchUnit(
                   cycle.maxSpeedKts,
-                  "knots",
+                  'knots',
                   this.settings.unit_speed
                 );
-                cycle["sailedDistance"] = this.switchUnit(
+                cycle['sailedDistance'] = this.switchUnit(
                   cycle.sailedDistanceNM,
-                  "NM",
+                  'NM',
                   this.settings.unit_distance
                 );
-                cycle["turbineDistance"] = this.switchUnit(
+                cycle['turbineDistance'] = this.switchUnit(
                   cycle.turbineDistanceNM,
-                  "NM",
+                  'NM',
                   this.settings.unit_distance
                 );
               });
@@ -215,8 +215,8 @@ export class SovreportComponent implements OnInit, OnChanges {
   notifyParent() {
     const boatlocationData = [this.sovModel.sovInfo];
     if (
-      "" + this.sovModel.sovInfo.lat !== "_NaN_" &&
-      "" + this.sovModel.sovInfo.lon !== "_NaN_"
+      '' + this.sovModel.sovInfo.lat !== '_NaN_' &&
+      '' + this.sovModel.sovInfo.lon !== '_NaN_'
     ) {
       const mapProperties = this.calculationService.GetPropertiesForMap(
         this.mapPixelWidth,
@@ -259,23 +259,23 @@ export class SovreportComponent implements OnInit, OnChanges {
   
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({
-      park: data 
+      park: data
     }).subscribe(locdata => {
       if (locdata.length !== 0) {
         let transfers: Array<any>;
-        let sovType = "Unknown";
+        let sovType = 'Unknown';
         if (this.sovModel.sovType === SovType.Platform) {
           transfers = this.sovModel.platformTransfers;
-          sovType = "Platform";
+          sovType = 'Platform';
         } else if (this.sovModel.sovType === SovType.Turbine) {
           transfers = this.sovModel.turbineTransfers;
-          sovType = "Turbine";
+          sovType = 'Turbine';
         }
         const locationData = {
           turbineLocations: locdata,
           transfers: transfers,
           type: sovType,
-          vesselType: "SOV"
+          vesselType: 'SOV'
         };
         this.turbineLocations = locationData.turbineLocations;
         this.turbineLocationData.emit(locationData);
@@ -308,8 +308,8 @@ export class SovreportComponent implements OnInit, OnChanges {
       const locationData = {
         turbineLocations: platformLocations,
         transfers: transfers,
-        type: "Platforms",
-        vesselType: "SOV"
+        type: 'Platforms',
+        vesselType: 'SOV'
       };
       this.platformLocationData.emit(locationData);
     }
@@ -344,8 +344,8 @@ export class SovreportComponent implements OnInit, OnChanges {
           )
         );
         hasTransfers = this.dateData.transfer.reduce(
-            (acc, val) => acc || val === generalDataInstance.dayNum,
-            false
+          (acc, val) => acc || val === generalDataInstance.dayNum,
+          false
         );
         if (generalDataInstance.distancekm && hasTransfers) {
           transferDates.push(formattedDate);
@@ -380,7 +380,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     return this.datetimeService.MatlabDurationToMinutes(serial);
   }
 
-    // Properly change undefined values to N/a
+  // Properly change undefined values to N/a
   // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
   CheckForNullValues() {
     let naCountGangway = 0;
@@ -393,7 +393,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     if (this.sovModel.sovType === SovType.Turbine) {
       this.sovModel.turbineTransfers.forEach(transfer => {
         transfer.gangwayUtilisation === undefined ||
-        transfer.gangwayUtilisation === "_NaN_"
+          transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
         transfer = this.calculationService.ReplaceEmptyColumnValues(
@@ -422,14 +422,14 @@ export class SovreportComponent implements OnInit, OnChanges {
         transfer.peakWindGust = <any>(
           this.switchUnit(
             transfer.peakWindGust,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           )
         );
         transfer.peakWindAvg = <any>(
           this.switchUnit(
             transfer.peakWindAvg,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           )
         );
@@ -438,7 +438,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     } else if (this.sovModel.sovType === SovType.Platform) {
       this.sovModel.platformTransfers.forEach(transfer => {
         transfer.gangwayUtilisation === undefined ||
-        transfer.gangwayUtilisation === "_NaN_"
+          transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
         transfer = this.calculationService.ReplaceEmptyColumnValues(
@@ -462,18 +462,18 @@ export class SovreportComponent implements OnInit, OnChanges {
         transfer.peakWindGust = <any>(
           this.switchUnit(
             transfer.peakWindGust,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           )
         );
         transfer.peakWindAvg = <any>(
           this.switchUnit(
             transfer.peakWindAvg,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           )
         );
-        transfer.Hs = this.GetDecimalValueForNumber(transfer.Hs, " m");
+        transfer.Hs = this.GetDecimalValueForNumber(transfer.Hs, ' m');
         transfer.gangwayUtilisationLimiter = this.formatGangwayLimiter(
           transfer.gangwayUtilisationLimiter
         );
@@ -505,12 +505,12 @@ export class SovreportComponent implements OnInit, OnChanges {
           );
           transfer.peakWindGust = this.switchUnit(
             transfer.peakWindGust,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           );
           transfer.peakWindAvg = this.switchUnit(
             transfer.peakWindAvg,
-            "km/h",
+            'km/h',
             this.settings.unit_speed
           );
         });
@@ -539,32 +539,32 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   printPage() {
     const containers = <HTMLCollection>(
-      document.getElementsByClassName("chartContainer")
+      document.getElementsByClassName('chartContainer')
     );
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement>containers[_i];
-      container.style.width = "225mm";
+      container.style.width = '225mm';
     }
-    setTimeout(function() {
+    setTimeout(function () {
       window.print();
     }, 50);
   }
 
   formatGangwayLimiter(raw_limiter: string) {
     switch (raw_limiter) {
-      case "tele_pos":
-        return "Telescopic position";
-      case "boom_ang":
-        return "Booming angle";
+      case 'tele_pos':
+        return 'Telescopic position';
+      case 'boom_ang':
+        return 'Booming angle';
       default:
-      return raw_limiter;
+        return raw_limiter;
     }
   }
 
   private ResetTransfers() {
     this.sovModel = new SovModel();
     this.showContent = false;
-    this.fieldName = "";
+    this.fieldName = '';
   }
 }
 

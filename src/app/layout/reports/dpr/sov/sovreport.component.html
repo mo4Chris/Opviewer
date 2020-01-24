@@ -1,8 +1,9 @@
 <div *ngIf="showContent">
   <br>
-  <ngb-tabset>
+  <ngb-tabset >
     <ngb-tab title="Summary">
       <ng-template ngbTabContent>
+        <br>
         <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
         </app-sov-summary>
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
@@ -15,6 +16,7 @@
           [readonly]="tokenInfo.userPermission == 'Vessel master'"></app-sov-v2v-transfers>
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+          <br>
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
             [readonly]="false" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [missedPaxCargo]="dprInput.missedPaxCargo"
             [helicopterPaxCargo]="dprInput.helicopterPaxCargo" 
@@ -22,6 +24,7 @@
         </ng-container>
 
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+          <br>
           <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
             [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="true"
             [missedPaxCargo]="dprInput.missedPaxCargo" [helicopterPaxCargo]="dprInput.helicopterPaxCargo"
@@ -37,16 +40,23 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="DPR input" *ngIf="true">
+    <ngb-tab title="DPR input" id="testID" *ngIf="true">
       <ng-template ngbTabContent>
+        <br>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
           [readonly]="false" [dprInput]="dprInput"></app-sov-dpr-input>
+          <br>
+          <div  class="card mb-3 singlepage-print-port">
+            <app-sov-hse-dpr-input-vesselmaster [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
+          </div>
+          
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="HSE input" [disabled]="true" *ngIf="true">
+    <ngb-tab title="HSE input" [disabled]="false" *ngIf="true">
       <ng-template ngbTabContent>
-        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"></app-sov-dpr-input>
+        <br>
+        <app-sov-hse-dpr-input-readonly [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
       </ng-template>
     </ngb-tab>
 
@@ -57,6 +67,5 @@
     </ngb-tab>
   </ngb-tabset>
 </div>
-
 <ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">
   {{ alert.text }}</ngb-alert>

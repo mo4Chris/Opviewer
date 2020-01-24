@@ -236,6 +236,44 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
   }
 
+  stringTimeDifference(datestring: string, datestringEnd: string) {
+    const dateMoment = moment(datestring, 'HH:mm');
+    let dateMomentEnd;
+
+    if (datestringEnd === '24:00') {
+      dateMomentEnd = moment('00:00', 'HH:mm');
+    } else {
+      dateMomentEnd = moment(datestringEnd, 'HH:mm');
+    }
+
+    const timeDifference = moment(dateMomentEnd.diff(dateMoment)).utcOffset(0).format('HH:mm');
+    return timeDifference;
+  }
+
+  objectTimeDifference(dateobj) {
+    const dateMoment = moment(dateobj.from, 'HH:mm');
+    let dateMomentEnd;
+
+    if (dateobj.to === '24:00') {
+      dateMomentEnd = moment('00:00', 'HH:mm');
+    } else {
+      dateMomentEnd = moment(dateobj.to, 'HH:mm');
+    }
+
+    dateobj.total = moment(dateMomentEnd.diff(dateMoment)).utcOffset(0).format('HH:mm');
+    return dateobj;
+  }
+
+  arrayTotalTime(dateArray) {
+    let dateMoment = moment('00:00', 'HH:mm');
+
+    for (let j = 0; j < dateArray.length; j++) {
+      const tempStore = moment(dateArray[j].total, 'HH:mm').toObject();
+      dateMoment = dateMoment.add({hours: tempStore.hours, minutes: tempStore.minutes});
+    }
+    return dateMoment.format('HH:mm');
+  }
+
   convertMomentToObject(date: moment.Moment, addMonth = true) {
     const obj = { year: date.year(), month: date.month(), day: date.date() };
     if (addMonth) {
