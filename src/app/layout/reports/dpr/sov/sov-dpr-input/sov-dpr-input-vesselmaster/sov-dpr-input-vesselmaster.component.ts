@@ -37,12 +37,36 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   remarksChanged = false;
   poBChanged = false;
   dpChanged = false;
+  
 
   times = [];
   allHours = [];
   all5Minutes = [];
+  hseDprInput = {
+    marineCount: {value: 0, comment: ''},
+    clientCrewCount: {value: 0, comment: ''},
+    hocAmount: {value: 0, comment: ''},
+    toolboxAmount: {value: 0, comment: ''},
+    technicalBreakdownAmount: {value: 0, comment: ''},
+    fuelConsumption: {value: 0, comment: ''},
+    lubOilConsumption: {value: 0, comment: ''},
+    waterConsumption: {value: 0, comment: ''}
+  };
+
+  updateHseDprInput(){
+    this.hseDprInput.marineCount.value = (this.peopleOnVessel.marine + this.peopleOnVessel.marineContractors);
+    this.hseDprInput.clientCrewCount.value = this.peopleOnVessel.project;
+    this.hseDprInput.hocAmount.value = this.hoc.Total;
+    this.hseDprInput.toolboxAmount.value = this.toolbox.Total;
+    this.hseDprInput.technicalBreakdownAmount.value = this.vesselNonAvailability.Array.length;
+    this.hseDprInput.fuelConsumption.value = (this.liquids.fuel.consumed + this.liquids.fuel.discharged);
+    this.hseDprInput.lubOilConsumption.value = (this.liquids.luboil.consumed + this.liquids.luboil.discharged);
+    this.hseDprInput.waterConsumption.value = (this.liquids.domwater.consumed + this.liquids.domwater.discharged);
+    this.commonService.updateDprFieldsSOVHseDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dprFields: this.hseDprInput}).subscribe();
+  }
 
   ngOnInit() {
+    this.updateHseDprInput();
     this.createTimes();
     this.createSeperateTimes();
   }
@@ -68,13 +92,17 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
   }
 
+  
+
   // Various save functions
   saveStats(saveFcn: (obj: object) => Observable<any>, saveObject: object) {
+    
     // Generic saver for all the functions below
     const baseObj = {
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
     };
+
     saveFcn({...baseObj, ...saveObject}).pipe(
       map(
         (res: any) => {
@@ -92,6 +120,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
         throw error;
       })
     ).subscribe();
+    this.updateHseDprInput();
   }
   saveFuelStats() {
     this.saveStats(this.commonService.saveFuelStatsSovDpr, {liquids: this.liquids});

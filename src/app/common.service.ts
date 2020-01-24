@@ -365,6 +365,21 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getSovHseDprInput(vessel: VesselObjectModel) {
+    return this.post('/api/getSovHseDprInput/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateSOVHseDpr(dataObject) {
+    return this.post('/api/updateSOVHseDpr/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateDprFieldsSOVHseDpr(dataObject) {
+    return this.post('/api/updateDprFieldsSOVHseDpr/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
   resetPassword(user) {
     return this.post('/api/resetPassword/', user).pipe(
       map((response: Response) => response.json()));
