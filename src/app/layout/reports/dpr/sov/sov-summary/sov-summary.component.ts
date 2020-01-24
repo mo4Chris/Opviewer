@@ -91,7 +91,7 @@ export class SovSummaryComponent implements OnChanges {
         _summary = this.GetDailySummary(_summary, transfers);
     } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
         const turbineTransfers = this.sovModel.turbineTransfers;
-        const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => x.duration));
+        const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => +x.duration));
         _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
         _summary = this.GetDailySummary(_summary, turbineTransfers);
     } else {

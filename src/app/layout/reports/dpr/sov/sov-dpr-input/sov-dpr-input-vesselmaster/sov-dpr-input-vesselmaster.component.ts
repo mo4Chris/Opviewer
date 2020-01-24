@@ -96,12 +96,13 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
 
   // Various save functions
   saveStats(saveFcn: (obj: object) => Observable<any>, saveObject: object) {
-    this.updateHseDprInput();
+    
     // Generic saver for all the functions below
     const baseObj = {
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
     };
+
     saveFcn({...baseObj, ...saveObject}).pipe(
       map(
         (res: any) => {
