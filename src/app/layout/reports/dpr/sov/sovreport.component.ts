@@ -247,7 +247,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
-  
+
   getWaveSpectrumAvailable() {
     if (this.tokenInfo.userPermission === 'Logistics specialist' || this.tokenInfo.userPermission === 'admin') {
       this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
@@ -256,7 +256,7 @@ export class SovreportComponent implements OnInit, OnChanges {
       });
     }
   }
-  
+
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({
       park: data

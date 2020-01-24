@@ -37,7 +37,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   remarksChanged = false;
   poBChanged = false;
   dpChanged = false;
-  
+
 
   times = [];
   allHours = [];
@@ -53,7 +53,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     waterConsumption: {value: 0, comment: ''}
   };
 
-  updateHseDprInput(){
+  updateHseDprInput() {
     this.hseDprInput.marineCount.value = (this.peopleOnVessel.marine + this.peopleOnVessel.marineContractors);
     this.hseDprInput.clientCrewCount.value = this.peopleOnVessel.project;
     this.hseDprInput.hocAmount.value = this.hoc.Total;
@@ -66,7 +66,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.updateHseDprInput();
     this.createTimes();
     this.createSeperateTimes();
   }
@@ -80,6 +79,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
 
     // This one was in the onChanges, but the other update functions are not - can one be removed?
     this.updatePoB();
+    this.updateHseDprInput();
   }
 
 
@@ -92,18 +92,14 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
   }
 
-  
-
   // Various save functions
-  saveStats(saveFcn: (obj: object) => Observable<any>, saveObject: object) {
-    
+  saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below
     const baseObj = {
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
     };
-
-    saveFcn({...baseObj, ...saveObject}).pipe(
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
       map(
         (res: any) => {
           this.alert.sendAlert({
@@ -123,7 +119,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.updateHseDprInput();
   }
   saveFuelStats() {
-    this.saveStats(this.commonService.saveFuelStatsSovDpr, {liquids: this.liquids});
+    this.saveStats('saveFuelStatsSovDpr', {liquids: this.liquids});
     this.fuelChanged = false;
   }
   saveIncidentStats() {
@@ -133,7 +129,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.hoc.Array = this.hoc.Array.filter(function (result, _i) {
         return +result.amount !== 0;
     });
-    this.saveStats(this.commonService.saveIncidentDpr, {
+    this.saveStats('saveIncidentDpr', {
         toolbox: this.toolbox.Array,
         hoc: this.hoc.Array,
         ToolboxAmountNew: this.toolbox.TotalNew,
@@ -142,37 +138,37 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.incidentsChanged = false;
   }
   saveWeatherDowntimeStats() {
-    this.saveStats(this.commonService.saveWeatherDowntimeDpr, {
-      weatherDowntime: this.weatherDowntime,
+    this.saveStats('saveWeatherDowntimeDpr', {
+      weatherDowntime: this.weatherDowntime.Array,
     });
-    this.saveStats(this.commonService.saveNonAvailabilityDpr, {
-      vesselNonAvailability: this.vesselNonAvailability,
+    this.saveStats('saveNonAvailabilityDpr', {
+      vesselNonAvailability: this.vesselNonAvailability.Array,
     });
-    this.saveStats(this.commonService.saveStandByDpr, {
+    this.saveStats('saveStandByDpr', {
       standBy: this.standby.Array
     });
     this.weatherDowntimeChanged = false;
   }
   saveCateringStats() {
-    this.saveStats(this.commonService.saveCateringStats, {
+    this.saveStats('saveCateringStats', {
       catering: this.catering
     });
     this.cateringChanged = false;
   }
   saveDPStats() {
-    this.saveStats(this.commonService.saveDPStats, {
+    this.saveStats('saveDPStats', {
       dp: this.dp.Array
     });
     this.dpChanged = false;
   }
   savePoBStats() {
-    this.saveStats(this.commonService.savePoBStats, {
+    this.saveStats('savePoBStats', {
       peopleonBoard: this.peopleOnVessel
     });
     this.poBChanged = false;
   }
   saveRemarksStats() {
-    this.saveStats(this.commonService.saveRemarksStats, {
+    this.saveStats('saveRemarksStats', {
       remarks: this.remarks
     });
     this.remarksChanged = false;
