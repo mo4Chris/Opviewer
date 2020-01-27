@@ -11,10 +11,10 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() weatherDowntime: ReadonlyInput;
   @Input() hoc: ReadonlyInput;
   @Input() toolbox: ReadonlyInput;
-  @Input() liquids = {};
+  @Input() liquids: LiquidsInput;
   @Input() peopleOnVessel = {marine: 0, marineContractors: 0, project: 0, Total: 0};
-  @Input() catering = {};
-  @Input() dp = {};
+  @Input() catering: CateringInput;
+  @Input() dp : ReadonlyInput;
   @Input() remarks = '';
 
   constructor() {}
@@ -34,4 +34,44 @@ interface ReadonlyInput {
   Total?: number;
   TotalOld?: number;
   TotalNew?: number;
+}
+
+interface CateringInput {
+  project: Number,
+  marine: Number,
+  marineContractors: number,
+  extraMeals: Number,
+  packedLunches: Number,
+  Array:Array<number>
+}
+
+interface LiquidsInput {
+  fuel: {
+    oldValue: number,
+    newValue: number,
+    loaded: number,
+    consumed: number,
+    discharged: number
+  },
+  luboil: {
+    oldValue: number,
+    newValue: number,
+    loaded: number,
+    consumed: number,
+    discharged: number
+  },
+  domwater: {
+    oldValue: number,
+    newValue: number,
+    loaded: number,
+    consumed: number,
+    discharged: number
+  },
+  potwater: {
+    oldValue: number,
+    newValue: number,
+    loaded: number,
+    consumed: number,
+    discharged: number
+  },
 }

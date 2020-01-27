@@ -305,7 +305,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   //   });
   // }
 
-  onPlotlyInit(figure: {data: any, layout: any, frames: any}, other) {
+  onPlotlyInit(figure: {data: any, layout: any, frames: any}) {
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
 
     // This would be preferably be handled via the scss, but I couldnt make it work

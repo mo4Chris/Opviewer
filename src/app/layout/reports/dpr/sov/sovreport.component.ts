@@ -70,7 +70,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     private datetimeService: DatetimeService,
     private calculationService: CalculationService,
     private settings: SettingsService,
-    private alert: AlertService
+    public alert: AlertService
   ) {
     this.alert.timeout = 7000;
   }
