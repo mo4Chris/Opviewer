@@ -23,8 +23,6 @@ import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
 import { SovreportModule } from './sov/sovreport.module';
-import { WaveSpectrumComponentComponent } from './sov/models/wave-spectrum-component/wave-spectrum-component.component';
-import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
     imports: [
@@ -40,10 +38,9 @@ import { PlotlyModule } from 'angular-plotly.js';
         CommonModule,
         PageHeaderModule,
         SharedPipesModule,
-        PlotlyModule,
         SovreportModule,
     ],
-    declarations: [CtvreportComponent, ReportsDprComponent, WaveSpectrumComponentComponent],
+    declarations: [CtvreportComponent, ReportsDprComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [ReportsDprComponent],
     exports: [ReportsDprComponent],

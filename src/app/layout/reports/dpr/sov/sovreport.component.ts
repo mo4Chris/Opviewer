@@ -47,6 +47,9 @@ export class SovreportComponent implements OnInit, OnChanges {
   showContent = false;
   hasDprData = false;
 
+  vesselHasWavespectrum = false;
+  waveSpectrumAvailable = false;
+
   dateData = { general: undefined, transfer: undefined };
 
   // used for comparison in the HTML
@@ -67,7 +70,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     private datetimeService: DatetimeService,
     private calculationService: CalculationService,
     private settings: SettingsService,
-    private alert: AlertService
+    public alert: AlertService
   ) {
     this.alert.timeout = 7000;
   }
@@ -92,6 +95,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           if (sov[0].utcOffset) {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
+          this.getWaveSpectrumAvailable();
           forkJoin(
             this.commonService.getPlatformTransfers(
               this.sovModel.sovInfo.mmsi,
@@ -243,12 +247,21 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
+
+  getWaveSpectrumAvailable() {
+    if (this.tokenInfo.userPermission === 'Logistics specialist' || this.tokenInfo.userPermission === 'admin') {
+      this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
+        this.vesselHasWavespectrum = status.vesselHasData || false;
+        this.waveSpectrumAvailable = status.dateHasData || false;
+      });
+    }
+  }
+
   loadFieldFromFieldnames(data: string[]) {
     this.commonService.getSpecificPark({
       park: data
     }).subscribe(locdata => {
       if (locdata.length !== 0) {
-        // this.turbineLocations = locdata;
         let transfers: Array<any>;
         let sovType = 'Unknown';
         if (this.sovModel.sovType === SovType.Platform) {
@@ -266,7 +279,6 @@ export class SovreportComponent implements OnInit, OnChanges {
         };
         this.turbineLocations = locationData.turbineLocations;
         this.turbineLocationData.emit(locationData);
-        // tslint:disable-next-line:whitespace
         if (this.turbineLocations[0].SiteName) {
           this.fieldName = this.turbineLocations[0].SiteName;
         }

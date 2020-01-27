@@ -347,8 +347,8 @@ var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 var SovHseDprInput = new Schema({
     date: { type: Number },
     mmsi: { type: Number },
-    dprFields: { type: Object},
-    hseFields: { type: Object}
+    dprFields: { type: Object },
+    hseFields: { type: Object }
 
 });
 var SovHseDprInputmodel = mongo.model('SOV_hseDprInput', SovHseDprInput, 'SOV_hseDprInput');
@@ -894,6 +894,31 @@ app.post("/api/getSovWaveSpectrum", function(req, res) {
         });
     });
 });
+app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+        sovWaveSpectrumModel.find({
+            mmsi: req.body.mmsi,
+            active: { $ne: false }
+        }, {
+            date: 1
+        }, function(err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                res.send({
+                    vesselHasData: data.length > 0,
+                    dateHasData: data.some(elt => elt.date === req.body.date)
+                })
+            }
+        })
+    });
+});
+
+
 
 app.post("/api/getCommentsForVessel", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
@@ -1418,7 +1443,11 @@ app.post("/api/getSovDprInput", function(req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, null, {}, function(err, data) {
+        SovDprInputmodel.find({
+            mmsi: req.body.mmsi,
+            date: req.body.date,
+            active: { $ne: false }
+        }, null, {}, function(err, data) {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -1555,11 +1584,11 @@ app.post("/api/getSovHseDprInput", function(req, res) {
                             equipmentDamage: { value: 0, comment: '' },
                             proactiveReports: { value: 0, comment: '' },
                             nearHitMisses: { value: 0, comment: '' },
-                        
+
                             safetyComitteeMeeting: { value: 0, comment: '' },
                             marineDrillsAndTraining: { value: 0, comment: '' },
                             managementVisits: { value: 0, comment: '' },
-                        
+
                             shorePower: { value: 0, comment: '' },
                             plasticIncinerated: { value: 0, comment: '' },
                             plasticLanded: { value: 0, comment: '' },
@@ -1571,18 +1600,18 @@ app.post("/api/getSovHseDprInput", function(req, res) {
                             cookingoilLanded: { value: 0, comment: '' },
                             opsWasteLanded: { value: 0, comment: '' },
                             opsWasteIncinerated: { value: 0, comment: '' },
-                        
+
                             remarks: ''
                         },
                         "dprFields": {
-                            marineCount: {value: 0, comment: ''},
-                            clientCrewCount: {value: 0, comment: ''},
-                            hocAmount: {value: 0, comment: ''},
-                            toolboxAmount: {value: 0, comment: ''},
-                            technicalBreakdownAmount: {value: 0, comment: ''},
-                            fuelConsumption: {value: 0, comment: ''},
-                            lubOilConsumption: {value: 0, comment: ''},
-                            waterConsumption: {value: 0, comment: ''}
+                            marineCount: { value: 0, comment: '' },
+                            clientCrewCount: { value: 0, comment: '' },
+                            hocAmount: { value: 0, comment: '' },
+                            toolboxAmount: { value: 0, comment: '' },
+                            technicalBreakdownAmount: { value: 0, comment: '' },
+                            fuelConsumption: { value: 0, comment: '' },
+                            lubOilConsumption: { value: 0, comment: '' },
+                            waterConsumption: { value: 0, comment: '' }
                         }
                     };
                     let sovHseDprData = new SovHseDprInputmodel(hseData);
@@ -1682,7 +1711,15 @@ app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            SovTurbineTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
+            SovTurbineTransfersmodel.findOneAndUpdate({
+                    _id: req.body._id,
+                    active: { $ne: false }
+                }, {
+                    paxIn: req.body.paxIn,
+                    paxOut: req.body.paxOut,
+                    cargoIn: req.body.cargoIn,
+                    cargoOut: req.body.cargoOut
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);
@@ -1755,7 +1792,13 @@ app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { weatherDowntime: req.body.weatherDowntime },
+            SovDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    weatherDowntime: req.body.weatherDowntime
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);
