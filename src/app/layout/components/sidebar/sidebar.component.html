@@ -6,13 +6,15 @@
         <a [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
-        <a [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item" *ngIf="tokenInfo.hasCampaigns">
+        <a [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item"
+          *ngIf="permission.hasCampaigns">
             <i class="fa fa-fw fa-ship"></i>&nbsp;{{ 'Campaigns' | translate }}
         </a>
-        <a *ngIf="userCreatePermission" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
+        <a *ngIf="permission.userRead" [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-edit"></i>&nbsp;{{ 'Users' | translate }}
+
         </a>
-        <a *ngIf="userCreatePermission" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
+        <a *ngIf="permission.userCreate" [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-user-plus"></i>&nbsp;{{ 'Create new user' | translate }}
         </a>
         <a [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']" (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
