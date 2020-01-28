@@ -22,4 +22,4 @@ export class TokenModel {
     }
 }
 
-export type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist';
+export type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist' | 'QHSE specialist' | 'Client representative';
