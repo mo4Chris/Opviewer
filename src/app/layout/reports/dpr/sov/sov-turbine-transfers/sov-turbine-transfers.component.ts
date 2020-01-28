@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { TurbineTransfer } from '../models/Transfers/TurbineTransfer';
@@ -12,7 +12,8 @@ import { V2vPaxTotalModel } from '../sov-v2v-transfers/sov-v2v-transfers.compone
 @Component({
   selector: 'app-sov-turbine-transfers',
   templateUrl: './sov-turbine-transfers.component.html',
-  styleUrls: ['./sov-turbine-transfers.component.scss', '../sovreport.component.scss' ]
+  styleUrls: ['./sov-turbine-transfers.component.scss', '../sovreport.component.scss' ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovTurbineTransfersComponent implements OnChanges {
   @Input() readonly = true;

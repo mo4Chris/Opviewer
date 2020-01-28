@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '../../../../common.service';
 
 import { map, catchError } from 'rxjs/operators';
@@ -14,9 +14,10 @@ import { UtilizationGraphComponent } from './models/utilizationGraph.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
 
 @Component({
-selector: 'app-longterm-sov',
-templateUrl: './longtermSOV.component.html',
-styleUrls: ['./longtermSOV.component.scss']
+  selector: 'app-longterm-sov',
+  templateUrl: './longtermSOV.component.html',
+  styleUrls: ['./longtermSOV.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class LongtermSOVComponent implements OnInit {

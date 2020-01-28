@@ -4,7 +4,8 @@ import {
   Output,
   EventEmitter,
   Input,
-  OnChanges
+  OnChanges,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
@@ -22,11 +23,13 @@ import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.componen
 import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-sovreport',
   templateUrl: './sovreport.component.html',
-  styleUrls: ['./sovreport.component.scss']
+  styleUrls: ['./sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovreportComponent implements OnInit, OnChanges {
   @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();

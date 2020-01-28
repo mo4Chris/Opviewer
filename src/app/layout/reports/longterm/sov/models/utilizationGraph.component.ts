@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
@@ -13,7 +13,8 @@ import { LongtermColorScheme } from '../../models/color_scheme';
     selector: 'app-utilization-graph',
     templateUrl: './utilizationGraph.component.html',
     styleUrls: ['../longtermSOV.component.scss',
-        './utilizationGraph.component.scss']
+        './utilizationGraph.component.scss'],
+        changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UtilizationGraphComponent implements OnInit {
     constructor(

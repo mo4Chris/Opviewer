@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { SovType } from '../models/SovType';
 import * as Chart from 'chart.js';
 import { SummaryModel } from '../models/Summary';
@@ -11,7 +11,8 @@ import { SettingsService } from '@app/supportModules/settings.service';
   selector: 'app-sov-summary',
   templateUrl: './sov-summary.component.html',
   styleUrls: ['./sov-summary.component.scss',
-    '../sovreport.component.scss']
+    '../sovreport.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovSummaryComponent implements OnChanges {
   @Input() sovModel: SovModel;

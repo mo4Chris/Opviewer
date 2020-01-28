@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 import { container } from '@angular/core/src/render3';
@@ -9,11 +9,12 @@ import { CommonService } from '@app/common.service';
 @Component({
   selector: 'app-wave-spectrum-component',
   templateUrl: './wave-spectrum-component.component.html',
-  styleUrls: ['./wave-spectrum-component.component.scss']
+  styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   @Input() vesselObject: any;
-  
+
   waveSpectrum: SovWaveSpectum;
 
   data: PlotlyJS.Data[] = [];
@@ -176,11 +177,11 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
       this.waveSpectrum = spectrums[0];
       this.parseSpectrum();
-    })
+    });
   }
 
 
-  parseSpectrum(){
+  parseSpectrum() {
     this.plotLayout.annotations.forEach(_annot => {
       if (_annot.name && _annot.name === 'source') {
         _annot.text = 'Source: ' + this.waveSpectrum.source;

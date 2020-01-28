@@ -1,5 +1,5 @@
 /// <reference types="@types/googlemaps" />
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 import { isArray } from 'util';
@@ -121,7 +121,7 @@ export class ReportsDprComponent implements OnInit {
       }
     });
   }
-  
+
   // For each change
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
@@ -164,7 +164,7 @@ export class ReportsDprComponent implements OnInit {
           dateNormal: this.vesselObject.dateNormal,
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
-        }
+        };
         const map = document.getElementById('routeMap');
         if (map != null) {
           this.mapPixelWidth = map.offsetWidth;
@@ -357,7 +357,7 @@ export class ReportsDprComponent implements OnInit {
       this.buildPageWhenLoaded();
     }
   }
-  
+
   ///////////////////////////////////////////////////
   hasSailedTransfer(date: NgbDateStruct) {
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
@@ -441,7 +441,7 @@ export interface DprChildData {
   zoomInfo: MapZoomInfo;
   // turbineLocationData: any;
   platformLocationData: any;
-  
+
   routeFound: boolean;
 }
 
