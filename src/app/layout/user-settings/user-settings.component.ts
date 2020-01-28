@@ -11,7 +11,7 @@ import { AlertService } from '../../supportModules/alert.service';
   styleUrls: ['./user-settings.component.scss']
 })
 export class UserSettingsComponent implements OnInit {
-  private token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  public token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   settingsOptions: object;
 
   constructor(

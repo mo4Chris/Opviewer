@@ -82,6 +82,28 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.updateHseDprInput();
   }
 
+  updateHOCTotal() {
+    this.hoc.Total = 0;
+    this.hoc.TotalNew = this.hoc.TotalOld;
+    if (this.hoc.Array.length !== 0) {
+        this.hoc.Array.forEach(element => {
+            this.hoc.Total = this.hoc.Total + +element.amount;
+            this.hoc.TotalNew = this.hoc.TotalNew + +element.amount;
+        });
+    }
+}
+
+  updateToolboxTotal() {
+      this.toolbox.Total = 0;
+      this.toolbox.TotalNew = this.toolbox.TotalOld;
+      if (this.toolbox.Array.length !== 0) {
+          this.toolbox.Array.forEach(element => {
+              this.toolbox.Total = this.toolbox.Total + +element.amount;
+              this.toolbox.TotalNew = this.toolbox.TotalNew + +element.amount;
+          });
+      }
+  }
+
 
   createTimes() {
     this.times = this.datetimeService.createTimesQuarterHour();
