@@ -19,9 +19,9 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
-import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-sovreport',
@@ -47,8 +47,11 @@ export class SovreportComponent implements OnInit, OnChanges {
   showContent = false;
   hasDprData = false;
 
+  activeTab = 'summary';
+
   vesselHasWavespectrum = false;
   waveSpectrumAvailable = false;
+  hasGeneral = false;
 
   dateData = { general: undefined, transfer: undefined };
 
@@ -77,6 +80,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     Chart.pluginService.register(annotation);
+    this.setDefaultActiveTab();
   }
   ngOnChanges() {
     this.ResetTransfers();
@@ -91,12 +95,13 @@ export class SovreportComponent implements OnInit, OnChanges {
           sov.length !== 0 &&
           sov[0].seCoverageSpanHours !== '_NaN_'
         ) {
+          this.hasGeneral = true;
           this.sovModel.sovInfo = sov[0];
           if (sov[0].utcOffset) {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
           this.getWaveSpectrumAvailable();
-          forkJoin(
+          forkJoin([
             this.commonService.getPlatformTransfers(
               this.sovModel.sovInfo.mmsi,
               this.vesselObject.date
@@ -118,7 +123,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject
             ),
             this.commonService.getPlatformLocations('')
-          ).subscribe(
+            ]).subscribe(
             ([
               platformTransfers,
               turbineTransfers,
@@ -203,12 +208,9 @@ export class SovreportComponent implements OnInit, OnChanges {
           }
           this.buildPageWhenAllLoaded();
           this.showContent = true;
+          this.hasGeneral = false;
         }
       },
-      null,
-      () => {
-        this.buildPageWhenAllLoaded();
-      }
     );
   }
 
@@ -515,6 +517,23 @@ export class SovreportComponent implements OnInit, OnChanges {
           );
         });
       });
+    }
+  }
+
+  setDefaultActiveTab(): void {
+    switch (this.tokenInfo.userPermission) {
+      case 'admin':
+        this.activeTab = 'summary';
+        break;
+      case 'Logistics specialist':
+        this.activeTab =  'summary';
+        break;
+      case 'Marine controller':
+        this.activeTab =  'sov-dpr-input';
+        break;
+      case 'Vessel master':
+        this.activeTab =  'sov-dpr-input';
+        break;
     }
   }
 

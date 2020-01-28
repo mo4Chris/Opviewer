@@ -199,7 +199,7 @@ export class ReportsDprComponent implements OnInit {
     const vesselType = turbineLocationData.vesselType;
     const turbines: any[] = new Array<any>();
 
-    if (locationData.length > 0 && transfers.length > 0) {
+    if (isArray(locationData) && isArray(locationData) && locationData.length > 0 && transfers.length > 0) {
       locationData.forEach(turbineLocation => {
         for (let index = 0; index < turbineLocation.lat.length; index++) {
           let turbineIsVisited = false;

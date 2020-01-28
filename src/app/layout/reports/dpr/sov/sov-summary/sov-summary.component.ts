@@ -20,19 +20,19 @@ export class SovSummaryComponent implements OnChanges {
 
   // Summary
   summary: SummaryModel;
+  hasSummaryData = true;
 
   // Some dependency
   SovTypeEnum = SovType;
 
   // Ops chart
-  operationsChart;
+  operationsChart: Chart;
   operationalChartCalculated = false;
 
   // Gangway chart
-  gangwayLimitationsChart;
+  gangwayLimitationsChart: Chart;
   sovHasLimiters = false;
 
-  
   summaryInfo = {
     departureFromHarbour: 'N/a',
     arrivalAtHarbour: 'N/a',
@@ -46,16 +46,17 @@ export class SovSummaryComponent implements OnChanges {
   ) { }
 
   ngOnChanges() {
+    this.hasSummaryData = this.sovModel.sovInfo.mmsi > 0;
     this.CalculateDailySummary();
     this.summary = this.calculationService.ReplaceEmptyColumnValues(this.summary);
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
   }
 
-  
+
   CalculateDailySummary() {
     let _summary = new SummaryModel();
-    
+
     // Average time vessel docking
     let totalVesselDockingDuration = 0;
     let nmrVesselTransfers = 0;
@@ -200,7 +201,7 @@ export class SovSummaryComponent implements OnChanges {
         }
     }
 
-    
+
     private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
       return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }

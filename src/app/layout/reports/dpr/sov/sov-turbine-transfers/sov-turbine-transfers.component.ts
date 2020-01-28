@@ -42,7 +42,9 @@ export class SovTurbineTransfersComponent implements OnChanges {
 
   ngOnChanges() {
     this.updatePaxCargoTotal();
-    this.gangwayActive = this.turbineTransfers.some(transfer => transfer.gangwayDeployedDuration > 0);
+    this.gangwayActive = this.turbineTransfers.some(
+      transfer => <number><any> transfer.timeGangwayReady > 0
+    );
   }
 
 
