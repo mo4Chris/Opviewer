@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
@@ -13,7 +13,8 @@ import { CalculationService } from '@app/supportModules/calculation.service';
     styleUrls: [
         './sov-weatherchart.component.scss',
         '../../sovreport.component.scss'
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovWeatherchartComponent implements OnChanges {
     @Input() sovModel: SovModel;

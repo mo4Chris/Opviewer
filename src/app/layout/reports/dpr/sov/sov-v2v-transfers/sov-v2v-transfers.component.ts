@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -14,7 +14,8 @@ import { map, catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-sov-v2v-transfers',
   templateUrl: './sov-v2v-transfers.component.html',
-  styleUrls: ['./sov-v2v-transfers.component.scss', '../sovreport.component.scss']
+  styleUrls: ['./sov-v2v-transfers.component.scss', '../sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovV2vTransfersComponent implements OnChanges {
   @Input() readonly = true;
@@ -141,7 +142,7 @@ export class SovV2vTransfersComponent implements OnChanges {
         throw error;
       })
     ).subscribe();
-    // ToDo: signal other 
+    // ToDo: signal other
   }
 }
 

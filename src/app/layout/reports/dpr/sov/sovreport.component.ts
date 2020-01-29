@@ -4,7 +4,8 @@ import {
   Output,
   EventEmitter,
   Input,
-  OnChanges
+  OnChanges,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
@@ -19,14 +20,16 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
-import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
+import { forkJoin } from 'rxjs';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-sovreport',
   templateUrl: './sovreport.component.html',
-  styleUrls: ['./sovreport.component.scss']
+  styleUrls: ['./sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovreportComponent implements OnInit, OnChanges {
   @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
@@ -47,8 +50,11 @@ export class SovreportComponent implements OnInit, OnChanges {
   showContent = false;
   hasDprData = false;
 
+  activeTab = 'summary';
+
   vesselHasWavespectrum = false;
   waveSpectrumAvailable = false;
+  hasGeneral = false;
 
   dateData = { general: undefined, transfer: undefined };
 
@@ -70,13 +76,14 @@ export class SovreportComponent implements OnInit, OnChanges {
     private datetimeService: DatetimeService,
     private calculationService: CalculationService,
     private settings: SettingsService,
-    public alert: AlertService
+    public alert: AlertService,
+    public permission: PermissionService,
   ) {
-    this.alert.timeout = 7000;
   }
 
   ngOnInit() {
     Chart.pluginService.register(annotation);
+    this.setDefaultActiveTab();
   }
   ngOnChanges() {
     this.ResetTransfers();
@@ -91,12 +98,13 @@ export class SovreportComponent implements OnInit, OnChanges {
           sov.length !== 0 &&
           sov[0].seCoverageSpanHours !== '_NaN_'
         ) {
+          this.hasGeneral = true;
           this.sovModel.sovInfo = sov[0];
           if (sov[0].utcOffset) {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
           this.getWaveSpectrumAvailable();
-          forkJoin(
+          forkJoin([
             this.commonService.getPlatformTransfers(
               this.sovModel.sovInfo.mmsi,
               this.vesselObject.date
@@ -118,7 +126,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject
             ),
             this.commonService.getPlatformLocations('')
-          ).subscribe(
+            ]).subscribe(
             ([
               platformTransfers,
               turbineTransfers,
@@ -203,12 +211,9 @@ export class SovreportComponent implements OnInit, OnChanges {
           }
           this.buildPageWhenAllLoaded();
           this.showContent = true;
+          this.hasGeneral = false;
         }
       },
-      null,
-      () => {
-        this.buildPageWhenAllLoaded();
-      }
     );
   }
 
@@ -249,7 +254,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
 
   getWaveSpectrumAvailable() {
-    if (this.tokenInfo.userPermission === 'Logistics specialist' || this.tokenInfo.userPermission === 'admin') {
+    if (this.permission.sovWaveSpectrum) {
       this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
         this.vesselHasWavespectrum = status.vesselHasData || false;
         this.waveSpectrumAvailable = status.dateHasData || false;
@@ -515,6 +520,25 @@ export class SovreportComponent implements OnInit, OnChanges {
           );
         });
       });
+    }
+  }
+
+  setDefaultActiveTab(): void {
+    switch (this.tokenInfo.userPermission) {
+      case 'admin':
+        this.activeTab = 'summary';
+        break;
+      case 'Logistics specialist':
+        this.activeTab =  'summary';
+        break;
+      case 'Marine controller':
+        this.activeTab =  'sov-dpr-input';
+        break;
+      case 'Vessel master':
+        this.activeTab =  'sov-dpr-input';
+        break;
+      default:
+        this.activeTab = 'summary';
     }
   }
 

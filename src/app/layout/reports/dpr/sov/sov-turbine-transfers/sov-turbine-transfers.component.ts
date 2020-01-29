@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { TurbineTransfer } from '../models/Transfers/TurbineTransfer';
@@ -12,12 +12,13 @@ import { V2vPaxTotalModel } from '../sov-v2v-transfers/sov-v2v-transfers.compone
 @Component({
   selector: 'app-sov-turbine-transfers',
   templateUrl: './sov-turbine-transfers.component.html',
-  styleUrls: ['./sov-turbine-transfers.component.scss', '../sovreport.component.scss' ]
+  styleUrls: ['./sov-turbine-transfers.component.scss', '../sovreport.component.scss' ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovTurbineTransfersComponent implements OnChanges {
-  @Input() readonly: boolean = true;
+  @Input() readonly = true;
   @Input() vesselObject;
-  
+
   @Input() turbineTransfers: TurbineTransfer[] = [];
   @Input() cycleTimes: CycleTime[] = [];
   @Input() v2vPaxCargoTotals: V2vPaxTotalModel;
@@ -26,7 +27,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
   @Input() helicopterPaxCargo = [];
 
   gangwayActive = true;
-  
+
   totalCargoIn = 0;
   totalCargoOut = 0;
   totalPaxIn = 0;
@@ -42,11 +43,12 @@ export class SovTurbineTransfersComponent implements OnChanges {
 
   ngOnChanges() {
     this.updatePaxCargoTotal();
-    this.gangwayActive = this.turbineTransfers.some(transfer => transfer.gangwayDeployedDuration > 0);
+    this.gangwayActive = this.turbineTransfers.some(
+      transfer => <number><any> transfer.timeGangwayReady > 0
+    );
   }
 
 
-  
   updatePaxCargoTotal() {
     this.totalPaxIn = 0;
     this.totalPaxOut = 0;
@@ -100,12 +102,12 @@ export class SovTurbineTransfersComponent implements OnChanges {
   }
 
   // Save functions
-  saveStats(saveFcn: (obj: object) => Observable<any>, saveObject: object) {
+  saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below
     const baseObj = {
       mmsi: this.vesselObject.mmsi,
     };
-    saveFcn({...baseObj, ...saveObject}).pipe(
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
       map(
         (res: any) => {
           this.alert.sendAlert({
@@ -122,17 +124,17 @@ export class SovTurbineTransfersComponent implements OnChanges {
         throw error;
       })
     ).subscribe();
+    this.updatePaxCargoTotal();
   }
   saveMissedPaxCargo() {
-    this.saveStats(this.commonService.saveMissedPaxCargo, {
+    this.saveStats('saveMissedPaxCargo', {
       MissedPaxCargo: this.missedPaxCargo,
       date: this.vesselObject.date,
     });
     // this.nonAvailabilityChanged = false;
   }
   saveHelicopterPaxCargo() {
-    this.saveStats(this.commonService.saveMissedPaxCargo, {
-      mmsi: this.vesselObject.mmsi,
+    this.saveStats('saveMissedPaxCargo', {
       date: this.vesselObject.date,
       HelicopterPaxCargo: this.helicopterPaxCargo
     });
@@ -144,9 +146,8 @@ export class SovTurbineTransfersComponent implements OnChanges {
       _transfer.paxOut = _transfer.paxOut || 0;
       _transfer.cargoIn = _transfer.cargoIn || 0;
       _transfer.cargoOut = _transfer.cargoOut || 0;
-      this.saveStats(this.commonService.updateSOVTurbinePaxInput, {
+      this.saveStats('updateSOVTurbinePaxInput', {
         _id: _transfer._id,
-        mmsi: _transfer.mmsi,
         paxIn: _transfer.paxIn,
         paxOut: _transfer.paxOut,
         cargoIn: _transfer.cargoIn,
@@ -158,9 +159,8 @@ export class SovTurbineTransfersComponent implements OnChanges {
     this.saveMissedPaxCargo();
   }
   saveTurbinePaxInput(transfer) {
-    this.saveStats(this.commonService.updateSOVTurbinePaxInput, {
+    this.saveStats('updateSOVTurbinePaxInput', {
       _id: transfer._id,
-      mmsi: this.vesselObject.mmsi,
       paxIn: transfer.paxIn || 0,
       paxOut: transfer.paxOut || 0,
       cargoIn: transfer.cargoIn || 0,

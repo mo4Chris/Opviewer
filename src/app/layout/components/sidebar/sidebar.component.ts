@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import * as jwt_decode from "jwt-decode";
+import * as jwt_decode from 'jwt-decode';
 import { UserService } from '../../../shared/services/user.service';
 import { EventService } from '../../../supportModules/event.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
     selector: 'app-sidebar',
@@ -15,10 +16,12 @@ export class SidebarComponent {
     showMenu = '';
     pushRightClass = 'push-right';
 
-    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
-
-    constructor(private translate: TranslateService, public router: Router, private userService: UserService, public eventService: EventService) {
+    constructor(
+      private translate: TranslateService,
+      public router: Router,
+      public eventService: EventService,
+      public permission: PermissionService,
+      ) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de']);
         this.translate.setDefaultLang('en');
         const browserLang = this.translate.getBrowserLang();

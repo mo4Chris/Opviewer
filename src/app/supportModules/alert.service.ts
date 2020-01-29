@@ -5,12 +5,10 @@ import { Injectable, Component } from '@angular/core';
     providedIn: 'root',
 })
 export class AlertService {
-    // To use this class, add the following code to your html, where alert is the name of the AlertService.
-    // <ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
     active = false;
     text = '';
     type = '';
-    timeout = 3000;
+    timeout = 7000;
 
     private timeoutRef = null;
 
@@ -36,17 +34,6 @@ export class AlertService {
           this.active = false;
         }, this.timeout);
     }
-
-    // private addHTMLCode() {
-    //     const popupCode = '<ngb-alert display="true" class="userCreateAlert"' +
-    //     '[type]="success" style="position: fixed;bottom: 0px;right:0px">Test</ngb-alert>';
-    //     // document.body.append(popupCode);
-    //     const node = document.createElement('div');
-    //     node.innerHTML = popupCode;
-    //     document.body.insertBefore(node, null);
-    //     console.log(node)
-    //     console.log(node.parentNode)
-    // }
 }
 
 

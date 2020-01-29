@@ -28,7 +28,6 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
                 </ng-container>
             </agm-marker-cluster >
         </agm-map>
-        <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
         <div id="mapLegendID" class="mapLegend">
             <h2> 
                 Legend

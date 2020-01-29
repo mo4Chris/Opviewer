@@ -4,6 +4,9 @@ import {CommonService} from '../common.service';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
 import { UserService } from '../shared/services/user.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
+import { UserType } from '@app/shared/enums/UserType';
 
 
 @Component({
@@ -14,33 +17,41 @@ import { UserService } from '../shared/services/user.service';
 })
 export class SignupComponent implements OnInit {
 
-    registerUserData: any = {
-        Permissions: '',
+    registerUserData = {
+        permissions: '',
         client: '',
         username: '',
         password: ''
     };
 
-    businessNames;
-    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    userPermission: string = this.tokenInfo.userPermission;
-    permissions = ['Vessel master', 'Marine controller'];
-    alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
-    showAlert = false;
+    businessNames: string[]; // Loaded iff admin
+    createPermissions: UserType[] = ['Vessel master', 'Marine controller'];
 
-    constructor(public router: Router, private _auth: AuthService, private newService: CommonService, private userService: UserService) {}
+    constructor(
+      public router: Router,
+      private _auth: AuthService,
+      private newService: CommonService,
+      private userService: UserService,
+      public permission: PermissionService,
+      private alert: AlertService,
+    ) {}
 
     onRegistration() {
-        if (!this.permissions.find(permission => permission === this.registerUserData.permissions)) {
-            this.showAlert = true;
-            this.alert.message = 'You\'re not allowed to add a user of this type';
+        if (!this.createPermissions.find(_permission => _permission === this.registerUserData.permissions)) {
+            this.alert.sendAlert({
+              text: 'You\'re not allowed to add a user of this type',
+              type: 'danger',
+            });
             return;
         }
-        if (this.userPermission !== 'admin') {
-            this.registerUserData.client = this.tokenInfo.userCompany;
+        if (!this.permission.admin) {
+            const tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+            this.registerUserData.client = tokenInfo.userCompany;
         } else if (this.businessNames.indexOf(this.registerUserData.client) < 0) {
-            this.showAlert = true;
-            this.alert.message = 'User needs a client';
+            this.alert.sendAlert({
+              text: 'User needs a client',
+              type: 'danger',
+            });
             return;
         }
         this._auth.registerUser(this.registerUserData).subscribe(
@@ -48,27 +59,25 @@ export class SignupComponent implements OnInit {
                 this.router.navigate(['/dashboard', {status: 'success', message: res.data }]);
             },
             err => {
-                this.showAlert = true;
-                this.alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
                 if (err.status === 401) {
-                    this.alert.message = err._body;
+                    this.alert.sendAlert({ type: 'danger', text: err._body});
                     this.router.navigate(['/signup']);
+                } else {
+                  this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, contact BMO Offshore' });
                 }
             });
 
     }
 
     ngOnInit() {
-        if (this.userPermission !== 'admin') {
-            if (this.userPermission !== 'Logistics specialist') {
-                if(this.userPermission !== 'Contract manager') {
-                    this.permissions = ['Contract manager'];
-                } else {
-                    this.router.navigate(['/access-denied']);
-                }
+        if (!this.permission.admin) {
+            if (this.permission.userCreate) {
+                    // this.permissions = ['Contract manager'];
+            } else {
+                this.router.navigate(['/access-denied']);
             }
         } else {
-            this.permissions = this.permissions.concat(['Logistics specialist', 'Contract manager', 'admin']);
+            this.createPermissions = this.createPermissions.concat(['admin', 'Client representative', 'QHSE specialist', 'Logistics specialist']);
             this.newService.getCompanies().subscribe(data => this.businessNames = data);
         }
     }

@@ -1,18 +1,20 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '@app/common.service';
 //  import { VesselModel } from '../../../../../../models/vesselModel';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-vesselmaster',
   templateUrl: './sov-hse-dpr-input-vesselmaster.component.html',
-  styleUrls: ['./sov-hse-dpr-input-vesselmaster.component.scss']
+  styleUrls: ['./sov-hse-dpr-input-vesselmaster.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovHseDprInputVesselmasterComponent implements OnInit {
 
-  constructor(private commonService: CommonService) { }
+  constructor(
+    private commonService: CommonService
+  ) { }
 
   @Input() dprInput;
-
   @Input() vesselObject;
 
   hseData = {

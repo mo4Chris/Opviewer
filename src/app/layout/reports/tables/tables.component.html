@@ -16,7 +16,7 @@
                                     <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
                                         [class.fa-arrow-down]="!sort.isAsc"></i>
                                 </th>
-                                <th class='clickable' (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="tokenInfo.userPermission == 'admin'">
+                                <th class='clickable' (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})" *ngIf="permission.admin">
                                     Client
                                     <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                                         [class.fa-arrow-down]="!sort.isAsc"></i>
@@ -34,7 +34,7 @@
                             <tr *ngFor="let rd of filter;let ind = index">
                                 <td>{{ind + 1}}</td>  
                                 <td>{{rd.nicename}}</td>  
-                                <td *ngIf="tokenInfo.userPermission == 'admin'">{{rd.client}}</td>
+                                <td *ngIf="permission.admin">{{rd.client}}</td>
                                 <td>{{rd.mmsi}}</td>
                                 <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a></td>
                                 <td *ngIf="ScatterplotPermission">

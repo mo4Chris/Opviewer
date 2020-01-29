@@ -14,7 +14,7 @@ import { PlatformTransfer } from '../models/Transfers/PlatformTransfer';
   styleUrls: ['./sov-platform-transfers.component.scss', '../sovreport.component.scss']
 })
 export class SovPlatformTransfersComponent implements OnChanges {
-  @Input() readonly: boolean = true;
+  @Input() readonly = true;
   @Input() vesselObject;
 
   @Input() platformTransfers: PlatformTransfer[];
@@ -103,12 +103,13 @@ export class SovPlatformTransfersComponent implements OnChanges {
   }
 
   // Save functions
-  saveStats(saveFcn: (obj: object) => Observable<any>, saveObject: object) {
+  // Various save functions
+  saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below
     const baseObj = {
       mmsi: this.vesselObject.mmsi,
     };
-    saveFcn({...baseObj, ...saveObject}).pipe(
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
       map(
         (res: any) => {
           this.alert.sendAlert({
@@ -125,16 +126,16 @@ export class SovPlatformTransfersComponent implements OnChanges {
         throw error;
       })
     ).subscribe();
+    this.updatePaxCargoTotal();
   }
   saveMissedPaxCargo() {
-    this.saveStats(this.commonService.saveMissedPaxCargo, {
+    this.saveStats('saveMissedPaxCargo', {
       MissedPaxCargo: this.missedPaxCargo,
       date: this.vesselObject.date,
     });
   }
   saveHelicopterPaxCargo() {
-    this.saveStats(this.commonService.saveMissedPaxCargo, {
-      mmsi: this.vesselObject.mmsi,
+    this.saveStats('saveMissedPaxCargo', {
       date: this.vesselObject.date,
       HelicopterPaxCargo: this.helicopterPaxCargo
     });
@@ -145,9 +146,8 @@ export class SovPlatformTransfersComponent implements OnChanges {
       _transfer.paxOut = _transfer.paxOut || 0;
       _transfer.cargoIn = _transfer.cargoIn || 0;
       _transfer.cargoOut = _transfer.cargoOut || 0;
-      this.saveStats(this.commonService.updateSOVPlatformPaxInput, {
+      this.saveStats('updateSOVPlatformPaxInput', {
         _id: _transfer._id,
-        mmsi: _transfer.mmsi,
         paxIn: _transfer.paxIn,
         paxOut: _transfer.paxOut,
         cargoIn: _transfer.cargoIn,
@@ -158,9 +158,8 @@ export class SovPlatformTransfersComponent implements OnChanges {
     this.saveMissedPaxCargo();
   }
   savePlatformPaxInput(transfer) {
-    this.saveStats(this.commonService.updateSOVPlatformPaxInput, {
+    this.saveStats('updateSOVPlatformPaxInput', {
       _id: transfer._id,
-      mmsi: this.vesselObject.mmsi,
       paxIn: transfer.paxIn || 0,
       paxOut: transfer.paxOut || 0,
       cargoIn: transfer.cargoIn || 0,

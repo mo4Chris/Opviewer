@@ -15,6 +15,7 @@ import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -33,7 +34,8 @@ export class LongtermComponent implements OnInit {
     private userService: UserService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private permission: PermissionService
   ) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
@@ -98,7 +100,7 @@ export class LongtermComponent implements OnInit {
           });
         });
         this.noPermissionForData = false;
-        if (this.tokenInfo.userPermission === 'admin') {
+        if (this.permission.admin) {
           this.newService.getVessel().subscribe(data => {
             this.Vessels = data;
             this.loaded.Vessels = true;

@@ -1,5 +1,5 @@
 /// <reference types="@types/googlemaps" />
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 import { isArray } from 'util';
@@ -23,6 +23,7 @@ import { GmapService } from '@app/supportModules/gmap.service';
 import { VesselModel } from '@app/models/vesselModel';
 import { TokenModel } from '@app/models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -39,7 +40,8 @@ export class ReportsDprComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private mapService: GmapService
+    private mapService: GmapService,
+    private permission: PermissionService
     ) {
 
   }
@@ -83,7 +85,7 @@ export class ReportsDprComponent implements OnInit {
   routeFound = false;
   transferVisitedAtLeastOneTurbine = false;
   noTransits = true;
-  videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
+  videoRequestPermission = this.permission.ctvVideoRequest;
   loaded = false;
   turbinesLoaded = true; // getTurbineLocationData is not always triggered
   platformsLoaded = true;
@@ -101,7 +103,7 @@ export class ReportsDprComponent implements OnInit {
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
-        if (this.tokenInfo.userPermission === 'admin') {
+        if (this.permission.admin) {
           this.newService.getVessel().subscribe(data => {
             this.vessels = data;
           }, null, () => {
@@ -121,7 +123,7 @@ export class ReportsDprComponent implements OnInit {
       }
     });
   }
-  
+
   // For each change
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
@@ -164,7 +166,7 @@ export class ReportsDprComponent implements OnInit {
           dateNormal: this.vesselObject.dateNormal,
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
-        }
+        };
         const map = document.getElementById('routeMap');
         if (map != null) {
           this.mapPixelWidth = map.offsetWidth;
@@ -199,7 +201,7 @@ export class ReportsDprComponent implements OnInit {
     const vesselType = turbineLocationData.vesselType;
     const turbines: any[] = new Array<any>();
 
-    if (locationData.length > 0 && transfers.length > 0) {
+    if (isArray(locationData) && isArray(locationData) && locationData.length > 0 && transfers.length > 0) {
       locationData.forEach(turbineLocation => {
         for (let index = 0; index < turbineLocation.lat.length; index++) {
           let turbineIsVisited = false;
@@ -357,7 +359,7 @@ export class ReportsDprComponent implements OnInit {
       this.buildPageWhenLoaded();
     }
   }
-  
+
   ///////////////////////////////////////////////////
   hasSailedTransfer(date: NgbDateStruct) {
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
@@ -441,7 +443,7 @@ export interface DprChildData {
   zoomInfo: MapZoomInfo;
   // turbineLocationData: any;
   platformLocationData: any;
-  
+
   routeFound: boolean;
 }
 

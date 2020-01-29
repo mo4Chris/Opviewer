@@ -18,5 +18,5 @@ export class DialogService {
         const confirmation = window.confirm(message || 'Is it OK?');
 
         return of(confirmation);
-    };
+    }
 }
