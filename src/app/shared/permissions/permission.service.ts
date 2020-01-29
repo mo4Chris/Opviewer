@@ -115,12 +115,26 @@ class AdminPermission extends PermissionModel {
 
 class VesselMaster extends PermissionModel {
   sovCommercialWrite = true;
+  sovDprInputWrite = true;
+  sovDprInputSign = true;
+  sovHseWrite = true;
 }
 
+class MarineController extends PermissionModel {
+  sovCommercialWrite = true;
+  sovDprInputWrite = true;
+  sovDprInputSign = true;
+  sovHseWrite = true;
+
+  sovWaveSpectrum = true;
+}
 
 class LogisticSpecialist extends PermissionModel {
   sovHseRead = true;
+  sovCommercialRead = true;
+  sovDprInputRead = true;
   sovWaveSpectrum = true;
+
   longterm = true;
 
   ctvVideoRequest = true;
@@ -129,14 +143,10 @@ class LogisticSpecialist extends PermissionModel {
   userCreate: true;
 }
 
-class MarineController extends PermissionModel {
-  sovHseRead = true;
-  sovHseWrite = true;
-  sovCommercialWrite = true;
-}
-
 class HseSpecialist extends PermissionModel {
   sovCommercialRead = true;
+  sovDprInputRead = true;
+
   sovHseSign = true;
   sovHseRead = true;
   sovHseWrite = false;
@@ -144,4 +154,6 @@ class HseSpecialist extends PermissionModel {
 
 class ClientRepresentative extends PermissionModel {
   sovCommercialRead = true;
+  sovDprInputRead = true;
+  sovHseRead = false;
 }

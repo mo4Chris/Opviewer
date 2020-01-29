@@ -108,9 +108,6 @@ export class SetPasswordComponent implements OnInit {
 
     setUserPassword() {
         if (this.passwords.password.length < 7) {
-            // this.alert.type = 'danger';
-            // this.alert.message = 'Your password does not meet the minimum length of 7 characters';
-            // this.showAlert = true;
             this.alert.sendAlert({
               text: 'Your password does not meet the minimum length of 7 characters',
               type: 'danger'
