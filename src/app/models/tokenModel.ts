@@ -1,4 +1,5 @@
 import { UserService } from '../shared/services/user.service';
+import { UserType } from '@app/shared/enums/UserType';
 
 export class TokenModel {
     // This model should probably be replaced by the tokenModel on merge
@@ -22,4 +23,4 @@ export class TokenModel {
     }
 }
 
-export type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist' | 'QHSE specialist' | 'Client representative';
+

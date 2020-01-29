@@ -23,6 +23,7 @@ import { GmapService } from '@app/supportModules/gmap.service';
 import { VesselModel } from '@app/models/vesselModel';
 import { TokenModel } from '@app/models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -39,7 +40,8 @@ export class ReportsDprComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private mapService: GmapService
+    private mapService: GmapService,
+    private permission: PermissionService
     ) {
 
   }
@@ -83,7 +85,7 @@ export class ReportsDprComponent implements OnInit {
   routeFound = false;
   transferVisitedAtLeastOneTurbine = false;
   noTransits = true;
-  videoRequestPermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
+  videoRequestPermission = this.permission.ctvVideoRequest;
   loaded = false;
   turbinesLoaded = true; // getTurbineLocationData is not always triggered
   platformsLoaded = true;
@@ -101,7 +103,7 @@ export class ReportsDprComponent implements OnInit {
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
-        if (this.tokenInfo.userPermission === 'admin') {
+        if (this.permission.admin) {
           this.newService.getVessel().subscribe(data => {
             this.vessels = data;
           }, null, () => {

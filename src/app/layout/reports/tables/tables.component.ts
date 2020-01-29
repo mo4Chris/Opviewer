@@ -8,6 +8,7 @@ import { StringMutationService } from '../../../shared/services/stringMutation.s
 import { VesselModel } from '../../../models/vesselModel';
 import { TokenModel } from '../../../models/tokenModel';
 import { RouterService } from '../../../supportModules/router.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
     selector: 'app-report-tables',
@@ -21,10 +22,10 @@ export class TablesComponent implements OnInit {
         private newService: CommonService,
         private userService: UserService,
         private routerService: RouterService,
+        public permission: PermissionService,
     ) { }
     Repdata: VesselModel[];
     tokenInfo: TokenModel = TokenModel.load(this.userService);
-    ScatterplotCompanies = ['BMO', 'SSE Beatrice', 'Vattenfall', 'Seazip'];
     ScatterplotPermission: Boolean;
     filter = [];
     sortedData: VesselModel[];
@@ -33,8 +34,8 @@ export class TablesComponent implements OnInit {
     ngOnInit() {
         this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
-            this.ScatterplotPermission = this.testScatterPermission();
-            if (this.tokenInfo.userPermission === 'admin') {
+            this.ScatterplotPermission = this.permission.longterm;
+            if (this.permission.admin) {
                 this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
             } else {
                 this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
@@ -87,11 +88,6 @@ export class TablesComponent implements OnInit {
                 default: return 0;
             }
         });
-    }
-
-    testScatterPermission() {
-        return (this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist') &&
-            (this.ScatterplotCompanies.some(companyWithAccess => companyWithAccess === this.tokenInfo.userCompany));
     }
 }
 

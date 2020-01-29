@@ -60,7 +60,7 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum && permission.sovWaveSpectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">
+    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">
       <ng-template ngbTabContent>
         <app-wave-spectrum-component [vesselObject]="vesselObject"></app-wave-spectrum-component>
       </ng-template>

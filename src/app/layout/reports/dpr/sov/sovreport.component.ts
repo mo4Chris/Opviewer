@@ -255,7 +255,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
 
   getWaveSpectrumAvailable() {
-    if (this.tokenInfo.userPermission === 'Logistics specialist' || this.tokenInfo.userPermission === 'admin') {
+    if (this.permission.sovWaveSpectrum) {
       this.commonService.getSovWaveSpectrumAvailable(this.vesselObject).subscribe((status) => {
         this.vesselHasWavespectrum = status.vesselHasData || false;
         this.waveSpectrumAvailable = status.dateHasData || false;
@@ -538,6 +538,8 @@ export class SovreportComponent implements OnInit, OnChanges {
       case 'Vessel master':
         this.activeTab =  'sov-dpr-input';
         break;
+      default:
+        this.activeTab = 'summary';
     }
   }
 

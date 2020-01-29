@@ -3,9 +3,12 @@ import { TokenModel } from '@app/models/tokenModel';
 import { UserService } from '../services/user.service';
 
 abstract class PermissionModel {
+  admin = false;
+
   hasCampaigns = undefined; // True iff organization has campaigns
 
   // Ctv dpr
+  ctvVideoRequest = false;
 
   // Sov Dpr
   sovCommercialRead = true;
@@ -21,6 +24,7 @@ abstract class PermissionModel {
   sovHseSign = false;
 
   sovWaveSpectrum = false;
+
 
   longterm = false;
 
@@ -91,7 +95,11 @@ export class PermissionService extends PermissionModel {
 
 
 class AdminPermission extends PermissionModel {
+  admin = true;
+
   hasCampaigns = true;
+
+  ctvVideoRequest = true;
 
   sovCommercialWrite = true;
   sovDprInputWrite = true;
@@ -115,6 +123,8 @@ class LogisticSpecialist extends PermissionModel {
   sovWaveSpectrum = true;
   longterm = true;
 
+  ctvVideoRequest = true;
+
   userRead: true;
   userCreate: true;
 }
@@ -127,6 +137,9 @@ class MarineController extends PermissionModel {
 
 class HseSpecialist extends PermissionModel {
   sovCommercialRead = true;
+  sovHseSign = true;
+  sovHseRead = true;
+  sovHseWrite = false;
 }
 
 class ClientRepresentative extends PermissionModel {

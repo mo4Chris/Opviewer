@@ -10,7 +10,7 @@ export class AlertService {
     active = false;
     text = '';
     type = '';
-    timeout = 3000;
+    timeout = 7000;
 
     private timeoutRef = null;
 
