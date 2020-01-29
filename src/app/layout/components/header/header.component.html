@@ -37,7 +37,6 @@
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
-                <li><ngb-alert *ngIf="alert.active" [dismissible]='false' [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert></li>
                 <li class="nav-item dropdown">
                     <a (click)="openModal(content)" href="javascript:void(0)" class="nav-link">
                         <i class="fa fa-comment"></i> Give feedback <b class="caret"></b>

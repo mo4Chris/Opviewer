@@ -79,7 +79,6 @@ export class SovreportComponent implements OnInit, OnChanges {
     public alert: AlertService,
     public permission: PermissionService,
   ) {
-    this.alert.timeout = 7000;
   }
 
   ngOnInit() {
