@@ -10,13 +10,16 @@ import { HttpModule } from '@angular/http';
 import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '../../../shared/services/test.user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
-import { SovreportComponent } from './sov/sovreport/sovreport.component';
 import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { GmapService } from '../../../supportModules/gmap.service';
 import { ReportsDprComponent } from './reports-dpr.component';
+import { SovreportComponent } from './sov/sovreport.component';
+import { ReportsModule } from '../reports.module';
+import { SovreportModule } from './sov/sovreport.module';
+import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 
-describe('VesselReportComponent', () => {
+describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
 
@@ -32,8 +35,15 @@ describe('VesselReportComponent', () => {
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
         SharedPipesModule,
-        HttpModule],
-      declarations: [ ReportsDprComponent, CtvreportComponent, SovreportComponent ],
+        HttpModule,
+        SovreportModule,
+        CtvreportModule,
+      ],
+      declarations: [
+        ReportsDprComponent,
+        CtvreportComponent,
+        // SovreportComponent,
+      ],
       providers: [MockedCommonServiceProvider, MockedUserServiceProvider, CalculationService]
     })
     .compileComponents();
@@ -44,14 +54,15 @@ describe('VesselReportComponent', () => {
     spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
     spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
     spyOn(CtvreportComponent.prototype, 'buildPageWithCurrentInformation');
-    spyOn(SovreportComponent.prototype, 'buildPageWithCurrentInformation');
+    // spyOn(SovreportComponent.prototype, 'ngOnChanges');
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
 
-  it('should create', fakeAsync(() => {
+  it('should create', (done) => {
     expect(component).toBeTruthy();
-  }));
+    done();
+  });
 });

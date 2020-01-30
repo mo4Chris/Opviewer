@@ -23,7 +23,6 @@ export class ReportsComponent implements OnInit {
   }
 
   getCurrentRoute() {
-    // console.log(this.route);
     this.route.url.subscribe((urlSegment) => {
       if (urlSegment.length > 0) {
         const path = urlSegment[0].path;

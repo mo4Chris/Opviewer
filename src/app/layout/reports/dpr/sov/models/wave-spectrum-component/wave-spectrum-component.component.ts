@@ -5,6 +5,7 @@ import { container } from '@angular/core/src/render3';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -13,7 +14,7 @@ import { CommonService } from '@app/common.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
-  @Input() vesselObject: any;
+  @Input() vesselObject: VesselObjectModel;
 
   waveSpectrum: SovWaveSpectum;
 

@@ -7,6 +7,7 @@ import { UserTestService } from '../shared/services/test.user.service';
 import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
+import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 
 
 const emptyMatlabObject = {
@@ -142,7 +143,7 @@ export class MockedCommonService extends CommonService {
             vesselName: '_NaN_',
         }]});
     }
-    getSov(vesselObject: VesselObjectModel) {
+    getSov(vesselObject: VesselObjectModel): Observable<[SovData]> {
         const date = vesselObject.date;
         return mockedObservable([{
             id: 'dummy',
@@ -356,12 +357,18 @@ export class MockedCommonService extends CommonService {
         return mockedObservable([]);
     }
 
+
+    // User input save routines
     saveTransfer(transfer) {
         return mockedObservable({data: 'saveTransfer'});
     }
     saveVideoRequest(transfer) {
         return mockedObservable({data: 'saveVideoRequest'});
     }
+    updateSOVv2vPaxInput(paxInput) {
+      return htmlResponse.success;
+    }
+
 
     getActiveConnections() {
         return mockedObservable('Not yet tracked!');
@@ -399,6 +406,27 @@ export class MockedCommonService extends CommonService {
             windField: 'test123',
         }]);
     }
+
+    getSovWaveSpectrumAvailable(vessel: any) {
+      return mockedObservable(true);
+    }
+    getSovWaveSpectrum(vessel: {date: number, mmsi: number}) {
+      return mockedObservable([{
+        mmsi: vessel.mmsi,
+        date: 987654321,
+        time: [1 / 24, 2 / 24],
+        spectrum: [[
+          [1, 2, 3],
+          [0, 1, 2],
+          [0, 0, 1],
+        ], [
+          [1, 2, 3],
+          [0, 1, 2],
+          [0, 0, 1],
+        ]],
+        source: 'test',
+      }]);
+    }
 }
 
 // Replace the CommonService propvider with this provider to completely mock the common service!
@@ -406,6 +434,12 @@ export class MockedCommonService extends CommonService {
 export const MockedCommonServiceProvider = {
     provide: CommonService,
     useClass: MockedCommonService,
+};
+
+
+// Standard html response messages as received from server
+const htmlResponse = {
+  success: mockedObservable('Success'),
 };
 
 

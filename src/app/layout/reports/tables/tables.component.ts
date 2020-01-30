@@ -26,26 +26,24 @@ export class TablesComponent implements OnInit {
     ) { }
     Repdata: VesselModel[];
     tokenInfo: TokenModel = TokenModel.load(this.userService);
-    ScatterplotPermission: Boolean;
     filter = [];
     sortedData: VesselModel[];
     sort = { active: 'Client', isAsc: true };
 
     ngOnInit() {
-        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
-            this.ScatterplotPermission = this.permission.longterm;
-            if (this.permission.admin) {
-                this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
-            } else {
-                this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
-            }
-        } else {
-            localStorage.removeItem('isLoggedin');
-            localStorage.removeItem('token');
-            this.routerService.routeToLogin();
+          if (this.permission.admin) {
+            this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+          } else {
+            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
           }
-        });
+        } else {
+          localStorage.removeItem('isLoggedin');
+          localStorage.removeItem('token');
+          this.routerService.routeToLogin();
+        }
+      });
     }
 
     redirectDailyVesselReport(mmsi: number) {

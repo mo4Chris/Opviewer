@@ -10,6 +10,7 @@ import { TurbineLocation } from '../../models/TurbineLocation';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-v2v-transfers',
@@ -20,10 +21,10 @@ import { map, catchError } from 'rxjs/operators';
 export class SovV2vTransfersComponent implements OnChanges {
   @Input() readonly = true;
   @Input() vessel2vessels: Vessel2vesselModel[];
-  @Input() sovInfo;
-  @Input() turbineLocations: TurbineLocsFromMongo[];
+  @Input() sovInfo = {};
+  @Input() turbineLocations: TurbineLocsFromMongo[] = [];
 
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Output() v2vPaxTotals = new EventEmitter<V2vPaxTotalModel>();
 
 
@@ -115,6 +116,7 @@ export class SovV2vTransfersComponent implements OnChanges {
   }
   savev2vPaxInput() {
     for (let _i = 0; _i < this.vessel2vessels[0].transfers.length; _i++) {
+      // Why dont we loop through each of the v2v transfers here?
       this.vessel2vessels[0].transfers[_i].paxIn = this.vessel2vessels[0].transfers[_i].paxIn || 0;
       this.vessel2vessels[0].transfers[_i].paxOut = this.vessel2vessels[0].transfers[_i].paxOut || 0;
       this.vessel2vessels[0].transfers[_i].cargoIn = this.vessel2vessels[0].transfers[_i].cargoIn || 0;
