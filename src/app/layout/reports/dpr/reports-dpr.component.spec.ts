@@ -19,7 +19,7 @@ import { ReportsModule } from '../reports.module';
 import { SovreportModule } from './sov/sovreport.module';
 import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 
-describe('ReportsDprComponent', () => {
+fdescribe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
 
@@ -46,18 +46,20 @@ describe('ReportsDprComponent', () => {
       providers: [MockedCommonServiceProvider, MockedUserServiceProvider, CalculationService]
     })
     .compileComponents();
+  }));
 
-    spyOn(ReportsDprComponent.prototype, 'getDateFromParameter').and.returnValue(NaN); // Equivalent to no date provided
+  beforeEach(() => {
+    spyOn(ReportsDprComponent.prototype, 'getDateFromParameter').and.returnValue(737700); // Equivalent to no date provided
     spyOn(ReportsDprComponent.prototype, 'getMMSIFromParameter').and.returnValue(123456789); // CTV test vessel - replace mmsi later if not desired
-    spyOn(GmapService.prototype, 'reset');
-    spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
-    spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
+    // spyOn(GmapService.prototype, 'reset');
+    // spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
+    // spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
     spyOn(CtvreportComponent.prototype, 'buildPageWithCurrentInformation');
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  }));
+  });
 
   it('Report dpr component should instantiate', (done) => {
     expect(component).toBeTruthy();
