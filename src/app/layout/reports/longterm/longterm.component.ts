@@ -220,7 +220,6 @@ export class LongtermComponent implements OnInit {
   }
 
   navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
-    // this.router.navigate(['report/dpr', { mmsi: vesselObject.mmsi, date: vesselObject.matlabDate }]);
     this.routerService.routeToDPR({ mmsi: vesselObject.mmsi, date: vesselObject.matlabDate });
   }
 
