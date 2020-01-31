@@ -47,7 +47,6 @@ describe('SovDprInputVesselmasterComponent', () => {
   });
 
   it('should create', (done) => {
-    console.log(component);
     expect(component).toBeTruthy();
     done();
   });

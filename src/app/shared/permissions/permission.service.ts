@@ -44,35 +44,17 @@ export class PermissionService extends PermissionModel {
     private userService: UserService
   ) {
     super();
-    const token = TokenModel.load(this.userService);
-    this.hasCampaigns = token.hasCampaigns;
+    let token: TokenModel;
+    try {
+      token = TokenModel.load(this.userService);
+      this.hasCampaigns = token.hasCampaigns;
+    } catch (error) {
+      console.error('Failed to retrieve permission from token!');
+      throw error;
+    }
 
     // We construct this class based on the permissions associated with your account type
-    let permission: PermissionModel;
-    switch (token.userPermission) {
-      case 'admin':
-        // Alternatively, I could just loop through all the properties and set them to true
-        permission = new AdminPermission();
-        break;
-      case 'Logistics specialist':
-        permission = new LogisticSpecialist();
-        break;
-      case 'Vessel master':
-        permission = new VesselMaster();
-        break;
-        case 'Marine controller':
-          permission = new MarineController();
-          break;
-        case 'QHSE specialist':
-          permission = new HseSpecialist();
-          break;
-        case 'Client representative':
-          permission = new ClientRepresentative();
-          break;
-      default:
-        // If unknown user type, only basic access is provided
-        permission = <any> {};
-    }
+    const permission = PermissionService.getDefaultPermission(token.userPermission);
 
     // Copy all the permission properties to this class
     Object.keys(permission).forEach(key => {
@@ -91,7 +73,30 @@ export class PermissionService extends PermissionModel {
     // Any exceptions or special cases go here
   }
 
+
+
+  static getDefaultPermission(userPermission: string): PermissionModel {
+    switch (userPermission) {
+      case 'admin':
+        // Alternatively, I could just loop through all the properties and set them to true
+        return new AdminPermission();
+      case 'Logistics specialist':
+        return new LogisticSpecialist();
+      case 'Vessel master':
+        return new VesselMaster();
+      case 'Marine controller':
+        return new MarineController();
+      case 'QHSE specialist':
+        return new HseSpecialist();
+      case 'Client representative':
+        return new ClientRepresentative();
+      default:
+        // If unknown user type, only basic access is provided
+        return <any> {};
+    }
+  }
 }
+
 
 
 class AdminPermission extends PermissionModel {

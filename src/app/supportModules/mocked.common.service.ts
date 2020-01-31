@@ -320,7 +320,7 @@ export class MockedCommonService extends CommonService {
             Lons.push([-13.38898]);
             Lats.push([28.21904]);
         }
-        return mockedObservable({
+        return mockedObservable([{
             filename: parkname,
             SiteName: 'TEST FIELD',
             centroid: {
@@ -334,7 +334,7 @@ export class MockedCommonService extends CommonService {
             lat: Lats,
             outlineLonCoordinates: [-13.101497740823, -13.283567632564, -13.286174483517],
             outlineLatCoordinates: [28.259194567759, 28.328068592315, 28.327769362833],
-        });
+        }]);
     }
     getPlatformLocations() {
         return mockedObservable([{
@@ -408,7 +408,10 @@ export class MockedCommonService extends CommonService {
     }
 
     getSovWaveSpectrumAvailable(vessel: any) {
-      return mockedObservable(true);
+      return mockedObservable({
+        vesselHasData: true,
+        dateHasData: true,
+      });
     }
     getSovWaveSpectrum(vessel: {date: number, mmsi: number}) {
       return mockedObservable([{

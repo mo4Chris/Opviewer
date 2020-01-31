@@ -11,7 +11,23 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AgmCoreModule } from '@agm/core';
 import { CommonService } from '@app/common.service';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { SovSummaryComponent } from './sov-summary/sov-summary.component';
+import { SovDprInputComponent } from './sov-dpr-input/sov-dpr-input.component';
+import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
+import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
+import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
+import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbine-transfers.component';
+import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
+import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
+import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
+import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-readonly/sov-dpr-input-readonly.component';
+import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
+import { AutosizeModule } from 'ngx-autosize';
+import { PlotlyModule } from 'angular-plotly.js';
+import { UserService } from '@app/shared/services/user.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { TokenModel } from '@app/models/tokenModel';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -21,28 +37,28 @@ describe('SovreportComponent', () => {
     mmsi: 987654321,
     nicename: 'test SOV'
   }];
-  const tokenInfo = {
-    admin: UserTestService.getMockedAccessToken({
-      userPermission: 'admin',
-      userBoats: SOV
-    }),
-    vesselMaster: UserTestService.getMockedAccessToken({
-      userPermission: 'Vessel master',
-      userBoats: SOV
-    }),
-    marineControll: UserTestService.getMockedAccessToken({
-      userPermission: 'Marine controller',
-      userBoats: SOV
-    }),
-    logisticSpecialist: UserTestService.getMockedAccessToken({
-      userPermission: 'Logistics specialist',
-      userBoats: SOV
-    }),
-  };
+  // const tokenInfo = {
+  //   admin: UserTestService.getMockedAccessToken({
+  //     userPermission: 'admin',
+  //     userBoats: SOV
+  //   }),
+  //   vesselMaster: UserTestService.getMockedAccessToken({
+  //     userPermission: 'Vessel master',
+  //     userBoats: SOV
+  //   }),
+  //   marineControll: UserTestService.getMockedAccessToken({
+  //     userPermission: 'Marine controller',
+  //     userBoats: SOV
+  //   }),
+  //   logisticSpecialist: UserTestService.getMockedAccessToken({
+  //     userPermission: 'Logistics specialist',
+  //     userBoats: SOV
+  //   }),
+  // };
   const vesselObject = (token) =>  {
     return {
       date: 737700,
-      mmsi: token.userBoats[0].mmsi,
+      mmsi: 987654321, // token.userBoats[0].mmsi,
       dateNormal: new Date(2019, 10, 2),
       vesselType: 'OSV',
     };
@@ -53,9 +69,7 @@ describe('SovreportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
-        }),
+        AgmCoreModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
         NgbModule,
@@ -64,85 +78,144 @@ describe('SovreportComponent', () => {
         PageHeaderModule,
         SharedPipesModule,
         RouterTestingModule,
-        HttpModule
+        AutosizeModule,
+        PlotlyModule,
       ],
-      declarations: [ SovreportComponent ],
-      providers: [MockedCommonServiceProvider]
+      declarations: [
+        SovreportComponent,
+        SovSummaryComponent,
+        SovDprInputComponent,
+        SovDprInputReadonlyComponent,
+        SovDprInputVesselmasterComponent,
+
+        SovHseDprInputReadonlyComponent,
+        SovHseDprInputVesselmasterComponent,
+
+        SovWeatherchartComponent,
+        WaveSpectrumComponentComponent,
+        SovTurbineTransfersComponent,
+        SovPlatformTransfersComponent,
+        SovV2vTransfersComponent,
+      ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
-  // }));
+  }));
 
-  // beforeEach(async(() => {
-  //   // opsChartSpy = spyOn(SovreportComponent.prototype, 'createOperationalStatsChart');
-  //   spyOn(SovreportComponent.prototype, 'createGangwayLimitationsChart');
-  //   weatherSpy = spyOn(SovreportComponent.prototype, 'createWeatherOverviewChart');
+  beforeEach(async(() => {
 
     fixture = TestBed.createComponent(SovreportComponent);
     component = fixture.componentInstance;
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: null
+    });
+    component.vesselObject = {
+      date: 737700,
+      mmsi: 987654321,
+      vesselType: 'OSV'
+    };
     fixture.detectChanges();
   }));
 
-  it('should create as admin', fakeAsync(() => {
-    component.vesselObject = vesselObject(tokenInfo.admin);
+  it('Should instantiate', (done) => {
     expect(component).toBeTruthy();
+    expect(component.alert).toBeTruthy();
+    expect(component.permission).toBeTruthy();
+    done();
+  });
 
+  it('Should run ngOnChanges', (done) => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    expect(component.locShowContent).toBe(true);
-    // expect(opsChartSpy).toHaveBeenCalled();
-  }));
+    done();
+  });
 
-  it('should create as vessel master', fakeAsync(() => {
-    component.vesselObject = vesselObject(tokenInfo.admin);
-    expect(component).toBeTruthy();
-
-    component.ngOnChanges();
-    expect(component).toBeTruthy();
-    expect(component.locShowContent).toBe(true);
-    // expect(opsChartSpy).toHaveBeenCalled();
-  }));
-
-  it('should create as marine controll', fakeAsync(() => {
-    component.vesselObject = vesselObject(tokenInfo.admin);
-    expect(component).toBeTruthy();
+  it('should create as admin', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('admin');
 
     component.ngOnChanges();
-    expect(component).toBeTruthy();
-    expect(component.locShowContent).toBe(true);
-    // expect(opsChartSpy).toHaveBeenCalled();
-  }));
 
-  it('should create as logistic specialist', fakeAsync(() => {
-    component.vesselObject = vesselObject(tokenInfo.admin);
-    expect(component).toBeTruthy();
+    defaultTestLoaded(component);
+    expect(component.waveSpectrumAvailable).toBe(true);
+    done();
+  });
+
+  it('should create as Vessel master', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('Vessel master');
 
     component.ngOnChanges();
-    expect(component).toBeTruthy();
-    expect(component.locShowContent).toBe(true);
-    // expect(opsChartSpy).toHaveBeenCalled();
-  }));
 
-  // it('should create weather charts', fakeAsync(() => {
-  //   // Allow this specific test to call the weather functionality
-  //   weatherSpy.and.callThrough();
-  //   component.sovModel.sovInfo.weatherConditions = {
-  //     time: [73760.1, 73760.2, 73760.3, 73760.4],
-  //     waveHs: [1.2, 1.3, 1.15, 1.2],
-  //     wavesource: 'TEST',
-  //     waveDirection: [],
-  //     waveTp: [],
-  //     windAvg: [],
-  //     windGust: [],
-  //   };
-  //   component.ngOnChanges();
-  //   component.locShowContent = true;
-  //   fixture.detectChanges();
-  //   // Tick resolves any promises or timeouts within the period
-  //   tick(1000);
-  //   expect(component).toBeTruthy();
-  //   expect(component.weatherOverviewChart).toBeTruthy();
-  //   expect(component.weatherOverviewChart.Chart).toBeTruthy();
-  //   expect(component.weatherOverviewChart.Chart.canvas).toBeTruthy();
-  //   expect(component.weatherOverviewChartCalculated).toBe(true);
-  // }));
+    defaultTestLoaded(component);
+    expect(component.waveSpectrumAvailable).toBe(false);
+    done();
+  });
+
+  it('should create as Marine controller', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('Marine controller');
+
+    component.ngOnChanges();
+
+    defaultTestLoaded(component);
+    done();
+  });
+
+  it('should create as QHSE specialist', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('QHSE specialist');
+
+    component.ngOnChanges();
+
+    defaultTestLoaded(component);
+    done();
+  });
+
+  it('should create as Logistics specialist', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('Logistics specialist');
+
+    component.ngOnChanges();
+
+    defaultTestLoaded(component);
+    done();
+  });
+
+  it('should create as Client representative', (done) => {
+    component.tokenInfo = UserTestService.getMockedAccessToken({
+      userPermission: 'admin'
+    });
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('Client representative');
+
+    component.ngOnChanges();
+
+    defaultTestLoaded(component);
+    done();
+  });
 });
+
+function defaultTestLoaded(component: SovreportComponent) {
+  expect(component).toBeTruthy();
+  expect(component.showContent).toBe(true);
+  expect(component.sovModel).toBeTruthy();
+  expect(component.sovModel.transits).toBeDefined();
+  expect(component.sovModel.turbineTransfers).toBeDefined();
+  expect(component.sovModel.platformTransfers).toBeDefined();
+  expect(component.sovModel.summary).toBeDefined();
+  expect(component.sovModel.sovInfo).toBeDefined();
+  expect(component.sovModel.sovType).toBeGreaterThanOrEqual(0); // Defined and valid value
+}

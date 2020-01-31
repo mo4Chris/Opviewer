@@ -10,7 +10,7 @@ import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportMo
 import { SharedPipesModule } from '@app/shared';
 import { AgmCoreModule } from '@agm/core';
 
-fdescribe('SovV2vTransfersComponent', () => {
+describe('SovV2vTransfersComponent', () => {
   let component: SovV2vTransfersComponent;
   let fixture: ComponentFixture<SovV2vTransfersComponent>;
   let saveSpy: jasmine.Spy;
