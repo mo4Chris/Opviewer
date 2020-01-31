@@ -9,17 +9,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '../../../shared/services/test.user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
-import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ReportsDprComponent } from './reports-dpr.component';
 import { SovreportComponent } from './sov/sovreport.component';
-import { ReportsModule } from '../reports.module';
 import { SovreportModule } from './sov/sovreport.module';
 import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-fdescribe('ReportsDprComponent', () => {
+describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
   const perm = <PermissionService> PermissionService.getDefaultPermission('admin');
@@ -35,7 +33,7 @@ fdescribe('ReportsDprComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
-        // SovreportModule,
+        // SovreportModule, // Disabled to keep tests speedy
         // CtvreportModule,
       ],
       declarations: [
