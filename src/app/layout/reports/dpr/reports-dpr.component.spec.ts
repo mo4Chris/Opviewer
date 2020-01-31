@@ -42,7 +42,6 @@ describe('ReportsDprComponent', () => {
       declarations: [
         ReportsDprComponent,
         CtvreportComponent,
-        // SovreportComponent,
       ],
       providers: [MockedCommonServiceProvider, MockedUserServiceProvider, CalculationService]
     })
@@ -54,7 +53,6 @@ describe('ReportsDprComponent', () => {
     spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
     spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
     spyOn(CtvreportComponent.prototype, 'buildPageWithCurrentInformation');
-    // spyOn(SovreportComponent.prototype, 'ngOnChanges');
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;

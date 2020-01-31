@@ -31,7 +31,6 @@ export class LongtermComponent implements OnInit {
     private route: ActivatedRoute,
     private modalService: NgbModal,
     calendar: NgbCalendar,
-    // private router: Router,
     private routerService: RouterService,
     private userService: UserService,
     private calculationService: CalculationService,
@@ -128,7 +127,6 @@ export class LongtermComponent implements OnInit {
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        // this.router.navigate(['login']);
         this.routerService.routeToLogin();
       }
     });

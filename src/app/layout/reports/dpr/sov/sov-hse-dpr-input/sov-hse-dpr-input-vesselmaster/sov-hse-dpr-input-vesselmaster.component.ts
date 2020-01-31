@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-//  import { VesselModel } from '../../../../../../models/vesselModel';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-vesselmaster',

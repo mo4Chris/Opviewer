@@ -32,39 +32,6 @@ import { TokenModel } from '@app/models/tokenModel';
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
   let fixture: ComponentFixture<SovreportComponent>;
-  const mockService = new MockedCommonService();
-  const SOV = [{
-    mmsi: 987654321,
-    nicename: 'test SOV'
-  }];
-  // const tokenInfo = {
-  //   admin: UserTestService.getMockedAccessToken({
-  //     userPermission: 'admin',
-  //     userBoats: SOV
-  //   }),
-  //   vesselMaster: UserTestService.getMockedAccessToken({
-  //     userPermission: 'Vessel master',
-  //     userBoats: SOV
-  //   }),
-  //   marineControll: UserTestService.getMockedAccessToken({
-  //     userPermission: 'Marine controller',
-  //     userBoats: SOV
-  //   }),
-  //   logisticSpecialist: UserTestService.getMockedAccessToken({
-  //     userPermission: 'Logistics specialist',
-  //     userBoats: SOV
-  //   }),
-  // };
-  const vesselObject = (token) =>  {
-    return {
-      date: 737700,
-      mmsi: 987654321, // token.userBoats[0].mmsi,
-      dateNormal: new Date(2019, 10, 2),
-      vesselType: 'OSV',
-    };
-  };
-  // let weatherSpy: jasmine.Spy;
-  // let opsChartSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
