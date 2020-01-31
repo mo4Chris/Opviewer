@@ -59,7 +59,7 @@ describe('ReportsDprComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('should create', (done) => {
+  it('Report dpr component should instantiate', (done) => {
     expect(component).toBeTruthy();
     done();
   });
