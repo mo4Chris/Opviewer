@@ -51,7 +51,6 @@ export class UserManagementComponent implements OnInit {
                 this.getUser();
             }
         });
-        console.log(this);
     }
 
     getUsernameFromParameter() {

@@ -8,6 +8,7 @@ import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CommonService } from '@app/common.service';
 import { V2vPaxTotalModel } from '../sov-v2v-transfers/sov-v2v-transfers.component';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-turbine-transfers',
@@ -17,7 +18,7 @@ import { V2vPaxTotalModel } from '../sov-v2v-transfers/sov-v2v-transfers.compone
 })
 export class SovTurbineTransfersComponent implements OnChanges {
   @Input() readonly = true;
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
 
   @Input() turbineTransfers: TurbineTransfer[] = [];
   @Input() cycleTimes: CycleTime[] = [];

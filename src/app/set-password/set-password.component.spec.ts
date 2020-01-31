@@ -1,17 +1,17 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SetPasswordComponent } from './set-password.component';
-import { CommonService } from '../common.service';
+import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService } from '@app/auth.service';
 import { HttpModule } from '@angular/http';
-import { UserTestService } from '../shared/services/test.user.service';
+import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from 'ngx-qrcode2';
-import { mockedObservable } from '../models/testObservable';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;

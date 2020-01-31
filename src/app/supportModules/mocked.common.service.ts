@@ -7,6 +7,7 @@ import { UserTestService } from '../shared/services/test.user.service';
 import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
+import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 
 
 const emptyMatlabObject = {
@@ -142,7 +143,7 @@ export class MockedCommonService extends CommonService {
             vesselName: '_NaN_',
         }]});
     }
-    getSov(vesselObject: VesselObjectModel) {
+    getSov(vesselObject: VesselObjectModel): Observable<[SovData]> {
         const date = vesselObject.date;
         return mockedObservable([{
             id: 'dummy',
@@ -319,7 +320,7 @@ export class MockedCommonService extends CommonService {
             Lons.push([-13.38898]);
             Lats.push([28.21904]);
         }
-        return mockedObservable({
+        return mockedObservable([{
             filename: parkname,
             SiteName: 'TEST FIELD',
             centroid: {
@@ -333,7 +334,7 @@ export class MockedCommonService extends CommonService {
             lat: Lats,
             outlineLonCoordinates: [-13.101497740823, -13.283567632564, -13.286174483517],
             outlineLatCoordinates: [28.259194567759, 28.328068592315, 28.327769362833],
-        });
+        }]);
     }
     getPlatformLocations() {
         return mockedObservable([{
@@ -355,13 +356,60 @@ export class MockedCommonService extends CommonService {
     getVideoRequests(vessel: VesselObjectModel) {
         return mockedObservable([]);
     }
+    getSovHseDprInput(vessel: VesselObjectModel) {
+      return(mockedObservable({
+        mmsi: vessel.mmsi,
+        date: vessel.date,
+        hseFields: {
+            lostTimeInjuries: { value: 0, comment: '' },
+            restrictedWorkday: { value: 0, comment: '' },
+            MedicalTreatment: { value: 0, comment: '' },
+            firstAid: { value: 0, comment: '' },
+            environmentalIncidents: { value: 0, comment: '' },
+            equipmentDamage: { value: 0, comment: '' },
+            proactiveReports: { value: 0, comment: '' },
+            nearHitMisses: { value: 0, comment: '' },
+            safetyComitteeMeeting: { value: 0, comment: '' },
+            marineDrillsAndTraining: { value: 0, comment: '' },
+            managementVisits: { value: 0, comment: '' },
+            shorePower: { value: 0, comment: '' },
+            plasticIncinerated: { value: 0, comment: '' },
+            plasticLanded: { value: 0, comment: '' },
+            foodIncinerated: { value: 0, comment: '' },
+            foodLanded: { value: 0, comment: '' },
+            foodMacerated: { value: 0, comment: '' },
+            domWasteLanded: { value: 0, comment: '' },
+            domWasteIncinerated: { value: 0, comment: '' },
+            cookingoilLanded: { value: 0, comment: '' },
+            opsWasteLanded: { value: 0, comment: '' },
+            opsWasteIncinerated: { value: 0, comment: '' },
+            remarks: ''
+        },
+        dprFields: {
+            marineCount: { value: 0, comment: '' },
+            clientCrewCount: { value: 0, comment: '' },
+            hocAmount: { value: 0, comment: '' },
+            toolboxAmount: { value: 0, comment: '' },
+            technicalBreakdownAmount: { value: 0, comment: '' },
+            fuelConsumption: { value: 0, comment: '' },
+            lubOilConsumption: { value: 0, comment: '' },
+            waterConsumption: { value: 0, comment: '' }
+        }
+      }));
+    }
 
+
+    // User input save routines
     saveTransfer(transfer) {
         return mockedObservable({data: 'saveTransfer'});
     }
     saveVideoRequest(transfer) {
         return mockedObservable({data: 'saveVideoRequest'});
     }
+    updateSOVv2vPaxInput(paxInput) {
+      return htmlResponse.success;
+    }
+
 
     getActiveConnections() {
         return mockedObservable('Not yet tracked!');
@@ -399,6 +447,30 @@ export class MockedCommonService extends CommonService {
             windField: 'test123',
         }]);
     }
+
+    getSovWaveSpectrumAvailable(vessel: any) {
+      return mockedObservable({
+        vesselHasData: true,
+        dateHasData: true,
+      });
+    }
+    getSovWaveSpectrum(vessel: {date: number, mmsi: number}) {
+      return mockedObservable([{
+        mmsi: vessel.mmsi,
+        date: 987654321,
+        time: [1 / 24, 2 / 24],
+        spectrum: [[
+          [1, 2, 3],
+          [0, 1, 2],
+          [0, 0, 1],
+        ], [
+          [1, 2, 3],
+          [0, 1, 2],
+          [0, 0, 1],
+        ]],
+        source: 'test',
+      }]);
+    }
 }
 
 // Replace the CommonService propvider with this provider to completely mock the common service!
@@ -406,6 +478,12 @@ export class MockedCommonService extends CommonService {
 export const MockedCommonServiceProvider = {
     provide: CommonService,
     useClass: MockedCommonService,
+};
+
+
+// Standard html response messages as received from server
+const htmlResponse = {
+  success: mockedObservable('Success'),
 };
 
 

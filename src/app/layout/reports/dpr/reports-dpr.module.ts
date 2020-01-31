@@ -4,10 +4,8 @@ import { CommonModule } from '@angular/common';
 import { AgmCoreModule } from '@agm/core';
 import { AutosizeModule } from 'ngx-autosize';
 
-// import { ReportsDprRoutingModule } from './reports-dpr-routing.module';
 import { ReportsDprComponent } from './reports-dpr.component';
-import { PageHeaderModule, SharedPipesModule } from '../../../shared';
-// import { DatePickerComponent } from './../bs-component/components'
+import { PageHeaderModule, SharedPipesModule } from '@app/shared';
 
 // modules mongoDB
 

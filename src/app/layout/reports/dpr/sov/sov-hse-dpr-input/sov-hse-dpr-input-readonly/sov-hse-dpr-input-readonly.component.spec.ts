@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input-readonly.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { SharedPipesModule } from '@app/shared';
 
 describe('SovHseDprInputReadonlyComponent', () => {
   let component: SovHseDprInputReadonlyComponent;
@@ -8,7 +12,16 @@ describe('SovHseDprInputReadonlyComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SovHseDprInputReadonlyComponent ]
+      imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        SharedPipesModule,
+      ],
+      declarations: [ SovHseDprInputReadonlyComponent ],
+      providers: [
+        MockedCommonServiceProvider
+      ]
     })
     .compileComponents();
   }));
@@ -16,6 +29,11 @@ describe('SovHseDprInputReadonlyComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SovHseDprInputReadonlyComponent);
     component = fixture.componentInstance;
+    component.vesselObject = {
+      date: 737700,
+      mmsi: 987654321,
+      vesselType: 'OSV'
+    };
     fixture.detectChanges();
   });
 

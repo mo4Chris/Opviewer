@@ -6,18 +6,18 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
-import { PageHeaderModule } from '../../../shared';
-import { CommonService } from '../../../common.service';
+import { PageHeaderModule } from '@app/shared';
+import { CommonService } from '@app/common.service';
 import { LongtermCTVComponent } from './longtermCTV.component';
 import { LongtermComponent, LongtermVesselObjectModel } from '../longterm.component';
-import { UserService } from '../../../shared/services/user.service';
-import { UserTestService } from '../../../shared/services/test.user.service';
+import { UserService } from '@app/shared/services/user.service';
+import { UserTestService } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
-import { MockedCommonService } from '../../../supportModules/mocked.common.service';
+import { MockedCommonService } from '@app/supportModules/mocked.common.service';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;

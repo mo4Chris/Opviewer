@@ -31,7 +31,7 @@ describe('BsComponentComponent', () => {
                 imports: [
                     FormsModule,
                     ReactiveFormsModule,
-                    NgbModule.forRoot(),
+                    NgbModule,
                     PageHeaderModule,
                     RouterTestingModule
                 ],

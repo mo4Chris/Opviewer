@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VesselinfoComponent } from './vesselinfo.component';
-import { MockedCommonService } from '../../../../../supportModules/mocked.common.service';
+import { MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 
 describe('VesselinfoComponent', () => {
