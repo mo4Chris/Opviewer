@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
-import { Observable } from 'rxjs/observable';
+import { Observable } from 'rxjs/Observable';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 
 @Component({
