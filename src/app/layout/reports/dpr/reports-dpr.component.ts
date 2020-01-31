@@ -104,15 +104,13 @@ export class ReportsDprComponent implements OnInit {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (this.permission.admin) {
-          this.newService.getVessel().subscribe(data => {
-            this.vessels = data;
-          }, null, () => {
+          this.newService.getVessel().subscribe(_vessels => {
+            this.vessels = _vessels;
             this.buildPageWithCurrentInformation();
           });
         } else {
           this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
             this.vessels = data;
-          }, null, () => {
             this.buildPageWithCurrentInformation();
           });
         }
