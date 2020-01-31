@@ -356,6 +356,47 @@ export class MockedCommonService extends CommonService {
     getVideoRequests(vessel: VesselObjectModel) {
         return mockedObservable([]);
     }
+    getSovHseDprInput(vessel: VesselObjectModel) {
+      return(mockedObservable({
+        mmsi: vessel.mmsi,
+        date: vessel.date,
+        hseFields: {
+            lostTimeInjuries: { value: 0, comment: '' },
+            restrictedWorkday: { value: 0, comment: '' },
+            MedicalTreatment: { value: 0, comment: '' },
+            firstAid: { value: 0, comment: '' },
+            environmentalIncidents: { value: 0, comment: '' },
+            equipmentDamage: { value: 0, comment: '' },
+            proactiveReports: { value: 0, comment: '' },
+            nearHitMisses: { value: 0, comment: '' },
+            safetyComitteeMeeting: { value: 0, comment: '' },
+            marineDrillsAndTraining: { value: 0, comment: '' },
+            managementVisits: { value: 0, comment: '' },
+            shorePower: { value: 0, comment: '' },
+            plasticIncinerated: { value: 0, comment: '' },
+            plasticLanded: { value: 0, comment: '' },
+            foodIncinerated: { value: 0, comment: '' },
+            foodLanded: { value: 0, comment: '' },
+            foodMacerated: { value: 0, comment: '' },
+            domWasteLanded: { value: 0, comment: '' },
+            domWasteIncinerated: { value: 0, comment: '' },
+            cookingoilLanded: { value: 0, comment: '' },
+            opsWasteLanded: { value: 0, comment: '' },
+            opsWasteIncinerated: { value: 0, comment: '' },
+            remarks: ''
+        },
+        dprFields: {
+            marineCount: { value: 0, comment: '' },
+            clientCrewCount: { value: 0, comment: '' },
+            hocAmount: { value: 0, comment: '' },
+            toolboxAmount: { value: 0, comment: '' },
+            technicalBreakdownAmount: { value: 0, comment: '' },
+            fuelConsumption: { value: 0, comment: '' },
+            lubOilConsumption: { value: 0, comment: '' },
+            waterConsumption: { value: 0, comment: '' }
+        }
+      }));
+    }
 
 
     // User input save routines

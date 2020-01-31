@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-readonly',
@@ -9,10 +10,12 @@ import { CommonService } from '@app/common.service';
 })
 export class SovHseDprInputReadonlyComponent implements OnInit {
 
-  constructor(private commonService: CommonService) { }
+  constructor(
+    private commonService: CommonService
+  ) { }
 
-  @Input() dprInput;
-  @Input() vesselObject;
+  @Input() dprInput; // Does not appear to be used atm
+  @Input() vesselObject: VesselObjectModel;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },

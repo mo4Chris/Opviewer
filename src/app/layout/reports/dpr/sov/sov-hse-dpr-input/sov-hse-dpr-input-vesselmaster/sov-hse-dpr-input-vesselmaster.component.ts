@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 //  import { VesselModel } from '../../../../../../models/vesselModel';
 
 @Component({
@@ -15,7 +16,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   ) { }
 
   @Input() dprInput;
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
