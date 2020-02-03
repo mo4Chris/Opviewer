@@ -6,6 +6,7 @@
     "ng": "ng",
     "start": "ng serve --ec true",
     "build": "ng build --prod",
+    "ng-high-memory": "node --max_old_space_size=4096 ./node_modules/@angular/cli/bin/ng",
     "gitbuild": "ng build --prod --base /start-angular/SB-Admin-BS4-Angular-5/master/dist/",
     "test": "ng test",
     "lint": "ng lint",
