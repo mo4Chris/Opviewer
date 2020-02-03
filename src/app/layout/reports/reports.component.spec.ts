@@ -1,9 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ReportsComponent } from './reports.component';
-import { ReportsDprComponent } from './dpr/reports-dpr.component';
-import { TablesComponent } from './tables/tables.component';
-import { LongtermComponent } from './longterm/longterm.component';
 import { CommonModule } from '@angular/common';
 import { NgbModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

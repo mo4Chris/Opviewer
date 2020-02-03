@@ -3,7 +3,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { TurbineTransfer } from '../models/Transfers/TurbineTransfer';
 import { CycleTime } from '../models/CycleTime';
-import { Observable } from 'rxjs/Observable';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CommonService } from '@app/common.service';
