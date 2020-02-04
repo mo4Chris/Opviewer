@@ -45,6 +45,14 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+          "staging": {
+              "fileReplacements" :[
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ]
             }
           }
         },
@@ -56,6 +64,9 @@
           "configurations": {
             "production": {
               "browserTarget": "test-ng4:build:production"
+            },
+            "staging": {
+              "browserTarget": "test-ng4:build:staging"
             }
           }
         },
