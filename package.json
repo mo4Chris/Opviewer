@@ -8,11 +8,11 @@
     "build": "ng build --prod",
     "ng-high-memory-": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng",
     "build-prod": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --prod",
+    "build-staging": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --c=staging",
     "gitbuild": "ng build --prod --base /start-angular/SB-Admin-BS4-Angular-5/master/dist/",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "build:test": "ng build -c=test"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
