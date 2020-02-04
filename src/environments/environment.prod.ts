@@ -1,5 +1,6 @@
-export const environment = {
+export const environment = {
   production: true,
-  Server_IP: '192.168.100.154',
-  DB_IP: '192.168.100.154:8080'
+  Server_IP: 'https://81.169.211.83',
+  DB_IP: 'https://bmodataviewer:8080'
 };
+
