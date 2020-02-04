@@ -3,7 +3,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CommonService } from '@app/common.service';
-import { Observable } from 'rxjs/Observable';
 import { map, catchError } from 'rxjs/operators';
 import { V2vPaxTotalModel } from '../sov-v2v-transfers/sov-v2v-transfers.component';
 import { PlatformTransfer } from '../models/Transfers/PlatformTransfer';
