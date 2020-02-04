@@ -9,7 +9,8 @@
     "gitbuild": "ng build --prod --base /start-angular/SB-Admin-BS4-Angular-5/master/dist/",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "build:test": "ng build -c=test"
   },
   "private": true,
   "dependencies": {
