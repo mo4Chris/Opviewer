@@ -1,14 +1,13 @@
-.multiSelectDiv, .submitBtnDiv {
+.multiSelectDiv,
+.submitBtnDiv {
     display: inline-block;
 }
+
 .multiSelectDiv {
     width: 35%;
     min-width: 500px;
 }
-.submitBtnDiv{
+
+.submitBtnDiv {
     margin-left: 30px;
-}
-ngb-alert {
-    position: fixed;
-    bottom: 0px;
 }

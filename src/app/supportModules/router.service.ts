@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { isArray } from 'util';
 import { Injectable } from '@angular/core';
-import { CommonService } from '../common.service';
+import { CommonService } from '@app/common.service';
 
 
 @Injectable({
@@ -17,19 +17,21 @@ export class RouterService {
         if (!isArray(destination)) {
             destination = [destination];
         }
-        this._router.navigate(destination);
+        this._router.navigate(<Array<any>> destination);
     }
 
     // Actual routes go below here
-    routeToDPR(route: {mmsi: number, date?: number}) {
-        if (route.date) {
-            this.route(['vesselreport', {
-                boatmmsi: route.mmsi,
+    routeToDPR(route: {mmsi?: number, date?: number}) {
+        if (! route.mmsi) {
+            this.route(['reports']);
+        } else if (route.date) {
+            this.route(['reports/dpr', {
+                mmsi: route.mmsi,
                 date: route.date,
             }]);
         } else {
-            this.route(['vesselreport', {
-                boatmmsi: route.mmsi
+            this.route(['reports/dpr', {
+                mmsi: route.mmsi
             }]);
         }
     }
@@ -37,10 +39,11 @@ export class RouterService {
     routeToLTM(route: {mmsi: number, name?: string}) {
         if (!route.name) {
             route.name = 'placeholder';
+            console.error('Navigation to LTM without name is currently not supported!');
             // ToDo: get vesselname by mmsi
         } else {
-            this.route(['longterm', {
-                boatmmsi: route.mmsi,
+            this.route(['reports/longterm', {
+                mmsi: route.mmsi,
                 vesselName: route.name,
             }]);
         }
@@ -64,5 +67,14 @@ export class RouterService {
 
     routeToNotFound() {
         this.route('not-found');
+    }
+
+    routeSecundary() {
+        this.route([{
+            outlets: {
+                primary: ['reports', 'dpr'],
+                reports: ['reports', 'dpr'],
+            }
+        }]);
     }
 }

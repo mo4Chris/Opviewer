@@ -1,0 +1,83 @@
+<div>
+  <app-page-header [heading]="'User settings'" [icon]="'fa-cog'"></app-page-header>
+  <div class="row">
+    <div class="col-xl-6 col-lg-12">
+      <div class="card mb-3">
+        <div class="card-header">General</div>
+        <div class="card-body">
+          <table class="table table-responsive table-bordered tableSummary">
+            <tr>
+              <td>User</td>
+              <td>{{token.username}}</td>
+            </tr>
+            <tr>
+              <td>Account permissions</td>
+              <td>{{token.userPermission}}</td>
+            </tr>
+            <tr>
+              <td>Token expires</td>
+              <td>{{getTokenExpiredDate()}}</td>
+            </tr>
+            <tr [ngbTooltip]="helpTimeDisplay" placement="bottom">
+              <td>Time display</td>
+                <td>
+                  <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting()">
+                    <option *ngFor="let option of settings.options.time" class="dropdown-item">{{option}}</option>
+                  </select>
+
+                </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-12">
+      <div class="card mb-3">
+        <div class="card-header">Preferred units</div>
+        <div class="card-body table-responsive">
+          <table class="table table-responsive table-bordered tableSummary">
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td>Distance</td>
+                <td>
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_distance" (change)="changeSetting()">
+                    <option *ngFor="let option of settings.options.distance" class="dropdown-item">{{option}}</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Speed</td>
+                <td>
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_speed" (change)="changeSetting()">
+                    <option *ngFor="let option of settings.options.speed" class="dropdown-item">{{option}}</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Weight</td>
+                <td>
+                  <select class="form-control selectType" [(ngModel)]="settings.unit_weight" (change)="changeSetting()">
+                    <option *ngFor="let option of settings.options.weight" class="dropdown-item">{{option}}</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <button class="btn btn-outline-primary" (click)="saveSettings()">
+      Save all
+    </button>
+  </div>
+</div>
+
+<ng-template #helpTimeDisplay class="helpContent">
+  Determines the way time is shown throughout the application (wherever possible). The utc mode shows all time as UTC. 
+  This is equivalent to the time used to record on the vessel by the BMO measurement unit. Vessel mode shows all time 
+  in the time zone the vessel is sailing, regardless of where the user is. Finally, the own mode shows all time relative
+  to the timezone the user is currently in. This equals the old behaviour, and is still the current behaviour for most graphs.
+</ng-template>

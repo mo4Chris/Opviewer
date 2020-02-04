@@ -5,6 +5,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from '../../../common.service';
 
 import { UserService } from '../../../shared/services/user.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
     selector: 'app-header',
@@ -15,20 +17,19 @@ export class HeaderComponent implements OnInit {
     routerValue = '';
     pushRightClass = 'push-right';
     modalReference: NgbModalRef;
-    pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'login' ];
+    pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login' ];
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     userCreatePermission;
     feedback: {message: string, page: string, person: any};
-    alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
-    showAlert = false;
-    timeout;
 
     constructor(
         private translate: TranslateService,
         public router: Router,
         private newService: CommonService,
         private modalService: NgbModal,
-        private userService: UserService
+        private userService: UserService,
+        private permission: PermissionService,
+        public alert: AlertService,
     ) {
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de', 'zh-CHS']);
         this.translate.setDefaultLang('en');
@@ -47,12 +48,11 @@ export class HeaderComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.userCreatePermission = this.tokenInfo.userPermission === 'admin' || this.tokenInfo.userPermission === 'Logistics specialist';
+        this.userCreatePermission = this.permission.userCreate;
         this.feedback = {message: '', page: '', person: this.tokenInfo.userID};
     }
 
     openModal(content) {
-
         if (this.router.url.includes(';')) {
             const mySubString = this.router.url.substring(
                 this.router.url.lastIndexOf('/') + 1,
@@ -70,28 +70,20 @@ export class HeaderComponent implements OnInit {
 
     sendFeedback() {
         this.newService.sendFeedback(this.feedback).subscribe(data =>  {
-
             if (data.status === 200) {
-                this.alert = { type: 'success', message: 'Feedback has been sent' };
-                clearTimeout(this.timeout);
-                this.showAlert = true;
-                this.timeout = setTimeout(() => {
-                    this.showAlert = false;
-                }, 7000);
+                this.alert.sendAlert({
+                  text: 'Feedback sent!',
+                  type: 'success'
+                });
             } else {
-                this.alert = { type: 'danger', message: 'Feedback has not been sent, please try again later' };
-                this.showAlert = true;
-                this.timeout = setTimeout(() => {
-                    this.showAlert = false;
-                }, 7000);
+                this.alert.sendAlert({
+                  text: 'Feedback has not been sent, please try again later',
+                  type: 'danger'
+                });
             }
         });
 
         this.closeModal();
-
-        this.feedback.message = '';
-        this.alert = { type: 'success', message: 'Feedback has been sent' };
-        this.showAlert = true;
     }
 
     closeModal() {

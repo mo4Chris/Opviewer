@@ -4,9 +4,9 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
-import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
 import { isArray } from 'util';
 import { Observable } from 'rxjs';
+import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 
 @Injectable({
     providedIn: 'root'
@@ -91,6 +91,70 @@ export class GmapService {
             height: 20,
         }
     );
+    static defaultMapStyle = [
+      {
+          featureType: 'administrative',
+          elementType: 'geometry',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'administrative.land_parcel',
+          elementType: 'labels',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'poi',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'poi',
+          elementType: 'labels.text',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'road',
+          elementType: 'labels.icon',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'road.local',
+          elementType: 'labels',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'transit',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      }
+  ];
+
     layersInitialized = false;
     vesselRouteTurbineLayer: MapZoomLayer;
     unvisitedPlatformLayer: MapZoomLayer;
@@ -328,5 +392,5 @@ interface HarbourModel {
         lon: number;
         lat: number;
         radius: number;
-    }
+    };
 }

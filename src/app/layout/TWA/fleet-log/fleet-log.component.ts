@@ -125,7 +125,8 @@ export class FleetLogComponent implements OnInit {
         const dateStart = moment('2018-01-01');
         const dateEnd = moment();
 
-        while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+        let _counter = 0;
+        while ((dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) && _counter++ < 200  ) {
             this.availableMonths.push(dateStart.format('YYYY MMM'));
             dateStart.add(1, 'month');
         }

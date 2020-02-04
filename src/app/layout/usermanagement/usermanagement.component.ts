@@ -7,6 +7,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { UserService } from '../../shared/services/user.service';
 import { TokenModel } from '../../models/tokenModel';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-usermanagement',
@@ -20,16 +22,15 @@ export class UserManagementComponent implements OnInit {
         public router: Router,
         private newService: CommonService,
         private route: ActivatedRoute,
-        private userService: UserService
+        private userService: UserService,
+        public permission: PermissionService,
+        public alert: AlertService,
     ) { }
 
     username = this.getUsernameFromParameter();
     user;
     tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats;
-    alert = { type: '', message: '' };
-    showAlert = false;
-    timeout;
 
     multiSelectSettings = {
         idField: 'mmsi',
@@ -59,10 +60,10 @@ export class UserManagementComponent implements OnInit {
     }
 
     getUser() {
-        this.newService.getUserByUsername(this.username).subscribe(data => {
+        this.newService.getUserByUsername({username: this.username}).subscribe(data => {
             // Loads the users this person is allowed to edit
-            if (this.tokenInfo.userPermission !== 'admin') {
-                if (this.tokenInfo.userPermission !== 'Logistics specialist') {
+            if (!this.permission.admin) {
+                if (!this.permission.userRead) {
                     this.router.navigate(['/access-denied']);
                 } else {
                     if (this.tokenInfo.userCompany !== data[0].client) {
@@ -85,22 +86,20 @@ export class UserManagementComponent implements OnInit {
         this.newService.saveUserBoats(this.user).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        text: res.data,
+                        type: 'success'
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    text: error,
+                    type: 'danger'
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
     }
 
 }

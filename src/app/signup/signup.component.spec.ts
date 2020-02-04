@@ -3,10 +3,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SignupComponent } from './signup.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { CommonService } from '../common.service';
+import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AuthService } from '../auth.service';
+import { AuthService } from '@app/auth.service';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 

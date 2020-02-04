@@ -1,0 +1,70 @@
+<div *ngIf="showContent">
+  <br>
+  <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
+  <ngb-tabset [activeId]="activeTab" [justify]="'start'">
+
+    <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
+      <ng-template ngbTabContent>
+        <br>
+        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
+        </app-sov-summary>
+        <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab *ngIf="permission.sovCommercialRead" title="Commercial DPR" [disabled]="!hasDprData" [id]="'commercial'">
+      <ng-template ngbTabContent>
+        <app-sov-v2v-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+          [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
+          [readonly]="!permission.sovCommercialWrite"></app-sov-v2v-transfers>
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
+          <br>
+          <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
+            [readonly]="!permission.sovCommercialWrite" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [missedPaxCargo]="dprInput.missedPaxCargo"
+            [helicopterPaxCargo]="dprInput.helicopterPaxCargo" 
+          ></app-sov-platform-transfers>
+        </ng-container>
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+          <br>
+          <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
+            [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="!permission.sovCommercialWrite"
+            [missedPaxCargo]="dprInput.missedPaxCargo" [helicopterPaxCargo]="dprInput.helicopterPaxCargo"
+          ></app-sov-turbine-transfers>
+        </ng-container>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="DPR input [read only]" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
+      <ng-template ngbTabContent>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="true" [dprInput]="dprInput"></app-sov-dpr-input>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" id="dpr-input-write" [id]="'dpr-input-write'">
+      <ng-template ngbTabContent>
+        <br>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="false" [dprInput]="dprInput"></app-sov-dpr-input>
+          <br>
+          <div  class="card mb-3 singlepage-print-port">
+            <app-sov-hse-dpr-input-vesselmaster [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
+          </div>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="HSE input" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
+      <ng-template ngbTabContent>
+        <br>
+        <app-sov-hse-dpr-input-readonly [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">
+      <ng-template ngbTabContent>
+        <app-wave-spectrum-component [vesselObject]="vesselObject"></app-wave-spectrum-component>
+      </ng-template>
+    </ngb-tab>
+
+  </ngb-tabset>
+</div>

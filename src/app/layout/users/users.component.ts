@@ -5,6 +5,8 @@ import { Router } from '../../../../node_modules/@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { UserService } from '../../shared/services/user.service';
 import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
     selector: 'app-users',
@@ -17,14 +19,13 @@ export class UsersComponent implements OnInit {
         private newService: CommonService,
         private _router: Router,
         private userService: UserService,
-        private stringMutationService: StringMutationService
+        private stringMutationService: StringMutationService,
+        public permission: PermissionService,
+        private alert: AlertService
     ) { }
     errData;
     userData;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    userPermission = this.tokenInfo.userPermission;
-    alert = { type: '', message: '' };
-    timeout;
     showAlert = false;
     sortedData;
     sort = { active: '', isAsc: true };
@@ -32,8 +33,8 @@ export class UsersComponent implements OnInit {
     ngOnInit() {
         this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
             if (userIsActive === true) {
-                if (this.userPermission !== 'admin') {
-                    if (this.userPermission !== 'Logistics specialist') {
+                if (!this.permission.admin) {
+                    if (!this.permission.userRead) {
                         this._router.navigate(['/access-denied']);
                     } else {
                         this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
@@ -54,71 +55,47 @@ export class UsersComponent implements OnInit {
     }
 
     resetPassword(id) {
-        this.newService.resetPassword({ _id: id }).pipe(
+        this.newService.resetPassword({ _id: id, client: this.tokenInfo.userCompany }).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({text: res.data, type: 'success'});
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({text: error, type: 'danger'});
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
     }
 
-    setActive(user) {
-        this.newService.setActive({ _id: user._id, user: this.tokenInfo.username }).pipe(
-            map(
-                (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
-                    user.active = 1;
-                }
-            ),
-            catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
-                throw error;
-            })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+    setActive(user: any) {
+      this.newService.setActive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
+        map(
+              (res) => {
+                  this.alert.sendAlert({text: res.data, type: 'success'});
+                  user.active = 1;
+              }
+          ),
+          catchError(error => {
+              this.alert.sendAlert({text: error, type: 'danger'});
+              throw error;
+          })
+      ).subscribe();
     }
 
     setInactive(user) {
-        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username }).pipe(
+        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
             map(
-                (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
-                    user.active = 0;
-                }
-            ),
-            catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
-                throw error;
-            })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+              (res) => {
+                  this.alert.sendAlert({text: res.data, type: 'success'});
+                  user.active = 0;
+              }
+          ),
+          catchError(error => {
+              this.alert.sendAlert({text: error, type: 'danger'});
+              throw error;
+          })
+      ).subscribe();
     }
 
     sortData(sort) {

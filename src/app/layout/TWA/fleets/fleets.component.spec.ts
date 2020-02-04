@@ -11,6 +11,7 @@ import { AgmCoreModule } from '@agm/core';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { UserService } from '../../../shared/services/user.service';
 import { mockedObservable } from '../../../models/testObservable';
+import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
 
 describe('FleetComponent', () => {
     let component: FleetsComponent;
@@ -27,7 +28,7 @@ describe('FleetComponent', () => {
               HttpModule,
               BrowserAnimationsModule
             ],
-            providers: [CommonService],
+            providers: [MockedCommonServiceProvider],
             declarations: [FleetsComponent]
         })
             .compileComponents();

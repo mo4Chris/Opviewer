@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { TokenModel, UserType } from '../../models/tokenModel';
+import { TokenModel } from '../../models/tokenModel';
 import { UserService } from './user.service';
+import { UserType } from '../enums/UserType';
 
 @Injectable({
     providedIn: 'root'
