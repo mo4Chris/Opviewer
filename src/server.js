@@ -66,6 +66,7 @@ var userSchema = new Schema({
     active: { type: Number },
     secret2fa: { type: String },
     settings: { type: Object },
+    lastActive: { type: Number },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -567,6 +568,9 @@ function verifyToken(req, res) {
     }
 
     let payload = jwt.verify(token, 'secretKey');
+    Usermodel.findByIdAndUpdate(payload.userID, {
+        lastActive: new Date(),
+    }).exec();
 
     if (payload === 'null') {
         return res.status(401).send('Unauthorized request');
