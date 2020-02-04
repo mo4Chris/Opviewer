@@ -14,7 +14,7 @@
 
     <ngb-tab *ngIf="permission.sovCommercialRead" title="Commercial DPR" [disabled]="!hasDprData" [id]="'commercial'">
       <ng-template ngbTabContent>
-        <app-sov-v2v-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+        <app-sov-v2v-transfers *ngIf="sovModel.vessel2vessels.length>0" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
           [readonly]="!permission.sovCommercialWrite"></app-sov-v2v-transfers>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">

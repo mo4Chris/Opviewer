@@ -1,12 +1,5 @@
-import {
-  Component,
-  OnInit,
-  Output,
-  EventEmitter,
-  Input,
-  OnChanges,
-  ChangeDetectionStrategy
-} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges,
+  ChangeDetectionStrategy } from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
 import { CommonService } from '@app/common.service';
@@ -126,7 +119,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject
             ),
             this.commonService.getPlatformLocations('')
-            ]).subscribe(
+          ]).subscribe(
             ([
               platformTransfers,
               turbineTransfers,
@@ -297,6 +290,8 @@ export class SovreportComponent implements OnInit, OnChanges {
       this.hasDprData = this.sovModel.platformTransfers.length > 0;
     } else if (this.sovModel.sovType === SovType.Turbine) {
       this.hasDprData = this.sovModel.turbineTransfers.length > 0;
+    } else {
+      this.hasDprData = false;
     }
     try {
       this.CheckForNullValues();
@@ -528,13 +523,13 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.activeTab = 'summary';
         break;
       case 'Logistics specialist':
-        this.activeTab =  'summary';
+        this.activeTab = 'summary';
         break;
       case 'Marine controller':
-        this.activeTab =  'sov-dpr-input';
+        this.activeTab = 'sov-dpr-input';
         break;
       case 'Vessel master':
-        this.activeTab =  'sov-dpr-input';
+        this.activeTab = 'sov-dpr-input';
         break;
       default:
         this.activeTab = 'summary';
