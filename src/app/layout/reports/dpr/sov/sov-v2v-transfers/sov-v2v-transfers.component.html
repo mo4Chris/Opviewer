@@ -209,10 +209,13 @@
   <div class="modal-body">
     <div id="routeMap">
       <!-- Drawing popup map for CTV transfers-->
-      <agm-map [latitude]="vessel2vesselActivityRoute.mapLat"
+      <agm-map [latitude]="vessel2vesselActivityRoute.mapLat" *ngIf="vessel2vesselActivityRoute.mapAvailable; else noMapAvailable"
           [longitude]="vessel2vesselActivityRoute.mapLon" [zoom]="vessel2vesselActivityRoute.mapZoomLevel"
           [mapTypeId]="'roadmap'" [streetViewControl]=false (mapReady)="build_v2v_map($event)">
       </agm-map>
     </div>
   </div>
+</ng-template>
+<ng-template #noMapAvailable>
+  No map available!
 </ng-template>
