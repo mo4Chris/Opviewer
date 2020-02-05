@@ -108,16 +108,16 @@ export class DashboardComponent implements OnInit {
     ///////////////////////////////
 
     ngOnInit() {
-        this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive === true) {
-                this.getAlert();
-                this.getLocations();
-            } else {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this.router.navigate(['login']);
-              }
-            });
+      this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+        if (userIsActive === true) {
+          this.getAlert();
+          this.getLocations();
+        } else {
+          localStorage.removeItem('isLoggedin');
+          localStorage.removeItem('token');
+          this.router.navigate(['login']);
+        }
+      });
     }
 
     getLocations() {

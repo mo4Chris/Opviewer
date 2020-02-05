@@ -45,6 +45,7 @@ export class LoginComponent implements OnInit {
             this.router.navigate(['/login']);
           }
         } else {
+          console.log(err);
           this.alert.sendAlert({
             text: 'Something is wrong, contact BMO Offshore',
             type: 'danger'
