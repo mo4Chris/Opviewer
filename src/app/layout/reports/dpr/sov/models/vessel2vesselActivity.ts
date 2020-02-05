@@ -53,19 +53,26 @@ export class Vessel2VesselActivity {
     }
 
     buildVesselRoute() {
-        this.route = {
-            lon: this.ctvActivity.map.lon.map(elt => elt[0]),
-            lat: this.ctvActivity.map.lat.map(elt => elt[0])
-        };
+        if (isArray(this.ctvActivity.map.lon) && isArray(this.ctvActivity.map.lat)) {
+            this.route = {
+                lon: this.ctvActivity.map.lon.map(elt => elt[0]),
+                lat: this.ctvActivity.map.lat.map(elt => elt[0])
+            };
+        } else {
+            this.route = {
+                lon: [],
+                lat: [],
+            }
+        }
     }
 
     setMapProperties(htmlMap: HTMLElement) {
         this.mapProperties = this.calculationService.GetPropertiesForMap(htmlMap.offsetWidth,
             this.ctvActivity.map.lat,
             this.ctvActivity.map.lon);
-        this.mapZoomLevel = this.mapProperties.zoomLevel;
-        this.mapLon = this.mapProperties.avgLongitude;
-        this.mapLat = this.mapProperties.avgLatitude;
+        this.mapZoomLevel = this.mapProperties.zoomLevel || 10;
+        this.mapLon = this.mapProperties.avgLongitude || 0;
+        this.mapLat = this.mapProperties.avgLatitude || 0;
     }
 
     getMapProperties() {
