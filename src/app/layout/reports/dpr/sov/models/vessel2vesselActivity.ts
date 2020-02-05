@@ -14,6 +14,7 @@ export class Vessel2VesselActivity {
     mapZoomLevel = 5;
     vessel = '';
     mmsi: number;
+    mapAvailable = true;
 
     route: {lon: number[], lat: number[]};
     private mapProperties: {zoomLevel: number, avgLatitude: number, avgLongitude: number};
@@ -70,6 +71,8 @@ export class Vessel2VesselActivity {
         this.mapProperties = this.calculationService.GetPropertiesForMap(htmlMap.offsetWidth,
             this.ctvActivity.map.lat,
             this.ctvActivity.map.lon);
+        
+        this.mapAvailable = this.mapProperties.zoomLevel > 0 && this.mapProperties.avgLatitude > 0;
         this.mapZoomLevel = this.mapProperties.zoomLevel || 10;
         this.mapLon = this.mapProperties.avgLongitude || 0;
         this.mapLat = this.mapProperties.avgLatitude || 0;
