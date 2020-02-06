@@ -15,14 +15,17 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   constructor(
     private commonService: CommonService,
     private alert: AlertService,
-    ){ }
+    ) { }
 
   @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
-  
+
   @Input() hseDprApprovalCount;
   @Input() dprInput;
   @Input() vesselObject;
   @Input() tokenInfo;
+
+  hseDprSignedByClient = 2;
+  hseDprDeclinedByClient = -1;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
@@ -101,19 +104,17 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
 
   signOffHseDprClient() {
     this.saveStats('saveHseDprSigningClient', {
-      client: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.hseDprApproval.emit(2);
+    this.hseDprApproval.emit(this.hseDprSignedByClient);
   }
 
   declineHseDprClient() {
     this.saveStats('declineHseDprClient', {
-      client: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.hseDprApproval.emit(-1);
-  } 
+    this.hseDprApproval.emit(this.hseDprDeclinedByClient);
+  }
 }

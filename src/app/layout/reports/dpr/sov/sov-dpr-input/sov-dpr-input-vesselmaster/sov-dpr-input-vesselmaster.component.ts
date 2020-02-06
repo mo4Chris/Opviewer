@@ -26,7 +26,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() dprApprovalCount;
 
   @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
-  
+
 
   constructor(
     private commonService: CommonService,
@@ -42,7 +42,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   poBChanged = false;
   dpChanged = false;
 
-
+  dprSignedBySkipper = 1;
   times = [];
   allHours = [];
   all5Minutes = [];
@@ -201,12 +201,12 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   }
 
   signOffDpr() {
+
     this.saveStats('saveDprSigningSkipper', {
-      skipper: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.dprApproval.emit(1);
+    this.dprApproval.emit(this.dprSignedBySkipper);
   }
 
   // Updates stats on save - these are triggered from the html

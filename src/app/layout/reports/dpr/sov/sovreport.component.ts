@@ -13,19 +13,16 @@ import { CommonService } from '@app/common.service';
 import { SovModel } from './models/SovModel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovType } from './models/SovType';
-import { SummaryModel } from './models/Summary';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { isArray } from 'util';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
-import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { SignupModule } from '@app/signup/signup.module';
 
 @Component({
   selector: 'app-sovreport',
@@ -261,11 +258,11 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
-  changeHseView(input){
+  emitHseApproval(input) {
     this.hseDprApproval = input;
   }
 
-  changeDprView(input){
+  emitDprApproval(input){
     this.dprApproval = input;
   }
 

@@ -89,9 +89,8 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   signOffHseDpr() {
     this.saveHseDprInformation();
-    
+
     this.saveStats('saveHseDprSigningClient', {
-      client: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });

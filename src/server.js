@@ -1798,6 +1798,7 @@ app.post("/api/saveNonAvailabilityDpr", function(req, res) {
 
 app.post("/api/saveDprSigningSkipper", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
+        let token = verifyToken(req, res);
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
@@ -1808,7 +1809,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                 }, {
                      $set: {
                         "signedOff.amount": 1,
-                        "signedOff.signedOffSkipper": req.body.skipper
+                        "signedOff.signedOffSkipper": token.username
                     }              },
                 function(err, data) {
                     if (err) {
@@ -1823,6 +1824,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
 });
 
 app.post("/api/saveDprSigningClient", function(req, res) {
+    let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -1834,7 +1836,7 @@ app.post("/api/saveDprSigningClient", function(req, res) {
                 }, {
                     $set: {
                         "signedOff.amount": 2,
-                        "signedOff.signedOffClient": req.body.client
+                        "signedOff.signedOffClient": token.username
                     }             
                 },
                 function(err, data) {
@@ -1850,6 +1852,7 @@ app.post("/api/saveDprSigningClient", function(req, res) {
 });
 
 app.post("/api/declineDprClient", function(req, res) {
+    let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -1861,7 +1864,7 @@ app.post("/api/declineDprClient", function(req, res) {
                 }, {
                     $set: {
                         "signedOff.amount": -1,
-                        "signedOff.declinedBy": req.body.client
+                        "signedOff.declinedBy": token.username
                     }             
                 },
                 function(err, data) {
@@ -1877,6 +1880,7 @@ app.post("/api/declineDprClient", function(req, res) {
 });
 
 app.post("/api/declineHseDprClient", function(req, res) {
+    let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -1888,7 +1892,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
                 }, {
                     $set: {
                         "signedOff.amount": -1,
-                        "signedOff.declinedBy": req.body.client
+                        "signedOff.declinedBy": token.username
                     }             
                 },
                 function(err, data) {
@@ -1906,6 +1910,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
 
 
 app.post("/api/saveHseDprSigningSkipper", function(req, res) {
+    let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -1917,7 +1922,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                 }, {
                     $set: {
                         "signedOff.amount": 1,
-                        "signedOff.signedOffSkipper": req.body.skipper
+                        "signedOff.signedOffSkipper": token.username
                     } 
                 },
                 function(err, data) {
@@ -1933,6 +1938,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
 });
 
 app.post("/api/saveHseDprSigningClient", function(req, res) {
+    let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -1944,7 +1950,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
                 }, {
                     $set: {
                         "signedOff.amount": 2,
-                        "signedOff.signedOffClient": req.body.client
+                        "signedOff.signedOffClient": token.username
                     } 
                 },
                 function(err, data) {

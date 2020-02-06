@@ -20,8 +20,11 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() dp: ReadonlyInput;
   @Input() remarks = '';
   @Input() vesselObject;
-  @Input() tokenInfo
+  @Input() tokenInfo;
   @Input() dprApprovalCount;
+
+  dprSignedByClient = 2;
+  dprDeclinedByClient = -1;
 
   @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
 
@@ -40,23 +43,21 @@ export class SovDprInputReadonlyComponent implements OnChanges {
 
   signOffDprClient() {
     this.saveStats('saveDprSigningClient', {
-      client: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.dprApproval.emit(2);
+    this.dprApproval.emit(this.dprSignedByClient);
     this.dprApprovalCount = 0;
   }
 
   declineDprClient() {
     this.saveStats('declineDprClient', {
-      client: this.tokenInfo.username,
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.dprApproval.emit(-1);
+    this.dprApproval.emit(this.dprDeclinedByClient);
     this.dprApprovalCount = 0;
-  } 
+  }
 
   saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below
