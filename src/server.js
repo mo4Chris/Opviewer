@@ -2247,7 +2247,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
         generalmodel.aggregate([{
             $group: {
                 _id: '$mmsi',
-                'date': { $last: '$date' },
+                'date': { $max: '$date' },
                 'vesselname': { $last: '$vesselname' },
             }
         }]).exec((err, data) => {
@@ -2262,7 +2262,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
         SovModelmodel.aggregate([{
             $group: {
                 _id: '$mmsi',
-                'date': { $last: '$dayNum' },
+                'date': { $max: '$date' },
                 'vesselname': { $last: '$vesselName' },
             }
         }]).exec((err, data) => {
