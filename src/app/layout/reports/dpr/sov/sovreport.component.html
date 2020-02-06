@@ -76,11 +76,11 @@
   <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
 
   <div *ngIf="permission.sovCommercialRead">
-    <ng-template *ngIf="sovModel.vessel2vessels.length>0">
+    <ng-container *ngIf="sovModel.vessel2vessels.length>0">
       <app-sov-v2v-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
         [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" [readonly]="true">
       </app-sov-v2v-transfers>
-    </ng-template>
+    </ng-container>
     <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
       <br>
       <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
