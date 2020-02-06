@@ -1,5 +1,7 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { AlertService } from '@app/supportModules/alert.service';
+import { catchError, map } from 'rxjs/operators';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
@@ -11,11 +13,17 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   constructor(
-    private commonService: CommonService
+    private commonService: CommonService,
+    private alert: AlertService,
   ) { }
 
   @Input() dprInput;
   @Input() vesselObject: VesselObjectModel;
+  @Input() tokenInfo;
+
+  @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
+
+  hseDprSavedBySkipper = 1;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
@@ -50,10 +58,45 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
     this.getHseDprData();
   }
 
+  saveStats(saveFcnName: string, saveObject: object): void {
+    // Generic saver for all the functions below
+    const baseObj = {
+      mmsi: this.vesselObject.mmsi,
+      date: this.vesselObject.date,
+    };
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
+      map(
+        (res: any) => {
+          this.alert.sendAlert({
+            type: 'success',
+            text: res.data,
+          });
+        }
+      ),
+      catchError(error => {
+        this.alert.sendAlert({
+          type: 'danger',
+          text: error,
+        });
+        throw error;
+      })
+    ).subscribe();
+  }
+
   getHseDprData() {
     this.commonService.getSovHseDprInput(this.vesselObject).subscribe(data => {
       this.hseData = data.hseFields;
     });
+  }
+
+  signOffHseDpr() {
+    this.saveHseDprInformation();
+
+    this.saveStats('saveHseDprSigningClient', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.hseDprApproval.emit(this.hseDprSavedBySkipper);
   }
 
   saveHseDprInformation() {

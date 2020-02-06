@@ -339,7 +339,8 @@ var SovDprInput = new Schema({
     missedPaxCargo: { type: Array },
     helicopterPaxCargo: { type: Array },
     PoB: { type: Object },
-    dp: { type: Array }
+    dp: { type: Array },
+    signedOff: { type: Object }
 
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
@@ -348,7 +349,8 @@ var SovHseDprInput = new Schema({
     date: { type: Number },
     mmsi: { type: Number },
     dprFields: { type: Object },
-    hseFields: { type: Object }
+    hseFields: { type: Object },
+    signedOff: { type: Object }
 
 });
 var SovHseDprInputmodel = mongo.model('SOV_hseDprInput', SovHseDprInput, 'SOV_hseDprInput');
@@ -578,14 +580,6 @@ function validatePermissionToViewData(req, res, callback) {
     let token = verifyToken(req, res);
     let filter = { mmsi: req.body.mmsi };
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
-        // if (!token.userBoats.some(x => {
-        //         return filter.mmsi.some(y => x.mmsi ===y )
-        //     })
-        // ){
-        //     return res.status(401).send('Unauthorized request');
-        // } else {
-        //     filter.client = token.userCompany;
-        // }
         filter.client = token.userCompany;
     } else if (token.userPermission === "Logistics specialist") {
         filter.client = token.userCompany;
@@ -1500,7 +1494,12 @@ app.post("/api/getSovDprInput", function(req, res) {
                                     },
                                     "missedPaxCargo": [],
                                     "helicopterPaxCargo": [],
-                                    "dp": []
+                                    "dp": [],
+                                    "signedOff": {
+                                        amount: 0,
+                                        signedOffSkipper: '',
+                                        signedOffClient: ''
+                                    }
                                 };
                             } else {
                                 dprData = {
@@ -1536,7 +1535,12 @@ app.post("/api/getSovDprInput", function(req, res) {
                                         marineContractors: 0,
                                         project: 0
                                     },
-                                    "dp": []
+                                    "dp": [],
+                                    "signedOff": {
+                                        amount: data.signedOff.amount || 0,
+                                        signedOffSkipper: data.signedOff.signedOffSkipper || '',
+                                        signedOffClient: data.signedOff.signedOffClient || ''
+                                    }
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1612,6 +1616,11 @@ app.post("/api/getSovHseDprInput", function(req, res) {
                             fuelConsumption: { value: 0, comment: '' },
                             lubOilConsumption: { value: 0, comment: '' },
                             waterConsumption: { value: 0, comment: '' }
+                        },
+                        "signedOff": {
+                            amount: 0,
+                            signedOffSkipper: '',
+                            signedOffHse: ''
                         }
                     };
                     let sovHseDprData = new SovHseDprInputmodel(hseData);
@@ -1775,6 +1784,199 @@ app.post("/api/saveNonAvailabilityDpr", function(req, res) {
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { vesselNonAvailability: req.body.vesselNonAvailability },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the downtime input" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/saveDprSigningSkipper", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        let token = verifyToken(req, res);
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                     $set: {
+                        "signedOff.amount": 1,
+                        "signedOff.signedOffSkipper": token.username
+                    }              },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully signed off the DPR" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/saveDprSigningClient", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "signedOff.amount": 2,
+                        "signedOff.signedOffClient": token.username
+                    }             
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully signed off the DPR" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/declineDprClient", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "signedOff.amount": -1,
+                        "signedOff.declinedBy": token.username
+                    }             
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully declined the DPR" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/declineHseDprClient", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "signedOff.amount": -1,
+                        "signedOff.declinedBy": token.username
+                    }             
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully declined the HSE DPR" });
+                    }
+                });
+        }
+    });
+});
+
+
+
+app.post("/api/saveHseDprSigningSkipper", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "signedOff.amount": 1,
+                        "signedOff.signedOffSkipper": token.username
+                    } 
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully signed off the HSE DPR" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/saveHseDprSigningClient", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "signedOff.amount": 2,
+                        "signedOff.signedOffClient": token.username
+                    } 
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully signed off the HSE DPR" });
+                    }
+                });
+        }
+    });
+});
+
+app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    weatherDowntime: req.body.weatherDowntime
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);

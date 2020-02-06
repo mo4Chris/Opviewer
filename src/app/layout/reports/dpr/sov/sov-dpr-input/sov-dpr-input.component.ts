@@ -16,6 +16,9 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   @Input() vesselObject;
   @Input() tokenInfo: TokenModel;
   @Input() readonly: boolean;
+  @Input() dprApprovalCount;
+
+  @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
 
   SovTypeEnum = SovType;
 
@@ -68,6 +71,10 @@ export class SovDprInputComponent implements OnInit, OnChanges {
     this.updateHOCTotal();
     this.updateToolboxTotal();
     this.setDPRInputFields();
+  }
+
+  emitDprApproval(input){
+    this.dprApproval.emit(input);
   }
 
   // Updaters
