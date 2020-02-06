@@ -1,5 +1,7 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, ChangeDetectionStrategy, EventEmitter } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { map, catchError } from 'rxjs/operators';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-readonly',
@@ -9,10 +11,17 @@ import { CommonService } from '@app/common.service';
 })
 export class SovHseDprInputReadonlyComponent implements OnInit {
 
-  constructor(private commonService: CommonService) { }
+  constructor(
+    private commonService: CommonService,
+    private alert: AlertService,
+    ){ }
 
+  @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
+  
+  @Input() hseDprApprovalCount;
   @Input() dprInput;
   @Input() vesselObject;
+  @Input() tokenInfo;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
@@ -53,6 +62,31 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     waterConsumption: {value: 0, comment: ''}
   };
 
+  saveStats(saveFcnName: string, saveObject: object): void {
+    // Generic saver for all the functions below
+    const baseObj = {
+      mmsi: this.vesselObject.mmsi,
+      date: this.vesselObject.date,
+    };
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
+      map(
+        (res: any) => {
+          this.alert.sendAlert({
+            type: 'success',
+            text: res.data,
+          });
+        }
+      ),
+      catchError(error => {
+        this.alert.sendAlert({
+          type: 'danger',
+          text: error,
+        });
+        throw error;
+      })
+    ).subscribe();
+  }
+
   ngOnInit() {
     this.getHseDprData();
   }
@@ -64,4 +98,21 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     });
   }
 
+  signOffHseDprClient() {
+    this.saveStats('saveHseDprSigningClient', {
+      client: this.tokenInfo.username,
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.hseDprApproval.emit(2);
+  }
+
+  declineHseDprClient() {
+    this.saveStats('declineHseDprClient', {
+      client: this.tokenInfo.username,
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.hseDprApproval.emit(-1);
+  } 
 }

@@ -348,6 +348,23 @@
                             {{hseData.remarks}}
                         </td>
                     </tr>
+                    {{hseDprApprovalCount}}
+                    <tr>
+                        <td colspan="4">
+                            <button
+                            *ngIf="hseDprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'"
+                                class="btn btn-lg btn-danger" (click)="declineHseDprClient()"
+                                style="float:right; margin-right: 10px;"
+                                type="button">Refuse HSE DPR
+                            </button>
+                            <button
+                                *ngIf="hseDprApprovalCount == 1"
+                                class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
+                                style="float:right; margin-right: 10px;"
+                                type="button">Sign off HSE DPR
+                            </button>
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>

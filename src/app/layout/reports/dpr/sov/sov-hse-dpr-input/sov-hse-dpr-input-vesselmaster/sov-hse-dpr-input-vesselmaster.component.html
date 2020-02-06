@@ -1,4 +1,8 @@
-<div class="card-header">HSE input</div>
+<div class="card-header">HSE input 
+              <button
+              class="btn btn-sm btn-primary" 
+              style="float:right; margin-right: 10px;"
+              type="button">Sign off HSE</button></div>
 <div class="card-body">
     <div class="col-xl-12 col-lg-24">
         <div class="row">
@@ -258,9 +262,15 @@
                     </tr>
                     <tr>
                         
-                        <td colspan="4">
-                            <button class="btn btn-md btn-primary submitBtnDate" type="button" (click)="saveHseDprInformation()">Save HSE input</button>
+                        <td colspan="3">
+                            <button class="btn btn-md btn-primary submitBtnDate" type="button" style="float:right;" (click)="saveHseDprInformation()">Save HSE input</button>
                         </td>
+                        <td>
+                            <button
+                                class="btn btn-lg btn-primary" (click)="signOffHseDpr()"
+                                style="float:right; margin-right: 10px;"
+                                type="button">Sign off HSE DPR
+                            </button></td>
                     </tr>
                 </table>
             </div>

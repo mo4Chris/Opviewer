@@ -299,6 +299,20 @@
         <tr>
           <td style="white-space: pre-wrap;">{{remarks}}</td>
         </tr>
+        <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
+          <td>
+            <button
+                class="btn btn-lg btn-danger" (click)="declineDprClient()"
+                style="float:right" type="button">
+                Refuse DPR
+            </button>
+            <button
+                class="btn btn-lg btn-primary" (click)="signOffDprClient()"
+                style="float:right" type="button">
+                Sign off DPR
+            </button>
+          </td>
+        </tr>
       </table>
     </div>
   </div>

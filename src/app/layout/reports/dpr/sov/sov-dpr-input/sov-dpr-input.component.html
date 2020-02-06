@@ -3,13 +3,13 @@
 <div class="col-xl-12 col-lg-24">
   <div *ngIf="readonly" class="card mb-3 singlepage-print-port">
       <app-sov-dpr-input-readonly [vesselNonAvailability]="vesselNonAvailability" [weatherDowntime]="weatherDowntime"
-        [standby]="standBy" [hoc]="hoc" [toolbox]="toolbox" [liquids]="liquidsObject" [catering]="catering"
-        [dp]="dp" [remarks]="remarks" [peopleOnVessel]="peopleonBoard"></app-sov-dpr-input-readonly>
+        [standby]="standBy" [hoc]="hoc" [toolbox]="toolbox" [tokenInfo]="tokenInfo" [dprApprovalCount]="dprApprovalCount" (dprApproval)="changeDprView($event)"  [liquids]="liquidsObject" [catering]="catering"
+        [dp]="dp" [remarks]="remarks" [vesselObject]="vesselObject" [peopleOnVessel]="peopleonBoard"></app-sov-dpr-input-readonly>
   </div>
 
   <div *ngIf="!readonly" class="card mb-3 singlepage-print-port">
       <app-sov-dpr-input-vesselmaster [vesselNonAvailability]="vesselNonAvailability" [weatherDowntime]="weatherDowntime"
-        [standby]="standBy" [hoc]="hoc" [toolbox]="toolbox" [liquids]="liquidsObject" [catering]="catering"
+        [standby]="standBy" [tokenInfo]="tokenInfo" [hoc]="hoc" [dprApprovalCount]="dprApprovalCount" (dprApproval)="changeDprView($event)" [toolbox]="toolbox" [liquids]="liquidsObject" [catering]="catering"
         [dp]="dp" [remarks]="remarks" [peopleOnVessel]="peopleonBoard" [vesselObject]="vesselObject">
         </app-sov-dpr-input-vesselmaster>
   </div>

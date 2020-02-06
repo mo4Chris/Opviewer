@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 })
 export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() vesselObject;
+  @Input() tokenInfo;
 
   @Input() standby: ReadonlyInput;
   @Input() vesselNonAvailability: ReadonlyInput;
@@ -23,6 +24,10 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() catering;
   @Input() dp;
   @Input() remarks;
+  @Input() dprApprovalCount;
+
+  @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
+  
 
   constructor(
     private commonService: CommonService,
@@ -196,6 +201,14 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.remarksChanged = false;
   }
 
+  signOffDpr() {
+    this.saveStats('saveDprSigningSkipper', {
+      skipper: this.tokenInfo.username,
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.dprApproval.emit(1);
+  }
 
   // Updates stats on save - these are triggered from the html
   updateFuel() {
