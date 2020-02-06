@@ -23,6 +23,8 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
 
+  hseDprSavedBySkipper = 1;
+
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
     restrictedWorkday: { value: 0, comment: '' },
@@ -94,7 +96,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
-    this.hseDprApproval.emit(2);
+    this.hseDprApproval.emit(this.hseDprSavedBySkipper);
   }
 
   saveHseDprInformation() {

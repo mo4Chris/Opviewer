@@ -151,10 +151,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.cycleTimes = cycleTimes;
               this.sovModel.vessel2vessels = vessel2vessels;
               this.dprInput = dprInput[0];
-              
+
               this.dprApproval = (dprInput[0].signedOff) ? dprInput[0].signedOff.amount : 0;
               this.hseDprApproval = (hseDprInput.signedOff) ? hseDprInput.signedOff.amount : 0;
-              
+
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
                 cycle['avgSpeed'] = this.switchUnit(
@@ -262,7 +262,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.hseDprApproval = input;
   }
 
-  emitDprApproval(input){
+  emitDprApproval(input) {
     this.dprApproval = input;
   }
 

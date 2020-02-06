@@ -73,7 +73,7 @@ export class SovDprInputComponent implements OnInit, OnChanges {
     this.setDPRInputFields();
   }
 
-  changeDprView(input){
+  emitDprApproval(input){
     this.dprApproval.emit(input);
   }
 
