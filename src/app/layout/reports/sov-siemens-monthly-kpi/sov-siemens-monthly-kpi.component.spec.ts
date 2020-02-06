@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SOVSiemensMonthlyKPIComponent } from './sov-siemens-monthly-kpi.component';
+import { CommonModule } from '@angular/common';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('SOVSiemensMonthlyKPIComponent', () => {
   let component: SOVSiemensMonthlyKPIComponent;
@@ -8,7 +10,15 @@ describe('SOVSiemensMonthlyKPIComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SOVSiemensMonthlyKPIComponent ]
+      imports: [
+        CommonModule,
+      ],
+      declarations: [
+        SOVSiemensMonthlyKPIComponent
+      ],
+      providers: [
+        MockedCommonServiceProvider
+      ]
     })
     .compileComponents();
   }));

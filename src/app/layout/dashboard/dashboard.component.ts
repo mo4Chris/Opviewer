@@ -12,7 +12,6 @@ import { UserTypeEnum } from '../../shared/enums/UserType';
 import { EventService } from '../../supportModules/event.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service';
-import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 import { GmapService } from '../../supportModules/gmap.service';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
 import { RouterService } from '../../supportModules/router.service';
@@ -109,16 +108,16 @@ export class DashboardComponent implements OnInit {
     ///////////////////////////////
 
     ngOnInit() {
-        this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive === true) {
-                this.getAlert();
-                this.getLocations();
-            } else {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this.router.navigate(['login']);
-              }
-            });
+      this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+        if (userIsActive === true) {
+          this.getAlert();
+          this.getLocations();
+        } else {
+          localStorage.removeItem('isLoggedin');
+          localStorage.removeItem('token');
+          this.router.navigate(['login']);
+        }
+      });
     }
 
     getLocations() {
@@ -242,4 +241,39 @@ export interface AisMarkerModel {
     LAT: number;
     vesselInformation: any[];
     markerIcon: mapMarkerIcon;
+}
+
+interface ClusterStyle {
+  /**
+   * The image url.
+   */
+  url?: string;
+  /**
+   * The image height.
+   */
+  height?: number;
+  /**
+   * The image width.
+   */
+  width?: number;
+  /**
+   * The anchor position of the label text.
+   */
+  anchor?: [number, number];
+  /**
+   * The text color.
+   */
+  textColor?: string;
+  /**
+   * The text size.
+   */
+  textSize?: number;
+  /**
+   * The position of the backgound x, y.
+   */
+  backgroundPosition?: string;
+  /**
+   * The anchor position of the icon x, y.
+   */
+  iconAnchor?: [number, number];
 }

@@ -24,6 +24,7 @@ import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { SignupModule } from '@app/signup/signup.module';
 
 @Component({
@@ -39,7 +40,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Output() sovChildData = new EventEmitter<DprChildData>();
 
   @Input() tokenInfo: TokenModel;
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Input() mapPixelWidth: number;
 
   sovModel: SovModel = new SovModel();
@@ -64,7 +65,6 @@ export class SovreportComponent implements OnInit, OnChanges {
   // used for comparison in the HTML
   SovTypeEnum = SovType;
 
-  locShowContent = false;
   gangwayActive = false;
   turbineLocations = new Array<any>();
   fieldName = '';

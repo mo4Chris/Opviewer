@@ -10,6 +10,7 @@ import { TurbineLocation } from '../../models/TurbineLocation';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-v2v-transfers',
@@ -19,11 +20,11 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class SovV2vTransfersComponent implements OnChanges {
   @Input() readonly = true;
-  @Input() vessel2vessels: Vessel2vesselModel[];
-  @Input() sovInfo;
-  @Input() turbineLocations: TurbineLocsFromMongo[];
+  @Input() vessel2vessels: Vessel2vesselModel[]; // Always array of length 1!
+  @Input() sovInfo = {};
+  @Input() turbineLocations: TurbineLocsFromMongo[] = [];
 
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Output() v2vPaxTotals = new EventEmitter<V2vPaxTotalModel>();
 
 
@@ -98,12 +99,13 @@ export class SovV2vTransfersComponent implements OnChanges {
     this.v2vCargoOut = 0;
     this.v2vPaxIn = 0;
     this.v2vPaxOut = 0;
+    const transfers = this.vessel2vessels[0].transfers;
     if (this.vessel2vessels.length > 0) {
-      for (let i = 0; i < this.vessel2vessels[0].transfers.length; i++) {
-        this.v2vPaxIn = this.v2vPaxIn + +this.vessel2vessels[0].transfers[i].paxIn || this.v2vPaxIn + 0;
-        this.v2vPaxOut = this.v2vPaxOut + +this.vessel2vessels[0].transfers[i].paxOut || this.v2vPaxOut + 0;
-        this.v2vCargoIn = this.v2vCargoIn + +this.vessel2vessels[0].transfers[i].cargoIn || this.v2vCargoIn + 0;
-        this.v2vCargoOut = this.v2vCargoOut + +this.vessel2vessels[0].transfers[i].cargoOut || this.v2vCargoOut + 0;
+      for (let i = 0; i < transfers.length; i++) {
+        this.v2vPaxIn += +transfers[i].paxIn || 0;
+        this.v2vPaxOut += +transfers[i].paxOut || 0;
+        this.v2vCargoIn += +transfers[i].cargoIn || 0;
+        this.v2vCargoOut += +transfers[i].cargoOut || 0;
       }
     }
     this.v2vPaxTotals.emit({
@@ -114,17 +116,18 @@ export class SovV2vTransfersComponent implements OnChanges {
     });
   }
   savev2vPaxInput() {
-    for (let _i = 0; _i < this.vessel2vessels[0].transfers.length; _i++) {
-      this.vessel2vessels[0].transfers[_i].paxIn = this.vessel2vessels[0].transfers[_i].paxIn || 0;
-      this.vessel2vessels[0].transfers[_i].paxOut = this.vessel2vessels[0].transfers[_i].paxOut || 0;
-      this.vessel2vessels[0].transfers[_i].cargoIn = this.vessel2vessels[0].transfers[_i].cargoIn || 0;
-      this.vessel2vessels[0].transfers[_i].cargoOut = this.vessel2vessels[0].transfers[_i].cargoOut || 0;
+    const transfers = this.vessel2vessels[0].transfers;
+    for (let _i = 0; _i < transfers.length; _i++) {
+      transfers[_i].paxIn = transfers[_i].paxIn || 0;
+      transfers[_i].paxOut = transfers[_i].paxOut || 0;
+      transfers[_i].cargoIn = transfers[_i].cargoIn || 0;
+      transfers[_i].cargoOut = transfers[_i].cargoOut || 0;
     }
 
     this.commonService.updateSOVv2vPaxInput({
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
-      transfers: this.vessel2vessels[0].transfers
+      transfers: transfers
     }).pipe(
       map(
         (res) => {

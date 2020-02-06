@@ -19,6 +19,7 @@ export class SignupComponent implements OnInit {
 
     registerUserData = {
         permissions: '',
+        email: '',
         client: '',
         username: '',
         password: ''
@@ -33,7 +34,7 @@ export class SignupComponent implements OnInit {
       private newService: CommonService,
       private userService: UserService,
       public permission: PermissionService,
-      private alert: AlertService,
+      public alert: AlertService,
     ) {}
 
     onRegistration() {

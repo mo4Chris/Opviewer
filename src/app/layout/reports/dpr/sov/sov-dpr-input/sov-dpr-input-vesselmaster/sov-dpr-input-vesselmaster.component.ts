@@ -2,7 +2,6 @@ import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angu
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
-import { Observable } from 'rxjs/observable';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 
 @Component({

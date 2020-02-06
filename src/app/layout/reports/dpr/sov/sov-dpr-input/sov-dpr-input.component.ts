@@ -1,9 +1,6 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { SovType } from '../models/SovType';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CommonService } from '@app/common.service';
-import { AlertService } from '@app/supportModules/alert.service';
-import { map, catchError } from 'rxjs/operators';
 import { TokenModel } from '@app/models/tokenModel';
 import { SovModel } from '../models/SovModel';
 
@@ -27,7 +24,6 @@ export class SovDprInputComponent implements OnInit, OnChanges {
 
   constructor(
     private datetimeService: DatetimeService,
-    private commonService: CommonService,
   ) { }
 
 
@@ -102,18 +98,18 @@ export class SovDprInputComponent implements OnInit, OnChanges {
       });
     }
   }
-    getTotalTimeStandby(standbyArray) {
-        this.totalStandbyTime = this.datetimeService.arrayTotalTime(standbyArray);
-    }
-    getTotalTimeVesselNonAvailability(VesselNonAvailabilityArray) {
-        this.totalTechnicalDowntimeTime = this.datetimeService.arrayTotalTime(VesselNonAvailabilityArray);
-    }
-    getTotalTimeWeatherDowntime(WeatherDowntimeArray) {
-        this.totalWeatherDowntimeTime = this.datetimeService.arrayTotalTime(WeatherDowntimeArray);
-    }
+  getTotalTimeStandby(standbyArray) {
+    this.totalStandbyTime = this.datetimeService.arrayTotalTime(standbyArray);
+  }
+  getTotalTimeVesselNonAvailability(VesselNonAvailabilityArray) {
+    this.totalTechnicalDowntimeTime = this.datetimeService.arrayTotalTime(VesselNonAvailabilityArray);
+  }
+  getTotalTimeWeatherDowntime(WeatherDowntimeArray) {
+    this.totalWeatherDowntimeTime = this.datetimeService.arrayTotalTime(WeatherDowntimeArray);
+  }
   objectTimeDifference(object) {
-      return this.datetimeService.objectTimeDifference(object);
-    }
+    return this.datetimeService.objectTimeDifference(object);
+  }
   setDPRInputFields() {
     if (this.dprInput) {
       this.hoc.Array = this.dprInput.hoc;

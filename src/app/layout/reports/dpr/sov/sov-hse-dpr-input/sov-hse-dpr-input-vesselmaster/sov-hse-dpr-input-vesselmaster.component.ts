@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ChangeDetectionStrategy, Output, EventEmitter
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { catchError, map } from 'rxjs/operators';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-vesselmaster',
@@ -17,7 +18,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   ) { }
 
   @Input() dprInput;
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Input() tokenInfo;
 
   @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();

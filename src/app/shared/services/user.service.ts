@@ -9,23 +9,23 @@ import { TokenModel } from '../../models/tokenModel';
 })
 export class UserService {
 
-    constructor(
-        public router: Router
-    ) { }
+  constructor(
+    public router: Router
+  ) { }
 
-    getDecodedAccessToken(token: string): TokenModel {
-        const decoded = jwt_decode(token);
-        if (decoded.expires) {
-            const expires = moment.utc(decoded.expires);
-            if (moment().valueOf() > expires.valueOf()) {
-                localStorage.removeItem('token');
-                this.router.navigate(['/login']);
-            }
-        }
-        try {
-            return jwt_decode(token);
-        } catch (Error) {
-            return null;
-        }
+  getDecodedAccessToken(token: string): TokenModel {
+    const decoded = jwt_decode(token);
+    if (decoded.expires) {
+      const expires = moment.utc(decoded.expires);
+      if (moment().valueOf() > expires.valueOf()) {
+        localStorage.removeItem('token');
+        this.router.navigate(['/login']);
+      }
     }
+    try {
+      return jwt_decode(token);
+    } catch (Error) {
+      return null;
+    }
+  }
 }

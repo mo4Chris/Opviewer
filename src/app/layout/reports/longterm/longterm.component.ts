@@ -16,6 +16,7 @@ import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -30,7 +31,7 @@ export class LongtermComponent implements OnInit {
     private route: ActivatedRoute,
     private modalService: NgbModal,
     calendar: NgbCalendar,
-    public router: Router,
+    private routerService: RouterService,
     private userService: UserService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
@@ -126,7 +127,7 @@ export class LongtermComponent implements OnInit {
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        this.router.navigate(['login']);
+        this.routerService.routeToLogin();
       }
     });
   }
@@ -219,7 +220,7 @@ export class LongtermComponent implements OnInit {
   }
 
   navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
-    this.router.navigate(['report/dpr', { mmsi: vesselObject.mmsi, date: vesselObject.matlabDate }]);
+    this.routerService.routeToDPR({ mmsi: vesselObject.mmsi, date: vesselObject.matlabDate });
   }
 
   isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);

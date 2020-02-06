@@ -14,46 +14,42 @@ import { UserService } from '../../../shared/services/user.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('FleetLogComponent', () => {
-    let component: FleetLogComponent;
-    let fixture: ComponentFixture<FleetLogComponent>;
+  let component: FleetLogComponent;
+  let fixture: ComponentFixture<FleetLogComponent>;
 
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            imports: [NgbModule.forRoot(),
-                  AgmCoreModule.forRoot(),
-                  HttpModule,
-                  HttpClientModule,
-                  FormsModule,
-                  PageHeaderModule,
-                  RouterTestingModule,
-                  FleetLogRoutingModule,
-                  BrowserAnimationsModule,
-                ],
-            providers: [MockedCommonServiceProvider],
-            declarations: [FleetLogComponent]
-        }).compileComponents();
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [NgbModule.forRoot(),
+        AgmCoreModule.forRoot(),
+        HttpModule,
+        HttpClientModule,
+        FormsModule,
+        PageHeaderModule,
+        RouterTestingModule,
+        FleetLogRoutingModule,
+        BrowserAnimationsModule,
+      ],
+      providers: [MockedCommonServiceProvider],
+      declarations: [FleetLogComponent]
+    }).compileComponents();
 
-        spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
-        spyOn(FleetLogComponent.prototype, 'getCampaignName').and.returnValue('Summer');
-        spyOn(FleetLogComponent.prototype, 'getStartDate').and.returnValue(737485);
-        spyOn(FleetLogComponent.prototype, 'getWindfield').and.returnValue('Beatrice');
-        spyOn(FleetLogComponent.prototype, 'getUsers').and.returnValue([]);
-        spyOn(FleetLogComponent.prototype, 'getSailDayChanged').and.callFake(() => {
-            this.sailDayChanged = [];
-            this.fleetId = '5c8791129bf8eac702a5c75f';
-            this.loading = false;
-        });
-        fixture = TestBed.createComponent(FleetLogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
+    spyOn(FleetLogComponent.prototype, 'getCampaignName').and.returnValue('Summer');
+    spyOn(FleetLogComponent.prototype, 'getStartDate').and.returnValue(737485);
+    spyOn(FleetLogComponent.prototype, 'getWindfield').and.returnValue('Beatrice');
+    spyOn(FleetLogComponent.prototype, 'getUsers').and.returnValue([]);
+    spyOn(FleetLogComponent.prototype, 'getSailDayChanged');
+    fixture = TestBed.createComponent(FleetLogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
 
-    }));
-
-
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('should create', (done) => {
+    expect(component).toBeTruthy();
+    done();
+  });
 });

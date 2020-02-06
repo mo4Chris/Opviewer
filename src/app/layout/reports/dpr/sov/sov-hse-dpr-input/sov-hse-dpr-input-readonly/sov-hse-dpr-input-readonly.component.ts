@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, ChangeDetectionStrategy, EventEmitter
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-readonly',

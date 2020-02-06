@@ -6,19 +6,21 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageHeaderModule, SharedPipesModule } from '../../../shared';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpModule } from '@angular/http';
 import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '../../../shared/services/test.user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
-import { SovreportComponent } from './sov/sovreport/sovreport.component';
-import { CalculationService } from '../../../supportModules/calculation.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { GmapService } from '../../../supportModules/gmap.service';
 import { ReportsDprComponent } from './reports-dpr.component';
+import { SovreportComponent } from './sov/sovreport.component';
+import { SovreportModule } from './sov/sovreport.module';
+import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-describe('VesselReportComponent', () => {
+describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
+  const perm = <PermissionService> PermissionService.getDefaultPermission('admin');
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -31,27 +33,39 @@ describe('VesselReportComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
-        SharedPipesModule,
-        HttpModule],
-      declarations: [ ReportsDprComponent, CtvreportComponent, SovreportComponent ],
-      providers: [MockedCommonServiceProvider, MockedUserServiceProvider, CalculationService]
+        // SovreportModule, // Disabled to keep tests speedy
+        // CtvreportModule,
+      ],
+      declarations: [
+        ReportsDprComponent,
+        CtvreportComponent,
+      ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+        {
+          provide: PermissionService,
+          useValue: perm
+        }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
+  }));
 
-    spyOn(ReportsDprComponent.prototype, 'getDateFromParameter').and.returnValue(NaN); // Equivalent to no date provided
+  beforeEach(() => {
+    spyOn(ReportsDprComponent.prototype, 'getDateFromParameter').and.returnValue(737700); // Equivalent to no date provided
     spyOn(ReportsDprComponent.prototype, 'getMMSIFromParameter').and.returnValue(123456789); // CTV test vessel - replace mmsi later if not desired
-    spyOn(GmapService.prototype, 'reset');
-    spyOn(GmapService.prototype, 'addVesselRouteToGoogleMap');
-    spyOn(GmapService.prototype, 'addTurbinesToMapForVessel');
-    spyOn(CtvreportComponent.prototype, 'buildPageWithCurrentInformation');
-    spyOn(SovreportComponent.prototype, 'buildPageWithCurrentInformation');
+    spyOn(ReportsDprComponent.prototype, 'buildPageWithCurrentInformation');
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
 
-  it('should create', fakeAsync(() => {
+    fixture.detectChanges();
+  });
+
+  it('Report dpr component should instantiate', (done) => {
     expect(component).toBeTruthy();
-  }));
+    done();
+  });
 });
