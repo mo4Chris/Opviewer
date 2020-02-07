@@ -135,7 +135,7 @@ export class SovPlatformTransfersComponent implements OnChanges {
     });
   }
   saveHelicopterPaxCargo() {
-    this.saveStats('saveMissedPaxCargo', {
+    this.saveStats('saveHelicopterPaxCargo', {
       date: this.vesselObject.date,
       HelicopterPaxCargo: this.helicopterPaxCargo
     });

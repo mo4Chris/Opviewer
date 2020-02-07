@@ -131,14 +131,12 @@ export class SovTurbineTransfersComponent implements OnChanges {
       MissedPaxCargo: this.missedPaxCargo,
       date: this.vesselObject.date,
     });
-    // this.nonAvailabilityChanged = false;
   }
   saveHelicopterPaxCargo() {
-    this.saveStats('saveMissedPaxCargo', {
+    this.saveStats('saveHelicopterPaxCargo', {
       date: this.vesselObject.date,
       HelicopterPaxCargo: this.helicopterPaxCargo
     });
-    // this.nonAvailabilityChanged = false;
   }
   saveAllTurbineTransfers() {
     this.turbineTransfers.forEach(_transfer => {
@@ -146,14 +144,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
       _transfer.paxOut = _transfer.paxOut || 0;
       _transfer.cargoIn = _transfer.cargoIn || 0;
       _transfer.cargoOut = _transfer.cargoOut || 0;
-      this.saveStats('updateSOVTurbinePaxInput', {
-        _id: _transfer._id,
-        paxIn: _transfer.paxIn,
-        paxOut: _transfer.paxOut,
-        cargoIn: _transfer.cargoIn,
-        cargoOut: _transfer.cargoOut,
-      });
-    // this.nonAvailabilityChanged = false;
+      this.saveTurbinePaxInput(_transfer);
     });
     this.saveHelicopterPaxCargo();
     this.saveMissedPaxCargo();
@@ -166,7 +157,6 @@ export class SovTurbineTransfersComponent implements OnChanges {
       cargoIn: transfer.cargoIn || 0,
       cargoOut: transfer.cargoOut || 0
     });
-    // this.nonAvailabilityChanged = false;
   }
 
 
