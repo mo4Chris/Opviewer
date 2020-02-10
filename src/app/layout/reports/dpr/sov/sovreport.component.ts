@@ -146,7 +146,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.dprInput = dprInput[0];
 
               const dprSigned = dprInput[0].signedOff;
-              const hseSigned = hseDprInput[0].signedOff;
+              const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
               this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
               this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
 

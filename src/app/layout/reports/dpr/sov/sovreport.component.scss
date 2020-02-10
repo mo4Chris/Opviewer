@@ -115,6 +115,14 @@ textarea {
         text-indent: 1px;
         text-overflow: '';
     }
+    .row {
+        // .table-bordered {
+        page-break-inside: avoid;
+        page-break-after: auto;
+        // }
+        // page-break-inside: auto;
+        // page-break-after: auto;
+    }
     .table-responsive {
         width: 100%;
         margin-left: 0;
