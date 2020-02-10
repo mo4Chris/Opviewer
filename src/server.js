@@ -1540,11 +1540,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                                         project: 0
                                     },
                                     "dp": [],
-                                    "signedOff": {
-                                        amount: data.signedOff.amount || 0,
-                                        signedOffSkipper: data.signedOff.signedOffSkipper || '',
-                                        signedOffClient: data.signedOff.signedOffClient || ''
-                                    }
+                                    "signedOff": data.signedOff || { amount: 0, signedOffSkipper: '', signedOffClient: '' },
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1811,10 +1807,11 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                     date: req.body.date,
                     active: { $ne: false }
                 }, {
-                     $set: {
+                    $set: {
                         "signedOff.amount": 1,
                         "signedOff.signedOffSkipper": token.username
-                    }              },
+                    }
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);
@@ -1841,7 +1838,7 @@ app.post("/api/saveDprSigningClient", function(req, res) {
                     $set: {
                         "signedOff.amount": 2,
                         "signedOff.signedOffClient": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1869,7 +1866,7 @@ app.post("/api/declineDprClient", function(req, res) {
                     $set: {
                         "signedOff.amount": -1,
                         "signedOff.declinedBy": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1897,7 +1894,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
                     $set: {
                         "signedOff.amount": -1,
                         "signedOff.declinedBy": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1927,7 +1924,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                     $set: {
                         "signedOff.amount": 1,
                         "signedOff.signedOffSkipper": token.username
-                    } 
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1955,7 +1952,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
                     $set: {
                         "signedOff.amount": 2,
                         "signedOff.signedOffClient": token.username
-                    } 
+                    }
                 },
                 function(err, data) {
                     if (err) {
