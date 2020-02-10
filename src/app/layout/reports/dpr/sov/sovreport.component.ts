@@ -99,7 +99,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           this.getWaveSpectrumAvailable();
           forkJoin([
             this.commonService.getPlatformTransfers(
-              this.sovModel.sovInfo.mmsi,
+              this.vesselObject.mmsi,
               this.vesselObject.date
             ),
             this.commonService.getTurbineTransfers(
@@ -145,8 +145,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.vessel2vessels = vessel2vessels;
               this.dprInput = dprInput[0];
 
-              this.dprApproval = (dprInput[0].signedOff) ? dprInput[0].signedOff.amount : 0;
-              this.hseDprApproval = (hseDprInput.signedOff) ? hseDprInput.signedOff.amount : 0;
+              const dprSigned = dprInput[0].signedOff;
+              const hseSigned = hseDprInput[0].signedOff;
+              this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
+              this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
 
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
@@ -208,9 +210,10 @@ export class SovreportComponent implements OnInit, OnChanges {
           if (sov.length > 0) {
             this.sovModel.sovInfo = sov[0];
           }
+          // We need to load in the relevant hse / dpr Input data.
+          this.hasGeneral = false;
           this.buildPageWhenAllLoaded();
           this.showContent = true;
-          this.hasGeneral = false;
         }
       },
     );
@@ -597,5 +600,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.sovModel = new SovModel();
     this.showContent = false;
     this.fieldName = '';
+    this.hseDprApproval = 0;
+    this.dprApproval = 0;
   }
 }

@@ -429,20 +429,21 @@
                     <tr>
                         <th colspan="2">Additional remarks</th>
                         <td colspan="2">
+                          <div *ngIf="hseData.remarks && hseData.remarks.length>0; else noComment">
                             {{hseData.remarks}}
+                          </div>
                         </td>
                     </tr>
                     {{hseDprApprovalCount}}
-                    <tr>
+                    <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
                         <td colspan="4">
                             <button
-                            *ngIf="hseDprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'"
+                            *ngIf="tokenInfo.userPermission !== 'Vessel master'"
                                 class="btn btn-lg btn-danger" (click)="declineHseDprClient()"
                                 style="float:right; margin-right: 10px;"
                                 type="button">Refuse HSE DPR
                             </button>
                             <button
-                                *ngIf="hseDprApprovalCount == 1"
                                 class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
                                 style="float:right; margin-right: 10px;"
                                 type="button">Sign off HSE DPR
@@ -457,3 +458,6 @@
     </div>
   </div>
 </div>
+<ng-template #noComment>
+  <i>No remarks</i>
+</ng-template>
