@@ -45,19 +45,31 @@
     <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" id="dpr-input-write" [id]="'dpr-input-write'">
       <ng-template ngbTabContent>
         <br>
-        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+        <ng-container *ngIf="dprApproval < 1">
+          <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [dprApprovalCount]="dprApproval" (dprApproval)="emitDprApproval($event)"
           [readonly]="false" [dprInput]="dprInput"></app-sov-dpr-input>
-          <br>
-          <div  class="card mb-3 singlepage-print-port">
-            <app-sov-hse-dpr-input-vesselmaster [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
-          </div>
+        </ng-container>
+
+        <ng-container *ngIf="dprApproval > 0">
+          <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [dprApprovalCount]="dprApproval" (dprApproval)="emitDprApproval($event)" [tokenInfo]="tokenInfo"
+          [readonly]="true" [dprInput]="dprInput"></app-sov-dpr-input>
+        </ng-container>
+        <br>
+
+        <ng-container *ngIf="hseDprApproval > 0">
+          <app-sov-hse-dpr-input-readonly [dprInput]="dprInput" [tokenInfo]="tokenInfo" (hseDprApproval)="emitHseApproval($event)" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
+        </ng-container>
+
+        <ng-container *ngIf="hseDprApproval < 1">
+          <app-sov-hse-dpr-input-vesselmaster [dprInput]="dprInput" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
+        </ng-container>
       </ng-template>
     </ngb-tab>
 
     <ngb-tab title="HSE input" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
       <ng-template ngbTabContent>
         <br>
-        <app-sov-hse-dpr-input-readonly [dprInput]="dprInput" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
+        <app-sov-hse-dpr-input-readonly [dprInput]="dprInput" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
       </ng-template>
     </ngb-tab>
 

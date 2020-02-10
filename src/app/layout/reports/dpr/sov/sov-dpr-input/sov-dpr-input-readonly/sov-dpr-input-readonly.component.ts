@@ -1,4 +1,7 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { catchError, map } from 'rxjs/operators';
+import { CommonService } from '@app/common.service';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-sov-dpr-input-readonly',
@@ -16,8 +19,19 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() catering: CateringInput;
   @Input() dp: ReadonlyInput;
   @Input() remarks = '';
+  @Input() vesselObject;
+  @Input() tokenInfo;
+  @Input() dprApprovalCount;
 
-  constructor() {}
+  dprSignedByClient = 2;
+  dprDeclinedByClient = -1;
+
+  @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
+
+  constructor(
+    private commonService: CommonService,
+    private alert: AlertService,
+  ) {}
 
   ngOnChanges() {
     this.setTotalPob();
@@ -25,6 +39,49 @@ export class SovDprInputReadonlyComponent implements OnChanges {
 
   setTotalPob() {
     this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
+  }
+
+  signOffDprClient() {
+    this.saveStats('saveDprSigningClient', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.dprApproval.emit(this.dprSignedByClient);
+    this.dprApprovalCount = 0;
+  }
+
+  declineDprClient() {
+    this.saveStats('declineDprClient', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.dprApproval.emit(this.dprDeclinedByClient);
+    this.dprApprovalCount = 0;
+  }
+
+  saveStats(saveFcnName: string, saveObject: object): void {
+    // Generic saver for all the functions below
+    const baseObj = {
+      mmsi: this.vesselObject.mmsi,
+      date: this.vesselObject.date,
+    };
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
+      map(
+        (res: any) => {
+          this.alert.sendAlert({
+            type: 'success',
+            text: res.data,
+          });
+        }
+      ),
+      catchError(error => {
+        this.alert.sendAlert({
+          type: 'danger',
+          text: error,
+        });
+        throw error;
+      })
+    ).subscribe();
   }
 
 }

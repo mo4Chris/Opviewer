@@ -6,14 +6,12 @@ import { CommonService } from '@app/common.service';
 import { SovModel } from './models/SovModel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovType } from './models/SovType';
-import { SummaryModel } from './models/Summary';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { isArray } from 'util';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
-import { map } from 'rxjs/operators';
 import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
@@ -37,6 +35,8 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   sovModel: SovModel = new SovModel();
   dprInput: DprChildData;
+  dprApproval;
+  hseDprApproval;
   // This forces reload on all subcomponent, but reduces performance.
   // In the future, we should move to a more workable version where sovModel is
   // replaced when all data is loaded, so reload of other components is automatic
@@ -115,6 +115,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject.date
             ),
             this.commonService.getSovDprInput(this.vesselObject),
+            this.commonService.getSovHseDprInput(this.vesselObject),
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
@@ -126,6 +127,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               vessel2vessels,
               cycleTimes,
               dprInput,
+              hseDprInput,
               sovFieldNames,
               platformLocations
             ]) => {
@@ -142,6 +144,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.cycleTimes = cycleTimes;
               this.sovModel.vessel2vessels = vessel2vessels;
               this.dprInput = dprInput[0];
+
+              this.dprApproval = (dprInput[0].signedOff) ? dprInput[0].signedOff.amount : 0;
+              this.hseDprApproval = (hseDprInput.signedOff) ? hseDprInput.signedOff.amount : 0;
+
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
                 cycle['avgSpeed'] = this.switchUnit(
@@ -243,6 +249,14 @@ export class SovreportComponent implements OnInit, OnChanges {
         platformLocationData: null
       });
     }
+  }
+
+  emitHseApproval(input) {
+    this.hseDprApproval = input;
+  }
+
+  emitDprApproval(input) {
+    this.dprApproval = input;
   }
 
   getWaveSpectrumAvailable() {
@@ -585,13 +599,3 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.fieldName = '';
   }
 }
-
-// @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
-// @Output() boatLocationData: EventEmitter<any[]> = new EventEmitter<any[]>();
-// @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
-// @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
-// @Output() latitude: EventEmitter<any> = new EventEmitter<any>();
-// @Output() longitude: EventEmitter<any> = new EventEmitter<any>();
-// @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
-// @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
-// @Output() routeFound: EventEmitter<boolean> = new EventEmitter<boolean>();

@@ -1,5 +1,7 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, ChangeDetectionStrategy, EventEmitter } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { map, catchError } from 'rxjs/operators';
+import { AlertService } from '@app/supportModules/alert.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
@@ -11,11 +13,19 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 export class SovHseDprInputReadonlyComponent implements OnInit {
 
   constructor(
-    private commonService: CommonService
-  ) { }
+    private commonService: CommonService,
+    private alert: AlertService,
+    ) { }
 
-  @Input() dprInput; // Does not appear to be used atm
-  @Input() vesselObject: VesselObjectModel;
+  @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
+
+  @Input() hseDprApprovalCount;
+  @Input() dprInput;
+  @Input() vesselObject;
+  @Input() tokenInfo;
+
+  hseDprSignedByClient = 2;
+  hseDprDeclinedByClient = -1;
 
   hseData = {
     lostTimeInjuries: { value: 0, comment: '' },
@@ -56,6 +66,31 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     waterConsumption: {value: 0, comment: ''}
   };
 
+  saveStats(saveFcnName: string, saveObject: object): void {
+    // Generic saver for all the functions below
+    const baseObj = {
+      mmsi: this.vesselObject.mmsi,
+      date: this.vesselObject.date,
+    };
+    this.commonService[saveFcnName]({...baseObj, ...saveObject}).pipe(
+      map(
+        (res: any) => {
+          this.alert.sendAlert({
+            type: 'success',
+            text: res.data,
+          });
+        }
+      ),
+      catchError(error => {
+        this.alert.sendAlert({
+          type: 'danger',
+          text: error,
+        });
+        throw error;
+      })
+    ).subscribe();
+  }
+
   ngOnInit() {
     this.getHseDprData();
   }
@@ -67,4 +102,19 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     });
   }
 
+  signOffHseDprClient() {
+    this.saveStats('saveHseDprSigningClient', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.hseDprApproval.emit(this.hseDprSignedByClient);
+  }
+
+  declineHseDprClient() {
+    this.saveStats('declineHseDprClient', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi
+    });
+    this.hseDprApproval.emit(this.hseDprDeclinedByClient);
+  }
 }

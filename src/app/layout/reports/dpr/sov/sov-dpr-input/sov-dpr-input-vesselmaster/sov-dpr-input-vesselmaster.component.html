@@ -1,4 +1,7 @@
-<div class="card-header">DPR input</div>
+<div class="card-header">DPR input <button
+  class="btn btn-sm btn-primary" 
+  style="float:right; "
+  type="button">Sign off DPR</button></div>
 <div class="card-body">
   <div class="row">
     <div class="col-xl-6">
@@ -512,9 +515,13 @@
           <td><textarea autosize (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control"
               cols="70"></textarea></td>
         </tr>
-        <tr *ngIf="remarksChanged == true">
-          <td><button *ngIf="remarksChanged == true" class="btn btn-lg btn-primary" style="float:right"
-              (click)="saveRemarksStats();" type="button">Save</button>
+        <tr >
+          <td><button  class="btn btn-lg btn-primary" style="float:right"
+              (click)="saveRemarksStats();" type="button">Save remarks</button>
+              <button
+              class="btn btn-lg btn-primary" (click)="signOffDpr()"
+              style="float:right; margin-right: 10px;"
+              type="button">Sign off DPR</button>
           </td>
         </tr>
       </table>

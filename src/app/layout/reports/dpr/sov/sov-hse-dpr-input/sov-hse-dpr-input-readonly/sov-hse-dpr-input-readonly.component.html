@@ -309,76 +309,147 @@
                   <td>
                     {{hseData.foodMacerated.value}} m3
                   </td>
-
-                  <td>
-                    <textarea [value]="hseData.foodMacerated.comment" [(ngModel)]="hseData.foodMacerated.comment" autosize
-                      class="form-control" cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Domestic waste landed</th>
-                  <td>
-                    {{hseData.domWasteLanded.value}} m3
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.domWasteLanded.comment" [(ngModel)]="hseData.domWasteLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Domestic waste incinerated</th>
-                  <td>
-                    {{hseData.domWasteIncinerated.value}} m3
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.domWasteIncinerated.comment"
-                      [(ngModel)]="hseData.domWasteIncinerated.comment" autosize class="form-control"
-                      cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Cooking oil landed</th>
-                  <td>
-                    {{hseData.cookingoilLanded.value}} m3
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.cookingoilLanded.comment" [(ngModel)]="hseData.cookingoilLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Operational waste landed</th>
-                  <td>
-                    {{hseData.opsWasteLanded.value}} m3
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.opsWasteLanded.comment" [(ngModel)]="hseData.opsWasteLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Operational waste incenerated</th>
-                  <td>
-                    {{hseData.opsWasteIncinerated.value}} m3
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.opsWasteIncinerated.comment"
-                      [(ngModel)]="hseData.opsWasteIncinerated.comment" autosize class="form-control"
-                      cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th colspan="2">Additional remarks</th>
-                  <td colspan="2">
-                    {{hseData.remarks}}
-                  </td>
-                </tr>
-              </table>
+                    <tr>
+                        <th>Shore power consumed</th>
+                        <td>
+                            {{hseData.shorePower.value}} kWh
+                        </td>
+                        <td>
+                            <textarea [value]="hseData.shorePower.comment" [(ngModel)]="hseData.shorePower.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Plastic incenerated</th>
+                        <td>
+                            {{hseData.plasticIncinerated.value}} m3
+                        </td>
+                        <td>
+                            <textarea [value]="hseData.plasticIncinerated.comment" [(ngModel)]="hseData.plasticIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Plastic landed</th>
+                        <td>
+                            {{hseData.plasticLanded.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.plasticLanded.comment" [(ngModel)]="hseData.plasticLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Food incinerated</th>
+                        <td>
+                            {{hseData.foodIncinerated.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.foodIncinerated.comment" [(ngModel)]="hseData.foodIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Food landed</th>
+                        <td>
+                            {{hseData.foodLanded.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.foodLanded.comment" [(ngModel)]="hseData.foodLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Food macerated</th>
+                        <td>
+                            {{hseData.foodMacerated.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.foodMacerated.comment" [(ngModel)]="hseData.foodMacerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Domestic waste landed</th>
+                        <td>
+                            {{hseData.domWasteLanded.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.domWasteLanded.comment" [(ngModel)]="hseData.domWasteLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Domestic waste incinerated</th>
+                        <td>
+                            {{hseData.domWasteIncinerated.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.domWasteIncinerated.comment" [(ngModel)]="hseData.domWasteIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Cooking oil landed</th>
+                        <td>
+                            {{hseData.cookingoilLanded.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.cookingoilLanded.comment" [(ngModel)]="hseData.cookingoilLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Operational waste landed</th>
+                        <td>
+                            {{hseData.opsWasteLanded.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.opsWasteLanded.comment" [(ngModel)]="hseData.opsWasteLanded.comment" autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Operational waste incenerated</th>
+                        <td>
+                            {{hseData.opsWasteIncinerated.value}} m3
+                        </td>
+                        
+                        <td>
+                            <textarea [value]="hseData.opsWasteIncinerated.comment" [(ngModel)]="hseData.opsWasteIncinerated.comment" autosize class="form-control" cols="50"> </textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Additional remarks</th>
+                        <td colspan="2">
+                            {{hseData.remarks}}
+                        </td>
+                    </tr>
+                    {{hseDprApprovalCount}}
+                    <tr>
+                        <td colspan="4">
+                            <button
+                            *ngIf="hseDprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'"
+                                class="btn btn-lg btn-danger" (click)="declineHseDprClient()"
+                                style="float:right; margin-right: 10px;"
+                                type="button">Refuse HSE DPR
+                            </button>
+                            <button
+                                *ngIf="hseDprApprovalCount == 1"
+                                class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
+                                style="float:right; margin-right: 10px;"
+                                type="button">Sign off HSE DPR
+                            </button>
+                        </td>
+                    </tr>
+                </table>
             </div>
           </div>
         </div>

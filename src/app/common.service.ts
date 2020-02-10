@@ -370,6 +370,36 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveDprSigningSkipper(dataObject) {
+    return this.post('/api/saveDprSigningSkipper/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveDprSigningClient(dataObject) {
+    return this.post('/api/saveDprSigningClient/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveHseDprSigningSkipper(dataObject) {
+    return this.post('/api/saveHseDprSigningSkipper/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  saveHseDprSigningClient(dataObject) {
+    return this.post('/api/saveHseDprSigningClient/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  declineHseDprClient(dataObject) {
+    return this.post('/api/declineHseDprClient/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  declineDprClient(dataObject) {
+    return this.post('/api/declineDprClient/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
   updateSOVHseDpr(dataObject) {
     return this.post('/api/updateSOVHseDpr/', dataObject).pipe(
       map((response: Response) => response.json()));
