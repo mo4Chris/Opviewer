@@ -1,14 +1,19 @@
-<div class="card-header">DPR input <button
-  class="btn btn-sm btn-primary" 
-  style="float:right; "
-  type="button">Sign off DPR</button></div>
+<div class="card-header">
+  DPR input
+  <button class="btn btn-sm btn-primary" 
+    style="float:right; "
+    (click)="confirmSignoff(confirmSignoffModal)"
+    type="button">
+    Sign off DPR
+  </button>
+</div>
 <div class="card-body">
   <div class="row">
     <div class="col-xl-6">
       <table class="table table-bordered">
         <tr>
           <th colspan="4">
-            <h4>Stand by</h4>
+            <h4 [ngbTooltip]="tooltipStandby">Stand by</h4>
           </th>
         </tr>
         <tr>
@@ -55,7 +60,7 @@
         <!-- split between -->
         <tr>
           <th colspan="4">
-            <h4>Technical downtime</h4>
+            <h4 [ngbTooltip]="tooltipTechnicalDowntime">Technical downtime</h4>
           </th>
         </tr>
         <tr>
@@ -108,7 +113,7 @@
 
         <tr>
           <th colspan="4">
-            <h4>Weather downtime</h4>
+            <h4 [ngbTooltip]="tooltipWeatherDowntime">Weather downtime</h4>
           </th>
         </tr>
         <tr>
@@ -175,7 +180,7 @@
           </th>
         </tr>
         <tr>
-          <th>HOC cards: {{hoc.Total}}</th>
+          <th><div [ngbTooltip]="tooltipHocCards">HOC cards: {{hoc.Total}}</div></th>
           <td colspan="3">
             <ng-container *ngFor="let HoC of hoc.Array">
               <div class="tableRow">
@@ -390,7 +395,7 @@
           </th>
         </tr>
         <tr>
-          <th> People on board</th>
+          <th [ngbTooltip]="tooltipPOB"> People on board</th>
           <td></td>
           <td></td>
         </tr>
@@ -447,7 +452,7 @@
       <table class="table table-bordered">
         <tr>
           <td colspan="2">
-            <h4>DP usage</h4>
+            <h4 [ngbTooltip]="tooltipDpUsage">DP usage</h4>
           </td>
         </tr>
         <tr>
@@ -459,6 +464,7 @@
             <td>
               <div class="tableRow">
                 HH:
+                <!-- ToDo: This does not allow the 24:00 option-->
                 <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
                   class="form-control col-xl-4 col-print-4">
                   <option *ngFor="let hour of allHours" [value]="hour">
@@ -519,7 +525,7 @@
           <td><button  class="btn btn-lg btn-primary" style="float:right"
               (click)="saveRemarksStats();" type="button">Save remarks</button>
               <button
-              class="btn btn-lg btn-primary" (click)="signOffDpr()"
+              class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
               style="float:right; margin-right: 10px;"
               type="button">Sign off DPR</button>
           </td>
@@ -528,3 +534,35 @@
     </div>
   </div>
 </div>
+
+<ng-template #confirmSignoffModal let-modal class="center-vertical">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Confirmation</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    Sign off the dpr? This will make it impossible to make further changes to the DPR Input table 
+    for the rest of the day.
+    <br><br>
+    <button
+      class="btn btn-lg btn-success" (click)="signOffDpr();modal.dismiss('Cross click')"
+      style="float:left; margin-left: 10px;"
+      type="button">Confirm</button>
+    <button
+      class="btn btn-lg btn-danger" (click)="modal.dismiss('Cross click')"
+      style="float:right; margin-right: 10px;"
+      type="button">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
+<ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
+technical issues with the vessel. Provide further details in the hse DPR and remark section
+</ng-template>
+<ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
+<ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
+<ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
+<ng-template #tooltipPOB>Number of people on board of the vessel at the end of day. By default, yesterdays
+values are auto-filled.</ng-template>

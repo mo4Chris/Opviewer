@@ -4,7 +4,7 @@
     <div class="col-xl-6">
       <table class="table table-bordered">
         <tr>
-          <th colspan="4">
+          <th colspan="4" [ngbTooltip]="tooltipStandby">
             <h4>Stand by</h4>
           </th>
         </tr>
@@ -28,9 +28,12 @@
 
           </tr>
         </ng-container>
+        <tr *ngIf="standby.Array.length==0">
+          <td colspan="4"><i>No standby times entered</i></td>
+        </tr>
         <!-- split between -->
         <tr>
-          <th colspan="4">
+          <th colspan="4" [ngbTooltip]="tooltipTechnicalDowntime">
             <h4>Technical downtime</h4>
           </th>
         </tr>
@@ -54,10 +57,13 @@
             <td></td>
           </tr>
         </ng-container>
+        <tr *ngIf="vesselNonAvailability.Array.length==0">
+          <td colspan="4"><i>No technical downtime entered</i></td>
+        </tr>
         <!-- Split between weather and technical downtime -->
 
         <tr>
-          <th colspan="4">
+          <th colspan="4" [ngbTooltip]="tooltipWeatherDowntime">
             <h4>Weather downtime</h4>
           </th>
         </tr>
@@ -83,6 +89,9 @@
             </td>
           </tr>
         </ng-container>
+        <tr *ngIf="weatherDowntime.Array.length==0">
+          <td colspan="4"><i>No weather downtime entered</i></td>
+        </tr>
       </table>
     </div>
 
@@ -94,7 +103,7 @@
           </th>
         </tr>
         <tr>
-          <th>HOC cards: {{hoc.Total}}</th>
+          <th><div [ngbTooltip]="tooltipHocCards">HOC cards: {{hoc.Total}}</div></th>
           <td colspan="3">
             <ng-container *ngFor="let HoC of hoc.Array">
               {{HoC.value}} - {{HoC.amount}} time(s)
@@ -187,7 +196,7 @@
       <table class="table table-bordered">
         <tr>
           <th colspan="2">
-            <h4>People on board</h4>
+            <h4 [ngbTooltip]="tooltipPOB">People on board</h4>
           </th>
         </tr>
         <tr>
@@ -268,7 +277,7 @@
       <table class="table table-bordered">
         <tr>
           <td colspan="2">
-            <h4>DP usage</h4>
+            <h4 [ngbTooltip]="tooltipDpUsage">DP usage</h4>
           </td>
         </tr>
         <tr>
@@ -289,6 +298,9 @@
             </td>
           </tr>
         </ng-container>
+        <tr *ngIf="dp.Array.length==0">
+          <td colspan="4"><i>No dp usage entered</i></td>
+        </tr>
       </table>
       <table class="table table-bordered">
         <tr>
@@ -297,7 +309,9 @@
           </td>
         </tr>
         <tr>
-          <td style="white-space: pre-wrap;">{{remarks}}</td>
+          <td style="white-space: pre-wrap;" *ngIf="remarks.length>0; else noRemarks">{{remarks}}</td>
+          <ng-template #noRemarks> <td style="white-space: pre-wrap;"><i>No remarks</i></td>
+          </ng-template>
         </tr>
         <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
           <td>
@@ -317,3 +331,12 @@
     </div>
   </div>
 </div>
+
+<ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
+<ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
+technical issues with the vessel. Provide further details in the hse DPR and remark section
+</ng-template>
+<ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
+<ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
+<ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
+<ng-template #tooltipPOB>Number of people on board of the vessel at the end of day</ng-template>
