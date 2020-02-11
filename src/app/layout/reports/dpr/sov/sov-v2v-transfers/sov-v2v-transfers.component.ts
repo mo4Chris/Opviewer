@@ -20,7 +20,12 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 })
 export class SovV2vTransfersComponent implements OnChanges {
   @Input() readonly = true;
-  @Input() vessel2vessels: Vessel2vesselModel[]; // Always array of length 1!
+  @Input() vessel2vessels: Vessel2vesselModel[] = [{
+    transfers: [],
+    CTVactivity: [],
+    date: NaN,
+    mmsi: NaN,
+  }]; // Always array of length 1!
   @Input() sovInfo = {};
   @Input() turbineLocations: TurbineLocsFromMongo[] = [];
 

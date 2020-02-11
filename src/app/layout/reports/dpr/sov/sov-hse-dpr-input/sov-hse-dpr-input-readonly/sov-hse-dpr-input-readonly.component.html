@@ -1,246 +1,322 @@
-<div class="card-header">HSE input</div>
-<div class="card-body">
-    <div class="col-xl-12 col-lg-24">
-        <div class="row">
+<div class="row ">
+  <div class="col-xl-12 col-lg-24">
+    <div class="card mb-3 singlepage-print-port">
+      <div class="card-header">HSE input</div>
+      <div class="card-body">
+        <div class="col-xl-12 col-lg-24">
+          <div class="row">
             <div class="col-xl-6">
-                <table class="table table-bordered">
-                    <tr>
-                    <th colspan="3">
-                        <h4>General Crew</h4>
-                    </th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>on board</th>
-                        <th>man days</th>
-                    </tr>
-                    <tr>
-                        <th>Marine crew</th>
-                        <td>{{dprData.marineCount.value}}</td>
-                        <td>{{dprData.marineCount.value}}</td>
-                    </tr>
-                    <tr>
-                        <th>Client crew</th>
-                        <td>{{dprData.clientCrewCount.value}}</td>
-                        <td>{{dprData.clientCrewCount.value / 2}}</td>
-                    </tr>
-                    <tr>
-                        <th colspan="3">
-                            <h4>Incidents</h4>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>Value</th>
-                        <th>Comment</th>
-                    </tr>
-                    <tr>
-                        <th>Lost time injuries</th>
-                        <td>
-                            {{hseData.lostTimeInjuries.value}}
-                        </td>
-                        <td>
-                            <textarea [value]="hseData.lostTimeInjuries.comment" [(ngModel)]="hseData.lostTimeInjuries.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Restricted Workday Cases</th>
-                        <td>
-                            {{hseData.restrictedWorkday.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.restrictedWorkday.comment" [(ngModel)]="hseData.restrictedWorkday.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Medical Treatment Cases</th>
-                        <td>
-                            {{hseData.MedicalTreatment.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.MedicalTreatment.comment" [(ngModel)]="hseData.MedicalTreatment.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <th>First aid cases</th>
-                        <td>
-                            {{hseData.firstAid.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.firstAid.comment" [(ngModel)]="hseData.firstAid.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Environmental Incidents</th>
-                        <td>
-                            {{hseData.environmentalIncidents.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.environmentalIncidents.comment" [(ngModel)]="hseData.environmentalIncidents.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <th>Equipment damages</th>
-                        <td>
-                            {{hseData.equipmentDamage.value}}
-                        </td>
-                        <td>
-                            <textarea [value]="hseData.equipmentDamage.comment" [(ngModel)]="hseData.equipmentDamage.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <!-- Needs input -->
-                    <tr>
-                        <th>Technical Breakdowns</th>
-                        <td>
-                            {{dprData.technicalBreakdownAmount.value}}
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
+              <table class="table table-bordered">
+                <tr>
+                  <th colspan="3">
+                    <h4>General Crew</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>on board</th>
+                  <th>man days</th>
+                </tr>
+                <tr>
+                  <th>Marine crew</th>
+                  <td>{{dprData.marineCount.value}}</td>
+                  <td>{{dprData.marineCount.value}}</td>
+                </tr>
+                <tr>
+                  <th>Client crew</th>
+                  <td>{{dprData.clientCrewCount.value}}</td>
+                  <td>{{dprData.clientCrewCount.value / 2}}</td>
+                </tr>
+                <tr>
+                  <th colspan="3">
+                    <h4>Incidents</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>Value</th>
+                  <th>Comment</th>
+                </tr>
+                <tr>
+                  <th>Lost time injuries</th>
+                  <td>
+                    {{hseData.lostTimeInjuries.value}}
+                  </td>
+                  <td>
+                    <textarea [value]="hseData.lostTimeInjuries.comment" [(ngModel)]="hseData.lostTimeInjuries.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Restricted Workday Cases</th>
+                  <td>
+                    {{hseData.restrictedWorkday.value}}
+                  </td>
 
-                    <tr>
-                        <th>Proactive reports (SOCs)</th>
-                        <td>
-                            {{hseData.proactiveReports.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.proactiveReports.comment" [(ngModel)]="hseData.proactiveReports.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
+                  <td>
+                    <textarea [value]="hseData.restrictedWorkday.comment" [(ngModel)]="hseData.restrictedWorkday.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Medical Treatment Cases</th>
+                  <td>
+                    {{hseData.MedicalTreatment.value}}
+                  </td>
 
-                    <!-- need input-->
-                    <tr>
-                        <th>Risk assessments</th>
-                        <td>
-                            {{dprData.hocAmount.value}}
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
-                    <tr>
-                        <th>Toolbox Talks</th>
-                        <td>
-                            {{dprData.toolboxAmount.value}}
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
+                  <td>
+                    <textarea [value]="hseData.MedicalTreatment.comment" [(ngModel)]="hseData.MedicalTreatment.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
 
-                    <tr>
-                        <th>Near hit reports</th>
-                        <td>
-                            {{hseData.nearHitMisses.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.nearHitMisses.comment" [(ngModel)]="hseData.nearHitMisses.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-    
-                    <!-- Split between weather and technical downtime -->
-    
-                    <tr>
-                        <th colspan="3">
-                            <h4>Meetings</h4>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>Value</th>
-                        <th>Comment</th>
-                    </tr>
-                    <tr>
-                        <th>Safety Comittee meetings</th>
-                        <td>
-                            {{hseData.safetyComitteeMeeting.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.safetyComitteeMeeting.comment" [(ngModel)]="hseData.safetyComitteeMeeting.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Marine drills and training</th>
-                        <td>
-                            {{hseData.marineDrillsAndTraining.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.marineDrillsAndTraining.comment" [(ngModel)]="hseData.marineDrillsAndTraining.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Management visits</th>
-                        <td>
-                            {{hseData.managementVisits.value}}
-                        </td>
-                        
-                        <td>
-                            <textarea [value]="hseData.managementVisits.comment" [(ngModel)]="hseData.managementVisits.comment" autosize class="form-control" cols="50"> </textarea>
-                        </td>
-                    </tr>
-                </table>
+                <tr>
+                  <th>First aid cases</th>
+                  <td>
+                    {{hseData.firstAid.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.firstAid.comment" [(ngModel)]="hseData.firstAid.comment" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Environmental Incidents</th>
+                  <td>
+                    {{hseData.environmentalIncidents.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.environmentalIncidents.comment"
+                      [(ngModel)]="hseData.environmentalIncidents.comment" autosize class="form-control"
+                      cols="50"> </textarea>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>Equipment damages</th>
+                  <td>
+                    {{hseData.equipmentDamage.value}}
+                  </td>
+                  <td>
+                    <textarea [value]="hseData.equipmentDamage.comment" [(ngModel)]="hseData.equipmentDamage.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <!-- Needs input -->
+                <tr>
+                  <th>Technical Breakdowns</th>
+                  <td>
+                    {{dprData.technicalBreakdownAmount.value}}
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>Proactive reports (SOCs)</th>
+                  <td>
+                    {{hseData.proactiveReports.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.proactiveReports.comment" [(ngModel)]="hseData.proactiveReports.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+
+                <!-- need input-->
+                <tr>
+                  <th>Risk assessments</th>
+                  <td>
+                    {{dprData.hocAmount.value}}
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Toolbox Talks</th>
+                  <td>
+                    {{dprData.toolboxAmount.value}}
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>Near hit reports</th>
+                  <td>
+                    {{hseData.nearHitMisses.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.nearHitMisses.comment" [(ngModel)]="hseData.nearHitMisses.comment" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+
+                <!-- Split between weather and technical downtime -->
+
+                <tr>
+                  <th colspan="3">
+                    <h4>Meetings</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>Value</th>
+                  <th>Comment</th>
+                </tr>
+                <tr>
+                  <th>Safety Comittee meetings</th>
+                  <td>
+                    {{hseData.safetyComitteeMeeting.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.safetyComitteeMeeting.comment"
+                      [(ngModel)]="hseData.safetyComitteeMeeting.comment" autosize class="form-control"
+                      cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Marine drills and training</th>
+                  <td>
+                    {{hseData.marineDrillsAndTraining.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.marineDrillsAndTraining.comment"
+                      [(ngModel)]="hseData.marineDrillsAndTraining.comment" autosize class="form-control"
+                      cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Management visits</th>
+                  <td>
+                    {{hseData.managementVisits.value}}
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.managementVisits.comment" [(ngModel)]="hseData.managementVisits.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+              </table>
             </div>
 
-
             <div class="col-xl-6">
-                <table class="table table-bordered">
-                    <tr>
-                        <th colspan="3">
-                            <h4>Consumption/Landed/disposed</h4>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>Value</th>
-                        <th>Comment</th>
-                    </tr>
-                    <!-- need input-->
-                    <tr>
-                        <th>Fuel oil Consumption</th>
-                        <td>
-                            {{this.dprData.fuelConsumption.value}} m3
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
-                    <tr>
-                        <th>Lub oil consumption</th>
-                        <td>
-                            {{this.dprData.lubOilConsumption.value}} m3
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
-                    <tr>
-                        <th>Water consumption</th>
-                        <td>
-                            {{this.dprData.waterConsumption.value}} m3
-                        </td>
-                        <td>
-                            <textarea autosize class="form-control" cols="70"> </textarea>
-                        </td> 
-                    </tr>
+              <table class="table table-bordered">
+                <tr>
+                  <th colspan="3">
+                    <h4>Consumption/Landed/disposed</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>Value</th>
+                  <th>Comment</th>
+                </tr>
+                <!-- need input-->
+                <tr>
+                  <th>Fuel oil Consumption</th>
+                  <td>
+                    {{this.dprData.fuelConsumption.value}} m3
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Lub oil consumption</th>
+                  <td>
+                    {{this.dprData.lubOilConsumption.value}} m3
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Water consumption</th>
+                  <td>
+                    {{this.dprData.waterConsumption.value}} m3
+                  </td>
+                  <td>
+                    <textarea autosize class="form-control" cols="70"> </textarea>
+                  </td>
+                </tr>
 
+                <tr>
+                  <th>Shore power consumed</th>
+                  <td>
+                    {{hseData.shorePower.value}} kWh
+                  </td>
+                  <td>
+                    <textarea [value]="hseData.shorePower.comment" [(ngModel)]="hseData.shorePower.comment" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Plastic incenerated</th>
+                  <td>
+                    {{hseData.plasticIncinerated.value}} m3
+                  </td>
+                  <td>
+                    <textarea [value]="hseData.plasticIncinerated.comment"
+                      [(ngModel)]="hseData.plasticIncinerated.comment" autosize class="form-control"
+                      cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Plastic landed</th>
+                  <td>
+                    {{hseData.plasticLanded.value}} m3
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.plasticLanded.comment" [(ngModel)]="hseData.plasticLanded.comment" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food incinerated</th>
+                  <td>
+                    {{hseData.foodIncinerated.value}} m3
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.foodIncinerated.comment" [(ngModel)]="hseData.foodIncinerated.comment"
+                      autosize class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food landed</th>
+                  <td>
+                    {{hseData.foodLanded.value}} m3
+                  </td>
+
+                  <td>
+                    <textarea [value]="hseData.foodLanded.comment" [(ngModel)]="hseData.foodLanded.comment" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food macerated</th>
+                  <td>
+                    {{hseData.foodMacerated.value}} m3
+                  </td>
                     <tr>
                         <th>Shore power consumed</th>
                         <td>
                             {{hseData.shorePower.value}} kWh
                         </td>
                         <td>
-                            <textarea [value]="hseData.shorePower.comment" [(ngModel)]="hseData.shorePower.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.shorePower.comment" [(ngModel)]="hseData.shorePower.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -249,7 +325,8 @@
                             {{hseData.plasticIncinerated.value}} m3
                         </td>
                         <td>
-                            <textarea [value]="hseData.plasticIncinerated.comment" [(ngModel)]="hseData.plasticIncinerated.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.plasticIncinerated.comment" [(ngModel)]="hseData.plasticIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -259,7 +336,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.plasticLanded.comment" [(ngModel)]="hseData.plasticLanded.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.plasticLanded.comment" [(ngModel)]="hseData.plasticLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -269,7 +347,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.foodIncinerated.comment" [(ngModel)]="hseData.foodIncinerated.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.foodIncinerated.comment" [(ngModel)]="hseData.foodIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -279,7 +358,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.foodLanded.comment" [(ngModel)]="hseData.foodLanded.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.foodLanded.comment" [(ngModel)]="hseData.foodLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -289,7 +369,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.foodMacerated.comment" [(ngModel)]="hseData.foodMacerated.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.foodMacerated.comment" [(ngModel)]="hseData.foodMacerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -299,7 +380,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.domWasteLanded.comment" [(ngModel)]="hseData.domWasteLanded.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.domWasteLanded.comment" [(ngModel)]="hseData.domWasteLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -309,7 +391,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.domWasteIncinerated.comment" [(ngModel)]="hseData.domWasteIncinerated.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.domWasteIncinerated.comment" [(ngModel)]="hseData.domWasteIncinerated.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -319,7 +402,8 @@
                         </td>
                         
                         <td>
-                            <textarea [value]="hseData.cookingoilLanded.comment" [(ngModel)]="hseData.cookingoilLanded.comment" autosize class="form-control" cols="50"> </textarea>
+                            <textarea [value]="hseData.cookingoilLanded.comment" [(ngModel)]="hseData.cookingoilLanded.comment"
+                            autosize class="form-control" cols="50"> </textarea>
                         </td>
                     </tr>
                     <tr>
@@ -345,20 +429,21 @@
                     <tr>
                         <th colspan="2">Additional remarks</th>
                         <td colspan="2">
+                          <div *ngIf="hseData.remarks && hseData.remarks.length>0; else noComment">
                             {{hseData.remarks}}
+                          </div>
                         </td>
                     </tr>
                     {{hseDprApprovalCount}}
-                    <tr>
+                    <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
                         <td colspan="4">
                             <button
-                            *ngIf="hseDprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'"
+                            *ngIf="tokenInfo.userPermission !== 'Vessel master'"
                                 class="btn btn-lg btn-danger" (click)="declineHseDprClient()"
                                 style="float:right; margin-right: 10px;"
                                 type="button">Refuse HSE DPR
                             </button>
                             <button
-                                *ngIf="hseDprApprovalCount == 1"
                                 class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
                                 style="float:right; margin-right: 10px;"
                                 type="button">Sign off HSE DPR
@@ -367,7 +452,12 @@
                     </tr>
                 </table>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
-
+<ng-template #noComment>
+  <i>No remarks</i>
+</ng-template>

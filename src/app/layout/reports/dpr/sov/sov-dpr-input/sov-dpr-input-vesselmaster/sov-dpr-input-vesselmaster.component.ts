@@ -3,6 +3,7 @@ import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-sov-dpr-input-vesselmaster',
@@ -32,6 +33,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     private commonService: CommonService,
     private alert: AlertService,
     private datetimeService: DatetimeService,
+    public modalService: NgbModal
   ) { }
 
   fuelChanged = false;
@@ -200,8 +202,13 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.remarksChanged = false;
   }
 
-  signOffDpr() {
+  confirmSignoff(modalRef: NgbModalRef) {
+    this.modalService.open(modalRef, {
+      ariaLabelledBy: 'modal-basic-title',
+    });
+  }
 
+  signOffDpr() {
     this.saveStats('saveDprSigningSkipper', {
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi

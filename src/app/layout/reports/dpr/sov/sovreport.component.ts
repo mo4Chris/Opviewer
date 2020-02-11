@@ -1,12 +1,5 @@
-import {
-  Component,
-  OnInit,
-  Output,
-  EventEmitter,
-  Input,
-  OnChanges,
-  ChangeDetectionStrategy
-} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges,
+  ChangeDetectionStrategy } from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
 import { CommonService } from '@app/common.service';
@@ -106,7 +99,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           this.getWaveSpectrumAvailable();
           forkJoin([
             this.commonService.getPlatformTransfers(
-              this.sovModel.sovInfo.mmsi,
+              this.vesselObject.mmsi,
               this.vesselObject.date
             ),
             this.commonService.getTurbineTransfers(
@@ -127,7 +120,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject
             ),
             this.commonService.getPlatformLocations('')
-            ]).subscribe(
+          ]).subscribe(
             ([
               platformTransfers,
               turbineTransfers,
@@ -152,8 +145,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.vessel2vessels = vessel2vessels;
               this.dprInput = dprInput[0];
 
-              this.dprApproval = (dprInput[0].signedOff) ? dprInput[0].signedOff.amount : 0;
-              this.hseDprApproval = (hseDprInput.signedOff) ? hseDprInput.signedOff.amount : 0;
+              const dprSigned = dprInput[0].signedOff;
+              const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
+              this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
+              this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
 
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
@@ -215,9 +210,10 @@ export class SovreportComponent implements OnInit, OnChanges {
           if (sov.length > 0) {
             this.sovModel.sovInfo = sov[0];
           }
+          // We need to load in the relevant hse / dpr Input data.
+          this.hasGeneral = false;
           this.buildPageWhenAllLoaded();
           this.showContent = true;
-          this.hasGeneral = false;
         }
       },
     );
@@ -311,6 +307,8 @@ export class SovreportComponent implements OnInit, OnChanges {
       this.hasDprData = this.sovModel.platformTransfers.length > 0;
     } else if (this.sovModel.sovType === SovType.Turbine) {
       this.hasDprData = this.sovModel.turbineTransfers.length > 0;
+    } else {
+      this.hasDprData = false;
     }
     try {
       this.CheckForNullValues();
@@ -542,13 +540,13 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.activeTab = 'summary';
         break;
       case 'Logistics specialist':
-        this.activeTab =  'summary';
+        this.activeTab = 'summary';
         break;
       case 'Marine controller':
-        this.activeTab =  'sov-dpr-input';
+        this.activeTab = 'sov-dpr-input';
         break;
       case 'Vessel master':
-        this.activeTab =  'sov-dpr-input';
+        this.activeTab = 'sov-dpr-input';
         break;
       default:
         this.activeTab = 'summary';
@@ -602,5 +600,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.sovModel = new SovModel();
     this.showContent = false;
     this.fieldName = '';
+    this.hseDprApproval = 0;
+    this.dprApproval = 0;
   }
 }

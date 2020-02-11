@@ -481,7 +481,7 @@ export class CtvreportComponent implements OnInit {
         this.newService.getDatesWithValues(date),
         this.newService.getDatesWithValuesFromGeneralStats(date)
       ).subscribe(([transfers, data]) => {
-        this.dateData.transfer = transfers
+        this.dateData.transfer = transfers;
         this.dateData.general = data.data;
         this.pushSailingDates();
       });

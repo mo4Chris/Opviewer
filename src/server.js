@@ -66,6 +66,7 @@ var userSchema = new Schema({
     active: { type: Number },
     secret2fa: { type: String },
     settings: { type: Object },
+    lastActive: { type: Number },
 }, { versionKey: false });
 var Usermodel = mongo.model('users', userSchema, 'users');
 
@@ -569,6 +570,9 @@ function verifyToken(req, res) {
     }
 
     let payload = jwt.verify(token, 'secretKey');
+    Usermodel.findByIdAndUpdate(payload.userID, {
+        lastActive: new Date(),
+    }).exec();
 
     if (payload === 'null') {
         return res.status(401).send('Unauthorized request');
@@ -1536,11 +1540,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                                         project: 0
                                     },
                                     "dp": [],
-                                    "signedOff": {
-                                        amount: data.signedOff.amount || 0,
-                                        signedOffSkipper: data.signedOff.signedOffSkipper || '',
-                                        signedOffClient: data.signedOff.signedOffClient || ''
-                                    }
+                                    "signedOff": data.signedOff || { amount: 0, signedOffSkipper: '', signedOffClient: '' },
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
@@ -1807,10 +1807,11 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                     date: req.body.date,
                     active: { $ne: false }
                 }, {
-                     $set: {
+                    $set: {
                         "signedOff.amount": 1,
                         "signedOff.signedOffSkipper": token.username
-                    }              },
+                    }
+                },
                 function(err, data) {
                     if (err) {
                         console.log(err);
@@ -1837,7 +1838,7 @@ app.post("/api/saveDprSigningClient", function(req, res) {
                     $set: {
                         "signedOff.amount": 2,
                         "signedOff.signedOffClient": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1865,7 +1866,7 @@ app.post("/api/declineDprClient", function(req, res) {
                     $set: {
                         "signedOff.amount": -1,
                         "signedOff.declinedBy": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1893,7 +1894,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
                     $set: {
                         "signedOff.amount": -1,
                         "signedOff.declinedBy": token.username
-                    }             
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1923,7 +1924,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                     $set: {
                         "signedOff.amount": 1,
                         "signedOff.signedOffSkipper": token.username
-                    } 
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -1951,7 +1952,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
                     $set: {
                         "signedOff.amount": 2,
                         "signedOff.signedOffClient": token.username
-                    } 
+                    }
                 },
                 function(err, data) {
                     if (err) {
@@ -2445,7 +2446,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
         generalmodel.aggregate([{
             $group: {
                 _id: '$mmsi',
-                'date': { $last: '$date' },
+                'date': { $max: '$date' },
                 'vesselname': { $last: '$vesselname' },
             }
         }]).exec((err, data) => {
@@ -2460,7 +2461,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
         SovModelmodel.aggregate([{
             $group: {
                 _id: '$mmsi',
-                'date': { $last: '$dayNum' },
+                'date': { $max: '$date' },
                 'vesselname': { $last: '$vesselName' },
             }
         }]).exec((err, data) => {
