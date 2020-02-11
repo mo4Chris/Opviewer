@@ -5,6 +5,11 @@
 </div>
 <div class="row">
     <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
+        <div class="graphContainer" *ngIf="true">
+            <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi"
+            ></app-siemens-kpi-overview
+                >
+        </div>
         <div *ngIf="scatterPlot.allGraphsEmpty">
             <div class="divContainer">
                 <h3> There is no valid data for selected vessel(s)!</h3>

@@ -2302,7 +2302,7 @@ app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
     aggregateStatsOverModel(SovPlatformTransfersmodel, req, res);
 });
 
-app.post("getVessel2vesselsByRangeForSov", function(req, res) {
+app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
     aggregateStatsOverModel(SovVessel2vesselTransfersmodel, req, res);
 });
 
@@ -2316,6 +2316,10 @@ app.post("/api/getTransitsForVesselByRangeForSOV", function(req, res) {
 
 app.post("/api/getPortcallsByRange", function(req, res) {
     aggregateStatsOverModel(portcallModel, req, res);
+});
+
+app.post("/api/getDprInputsByRange", function(req, res) {
+    aggregateStatsOverModel(SovDprInputmodel, req, res);
 });
 
 app.get("/api/getUsers", function(req, res) {

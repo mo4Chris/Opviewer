@@ -1,0 +1,40 @@
+<table class="table table-hover table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Month</th>
+      <th>Site</th>
+      <th>Effective working days</th>
+      <th>Total utilization (hours)</th>
+      <th>Total weather downtime</th>
+      <th>Technical weather downtime (hours/%)</th>
+      <th>Total fuel used (m3)</th>
+      <th>Fuel used / working day</th>
+      <th>Total pax transfered</th>
+      <th>Pax transfered via gangway</th>
+      <th>Number of cargo operations</th>
+      <th>Number of port calls (days)</th>
+      <th>Number of maintainance operations</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+    <tr *ngFor="let kpi of kpis; let _i = index">
+      <td>{{_i + 1}}</td>
+      <td>{{kpi.month}}</td>
+      <td>{{kpi.site}}</td>
+      <td>{{kpi.effectiveWorkingDays}}</td>
+      <td>{{kpi.totalUtilHours}}</td>
+      <td>{{kpi.totalWeatherDowntime}}</td>
+      <td>{{kpi.totalTechnicalDowntime}}</td>
+      <td>{{kpi.totalFuelUsed}}</td>
+      <td>{{kpi.fuelUsedPerWorkingDay}}</td>
+      <td>{{kpi.totalPaxTransfered}}</td>
+      <td>{{kpi.paxTransferedGangway}}</td>
+      <td>{{kpi.numCargoOps}}</td>
+      <td>{{kpi.numPortCalls}}</td>
+      <td>{{kpi.numMaintainanceOps}}</td>
+    </tr>
+  </tbody>
+
+</table>
