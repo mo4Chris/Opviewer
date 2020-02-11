@@ -204,7 +204,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
 
   confirmSignoff(modalRef: NgbModalRef) {
     this.modalService.open(modalRef, {
-      // centered: true,
       ariaLabelledBy: 'modal-basic-title',
     });
   }

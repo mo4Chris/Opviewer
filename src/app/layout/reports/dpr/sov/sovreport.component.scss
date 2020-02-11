@@ -116,12 +116,9 @@ textarea {
         text-overflow: '';
     }
     .row {
-        // .table-bordered {
         page-break-inside: avoid;
         page-break-after: auto;
-        // }
-        // page-break-inside: auto;
-        // page-break-after: auto;
+        //ToDO: Change this so page break soccur at block level instead of row level
     }
     .table-responsive {
         width: 100%;

@@ -45,12 +45,12 @@
     <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" [id]="'dpr-input-write'">
       <ng-template ngbTabContent>
         <br>
-        <ng-container *ngIf="dprApproval >= 0">
+        <ng-container *ngIf="dprApproval <= 0">
           <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [dprApprovalCount]="dprApproval" (dprApproval)="emitDprApproval($event)"
           [readonly]="false" [dprInput]="dprInput"></app-sov-dpr-input>
         </ng-container>
 
-        <ng-container *ngIf="dprApproval < 0">
+        <ng-container *ngIf="dprApproval > 0">
           <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [dprApprovalCount]="dprApproval" (dprApproval)="emitDprApproval($event)" [tokenInfo]="tokenInfo"
           [readonly]="true" [dprInput]="dprInput"></app-sov-dpr-input>
         </ng-container>
