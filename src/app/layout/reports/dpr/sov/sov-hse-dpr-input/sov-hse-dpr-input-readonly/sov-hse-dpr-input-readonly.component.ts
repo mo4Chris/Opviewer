@@ -27,8 +27,6 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   hseDprSignedByClient = 2;
   hseDprDeclinedByClient = -1;
 
-  dataCheck = false;
-
   hseData = {};
   dprData = {};
 
