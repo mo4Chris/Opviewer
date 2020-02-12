@@ -56,25 +56,25 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   }
 
   checkDprData() {
-    if (this.hseDprInput[0].dprFields !== null  && this.hseDprInput[0].dprFields !== undefined) {
-      this.dprData = this.hseDprInput[0].dprFields;
+    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.dprFields !== null  && this.hseDprInput.dprFields !== undefined) {
+      this.dprData = this.hseDprInput.dprFields;
     } else {
       this.dprData = {
-      marineCount: {value: 3, comment: ''},
-      clientCrewCount: {value: 3, comment: ''},
-      hocAmount: {value: 1, comment: ''},
-      toolboxAmount: {value: 1, comment: ''},
-      technicalBreakdownAmount: {value: 1, comment: ''},
-      fuelConsumption: {value: 12, comment: ''},
-      lubOilConsumption: {value: 21, comment: ''},
-      waterConsumption: {value: 3, comment: ''}
+      marineCount: {value: 0, comment: ''},
+      clientCrewCount: {value: 0, comment: ''},
+      hocAmount: {value: 0, comment: ''},
+      toolboxAmount: {value: 0, comment: ''},
+      technicalBreakdownAmount: {value: 0, comment: ''},
+      fuelConsumption: {value: 0, comment: ''},
+      lubOilConsumption: {value: 0, comment: ''},
+      waterConsumption: {value: 0, comment: ''}
       };
     }
   }
 
   checkHseData() {
-    if (this.hseDprInput[0].hseFields !== null && this.hseDprInput[0].hseFields !== undefined) {
-      this.hseData = this.hseDprInput[0].hseFields;
+    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.hseFields !== null && this.hseDprInput.hseFields !== undefined) {
+      this.hseData = this.hseDprInput.hseFields;
     } else {
         this.hseData = {
         lostTimeInjuries: { value: 0, comment: '' },

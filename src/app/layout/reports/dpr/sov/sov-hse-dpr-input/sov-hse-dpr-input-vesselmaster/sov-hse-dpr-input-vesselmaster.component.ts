@@ -35,8 +35,8 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   }
 
   checkHseData() {
-    if (this.hseDprInput[0].hseFields !== null && this.hseDprInput[0].hseFields !== undefined) {
-      this.hseData = this.hseDprInput[0].hseFields;
+    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.hseFields !== null && this.hseDprInput.hseFields !== undefined) {
+      this.hseData = this.hseDprInput.hseFields;
     } else {
         this.hseData = {
         lostTimeInjuries: { value: 0, comment: '' },
