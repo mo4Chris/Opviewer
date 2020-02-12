@@ -19,7 +19,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
-import { SiemensKpiOverviewComponent } from '../dpr/sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/siemens-kpi-overview.component';
 
 @NgModule({
     imports: [
