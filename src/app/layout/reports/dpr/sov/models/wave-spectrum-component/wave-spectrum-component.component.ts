@@ -6,6 +6,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { routerTransition } from '@app/router.animations';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -131,7 +132,11 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
             duration: 200,
             redraw: true
           },
-          transition: {duration: 0}
+          transition: {
+            duration: 1000,
+            easing: 'circle',
+            ordering: 'traces first',
+          }
         }],
       }]
       // buttons: [{
@@ -229,13 +234,14 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
               titleside: 'Right',
             }
           },
-          hoverinfo: 'skip',
-          zsmooth: 'fast',
-          connectgaps: false,
           // colorscale: 'jet',
           // zauto: false,
           // zmax: 300,
           // zmin: 0,
+          hoverinfo: 'skip',
+          zsmooth: 'fast',
+          connectgaps: false,
+        // Ongoing plotly issue: Cannot have scatter plots as well as contours or heatmaps in the same animation
         // }, 
         // {
         //   type: 'scatter',
@@ -259,8 +265,8 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         args: [[timeString], {
           mode: 'immediate',
           transition: {
-            duration: 1500,
-            redraw: false,
+            duration: 0,
+            ordering: 'traces first',
           },
           frame: {
             duration: 300,
