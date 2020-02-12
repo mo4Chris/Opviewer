@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ApplicationRef, ChangeDetectorRef } from '@angular/core';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 import { container } from '@angular/core/src/render3';
@@ -11,12 +11,13 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
   selector: 'app-wave-spectrum-component',
   templateUrl: './wave-spectrum-component.component.html',
   styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
 
   waveSpectrum: SovWaveSpectum;
+  loaded = false;
 
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
@@ -31,7 +32,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     // General settings for the graph
     height: 600,
     width: 600,
-    style: {margin: 'auto'},
+    style: { margin: 'auto' },
     center: true,
     xaxis: {
       visible: false,
@@ -52,28 +53,28 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       x: 0,
       y: this.Kmax,
       yanchor: 'bottom',
-      font: {size: 20}
+      font: { size: 20 }
     }, {
       text: 'E',
       showarrow: false,
       x: this.Kmax,
       y: 0,
       xanchor: 'left',
-      font: {size: 20}
+      font: { size: 20 }
     }, {
       text: 'S',
       showarrow: false,
       x: 0,
       y: -this.Kmax,
       yanchor: 'top',
-      font: {size: 20}
+      font: { size: 20 }
     }, {
       text: 'W',
       showarrow: false,
       x: - this.Kmax,
       y: 0,
       xanchor: 'right',
-      font: {size: 20}
+      font: { size: 20 }
     }, {
       text: '', // Assigned later
       showarrow: false,
@@ -91,7 +92,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       x1: this.Kmax,
       y0: -this.Kmax,
       y1: this.Kmax,
-      line: {width: 3},
+      line: { width: 5 },
     }, {
       type: 'circle',
       x0: -this.Kmin,
@@ -105,14 +106,14 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       x1: 0,
       y0: -this.Kmax,
       y1: this.Kmax,
-      line: {width: 1},
+      line: { width: 1 },
     }, {
       type: 'line',
       x0: -this.Kmax,
       x1: this.Kmax,
       y0: 0,
       y1: 0,
-      line: {width: 1},
+      line: { width: 1 },
     }],
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
@@ -125,29 +126,26 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         method: 'animate',
         label: 'Animate',
         args: [null, {
-            mode: 'immediate',
-            transition: {
-              duration: 200,
-            },
-            frame: {
-              duration: 200,
-              redraw: false
-            },
-          }
-        ],
-        // Code below should implement play / pause behaviour, except the stop behaviour does not work (plotly version?)
-        // args2: [null, {
-        //     mode: 'next',
-        //     transition: {
-        //       duration: 200,
-        //     },
-        //     frame: {
-        //       duration: 200,
-        //       redraw: false
-        //     },
-        //   }
-        // ],
+          mode: 'immediate',
+          frame: {
+            duration: 200,
+            redraw: true
+          },
+          transition: {duration: 0}
+        }],
       }]
+      // buttons: [{
+      //   method: 'update',
+      //   label: 'update',
+      //   args: [null, {
+      //     mode: 'immediate',
+      //     frame: {
+      //       duration: 200,
+      //       redraw: true
+      //     },
+      //     transition: {duration: 0}
+      //   }],
+      // }]
     }],
     sliders: [{
       x: 0.5,
@@ -157,7 +155,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       currentvalue: {
         xanchor: 'center',
         visible: true,
-        font: {size: 20},
+        font: { size: 20 },
       },
       steps: [], // The slider steps are added dynamically
     }],
@@ -167,17 +165,23 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     private calcService: CalculationService,
     private dateService: DatetimeService,
     private newService: CommonService,
+    private ref: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
-
+    console.log(this)
   }
 
   ngOnChanges() {
     // Setting the source name
+    this.loaded = false;
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
       this.waveSpectrum = spectrums[0];
       this.parseSpectrum();
+      this.loaded = true;
+      console.log('Loaded!')
+      this.ref.detectChanges()
+      this.ref.reattach()
     });
   }
 
@@ -201,7 +205,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       _y = y;
     }
     const sliderSteps = [];
-    const headings =  this.waveSpectrum.heading;
+    const headings = this.waveSpectrum.heading;
     this.waveSpectrum.spectrum.forEach((_spectrum: number[][], _i: number) => {
       if (this.useInterpolation) {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
@@ -210,54 +214,70 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       const timeString = this.dateService.MatlabDateToCustomJSTime(this.waveSpectrum.time[_i], 'HH:mm');
       const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
-          data: [{
-            type: 'heatmap',
-            x: _x,
-            y: _y,
-            z: _spectrum,
-            colorbar: {
-              nticks: 5,
-              // tickmode: 'Array',
-              // tickvals: this.calcService.linspace(0, 1000, 100),
-              // ticktext: ['No waves', 'Some energy', 'High energy']
-              title: {
-                text: 'Energy density',
-                titleside: 'Right',
-              }
-            },
-            hoverinfo: 'skip',
-            zsmooth: 'fast',
-            connectgaps: false,
-            // colorscale: 'jet',
-            // zauto: false,
-            // zmax: 300,
-            // zmin: 0,
-          }, {
-            type: 'scatter',
-            mode: 'lines',
-            hovertext: ['', 'Vessel heading', ''],
-            hoverinfo: 'text',
-            x: [Math.sin(heading_radians - 0.05) * 1.03 * this.Kmax, Math.sin(heading_radians) * 1.08 * this.Kmax, Math.sin(heading_radians + 0.05) * 1.03 * this.Kmax],
-            y: [Math.cos(heading_radians - 0.05) * 1.03 * this.Kmax, Math.cos(heading_radians) * 1.08 * this.Kmax, Math.cos(heading_radians + 0.05) * 1.03 * this.Kmax],
-            line: {
-              width: 5,
-              color: 'red',
+        data: [{
+          type: 'heatmap',
+          x: _x,
+          y: _y,
+          z: _spectrum,
+          colorbar: {
+            nticks: 5,
+            // tickmode: 'Array',
+            // tickvals: this.calcService.linspace(0, 1000, 100),
+            // ticktext: ['No waves', 'Some energy', 'High energy']
+            title: {
+              text: 'Energy density',
+              titleside: 'Right',
             }
-          }
-        ],
-          name: timeString,
-          group: timeString,
-        };
+          },
+          hoverinfo: 'skip',
+          zsmooth: 'fast',
+          connectgaps: false,
+          // colorscale: 'jet',
+          // zauto: false,
+          // zmax: 300,
+          // zmin: 0,
+        // }, 
+        // {
+        //   type: 'scatter',
+        //   mode: 'lines',
+        //   hovertext: ['', 'Vessel heading', ''],
+        //   hoverinfo: 'text',
+        //   x: [Math.sin(heading_radians - 0.05) * 1.03 * this.Kmax, Math.sin(heading_radians) * 1.08 * this.Kmax, Math.sin(heading_radians + 0.05) * 1.03 * this.Kmax],
+        //   y: [Math.cos(heading_radians - 0.05) * 1.03 * this.Kmax, Math.cos(heading_radians) * 1.08 * this.Kmax, Math.cos(heading_radians + 0.05) * 1.03 * this.Kmax],
+        //   line: {
+        //     width: 5,
+        //     color: 'red',
+        //   }
+        }],
+        name: timeString,
+        group: timeString,
+      };
       sliderSteps.push({
-        method: 'animate',
+        method: 'animate', // 'animate',
         label: timeString,
         vertical: true,
         args: [[timeString], {
           mode: 'immediate',
-          transition: {duration: 300},
-          frame: {duration: 300},
+          transition: {
+            duration: 1500,
+            redraw: false,
+          },
+          frame: {
+            duration: 300,
+            redraw: true,
+          },
         }],
       });
+      // sliderSteps.push({
+      //   method: 'restyle', // 'animate',
+      //   label: timeString,
+      //   vertical: true,
+      //   args: [[timeString], {
+      //     mode: 'immediate',
+      //     transition: { duration: 300 },
+      //     frame: { duration: 300 },
+      //   }],
+      // });
       if (_i === 0) {
         this.data = dset.data;
       }
@@ -307,11 +327,11 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   //   });
   // }
 
-  onPlotlyInit(figure: {data: any, layout: any, frames: any}) {
+  onPlotlyInit(figure: { data: any, layout: any, frames: any }) {
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
 
     // This would be preferably be handled via the scss, but I couldnt make it work
-    const svgs = <any> document.getElementsByClassName('svg-container');
+    const svgs = <any>document.getElementsByClassName('svg-container');
     for (let _i = 0; _i < svgs.length; _i++) {
       svgs[_i].style.margin = 'auto';
     }
