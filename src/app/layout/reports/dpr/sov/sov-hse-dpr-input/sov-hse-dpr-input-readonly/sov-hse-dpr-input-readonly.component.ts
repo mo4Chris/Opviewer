@@ -20,51 +20,17 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
 
   @Input() hseDprApprovalCount;
-  @Input() dprInput;
+  @Input() hseDprInput;
   @Input() vesselObject;
   @Input() tokenInfo;
 
   hseDprSignedByClient = 2;
   hseDprDeclinedByClient = -1;
 
-  hseData = {
-    lostTimeInjuries: { value: 0, comment: '' },
-    restrictedWorkday: { value: 0, comment: '' },
-    MedicalTreatment: { value: 0, comment: '' },
-    firstAid: { value: 0, comment: '' },
-    environmentalIncidents: { value: 0, comment: '' },
-    equipmentDamage: { value: 0, comment: '' },
-    proactiveReports: { value: 0, comment: '' },
-    nearHitMisses: { value: 0, comment: '' },
+  dataCheck = false;
 
-    safetyComitteeMeeting: { value: 0, comment: '' },
-    marineDrillsAndTraining: { value: 0, comment: '' },
-    managementVisits: { value: 0, comment: '' },
-
-    shorePower: { value: 0, comment: '' },
-    plasticIncinerated: { value: 0, comment: '' },
-    plasticLanded: { value: 0, comment: '' },
-    foodIncinerated: { value: 0, comment: '' },
-    foodLanded: { value: 0, comment: '' },
-    foodMacerated: { value: 0, comment: '' },
-    domWasteLanded: { value: 0, comment: '' },
-    domWasteIncinerated: { value: 0, comment: '' },
-    cookingoilLanded: { value: 0, comment: '' },
-    opsWasteLanded: { value: 0, comment: '' },
-    opsWasteIncinerated: { value: 0, comment: '' },
-
-    remarks: ''
-  };
-  dprData = {
-    marineCount: {value: 0, comment: ''},
-    clientCrewCount: {value: 0, comment: ''},
-    hocAmount: {value: 0, comment: ''},
-    toolboxAmount: {value: 0, comment: ''},
-    technicalBreakdownAmount: {value: 0, comment: ''},
-    fuelConsumption: {value: 0, comment: ''},
-    lubOilConsumption: {value: 0, comment: ''},
-    waterConsumption: {value: 0, comment: ''}
-  };
+  hseData = {};
+  dprData = {};
 
   saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below
@@ -91,14 +57,68 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     ).subscribe();
   }
 
+  checkDprData() {
+    if (this.hseDprInput[0].dprFields !== null  && this.hseDprInput[0].dprFields !== undefined) {
+      this.dprData = this.hseDprInput[0].dprFields;
+    } else {
+      this.dprData = {
+      marineCount: {value: 3, comment: ''},
+      clientCrewCount: {value: 3, comment: ''},
+      hocAmount: {value: 1, comment: ''},
+      toolboxAmount: {value: 1, comment: ''},
+      technicalBreakdownAmount: {value: 1, comment: ''},
+      fuelConsumption: {value: 12, comment: ''},
+      lubOilConsumption: {value: 21, comment: ''},
+      waterConsumption: {value: 3, comment: ''}
+      };
+    }
+  }
+
+  checkHseData() {
+    if (this.hseDprInput[0].hseFields !== null && this.hseDprInput[0].hseFields !== undefined) {
+      this.hseData = this.hseDprInput[0].hseFields;
+    } else {
+        this.hseData = {
+        lostTimeInjuries: { value: 0, comment: '' },
+        restrictedWorkday: { value: 0, comment: '' },
+        MedicalTreatment: { value: 0, comment: '' },
+        firstAid: { value: 0, comment: '' },
+        environmentalIncidents: { value: 0, comment: '' },
+        equipmentDamage: { value: 0, comment: '' },
+        proactiveReports: { value: 0, comment: '' },
+        nearHitMisses: { value: 0, comment: '' },
+
+        safetyComitteeMeeting: { value: 0, comment: '' },
+        marineDrillsAndTraining: { value: 0, comment: '' },
+        managementVisits: { value: 0, comment: '' },
+
+        shorePower: { value: 0, comment: '' },
+        plasticIncinerated: { value: 0, comment: '' },
+        plasticLanded: { value: 0, comment: '' },
+        foodIncinerated: { value: 0, comment: '' },
+        foodLanded: { value: 0, comment: '' },
+        foodMacerated: { value: 0, comment: '' },
+        domWasteLanded: { value: 0, comment: '' },
+        domWasteIncinerated: { value: 0, comment: '' },
+        cookingoilLanded: { value: 0, comment: '' },
+        opsWasteLanded: { value: 0, comment: '' },
+        opsWasteIncinerated: { value: 0, comment: '' },
+
+        remarks: ''
+        };
+    }
+  }
+
   ngOnInit() {
-    this.getHseDprData();
+    this.checkHseData();
+    this.checkDprData();
   }
 
   getHseDprData() {
     this.commonService.getSovHseDprInput(this.vesselObject).subscribe(data => {
-      this.hseData = data.hseFields;
-      this.dprData = data.dprFields;
+      this.hseData = data[0].hseFields;
+      this.dprData = data[0].dprFields;
+      this.dataCheck = true;
     });
   }
 

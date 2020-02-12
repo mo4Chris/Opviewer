@@ -1573,7 +1573,7 @@ app.post("/api/getSovHseDprInput", function(req, res) {
                 res.send(err);
             } else {
                 if (data.length > 0) {
-                    res.send(data[0]);
+                    res.send(data);
                 } else {
                     let hseData = {};
                     hseData = {
@@ -1650,7 +1650,8 @@ app.post("/api/updateSOVHseDpr", function(req, res) {
                         console.log(err);
                         res.send(err);
                     } else {
-                        res.send({ data: "Succesfully saved the transfer stats" });
+                        console.log(data);
+                        res.send({ data: "Succesfully saved the HSE DPR" });
                     }
                 });
         }
@@ -1668,7 +1669,7 @@ app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
                         console.log(err);
                         res.send(err);
                     } else {
-                        res.send({ data: "Succesfully saved the transfer stats" });
+                        res.send({ data: "Succesfully saved the DPR" });
                     }
                 });
         }
@@ -1698,6 +1699,7 @@ app.post("/api/saveFuelStatsSovDpr", function(req, res) {
 });
 
 app.post("/api/saveIncidentDpr", function(req, res) {
+    console.log(req.body);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');

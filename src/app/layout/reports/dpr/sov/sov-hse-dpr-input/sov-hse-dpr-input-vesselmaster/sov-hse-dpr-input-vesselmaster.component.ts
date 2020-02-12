@@ -17,7 +17,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
     private alert: AlertService,
   ) { }
 
-  @Input() dprInput;
+  @Input() hseDprInput;
   @Input() vesselObject: VesselObjectModel;
   @Input() tokenInfo;
 
@@ -25,37 +25,48 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   hseDprSavedBySkipper = 1;
 
-  hseData = {
-    lostTimeInjuries: { value: 0, comment: '' },
-    restrictedWorkday: { value: 0, comment: '' },
-    MedicalTreatment: { value: 0, comment: '' },
-    firstAid: { value: 0, comment: '' },
-    environmentalIncidents: { value: 0, comment: '' },
-    equipmentDamage: { value: 0, comment: '' },
-    proactiveReports: { value: 0, comment: '' },
-    nearHitMisses: { value: 0, comment: '' },
 
-    safetyComitteeMeeting: { value: 0, comment: '' },
-    marineDrillsAndTraining: { value: 0, comment: '' },
-    managementVisits: { value: 0, comment: '' },
 
-    shorePower: { value: 0, comment: '' },
-    plasticIncinerated: { value: 0, comment: '' },
-    plasticLanded: { value: 0, comment: '' },
-    foodIncinerated: { value: 0, comment: '' },
-    foodLanded: { value: 0, comment: '' },
-    foodMacerated: { value: 0, comment: '' },
-    domWasteLanded: { value: 0, comment: '' },
-    domWasteIncinerated: { value: 0, comment: '' },
-    cookingoilLanded: { value: 0, comment: '' },
-    opsWasteLanded: { value: 0, comment: '' },
-    opsWasteIncinerated: { value: 0, comment: '' },
+  hseData = {};
 
-    remarks: ''
-  };
 
   ngOnInit() {
-    this.getHseDprData();
+    this.checkHseData();
+  }
+
+  checkHseData() {
+    if (this.hseDprInput[0].hseFields !== null && this.hseDprInput[0].hseFields !== undefined) {
+      this.hseData = this.hseDprInput[0].hseFields;
+    } else {
+        this.hseData = {
+        lostTimeInjuries: { value: 0, comment: '' },
+        restrictedWorkday: { value: 0, comment: '' },
+        MedicalTreatment: { value: 0, comment: '' },
+        firstAid: { value: 0, comment: '' },
+        environmentalIncidents: { value: 0, comment: '' },
+        equipmentDamage: { value: 0, comment: '' },
+        proactiveReports: { value: 0, comment: '' },
+        nearHitMisses: { value: 0, comment: '' },
+
+        safetyComitteeMeeting: { value: 0, comment: '' },
+        marineDrillsAndTraining: { value: 0, comment: '' },
+        managementVisits: { value: 0, comment: '' },
+
+        shorePower: { value: 0, comment: '' },
+        plasticIncinerated: { value: 0, comment: '' },
+        plasticLanded: { value: 0, comment: '' },
+        foodIncinerated: { value: 0, comment: '' },
+        foodLanded: { value: 0, comment: '' },
+        foodMacerated: { value: 0, comment: '' },
+        domWasteLanded: { value: 0, comment: '' },
+        domWasteIncinerated: { value: 0, comment: '' },
+        cookingoilLanded: { value: 0, comment: '' },
+        opsWasteLanded: { value: 0, comment: '' },
+        opsWasteIncinerated: { value: 0, comment: '' },
+
+        remarks: ''
+        };
+    }
   }
 
   saveStats(saveFcnName: string, saveObject: object): void {
@@ -83,16 +94,10 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
     ).subscribe();
   }
 
-  getHseDprData() {
-    this.commonService.getSovHseDprInput(this.vesselObject).subscribe(data => {
-      this.hseData = data.hseFields;
-    });
-  }
-
   signOffHseDpr() {
     this.saveHseDprInformation();
 
-    this.saveStats('saveHseDprSigningClient', {
+    this.saveStats('saveHseDprSigningSkipper', {
       date: this.vesselObject.date,
       mmsi: this.vesselObject.mmsi
     });
@@ -100,7 +105,11 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   }
 
   saveHseDprInformation() {
-    this.commonService.updateSOVHseDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, hseFields: this.hseData}).subscribe();
+    this.saveStats('updateSOVHseDpr', {
+      mmsi: this.vesselObject.mmsi,
+      date: this.vesselObject.date,
+      hseFields: this.hseData
+    });
   }
 
 }
