@@ -112,14 +112,6 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
     this.checkDprData();
   }
 
-  getHseDprData() {
-    this.commonService.getSovHseDprInput(this.vesselObject).subscribe(data => {
-      this.hseData = data[0].hseFields;
-      this.dprData = data[0].dprFields;
-      this.dataCheck = true;
-    });
-  }
-
   signOffHseDprClient() {
     this.saveStats('saveHseDprSigningClient', {
       date: this.vesselObject.date,
