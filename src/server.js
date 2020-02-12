@@ -3378,7 +3378,7 @@ function aggregateStatsOverModel(model, req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         }
-        testObj = {
+        projObj = {
             vesselname: 1,
             mmsi: 1,
             startTime: 1,
@@ -3390,7 +3390,7 @@ function aggregateStatsOverModel(model, req, res) {
         }
         const reqFields = req.body.reqFields;
         reqFields.forEach(key => {
-            testObj[key] = 1;
+            projObj[key] = { $ifNull: ['$' + key, null] };
             groupObj[key] = { $push: '$' + key };
         })
         model.aggregate([{
@@ -3400,10 +3400,12 @@ function aggregateStatsOverModel(model, req, res) {
                 }
             },
             { "$sort": { startTime: -1 } },
-            { "$project": testObj },
+            { "$project": projObj },
             { "$group": groupObj }
         ]).exec(function(err, data) {
             if (err) {
+                console.log('Error getting data from model: ' + model)
+                console.log(err)
                 res.send(err);
             } else {
                 res.send(data);

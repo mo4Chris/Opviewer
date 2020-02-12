@@ -3,6 +3,7 @@ import { LongtermVesselObjectModel } from '@app/layout/reports/longterm/longterm
 import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 
 
 // Encode daily operations per 15 minutes
@@ -51,7 +52,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
 
   constructor(
     private newService: CommonService,
-    private calcService: CalculationService
+    private dateService: DatetimeService
   ) { }
 
   ngOnChanges(change) {
@@ -74,7 +75,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname'])),
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime',
-        'liquids', ''])
+        'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
       console.log(v2vs);
       console.log(portcalls);
@@ -82,6 +83,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       console.log(platforms);
       console.log(dprs);
       
+      const dpr = this.dateService.groupDataByMonth(dprs[0]);
     });
   }
   
