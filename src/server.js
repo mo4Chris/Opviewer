@@ -1650,7 +1650,6 @@ app.post("/api/updateSOVHseDpr", function(req, res) {
                         console.log(err);
                         res.send(err);
                     } else {
-                        console.log(data);
                         res.send({ data: "Succesfully saved the HSE DPR" });
                     }
                 });
