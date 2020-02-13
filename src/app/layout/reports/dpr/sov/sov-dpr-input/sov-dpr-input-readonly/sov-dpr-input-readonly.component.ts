@@ -12,8 +12,8 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() standby: ReadonlyInput;
   @Input() vesselNonAvailability: ReadonlyInput;
   @Input() weatherDowntime: ReadonlyInput;
-  @Input() hoc: ReadonlyInput;
-  @Input() toolbox: ReadonlyInput;
+  @Input() hoc;
+  @Input() toolbox;
   @Input() liquids: LiquidsInput;
   @Input() peopleOnVessel = {marine: 0, marineContractors: 0, project: 0, Total: 0};
   @Input() catering: CateringInput;
@@ -35,6 +35,8 @@ export class SovDprInputReadonlyComponent implements OnChanges {
 
   ngOnChanges() {
     this.setTotalPob();
+    this.updateHOCTotal();
+    this.updateToolboxTotal();
   }
 
   setTotalPob() {
@@ -57,6 +59,28 @@ export class SovDprInputReadonlyComponent implements OnChanges {
     });
     this.dprApproval.emit(this.dprDeclinedByClient);
     this.dprApprovalCount = 0;
+  }
+
+  updateHOCTotal() {
+    this.hoc.Total = 0;
+    this.hoc.TotalNew = this.hoc.TotalOld;
+    if (this.hoc.Array.length !== 0) {
+        this.hoc.Array.forEach(element => {
+            this.hoc.Total = this.hoc.Total + +element.amount;
+            this.hoc.TotalNew = this.hoc.TotalNew + +element.amount;
+        });
+    }
+}
+
+  updateToolboxTotal() {
+      this.toolbox.Total = 0;
+      this.toolbox.TotalNew = this.toolbox.TotalOld;
+      if (this.toolbox.Array.length !== 0) {
+          this.toolbox.Array.forEach(element => {
+              this.toolbox.Total = this.toolbox.Total + +element.amount;
+              this.toolbox.TotalNew = this.toolbox.TotalNew + +element.amount;
+          });
+      }
   }
 
   saveStats(saveFcnName: string, saveObject: object): void {
