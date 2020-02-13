@@ -65,9 +65,9 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.hseDprInput.hocAmount.value = this.hoc.Total;
     this.hseDprInput.toolboxAmount.value = this.toolbox.Total;
     this.hseDprInput.technicalBreakdownAmount.value = this.vesselNonAvailability.Array.length;
-    this.hseDprInput.fuelConsumption.value = (this.liquids.fuel.consumed + this.liquids.fuel.discharged);
-    this.hseDprInput.lubOilConsumption.value = (this.liquids.luboil.consumed + this.liquids.luboil.discharged);
-    this.hseDprInput.waterConsumption.value = (this.liquids.domwater.consumed + this.liquids.domwater.discharged);
+    this.hseDprInput.fuelConsumption.value = (+this.liquids.fuel.consumed + +this.liquids.fuel.discharged);
+    this.hseDprInput.lubOilConsumption.value = (+this.liquids.luboil.consumed + +this.liquids.luboil.discharged);
+    this.hseDprInput.waterConsumption.value = (+this.liquids.domwater.consumed + +this.liquids.domwater.discharged);
     this.commonService.updateDprFieldsSOVHseDpr({mmsi: this.vesselObject.mmsi, date: this.vesselObject.date, dprFields: this.hseDprInput}).subscribe();
   }
 
@@ -86,6 +86,8 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     // This one was in the onChanges, but the other update functions are not - can one be removed?
     this.updatePoB();
     this.updateHseDprInput();
+    this.updateHOCTotal();
+    this.updateToolboxTotal();
   }
 
   updateHOCTotal() {
