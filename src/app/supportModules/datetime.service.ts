@@ -355,12 +355,16 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  groupDataByMonth(data: {date: number[]}) {
+  groupDataByMonth(data: {date: number[]}): {month: any}[] {
     // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
     const groups = this.groupMatlabDates(data.date);
     const props = Object.keys(data).filter(prop => isArray(data[prop]));
     return groups.map(group => {
-      return props.map(prop => data[prop].filter((_: any, _i: number) => group.index.some((__i: number) => __i ===_i)))
+      let datas = {month: group};
+      props.forEach(prop => {
+        datas[prop] = data[prop].filter((_: any, _i: number) => group.index.some((__i: number) => __i ===_i))
+      })
+      return datas;
     })
   }
 }

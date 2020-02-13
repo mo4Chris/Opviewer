@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { platform } from 'os';
 
 
 // Encode daily operations per 15 minutes
@@ -34,7 +35,7 @@ const EMPTY_DPR = {
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   kpis: SiemensKpi[] = [{
-    month: 'Januari 2020',
+    month: 'Test Date',
     site: 'TEST',
     effectiveWorkingDays: 1,
     totalUtilHours: 10,
@@ -83,27 +84,62 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       console.log(platforms);
       console.log(dprs);
       
-      const dpr = this.dateService.groupDataByMonth(dprs[0]);
+      const dpr = <FilteredDprData[]> <any> this.dateService.groupDataByMonth(dprs[0]);
+      const _transfers = this.dateService.groupDataByMonth(transfers[0]);
+      const _platforms = this.dateService.groupDataByMonth(platforms[0]);
+      const _v2vs = this.dateService.groupDataByMonth(v2vs[0]);
+      const _portcalls = this.dateService.groupDataByMonth(portcalls[0]);
+      console.log(_transfers);
+
+      console.log('**************');
+      dpr.forEach(_dpr => {
+        const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
+        const transfer = filter(_transfers);
+        const platform = filter(_platforms);
+        const v2v = filter(_v2vs);
+        const portcall = filter(_portcalls);
+        console.log(transfer)
+        const site = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
+        this.kpis.push(this.computeKpiForMonth({site: site}, _dpr, v2v, portcall));
+      });
+      
     });
   }
   
-  computeKPI(info: {month: string, days: number[], site: string}, dprs: any[], v2vs: any[], portcalls: any[]): SiemensKpi {
-    let kpi: SiemensKpi;
-    kpi.month = info.month;
+  computeKpiForMonth(info: {site: string}, dprs: FilteredDprData, v2vs: any[], portcalls: any[]): SiemensKpi {
+    let kpi: SiemensKpi = {};
+    
+    // console.log('--------');
+    // console.log(dprs);
+    kpi.month = dprs.month.dateString;
     kpi.site = info.site;
 
-    for (let i = 0; i < info.days.length; i++) {
-      const date = info.days[i];
-      const ops = new Array(4 * 24, STATUS_WORKING);
-      console.log(ops);
-      const dpr = dprs.find(_dpr => dpr.date === date) || EMPTY_DPR;
-      const portcall = portcalls.find(_portcall => _portcall.date === date);
+    let standByHours = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
 
-      this.applyDowntime(ops, STATUS_STANDBY, dpr.standBy);
-      this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dpr.vesselNonAvailability);
-      this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dpr.weatherDowntime, (x) => x.vesselsystem === 'Whole vessel');
-      this.applyDowntime(ops, STATUS_WEATHER_OTHER, dpr.weatherDowntime);
+    for (let i = 0; i < dprs.date.length; i++) {
+      const date = dprs.date[i];
+      const ops = new Array(4 * 24).fill(STATUS_WORKING);
+      // const dpr = dprs.find(_dpr => dpr.date === date) || EMPTY_DPR;
+      // const portcall = portcalls.find(_portcall => _portcall.date === date);
+
+      this.applyDowntime(ops, STATUS_STANDBY, dprs.standBy[i]);
+      this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
+      this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
+      this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
+      this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i]);
+
+      standByHours += ops.reduce((prev, curr) => curr === STATUS_STANDBY ? prev + 1/4 : prev, 0);
+      techDowntimeHours += ops.reduce((prev, curr) => curr === STATUS_TECHNICAL_DOWNTIME ? prev + 1/4 : prev, 0);
+      weatherDowntimeHours += ops.reduce((prev, curr) => curr === STATUS_WEATHER_ALLVESSEL ? prev + 1/4 : prev, 0);
+      
+      utilHours += 24 - ops.reduce((prev, curr) => (curr === STATUS_STANDBY  || curr === STATUS_TECHNICAL_DOWNTIME || curr === STATUS_PORTCALL_UNPLANNED) ? prev + 1/4 : prev, 0);
     }
+
+    kpi.totalTechnicalDowntime = techDowntimeHours;
+    kpi.totalWeatherDowntime = weatherDowntimeHours;
+    kpi.totalUtilHours = utilHours;
+
+
     // for i = 1 : numDaysInMonth
     // % For each day in month
     // date        = dates(i);
@@ -134,7 +170,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     // end
 // end
 
-    kpi.effectiveWorkingDays = 1;
     return kpi;
   }
 
@@ -143,14 +178,16 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   }
 
   private applyDowntime(ops: any[], code: number, times: {startTime: string, stopTime: string}[], filter = (_: any) => true) {
-    times.forEach(time => {
-      if (filter(time)) {
-        const index = this.objectToIndex(time);
-        for (let _i = index.start; _i <= index.stop; _i++) {
-          ops[_i] = code;
+    if (times) {
+      times.forEach(time => {
+        if (filter(time)) {
+          const index = this.objectToIndex(time);
+          for (let _i = index.start; _i <= index.stop; _i++) {
+            ops[_i] = code;
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   private objectToIndex(obj: {startTime: string, stopTime: string}) {
@@ -163,7 +200,14 @@ export class SiemensKpiOverviewComponent implements OnChanges {
 
 
 
-
+interface FilteredDprData {
+  month: any;
+  date: number[];
+  standBy: any[];
+  vesselNonAvailability: any[];
+  weatherDowntime: any[];
+  liquids: any[];
+}
 
 interface SiemensKpi {
   month: string;
