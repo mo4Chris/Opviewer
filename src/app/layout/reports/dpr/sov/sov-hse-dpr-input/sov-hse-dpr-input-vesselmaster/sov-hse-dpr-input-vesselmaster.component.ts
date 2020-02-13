@@ -35,7 +35,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   }
 
   checkHseData() {
-    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.hseFields !== null && this.hseDprInput.hseFields !== undefined) {
+    if (this.hseDprInput && this.hseDprInput.hseFields && this.hseDprInput.hseFields !== {}) {
       this.hseData = this.hseDprInput.hseFields;
     } else {
         this.hseData = {

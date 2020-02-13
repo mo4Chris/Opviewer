@@ -56,7 +56,7 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   }
 
   checkDprData() {
-    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.dprFields !== null  && this.hseDprInput.dprFields !== undefined) {
+    if (this.hseDprInput && this.hseDprInput.hseFields && this.hseDprInput.hseFields !== {}) {
       this.dprData = this.hseDprInput.dprFields;
     } else {
       this.dprData = {
@@ -73,7 +73,7 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   }
 
   checkHseData() {
-    if (this.hseDprInput.hseFields !== {} && this.hseDprInput.hseFields !== null && this.hseDprInput.hseFields !== undefined) {
+    if (this.hseDprInput && this.hseDprInput.hseFields && this.hseDprInput.hseFields !== {} ) {
       this.hseData = this.hseDprInput.hseFields;
     } else {
         this.hseData = {
