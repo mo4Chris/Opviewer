@@ -35,6 +35,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   sovModel: SovModel = new SovModel();
   dprInput: DprChildData;
+  hseDprInput;
   dprApproval;
   hseDprApproval;
   // This forces reload on all subcomponent, but reduces performance.
@@ -144,6 +145,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.cycleTimes = cycleTimes;
               this.sovModel.vessel2vessels = vessel2vessels;
               this.dprInput = dprInput[0];
+              this.hseDprInput = hseDprInput;
 
               const dprSigned = dprInput[0].signedOff;
               const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
