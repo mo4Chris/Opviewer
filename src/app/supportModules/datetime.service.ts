@@ -321,6 +321,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   groupMatlabDates(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
+    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []}
     const dates = matlab_dates.map(dnum => this.MatlabDateToObject(dnum));
     const minDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
     const maxDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
@@ -345,7 +346,8 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
             dateString: month === 1 ? 'Jan ' + year : DatetimeService.shortMonths[month - 1],
             matches: matches,
             count: matches.length,
-            index: index
+            index: index,
+            numDays: new Date(year, month, 0).getDate(),
           }
         }
         return groupedData;
@@ -357,7 +359,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   groupDataByMonth(data: {date: number[]}): {month: any}[] {
     // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
-    const groups = this.groupMatlabDates(data.date);
+    const groups = this.groupMatlabDates(data.date || []);
     const props = Object.keys(data).filter(prop => isArray(data[prop]));
     return groups.map(group => {
       let datas = {month: group};

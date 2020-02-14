@@ -3396,7 +3396,8 @@ function aggregateStatsOverModel(model, req, res) {
         model.aggregate([{
                 "$match": {
                     mmsi: { $in: req.body.mmsi },
-                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax }
+                    date: { $gte: req.body.dateMin, $lte: req.body.dateMax },
+                    active: { $ne: false },
                 }
             },
             { "$sort": { startTime: -1 } },
