@@ -174,7 +174,6 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    console.log(this)
   }
 
   ngOnChanges() {
@@ -184,7 +183,6 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       this.waveSpectrum = spectrums[0];
       this.parseSpectrum();
       this.loaded = true;
-      console.log('Loaded!')
       this.ref.detectChanges()
       this.ref.reattach()
     });

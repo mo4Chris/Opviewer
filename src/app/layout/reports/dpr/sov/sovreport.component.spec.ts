@@ -28,6 +28,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { UserService } from '@app/shared/services/user.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { TokenModel } from '@app/models/tokenModel';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -46,6 +47,7 @@ describe('SovreportComponent', () => {
         SharedPipesModule,
         RouterTestingModule,
         AutosizeModule,
+        SupportModelModule,
         PlotlyModule,
       ],
       declarations: [

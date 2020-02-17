@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SiemensKpiOverviewComponent } from './siemens-kpi-overview.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('SiemensKpiOverviewComponent', () => {
   let component: SiemensKpiOverviewComponent;
@@ -8,7 +10,13 @@ describe('SiemensKpiOverviewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SiemensKpiOverviewComponent ]
+      imports: [
+        NgbModule,
+      ],
+      declarations: [ SiemensKpiOverviewComponent ],
+      providers: [
+        MockedCommonServiceProvider
+      ]
     })
     .compileComponents();
   }));
