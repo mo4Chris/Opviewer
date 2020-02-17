@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, ChangeDetectorRef } from '@angular/core';
 import { LongtermVesselObjectModel } from '@app/layout/reports/longterm/longterm.component';
 import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
@@ -33,7 +33,6 @@ const EMPTY_DPR = {
 })
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
-
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
     site: 'TEST',
@@ -50,26 +49,26 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numPortCalls: 1,
     numMaintainanceOps: 1,
   }]];
-
-
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
+    private ref: ChangeDetectorRef,
   ) { }
-
   currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
   vesselNames: string[] = [];
+
 
   ngOnChanges(change) {
     this.loadData();
   }
 
+
   loadData() {
     const makeRequest = (reqFields: string[]) => {
       return {
-        dateMin: 0,
+        dateMin: 737730, // 1 november 2019
         dateMax: 1000000000,
         mmsi: this.mmsi,
         reqFields: reqFields,
@@ -82,33 +81,26 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
-      console.log('v2vs');
-      console.log(v2vs);
-      console.log('portcalls');
-      console.log(portcalls);
-      console.log('transfers');
-      console.log(transfers);
-      console.log('platforms');
-      console.log(platforms);
-      console.log('dprs');
-      console.log(dprs);
-
+      // console.log('v2vs');
+      // console.log(v2vs);
+      // console.log('portcalls');
+      // console.log(portcalls);
+      // console.log('transfers');
+      // console.log(transfers);
+      // console.log('platforms');
+      // console.log(platforms);
+      // console.log('dprs');
+      // console.log(dprs);
       this.kpis = [];
       this.vesselNames = [];
-
       this.mmsi.forEach((_mmsi, _i) => {
         const matchedTransfers = transfers.find(val => val._id === _mmsi);
         const matchedPlatforms = platforms.find(val => val._id === _mmsi);
-
         const dpr = <FilteredDprData[]> <any> this.dateService.groupDataByMonth(dprs.find(val => val._id === _mmsi) || {});
         const _transfers = this.dateService.groupDataByMonth(matchedTransfers || {});
         const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
         const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
         const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-        console.log('**************');
-        console.log(dpr);
-        console.log(matchedTransfers);
-
         if (matchedTransfers) {
           this.vesselNames.push(this.formatVesselNames(matchedTransfers.label[0]))
         } else if (matchedPlatforms) {
@@ -116,8 +108,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         } else {
           this.vesselNames.push('-')
         }
-        console.log(this.vesselNames);
-
         let _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
@@ -131,59 +121,41 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         });
         this.kpis.push(_kpis.reverse())
       })
-
+      this.ref.markForCheck();
     });
   }
 
   computeKpiForMonth(info: {site: string}, dprs: FilteredDprData, portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
     const kpi: SiemensKpi = <SiemensKpi> {};
-
     kpi.month = dprs.month.dateString;
     kpi.site = this.formatFieldName(info.site);
-
     let standByHours = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
     let portCallHours = 0, fuelUsed = 0, maintainanceOps = 0;
-
     let numDaysInMonth: number;
     if (dprs.month.date.year === this.currentDate.year && dprs.month.date.month === this.currentDate.month) {
       numDaysInMonth = this.currentDate.day;
     } else {
       numDaysInMonth = dprs.month.numDays;
     }
-
     for (let i = 0; i < dprs.date.length; i++) {
       const date = dprs.date[i];
       const ops = new Array(4 * 24).fill(STATUS_WORKING);
       // const dpr = dprs.find(_dpr => dpr.date === date) || EMPTY_DPR;
-
       this.applyDowntime(ops, STATUS_STANDBY, dprs.standBy[i]);
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
       this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
       // this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i]);
-
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
       }, 0);
-
       standByHours += applyOpsFilter([STATUS_STANDBY]);
       weatherDowntimeHours += applyOpsFilter([STATUS_WEATHER_ALLVESSEL]);
-
-      // console.log('Weather');
-      // console.log(applyOpsFilter([STATUS_WEATHER_ALLVESSEL]));
-      // console.log(ops.findIndex(_val => _val === STATUS_WEATHER_ALLVESSEL));
-      // console.log(weatherDowntimeHours);
-      // console.log(dprs.weatherDowntime[i]);
-
-
       techDowntimeHours += applyOpsFilter([STATUS_TECHNICAL_DOWNTIME]);
       portCallHours += applyOpsFilter([STATUS_PORTCALL_PLANNED, STATUS_PORTCALL_UNPLANNED]);
-
       utilHours += 24 - applyOpsFilter([STATUS_STANDBY, STATUS_TECHNICAL_DOWNTIME, STATUS_PORTCALL_UNPLANNED]);
-
       fuelUsed += +dprs.liquids[i].fuel.consumed || 0;
       maintainanceOps += dprs.vesselNonAvailability[i] ? dprs.vesselNonAvailability[i].length : 0;
-
     }
 
     let paxTransfer = 0, paxGangwayTransfer = 0, cargoOps = 0;
@@ -219,7 +191,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       cargoOps += v2v.cargoIn.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
       cargoOps += v2v.cargoOut.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
     }
-
     kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
     kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
     kpi.totalUtilHours = Math.round(utilHours);
@@ -232,44 +203,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     kpi.paxTransferedGangway = paxGangwayTransfer;
     kpi.numCargoOps = cargoOps;
     kpi.numMaintainanceOps = maintainanceOps;
-
-
-    // for i = 1 : numDaysInMonth
-    // % For each day in month
-    // date        = dates(i);
-    // dpr         = filter(dprs, 'date', date);
-    // assert(numel(dpr)>0, 'No DPR found for %s', datestr(date));
-    // portcall    = filter(portCalls, 'date', date);
-
-
-    // ops     = ones(4 * 24, STATUS_WORKING);
-    // ops     = applyDownTime(ops, STATUS_STANDBY, dpr.standBy);
-    // ops     = applyDownTime(ops, STATUS_TECHNICAL_DOWNTIME, dpr.vesselNonAvailability);
-    // ops     = applyDownTime(ops, STATUS_WEATHER_ALLVESSEL, dpr.weatherDowntime, @(x) strcmp(x.vesselsystem, 'Whole vessel'));
-    // ops     = applyDownTime(ops, STATUS_WEATHER_OTHER, dpr.weatherDowntime, @(x) ~strcmp(x.vesselsystem, 'Whole vessel'));
-    // if numel(portcall)
-    //     ops     = applyPortCalls(ops, STATUS_PORTCALL_PLANNED, portcall);
-    // end
-
-    // standbyHours(i)     = sum(ops == STATUS_STANDBY) / 4;
-    // weatherHours(i)     = sum(ops == STATUS_WEATHER_ALLVESSEL) / 4;
-    // techDownHours(i)    = sum(ops == STATUS_TECHNICAL_DOWNTIME) / 4;
-    // portCallHours(i)    = sum(ops == STATUS_PORTCALL_PLANNED | ops == STATUS_PORTCALL_UNPLANNED) / 4;
-    // % WARNING -> CURRENTLY CAN NEVER HAVE UNPLANNED PORTCALL!
-    // utilHours(i)        = 24 - sum(ops == STATUS_STANDBY | ops == STATUS_PORTCALL_UNPLANNED | ops == STATUS_TECHNICAL_DOWNTIME) / 4;
-
-    // fuelUsed(i)         = str2double(dpr.liquids.fuel.consumed);
-    // if ischar(dpr.liquids.fuel.loaded)
-    //     fuelBunkered(i)     = str2double(dpr.liquids.fuel.loaded);
-    // end
-// end
-
-    // console.log(kpi);
     return kpi;
-  }
-
-  splitByDate(array, startDate: number, stopDate: number) {
-
   }
 
   private applyDowntime(ops: any[], code: number, times: {from: string, to: string}[], filter = (_: any) => true) {
@@ -288,7 +222,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       });
     }
   }
-
   private objectToIndex(obj: {from: string, to: string}) {
     const start = this.timeRegex.exec(obj.from);
     const stop = (obj.to === '00:00') ? ['', 24, 0] : this.timeRegex.exec(obj.to);
@@ -297,7 +230,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       stop: 4 * +stop[1] + +stop[2] / 15,
     };
   }
-
   private formatFieldName(rawname: string) {
     if (rawname) {
       return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
@@ -305,7 +237,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       return '-'
     }
   }
-
   private formatVesselNames(rawname: string) {
     if (rawname) {
       return rawname.replace(/_/g, ' ').replace(/(\S)([A-Z0-9])/g, '$1 $2').trim();
