@@ -1,6 +1,11 @@
+
+
 <div class="card-header">DPR input</div>
 <div class="card-body">
   <div class="row">
+    <div class="col-xl-12">
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount < 1" [dismissible]="false" type="warning">At this moment the DPR has not been signed off by the captain. All data shown is either automatically filled in or is data filled in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
+    </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
         <tr>

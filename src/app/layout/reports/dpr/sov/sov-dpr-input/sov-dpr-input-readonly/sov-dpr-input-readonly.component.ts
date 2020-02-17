@@ -49,7 +49,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
       mmsi: this.vesselObject.mmsi
     });
     this.dprApproval.emit(this.dprSignedByClient);
-    this.dprApprovalCount = 0;
+    this.dprApprovalCount = 2;
   }
 
   declineDprClient() {
@@ -58,7 +58,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
       mmsi: this.vesselObject.mmsi
     });
     this.dprApproval.emit(this.dprDeclinedByClient);
-    this.dprApprovalCount = 0;
+    this.dprApprovalCount = -1;
   }
 
   updateHOCTotal() {

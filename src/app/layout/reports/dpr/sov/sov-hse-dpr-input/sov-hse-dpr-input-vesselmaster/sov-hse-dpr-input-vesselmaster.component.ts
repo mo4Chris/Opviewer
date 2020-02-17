@@ -3,6 +3,7 @@ import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { catchError, map } from 'rxjs/operators';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-vesselmaster',
@@ -15,6 +16,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
   constructor(
     private commonService: CommonService,
     private alert: AlertService,
+    public modalService: NgbModal,
   ) { }
 
   @Input() hseDprInput;
@@ -25,10 +27,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   hseDprSavedBySkipper = 1;
 
-
-
   hseData = {};
-
 
   ngOnInit() {
     this.checkHseData();
@@ -67,6 +66,12 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
         remarks: ''
         };
     }
+  }
+
+  confirmSignoff(modalRef: NgbModalRef) {
+    this.modalService.open(modalRef, {
+      ariaLabelledBy: 'modal-basic-title',
+    });
   }
 
   saveStats(saveFcnName: string, saveObject: object): void {
