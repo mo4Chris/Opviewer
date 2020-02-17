@@ -1,15 +1,26 @@
+<ng-template #weatherchartTemplate>
+  <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+</ng-template>
+
 <div *ngIf="showContent" class="plsdonotprintthisforfsake">
   <br>
   <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
-  <ngb-tabset [activeId]="activeTab" [justify]="'start'">
+  <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="false">
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
-      <ng-template id="tab-summary" ngbTabContent>
+      <ng-template #summaryTest id="tab-summary" ngbTabContent>
         <br>
         <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
         </app-sov-summary>
-        <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+        <ng-container *ngTemplateOutlet="weatherchartTemplate"></ng-container>
       </ng-template>
     </ngb-tab>
+
+    <ngb-tab title="Test">
+      <ng-template #testA id="testA" ngbTabContent>
+          TEST
+      </ng-template>
+    </ngb-tab>
+
 
     <ngb-tab *ngIf="permission.sovCommercialRead" title="Commercial DPR" [disabled]="!hasDprData" [id]="'commercial'">
       <ng-template ngbTabContent>
@@ -87,9 +98,13 @@
 <!-- Print version -->
 <div *ngIf="showContent" class="noScreen">
   <br>
-  
+  SUMMARY START
+  <div *ngIf="false else summaryTest"> HIDDEN</div>
+  SUMMARY END
+  <ng-container *ngTemplateOutlet="weatherchartTemplate"></ng-container>
+  <!--
   <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
-  </app-sov-summary>
+  </app-sov-summary>-->
   <!-- 
     <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
   -->
