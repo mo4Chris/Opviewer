@@ -1,44 +1,57 @@
-<table class="table table-hover table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Month</th>
-      <th>Site</th>
-      <th><div [ngbTooltip]="helpEffectiveWorkingDays">Effective working days</div></th>
-      <th><div [ngbTooltip]="helpTotalUtilHours">Total utilization (hours)</div></th>
-      <th>Total weather downtime (hours)</th>
-      <th><div [ngbTooltip]="helpTechDowntime">Technical downtime (hours)</div></th>
-      <th><div [ngbTooltip]="">Total fuel used (m³)</div></th>
-      <th><div [ngbTooltip]="helpFuelUsedPerWorkingDay">Fuel used per working day</div></th>
-      <th>Total pax transfered</th>
-      <th>Pax transfered via gangway</th>
-      <th>Number of cargo operations</th>
-      <th><div [ngbTooltip]="helpNumPortCalls">Number of port calls (days)</div></th>
-      <th>Number of maintainance operations</th>
-    </tr>
-  </thead>
-  
-  <tbody *ngFor="let _kpis of kpis; let _j = index">
-    <tr><td colspan=14>{{vesselNames[_j]}}</td></tr>
-    <tr *ngFor="let kpi of _kpis; let _i = index">
-      <td></td>
-      <td>{{kpi.month}}</td>
-      <td>{{kpi.site}}</td>
-      <td>{{kpi.effectiveWorkingDays}}</td>
-      <td>{{kpi.totalUtilHours}}</td>
-      <td>{{kpi.totalWeatherDowntime}}</td>
-      <td>{{kpi.totalTechnicalDowntime}}</td>
-      <td>{{kpi.totalFuelUsed}}</td>
-      <td>{{kpi.fuelUsedPerWorkingDay}}</td>
-      <td>{{kpi.totalPaxTransfered}}</td>
-      <td>{{kpi.paxTransferedGangway}}</td>
-      <td>{{kpi.numCargoOps}}</td>
-      <td>{{kpi.numPortCalls}}</td>
-      <td>{{kpi.numMaintainanceOps}}</td>
-    </tr>
-  </tbody>
 
-</table>
+<div class="row">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        Siemens Key Performance Indicators
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Month</th>
+              <th>Site</th>
+              <th><div [ngbTooltip]="helpEffectiveWorkingDays">Effective working days</div></th>
+              <th><div [ngbTooltip]="helpTotalUtilHours">Total utilization (hours)</div></th>
+              <th>Total weather downtime (hours)</th>
+              <th><div [ngbTooltip]="helpTechDowntime">Technical downtime (hours)</div></th>
+              <th><div [ngbTooltip]="">Total fuel used (m³)</div></th>
+              <th><div [ngbTooltip]="helpFuelUsedPerWorkingDay">Fuel used per working day</div></th>
+              <th>Total pax transfered</th>
+              <th>Pax transfered via gangway</th>
+              <th>Number of cargo operations</th>
+              <th><div [ngbTooltip]="helpNumPortCalls">Number of port calls (days)</div></th>
+              <th>Number of maintainance operations</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let _kpis of kpis; let _j = index" class="sep-row">
+            <tr><th colspan=14>
+              {{vesselNames[_j]}}
+            </th></tr>
+            <tr *ngFor="let kpi of _kpis; let _i = index">
+              <td></td>
+              <td>{{kpi.month}}</td>
+              <td>{{kpi.site}}</td>
+              <td>{{kpi.effectiveWorkingDays}}</td>
+              <td>{{kpi.totalUtilHours}}</td>
+              <td>{{kpi.totalWeatherDowntime}}</td>
+              <td>{{kpi.totalTechnicalDowntime}}</td>
+              <td>{{kpi.totalFuelUsed}}</td>
+              <td>{{kpi.fuelUsedPerWorkingDay}}</td>
+              <td>{{kpi.totalPaxTransfered}}</td>
+              <td>{{kpi.paxTransferedGangway}}</td>
+              <td>{{kpi.numCargoOps}}</td>
+              <td>{{kpi.numPortCalls}}</td>
+              <td>{{kpi.numMaintainanceOps}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <ng-template #helpEffectiveWorkingDays>
   Rounded number of days in month spent not standby, as weather downtime, as technical downtime or as port call. 
@@ -53,5 +66,5 @@
   Total amount of fuel used divided by the number of effective working days (before rounding).
 </ng-template>
 <ng-template #helpNumPortCalls>
-  Number of days where at least 15 minutes were spend in port. Each such is counted as a full day, regardless of how much tiome was spend there. 
+  Number of days where at least 15 minutes were spend in port. Each such is counted as a full day, regardless of how much time was spend there. 
 </ng-template>

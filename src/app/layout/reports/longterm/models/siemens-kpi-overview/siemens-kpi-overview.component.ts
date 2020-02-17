@@ -81,16 +81,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
-      // console.log('v2vs');
-      // console.log(v2vs);
-      // console.log('portcalls');
-      // console.log(portcalls);
-      // console.log('transfers');
-      // console.log(transfers);
-      // console.log('platforms');
-      // console.log(platforms);
-      // console.log('dprs');
-      // console.log(dprs);
       this.kpis = [];
       this.vesselNames = [];
       this.mmsi.forEach((_mmsi, _i) => {

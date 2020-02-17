@@ -343,7 +343,8 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
           }));
           groupedData[_i] = {
             date: {year: year, month: month},
-            dateString: month === 1 ? 'Jan ' + year : DatetimeService.shortMonths[month - 1],
+            // dateString: month === 1 ? 'Jan ' + year % 100 : DatetimeService.shortMonths[month - 1],
+            dateString: DatetimeService.shortMonths[month - 1] + ' ' + year % 100,
             matches: matches,
             count: matches.length,
             index: index,

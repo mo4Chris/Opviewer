@@ -12,6 +12,7 @@ import { ComprisonArrayElt, RawScatterData, SOVRawScatterData } from '../models/
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-longterm-sov',
@@ -25,6 +26,7 @@ export class LongtermSOVComponent implements OnInit {
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
+        private permission: PermissionService
         ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
