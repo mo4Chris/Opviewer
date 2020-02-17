@@ -304,7 +304,11 @@ export class ScatterplotComponent {
         scales: {
           xAxes: [{
             id: 'x-axis-0',
-            stacked: true
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: args.comparisonElt.xLabel,
+            },
           }],
           yAxes: [{
             id: 'y-axis-0',
