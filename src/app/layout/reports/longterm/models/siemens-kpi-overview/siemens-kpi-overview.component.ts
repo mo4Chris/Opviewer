@@ -128,9 +128,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       numDaysInMonth = dprs.month.numDays;
     }
     for (let i = 0; i < dprs.date.length; i++) {
-      const date = dprs.date[i];
       const ops = new Array(4 * 24).fill(STATUS_WORKING);
-      // const dpr = dprs.find(_dpr => dpr.date === date) || EMPTY_DPR;
       this.applyDowntime(ops, STATUS_STANDBY, dprs.standBy[i]);
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
