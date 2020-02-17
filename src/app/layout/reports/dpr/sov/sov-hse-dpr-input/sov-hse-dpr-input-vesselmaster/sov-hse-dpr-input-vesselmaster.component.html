@@ -2,7 +2,7 @@
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3 singlepage-print-port">
       <div class="card-header">HSE input
-        <button class="btn btn-sm btn-primary" style="float:right; margin-right: 10px;" type="button">
+        <button class="btn btn-sm btn-primary" (click)="confirmSignoff(confirmSignoffModal)" style="float:right; margin-right: 10px;" type="button">
           Sign off HSE</button>
       </div>
       <div class="card-body">
@@ -319,7 +319,7 @@
                       (click)="saveHseDprInformation()">Save HSE input</button>
                   </td>
                   <td>
-                    <button class="btn btn-lg btn-primary" (click)="signOffHseDpr()"
+                    <button class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
                       style="float:right; margin-right: 10px;" type="button">Sign off HSE DPR
                     </button></td>
                 </tr>
@@ -330,4 +330,26 @@
       </div>
     </div>
   </div>
+
+  <ng-template #confirmSignoffModal let-modal class="center-vertical">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Sign off HSE DPR?</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      This will make it impossible to make further changes to the DPR Input table 
+      for the rest of the day.
+      <br><br>
+      <button
+        class="btn btn-lg btn-success" (click)="signOffHseDpr();modal.dismiss('Cross click')"
+        style="float:left; margin-left: 10px;"
+        type="button">Confirm</button>
+      <button
+        class="btn btn-lg btn-danger" (click)="modal.dismiss('Cross click')"
+        style="float:right; margin-right: 10px;"
+        type="button">Cancel</button>
+    </div>
+  </ng-template>
 </div>
