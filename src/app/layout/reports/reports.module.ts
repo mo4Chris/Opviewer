@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 import { ReportsRoutingModule } from './reports-routing-module';
 import { ReportsDprModule } from './dpr/reports-dpr.module';
 import { LongtermModule } from './longterm/longterm.module';
-import { SovSiemensMonthlyKpiModule } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.module';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '@app/shared';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -29,7 +28,6 @@ import { TablesModule } from './tables/tables.module';
         ReportsRoutingModule,
         ReportsDprModule,
         LongtermModule,
-        SovSiemensMonthlyKpiModule,
         TablesModule,
     ],
     exports: [RouterModule],

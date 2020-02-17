@@ -20,6 +20,8 @@ import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component
 import { PlotlyModule } from 'angular-plotly.js';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
+import { SupportModelModule } from '@app/models/support-model.module';
+
 
 @NgModule({
   imports: [
@@ -33,6 +35,7 @@ import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse
         apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
     }),
     PlotlyModule,
+    SupportModelModule
   ],
   providers: [CalculationService],
   declarations: [

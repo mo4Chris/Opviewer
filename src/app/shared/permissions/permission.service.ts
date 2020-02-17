@@ -25,8 +25,8 @@ abstract class PermissionModel {
 
   sovWaveSpectrum = false;
 
-
   longterm = false;
+  sovSiemensMonthlyKpis = false;
 
   userCreate = false; // Create new users
   userRead = false;   // View users at company
@@ -71,6 +71,9 @@ export class PermissionService extends PermissionModel {
     this.userRead = this.userRead || this.userManage || this.userCreate;
 
     // Any exceptions or special cases go here
+    if (token.userCompany === 'Bibby Marine') {
+      this.sovSiemensMonthlyKpis = true;
+    }
   }
 
 
@@ -112,6 +115,7 @@ class AdminPermission extends PermissionModel {
   sovWaveSpectrum = true;
 
   longterm = true;
+  sovSiemensMonthlyKpis = true;
 
   userRead = true;
   userCreate = true;

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import { SettingsService } from './settings.service';
+import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -317,5 +318,56 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   daysSinceMatlabDate(serial: number) {
     return this.currentMatlabDate() - serial;
+  }
+
+  groupMatlabDates(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
+    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []}
+    const dates = matlab_dates.map(dnum => this.MatlabDateToObject(dnum));
+    const minDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
+    const maxDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
+    switch (groupBy) {
+      case 'month':
+        const numMonths = 12 * (maxDate.year - minDate.year) + maxDate.month - minDate.month + 1;
+        const groupedData = Array(numMonths);
+        let year = minDate.year, month = minDate.month - 1;
+        for (let _i = 0; _i < numMonths; _i++) {
+          year += month >= 12 ? 1 : 0;
+          month = month >= 12 ? 1 : month + 1;
+          const matches = []
+          const index = [];
+          dates.forEach(((val, _i) => {
+            if (val.year === year && val.month === month) {
+              matches.push(val);
+              index.push(_i);
+            }
+          }));
+          groupedData[_i] = {
+            date: {year: year, month: month},
+            // dateString: month === 1 ? 'Jan ' + year % 100 : DatetimeService.shortMonths[month - 1],
+            dateString: DatetimeService.shortMonths[month - 1] + ' ' + year % 100,
+            matches: matches,
+            count: matches.length,
+            index: index,
+            numDays: new Date(year, month, 0).getDate(),
+          }
+        }
+        return groupedData;
+      default:
+        console.error('Groupby operator ' + groupBy + ' is not yet implemented!')
+        return [];
+    }
+  }
+
+  groupDataByMonth(data: {date: number[]}): {month: any}[] {
+    // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
+    const groups = this.groupMatlabDates(data.date || []);
+    const props = Object.keys(data).filter(prop => isArray(data[prop]));
+    return groups.map(group => {
+      let datas = {month: group};
+      props.forEach(prop => {
+        datas[prop] = data[prop].filter((_: any, _i: number) => group.index.some((__i: number) => __i ===_i))
+      })
+      return datas;
+    })
   }
 }
