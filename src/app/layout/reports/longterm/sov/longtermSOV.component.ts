@@ -26,7 +26,7 @@ export class LongtermSOVComponent implements OnInit {
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
-        private permission: PermissionService
+        private permission: PermissionService,
         ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;

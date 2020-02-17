@@ -135,7 +135,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
       this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
-      // this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i]);
+      
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
       }, 0);
