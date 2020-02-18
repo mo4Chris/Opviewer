@@ -23,7 +23,6 @@ export class WeatherOverviewChart {
 
   constructor(
     args: WeatherChartArguments,
-    chartRef: HTMLCanvasElement,
     private calcService: CalculationService,
     private settings: SettingsService,
   ) {
@@ -70,7 +69,7 @@ export class WeatherOverviewChart {
     const timezonOffset = this.getTimezoneOffset(dsets);
 
     // Actual chart creation
-    this.Chart = new Chart(chartRef, {
+    this.Chart = new Chart('weatherOverview', {
       type: 'line',
       data: {
         datasets: dsets,

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild,  } from '@angular/core';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
@@ -16,10 +16,8 @@ import { CalculationService } from '@app/supportModules/calculation.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SovWeatherchartComponent implements OnChanges, AfterViewInit {
+export class SovWeatherchartComponent implements OnChanges {
   @Input() sovModel: SovModel;
-  @ViewChild('weatherOverview') ref;
-  chart: any
 
   weatherOverviewChart: WeatherOverviewChart;
   weatherOverviewChartCalculated = false;
@@ -29,14 +27,7 @@ export class SovWeatherchartComponent implements OnChanges, AfterViewInit {
     private calcService: CalculationService
   ) { }
 
-  ngAfterViewInit() {
-    this.chart = (this.ref.nativeElement as HTMLCanvasElement).getContext('2d');
-  }
-
   ngOnChanges() {
-    console.log(this.ref)
-    console.log(this.chart)
-    console.log(document.getElementById('weatherOverview'))
     this.createWeatherOverviewChart();
   }
 
@@ -199,7 +190,6 @@ export class SovWeatherchartComponent implements OnChanges, AfterViewInit {
             timeStamps: <any>timeStamps,
             wavedataSourceName: chartTitle
           },
-          this.ref,
           this.calcService,
           this.settings
         );

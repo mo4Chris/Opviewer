@@ -76,6 +76,7 @@ export class ReportsDprComponent implements OnInit {
     longitude: null,
   };
   googleMap: google.maps.Map;
+  printMode = false;
 
   streetViewControl = false;
   changedCommentObj = { newComment: '', otherComment: '' };
@@ -305,10 +306,18 @@ export class ReportsDprComponent implements OnInit {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
 
     for (let _i = 0; _i < containers.length; _i++) {
-        const container = <HTMLDivElement> containers[_i];
-        container.style.width = '225mm';
+      const container = <HTMLDivElement> containers[_i];
+      container.style.width = '225mm';
     }
-    setTimeout(function() {  window.print(); }, 50);
+    if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
+      this.printMode = true;
+      setTimeout(() => {
+        window.print();
+        this.printMode = false;
+      }, 2000);
+    } else {
+      setTimeout(function() {  window.print(); }, 50);
+    }
   }
 
   // Handle events and get variables from child components//////////

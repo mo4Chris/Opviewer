@@ -32,6 +32,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Input() tokenInfo: TokenModel;
   @Input() vesselObject: VesselObjectModel;
   @Input() mapPixelWidth: number;
+  @Input() printMode: boolean;
 
   sovModel: SovModel = new SovModel();
   dprInput: DprChildData;
@@ -62,7 +63,6 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   // Charts
   backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
-
   v2vPaxCargoTotals: V2vPaxTotalModel;
 
   constructor(
