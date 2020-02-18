@@ -6,6 +6,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { isArray } from 'util';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -170,14 +171,18 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-
+    // ToDo: Validate that this makes sense
+    // this.ngZone.runOutsideAngular(() => this.paint());
+    // requestAnimationFrame outide angular zone
   }
 
   ngOnChanges() {
     // Setting the source name
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
-      this.waveSpectrum = spectrums[0];
-      this.parseSpectrum();
+      if (isArray(spectrums) && spectrums.length > 0) {
+        this.waveSpectrum = spectrums[0];
+        this.parseSpectrum();
+      }
     });
   }
 

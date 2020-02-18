@@ -574,18 +574,24 @@ export class SovreportComponent implements OnInit, OnChanges {
     );
   }
 
-  printPage() {
-    const containers = <HTMLCollection>(
-      document.getElementsByClassName('chartContainer')
-    );
-    for (let _i = 0; _i < containers.length; _i++) {
-      const container = <HTMLDivElement>containers[_i];
-      container.style.width = '225mm';
-    }
-    setTimeout(function () {
-      window.print();
-    }, 50);
-  }
+  // printPage() {
+  //   // const containers = <HTMLCollection>(
+  //   //   document.getElementsByClassName('chartContainer')
+  //   // );
+  //   // for (let _i = 0; _i < containers.length; _i++) {
+  //   //   const container = <HTMLDivElement>containers[_i];
+  //   //   container.style.width = '225mm';
+  //   // }
+  //   setTimeout(function () {
+  //     window.requestAnimationFrame(()=> {
+  //       console.log('TICK')
+  //       window.requestAnimationFrame(()=> {});
+  //     })
+  //     window.print();
+  //       console.log('TICK')
+  //     // window.print();
+  //   }, 50);
+  // }
 
   formatGangwayLimiter(raw_limiter: string) {
     switch (raw_limiter) {
