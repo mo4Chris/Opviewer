@@ -12,6 +12,7 @@ import { ComprisonArrayElt, RawScatterData, SOVRawScatterData } from '../models/
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-longterm-sov',
@@ -25,6 +26,7 @@ export class LongtermSOVComponent implements OnInit {
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
+        private permission: PermissionService,
         ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
@@ -50,9 +52,8 @@ export class LongtermSOVComponent implements OnInit {
         info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
         annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
-        {
-            x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
-                `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
+        { x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
+            `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown. Both turbine and platform transfers are shown.
             `, barCallback: (data: SOVRawScatterData) => this.usagePerHsBin(data),
             annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')

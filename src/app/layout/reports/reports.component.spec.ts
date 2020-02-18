@@ -9,7 +9,6 @@ import { SharedPipesModule } from '@app/shared';
 import { ReportsRoutingModule } from './reports-routing-module';
 import { ReportsDprModule } from './dpr/reports-dpr.module';
 import { LongtermModule } from './longterm/longterm.module';
-import { SovSiemensMonthlyKpiModule } from './sov-siemens-monthly-kpi/sov-siemens-monthly-kpi.module';
 import { TablesModule } from './tables/tables.module';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { UserTestService } from '@app/shared/services/test.user.service';
@@ -37,7 +36,6 @@ describe('ReportsComponent', () => {
         ReportsRoutingModule,
         ReportsDprModule,
         LongtermModule,
-        SovSiemensMonthlyKpiModule,
         TablesModule,
       ],
       declarations: [

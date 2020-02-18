@@ -5,6 +5,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AutosizeModule } from 'ngx-autosize';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('SovDprInputReadonlyComponent', () => {
   let component: SovDprInputReadonlyComponent;
@@ -21,6 +22,9 @@ describe('SovDprInputReadonlyComponent', () => {
       declarations: [
         SovDprInputReadonlyComponent
       ],
+      providers: [
+        MockedCommonServiceProvider
+      ]
     })
     .compileComponents();
   }));

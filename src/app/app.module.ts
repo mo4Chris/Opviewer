@@ -38,7 +38,7 @@ export function createTranslateLoader(http: HttpClient) {
             }
         }),
         AppRoutingModule,
-        PlotlyModule
+        PlotlyModule,
     ],
     declarations: [AppComponent],
     providers: [AuthGuard, AuthService, CommonService],

@@ -235,6 +235,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getDprInputsByRange(vessel: StatsRangeRequest) {
+    return this.post('/api/getDprInputsByRange/', vessel).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getDatesWithValues(vessel: VesselObjectModel) {
     return this.post('/api/getDatesWithValues/', vessel).pipe(
      map((response: Response) => response.json()));

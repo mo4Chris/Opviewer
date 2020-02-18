@@ -5,6 +5,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { SovModel } from '../SovModel';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovWeatherchartComponent', () => {
   let component: SovWeatherchartComponent;
@@ -15,6 +16,7 @@ describe('SovWeatherchartComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
+        SupportModelModule,
       ],
       declarations: [
         SovWeatherchartComponent

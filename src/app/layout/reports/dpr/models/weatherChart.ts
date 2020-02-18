@@ -66,7 +66,7 @@ export class WeatherOverviewChart {
         }
       }
     });
-    const timezonOffset = this.getTimezoneOffset(dsets);
+    const timezoneOffset = this.getTimezoneOffset(dsets);
 
     // Actual chart creation
     this.Chart = new Chart('weatherOverview', {
@@ -110,7 +110,7 @@ export class WeatherOverviewChart {
                 if (!values[index]) {
                   return;
                 }
-                return moment.utc(values[index]['value']).utcOffset(timezonOffset).format('HH:mm');
+                return moment.utc(values[index]['value']).utcOffset(timezoneOffset).format('HH:mm');
               }
             },
           }],
