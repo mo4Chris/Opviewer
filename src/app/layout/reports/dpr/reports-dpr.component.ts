@@ -24,6 +24,7 @@ import { VesselModel } from '@app/models/vesselModel';
 import { TokenModel } from '@app/models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { Hotkeys } from '@app/supportModules/hotkey.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -41,7 +42,8 @@ export class ReportsDprComponent implements OnInit {
     private userService: UserService,
     private eventService: EventService,
     private mapService: GmapService,
-    private permission: PermissionService
+    private permission: PermissionService,
+    private hotkeys: Hotkeys,
     ) {
 
   }
@@ -102,6 +104,9 @@ export class ReportsDprComponent implements OnInit {
 
   // Initial load
   ngOnInit() {
+    this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
+      this.printPage();
+    })
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (this.permission.admin) {
@@ -299,27 +304,29 @@ export class ReportsDprComponent implements OnInit {
     this.googleMapLoaded = false;
   }
 
-
-
-  ///
   printPage() {
     if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
       this.printMode = true;
       setTimeout(() => {
-        this._doPrint();
+        this._doPrint(() => {this.printMode = false;});
       }, 2000);
     } else {
       this._doPrint();
     }
   }
 
-  private _doPrint() {
+  private _doPrint(cb?: () => void) {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
       container.style.width = '225mm';
     }
-    setTimeout(function() {  window.print(); }, 50);
+    setTimeout(function() {
+      window.print(); 
+      if (cb) {
+        cb();
+      }
+    }, 50);
   }
 
   // Handle events and get variables from child components//////////

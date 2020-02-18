@@ -3,10 +3,12 @@ import { Observable } from 'rxjs';
 import { DOCUMENT, EventManager } from '@angular/platform-browser';
 
 interface Options {
-    element: any;  // Element on which the shortcut is active when triggered
     keys: string;  // Keys on which the shortcut triggers
-    preventDefault: boolean; // prevents any other callbacks that would trigger via the hotkey by default
+    element?: any;  // Element on which the shortcut is active when triggered
+    preventDefault?: boolean; // prevents any other callbacks that would trigger via the hotkey by default
 }
+
+// Example: hotkey.addShortcut({keys: 'control.p'})
 
 @Injectable({ providedIn: 'root' })
 export class Hotkeys {
@@ -15,9 +17,10 @@ export class Hotkeys {
         preventDefault: true,
     };
 
-    constructor(private eventManager: EventManager,
-        @Inject(DOCUMENT) private document: Document) {
-    }
+    constructor(
+      private eventManager: EventManager,
+      @Inject(DOCUMENT) private document: Document
+    ) {}
 
     addShortcut(options: Partial<Options>): Observable<KeyboardEvent> {
         const merged = { ...this.defaults, ...options };
