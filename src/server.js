@@ -2510,39 +2510,45 @@ app.post("/api/getVideoRequests", function(req, res) {
 app.post("/api/getVideoBudgetByMmsi", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            return res.status(401).send('Access denied');
+            return res.status(401).send("Access denied");
         }
         videoBudgetmodel.find({
-            mmsi: req.body.mmsi,
-            active: { $ne: false }
-        }, null, {}, function(err, data) {
-            if (err) {
-                console.log(err);
-                return res.send(err);
-            } else {
-                var videoBudget = data[0];
-                if (videoBudget) {
-                    var today = new Date().getTime();
-                    if (videoBudget.resetDate <= today) {
-                        var date = new Date(videoBudget.resetDate);
-                        while (date.getTime() <= today) {
-                            date.setMonth(date.getMonth() + 1);
-                        }
-                        data[0].resetDate = date;
-                        data[0].currentBudget = 0;
-                        data[0].save(function(_err, _data) {
-                            if (_err) {
-                                console.log(_err);
-                                return res.send(_err);
-                            } else {
-                                return res.send(data);
+                mmsi: req.body.mmsi,
+                active: { $ne: false }
+            },
+            null, {},
+            function(err, data) {
+                if (err) {
+                    console.log(err);
+                    return res.send(err);
+                } else {
+                    var videoBudget = data[0];
+                    if (videoBudget) {
+                        var today = new Date().getTime();
+                        if (videoBudget.resetDate <= today) {
+                            var date = new Date(videoBudget.resetDate);
+                            while (date.getTime() <= today) {
+                                date.setMonth(date.getMonth() + 1);
                             }
-                        });
+                            data[0].resetDate = date;
+                            data[0].currentBudget = 0;
+                            data[0].save(function(_err, _data) {
+                                if (_err) {
+                                    console.log(_err);
+                                    return res.send(_err);
+                                } else {
+                                    return res.send(_data);
+                                }
+                            });
+                        } else {
+                            return res.send(data);
+                        }
+                    } else {
+                        return res.send(data);
                     }
                 }
-                return res.send(data);
             }
-        });
+        );
     });
 });
 
