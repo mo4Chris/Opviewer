@@ -303,21 +303,23 @@ export class ReportsDprComponent implements OnInit {
 
   ///
   printPage() {
-    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+    if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
+      this.printMode = true;
+      setTimeout(() => {
+        this._doPrint();
+      }, 2000);
+    } else {
+      this._doPrint();
+    }
+  }
 
+  private _doPrint() {
+    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
       container.style.width = '225mm';
     }
-    if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
-      this.printMode = true;
-      setTimeout(() => {
-        window.print();
-        this.printMode = false;
-      }, 2000);
-    } else {
-      setTimeout(function() {  window.print(); }, 50);
-    }
+    setTimeout(function() {  window.print(); }, 50);
   }
 
   // Handle events and get variables from child components//////////

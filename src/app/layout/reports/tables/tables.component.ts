@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
-import { CommonService } from '../../../common.service';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
 
+import { Hotkeys } from '@app/supportModules/hotkey.service';
+import { take } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { UserService } from '../../../shared/services/user.service';
+import { UserService } from '@app/shared/services/user.service';
 import { StringMutationService } from '../../../shared/services/stringMutation.service';
-import { VesselModel } from '../../../models/vesselModel';
-import { TokenModel } from '../../../models/tokenModel';
-import { RouterService } from '../../../supportModules/router.service';
+import { VesselModel } from '@app/models/vesselModel';
+import { TokenModel } from '@app/models/tokenModel';
+import { RouterService } from '@app/supportModules/router.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
@@ -20,7 +22,9 @@ export class TablesComponent implements OnInit {
     constructor(
         private stringMutationService: StringMutationService,
         private newService: CommonService,
+        private _router: Router,
         private userService: UserService,
+        private hotkeys: Hotkeys,
         private routerService: RouterService,
         public permission: PermissionService,
     ) { }
@@ -55,14 +59,17 @@ export class TablesComponent implements OnInit {
     }
 
     applyFilter(filterValue: string) {
-        filterValue = filterValue.trim();
-        filterValue = filterValue.toLowerCase();
+        filterValue = filterValue.trim().toLowerCase();
         if (filterValue === '') {
             this.filter = this.Repdata;
             this.sortData(this.sort);
             return;
         }
-        this.filter = this.Repdata.filter(s => s.nicename.toLowerCase().includes(filterValue) || (s.mmsi + '').includes(filterValue));
+        this.filter = this.Repdata.filter(s => {
+            return s.nicename.toLowerCase().includes(filterValue) ||
+                ('' + s.mmsi).includes(filterValue) ||
+                s.client.some(client => client.toLowerCase().includes(filterValue));
+        });
         this.sortData(this.sort);
     }
 
