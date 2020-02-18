@@ -8,13 +8,15 @@ import { AdminComponent } from './components/users/admin/admin.component';
 import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
 import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
-import { Usertype } from '../../shared/enums/UserType';
+import { UserTypeEnum } from '../../shared/enums/UserType';
 import { EventService } from '../../supportModules/event.service';
 import { DatetimeService } from '../../supportModules/datetime.service';
 import { CommonService } from '../../common.service';
-import { ClusterStyle, ClusterOptions } from '@agm/js-marker-clusterer/services/google-clusterer-types';
 import { GmapService } from '../../supportModules/gmap.service';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
+import { RouterService } from '../../supportModules/router.service';
+import { AlertService } from '@app/supportModules/alert.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 
 @Component({
@@ -31,11 +33,15 @@ export class DashboardComponent implements OnInit {
         private dateTimeService: DatetimeService,
         private commonService: CommonService,
         private mapService: GmapService,
+        private routerService: RouterService,
+        private alert: AlertService,
+        public permission: PermissionService
      ) {   }
-    locationData;
+    locationData: AisMarkerModel[];
 
     // Map settings
     googleMap: google.maps.Map;
+    mapStyle = GmapService.defaultMapStyle;
     zoominfo = {
         longitude: 0,
         latitude: 0,
@@ -57,12 +63,10 @@ export class DashboardComponent implements OnInit {
 
     showAlert = false;
     tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    alert = {type: '', text: ''};
-    timeout;
     infoWindowOld;
 
     // used for comparison in the HTML
-    userType = Usertype;
+    userType = UserTypeEnum;
 
     // Children and event handlers //
     @ViewChild(AdminComponent)
@@ -77,19 +81,19 @@ export class DashboardComponent implements OnInit {
     @ViewChild(VesselMasterComponent)
     private vesselMasterComponent: VesselMasterComponent;
 
-    getLocationData(locationData: any[]): void {
-        let lastUpdatedHours;
+    getLocationData(locationData: AisMarkerModel[]): void {
+        let lastUpdatedHours: number;
         this.locationData = locationData;
         this.locationData.forEach(marker => {
-                lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
-                if (lastUpdatedHours < 1) {
-                    marker.markerIcon = GmapService.iconVesselLive;
-                } else if (lastUpdatedHours < 6) {
-                    marker.markerIcon = GmapService.iconVesselHours;
-                } else {
-                    marker.markerIcon = GmapService.iconVesselOld;
-                }
-                });
+            lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
+            if (lastUpdatedHours < 1) {
+                marker.markerIcon = GmapService.iconVesselLive;
+            } else if (lastUpdatedHours < 6) {
+                marker.markerIcon = GmapService.iconVesselHours;
+            } else {
+                marker.markerIcon = GmapService.iconVesselOld;
+            }
+        });
     }
 
     getZoominfo(zoominfo: any): void {
@@ -104,35 +108,35 @@ export class DashboardComponent implements OnInit {
     ///////////////////////////////
 
     ngOnInit() {
-        this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive === true) {
-                this.getAlert();
-                this.getLocations();
-            } else {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this.router.navigate(['login']);
-              }
-            });
+      this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+        if (userIsActive === true) {
+          this.getAlert();
+          this.getLocations();
+        } else {
+          localStorage.removeItem('isLoggedin');
+          localStorage.removeItem('token');
+          this.router.navigate(['login']);
+        }
+      });
     }
 
     getLocations() {
         this.makeLegend();
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
-                case Usertype.Admin: {
+                case this.userType.Admin: {
                     this.adminComponent.getLocations();
                     break;
                 }
-                case Usertype.LogisticsSpecialist: {
+                case this.userType.LogisticsSpecialist: {
                     this.logisticsSpecialistComponent.getLocations();
                     break;
                 }
-                case Usertype.MarineController: {
+                case this.userType.MarineController: {
                     this.marineControllerComponent.getLocations();
                     break;
                 }
-                case Usertype.Vesselmaster: {
+                case this.userType.Vesselmaster: {
                     this.vesselMasterComponent.getLocations();
                     break;
                 }
@@ -148,7 +152,7 @@ export class DashboardComponent implements OnInit {
         }, 60000);
     }
 
-    buildGoogleMap( googleMap ) {
+    buildGoogleMap( googleMap: google.maps.Map ) {
         this.googleMap = googleMap;
         const harbourLocations = this.commonService.getHarbourLocations();
         this.mapService.plotHarbours(this.googleMap, harbourLocations);
@@ -217,19 +221,59 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    redirectDailyVesselReport(mmsi) {
+    redirectDailyVesselReport(mmsi: number) {
         this.eventService.closeLatestAgmInfoWindow();
-        this.router.navigate(['vesselreport', {boatmmsi: mmsi}]);
+        this.routerService.routeToDPR({mmsi: mmsi});
     }
 
     getAlert() {
-        this.route.params.subscribe(params => { this.alert.type = params.status; this.alert.text = params.message; });
-        if (this.alert.type && this.alert.type !== '' && this.alert.text !== '') {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 1000);
-        }
+        this.route.params.subscribe(params => {
+          this.alert.type = params.status;
+          this.alert.text = params.message;
+        });
     }
+}
+
+export interface AisMarkerModel {
+    _id: string;
+    TIMESTAMP: string;
+    LON: number;
+    LAT: number;
+    vesselInformation: any[];
+    markerIcon: mapMarkerIcon;
+}
+
+interface ClusterStyle {
+  /**
+   * The image url.
+   */
+  url?: string;
+  /**
+   * The image height.
+   */
+  height?: number;
+  /**
+   * The image width.
+   */
+  width?: number;
+  /**
+   * The anchor position of the label text.
+   */
+  anchor?: [number, number];
+  /**
+   * The text color.
+   */
+  textColor?: string;
+  /**
+   * The text size.
+   */
+  textSize?: number;
+  /**
+   * The position of the backgound x, y.
+   */
+  backgroundPosition?: string;
+  /**
+   * The anchor position of the icon x, y.
+   */
+  iconAnchor?: [number, number];
 }

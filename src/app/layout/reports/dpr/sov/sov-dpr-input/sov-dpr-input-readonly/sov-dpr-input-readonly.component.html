@@ -1,0 +1,345 @@
+<div class="card-header">DPR input</div>
+<div class="card-body">
+  <div class="row">
+    <div class="col-xl-12">
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount < 1" [dismissible]="false" type="warning">At this moment the DPR has not been signed off by the captain. All data shown is either automatically filled in or is data filled in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
+    </div>
+    <div class="col-xl-6">
+      <table class="table table-bordered">
+        <tr>
+          <th colspan="4" [ngbTooltip]="tooltipStandby">
+            <h4>Stand by</h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Reason</th>
+          <th>From</th>
+          <th>To</th>
+          <th></th>
+        </tr>
+        <ng-container *ngFor="let _standby of standby.Array">
+          <tr>
+            <td>
+              {{_standby.reason}}</td>
+            <td>
+              {{_standby.from}}
+            </td>
+            <td>
+              {{_standby.to}}
+            </td>
+            <td></td>
+
+          </tr>
+        </ng-container>
+        <tr *ngIf="standby.Array.length==0">
+          <td colspan="4"><i>No standby times entered</i></td>
+        </tr>
+        <!-- split between -->
+        <tr>
+          <th colspan="4" [ngbTooltip]="tooltipTechnicalDowntime">
+            <h4>Technical downtime</h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Reason</th>
+          <th>From</th>
+          <th>To</th>
+          <th></th>
+        </tr>
+        <ng-container *ngFor="let nonavailability of vesselNonAvailability.Array">
+          <tr>
+            <td>
+              {{nonavailability.reason}}
+            </td>
+            <td>
+              {{nonavailability.from}}
+            </td>
+            <td>
+              {{nonavailability.to}}
+            </td>
+            <td></td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="vesselNonAvailability.Array.length==0">
+          <td colspan="4"><i>No technical downtime entered</i></td>
+        </tr>
+        <!-- Split between weather and technical downtime -->
+
+        <tr>
+          <th colspan="4" [ngbTooltip]="tooltipWeatherDowntime">
+            <h4>Weather downtime</h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Decided by</th>
+          <th>From</th>
+          <th>To</th>
+          <th>vessel/subsystem</th>
+        </tr>
+        <ng-container *ngFor="let _weatherDowntime of weatherDowntime.Array">
+          <tr>
+            <td>
+              {{_weatherDowntime.decidedBy}}
+            </td>
+            <td>
+              {{_weatherDowntime.from}}
+            </td>
+            <td>
+              {{_weatherDowntime.to}}
+            </td>
+            <td>
+              {{_weatherDowntime.vesselsystem}}
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="weatherDowntime.Array.length==0">
+          <td colspan="4"><i>No weather downtime entered</i></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="col-xl-6 dailySummary">
+      <table class="table table-bordered">
+        <tr>
+          <th colspan="4">
+            <h4>HSE incidents & toolbox talks</h4>
+          </th>
+        </tr>
+        <tr>
+          <th><div [ngbTooltip]="tooltipHocCards">HOC cards: {{hoc.Total}}</div></th>
+          <td colspan="3">
+            <ng-container *ngFor="let HoC of hoc.Array">
+              {{HoC.value}} - {{HoC.amount}} time(s)
+              <hr>
+            </ng-container>
+            <br>
+          </td>
+        </tr>
+        <tr>
+          <th>HOC total Previous</th>
+          <td>{{hoc.TotalOld}}</td>
+          <th>New total</th>
+          <td>{{hoc.TotalNew}}</td>
+        </tr>
+        <tr>
+          <th>Toolbox talks: {{toolbox.Total}}</th>
+          <td colspan="3">
+            <ng-container *ngFor="let _toolbox of toolbox.Array">
+              {{_toolbox.value}} - {{_toolbox.amount}} time(s)
+              <hr>
+            </ng-container><br>
+          </td>
+
+        <tr>
+          <th>Toolbox total previous</th>
+          <td>{{toolbox.TotalOld}}</td>
+          <th>New total</th>
+          <td>{{toolbox.TotalNew}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <hr class="plsdonotprintthisforfsake">
+
+  <div class="row ">
+    <div class="col-xl-6">
+      <table class="table table-bordered">
+        <tr>
+          <th colspan="5">
+            <h4>Mid-day fuel, lub oil & fresh water</h4>
+          </th>
+        </tr>
+        <tr>
+          <td></td>
+          <th>FUEL OIL (m<sup>3</sup>)</th>
+          <th>LUB OIL (Litres)</th>
+          <th>Dom. Pot Water (m<sup>3</sup>)</th>
+          <th>Cargo Pot Water()</th>
+        </tr>
+        <tr>
+          <th>Start of day</th>
+          <td> {{liquids.fuel.oldValue}}</td>
+          <td>{{liquids.luboil.oldValue}}</td>
+          <td>{{liquids.domwater.oldValue}}</td>
+          <td>{{liquids.potwater.oldValue}}</td>
+        </tr>
+        <tr>
+          <th>Loaded/Made</th>
+          <td>{{liquids.fuel.loaded}}
+          </td>
+          <td>{{liquids.luboil.loaded}}</td>
+          <td>{{liquids.domwater.loaded}}</td>
+          <td>{{liquids.potwater.loaded}}</td>
+        </tr>
+        <tr>
+          <th>Consumed</th>
+          <td>{{liquids.fuel.consumed}}</td>
+          <td>{{liquids.luboil.consumed}}</td>
+          <td>{{liquids.domwater.consumed}}</td>
+          <td>{{liquids.potwater.consumed}}</td>
+        </tr>
+        <tr>
+          <th>Discharged to Client</th>
+          <td>{{liquids.fuel.discharged}}</td>
+          <td>{{liquids.luboil.discharged}}</td>
+          <td>{{liquids.domwater.discharged}}</td>
+          <td>{{liquids.potwater.discharged}}</td>
+        </tr>
+        <tr>
+          <th>Remaining on board</th>
+          <td>{{liquids.fuel.newValue}}</td>
+          <td>{{liquids.luboil.newValue}}</td>
+          <td>{{liquids.domwater.newValue}}</td>
+          <td>{{liquids.potwater.newValue}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xl-6">
+      <table class="table table-bordered">
+        <tr>
+          <th colspan="2">
+            <h4 [ngbTooltip]="tooltipPOB">People on board</h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Marine</th>
+          <td>{{peopleOnVessel.marine}}</td>
+        </tr>
+        <tr>
+          <th>Marine contractors</th>
+          <td>{{peopleOnVessel.marineContractors}}</td>
+        </tr>
+        <tr>
+          <th>Project</th>
+          <td>{{peopleOnVessel.project}}</td>
+        </tr>
+        <tr>
+          <th>Total People on board</th>
+          <td> {{peopleOnVessel.Total}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <hr class="plsdonotprintthisforfsake">
+  
+  <div class="row ">
+    <div class="col-xl-6">
+      <table class="table table-bordered">
+
+        <tr>
+          <th colspan="3">
+            <h4>Catering</h4>
+          </th>
+        </tr>
+        <tr>
+          <th> People on board</th>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Project</td>
+          <td>{{catering.project}}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Marine</td>
+          <td>{{catering.marine}}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Marine contractors</td>
+          <td>{{catering.marineContractors}}</td>
+        </tr>
+        <tr>
+          <th>Extra meals</th>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Project</td>
+          <td>{{catering.extraMeals}}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Marine + Marine Contractors</td>
+          <td>{{catering.marineContractors}}</td>
+        </tr>
+
+        <tr>
+          <th>Packed Meals</th>
+          <td>Ordered</td>
+          <td>{{catering.packedLunches}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xl-6 dailySummary">
+      <table class="table table-bordered">
+        <tr>
+          <td colspan="2">
+            <h4 [ngbTooltip]="tooltipDpUsage">DP usage</h4>
+          </td>
+        </tr>
+        <tr>
+          <th>On DP</th>
+          <th>Off DP</th>
+        </tr>
+        <ng-container *ngFor="let _dp of dp.Array">
+          <tr>
+            <td>
+              <div class="tableRow">
+                {{_dp.from.hour}}:{{_dp.from.minutes}}
+              </div>
+            </td>
+            <td>
+              <div class="tableRow">
+                {{_dp.to.hour}}:{{_dp.to.minutes}}
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="dp.Array.length==0">
+          <td colspan="4"><i>No dp usage entered</i></td>
+        </tr>
+      </table>
+      <table class="table table-bordered">
+        <tr>
+          <td>
+            <h4>Vessel Operations/remarks</h4>
+          </td>
+        </tr>
+        <tr>
+          <td style="white-space: pre-wrap;" *ngIf="remarks.length>0; else noRemarks">{{remarks}}</td>
+          <ng-template #noRemarks> <td style="white-space: pre-wrap;"><i>No remarks</i></td>
+          </ng-template>
+        </tr>
+        <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
+          <td>
+            <button
+                class="btn btn-lg btn-danger" (click)="declineDprClient()"
+                style="float:right" type="button">
+                Refuse DPR
+            </button>
+            <button
+                class="btn btn-lg btn-primary" (click)="signOffDprClient()"
+                style="float:right" type="button">
+                Sign off DPR
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
+<ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
+technical issues with the vessel. Provide further details in the hse DPR and remark section
+</ng-template>
+<ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
+<ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
+<ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
+<ng-template #tooltipPOB>Number of people on board of the vessel at the end of day</ng-template>

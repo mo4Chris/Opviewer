@@ -7,7 +7,7 @@ export class CalculationService {
 
   constructor() { }
 
-  objectToInt(objectvalue) {
+  objectToInt(objectvalue): number {
     return parseFloat(objectvalue);
   }
 
@@ -26,9 +26,9 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any, endpoint: string = null) {
+  GetDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
-      if (type === 'number') {
+      if (type === 'number' && !isNaN(value)) {
           value = Math.round(value * 10) / 10;
           if (value - Math.floor(value) === 0 ) {
             value = value + '.0';
@@ -75,15 +75,13 @@ export class CalculationService {
     return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
   }
 
-  GetPropertiesForMap(mapPixelWidth, latitudes, longitudes) {
-
-    function latRad(lat) {
+  GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
+    function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
       const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
       return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
     }
-
-    function zoom(mapPx, worldPx, fraction) {
+    function zoom(mapPx: number, worldPx: number, fraction: number) {
         return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
     }
 
@@ -93,7 +91,7 @@ export class CalculationService {
     const minLongitude = this.GetMinValueInMultipleDimensionArray(longitudes);
 
     const WORLD_DIM = { height: 256, width: 256 };
-    const ZOOM_MAX = 21;
+    const ZOOM_MAX = 15;
 
     const latFraction = (latRad(maxLatitude) - latRad(minLatitude)) / Math.PI;
 
@@ -165,11 +163,11 @@ export class CalculationService {
   }
 
   linspace(start: number, stop: number, step: number = 1) {
-    const linspace = [];
+    const linspace = new Array(Math.round((stop - start) / step));
     let curr = start;
-    while ( curr <= stop ) {
-      linspace.push(curr);
-      curr = curr + step;
+    for (let _i = 0; _i < linspace.length; _i++) {
+      linspace[_i] = curr;
+      curr += step;
     }
     return linspace;
   }
@@ -199,6 +197,15 @@ export class CalculationService {
     return out;
   }
 
+  switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
+    const newValues = this.switchUnits([+value], oldUnit, newUnit);
+    if (newValues && newValues[0] && !isNaN(newValues[0])) {
+      return this.GetDecimalValueForNumber(newValues[0], ' ' + newUnit);
+    } else {
+      return 'N/a';
+    }
+  }
+
   switchUnits(vals: number[], from: string, to: string): number[] {
     if (from === to) {
       return vals;
@@ -212,6 +219,8 @@ export class CalculationService {
         return this.switchDurationUnits(vals, from, to);
       case 'rad': case 'deg':
         return this.switchDirectionUnits(vals, from, to);
+      case 'kg': case 'ton':
+        return this.switchWeightUnits(vals, from, to);
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;
@@ -341,4 +350,76 @@ export class CalculationService {
     const Q = getFactor(to) / getFactor(from);
     return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
   }
+
+  interp1(x: number[], y: number[], xnew: number[]) {
+    // Fast 1d interpolation without checks
+    const ynew: number[] = new Array(xnew.length);
+    let _x = {pl: 0, il: 0, ph: 0, ih: 0};
+    for (let i = 0; i < xnew.length; i++) {
+      _x = getBounds(x, xnew[i], _x.il);
+      ynew[i] = _x.pl * y[_x.il] + _x.ph * y[_x.ph];
+    }
+    return ynew;
+  }
+
+  interp2(x: number[], y: number[], z: number[][], xnew: number[], ynew: number[]): number[][] {
+    // Performs 2d interpolation without proper checks. Computation of _y can still be improved
+    // to run in linear rather than quadratic time
+    const znew: number[][] = new Array(xnew.length);
+    let _x = {pl: 0, il: 0, ph: 0, ih: 0}, _y = {pl: 0, il: 0, ph: 0, ih: 0};
+    for (let i = 0; i < xnew.length; i++) {
+      znew[i] = new Array(ynew.length);
+      _x = getBounds(x, xnew[i], _x.il);
+      _y = {
+        pl: 0,
+        il: 0,
+        ph: 0,
+        ih: 0,
+      };
+      for (let j = 0; j < ynew.length; j++) {
+        _y = getBounds(y, ynew[j], _y.il);
+        znew[i][j] = _x.pl * _y.pl * z[_x.il][_y.il] + _x.pl * _y.ph * z[_x.il][_y.ih] + _x.ph * _y.pl * z[_x.ih][_y.il] + _x.ph * _y.ph * z[_x.ih][_y.ih];
+      }
+    }
+    return znew;
+  }
+}
+
+function getBounds(arr: number[], point: number, prev: number = 0) {
+  // Helper function for interp2
+  for (let _i = prev; _i < arr.length; _i++) {
+    if (point <= arr[_i]) {
+      if (point === arr[_i]) {
+        return {
+          pl: 0,
+          il: 0,
+          ph: 1,
+          ih: _i,
+        };
+      } else {
+        if (_i === 0) {
+          return {
+            pl: NaN,
+            il: 0,
+            ph: 0,
+            ih: 0,
+          };
+        } else {
+          const ratio = (point - arr[_i - 1]) / (arr[_i] - arr[_i - 1]);
+          return {
+            pl: 1 - ratio,
+            il: _i - 1,
+            ph: ratio,
+            ih: _i
+          };
+        }
+      }
+    }
+  }
+  return {
+    pl: NaN,
+    il: 0,
+    ph: 0,
+    ih: 0,
+  };
 }

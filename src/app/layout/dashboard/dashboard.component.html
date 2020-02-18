@@ -11,6 +11,7 @@
             [scaleControl] ="true"
             [gestureHandling]="'cooperative'"
             (mapReady) = "buildGoogleMap($event)"
+            [styles]="mapStyle"
             >
             <agm-marker-cluster [averageCenter]="true" [imagePath]="clustererImagePathVessels" [styles]=clusterStyleVessels [maxZoom]="clustererMaxZoom" [gridSize]="this.clustererGridSize">
                 <ng-container *ngFor="let location of locationData; let i=index" >
@@ -27,7 +28,6 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
                 </ng-container>
             </agm-marker-cluster >
         </agm-map>
-        <ngb-alert *ngIf="showAlert" class="userCreateAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.text }}</ngb-alert>
         <div id="mapLegendID" class="mapLegend">
             <h2> 
                 Legend
@@ -35,6 +35,7 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
         </div>
     </div>
 </div>
+<br>
 
 
 <!-- Currently, children are only used for one-way binding. When filled with content. Move to content above. -->

@@ -1,0 +1,240 @@
+<div *ngIf="transferData?.length > 0">
+    <br><br>
+    <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
+        <h3 *ngIf="noTransits">There is no transit data available</h3>
+        <table class="table table-bordered table-responsive transitTable">
+            <tr>
+                <ng-template #tooltip_speedknots class="helpContent">
+                    Speed in knots
+                </ng-template>
+                <td>Departure Port</td>
+                <td>{{getMatlabDateToJSTime(general.portDepartureTime)}}</td>
+                <td>Departure Wind Farm</td>
+                <td>{{getMatlabDateToJSTime(general.departureWindFarmTime)}}</td>
+                <td>Arrival wind farm</td>
+                <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
+                <td>Arrival Port</td>
+                <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
+                <td>Fuel consumption</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.fuelConsumption}} liters</td>
+                <td> HSE Observations</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"> 
+                    <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="true" name="observations"> Yes
+                    <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="false" name="observations"> No
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.observations) ? 'Yes' : 'No'}}</td>
+            </tr>
+            <tr>
+                <td>Avg. speed outbound</td>
+                <td>{{general.AvgSpeedOutbound}}</td>
+                <td>Avg. speed inbound</td>
+                <td>{{general.AvgSpeedInbound}}</td>
+                <td>Max. speed outbound</td>
+                <td>{{general.AvgSpeedOutboundUnrestricted}}</td>
+                <td>Max. speed inbound</td>
+                <td>{{general.AvgSpeedInboundUnrestricted}}</td>
+                <td>Waste oil landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
+                <td >HSE Incidents</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" > 
+                    <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="true" name="hseReports"> Yes
+                    <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="false" name="hseReports"> No
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.incidents) ? 'Yes' : 'No'}}</td>
+            </tr>
+            <tr>
+                <td>MSI outbound</td>
+                <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
+                <td>MSI inbound</td>
+                <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
+                <td>WBV, Technicians</td>
+                <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
+                <td>WBV, Vessel Crew</td>
+                <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+                <td>Garbage landed</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m<sup>3</sup></td>
+                <td rowspan='2'>Comments field</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4' [(ngModel)]="generalInputStats.customInput"></textarea></td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>{{generalInputStats.customInput}}</td>
+                
+            </tr>
+            <tr>
+                <td>Distance Sailed</td>
+                <td>{{general.sailedDistance}}</td>
+                <td>Fuel Consumed</td>
+                <td>{{roundNumber(general.TotalFuel, 10)}}</td>
+                <td>Fuel Economy</td>
+                <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                <td></td>
+                <td></td>
+                <td>Tool box talks conducted</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                    <ng-multiselect-dropdown 
+                        class="d-inline-block msdd" 
+                        [placeholder]="'Select tool box talks'"
+                        [data]="toolboxOptions"
+                        [(ngModel)]="generalInputStats.toolboxConducted"
+                        [settings]="multiSelectSettings">
+                    </ng-multiselect-dropdown>
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.toolboxConducted == '') ? 'None' : generalInputStats.toolboxConducted }}</td>
+            </tr>
+            <tr>
+                <td>Number of dockings</td>
+                <td>{{roundNumber(general.numDockings, 1)}}</td>
+                <td>Average Docking Time</td>
+                <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+                <td></td><td></td>
+                <td></td>
+                <td></td>
+                <td>Drills conducted</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                    <ng-multiselect-dropdown 
+                        class="d-inline-block msdd" 
+                        [placeholder]="'Select drills'"
+                        [data]="drillOptions"
+                        [(ngModel)]="generalInputStats.drillsConducted"
+                        [settings]="multiSelectSettings">
+                    </ng-multiselect-dropdown>
+
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'"> {{(generalInputStats.drillsConducted == '') ? 'None' : generalInputStats.drillsConducted }} </td>
+                <td>Drills involved passengers</td>
+                <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" > 
+                    <fieldset [disabled]="generalInputStats.drillsConducted.length == 0">
+                        <input type="radio" [(ngModel)]="generalInputStats.passengers" [value]="true" name="passengers"> Yes
+                        <input type="radio" [(ngModel)]="generalInputStats.passengers" [value]="false" name="passengers"> No
+                    </fieldset>
+                </td>
+                <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.passengers) ? 'Yes' : 'No'}}</td>
+            </tr>
+            <tr *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                <td class="SubmitRowColSpan" colspan="11"></td>
+                <td class="SubmitRowColSpan"><button class="btn btn-md btn-primary submitBtnDate" type="button" (click)="saveGeneralStats()">Save changes to userinput</button></td>
+            </tr>
+        </table>
+    </div>
+    <br><br>
+
+    <div *ngIf="parkFound && wavedata" class="row" class="weatherMap">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header" >
+                    Weather overview: {{wavedata? wavedata.site: ''}}
+                    <ng-template #popContentWeatherOverview class="helpContent">
+                        Weather overview for selected day and vessel. 
+                        By default, only Hs and avg wind speed are shown.
+                        Hidden or missing data is crossed through. To show or 
+                        hide a particular dataset, click on the colored
+                        bars in the legend. Hovering over the graph will 
+                        display the recorded values at any time.
+                    </ng-template>
+                    <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
+                        [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+                        
+                    <button class="minimizer" (click)="minimizeWaveGraph()">
+                        <i class="fa fa-window-minimize"></i>
+                    </button>
+                </div>
+                <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
+                    <canvas id="weatherOverview"></canvas>
+                </div>
+            </div>
+        </div>
+        <br><br>
+    </div>
+
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
+        <h3>Dockings</h3>
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>start time</th>
+                    <th>stop time</th>
+                    <th>duration</th>
+                    <th>max impact</th>
+                    <th>score</th>
+                    <th>location</th>
+                    <th>Pax in/out</th>
+                    <th>Cargo in/out</th>
+                    <th>comment</th>
+                    <th>detector</th>
+                    <th class="plsdonotprintthisforfsake">save</th>
+                    <th class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">video request</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let transfer_Data of transferData;let ind = index" ng-form="myForm">
+                    <td>{{ind + 1}}</td>
+                    <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
+                    <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>
+                    <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+                    <td>{{roundNumber((transfer_Data.impactForceNmax / 1000), 1, 'KN')}} </td>
+                    <td>{{roundNumber(transfer_Data.score, 10)}}</td>
+                    <td>{{transfer_Data.location}}</td>
+                    <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br> 
+                        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-5" [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp"  [(ngModel)]="transfer_Data.cargoUp" class="form-control-sm col-sm-3 col-xl-6" (change)="transfer_Data.formChanged=true"> KG incoming <br>
+                        <input type="number" min="0" step="10" [value]="transfer_Data.cargoDown" [(ngModel)]="transfer_Data.cargoDown" class="form-control-sm col-sm-3 col-xl-6" (change)="transfer_Data.formChanged=true"> KG outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+                        {{transfer_Data.paxUp}} incoming <br> 
+                        {{transfer_Data.paxDown}} outgoing
+                    </td>
+                    <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+                        {{ transfer_Data.cargoUp }} KG incoming <br>
+                        {{ transfer_Data.cargoDown}} KG outgoing
+                    </td>
+                    <td class="comment">
+                        <span ngbDropdown class="d-inline-block dropdown">
+                            <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'" ngbDropdownToggle>
+                                <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+                            </button>
+                            <span ngbDropdownMenu>
+                                <button *ngFor="let opt of commentOptions" class="dropdown-item" (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
+                            </span>
+                        </span>
+                        <span *ngIf="transfer_Data.comment == 'Other'">
+                            <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text"
+                                class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true" />
+                        </span>
+                    </td>
+                     <td>{{transfer_Data.detector}}</td>
+                    <td class="plsdonotprintthisforfsake">
+                        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button" [disabled]="!transfer_Data.formChanged">Save</button>
+                    </td>
+                    <td class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">
+                        <button *ngIf="transfer_Data.video_requested" class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}" (click)="setRequest(transfer_Data);" type="button" [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table> 
+        <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+    </div>
+    <div class="row singlepage-print singlepage-print-port"></div>
+    <div class="row singlepage-print singlepage-print-port">
+        <div class="col-lg-7 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
+            <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0">
+                <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
+                    {{roundNumber(transfer_Data.score, 10)}}</h3>
+            </span>
+            <div class="chartContainer">
+                <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
+            </div>
+        </div>
+    </div>
+    <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+        <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+    </div>
+</div>

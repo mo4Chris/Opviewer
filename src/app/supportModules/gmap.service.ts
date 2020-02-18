@@ -4,8 +4,9 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
-import { VesselTurbines, VesselPlatforms } from '../layout/vesselreport/models/VesselTurbines';
 import { isArray } from 'util';
+import { Observable } from 'rxjs';
+import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 
 @Injectable({
     providedIn: 'root'
@@ -90,6 +91,70 @@ export class GmapService {
             height: 20,
         }
     );
+    static defaultMapStyle = [
+      {
+          featureType: 'administrative',
+          elementType: 'geometry',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'administrative.land_parcel',
+          elementType: 'labels',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'poi',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'poi',
+          elementType: 'labels.text',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'road',
+          elementType: 'labels.icon',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'road.local',
+          elementType: 'labels',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      },
+      {
+          featureType: 'transit',
+          stylers: [
+              {
+                  visibility: 'off'
+              }
+          ]
+      }
+  ];
+
     layersInitialized = false;
     vesselRouteTurbineLayer: MapZoomLayer;
     unvisitedPlatformLayer: MapZoomLayer;
@@ -208,7 +273,7 @@ export class GmapService {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
         vesselRoutes.forEach(route => {
-            new google.maps.Polyline({
+            return new google.maps.Polyline({
                 clickable: false,
                 map: googleMap,
                 path: this.lonlatService.lonlatarrayToLatLngArray(route),
@@ -282,15 +347,16 @@ export class GmapService {
         parkLayer.draw();
     }
 
-    plotHarbours(googleMap, harbourLocations, minZoom = 7, maxZoom = 30) {
+    plotHarbours(googleMap, harbourLocations: Observable<HarbourModel[]>, minZoom = 7, maxZoom = 30) {
         const harbourLayer = new MapZoomLayer(googleMap, minZoom, maxZoom);
-        harbourLocations.forEach(harbourList => {
+        harbourLocations.subscribe(harbourList => {
             harbourList.forEach(harbour => {
                 harbourLayer.addData(new MapZoomData(
                     harbour.centroid.lon,
                     harbour.centroid.lat,
                     GmapService.iconHarbour,
                     GmapService.iconHarbour.description,
+                    harbour.name.split('_').join(' '),
                 ));
             });
         });
@@ -315,4 +381,16 @@ export class GmapService {
         });
         platformLayer.draw();
     }
+}
+
+interface HarbourModel {
+    lon: number[];
+    lat: number[];
+    _id: string;
+    name: string;
+    centroid: {
+        lon: number;
+        lat: number;
+        radius: number;
+    };
 }

@@ -13,11 +13,11 @@ describe('DashboardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [   
+      imports: [
         AgmCoreModule.forRoot(),
         HttpModule],
-        declarations: [ DashboardComponent ],
-        providers: [ CommonService ]
+      declarations: [ DashboardComponent ],
+      providers: [ CommonService ]
     })
     .compileComponents();
   }));

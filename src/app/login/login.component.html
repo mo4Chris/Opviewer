@@ -1,37 +1,46 @@
 <div class="login-page" [@routerTransition]>
-    <div class="row justify-content-md-center">
-        <div class="col-md-4">
-            <img src="assets/images/logo.png" width="150px" class="user-avatar" />
-            <h1>BMO Dataviewer</h1>
-            <form role="form" (keyup.enter)="onLoggedin()" id="login" autocomplete="on">
-                <div class="form-content">
-                    <div class="form-group">
-                        <input type="text" [(ngModel)]="loginUserData.username" class="form-control input-underline input-lg" name="username" id="username" autocomplete="username" placeholder="Email">
-                    </div>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <img src="assets/images/logo.png" width="150px" class="user-avatar" />
+      <h1>BMO Dataviewer</h1>
+      <form role="form" (keyup.enter)="onLoggedin()" id="login" autocomplete="on">
+        <div class="form-content">
+          <div class="form-group">
+            <input type="text" [(ngModel)]="loginUserData.username" class="form-control input-underline input-lg"
+              name="username" id="username" autocomplete="username" placeholder="Email">
+          </div>
 
-                    <div class="form-group">
-                        <input type="password" name="password" [(ngModel)]="loginUserData.password" class="form-control input-underline input-lg" id="password" autocomplete="current-password" placeholder="Password">
-                    </div>
+          <div class="form-group">
+            <input type="password" name="password" [(ngModel)]="loginUserData.password"
+              class="form-control input-underline input-lg" id="password" autocomplete="current-password"
+              placeholder="Password">
+          </div>
 
-                    <div class="form-group">
-                        <input type="text" [(ngModel)]="loginUserData.confirm2fa" class="form-control-special input-underline input-lg" name="confirm2fa" id="confirm2fa" placeholder="2FA response code"> 
-                        
-                        <button type="button" class="btn btn-outline-secondary form-control helpBtn col-md-2" [autoClose]="true" 
-                                [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
-                        <ng-template #popContent class="helpContent">
-                                During the set-up of an account, an Authenticator app is required. This authenticator app returns a six-digit code every thirty seconds. Input this code in the "2FA response code" field.
-                                <br><br>
-                                The 2FA response code is different for each user account and time-based. Without the authenticator, you are unable to enter the dataviewer. If someone else has set up the account this person's device is required to log-in
-                                <br><br>
-                                If you are not in the possession of the authenticator app or need assistance you can contact webmaster@bmo-offshore.com
-                            </ng-template>
-                            
-                    </div>
-                    <ngb-alert *ngIf="showAlert" type="danger" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
-                </div>
-                <a class="btn rounded-btn" (click)="onLoggedin()"> Log in </a>&nbsp;
-                
-            </form>
+          <div class="form-group">
+            <input type="text" [(ngModel)]="loginUserData.confirm2fa"
+              class="form-control-special input-underline input-lg" name="confirm2fa" id="confirm2fa"
+              placeholder="2FA response code">
+
+            <button type="button" class="btn btn-outline-secondary form-control helpBtn col-md-2" [autoClose]="true"
+              [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
+            <ng-template #popContent class="helpContent">
+              During the set-up of an account, an Authenticator app is required. This authenticator app returns a
+              six-digit code every thirty seconds. Input this code in the "2FA response code" field.
+              <br><br>
+              The 2FA response code is different for each user account and time-based. Without the authenticator, you
+              are unable to enter the dataviewer. If someone else has set up the account this person's device is
+              required to log-in
+              <br><br>
+              If you are not in the possession of the authenticator app or need assistance you can contact
+              webmaster@bmo-offshore.com
+            </ng-template>
+
+          </div>
         </div>
+        <a class="btn rounded-btn" (click)="onLoggedin()"> Log in </a>&nbsp;
+      </form>
+      <br>
+      <ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
     </div>
+  </div>
 </div>

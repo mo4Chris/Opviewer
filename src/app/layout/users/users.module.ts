@@ -13,7 +13,12 @@ import {CommonService} from '../../common.service';
 import { UserService } from '../../shared/services/user.service';
 
 @NgModule({
-    imports: [CommonModule, HttpClientModule, FormsModule, UsersRoutingModule, NgbModule.forRoot(), PageHeaderModule],
+    imports: [CommonModule,
+        HttpClientModule,
+        FormsModule,
+        UsersRoutingModule,
+        NgbModule.forRoot(),
+        PageHeaderModule],
     declarations: [UsersComponent],
     providers: [CommonService, UserService],
     bootstrap: [UsersComponent]

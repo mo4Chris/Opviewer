@@ -9,6 +9,12 @@ import { PageHeaderModule } from '../../shared';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UsersRoutingModule } from './users-routing.module';
+import { AgmCoreModule } from '@agm/core';
+import { UserTestService } from '../../shared/services/test.user.service';
+import { mockedObservable } from '../../models/testObservable';
+import { UserService } from '../../shared/services/user.service';
+import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -16,26 +22,34 @@ describe('UsersComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ 
-        FormsModule,  
-        NgbModule.forRoot(), 
+      imports: [
+        FormsModule,
+        NgbModule.forRoot(),
+        AgmCoreModule.forRoot(),
         PageHeaderModule,
         HttpModule,
+        HttpClientModule,
         RouterTestingModule,
+        UsersRoutingModule,
         BrowserAnimationsModule],
       declarations: [ UsersComponent ],
-      providers: [CommonService],
+      providers: [MockedCommonServiceProvider],
     })
     .compileComponents();
   }));
 
-  beforeEach(() => {
+  beforeEach(async(() => {
+    spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
+    spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
+    spyOn(CommonService.prototype, 'getUsers').and.returnValue(mockedObservable([]));
+    spyOn(CommonService.prototype, 'getUsersForCompany').and.returnValue(mockedObservable([]));
+
     fixture = TestBed.createComponent(UsersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }));
 
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

@@ -20,7 +20,7 @@ describe('LayoutComponent', () => {
     beforeEach(
         async(() => {
             TestBed.configureTestingModule({
-                imports: [        
+                imports: [
                     FormsModule,
                     NgbModule.forRoot(),
                     NgbDropdownModule.forRoot(),

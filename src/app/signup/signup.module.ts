@@ -9,6 +9,7 @@ import { SignupRoutingModule } from './signup-routing.module';
 import { SignupComponent } from './signup.component';
 import {CommonService} from '../common.service';
 import { UserService } from '../shared/services/user.service';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 
 @NgModule({
@@ -16,8 +17,8 @@ import { UserService } from '../shared/services/user.service';
     HttpClientModule,
     CommonModule,
     SignupRoutingModule,
-    NgbModule.forRoot(),
-    FormsModule
+    NgbModule,
+    FormsModule,
   ],
   providers: [CommonService, UserService],
   declarations: [SignupComponent]

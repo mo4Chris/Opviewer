@@ -6,6 +6,9 @@ import * as jwt_decode from 'jwt-decode';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { UserService } from '../../shared/services/user.service';
+import { TokenModel } from '../../models/tokenModel';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-usermanagement',
@@ -15,14 +18,19 @@ import { UserService } from '../../shared/services/user.service';
 })
 export class UserManagementComponent implements OnInit {
 
-    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private userService: UserService) { }
+    constructor(
+        public router: Router,
+        private newService: CommonService,
+        private route: ActivatedRoute,
+        private userService: UserService,
+        public permission: PermissionService,
+        public alert: AlertService,
+    ) { }
+
     username = this.getUsernameFromParameter();
-    user = this.getUser();
-    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    user;
+    tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
     boats;
-    alert = { type: '', message: '' };
-    showAlert = false;
-    timeout;
 
     multiSelectSettings = {
         idField: 'mmsi',
@@ -39,8 +47,10 @@ export class UserManagementComponent implements OnInit {
                 localStorage.removeItem('isLoggedin');
                 localStorage.removeItem('token');
                 this.router.navigate(['login']);
-              }
-            });
+            } else {
+                this.getUser();
+            }
+        });
     }
 
     getUsernameFromParameter() {
@@ -50,22 +60,25 @@ export class UserManagementComponent implements OnInit {
     }
 
     getUser() {
-        this.newService.getUserByUsername({ username: this.username }).subscribe(data => {
-            if (data[0].permissions == "admin" || data[0].permissions == "Logistics specialist" || data[0] == null) {
-                this.router.navigate(['/access-denied']);
-            }
-            if (this.tokenInfo.userPermission != "admin") {
-                if (this.tokenInfo.userPermission != "Logistics specialist") {
+        this.newService.getUserByUsername({username: this.username}).subscribe(data => {
+            // Loads the users this person is allowed to edit
+            if (!this.permission.admin) {
+                if (!this.permission.userRead) {
                     this.router.navigate(['/access-denied']);
                 } else {
-                    if (this.tokenInfo.userCompany != data[0].client) {
+                    if (this.tokenInfo.userCompany !== data[0].client) {
                         this.router.navigate(['/access-denied']);
                     }
                 }
             }
-            this.newService.getVesselsForCompany([{ client: data[0].client, notHired: 1 }]).subscribe(data => { this.boats = data; });
+            this.newService.getVesselsForCompany([{
+                client: data[0].client,
+                notHired: 1 }]
+            ).subscribe(vessels => {
+                this.boats = vessels;
+            });
             this.user = data[0];
-            this.multiSelectSettings.singleSelection = (data[0].permissions == "Vessel master")
+            this.multiSelectSettings.singleSelection = (data[0].permissions === 'Vessel master');
         });
     }
 
@@ -73,22 +86,20 @@ export class UserManagementComponent implements OnInit {
         this.newService.saveUserBoats(this.user).pipe(
             map(
                 (res) => {
-                    this.alert.type = 'success';
-                    this.alert.message = res.data;
+                    this.alert.sendAlert({
+                        text: res.data,
+                        type: 'success'
+                    });
                 }
             ),
             catchError(error => {
-                this.alert.type = 'danger';
-                this.alert.message = error;
+                this.alert.sendAlert({
+                    text: error,
+                    type: 'danger'
+                });
                 throw error;
             })
-        ).subscribe(_ => {
-            clearTimeout(this.timeout);
-            this.showAlert = true;
-            this.timeout = setTimeout(() => {
-                this.showAlert = false;
-            }, 7000);
-        });
+        ).subscribe();
     }
-    
+
 }
