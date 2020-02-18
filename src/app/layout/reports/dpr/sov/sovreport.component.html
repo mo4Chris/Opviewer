@@ -1,16 +1,16 @@
-<div *ngIf="showContent" class="plsdonotprintthisforfsake">
+<div *ngIf="showContent && !printMode" class="plsdonotprintthisforfsake">
   <br>
   <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
-  <ngb-tabset [activeId]="activeTab" [justify]="'start'">
+  <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="false">
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
-      <ng-template id="tab-summary" ngbTabContent>
+      <ng-template #summaryTest id="tab-summary" ngbTabContent>
         <br>
         <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
         </app-sov-summary>
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>
     </ngb-tab>
-
+    
     <ngb-tab *ngIf="permission.sovCommercialRead" title="Commercial DPR" [disabled]="!hasDprData" [id]="'commercial'">
       <ng-template ngbTabContent>
         <app-sov-v2v-transfers *ngIf="sovModel.vessel2vessels.length>0" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
@@ -85,14 +85,11 @@
 
 
 <!-- Print version -->
-<div *ngIf="showContent" class="noScreen">
+<div *ngIf="showContent && printMode">
   <br>
-  
   <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
   </app-sov-summary>
-  <!-- 
-    <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
-  -->
+  <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
 
   <div *ngIf="permission.sovCommercialRead" class="pagebreak">
     <ng-container *ngIf="sovModel.vessel2vessels.length>0">

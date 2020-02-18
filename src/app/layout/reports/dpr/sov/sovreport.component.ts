@@ -32,6 +32,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Input() tokenInfo: TokenModel;
   @Input() vesselObject: VesselObjectModel;
   @Input() mapPixelWidth: number;
+  @Input() printMode: boolean;
 
   sovModel: SovModel = new SovModel();
   dprInput: DprChildData;
@@ -62,7 +63,6 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   // Charts
   backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
-
   v2vPaxCargoTotals: V2vPaxTotalModel;
 
   constructor(
@@ -572,19 +572,6 @@ export class SovreportComponent implements OnInit, OnChanges {
       value,
       endpoint
     );
-  }
-
-  printPage() {
-    const containers = <HTMLCollection>(
-      document.getElementsByClassName('chartContainer')
-    );
-    for (let _i = 0; _i < containers.length; _i++) {
-      const container = <HTMLDivElement>containers[_i];
-      container.style.width = '225mm';
-    }
-    setTimeout(function () {
-      window.print();
-    }, 50);
   }
 
   formatGangwayLimiter(raw_limiter: string) {
