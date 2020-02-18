@@ -977,7 +977,6 @@ app.get("/api/getVessel", function(req, res) {
     }
     Vesselmodel.find({
         active: { $ne: false }
-
     }, null, {
         sort: {
             client: 'asc',

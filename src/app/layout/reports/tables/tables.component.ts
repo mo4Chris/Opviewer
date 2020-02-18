@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 
@@ -22,7 +22,6 @@ export class TablesComponent implements OnInit {
     constructor(
         private stringMutationService: StringMutationService,
         private newService: CommonService,
-        private _router: Router,
         private userService: UserService,
         private hotkeys: Hotkeys,
         private routerService: RouterService,
@@ -35,6 +34,10 @@ export class TablesComponent implements OnInit {
     sort = { active: 'Client', isAsc: true };
 
     ngOnInit() {
+      this.hotkeys.addShortcut({keys: 'control.f'}).subscribe(_ => {
+        const searchRef = <HTMLInputElement> document.getElementById('searchBox');
+        searchRef.select();
+      })
       this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
           if (this.permission.admin) {
@@ -68,7 +71,9 @@ export class TablesComponent implements OnInit {
         this.filter = this.Repdata.filter(s => {
             return s.nicename.toLowerCase().includes(filterValue) ||
                 ('' + s.mmsi).includes(filterValue) ||
-                s.client.some(client => client.toLowerCase().includes(filterValue));
+                s.client.some(client => {
+                  return client.toLowerCase().includes(filterValue)
+                });
         });
         this.sortData(this.sort);
     }
