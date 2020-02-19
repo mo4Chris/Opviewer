@@ -1,7 +1,8 @@
 <div *ngIf="showContent && !printMode" class="plsdonotprintthisforfsake">
   <br>
   <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
-  <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="false">
+  <!-- ToDo: keep tabs in DOM / memory whenever the wavespectrum gets loaded, but not initially-->
+  <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="true">
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
       <ng-template #summaryTest id="tab-summary" ngbTabContent>
         <br>

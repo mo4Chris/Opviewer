@@ -7,8 +7,10 @@
     <div class="col-xl-6">
       <table class="table table-bordered">
         <tr>
-          <th colspan="4" [ngbTooltip]="tooltipStandby">
-            <h4>Stand by</h4>
+          <th colspan="4">
+            <div [ngbTooltip]="tooltipStandby">
+              <h4>Stand by</h4>
+            </div>
           </th>
         </tr>
         <tr>
@@ -36,8 +38,10 @@
         </tr>
         <!-- split between -->
         <tr>
-          <th colspan="4" [ngbTooltip]="tooltipTechnicalDowntime">
-            <h4>Technical downtime</h4>
+          <th colspan="4" >
+          <div [ngbTooltip]="tooltipTechnicalDowntime">
+              <h4>Technical downtime</h4>
+            </div>
           </th>
         </tr>
         <tr>
@@ -66,8 +70,10 @@
         <!-- Split between weather and technical downtime -->
 
         <tr>
-          <th colspan="4" [ngbTooltip]="tooltipWeatherDowntime">
-            <h4>Weather downtime</h4>
+          <th colspan="4">
+            <div [ngbTooltip]="tooltipWeatherDowntime">
+              <h4>Weather downtime</h4>
+            </div>
           </th>
         </tr>
         <tr>
