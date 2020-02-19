@@ -86,8 +86,24 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   buildPageWhenRouteLoaded() {
     this.GetAvailableRouteDatesForVessel();
-    this.commonService.getSov(this.vesselObject).subscribe(
-      sov => {
+    forkJoin(
+      this.commonService.getSov(this.vesselObject),
+      this.commonService.getSovDprInput(this.vesselObject),
+      this.commonService.getSovHseDprInput(this.vesselObject),
+    ).subscribe(
+      ([
+        sov,
+        dprInput,
+        hseDprInput,
+      ]) => {
+        // Commercial or hse DPR data needs to be loaded even when general is not available
+        this.dprInput = dprInput[0];
+        this.hseDprInput = hseDprInput[0];
+        const dprSigned = dprInput[0] ? dprInput[0].signedOff : {amount: 0};
+        const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
+        this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
+        this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
+
         if (
           sov.length !== 0 &&
           sov[0].seCoverageSpanHours !== '_NaN_'
@@ -98,6 +114,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
           this.getWaveSpectrumAvailable();
+
           forkJoin([
             this.commonService.getPlatformTransfers(
               this.vesselObject.mmsi,
@@ -115,8 +132,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject.mmsi,
               this.vesselObject.date
             ),
-            this.commonService.getSovDprInput(this.vesselObject),
-            this.commonService.getSovHseDprInput(this.vesselObject),
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
@@ -127,8 +142,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               turbineTransfers,
               vessel2vessels,
               cycleTimes,
-              dprInput,
-              hseDprInput,
               sovFieldNames,
               platformLocations
             ]) => {
@@ -144,13 +157,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.turbineTransfers = turbineTransfers;
               this.sovModel.cycleTimes = cycleTimes;
               this.sovModel.vessel2vessels = vessel2vessels;
-              this.dprInput = dprInput[0];
-              this.hseDprInput = hseDprInput;
-
-              const dprSigned = dprInput[0].signedOff;
-              const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
-              this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
-              this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
 
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {

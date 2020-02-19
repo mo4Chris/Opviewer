@@ -58,11 +58,11 @@
         <br>
 
         <ng-container *ngIf="hseDprApproval > 0">
-          <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput[0]" [hseDprApprovalCount]="hseDprApproval" [tokenInfo]="tokenInfo" (hseDprApproval)="emitHseApproval($event)" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
+          <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [hseDprApprovalCount]="hseDprApproval" [tokenInfo]="tokenInfo" (hseDprApproval)="emitHseApproval($event)" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
         </ng-container>
 
         <ng-container *ngIf="hseDprApproval < 1">
-          <app-sov-hse-dpr-input-vesselmaster [hseDprInput]="hseDprInput[0]" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
+          <app-sov-hse-dpr-input-vesselmaster [hseDprInput]="hseDprInput" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
         </ng-container>
       </ng-template>
     </ngb-tab>
@@ -70,7 +70,7 @@
     <ngb-tab title="HSE input" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
       <ng-template ngbTabContent>
         <br>
-        <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput[0]" [hseDprApprovalCount]="hseDprApproval" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
+        <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [hseDprApprovalCount]="hseDprApproval" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
       </ng-template>
     </ngb-tab>
 
