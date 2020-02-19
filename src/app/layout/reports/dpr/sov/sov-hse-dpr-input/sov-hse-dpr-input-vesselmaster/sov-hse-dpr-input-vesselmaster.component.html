@@ -1,7 +1,7 @@
 <div class="row ">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3 singlepage-print-port">
-      <div class="card-header">HSE input
+      <div class="card-header">Additional HSE inputs
         <button class="btn btn-sm btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
           style="float:right; margin-right: 10px;" type="button">
           Sign off HSE</button>
@@ -124,7 +124,7 @@
                   </th>
                 </tr>
                 <tr>
-                  <th>Safety Comittee meetings</th>
+                  <th>Safety Committee Meetings</th>
                   <td>
                     <input [value]="hseData.safetyComitteeMeeting.value"
                       [(ngModel)]="hseData.safetyComitteeMeeting.value" class="form-control">
@@ -168,7 +168,7 @@
               <table class="table table-bordered">
                 <tr>
                   <th colspan=4>
-                    <h4>Consumption/Landed/disposed</h4>
+                    <h4>Consumption / Landed / disposed</h4>
                   </th>
                 </tr>
                 <tr>
@@ -184,10 +184,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Plastic incenerated</th>
+                  <th>Plastic incinerated</th>
                   <td>
                     <input [value]="hseData.plasticIncinerated.value" [(ngModel)]="hseData.plasticIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -200,7 +200,7 @@
                   <th>Plastic landed</th>
                   <td>
                     <input [value]="hseData.plasticLanded.value" [(ngModel)]="hseData.plasticLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -212,7 +212,7 @@
                   <th>food incinerated</th>
                   <td>
                     <input [value]="hseData.foodIncinerated.value" [(ngModel)]="hseData.foodIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -224,7 +224,7 @@
                   <th>food landed</th>
                   <td>
                     <input [value]="hseData.foodLanded.value" [(ngModel)]="hseData.foodLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -236,7 +236,7 @@
                   <th>food macerated</th>
                   <td>
                     <input [value]="hseData.foodMacerated.value" [(ngModel)]="hseData.foodMacerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -248,7 +248,7 @@
                   <th>Domestic waste landed</th>
                   <td>
                     <input [value]="hseData.domWasteLanded.value" [(ngModel)]="hseData.domWasteLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -260,7 +260,7 @@
                   <th>Domestic waste incinerated</th>
                   <td>
                     <input [value]="hseData.domWasteIncinerated.value" [(ngModel)]="hseData.domWasteIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -273,7 +273,7 @@
                   <th>Cooking oil landed</th>
                   <td>
                     <input [value]="hseData.cookingoilLanded.value" [(ngModel)]="hseData.cookingoilLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -285,7 +285,7 @@
                   <th>Operational waste landed</th>
                   <td>
                     <input [value]="hseData.opsWasteLanded.value" [(ngModel)]="hseData.opsWasteLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -294,10 +294,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Operational waste incenerated</th>
+                  <th>Operational waste incinerated</th>
                   <td>
                     <input [value]="hseData.opsWasteIncinerated.value" [(ngModel)]="hseData.opsWasteIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>

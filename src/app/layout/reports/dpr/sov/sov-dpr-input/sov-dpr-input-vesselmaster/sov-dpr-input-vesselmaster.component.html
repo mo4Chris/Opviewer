@@ -120,7 +120,7 @@
           <th>Decided by</th>
           <th>From</th>
           <th>To</th>
-          <th>vessel/subsystem</th>
+          <th>vessel / subsystem</th>
         </tr>
         <ng-container *ngFor="let _weatherDowntime of weatherDowntime.Array">
           <tr>
@@ -273,7 +273,7 @@
           <th>FUEL OIL (m<sup>3</sup>)</th>
           <th>LUB OIL (Litres)</th>
           <th>Dom. Pot Water (m<sup>3</sup>)</th>
-          <th>Cargo Pot Water()</th>
+          <th>Cargo Pot Water (m<sup>3</sup>)</th>
         </tr>
         <tr>
           <th>Start of day</th>
@@ -291,7 +291,7 @@
               [(value)]="liquids.potwater.oldValue"></td>
         </tr>
         <tr>
-          <th>Loaded/Made</th>
+          <th>Loaded / Made</th>
           <td><input class="form-control" type="double" min="0" max="100000"
               (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.loaded"
               [(value)]="liquids.fuel.loaded">
@@ -514,7 +514,7 @@
       <table class="table table-bordered">
         <tr>
           <td>
-            <h4>Vessel Operations/remarks</h4>
+            <h4>Vessel Operations / remarks</h4>
           </td>
         </tr>
         <tr>

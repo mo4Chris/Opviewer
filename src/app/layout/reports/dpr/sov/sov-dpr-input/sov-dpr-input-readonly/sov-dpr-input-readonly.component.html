@@ -80,7 +80,7 @@
           <th>Decided by</th>
           <th>From</th>
           <th>To</th>
-          <th>vessel/subsystem</th>
+          <th>vessel / subsystem</th>
         </tr>
         <ng-container *ngFor="let _weatherDowntime of weatherDowntime.Array">
           <tr>
@@ -161,7 +161,7 @@
           <th>FUEL OIL (m<sup>3</sup>)</th>
           <th>LUB OIL (Litres)</th>
           <th>Dom. Pot Water (m<sup>3</sup>)</th>
-          <th>Cargo Pot Water()</th>
+          <th>Cargo Pot Water (m<sup>3</sup>)</th>
         </tr>
         <tr>
           <th>Start of day</th>
@@ -171,7 +171,7 @@
           <td>{{liquids.potwater.oldValue}}</td>
         </tr>
         <tr>
-          <th>Loaded/Made</th>
+          <th>Loaded / Made</th>
           <td>{{liquids.fuel.loaded}}
           </td>
           <td>{{liquids.luboil.loaded}}</td>
@@ -240,7 +240,7 @@
           </th>
         </tr>
         <tr>
-          <th> People on board</th>
+          <th><div [ngbTooltip]="tooltipCateringPob">People on board</div></th>
           <td></td>
           <td></td>
         </tr>
@@ -314,7 +314,7 @@
       <table class="table table-bordered">
         <tr>
           <td>
-            <h4>Vessel Operations/remarks</h4>
+            <h4>Vessel Operations / remarks</h4>
           </td>
         </tr>
         <tr>
@@ -352,6 +352,7 @@
     (onConfirm)="declineDprClient($event)" feedback="Reason of refusal"></app-confirm>
 </ng-template>
 
+
 <ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
 <ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
 technical issues with the vessel. Provide further details in the hse DPR and remark section
@@ -360,3 +361,4 @@ technical issues with the vessel. Provide further details in the hse DPR and rem
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
 <ng-template #tooltipPOB>Number of people on board of the vessel at the end of day</ng-template>
+<ng-template #tooltipCateringPob>Number of people on board of the vessel who used the catering</ng-template>

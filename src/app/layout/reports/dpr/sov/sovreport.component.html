@@ -12,7 +12,7 @@
       </ng-template>
     </ngb-tab>
     
-    <ngb-tab *ngIf="permission.sovCommercialRead" title="Commercial DPR" [disabled]="!hasDprData" [id]="'commercial'">
+    <ngb-tab *ngIf="permission.sovCommercialRead" title="Transfers" [disabled]="!hasDprData" [id]="'commercial'">
       <ng-template ngbTabContent>
         <app-sov-v2v-transfers *ngIf="sovModel.vessel2vessels.length>0" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
@@ -35,7 +35,7 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="DPR input [read only]" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
+    <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
       <ng-template ngbTabContent>
         <br>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
@@ -67,7 +67,7 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="HSE input" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
+    <ngb-tab title="HSE overview" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
       <ng-template ngbTabContent>
         <br>
         <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [hseDprApprovalCount]="hseDprApproval" (hseDprApproval)="emitHseApproval($event)" [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
