@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
@@ -8,7 +8,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-sov-dpr-input-vesselmaster',
   templateUrl: './sov-dpr-input-vesselmaster.component.html',
-  styleUrls: ['./sov-dpr-input-vesselmaster.component.scss', '../../sovreport.component.scss']
+  styleUrls: ['./sov-dpr-input-vesselmaster.component.scss', '../../sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() vesselObject;
@@ -27,7 +28,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() dprApprovalCount;
 
   @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
-
+  @Output() loaded = new EventEmitter<boolean>();
 
   constructor(
     private commonService: CommonService,
@@ -88,6 +89,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.updateHseDprInput();
     this.updateHOCTotal();
     this.updateToolboxTotal();
+    this.loaded.emit(true);
   }
 
   updateHOCTotal() {

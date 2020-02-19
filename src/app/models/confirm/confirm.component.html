@@ -1,0 +1,24 @@
+<ng-container class="center-vertical">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{title}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    {{body}}
+    <ng-container *ngIf="feedback.length > 0">
+      <textarea [value]="text" [(ngModel)]="text" autosize class="form-control"
+        [placeholder]="feedback"></textarea>
+    </ng-container>
+    <br><br>
+    <button
+      class="btn btn-lg btn-success" (click)="confirm();"
+      style="float:left; margin-left: 10px;"
+      type="button">{{confirmTag}}</button>
+    <button
+      class="btn btn-lg btn-danger" (click)="cancel();"
+      style="float:right; margin-right: 10px;"
+      type="button">{{cancelTag}}</button>
+  </div>
+</ng-container>

@@ -101,7 +101,7 @@
                 </tr>
 
                 <tr>
-                  <th>Equipment damages</th>
+                  <th>Equipment Damage</th>
                   <td>
                     {{hseData.equipmentDamage.value}}
                   </td>
@@ -112,7 +112,7 @@
                 </tr>
                 <!-- Needs input -->
                 <tr>
-                  <th>Technical Breakdowns</th>
+                  <th><div [ngbTooltip]="tooltipTechBreakdowns">Technical Breakdowns</div></th>
                   <td>
                     {{dprData.technicalBreakdownAmount.value}}
                   </td>
@@ -135,7 +135,7 @@
 
                 <!-- need input-->
                 <tr>
-                  <th>Risk assessments</th>
+                  <th><div [ngbTooltip]="tooltipRiskAssessment">Risk assessments</div></th>
                   <td>
                     {{dprData.hocAmount.value}}
                   </td>
@@ -178,7 +178,7 @@
                   <th>Comment</th>
                 </tr>
                 <tr>
-                  <th>Safety Comittee meetings</th>
+                  <th>Safety Committee Meetings</th>
                   <td>
                     {{hseData.safetyComitteeMeeting.value}}
                   </td>
@@ -219,7 +219,7 @@
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
-                    <h4>Consumption/Landed/disposed</h4>
+                    <h4>Consumption / Landed / disposed</h4>
                   </th>
                 </tr>
                 <tr>
@@ -231,7 +231,7 @@
                 <tr>
                   <th>Fuel oil Consumption</th>
                   <td>
-                    {{this.dprData.fuelConsumption.value}} m3
+                    {{this.dprData.fuelConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
                     <textarea autosize class="form-control" cols="70"> </textarea>
@@ -240,7 +240,7 @@
                 <tr>
                   <th>Lub oil consumption</th>
                   <td>
-                    {{this.dprData.lubOilConsumption.value}} m3
+                    {{this.dprData.lubOilConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
                     <textarea autosize class="form-control" cols="70"> </textarea>
@@ -249,7 +249,7 @@
                 <tr>
                   <th>Water consumption</th>
                   <td>
-                    {{this.dprData.waterConsumption.value}} m3
+                    {{this.dprData.waterConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
                     <textarea autosize class="form-control" cols="70"> </textarea>
@@ -266,9 +266,9 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Plastic incenerated</th>
+                  <th>Plastic incinerated</th>
                   <td>
-                    {{hseData.plasticIncinerated.value}} m3
+                    {{hseData.plasticIncinerated.value}} m<sup>3</sup>
                   </td>
                   <td>
                     <textarea [value]="hseData.plasticIncinerated.comment"
@@ -279,7 +279,7 @@
                 <tr>
                   <th>Plastic landed</th>
                   <td>
-                    {{hseData.plasticLanded.value}} m3
+                    {{hseData.plasticLanded.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -290,7 +290,7 @@
                 <tr>
                   <th>Food incinerated</th>
                   <td>
-                    {{hseData.foodIncinerated.value}} m3
+                    {{hseData.foodIncinerated.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -301,7 +301,7 @@
                 <tr>
                   <th>Food landed</th>
                   <td>
-                    {{hseData.foodLanded.value}} m3
+                    {{hseData.foodLanded.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -312,7 +312,7 @@
                 <tr>
                   <th>Food macerated</th>
                   <td>
-                    {{hseData.foodMacerated.value}} m3
+                    {{hseData.foodMacerated.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -323,7 +323,7 @@
                 <tr>
                   <th>Domestic waste landed</th>
                   <td>
-                    {{hseData.domWasteLanded.value}} m3
+                    {{hseData.domWasteLanded.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -334,7 +334,7 @@
                 <tr>
                   <th>Domestic waste incinerated</th>
                   <td>
-                    {{hseData.domWasteIncinerated.value}} m3
+                    {{hseData.domWasteIncinerated.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -346,7 +346,7 @@
                 <tr>
                   <th>Cooking oil landed</th>
                   <td>
-                    {{hseData.cookingoilLanded.value}} m3
+                    {{hseData.cookingoilLanded.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -357,7 +357,7 @@
                 <tr>
                   <th>Operational waste landed</th>
                   <td>
-                    {{hseData.opsWasteLanded.value}} m3
+                    {{hseData.opsWasteLanded.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -366,9 +366,9 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Operational waste incenerated</th>
+                  <th>Operational waste incinerated</th>
                   <td>
-                    {{hseData.opsWasteIncinerated.value}} m3
+                    {{hseData.opsWasteIncinerated.value}} m<sup>3</sup>
                   </td>
 
                   <td>
@@ -407,3 +407,5 @@
 <ng-template #noComment>
   <i>No remarks</i>
 </ng-template>
+<ng-template #tooltipTechBreakdowns>Number of technical breakdowns reported in the DPR</ng-template>
+<ng-template #tooltipRiskAssessment>Number of health and saferty observations reported in cards in the DPR</ng-template>

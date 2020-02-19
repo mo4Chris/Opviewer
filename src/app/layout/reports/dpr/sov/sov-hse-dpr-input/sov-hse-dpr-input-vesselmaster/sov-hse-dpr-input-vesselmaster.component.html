@@ -1,8 +1,9 @@
 <div class="row ">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3 singlepage-print-port">
-      <div class="card-header">HSE input
-        <button class="btn btn-sm btn-primary" (click)="confirmSignoff(confirmSignoffModal)" style="float:right; margin-right: 10px;" type="button">
+      <div class="card-header">Additional HSE inputs
+        <button class="btn btn-sm btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
+          style="float:right; margin-right: 10px;" type="button">
           Sign off HSE</button>
       </div>
       <div class="card-body">
@@ -123,7 +124,7 @@
                   </th>
                 </tr>
                 <tr>
-                  <th>Safety Comittee meetings</th>
+                  <th>Safety Committee Meetings</th>
                   <td>
                     <input [value]="hseData.safetyComitteeMeeting.value"
                       [(ngModel)]="hseData.safetyComitteeMeeting.value" class="form-control">
@@ -167,7 +168,7 @@
               <table class="table table-bordered">
                 <tr>
                   <th colspan=4>
-                    <h4>Consumption/Landed/disposed</h4>
+                    <h4>Consumption / Landed / disposed</h4>
                   </th>
                 </tr>
                 <tr>
@@ -183,10 +184,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Plastic incenerated</th>
+                  <th>Plastic incinerated</th>
                   <td>
                     <input [value]="hseData.plasticIncinerated.value" [(ngModel)]="hseData.plasticIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -199,7 +200,7 @@
                   <th>Plastic landed</th>
                   <td>
                     <input [value]="hseData.plasticLanded.value" [(ngModel)]="hseData.plasticLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -211,7 +212,7 @@
                   <th>food incinerated</th>
                   <td>
                     <input [value]="hseData.foodIncinerated.value" [(ngModel)]="hseData.foodIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -223,7 +224,7 @@
                   <th>food landed</th>
                   <td>
                     <input [value]="hseData.foodLanded.value" [(ngModel)]="hseData.foodLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -235,7 +236,7 @@
                   <th>food macerated</th>
                   <td>
                     <input [value]="hseData.foodMacerated.value" [(ngModel)]="hseData.foodMacerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -247,7 +248,7 @@
                   <th>Domestic waste landed</th>
                   <td>
                     <input [value]="hseData.domWasteLanded.value" [(ngModel)]="hseData.domWasteLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -259,7 +260,7 @@
                   <th>Domestic waste incinerated</th>
                   <td>
                     <input [value]="hseData.domWasteIncinerated.value" [(ngModel)]="hseData.domWasteIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -272,7 +273,7 @@
                   <th>Cooking oil landed</th>
                   <td>
                     <input [value]="hseData.cookingoilLanded.value" [(ngModel)]="hseData.cookingoilLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -284,7 +285,7 @@
                   <th>Operational waste landed</th>
                   <td>
                     <input [value]="hseData.opsWasteLanded.value" [(ngModel)]="hseData.opsWasteLanded.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -293,10 +294,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Operational waste incenerated</th>
+                  <th>Operational waste incinerated</th>
                   <td>
                     <input [value]="hseData.opsWasteIncinerated.value" [(ngModel)]="hseData.opsWasteIncinerated.value"
-                      class="form-control"> m3
+                      class="form-control"> m<sup>3</sup>
                   </td>
                   <th>comment</th>
                   <td>
@@ -330,26 +331,9 @@
       </div>
     </div>
   </div>
-
-  <ng-template #confirmSignoffModal let-modal class="center-vertical">
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Sign off HSE DPR?</h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      This will make it impossible to make further changes to the DPR Input table 
-      for the rest of the day.
-      <br><br>
-      <button
-        class="btn btn-lg btn-success" (click)="signOffHseDpr();modal.dismiss('Cross click')"
-        style="float:left; margin-left: 10px;"
-        type="button">Confirm</button>
-      <button
-        class="btn btn-lg btn-danger" (click)="modal.dismiss('Cross click')"
-        style="float:right; margin-right: 10px;"
-        type="button">Cancel</button>
-    </div>
-  </ng-template>
 </div>
+
+<ng-template #confirmSignoffModal let-modal>
+  <app-confirm title="Sign off HSE DPR?" body="This will make it impossible to make further changes
+    to the hse input table for this day." [modal]="modal" (onConfirm)="signOffHseDpr()"></app-confirm>
+</ng-template>
