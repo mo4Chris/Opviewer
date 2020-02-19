@@ -325,12 +325,12 @@
         <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
           <td>
             <button
-                class="btn btn-lg btn-danger" (click)="declineDprClient()"
+                class="btn btn-lg btn-danger" (click)="openModal(refuseSignoffModal)"
                 style="float:right" type="button">
                 Refuse DPR
             </button>
             <button
-                class="btn btn-lg btn-primary" (click)="signOffDprClient()"
+                class="btn btn-lg btn-primary" (click)="openModal(acceptSignoffModal)"
                 style="float:right" type="button">
                 Sign off DPR
             </button>
@@ -340,6 +340,17 @@
     </div>
   </div>
 </div>
+
+<ng-template #acceptSignoffModal let-modal>
+  <app-confirm title="Confirm DPR?" body="This will mark this dpr as final." [modal]="modal"
+   successTag="Refuse" (onConfirm)="signOffDprClient()"></app-confirm>
+</ng-template>
+
+<ng-template #refuseSignoffModal let-modal>
+  <app-confirm title="Refuse DPR?" body="Refuses the dpr and will inform the captain that the
+    the dpr needs to be checked and resubmitted." [modal]="modal" successTag="Refuse"
+    (onConfirm)="declineDprClient($event)" feedback="Reason of refusal"></app-confirm>
+</ng-template>
 
 <ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
 <ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to

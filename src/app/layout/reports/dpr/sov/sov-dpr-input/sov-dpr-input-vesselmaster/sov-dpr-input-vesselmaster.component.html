@@ -535,26 +535,10 @@
   </div>
 </div>
 
-<ng-template #confirmSignoffModal let-modal class="center-vertical">
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Sign off DPR?</h4>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    This will make it impossible to make further changes to the DPR Input table 
-    for the rest of the day.
-    <br><br>
-    <button
-      class="btn btn-lg btn-success" (click)="signOffDpr();modal.dismiss('Cross click')"
-      style="float:left; margin-left: 10px;"
-      type="button">Confirm</button>
-    <button
-      class="btn btn-lg btn-danger" (click)="modal.dismiss('Cross click')"
-      style="float:right; margin-right: 10px;"
-      type="button">Cancel</button>
-  </div>
+<ng-template #confirmSignoffModal let-modal>
+  <app-confirm title="Sign off DPR?" body="This will make it impossible to make further changes
+    to the DPR Input table for this day." [modal]="modal" (onConfirm)="signOffDpr()"
+    ></app-confirm>
 </ng-template>
 
 <ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>

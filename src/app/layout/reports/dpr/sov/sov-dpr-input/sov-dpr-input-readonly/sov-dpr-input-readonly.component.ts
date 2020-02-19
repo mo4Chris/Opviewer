@@ -2,6 +2,8 @@ import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angu
 import { catchError, map } from 'rxjs/operators';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TokenModel } from '@app/models/tokenModel';
 
 @Component({
   selector: 'app-sov-dpr-input-readonly',
@@ -20,7 +22,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() dp: ReadonlyInput;
   @Input() remarks = '';
   @Input() vesselObject;
-  @Input() tokenInfo;
+  @Input() tokenInfo: TokenModel;
   @Input() dprApprovalCount;
 
   dprSignedByClient = 2;
@@ -31,6 +33,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   constructor(
     private commonService: CommonService,
     private alert: AlertService,
+    private modalService: NgbModal,
   ) {}
 
   ngOnChanges() {
@@ -52,10 +55,11 @@ export class SovDprInputReadonlyComponent implements OnChanges {
     this.dprApprovalCount = 2;
   }
 
-  declineDprClient() {
+  declineDprClient(data: {feedback: string}) {
     this.saveStats('declineDprClient', {
       date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
+      mmsi: this.vesselObject.mmsi,
+      refuseFeedback: data.feedback,
     });
     this.dprApproval.emit(this.dprDeclinedByClient);
     this.dprApprovalCount = -1;
@@ -108,6 +112,11 @@ export class SovDprInputReadonlyComponent implements OnChanges {
     ).subscribe();
   }
 
+  openModal(modalRef: NgbModalRef) {
+    this.modalService.open(modalRef, {
+      ariaLabelledBy: 'modal-basic-title',
+    });
+  }
 }
 
 interface ReadonlyInput {
