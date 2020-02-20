@@ -8,6 +8,7 @@ import { AutosizeModule } from 'ngx-autosize';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { mockedObservable } from '@app/models/testObservable';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;
@@ -22,6 +23,7 @@ describe('SovDprInputVesselmasterComponent', () => {
         CommonModule,
         FormsModule,
         AutosizeModule,
+        SupportModelModule,
       ],
       declarations: [
         SovDprInputVesselmasterComponent

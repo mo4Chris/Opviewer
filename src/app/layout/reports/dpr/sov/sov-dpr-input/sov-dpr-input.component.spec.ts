@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { AutosizeModule } from 'ngx-autosize';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovDprInputComponent', () => {
   let component: SovDprInputComponent;
@@ -23,6 +24,7 @@ describe('SovDprInputComponent', () => {
         CommonModule,
         FormsModule,
         AutosizeModule,
+        SupportModelModule,
       ],
       declarations: [
         SovDprInputComponent,
