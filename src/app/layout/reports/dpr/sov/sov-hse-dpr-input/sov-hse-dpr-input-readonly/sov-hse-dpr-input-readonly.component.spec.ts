@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SharedPipesModule } from '@app/shared';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovHseDprInputReadonlyComponent', () => {
   let component: SovHseDprInputReadonlyComponent;
@@ -19,6 +20,8 @@ describe('SovHseDprInputReadonlyComponent', () => {
         ReactiveFormsModule,
         SharedPipesModule,
         NgbAlertModule,
+        SupportModelModule,
+        NgbModule,
       ],
       declarations: [ SovHseDprInputReadonlyComponent ],
       providers: [

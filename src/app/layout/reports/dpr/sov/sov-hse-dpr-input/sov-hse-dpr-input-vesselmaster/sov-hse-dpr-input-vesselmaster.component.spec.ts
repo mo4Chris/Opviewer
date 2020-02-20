@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SharedPipesModule } from '@app/shared';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input-vesselmaster.component';
+import { SupportModelModule } from '@app/models/support-model.module';
 
 describe('SovHseDprInputVesselmasterComponent', () => {
   let component: SovHseDprInputVesselmasterComponent;
@@ -17,6 +18,7 @@ describe('SovHseDprInputVesselmasterComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         SharedPipesModule,
+        SupportModelModule,
       ],
       declarations: [ SovHseDprInputVesselmasterComponent ],
       providers: [
