@@ -125,6 +125,7 @@ export class WeatherOverviewChart {
               type: 'linear',
               maxTicksLimit: 7,
               suggestedMin: 0,
+              suggestedMax: 20.0,
             },
           },
           {
@@ -140,6 +141,7 @@ export class WeatherOverviewChart {
               type: 'linear',
               maxTicksLimit: 7,
               suggestedMin: 0,
+              suggestedMax: 1.0,
             }
           },
           {
