@@ -3,14 +3,13 @@ import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 
 import { Hotkeys } from '@app/supportModules/hotkey.service';
-import { take } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { UserService } from '@app/shared/services/user.service';
-import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 import { VesselModel } from '@app/models/vesselModel';
 import { TokenModel } from '@app/models/tokenModel';
 import { RouterService } from '@app/supportModules/router.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { isArray, isString } from 'util';
 
 @Component({
     selector: 'app-report-tables',
@@ -37,13 +36,26 @@ export class TablesComponent implements OnInit {
       this.hotkeys.addShortcut({keys: 'control.f'}).subscribe(_ => {
         const searchRef = <HTMLInputElement> document.getElementById('searchBox');
         searchRef.select();
-      })
+      });
       this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
           if (this.permission.admin) {
-            this.newService.getVessel().subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+            this.newService.getVessel().subscribe(data => {
+              this.Repdata = data;
+              this.Repdata.forEach(_rep => {
+                _rep.client = isArray(_rep.client) ? _rep.client : [];
+                _rep.client = _rep.client.filter((_client: any) => isString(_client));
+              });
+              this.applyFilter(''); });
           } else {
-            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => { this.Repdata = data; this.applyFilter(''); });
+            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+              this.Repdata = data;
+              this.Repdata.forEach(_rep => {
+                _rep.client = isArray(_rep.client) ? _rep.client : [];
+                _rep.client = _rep.client.filter((_client: any) => isString(_client));
+              });
+              this.applyFilter('');
+            });
           }
         } else {
           localStorage.removeItem('isLoggedin');
@@ -72,7 +84,7 @@ export class TablesComponent implements OnInit {
             return s.nicename.toLowerCase().includes(filterValue) ||
                 ('' + s.mmsi).includes(filterValue) ||
                 s.client.some(client => {
-                  return client.toLowerCase().includes(filterValue)
+                  return client.toLowerCase().includes(filterValue);
                 });
         });
         this.sortData(this.sort);
