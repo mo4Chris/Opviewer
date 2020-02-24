@@ -43,7 +43,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   }
 
   setTotalPob() {
-    this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
+    this.catering.totalPob = (0 + +this.catering.marineContractors + +this.catering.marine + +this.catering.project);
   }
 
   signOffDprClient() {
@@ -127,11 +127,12 @@ interface ReadonlyInput {
 }
 
 interface CateringInput {
-  project: Number;
-  marine: Number;
+  totalPob: number;
+  project: number;
+  marine: number;
   marineContractors: number;
-  extraMeals: Number;
-  packedLunches: Number;
+  extraMeals: number;
+  packedLunches: number;
   Array: Array<number>;
 }
 

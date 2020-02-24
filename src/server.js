@@ -2118,24 +2118,6 @@ app.post("/api/saveHelicopterPaxCargo", function(req, res) {
     });
 });
 
-app.post("/api/savePoBStats", function(req, res) {
-    validatePermissionToViewData(req, res, function(validated) {
-        if (validated.length < 1) {
-            return res.status(401).send('Access denied');
-        } else {
-            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { PoB: req.body.peopleonBoard },
-                function(err, data) {
-                    if (err) {
-                        console.log(err);
-                        res.send(err);
-                    } else {
-                        res.send({ data: "Succesfully saved the PoB input" });
-                    }
-                });
-        }
-    });
-});
-
 app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
     let mmsi = parseInt(req.params.mmsi);
     req.body.mmsi = mmsi;

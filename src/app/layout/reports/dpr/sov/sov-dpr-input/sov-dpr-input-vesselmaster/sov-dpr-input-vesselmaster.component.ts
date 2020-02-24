@@ -42,7 +42,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   weatherDowntimeChanged = false;
   cateringChanged = false;
   remarksChanged = false;
-  poBChanged = false;
   dpChanged = false;
 
   dprSignedBySkipper = 1;
@@ -193,12 +192,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     });
     this.dpChanged = false;
   }
-  savePoBStats() {
-    this.saveStats('savePoBStats', {
-      peopleonBoard: this.peopleOnVessel
-    });
-    this.poBChanged = false;
-  }
   saveRemarksStats() {
     this.saveStats('saveRemarksStats', {
       remarks: this.remarks
@@ -234,7 +227,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.liquids.potwater.newValue = +(+this.liquids.potwater.oldValue + +this.liquids.potwater.loaded - +this.liquids.potwater.consumed - this.liquids.potwater.discharged).toFixed(1);
   }
   updatePoB() {
-    this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
+    this.catering.totalPob = (0 + +this.catering.marineContractors + +this.catering.marine + +this.catering.project);
   }
 
   // Push / pop functions for the various arrays

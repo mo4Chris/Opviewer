@@ -351,43 +351,6 @@
     </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="2">
-            <h4>People on board</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Marine</th>
-          <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.marine" [(value)]="peopleOnVessel.marine"></td>
-        </tr>
-        <tr>
-          <th>Marine contractors</th>
-          <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.marineContractors" [(value)]="peopleOnVessel.marineContractors"></td>
-        </tr>
-        <tr>
-          <th>Project</th>
-          <td><input (change)="poBChanged = true; updatePoB()" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.project" [(value)]="peopleOnVessel.project"></td>
-        </tr>
-        <tr>
-          <th>Total People on board</th>
-          <td> {{peopleOnVessel.Total}}</td>
-        </tr>
-        <tr *ngIf="poBChanged == true">
-          <td colspan="2" class="submitbtnclass"> <button (click)="savePoBStats();" class="btn btn-lg btn-primary"
-              style="float:right" type="button">Save</button>
-          </td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-  <hr class="plsdonotprintthisforfsake">
-  <div class="row ">
-    <div class="col-xl-6">
-      <table class="table table-bordered">
 
         <tr>
           <th colspan="3">
@@ -416,6 +379,11 @@
           <td>Marine contractors</td>
           <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Total people on board</td>
+          <td>{{catering.totalPob}}</td>
         </tr>
         <tr>
           <th>Extra meals</th>
@@ -448,6 +416,10 @@
         </tr>
       </table>
     </div>
+  </div>
+
+  <hr class="plsdonotprintthisforfsake">
+  <div class="row ">
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
@@ -511,6 +483,8 @@
           </td>
         </tr>
       </table>
+    </div>
+    <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
           <td>

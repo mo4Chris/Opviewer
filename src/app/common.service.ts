@@ -350,11 +350,6 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  savePoBStats(sovpobstats) {
-    return this.post('/api/savePoBStats/', sovpobstats).pipe(
-      map((response: Response) => response.json()));
-  }
-
   saveRemarksStats(sovremarks) {
     return this.post('/api/saveRemarksStats/', sovremarks).pipe(
       map((response: Response) => response.json()));
