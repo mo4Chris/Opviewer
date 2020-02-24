@@ -2,6 +2,8 @@
   <br>
   <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
   <!-- ToDo: keep tabs in DOM / memory whenever the wavespectrum gets loaded, but not initially-->
+  <ngb-alert #refused style="position: relative;" *ngIf="dprApproval < 0" [dismissible]="false" type="warning">
+  The DPR as signed off by the captain has been refused. Please update as soon as possible!</ngb-alert>
   <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="true">
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
       <ng-template #summaryTest id="tab-summary" ngbTabContent>
