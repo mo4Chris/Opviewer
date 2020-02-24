@@ -14,13 +14,13 @@
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
-                    <h4>General Crew</h4>
+                    <h4>General crew</h4>
                   </th>
                 </tr>
                 <tr>
                   <th></th>
-                  <th>on board</th>
-                  <th>man days</th>
+                  <th>On board</th>
+                  <th>Personnel days</th>
                 </tr>
                 <tr>
                   <th>Marine crew</th>
@@ -31,6 +31,11 @@
                   <th>Client crew</th>
                   <td>{{dprData.clientCrewCount.value}}</td>
                   <td>{{dprData.clientCrewCount.value / 2}}</td>
+                </tr>
+                <tr>
+                  <th>Total</th>
+                  <td>{{dprData.clientCrewCount.value + dprData.marineCount.value}}</td>
+                  <td>{{dprData.clientCrewCount.value / 2 + dprData.marineCount.value}}</td>
                 </tr>
                 <tr>
                   <th colspan="3">
@@ -53,7 +58,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Restricted Workday Cases</th>
+                  <th>Restricted workday cases</th>
                   <td>
                     {{hseData.restrictedWorkday.value}}
                   </td>
@@ -65,7 +70,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Medical Treatment Cases</th>
+                  <th>Medical treatment cases</th>
                   <td>
                     {{hseData.MedicalTreatment.value}}
                   </td>
@@ -88,7 +93,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Environmental Incidents</th>
+                  <th>Environmental incidents</th>
                   <td>
                     {{hseData.environmentalIncidents.value}}
                   </td>
@@ -101,7 +106,7 @@
                 </tr>
 
                 <tr>
-                  <th>Equipment Damage</th>
+                  <th>Equipment damage</th>
                   <td>
                     {{hseData.equipmentDamage.value}}
                   </td>
@@ -112,7 +117,7 @@
                 </tr>
                 <!-- Needs input -->
                 <tr>
-                  <th><div [ngbTooltip]="tooltipTechBreakdowns">Technical Breakdowns</div></th>
+                  <th><div [ngbTooltip]="tooltipTechBreakdowns">Technical breakdowns</div></th>
                   <td>
                     {{dprData.technicalBreakdownAmount.value}}
                   </td>
@@ -144,7 +149,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Toolbox Talks</th>
+                  <th>Toolbox talks</th>
                   <td>
                     {{dprData.toolboxAmount.value}}
                   </td>
@@ -178,7 +183,7 @@
                   <th>Comment</th>
                 </tr>
                 <tr>
-                  <th>Safety Committee Meetings</th>
+                  <th>Safety committee meetings</th>
                   <td>
                     {{hseData.safetyComitteeMeeting.value}}
                   </td>
@@ -219,7 +224,7 @@
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
-                    <h4>Consumption / Landed / disposed</h4>
+                    <h4>Consumption / Landed / Disposed</h4>
                   </th>
                 </tr>
                 <tr>
@@ -229,7 +234,7 @@
                 </tr>
                 <!-- need input-->
                 <tr>
-                  <th>Fuel oil Consumption</th>
+                  <th>Fuel oil consumption</th>
                   <td>
                     {{this.dprData.fuelConsumption.value}} m<sup>3</sup>
                   </td>

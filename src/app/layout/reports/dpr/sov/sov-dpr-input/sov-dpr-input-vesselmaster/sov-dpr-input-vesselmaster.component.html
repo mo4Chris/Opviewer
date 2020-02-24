@@ -271,7 +271,7 @@
         <tr>
           <td></td>
           <th>FUEL OIL (m<sup>3</sup>)</th>
-          <th>LUB OIL (Litres)</th>
+          <th>LUB OIL (litres)</th>
           <th>Dom. Pot Water (m<sup>3</sup>)</th>
           <th>Cargo Pot Water (m<sup>3</sup>)</th>
         </tr>
@@ -291,7 +291,7 @@
               [(value)]="liquids.potwater.oldValue"></td>
         </tr>
         <tr>
-          <th>Loaded / Made</th>
+          <th>Loaded / made</th>
           <td><input class="form-control" type="double" min="0" max="100000"
               (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.loaded"
               [(value)]="liquids.fuel.loaded">
@@ -322,7 +322,7 @@
               [(value)]="liquids.potwater.consumed"></td>
         </tr>
         <tr>
-          <th>Discharged to Client</th>
+          <th>Discharged to client</th>
           <td><input class="form-control" type="double" min="0" max="100000"
               (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.discharged"
               [(value)]="liquids.fuel.discharged"></td>
@@ -398,13 +398,13 @@
         </tr>
         <tr>
           <td></td>
-          <td>Marine + Marine Contractors</td>
+          <td>Marine + marine contractors</td>
           <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
         </tr>
 
         <tr>
-          <th>Packed Meals</th>
+          <th>Packed meals</th>
           <td>Ordered</td>
           <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
               [(ngModel)]="catering.packedLunches" [(value)]="catering.packedLunches"></td>
@@ -488,7 +488,7 @@
       <table class="table table-bordered">
         <tr>
           <td>
-            <h4>Vessel Operations / remarks</h4>
+            <h4>Vessel operations / remarks</h4>
           </td>
         </tr>
         <tr>
