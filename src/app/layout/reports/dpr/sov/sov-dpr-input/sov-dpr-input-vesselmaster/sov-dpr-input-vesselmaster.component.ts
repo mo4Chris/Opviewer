@@ -21,7 +21,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() hoc: ReadonlyInput;
   @Input() toolbox: ReadonlyInput;
   @Input() liquids;
-  @Input() peopleOnVessel;
   @Input() catering;
   @Input() dp;
   @Input() remarks;
@@ -60,8 +59,8 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   };
 
   updateHseDprInput() {
-    this.hseDprInput.marineCount.value = (this.peopleOnVessel.marine + this.peopleOnVessel.marineContractors);
-    this.hseDprInput.clientCrewCount.value = this.peopleOnVessel.project;
+    this.hseDprInput.marineCount.value = (this.catering.marine + this.catering.marineContractors);
+    this.hseDprInput.clientCrewCount.value = this.catering.project;
     this.hseDprInput.hocAmount.value = this.hoc.Total;
     this.hseDprInput.toolboxAmount.value = this.toolbox.Total;
     this.hseDprInput.technicalBreakdownAmount.value = this.vesselNonAvailability.Array.length;

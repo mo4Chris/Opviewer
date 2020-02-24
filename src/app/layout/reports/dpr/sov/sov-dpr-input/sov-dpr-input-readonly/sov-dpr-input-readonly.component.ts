@@ -17,7 +17,6 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   @Input() hoc;
   @Input() toolbox;
   @Input() liquids: LiquidsInput;
-  @Input() peopleOnVessel = {marine: 0, marineContractors: 0, project: 0, Total: 0};
   @Input() catering: CateringInput;
   @Input() dp: ReadonlyInput;
   @Input() remarks = '';
@@ -47,18 +46,13 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   }
 
   signOffDprClient() {
-    this.saveStats('saveDprSigningClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
-    });
+    this.saveStats('saveDprSigningClient', {});
     this.dprApproval.emit(this.dprSignedByClient);
     this.dprApprovalCount = 2;
   }
 
   declineDprClient(data: {feedback: string}) {
     this.saveStats('declineDprClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi,
       refuseFeedback: data.feedback,
     });
     this.dprApproval.emit(this.dprDeclinedByClient);

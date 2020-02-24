@@ -113,18 +113,12 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   }
 
   signOffHseDprClient() {
-    this.saveStats('saveHseDprSigningClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
-    });
+    this.saveStats('saveHseDprSigningClient', {});
     this.hseDprApproval.emit(this.hseDprSignedByClient);
   }
 
   declineHseDprClient() {
-    this.saveStats('declineHseDprClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
-    });
+    this.saveStats('declineHseDprClient', {});
     this.hseDprApproval.emit(this.hseDprDeclinedByClient);
   }
 }

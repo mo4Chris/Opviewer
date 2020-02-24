@@ -5,14 +5,14 @@
         [standby]="standBy" [hoc]="hoc" [toolbox]="toolbox" [tokenInfo]="tokenInfo"
         [dprApprovalCount]="dprApprovalCount" (dprApproval)="emitDprApproval($event)" [liquids]="liquidsObject"
         [catering]="catering" [dp]="dp" [remarks]="remarks" [vesselObject]="vesselObject"
-        [peopleOnVessel]="peopleonBoard"></app-sov-dpr-input-readonly>
+        ></app-sov-dpr-input-readonly>
     </div>
 
     <div *ngIf="!readonly" class="card mb-3 singlepage-print-port">
       <app-sov-dpr-input-vesselmaster [vesselNonAvailability]="vesselNonAvailability"
         [weatherDowntime]="weatherDowntime" [standby]="standBy" [hoc]="hoc" [dprApprovalCount]="dprApprovalCount"
         (dprApproval)="emitDprApproval($event)" [toolbox]="toolbox" [liquids]="liquidsObject" [catering]="catering"
-        [dp]="dp" [tokenInfo]="tokenInfo" [remarks]="remarks" [peopleOnVessel]="peopleonBoard"
+        [dp]="dp" [tokenInfo]="tokenInfo" [remarks]="remarks"
         [vesselObject]="vesselObject"></app-sov-dpr-input-vesselmaster>
     </div>
   </div>

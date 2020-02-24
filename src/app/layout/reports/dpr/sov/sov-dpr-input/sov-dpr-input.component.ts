@@ -51,11 +51,6 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   remarks = '';
 
   catering = {};
-  peopleonBoard = {
-    marine: 0,
-    marineContractors: 0,
-    project: 0
-  };
   PoBTotal = 0;
 
   liquidsObject = {
@@ -118,7 +113,6 @@ export class SovDprInputComponent implements OnInit, OnChanges {
       this.standBy.Array = this.dprInput.standBy || [];
       this.weatherDowntime.Array = this.dprInput.weatherDowntime;
       this.liquidsObject = this.dprInput.liquids;
-      this.peopleonBoard = this.dprInput.PoB;
       this.remarks = this.dprInput.remarks;
       this.catering = this.dprInput.catering;
       this.dp.Array = this.dprInput.dp;
