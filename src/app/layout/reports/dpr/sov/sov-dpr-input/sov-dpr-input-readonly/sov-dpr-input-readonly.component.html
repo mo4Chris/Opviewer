@@ -110,12 +110,12 @@
       <table class="table table-bordered">
         <tr>
           <th colspan="4">
-            <h4>HSE incidents & toolbox talks</h4>
+            <h4>Proactive reports & toolbox talks</h4>
           </th>
         </tr>
         <tr>
           <th>
-            <div [ngbTooltip]="tooltipHocCards">HOC cards: {{hoc.Total}}</div>
+            <div [ngbTooltip]="tooltipHocCards">SOC cards: {{hoc.Total}}</div>
           </th>
           <td colspan="3">
             <ng-container *ngFor="let HoC of hoc.Array">
@@ -126,7 +126,7 @@
           </td>
         </tr>
         <tr>
-          <th>HOC total Previous</th>
+          <th>SOC total Previous</th>
           <td>{{hoc.TotalOld}}</td>
           <th>New total</th>
           <td>{{hoc.TotalNew}}</td>

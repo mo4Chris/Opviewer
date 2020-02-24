@@ -122,12 +122,14 @@
         </div>
 
         <div class="col-xl-6 dailySummary">
-          <div *ngIf="operationalChartCalculated">
-            <canvas id="operationalStats"></canvas>
-          </div>
-          <div *ngIf="sovHasLimiters">
-            <canvas id="gangwayLimitations"></canvas>
-          </div>
+          <tr>
+            <div [hidden]="!operationalChartCalculated" class="pie-chart-container">
+              <canvas id="operationalStats"></canvas>
+            </div>
+            <div [hidden]="!sovHasLimiters" class="pie-chart-container">
+              <canvas id="gangwayLimitations"></canvas>
+            </div>
+          </tr>
         </div>
       </div>
     </div>

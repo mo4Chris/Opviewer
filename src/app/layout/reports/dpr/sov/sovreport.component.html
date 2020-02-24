@@ -35,14 +35,6 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
-      <ng-template ngbTabContent>
-        <br>
-        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
-          [readonly]="true" [dprApprovalCount]="dprApproval" [dprInput]="dprInput"></app-sov-dpr-input>
-      </ng-template>
-    </ngb-tab>
-
     <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" [id]="'dpr-input-write'">
       <ng-template ngbTabContent>
         <br>
@@ -66,6 +58,14 @@
           <app-sov-hse-dpr-input-vesselmaster [hseDprInput]="hseDprInput" (hseDprApproval)="emitHseApproval($event)" 
           [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
         </ng-container>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
+      <ng-template ngbTabContent>
+        <br>
+        <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
+          [readonly]="true" [dprApprovalCount]="dprApproval" [dprInput]="dprInput"></app-sov-dpr-input>
       </ng-template>
     </ngb-tab>
 
