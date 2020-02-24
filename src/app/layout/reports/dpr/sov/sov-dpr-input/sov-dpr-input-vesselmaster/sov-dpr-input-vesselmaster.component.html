@@ -365,19 +365,19 @@
         <tr>
           <td></td>
           <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.project" [(value)]="catering.project"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marine" [(value)]="catering.marine"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
         </tr>
         <tr>
@@ -393,20 +393,20 @@
         <tr>
           <td></td>
           <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.extraMeals" [(value)]="catering.extraMeals"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine + marine contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
         </tr>
 
         <tr>
           <th>Packed meals</th>
           <td>Ordered</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.packedLunches" [(value)]="catering.packedLunches"></td>
         </tr>
         <tr *ngIf="cateringChanged == true">
