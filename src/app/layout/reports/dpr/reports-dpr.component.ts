@@ -25,6 +25,7 @@ import { TokenModel } from '@app/models/tokenModel';
 import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -52,13 +53,13 @@ export class ReportsDprComponent implements OnInit {
   startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
-  vesselObject = {
+  vesselObject: VesselObjectModel = {
     date: this.getInitialDate(),
     mmsi: this.getMMSIFromParameter(),
     dateNormal: '',
-    vesselType: '',
+    vesselType: null,
+    vesselName: '',
   };
-  vesselname = '';
 
   parkNamesData;
   boatLocationData = [];
@@ -106,7 +107,7 @@ export class ReportsDprComponent implements OnInit {
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
       this.printPage();
-    })
+    });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (this.permission.admin) {
@@ -163,13 +164,13 @@ export class ReportsDprComponent implements OnInit {
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
-        this.vesselname = validatedValue[0].nicename;
         // We overwrite the vesselObject to trigger the reload of subcomponents
         this.vesselObject = {
           date: this.vesselObject.date,
           dateNormal: this.vesselObject.dateNormal,
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
+          vesselName: validatedValue[0].nicename,
         };
         const map = document.getElementById('routeMap');
         if (map != null) {
@@ -308,7 +309,7 @@ export class ReportsDprComponent implements OnInit {
     if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
       this.printMode = true;
       setTimeout(() => {
-        this._doPrint(() => {this.printMode = false;});
+        this._doPrint(() => {this.printMode = false; });
       }, 2000);
     } else {
       this._doPrint();
@@ -322,7 +323,7 @@ export class ReportsDprComponent implements OnInit {
       container.style.width = '225mm';
     }
     setTimeout(function() {
-      window.print(); 
+      window.print();
       if (cb) {
         cb();
       }

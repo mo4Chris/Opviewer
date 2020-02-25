@@ -342,7 +342,6 @@ var SovDprInput = new Schema({
     PoB: { type: Object },
     dp: { type: Array },
     signedOff: { type: Object }
-
 });
 var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
 
@@ -684,7 +683,7 @@ app.post("/api/registerUser", function(req, res) {
 
                             var serveradres = process.env.IP_USER.split(",");
                             let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
-                            let html = 'A account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+                            let html = 'An account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
                                 'If that doesnt work copy the link below <br>' + link;
                             mailTo('Registered user', html, user.username);
                             return res.send({ data: 'User created', status: 200 });
@@ -1796,14 +1795,18 @@ app.post("/api/saveNonAvailabilityDpr", function(req, res) {
 });
 
 app.post("/api/saveDprSigningSkipper", function(req, res) {
+    let mmsi = req.body.mmsi;
+    let date = req.body.date;
+    let vesselname = req.body.vesselName || '<invalid vessel name>';
+    let dateString = req.body.dateString || '<invalid date>';
     validatePermissionToViewData(req, res, function(validated) {
         let token = verifyToken(req, res);
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
-                    mmsi: req.body.mmsi,
-                    date: req.body.date,
+                    mmsi: mmsi,
+                    date: date,
                     active: { $ne: false }
                 }, {
                     $set: {
@@ -1818,7 +1821,33 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                     } else {
                         res.send({ data: "Succesfully signed off the DPR" });
                     }
-                });
+                }
+            );
+            const _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
+                ' has been signed off by the skipper. Please review the dpr and sign off if in agreement!<br><br>' +
+                'Link to the relevant report:<br>' +
+                process.env.IP_USER + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+                // ToDo: set proper recipient
+            let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
+            let recipient = [];
+            Usermodel.find({
+                active: { $ne: false },
+                permissions: 'Client representative'
+            }, {
+                usename: 1,
+            }, (err, data) => {
+                if (err || data.length === 0) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    recipient = ['webmaster@bmo-offshore.com']
+                    title = 'Failed to deliver: client representative not found!'
+                } else {
+                    recipient = data.map(user => user.username);
+                }
+            });
+            _body = _body + '<br><br>' + recipient[0]
+            mailTo(title, _body, 'erwin@bmo-offshore.com')
         }
     });
 });
@@ -1846,20 +1875,25 @@ app.post("/api/saveDprSigningClient", function(req, res) {
                     } else {
                         res.send({ data: "Succesfully signed off the DPR" });
                     }
-                });
+                }
+            );
         }
     });
 });
 
 app.post("/api/declineDprClient", function(req, res) {
     let token = verifyToken(req, res);
+    let mmsi = req.body.mmsi;
+    let date = req.body.date;
+    let vesselname = req.body.vesselName || '<invalid vessel name>';
+    let dateString = req.body.dateString || '<invalid date>';
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
-                    mmsi: req.body.mmsi,
-                    date: req.body.date,
+                    mmsi: mmsi,
+                    date: date,
                     active: { $ne: false }
                 }, {
                     $set: {
@@ -1874,20 +1908,32 @@ app.post("/api/declineDprClient", function(req, res) {
                     } else {
                         res.send({ data: "Succesfully declined the DPR" });
                     }
-                });
+                }
+            );
+            const _body = 'The dpr for vessel ' + vesselname + ',' + dateString +
+                ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
+                'Link to the relevant report:<br>' +
+                process.env.IP_USER + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+                '<br><br>Feedback from client:<br>' + req.body.feedback;
+            // ToDo: set proper recipient
+            mailTo('DPR signoff refused by client', _body, 'erwin@bmo-offshore.com')
         }
     });
 });
 
 app.post("/api/declineHseDprClient", function(req, res) {
+    let mmsi = req.body.mmsi;
+    let date = req.body.date;
+    let vesselname = req.body.vesselName || '<invalid vessel name>';
+    let dateString = req.body.dateString || '<invalid date>';
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
-                    mmsi: req.body.mmsi,
-                    date: req.body.date,
+                    mmsi: mmsi,
+                    date: date,
                     active: { $ne: false }
                 }, {
                     $set: {
@@ -1902,7 +1948,15 @@ app.post("/api/declineHseDprClient", function(req, res) {
                     } else {
                         res.send({ data: "Succesfully declined the HSE DPR" });
                     }
-                });
+                }
+            );
+            const _body = 'The HSE DPR for vessel ' + vesselname + ', ' + dateString +
+                ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
+                'Link to the relevant report:<br>' +
+                process.env.IP_USER + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+                '<br><br>Feedback from client:<br>' + req.body.feedback;
+            // ToDo: set proper recipient
+            mailTo('HSE DPR signoff refused by client', _body, 'erwin@bmo-offshore.com')
         }
     });
 });
@@ -1910,14 +1964,18 @@ app.post("/api/declineHseDprClient", function(req, res) {
 
 
 app.post("/api/saveHseDprSigningSkipper", function(req, res) {
+    let mmsi = req.body.mmsi;
+    let date = req.body.date;
+    let vesselname = req.body.vesselName || '<invalid vessel name>';
+    let dateString = req.body.dateString || '<invalid date>';
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
-                    mmsi: req.body.mmsi,
-                    date: req.body.date,
+                    mmsi: mmsi,
+                    date: date,
                     active: { $ne: false }
                 }, {
                     $set: {
@@ -1932,7 +1990,14 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                     } else {
                         res.send({ data: "Succesfully signed off the HSE DPR" });
                     }
-                });
+                }
+            );
+            const _body = 'The hse dpr for vessel ' + vesselname + ', ' + dateString +
+                ' has been signed off by client. Please review the dpr and sign off if in agreement!<br><br>' +
+                'Link to the relevant report:<br>' +
+                process.env.IP_USER + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+                // ToDo: set proper recipient
+            mailTo('DPR signoff refused by client', _body, 'erwin@bmo-offshore.com')
         }
     });
 });

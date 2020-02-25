@@ -8,7 +8,7 @@ import { LongtermColorScheme } from '../../models/color_scheme';
 
 export class ScatterplotComponent {
   constructor(
-    vesselObject: VesselObjectModel,
+    vesselObject: ScatterObjectModel,
     comparisonArray: ComprisonArrayElt[],
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService
@@ -32,7 +32,7 @@ export class ScatterplotComponent {
   defaultVesselName = '';
   graphXLabels = { scales: {} };
   public scatterChartLegend = false;
-  vesselObject: VesselObjectModel;
+  vesselObject: ScatterObjectModel;
   comparisonArray: ComprisonArrayElt[];
 
   myChart: Chart[] = [];
@@ -758,7 +758,7 @@ interface LegendEntryCallbackElement {
   pointStyle: string;
 }
 
-interface VesselObjectModel {
+interface ScatterObjectModel {
   mmsi: number[];
   dateMin: number;
   dateMax: number;

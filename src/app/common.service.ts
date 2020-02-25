@@ -370,32 +370,32 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  saveDprSigningSkipper(dataObject) {
+  saveDprSigningSkipper(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/saveDprSigningSkipper/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
 
-  saveDprSigningClient(dataObject) {
+  saveDprSigningClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/saveDprSigningClient/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
 
-  saveHseDprSigningSkipper(dataObject) {
+  saveHseDprSigningSkipper(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/saveHseDprSigningSkipper/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
 
-  saveHseDprSigningClient(dataObject) {
+  saveHseDprSigningClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/saveHseDprSigningClient/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
 
-  declineHseDprClient(dataObject) {
+  declineHseDprClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/declineHseDprClient/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
 
-  declineDprClient(dataObject) {
+  declineDprClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/declineDprClient/', dataObject).pipe(
       map((response: Response) => response.json()));
   }
@@ -587,3 +587,10 @@ export interface StatsRangeRequest {
   reqFields: string[];
 }
 
+export interface SovDprSignOrRefuseModel {
+  mmsi: number;
+  date: number;
+  dateString: string;
+  vesselName: string;
+  feedback?: string;
+}
