@@ -165,7 +165,32 @@
             <button class="btn btn-sm btn-danger"
               (click)="removeLastFromWeatherDowntimeArray(); weatherDowntimeChanged = true;" type="button">remove
               last</button>
-            <button *ngIf="weatherDowntimeChanged == true" class="btn btn-lg btn-primary" style="float:right"
+          </td>
+        </tr>
+        
+        <tr>
+          <th colspan="4">
+            <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
+          </th>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="accessDayType.status"
+              class="form-control">
+              <option [value]="undefined" disabled selected hidden>Please select...</option>
+              <option value="Full access day">Full access day</option>
+              <option value="Half access day">Half access day</option>
+              <option value="No access day">No access day</option>
+              <option value="Adverse weather below 2.5m Hs">Adverse weather below 2.5m Hs</option>
+              <option value="Off hire event">Off hire event</option>
+              <option value="Port call day">Port call day (Full day only)</option>
+              <option value="Excluded day">Excluded day</option>
+            </select>
+          </td>
+        </tr>
+        <tr *ngIf="weatherDowntimeChanged == true">
+          <td colspan="4">
+            <button class="btn btn-lg btn-primary" style="float:right"
               (click)="saveWeatherDowntimeStats();" type="button">Save</button>
           </td>
         </tr>
@@ -522,5 +547,6 @@ technical issues with the vessel. Provide further details in the hse DPR and rem
 <ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
+<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, any select any of the more specific options if relevant.</ng-template>
 <ng-template #tooltipPOB>Number of people on board of the vessel at the end of day. By default, yesterdays
 values are auto-filled.</ng-template>

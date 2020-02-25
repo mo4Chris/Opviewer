@@ -7,7 +7,7 @@ import { Injectable, Component } from '@angular/core';
 export class AlertService {
     active = false;
     text = '';
-    type = '';
+    type: AlertTypeOptions = 'success';
     timeout = 7000;
 
     private timeoutRef = null;
@@ -26,13 +26,27 @@ export class AlertService {
         if (this.timeoutRef) {
           clearTimeout(this.timeoutRef);
         }
-        this.active = true;
-        this.text = opts.text;
-        this.type = opts.type;
-        this.timeout = opts.timeout;
-        this.timeoutRef = setTimeout(() => {
-          this.active = false;
-        }, this.timeout);
+        if (opts.type === 'danger' || !this.active) {
+          this.changeAlert(opts);
+        } else if (this.type === 'danger') {
+          // Do nothing
+        } else if (opts.type === 'warning') {
+          this.changeAlert(opts);
+        } else if (this.type === 'warning') {
+          // Do nothing
+        } else {
+          this.changeAlert(opts);
+        }
+    }
+
+    private changeAlert(opts: AlertOptions) {
+      this.active = true;
+      this.text = opts.text;
+      this.type = opts.type;
+      this.timeout = opts.timeout;
+      this.timeoutRef = setTimeout(() => {
+        this.active = false;
+      }, this.timeout);
     }
 }
 

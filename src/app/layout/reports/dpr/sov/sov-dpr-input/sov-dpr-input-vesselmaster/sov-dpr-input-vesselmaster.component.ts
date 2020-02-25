@@ -18,6 +18,8 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() standby: ReadonlyInput;
   @Input() vesselNonAvailability: ReadonlyInput;
   @Input() weatherDowntime: ReadonlyInput;
+  @Input() accessDayType: {status: string};
+
   @Input() hoc: ReadonlyInput;
   @Input() toolbox: ReadonlyInput;
   @Input() liquids;
@@ -177,6 +179,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.saveStats('saveStandByDpr', {
       standBy: this.standby.Array
     });
+    this.saveStats('saveAccessDayType', {accessDayType: this.accessDayType});
     this.weatherDowntimeChanged = false;
   }
   saveCateringStats() {

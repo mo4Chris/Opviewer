@@ -329,6 +329,7 @@ var SovDprInput = new Schema({
     vesselNonAvailability: { type: Array },
     weatherDowntime: { type: Array },
     standBy: { type: Array },
+    accessDayType: { type: Object },
     remarks: { type: String },
     catering: { type: Object },
     date: { type: Number },
@@ -2054,7 +2055,7 @@ app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
     });
 });
 
-app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
+app.post("/api/saveAccessDayType", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -2064,7 +2065,7 @@ app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
                     date: req.body.date,
                     active: { $ne: false }
                 }, {
-                    weatherDowntime: req.body.weatherDowntime
+                    accessDayType: req.body.accessDayType
                 },
                 function(err, data) {
                     if (err) {

@@ -2,9 +2,11 @@
 <div class="card-body">
   <div class="row">
     <div class="col-xl-12">
-      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount < 1" [dismissible]="false" type="warning">At this
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount == 0" [dismissible]="false" type="warning">At this
         moment the DPR has not been signed off by the captain. All data shown is either automatically filled in or is
         data filled in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount == 1 && permission.sovCommercialSign" [dismissible]="false" type="warning">
+        This DPR has been signed off by the captain, but is still awaiting approval.</ngb-alert>
     </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
@@ -102,6 +104,16 @@
         </ng-container>
         <tr *ngIf="weatherDowntime.Array.length==0">
           <td colspan="4"><i>No weather downtime entered</i></td>
+        </tr>
+        <tr>
+          <th colspan="4">
+            <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
+          </th>
+        </tr>
+        <tr>
+          <ng-template #noDayType><td colspan="4"><i>Access day type not entered</i></td></ng-template>
+          <td colspan="4" *ngIf="accessDayType && accessDayType.status; else noDayType"> 
+            {{accessDayType.status}}
         </tr>
       </table>
     </div>
@@ -255,7 +267,6 @@
           <td>Marine + marine contractors</td>
           <td>{{catering.marineContractors}}</td>
         </tr>
-
         <tr>
           <th>Packed meals</th>
           <td>Ordered</td>
@@ -311,7 +322,8 @@
             <td style="white-space: pre-wrap;"><i>No remarks</i></td>
           </ng-template>
         </tr>
-        <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
+        <tr>{{permission.sovCommercialSign}}</tr>
+        <tr *ngIf="dprApprovalCount == 1 && permission.sovCommercialSign">
           <td>
             <button class="btn btn-lg btn-danger" (click)="openModal(refuseSignoffModal)" style="float:right"
               type="button">
@@ -347,3 +359,4 @@
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
 <ng-template #tooltipCateringPob>Number of people on board of the vessel who used the catering</ng-template>
+<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, any select any of the more specific options if relevant.</ng-template>

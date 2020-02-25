@@ -330,6 +330,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveAccessDayType(status: {accessDayType: string}) {
+    return this.post('/api/saveAccessDayType/', status).pipe(
+      map((response: Response) => response.json()));
+  }
+
   saveCateringStats(sovcateringstats) {
     return this.post('/api/saveCateringStats/', sovcateringstats).pipe(
       map((response: Response) => response.json()));
