@@ -27,7 +27,7 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   hseDprSignedByClient = 2;
   hseDprDeclinedByClient = -1;
 
-  hseData = {};
+  hseData;
   dprData = {};
 
   saveStats(saveFcnName: string, saveObject: object): void {
@@ -102,7 +102,8 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
         opsWasteLanded: { value: 0, comment: '' },
         opsWasteIncinerated: { value: 0, comment: '' },
 
-        remarks: ''
+        remarks: '',
+        remarksQhse: ''
         };
     }
   }
@@ -126,5 +127,13 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
       mmsi: this.vesselObject.mmsi
     });
     this.hseDprApproval.emit(this.hseDprDeclinedByClient);
+  }
+
+  saveQHSERemark() {
+    this.saveStats('saveQHSERemark', {
+      date: this.vesselObject.date,
+      mmsi: this.vesselObject.mmsi,
+      remark: this.hseData.remarksQhse,
+    });
   }
 }

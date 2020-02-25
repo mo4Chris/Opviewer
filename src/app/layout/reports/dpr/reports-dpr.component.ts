@@ -105,7 +105,7 @@ export class ReportsDprComponent implements OnInit {
   // Initial load
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
-      this.printPage();
+      this.printPage(1);
     });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
