@@ -120,7 +120,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   createHoursTimes() {
       const allHours = [];
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 25; i++) {
         let time = i + '';
         if (i < 10) {
           time = '0' + time;
@@ -321,7 +321,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   groupMatlabDates(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
-    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []}
+    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
     const dates = matlab_dates.map(dnum => this.MatlabDateToObject(dnum));
     const minDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
     const maxDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
@@ -333,12 +333,12 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
         for (let _i = 0; _i < numMonths; _i++) {
           year += month >= 12 ? 1 : 0;
           month = month >= 12 ? 1 : month + 1;
-          const matches = []
+          const matches = [];
           const index = [];
-          dates.forEach(((val, _i) => {
+          dates.forEach(((val, __i) => {
             if (val.year === year && val.month === month) {
               matches.push(val);
-              index.push(_i);
+              index.push(__i);
             }
           }));
           groupedData[_i] = {
@@ -349,11 +349,11 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
             count: matches.length,
             index: index,
             numDays: new Date(year, month, 0).getDate(),
-          }
+          };
         }
         return groupedData;
       default:
-        console.error('Groupby operator ' + groupBy + ' is not yet implemented!')
+        console.error('Groupby operator ' + groupBy + ' is not yet implemented!');
         return [];
     }
   }
@@ -363,11 +363,11 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     const groups = this.groupMatlabDates(data.date || []);
     const props = Object.keys(data).filter(prop => isArray(data[prop]));
     return groups.map(group => {
-      let datas = {month: group};
+      const datas = {month: group};
       props.forEach(prop => {
-        datas[prop] = data[prop].filter((_: any, _i: number) => group.index.some((__i: number) => __i ===_i))
-      })
+        datas[prop] = data[prop].filter((_: any, _i: number) => group.index.some((__i: number) => __i === _i));
+      });
       return datas;
-    })
+    });
   }
 }

@@ -188,6 +188,12 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.cateringChanged = false;
   }
   saveDPStats() {
+    for (let i = 0; i < this.dp.Array.length; i++) {
+      if (this.dp.Array[i].to.hour === '24') {
+        this.dp.Array[i].to.minutes = '00';
+      }
+    }
+
     this.saveStats('saveDPStats', {
       dp: this.dp.Array
     });

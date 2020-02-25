@@ -48,8 +48,10 @@
                     {{hseData.lostTimeInjuries.value}}
                   </td>
                   <td>
-                    <textarea [value]="hseData.lostTimeInjuries.comment" [(ngModel)]="hseData.lostTimeInjuries.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.lostTimeInjuries.comment && hseData.lostTimeInjuries.commentlength>0; else noComment">
+                      {{hseData.lostTimeInjuries.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -59,9 +61,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.restrictedWorkday.comment"
-                      [(ngModel)]="hseData.restrictedWorkday.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.restrictedWorkday.comment && hseData.restrictedWorkday.comment.length>0; else noComment">
+                      {{hseData.restrictedWorkday.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -71,8 +74,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.MedicalTreatment.comment" [(ngModel)]="hseData.MedicalTreatment.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.MedicalTreatment.comment && hseData.MedicalTreatment.comment.length>0; else noComment">
+                      {{hseData.MedicalTreatment.comment}}
+                    </div>
                   </td>
                 </tr>
 
@@ -83,8 +88,9 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.firstAid.comment" [(ngModel)]="hseData.firstAid.comment" autosize
-                      class="form-control" cols="50"> </textarea>
+                    <div *ngIf="hseData.firstAid.comment && hseData.firstAid.comment.length>0; else noComment">
+                      {{hseData.firstAid.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -94,9 +100,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.environmentalIncidents.comment"
-                      [(ngModel)]="hseData.environmentalIncidents.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.environmentalIncidents.comment && hseData.environmentalIncidents.comment.length>0; else noComment">
+                      {{hseData.environmentalIncidents.comment}}
+                    </div>
                   </td>
                 </tr>
 
@@ -106,18 +113,25 @@
                     {{hseData.equipmentDamage.value}}
                   </td>
                   <td>
-                    <textarea [value]="hseData.equipmentDamage.comment" [(ngModel)]="hseData.equipmentDamage.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.equipmentDamage.comment && hseData.equipmentDamage.comment.length>0; else noComment">
+                      {{hseData.equipmentDamage.comment}}
+                    </div>
                   </td>
                 </tr>
                 <!-- Needs input -->
                 <tr>
-                  <th><div [ngbTooltip]="tooltipTechBreakdowns">Technical Breakdowns</div></th>
+                  <th>
+                    <div [ngbTooltip]="tooltipTechBreakdowns">Technical Breakdowns</div>
+                  </th>
                   <td>
                     {{dprData.technicalBreakdownAmount.value}}
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div
+                      *ngIf="dprData.technicalBreakdownAmount.comment && dprData.technicalBreakdownAmount.comment.length>0; else noComment">
+                      {{dprData.technicalBreakdownAmount.comment}}
+                    </div>
                   </td>
                 </tr>
 
@@ -128,19 +142,25 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.proactiveReports.comment" [(ngModel)]="hseData.proactiveReports.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.proactiveReports.comment && hseData.proactiveReports.comment.length>0; else noComment">
+                      {{hseData.proactiveReports.comment}}
+                    </div>
                   </td>
                 </tr>
 
                 <!-- need input-->
                 <tr>
-                  <th><div [ngbTooltip]="tooltipRiskAssessment">Risk assessments</div></th>
+                  <th>
+                    <div [ngbTooltip]="tooltipRiskAssessment">Risk assessments</div>
+                  </th>
                   <td>
                     {{dprData.hocAmount.value}}
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div *ngIf="dprData.hocAmount.comment && dprData.hocAmount.comment.length>0; else noComment">
+                      {{dprData.hocAmount.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -149,7 +169,10 @@
                     {{dprData.toolboxAmount.value}}
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div
+                      *ngIf="dprData.toolboxAmount.comment && dprData.toolboxAmount.comment.length>0; else noComment">
+                      {{dprData.toolboxAmount.comment}}
+                    </div>
                   </td>
                 </tr>
 
@@ -160,8 +183,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.nearHitMisses.comment" [(ngModel)]="hseData.nearHitMisses.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.nearHitMisses.comment && hseData.nearHitMisses.comment.length>0; else noComment">
+                      {{hseData.nearHitMisses.comment}}
+                    </div>
                   </td>
                 </tr>
 
@@ -184,9 +209,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.safetyComitteeMeeting.comment"
-                      [(ngModel)]="hseData.safetyComitteeMeeting.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.safetyComitteeMeeting.comment && hseData.safetyComitteeMeeting.comment.length>0; else noComment">
+                      {{hseData.safetyComitteeMeeting.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -196,9 +222,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.marineDrillsAndTraining.comment"
-                      [(ngModel)]="hseData.marineDrillsAndTraining.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.marineDrillsAndTraining.comment && hseData.marineDrillsAndTraining.comment.length>0; else noComment">
+                      {{hseData.marineDrillsAndTraining.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -208,14 +235,16 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.managementVisits.comment" [(ngModel)]="hseData.managementVisits.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.managementVisits.comment && hseData.managementVisits.comment.length>0; else noComment">
+                      {{hseData.managementVisits.comment}}
+                    </div>
                   </td>
                 </tr>
               </table>
             </div>
 
-            <div class="col-xl-6">
+            <div class="col-xl-6 pagebreak singlepage-print-port">
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
@@ -231,28 +260,37 @@
                 <tr>
                   <th>Fuel oil Consumption</th>
                   <td>
-                    {{this.dprData.fuelConsumption.value}} m<sup>3</sup>
+                    {{dprData.fuelConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div
+                      *ngIf="dprData.fuelConsumption.comment && dprData.fuelConsumption.comment.length>0; else noComment">
+                      {{dprData.fuelConsumption.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
                   <th>Lub oil consumption</th>
                   <td>
-                    {{this.dprData.lubOilConsumption.value}} m<sup>3</sup>
+                    {{dprData.lubOilConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div
+                      *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
+                      {{dprData.lubOilConsumption.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
                   <th>Water consumption</th>
                   <td>
-                    {{this.dprData.waterConsumption.value}} m<sup>3</sup>
+                    {{dprData.waterConsumption.value}} m<sup>3</sup>
                   </td>
                   <td>
-                    <textarea autosize class="form-control" cols="70"> </textarea>
+                    <div
+                      *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
+                      {{dprData.lubOilConsumption.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -261,8 +299,9 @@
                     {{hseData.shorePower.value}} kWh
                   </td>
                   <td>
-                    <textarea [value]="hseData.shorePower.comment" [(ngModel)]="hseData.shorePower.comment" autosize
-                      class="form-control" cols="50"> </textarea>
+                    <div *ngIf="hseData.shorePower.comment && hseData.shorePower.comment.length>0; else noComment">
+                      {{hseData.shorePower.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -271,9 +310,10 @@
                     {{hseData.plasticIncinerated.value}} m<sup>3</sup>
                   </td>
                   <td>
-                    <textarea [value]="hseData.plasticIncinerated.comment"
-                      [(ngModel)]="hseData.plasticIncinerated.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.plasticIncinerated.comment && hseData.plasticIncinerated.comment.length>0; else noComment">
+                      {{hseData.plasticIncinerated.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -283,8 +323,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.plasticLanded.comment" [(ngModel)]="hseData.plasticLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.plasticLanded.comment && hseData.plasticLanded.comment.length>0; else noComment">
+                      {{hseData.plasticLanded.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -294,8 +336,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.foodIncinerated.comment" [(ngModel)]="hseData.foodIncinerated.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.foodIncinerated.comment && hseData.foodIncinerated.comment.length>0; else noComment">
+                      {{hseData.foodIncinerated.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -305,8 +349,9 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.foodLanded.comment" [(ngModel)]="hseData.foodLanded.comment" autosize
-                      class="form-control" cols="50"> </textarea>
+                    <div *ngIf="hseData.foodLanded.comment && hseData.foodLanded.comment.length>0; else noComment">
+                      {{hseData.foodLanded.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -316,8 +361,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.foodMacerated.comment" [(ngModel)]="hseData.foodMacerated.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.foodMacerated.comment && hseData.foodMacerated.comment.length>0; else noComment">
+                      {{hseData.foodMacerated.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -327,8 +374,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.domWasteLanded.comment" [(ngModel)]="hseData.domWasteLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.domWasteLanded.comment && hseData.domWasteLanded.comment.length>0; else noComment">
+                      {{hseData.domWasteLanded.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -338,9 +387,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.domWasteIncinerated.comment"
-                      [(ngModel)]="hseData.domWasteIncinerated.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.domWasteIncinerated.comment && hseData.domWasteIncinerated.comment.length>0; else noComment">
+                      {{hseData.domWasteIncinerated.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -350,8 +400,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.cookingoilLanded.comment" [(ngModel)]="hseData.cookingoilLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.cookingoilLanded.comment && hseData.cookingoilLanded.comment.length>0; else noComment">
+                      {{hseData.cookingoilLanded.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -361,8 +413,10 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.opsWasteLanded.comment" [(ngModel)]="hseData.opsWasteLanded.comment"
-                      autosize class="form-control" cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.opsWasteLanded.comment && hseData.opsWasteLanded.comment.length>0; else noComment">
+                      {{hseData.opsWasteLanded.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -372,28 +426,46 @@
                   </td>
 
                   <td>
-                    <textarea [value]="hseData.opsWasteIncinerated.comment"
-                      [(ngModel)]="hseData.opsWasteIncinerated.comment" autosize class="form-control"
-                      cols="50"> </textarea>
+                    <div
+                      *ngIf="hseData.opsWasteIncinerated.comment && hseData.opsWasteIncinerated.comment.length>0; else noComment">
+                      {{hseData.opsWasteIncinerated.comment}}
+                    </div>
                   </td>
                 </tr>
                 <tr>
-                  <th colspan="2">Additional remarks</th>
+                  <th colspan="2">Additional remarks captain</th>
                   <td colspan="2">
                     <div *ngIf="hseData.remarks && hseData.remarks.length>0; else noComment">
                       {{hseData.remarks}}
                     </div>
                   </td>
                 </tr>
+                <tr>
+                  <th colspan="2">Additional remarks QHSE</th>
+                  <td *ngIf="tokenInfo.userPermission !== 'Qhse Specialist' && tokenInfo.userPermission !== 'admin'"
+                    colspan="2">
+                    <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
+                      {{hseData.remarksQhse}}
+                    </div>
+                  </td>
+                  <td *ngIf="tokenInfo.userPermission === 'Qhse Specialist' || tokenInfo.userPermission === 'admin'">
+                    <textarea [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
+                      class="form-control" cols="50"> </textarea>
+                  </td>
+                </tr>
                 <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
                   <td colspan="4">
+
+                    <button class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
+                      style="float:right; margin-right: 10px;" type="button">Sign off HSE DPR
+                    </button>
                     <button *ngIf="tokenInfo.userPermission !== 'Vessel master'" class="btn btn-lg btn-danger"
                       (click)="declineHseDprClient()" style="float:right; margin-right: 10px;" type="button">Refuse HSE
                       DPR
                     </button>
-                    <button class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
-                      style="float:right; margin-right: 10px;" type="button">Sign off HSE DPR
-                    </button>
+                    <button class="btn btn-lg submitBtnDate" type="button" style="float:right; margin-right: 10px;"
+                      (click)="saveQHSERemark()">Save remark</button>
+
                   </td>
                 </tr>
               </table>

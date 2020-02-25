@@ -1907,6 +1907,33 @@ app.post("/api/declineHseDprClient", function(req, res) {
     });
 });
 
+app.post("/api/saveQHSERemark", function(req, res) {
+    let token = verifyToken(req, res);
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovHseDprInputmodel.updateOne({
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    $set: {
+                        "hseFields.remarksQhse": req.body.remark
+                    }
+                },
+                function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the QHSE remarks" });
+                    }
+                });
+        }
+    });
+});
+
 
 
 app.post("/api/saveHseDprSigningSkipper", function(req, res) {
