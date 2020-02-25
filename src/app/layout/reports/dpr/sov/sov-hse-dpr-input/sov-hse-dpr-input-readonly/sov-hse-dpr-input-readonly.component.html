@@ -1,16 +1,15 @@
-<div class="row ">
+<div class="row">
   <div class="col-xl-12 col-lg-24">
-    <div class="card mb-3 singlepage-print-port">
+    <div class="card mb-3">
       <div class="card-header">HSE input</div>
       <div class="card-body">
-        <div class="col-xl-12 col-lg-24">
           <div class="row">
             <div class="col-xl-12">
               <ngb-alert *ngIf="hseDprApprovalCount < 1" [dismissible]="false" type="warning">At this moment the DPR has
                 not been signed off by the captain. All data shown is either automatically filled in or is data filled
                 in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
             </div>
-            <div class="col-xl-6">
+            <div class="col-xl-6 singlepage-print-port">
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
@@ -22,6 +21,7 @@
                   <th>On board</th>
                   <th>Personnel days</th>
                 </tr>
+
                 <tr>
                   <th>Marine crew</th>
                   <td>{{dprData.marineCount.value}}</td>
@@ -37,6 +37,7 @@
                   <td>{{dprData.clientCrewCount.value + dprData.marineCount.value}}</td>
                   <td>{{dprData.clientCrewCount.value / 2 + dprData.marineCount.value}}</td>
                 </tr>
+
                 <tr>
                   <th colspan="3">
                     <h4>Incidents</h4>
@@ -47,6 +48,7 @@
                   <th>Value</th>
                   <th>Comment</th>
                 </tr>
+
                 <tr>
                   <th><div [ngbTooltip]="tooltipLostTimeInjury">Lost time injuries</div></th>
                   <td>
@@ -57,24 +59,24 @@
                       autosize class="form-control" cols="50"> </textarea>
                   </td>
                 </tr>
+
                 <tr>
                   <th><div [ngbTooltip]="tooltipRestrictedWorkDay">Restricted workday cases</div></th>
                   <td>
                     {{hseData.restrictedWorkday.value}}
                   </td>
-
                   <td>
                     <textarea [value]="hseData.restrictedWorkday.comment"
                       [(ngModel)]="hseData.restrictedWorkday.comment" autosize class="form-control"
                       cols="50"> </textarea>
                   </td>
                 </tr>
+
                 <tr>
                   <th><div [ngbTooltip]="tooltipDefaultIncident">Medical treatment cases</div></th>
                   <td>
                     {{hseData.MedicalTreatment.value}}
                   </td>
-
                   <td>
                     <textarea [value]="hseData.MedicalTreatment.comment" [(ngModel)]="hseData.MedicalTreatment.comment"
                       autosize class="form-control" cols="50"> </textarea>
@@ -86,7 +88,6 @@
                   <td>
                     {{hseData.firstAid.value}}
                   </td>
-
                   <td>
                     <textarea [value]="hseData.firstAid.comment" [(ngModel)]="hseData.firstAid.comment" autosize
                       class="form-control" cols="50"> </textarea>
@@ -97,7 +98,6 @@
                   <td>
                     {{hseData.environmentalIncidents.value}}
                   </td>
-
                   <td>
                     <textarea [value]="hseData.environmentalIncidents.comment"
                       [(ngModel)]="hseData.environmentalIncidents.comment" autosize class="form-control"
@@ -115,7 +115,7 @@
                       autosize class="form-control" cols="50"> </textarea>
                   </td>
                 </tr>
-                <!-- Needs input -->
+
                 <tr>
                   <th><div [ngbTooltip]="tooltipTechBreakdowns">Technical breakdowns</div></th>
                   <td>
@@ -135,6 +135,7 @@
                     <textarea autosize class="form-control" cols="70"> </textarea>
                   </td>
                 </tr>
+
                 <tr>
                   <th><div [ngbTooltip]="tooltipToolboxTalks">Toolbox talks</div></th>
                   <td>
@@ -150,64 +151,63 @@
                   <td>
                     {{hseData.nearHitMisses.value}}
                   </td>
-
                   <td>
                     <textarea [value]="hseData.nearHitMisses.comment" [(ngModel)]="hseData.nearHitMisses.comment"
                       autosize class="form-control" cols="50"> </textarea>
                   </td>
                 </tr>
 
-                <!-- Split between weather and technical downtime -->
+                <ng-container class="print-block">
+                  <tr>
+                    <th colspan="3">
+                      <h4>Meetings</h4>
+                    </th>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <th>Value</th>
+                    <th>Comment</th>
+                  </tr>
 
-                <tr>
-                  <th colspan="3">
-                    <h4>Meetings</h4>
-                  </th>
-                </tr>
-                <tr>
-                  <th></th>
-                  <th>Value</th>
-                  <th>Comment</th>
-                </tr>
-                <tr>
-                  <th><div>Safety committee meetings</div></th>
-                  <td>
-                    {{hseData.safetyComitteeMeeting.value}}
-                  </td>
+                  <tr>
+                    <th><div>Safety committee meetings</div></th>
+                    <td>
+                      {{hseData.safetyComitteeMeeting.value}}
+                    </td>
+                    <td>
+                      <textarea [value]="hseData.safetyComitteeMeeting.comment"
+                        [(ngModel)]="hseData.safetyComitteeMeeting.comment" autosize class="form-control"
+                        cols="50"> </textarea>
+                    </td>
+                  </tr>
 
-                  <td>
-                    <textarea [value]="hseData.safetyComitteeMeeting.comment"
-                      [(ngModel)]="hseData.safetyComitteeMeeting.comment" autosize class="form-control"
-                      cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Marine drills and training</th>
-                  <td>
-                    {{hseData.marineDrillsAndTraining.value}}
-                  </td>
+                  <tr>
+                    <th>Marine drills and training</th>
+                    <td>
+                      {{hseData.marineDrillsAndTraining.value}}
+                    </td>
+                    <td>
+                      <textarea [value]="hseData.marineDrillsAndTraining.comment"
+                        [(ngModel)]="hseData.marineDrillsAndTraining.comment" autosize class="form-control"
+                        cols="50"> </textarea>
+                    </td>
+                  </tr>
 
-                  <td>
-                    <textarea [value]="hseData.marineDrillsAndTraining.comment"
-                      [(ngModel)]="hseData.marineDrillsAndTraining.comment" autosize class="form-control"
-                      cols="50"> </textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Management visits</th>
-                  <td>
-                    {{hseData.managementVisits.value}}
-                  </td>
-
-                  <td>
-                    <textarea [value]="hseData.managementVisits.comment" [(ngModel)]="hseData.managementVisits.comment"
-                      autosize class="form-control" cols="50"> </textarea>
-                  </td>
-                </tr>
+                  <tr>
+                    <th>Management visits</th>
+                    <td>
+                      {{hseData.managementVisits.value}}
+                    </td>
+                    <td>
+                      <textarea [value]="hseData.managementVisits.comment" [(ngModel)]="hseData.managementVisits.comment"
+                        autosize class="form-control" cols="50"> </textarea>
+                    </td>
+                  </tr>
+                </ng-container>
               </table>
             </div>
 
-            <div class="col-xl-6">
+            <div class="col-xl-6  singlepage-print-port">
               <table class="table table-bordered">
                 <tr>
                   <th colspan="3">
@@ -390,7 +390,6 @@
                 </tr>
               </table>
             </div>
-          </div>
         </div>
       </div>
     </div>
