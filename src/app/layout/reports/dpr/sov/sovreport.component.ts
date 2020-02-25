@@ -32,7 +32,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Input() tokenInfo: TokenModel;
   @Input() vesselObject: VesselObjectModel;
   @Input() mapPixelWidth: number;
-  @Input() printMode: boolean;
+  @Input() printMode: number;
 
   sovModel: SovModel = new SovModel();
   dprInput: DprChildData;

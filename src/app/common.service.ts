@@ -400,6 +400,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  saveQHSERemark(dataObject) {
+    return this.post('/api/saveQHSERemark/', dataObject).pipe(
+      map((response: Response) => response.json()));
+  }
+
   declineDprClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/declineDprClient/', dataObject).pipe(
       map((response: Response) => response.json()));
