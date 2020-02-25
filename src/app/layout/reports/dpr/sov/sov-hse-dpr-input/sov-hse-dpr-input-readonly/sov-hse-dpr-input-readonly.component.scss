@@ -1,0 +1,28 @@
+@media print {
+    .plsdonotprintthisforfsake {
+        display: none !important;
+        z-index: 1;
+    }
+    .pagebreak {
+        page-break-before: always;
+    }
+}
+
+@media only print and (orientation: landscape) {
+    .singlepage-print {
+        display: block;
+        page-break-before: always;
+    }
+    agm-map {
+        height: 480px;
+        width: 297mm;
+        display: inline-flex;
+    }
+}
+
+@media (orientation: portrait) {
+    .singlepage-print-port {
+        display: block;
+        page-break-before: always;
+    }
+}

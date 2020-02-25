@@ -78,7 +78,7 @@ export class ReportsDprComponent implements OnInit {
     longitude: null,
   };
   googleMap: google.maps.Map;
-  printMode = false;
+  printMode = 0;
 
   streetViewControl = false;
   changedCommentObj = { newComment: '', otherComment: '' };
@@ -106,7 +106,7 @@ export class ReportsDprComponent implements OnInit {
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
       this.printPage();
-    })
+    });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (this.permission.admin) {
@@ -304,11 +304,11 @@ export class ReportsDprComponent implements OnInit {
     this.googleMapLoaded = false;
   }
 
-  printPage() {
+  printPage(printtype) {
     if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
-      this.printMode = true;
+      this.printMode = printtype;
       setTimeout(() => {
-        this._doPrint(() => {this.printMode = false;});
+        this._doPrint(() => {this.printMode = 0; });
       }, 2000);
     } else {
       this._doPrint();
@@ -322,7 +322,7 @@ export class ReportsDprComponent implements OnInit {
       container.style.width = '225mm';
     }
     setTimeout(function() {
-      window.print(); 
+      window.print();
       if (cb) {
         cb();
       }

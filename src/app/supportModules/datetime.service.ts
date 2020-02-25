@@ -120,7 +120,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   createHoursTimes() {
       const allHours = [];
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 25; i++) {
         let time = i + '';
         if (i < 10) {
           time = '0' + time;
