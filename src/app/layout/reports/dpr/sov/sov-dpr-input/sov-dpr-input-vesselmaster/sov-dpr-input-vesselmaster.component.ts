@@ -18,10 +18,11 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() standby: ReadonlyInput;
   @Input() vesselNonAvailability: ReadonlyInput;
   @Input() weatherDowntime: ReadonlyInput;
+  @Input() accessDayType: {status: string};
+
   @Input() hoc: ReadonlyInput;
   @Input() toolbox: ReadonlyInput;
   @Input() liquids;
-  @Input() peopleOnVessel;
   @Input() catering;
   @Input() dp;
   @Input() remarks;
@@ -42,7 +43,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   weatherDowntimeChanged = false;
   cateringChanged = false;
   remarksChanged = false;
-  poBChanged = false;
   dpChanged = false;
 
   dprSignedBySkipper = 1;
@@ -61,8 +61,8 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   };
 
   updateHseDprInput() {
-    this.hseDprInput.marineCount.value = (this.peopleOnVessel.marine + this.peopleOnVessel.marineContractors);
-    this.hseDprInput.clientCrewCount.value = this.peopleOnVessel.project;
+    this.hseDprInput.marineCount.value = (this.catering.marine + this.catering.marineContractors);
+    this.hseDprInput.clientCrewCount.value = this.catering.project;
     this.hseDprInput.hocAmount.value = this.hoc.Total;
     this.hseDprInput.toolboxAmount.value = this.toolbox.Total;
     this.hseDprInput.technicalBreakdownAmount.value = this.vesselNonAvailability.Array.length;
@@ -179,6 +179,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.saveStats('saveStandByDpr', {
       standBy: this.standby.Array
     });
+    this.saveStats('saveAccessDayType', {accessDayType: this.accessDayType});
     this.weatherDowntimeChanged = false;
   }
   saveCateringStats() {
@@ -198,12 +199,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
       dp: this.dp.Array
     });
     this.dpChanged = false;
-  }
-  savePoBStats() {
-    this.saveStats('savePoBStats', {
-      peopleonBoard: this.peopleOnVessel
-    });
-    this.poBChanged = false;
   }
   saveRemarksStats() {
     this.saveStats('saveRemarksStats', {
@@ -240,7 +235,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.liquids.potwater.newValue = +(+this.liquids.potwater.oldValue + +this.liquids.potwater.loaded - +this.liquids.potwater.consumed - this.liquids.potwater.discharged).toFixed(1);
   }
   updatePoB() {
-    this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
+    this.catering.totalPob = (0 + +this.catering.marineContractors + +this.catering.marine + +this.catering.project);
   }
 
   // Push / pop functions for the various arrays

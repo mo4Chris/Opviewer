@@ -1,9 +1,9 @@
 <h2 class="text-muted">Vessel report <small>
-    {{' || ' +  vesselname + ' || ' + getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
+    {{' || ' +  vesselObject.vesselName + ' || ' + getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
 <!-- Date picker vessel reports-->
 <div class="form-inline no-print">
   <div class="form-group">
-    <div class="input-group datepicker-input">
+    <div class="input-group datepicker-input topElt">
       <button id="prevDayButton" (click)="changeDay(-1)">
         <i class="fa fa-caret-left"></i>
       </button>
@@ -26,20 +26,17 @@
       </button>
     </div>
   </div>
-  <div class="form-group">
+  <div class="form-group topElt">
     <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi"
       (change)="onChange()" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
       <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
     </select>
   </div>
-  <div class="form-group">
-    <button class="btn btn-lg boatSelectDropdown" (click)="printPage(1);" type="button">Print DPR Full</button>
-    <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" class="btn btn-lg boatSelectDropdown" (click)="printPage(2);" type="button">Print DPR Commercial</button>
-    <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"  class="btn btn-lg boatSelectDropdown" (click)="printPage(3);" type="button">Print DPR HSE</button>
-  </div>
+  <button class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(1);" type="button">Print DPR Full</button>
+  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(2);" type="button">Print DPR Commercial</button>
+  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"  class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(3);" type="button">Print DPR HSE</button>
 </div>
 <!-- Plotting map-->
-<br>
 <div class="loader" *ngIf="!loaded || !turbinesLoaded">
   <div class="spinner">
     <div class="bounce1"></div>

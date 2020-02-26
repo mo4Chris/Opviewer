@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnChanges,
-  ChangeDetectionStrategy } from '@angular/core';
+  ChangeDetectionStrategy, SimpleChanges} from '@angular/core';
 import * as Chart from 'chart.js';
 import * as annotation from 'chartjs-plugin-annotation';
 import { CommonService } from '@app/common.service';
@@ -79,9 +79,13 @@ export class SovreportComponent implements OnInit, OnChanges {
     Chart.pluginService.register(annotation);
     this.setDefaultActiveTab();
   }
-  ngOnChanges() {
-    this.ResetTransfers();
-    this.buildPageWhenRouteLoaded();
+  ngOnChanges(changes: SimpleChanges) {
+    const keys = Object.keys(changes);
+    if (keys.some(_key => _key !== 'printMode')) {
+      // New data is only loaded if an input other than printMode is changed
+      this.ResetTransfers();
+      this.buildPageWhenRouteLoaded();
+    }
   }
 
   buildPageWhenRouteLoaded() {
