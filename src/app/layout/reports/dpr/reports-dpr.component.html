@@ -76,7 +76,7 @@
       </app-ctvreport>
       <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
         [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [mapPixelWidth]="mapPixelWidth"
-        (sailDates)="getDatesHasSailed($event)" (sovChildData)="onChildLoaded($event)" [printMode]="1"
+        (sailDates)="getDatesHasSailed($event)" (sovChildData)="onChildLoaded($event)" [printMode]="printMode"
         (turbineLocationData)="getTurbineLocationData($event)" (platformLocationData)="getPlatformLocationData($event)">
       </app-sovreport>
     </div>

@@ -455,9 +455,15 @@
                   </div>
                 </td>
                 <td *ngIf="tokenInfo.userPermission === 'Qhse Specialist' || tokenInfo.userPermission === 'admin'">
-                  <ng-container *ngIf="hseDprApprovalCount == 1; else notYetAvailable">
-                    <textarea [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
+                  <ng-container [ngSwitch]="hseDprApprovalCount">
+                    <textarea *ngSwitchCase="1" [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
                       class="form-control" cols="50"> </textarea>
+                    <ng-container *ngSwitchCase="2">
+                      <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
+                        {{hseData.remarksQhse}}
+                      </div>
+                    </ng-container>
+                    <i *ngSwitchDefault>Not available until the skipper signs off</i>
                   </ng-container>
                 </td>
               </tr>
@@ -485,9 +491,6 @@
 </div>
 <ng-template #noComment>
   <i>No remarks</i>
-</ng-template>
-<ng-template #notYetAvailable>
-  <i>Not available until the skipper signs off</i>
 </ng-template>
 <ng-template #tooltipTechBreakdowns>Number of technical breakdowns reported in the DPR.</ng-template>
 <ng-template #tooltipRiskAssessment>Number of health and safety cards reported in the DPR.</ng-template>
