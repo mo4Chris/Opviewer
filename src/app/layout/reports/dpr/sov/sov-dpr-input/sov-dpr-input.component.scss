@@ -3,6 +3,7 @@
     color: white;
 }
 
+
 .tableSummarySpecial {
     background: gray;
     color: white;
@@ -71,6 +72,16 @@ textarea {
 }
 
 @media print {
+
+    @media print {
+        .alert {
+            background-color: white !important;
+            color: darkgrey !important;
+            border-color: grey;
+            font-weight: bold;
+        }
+    }
+    
     .plsdonotprintthisforfsake {
         display: none !important;
         z-index: 1;
