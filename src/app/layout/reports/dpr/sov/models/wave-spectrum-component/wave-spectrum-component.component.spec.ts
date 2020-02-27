@@ -31,6 +31,7 @@ describe('WaveSpectrumComponent', () => {
       date: 737700,
       vesselType: 'OSV',
       dateNormal: '',
+      vesselName: '',
     };
   });
 

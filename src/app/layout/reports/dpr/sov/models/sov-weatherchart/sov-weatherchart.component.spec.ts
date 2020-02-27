@@ -39,6 +39,7 @@ describe('SovWeatherchartComponent', () => {
       mmsi: 987654321,
       date: 737700,
       vesselType: 'OSV',
+      vesselName: 'TEST SOV'
     }).subscribe(val => {
       component.sovModel.sovInfo = val[0];
     });

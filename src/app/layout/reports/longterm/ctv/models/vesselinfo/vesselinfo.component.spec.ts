@@ -35,7 +35,7 @@ describe('VesselinfoComponent', () => {
       dateNormalMax: '1',
       mmsi: defaultVessel.map(vessel => vessel.mmsi),
     };
-    component.newService = mockedCommonService;
+    component.newService = <any> mockedCommonService;
     component.update(); // Async operation -> need timeout before test
     setTimeout(() => {
       expect(component).toBeTruthy();

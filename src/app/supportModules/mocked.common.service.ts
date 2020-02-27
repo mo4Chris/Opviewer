@@ -8,6 +8,7 @@ import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
+import { Headers } from '@angular/http';
 
 
 const emptyMatlabObject = {
@@ -37,6 +38,9 @@ export class MockedCommonService extends CommonService {
          console.error('Uncaught post request: ' + request_url);
          const Response: any = 0;
          return Response;
+    }
+
+    createAuthorizationHeader(headers: Headers) {
     }
 
     validatePermissionToViewData(opts: {
@@ -510,6 +514,10 @@ export class MockedCommonService extends CommonService {
         ]],
         source: 'test',
       }]);
+    }
+
+    saveHseDprSigningClient(obj: any) {
+      return mockedObservable('Great Success');
     }
 }
 

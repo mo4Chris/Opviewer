@@ -39,7 +39,8 @@ describe('SovSummaryComponent', () => {
     newService.getSov({
       mmsi: 987654321,
       date: 737700,
-      vesselType: 'OSV'
+      vesselType: 'OSV',
+      vesselName: 'TEST SOV'
     }).subscribe(sov => {
       component.sovModel.sovInfo = sov[0];
     });

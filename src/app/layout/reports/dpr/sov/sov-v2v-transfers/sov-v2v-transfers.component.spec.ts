@@ -42,7 +42,8 @@ describe('SovV2vTransfersComponent', () => {
     component.vesselObject = {
       mmsi: 987654321,
       date: 737700,
-      vesselType: 'OSV'
+      vesselType: 'OSV',
+      vesselName: 'Test SOV'
     };
     component.vessel2vessels = [{
       mmsi: 123456789,

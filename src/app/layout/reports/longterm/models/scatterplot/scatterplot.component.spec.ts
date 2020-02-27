@@ -14,7 +14,7 @@ describe('ScatterplotTest', () => {
   let component: ScatterplotComponent;
 
   const calcService = new CalculationService();
-  const dateService = new DatetimeService(new SettingsService(new MockedCommonService()));
+  const dateService = new DatetimeService(new SettingsService(<any> new MockedCommonService()));
   const user = UserTestService.getMockedAccessToken();
   const vesselObject = {
     mmsi: user.userBoats.map(boat => boat.mmsi),

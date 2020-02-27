@@ -36,6 +36,7 @@ describe('CtvReportComponent', () => {
       mmsi: token.userBoats[0].mmsi,
       dateNormal: new Date(2019, 10, 2),
       vesselType: 'CTV',
+      vesselName: 'TEST CTV'
     };
   };
   const mapPixelWidth = 400;
