@@ -79,12 +79,6 @@ function setInputs(component: SovDprInputReadonlyComponent) {
     domwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
     potwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
   };
-  // component.peopleOnVessel = {
-  //   marine: 0,
-  //   marineContractors: 0,
-  //   project: 0,
-  //   Total: 0
-  // };
   component.catering = {
     project: 0,
     marine: 0,
