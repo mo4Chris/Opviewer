@@ -7,6 +7,7 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { SharedPipesModule } from '@app/shared';
 import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 
 describe('SovHseDprInputReadonlyComponent', () => {
   let component: SovHseDprInputReadonlyComponent;
@@ -25,7 +26,8 @@ describe('SovHseDprInputReadonlyComponent', () => {
       ],
       declarations: [ SovHseDprInputReadonlyComponent ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();
@@ -37,8 +39,10 @@ describe('SovHseDprInputReadonlyComponent', () => {
     component.vesselObject = {
       date: 737700,
       mmsi: 987654321,
-      vesselType: 'OSV'
+      vesselType: 'OSV',
+      vesselName: 'Test SOV'
     };
+    component.tokenInfo = UserTestService.getMockedAccessToken({});
     fixture.detectChanges();
   });
 

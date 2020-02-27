@@ -27,7 +27,7 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
   hseDprSavedBySkipper = 1;
 
-  hseData = {};
+  hseData;
 
   ngOnInit() {
     this.checkHseData();

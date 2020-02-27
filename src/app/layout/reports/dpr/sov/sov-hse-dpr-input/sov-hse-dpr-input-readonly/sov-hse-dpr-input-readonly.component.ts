@@ -21,14 +21,14 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
 
   @Input() hseDprApprovalCount;
   @Input() hseDprInput;
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Input() tokenInfo;
 
   hseDprSignedByClient = 2;
   hseDprDeclinedByClient = -1;
 
   hseData;
-  dprData = {};
+  dprData;
 
   saveStats(saveFcnName: string, saveObject: object): void {
     // Generic saver for all the functions below

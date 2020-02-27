@@ -6,6 +6,7 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { SharedPipesModule } from '@app/shared';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovHseDprInputVesselmasterComponent', () => {
   let component: SovHseDprInputVesselmasterComponent;
@@ -22,7 +23,8 @@ describe('SovHseDprInputVesselmasterComponent', () => {
       ],
       declarations: [ SovHseDprInputVesselmasterComponent ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();
@@ -36,7 +38,8 @@ describe('SovHseDprInputVesselmasterComponent', () => {
     component.vesselObject = {
       date: 737700,
       mmsi: 987654321,
-      vesselType: 'OSV'
+      vesselType: 'OSV',
+      vesselName: 'Test SOV',
     };
     fixture.detectChanges();
   });

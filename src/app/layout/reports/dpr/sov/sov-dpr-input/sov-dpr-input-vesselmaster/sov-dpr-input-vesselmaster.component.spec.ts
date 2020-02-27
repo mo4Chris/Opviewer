@@ -9,6 +9,8 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { mockedObservable } from '@app/models/testObservable';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { RouterService } from '@app/supportModules/router.service';
+import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;
@@ -31,6 +33,7 @@ describe('SovDprInputVesselmasterComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         DatetimeService,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();
@@ -93,12 +96,10 @@ describe('SovDprInputVesselmasterComponent', () => {
     component.saveIncidentStats();
     expect(saveSpy).toHaveBeenCalledTimes(2);
     component.saveWeatherDowntimeStats();
-    expect(saveSpy).toHaveBeenCalledTimes(5);
-    component.saveCateringStats();
     expect(saveSpy).toHaveBeenCalledTimes(6);
-    component.saveDPStats();
+    component.saveCateringStats();
     expect(saveSpy).toHaveBeenCalledTimes(7);
-    component.savePoBStats();
+    component.saveDPStats();
     expect(saveSpy).toHaveBeenCalledTimes(8);
 
     done();
@@ -127,11 +128,7 @@ function setInputs(component: SovDprInputVesselmasterComponent) {
     domwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
     potwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
   };
-  component.peopleOnVessel = {
-    marine: 0,
-    marineContractors: 0,
-    project: 0
-  };
   component.catering = {};
   component.remarks = '';
+  component.accessDayType = {status: 'TEST'};
 }

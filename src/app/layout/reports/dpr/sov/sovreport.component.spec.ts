@@ -29,10 +29,12 @@ import { UserService } from '@app/shared/services/user.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { SimpleChange } from '@angular/core';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
   let fixture: ComponentFixture<SovreportComponent>;
+  const fakeSimpleChange = {change: new SimpleChange(null, 1, true)};
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -84,7 +86,8 @@ describe('SovreportComponent', () => {
     component.vesselObject = {
       date: 737700,
       mmsi: 987654321,
-      vesselType: 'OSV'
+      vesselType: 'OSV',
+      vesselName: 'TEST SOV'
     };
     fixture.detectChanges();
   }));
@@ -97,7 +100,7 @@ describe('SovreportComponent', () => {
   });
 
   it('Should run ngOnChanges', (done) => {
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
     expect(component).toBeTruthy();
     done();
   });
@@ -108,7 +111,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('admin');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(true);
@@ -121,7 +124,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('Vessel master');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(false);
@@ -134,7 +137,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('Marine controller');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     done();
@@ -146,7 +149,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('QHSE specialist');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     done();
@@ -158,7 +161,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('Logistics specialist');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     done();
@@ -170,7 +173,7 @@ describe('SovreportComponent', () => {
     });
     component.permission = <PermissionService> PermissionService.getDefaultPermission('Client representative');
 
-    component.ngOnChanges();
+    component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
     done();

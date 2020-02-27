@@ -11,6 +11,7 @@ import { AutosizeModule } from 'ngx-autosize';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovDprInputComponent', () => {
   let component: SovDprInputComponent;
@@ -34,6 +35,7 @@ describe('SovDprInputComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         DatetimeService,
+        MockedUserServiceProvider
       ]
     })
     .compileComponents();

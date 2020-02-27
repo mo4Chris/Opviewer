@@ -43,7 +43,7 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   standBy = {Array: []};
   dp = {Array: []};
   weatherDowntime = {Array: []};
-  accessDayType: {status: string};
+  accessDayType = {status: ''};
 
   totalStandbyTime = '00:00';
   totalTechnicalDowntimeTime = '00:00';
