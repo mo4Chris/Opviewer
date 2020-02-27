@@ -118,6 +118,7 @@ textarea {resize: none}
 }
 
 @media print {
+
     .plsdonotprintthisforfsake {
         display:none !important;
         z-index: 1;

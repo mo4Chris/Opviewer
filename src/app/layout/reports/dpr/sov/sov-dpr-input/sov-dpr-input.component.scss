@@ -4,6 +4,7 @@
     
 }
 
+
 .tableSummarySpecial {
     background: gray;
     color: white;
@@ -72,6 +73,19 @@ agm-map {
 textarea {resize: none}
 
 @media print {
+
+    @media print {
+        .alert {
+            background-color: white !important;
+            color: darkgrey !important;
+            border-color: grey;
+            font-weight: bold;
+        }
+        .tooltip {
+            visibility: hidden;
+        }
+    }
+    
     .plsdonotprintthisforfsake {
         display:none !important;
         z-index: 1;

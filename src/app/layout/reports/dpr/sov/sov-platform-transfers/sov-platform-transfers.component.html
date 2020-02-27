@@ -48,15 +48,15 @@
                 </td>
                 <td>{{platformTransfer.totalDuration}} minutes</td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxIn"
+                  <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxIn"
                     [(ngModel)]="platformTransfer.paxIn" (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxOut"
+                  <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.paxOut"
                     [(ngModel)]="platformTransfer.paxOut" (ngModelChange)="updatePaxCargoTotal()"> outgoing
                 </td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.cargoIn"
+                  <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.cargoIn"
                     (ngModelChange)="updatePaxCargoTotal()"> kg incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.cargoOut"
+                  <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5" [(ngModel)]="platformTransfer.cargoOut"
                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                 </td>
                 <td>{{platformTransfer.peakWindGust}}</td>

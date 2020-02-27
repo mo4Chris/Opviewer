@@ -101,6 +101,14 @@ textarea {
 }
 
 @media print {
+    ngb-tooltip-window { 
+        display:none !important;
+    }
+
+    .tooltip{
+        display:none !important;
+    }
+
     .plsdonotprintthisforfsake {
         display: none !important;
         z-index: 1;

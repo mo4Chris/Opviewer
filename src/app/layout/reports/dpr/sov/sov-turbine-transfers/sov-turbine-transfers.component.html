@@ -39,15 +39,15 @@
                 <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}
                 </td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.paxIn"
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.paxIn"
                     (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.paxOut"
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.paxOut"
                     (ngModelChange)="updatePaxCargoTotal()"> outgoing
                 </td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.cargoIn"
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoIn"
                     (ngModelChange)="updatePaxCargoTotal()"> kg incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="turbineTransfer.cargoOut"
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoOut"
                     (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
                 </td>
                 <td>{{turbineTransfer.peakWindGust}}</td>
