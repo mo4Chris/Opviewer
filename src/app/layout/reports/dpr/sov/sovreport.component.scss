@@ -129,6 +129,12 @@ textarea {
         page-break-after: auto;
         //ToDO: Change this so page break soccur at block level instead of row level
     }
+    .card-body {
+        border: 1px solid #ddd;
+    }
+    .card-header {
+        border: 1px solid #ddd;
+    }
     .table-responsive {
         width: 100%;
         margin-left: 0;
@@ -138,6 +144,12 @@ textarea {
     }
     .table-bordered-print {
         border: 1px solid #dee2e6;
+        th {
+            border: 1px solid #ddd;
+        }
+        td {
+            border: 1px solid #ddd;
+        }
     }
     .btn {
         display: none;
