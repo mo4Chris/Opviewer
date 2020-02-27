@@ -1,11 +1,15 @@
 @media print {
-    .alert {
-        background-color: white !important;
-        color: darkgrey !important;
-        border-color: grey;
-        font-weight: bold;
-    }
-    ngb-tooltip-window { 
-        visibility: hidden;
-    }
+  .alert {
+    background-color: white !important;
+    color: darkgrey !important;
+    border-color: grey;
+    font-weight: bold;
+  }
+  ngb-tooltip-window {
+    visibility: hidden;
+  }
+
+  .form-number {
+    min-width: 60px;
+  }
 }

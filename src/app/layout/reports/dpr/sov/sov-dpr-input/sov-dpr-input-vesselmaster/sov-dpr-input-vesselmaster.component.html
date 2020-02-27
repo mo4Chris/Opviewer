@@ -165,7 +165,32 @@
             <button class="btn btn-sm btn-danger"
               (click)="removeLastFromWeatherDowntimeArray(); weatherDowntimeChanged = true;" type="button">remove
               last</button>
-            <button *ngIf="weatherDowntimeChanged == true" class="btn btn-lg btn-primary" style="float:right"
+          </td>
+        </tr>
+        
+        <tr>
+          <th colspan="4">
+            <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
+          </th>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="accessDayType.status"
+              class="form-control">
+              <option [value]="undefined" disabled selected hidden>Please select...</option>
+              <option value="Full access day">Full access day</option>
+              <option value="Half access day">Half access day</option>
+              <option value="No access day">No access day</option>
+              <option value="Adverse weather below 2.5m Hs">Adverse weather below 2.5m Hs</option>
+              <option value="Off hire event">Off hire event</option>
+              <option value="Port call day">Port call day (Full day only)</option>
+              <option value="Excluded day">Excluded day</option>
+            </select>
+          </td>
+        </tr>
+        <tr *ngIf="weatherDowntimeChanged == true">
+          <td colspan="4">
+            <button class="btn btn-lg btn-primary" style="float:right"
               (click)="saveWeatherDowntimeStats();" type="button">Save</button>
           </td>
         </tr>
@@ -271,7 +296,7 @@
         <tr>
           <td></td>
           <th>FUEL OIL (m<sup>3</sup>)</th>
-          <th>LUB OIL (Litres)</th>
+          <th>LUB OIL (litres)</th>
           <th>Dom. Pot Water (m<sup>3</sup>)</th>
           <th>Cargo Pot Water (m<sup>3</sup>)</th>
         </tr>
@@ -291,7 +316,7 @@
               [(value)]="liquids.potwater.oldValue"></td>
         </tr>
         <tr>
-          <th>Loaded / Made</th>
+          <th>Loaded / made</th>
           <td><input class="form-control" type="double" min="0" max="100000"
               (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.loaded"
               [(value)]="liquids.fuel.loaded">
@@ -322,7 +347,7 @@
               [(value)]="liquids.potwater.consumed"></td>
         </tr>
         <tr>
-          <th>Discharged to Client</th>
+          <th>Discharged to client</th>
           <td><input class="form-control" type="double" min="0" max="100000"
               (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.discharged"
               [(value)]="liquids.fuel.discharged"></td>
@@ -351,43 +376,6 @@
     </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="2">
-            <h4>People on board</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Marine</th>
-          <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.marine" [(value)]="peopleOnVessel.marine"></td>
-        </tr>
-        <tr>
-          <th>Marine contractors</th>
-          <td><input (change)="poBChanged = true; updatePoB();" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.marineContractors" [(value)]="peopleOnVessel.marineContractors"></td>
-        </tr>
-        <tr>
-          <th>Project</th>
-          <td><input (change)="poBChanged = true; updatePoB()" class="form-control" type="number" min="0" max="10000"
-              [(ngModel)]="peopleOnVessel.project" [(value)]="peopleOnVessel.project"></td>
-        </tr>
-        <tr>
-          <th>Total People on board</th>
-          <td> {{peopleOnVessel.Total}}</td>
-        </tr>
-        <tr *ngIf="poBChanged == true">
-          <td colspan="2" class="submitbtnclass"> <button (click)="savePoBStats();" class="btn btn-lg btn-primary"
-              style="float:right" type="button">Save</button>
-          </td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-  <hr class="plsdonotprintthisforfsake">
-  <div class="row ">
-    <div class="col-xl-6">
-      <table class="table table-bordered">
 
         <tr>
           <th colspan="3">
@@ -402,20 +390,25 @@
         <tr>
           <td></td>
           <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.project" [(value)]="catering.project"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marine" [(value)]="catering.marine"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Total people on board</td>
+          <td>{{catering.totalPob}}</td>
         </tr>
         <tr>
           <th>Extra meals</th>
@@ -425,20 +418,20 @@
         <tr>
           <td></td>
           <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.extraMeals" [(value)]="catering.extraMeals"></td>
         </tr>
         <tr>
           <td></td>
-          <td>Marine + Marine Contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td>Marine + marine contractors</td>
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
         </tr>
 
         <tr>
-          <th>Packed Meals</th>
+          <th>Packed meals</th>
           <td>Ordered</td>
-          <td><input (change)="cateringChanged = true;" class="form-control" type="number" min="0" max="10000"
+          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.packedLunches" [(value)]="catering.packedLunches"></td>
         </tr>
         <tr *ngIf="cateringChanged == true">
@@ -448,6 +441,10 @@
         </tr>
       </table>
     </div>
+  </div>
+
+  <hr class="plsdonotprintthisforfsake">
+  <div class="row ">
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
@@ -511,10 +508,12 @@
           </td>
         </tr>
       </table>
+    </div>
+    <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
           <td>
-            <h4>Vessel Operations / remarks</h4>
+            <h4>Vessel operations / remarks</h4>
           </td>
         </tr>
         <tr>
@@ -548,5 +547,6 @@ technical issues with the vessel. Provide further details in the hse DPR and rem
 <ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
+<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, any select any of the more specific options if relevant.</ng-template>
 <ng-template #tooltipPOB>Number of people on board of the vessel at the end of day. By default, yesterdays
 values are auto-filled.</ng-template>

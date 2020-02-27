@@ -4,6 +4,8 @@ import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TokenModel } from '@app/models/tokenModel';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 @Component({
   selector: 'app-sov-dpr-input-readonly',
@@ -11,17 +13,19 @@ import { TokenModel } from '@app/models/tokenModel';
   styleUrls: ['./sov-dpr-input-readonly.component.scss', '../../sovreport.component.scss']
 })
 export class SovDprInputReadonlyComponent implements OnChanges {
+
   @Input() standby: ReadonlyInput;
   @Input() vesselNonAvailability: ReadonlyInput;
   @Input() weatherDowntime: ReadonlyInput;
+  @Input() accessDayType: {status: string};
+
   @Input() hoc;
   @Input() toolbox;
   @Input() liquids: LiquidsInput;
-  @Input() peopleOnVessel = {marine: 0, marineContractors: 0, project: 0, Total: 0};
   @Input() catering: CateringInput;
   @Input() dp: ReadonlyInput;
   @Input() remarks = '';
-  @Input() vesselObject;
+  @Input() vesselObject: VesselObjectModel;
   @Input() tokenInfo: TokenModel;
   @Input() dprApprovalCount;
 
@@ -34,6 +38,7 @@ export class SovDprInputReadonlyComponent implements OnChanges {
     private commonService: CommonService,
     private alert: AlertService,
     private modalService: NgbModal,
+    public permission: PermissionService,
   ) {}
 
   ngOnChanges() {
@@ -43,23 +48,20 @@ export class SovDprInputReadonlyComponent implements OnChanges {
   }
 
   setTotalPob() {
-    this.peopleOnVessel.Total = (0 + +this.peopleOnVessel.marineContractors + +this.peopleOnVessel.marine + +this.peopleOnVessel.project);
+    this.catering.totalPob = (0 + +this.catering.marineContractors + +this.catering.marine + +this.catering.project);
   }
 
   signOffDprClient() {
-    this.saveStats('saveDprSigningClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
-    });
+    this.saveStats('saveDprSigningClient', {});
     this.dprApproval.emit(this.dprSignedByClient);
     this.dprApprovalCount = 2;
   }
 
   declineDprClient(data: {feedback: string}) {
     this.saveStats('declineDprClient', {
-      date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi,
-      refuseFeedback: data.feedback,
+      feedback: data.feedback,
+      dateString: this.vesselObject.dateNormal,
+      vesselName: this.vesselObject.vesselName
     });
     this.dprApproval.emit(this.dprDeclinedByClient);
     this.dprApprovalCount = -1;
@@ -127,11 +129,12 @@ interface ReadonlyInput {
 }
 
 interface CateringInput {
-  project: Number;
-  marine: Number;
+  totalPob: number;
+  project: number;
+  marine: number;
   marineContractors: number;
-  extraMeals: Number;
-  packedLunches: Number;
+  extraMeals: number;
+  packedLunches: number;
   Array: Array<number>;
 }
 

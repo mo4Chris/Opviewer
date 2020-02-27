@@ -151,7 +151,10 @@ export class SovSummaryComponent implements OnChanges {
                             },
                             responsive: true,
                             radius: 6,
-                            pointHoverRadius: 6
+                            pointHoverRadius: 6,
+                            animation: {
+                              duration: 300,
+                            },
                         }
                     });
                 });
@@ -195,7 +198,10 @@ export class SovSummaryComponent implements OnChanges {
                         },
                         responsive: true,
                         radius: 6,
-                        pointHoverRadius: 6
+                        pointHoverRadius: 6,
+                        animation: {
+                          duration: 300,
+                        },
                     }
                 });
             }, 500);

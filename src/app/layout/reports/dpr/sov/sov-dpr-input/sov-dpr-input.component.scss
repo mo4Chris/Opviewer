@@ -1,15 +1,14 @@
 .tableSummary td:nth-child(1) {
     background: gray;
     color: white;
-    
 }
 
 
 .tableSummarySpecial {
     background: gray;
     color: white;
-    
 }
+
 .tableTotal {
     border-top: 3px black solid;
 }
@@ -19,11 +18,11 @@ ngb-alert {
     bottom: 0px;
 }
 
-.btn-danger{
+.btn-danger {
     margin-left: 2em;
 }
 
-.submitbtnclass{
+.submitbtnclass {
     background: white !important;
 }
 
@@ -35,7 +34,7 @@ agm-map {
     height: 400px;
 }
 
-.tableRow{
+.tableRow {
     display: flex;
     flex-wrap: wrap;
     line-height: calc(2.25rem + 2px);
@@ -49,28 +48,28 @@ agm-map {
     height: 26px;
     color: #427ded;
     border-color: #427ded;
-    &::active, &::hover {
+    &::active,
+    &::hover {
         background-color: #427ded;
         color: white;
         box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
     }
-
     &::focus {
         box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
     }
-
     .totalsHelpBtn {
         color: white;
         border-color: white;
     }
-
     .addVesselHelp {
         right: 60px;
         position: absolute;
     }
 }
 
-textarea {resize: none}
+textarea {
+    resize: none
+}
 
 @media print {
 
@@ -87,85 +86,106 @@ textarea {resize: none}
     }
     
     .plsdonotprintthisforfsake {
-        display:none !important;
+        display: none !important;
         z-index: 1;
     }
-
     select {
         -webkit-appearance: none;
         -moz-appearance: none;
         text-indent: 1px;
         text-overflow: '';
     }
-    
     .table-responsive {
         width: 100%;
         margin-left: 0;
         padding: 0;
         font-size: 10pt;
     }
-
     .btn {
         display: none;
     }
-
-    .form-control
-    {
+    .form-control {
         border: 0;
-        padding:0;
-        overflow:visible;
+        padding: 0;
+        overflow: visible;
     }
-
-    .form-control-sm{
+    .form-control-sm {
         border: 0;
-        padding:0;
-        overflow:visible;
+        padding: 0;
+        overflow: visible;
     }
-
-    .btn-outline-primary{
+    .btn-outline-primary {
         border: 0;
-        padding:0;
-        overflow:visible;
-        width: auto; 
+        padding: 0;
+        overflow: visible;
+        width: auto;
     }
-
     .chartContainer {
         width: 225mm;
     }
-
-    .dropdown-toggle{
+    .dropdown-toggle {
         border: 0;
-        padding:0;
-        overflow:visible;
+        padding: 0;
+        overflow: visible;
         width: auto;
     }
-
-    .commentButton{
+    .commentButton {
         color: black;
     }
-
-    td.comment{
-        width: 150px;  
+    td.comment {
+        width: 150px;
     }
-
-
     .dropdown-toggle::after {
         display: none !important;
     }
-    
-    .col-print-1 {width:8%;  float:left;}
-    .col-print-2 {width:16%; float:left;}
-    .col-print-3 {width:25%; float:left;}
-    .col-print-4 {width:33%; float:left;}
-    .col-print-5 {width:42%; float:left;}
-    .col-print-6 {width:50%; float:left;}
-    .col-print-7 {width:58%; float:left;}
-    .col-print-8 {width:66%; float:left;}
-    .col-print-9 {width:75%; float:left;}
-    .col-print-10{width:83%; float:left;}
-    .col-print-11{width:92%; float:left;}
-    .col-print-12{width:100%; float:left;}
-    
+    .col-print-1 {
+        width: 8%;
+        float: left;
+    }
+    .col-print-2 {
+        width: 16%;
+        float: left;
+    }
+    .col-print-3 {
+        width: 25%;
+        float: left;
+    }
+    .col-print-4 {
+        width: 33%;
+        float: left;
+    }
+    .col-print-5 {
+        width: 42%;
+        float: left;
+    }
+    .col-print-6 {
+        width: 50%;
+        float: left;
+    }
+    .col-print-7 {
+        width: 58%;
+        float: left;
+    }
+    .col-print-8 {
+        width: 66%;
+        float: left;
+    }
+    .col-print-9 {
+        width: 75%;
+        float: left;
+    }
+    .col-print-10 {
+        width: 83%;
+        float: left;
+    }
+    .col-print-11 {
+        width: 92%;
+        float: left;
+    }
+    .col-print-12 {
+        width: 100%;
+        float: left;
+    }
 }
 
 @media only print and (orientation: landscape) {
@@ -173,17 +193,16 @@ textarea {resize: none}
         display: block;
         page-break-before: always;
     }
-
     agm-map {
         height: 480px;
-        width: 297mm ;
+        width: 297mm;
         display: inline-flex;
     }
-  }
-  
-  @media (orientation: portrait) {
+}
+
+@media (orientation: portrait) {
     .singlepage-print-port {
         display: block;
         page-break-before: always;
     }
-  }
+}

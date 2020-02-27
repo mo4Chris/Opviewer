@@ -248,40 +248,40 @@ export class MockedCommonService extends CommonService {
     getSovDprInput(vessel: VesselObjectModel) {
         // ToDo
         return mockedObservable([{
-          "mmsi": vessel.mmsi,
-          "date": vessel.date,
-          "liquids": {
+          'mmsi': vessel.mmsi,
+          'date': vessel.date,
+          'liquids': {
               fuel: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
               luboil: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
               domwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 },
               potwater: { oldValue: 0, loaded: 0, consumed: 0, discharged: 0, newValue: 0 }
           },
-          "toolbox": [],
-          "hoc": [],
-          "vesselNonAvailability": [],
-          "weatherDowntime": [],
-          "standBy": [],
-          "remarks": '',
-          "ToolboxAmountOld": 0,
-          "ToolboxAmountNew": 0,
-          "HOCAmountOld": 0,
-          "HOCAmountNew": 0,
-          "catering": {
+          'toolbox': [],
+          'hoc': [],
+          'vesselNonAvailability': [],
+          'weatherDowntime': [],
+          'standBy': [],
+          'remarks': '',
+          'ToolboxAmountOld': 0,
+          'ToolboxAmountNew': 0,
+          'HOCAmountOld': 0,
+          'HOCAmountNew': 0,
+          'catering': {
               project: 0,
               extraMeals: 0,
               packedLunches: 0,
               marine: 0,
               marineContractors: 0
           },
-          "PoB": {
+          'PoB': {
               marine: 0,
               marineContractors: 0,
               project: 0
           },
-          "missedPaxCargo": [],
-          "helicopterPaxCargo": [],
-          "dp": [],
-          "signedOff": {
+          'missedPaxCargo': [],
+          'helicopterPaxCargo': [],
+          'dp': [],
+          'signedOff': {
               amount: 0,
               signedOffSkipper: '',
               signedOffClient: ''
@@ -469,6 +469,7 @@ export class MockedCommonService extends CommonService {
             mmsi: <number> request.mmsi[0] ? request.mmsi[0] : request.mmsi,
             date: request.startDate,
             vesselType: request.vesselType,
+            vesselName: 'Test123'
         });
     }
     getTransfersForVesselByRange(request: StatsRangeRequest) {
@@ -565,6 +566,7 @@ export interface VesselObjectModel {
     date: number;
     dateNormal?: string | Date;
     vesselType: VesselType;
+    vesselName: string;
 }
 
 export interface GeneralForRangeInput {

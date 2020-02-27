@@ -43,7 +43,7 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   standBy = {Array: []};
   dp = {Array: []};
   weatherDowntime = {Array: []};
-
+  accessDayType: {status: string};
 
   totalStandbyTime = '00:00';
   totalTechnicalDowntimeTime = '00:00';
@@ -51,11 +51,6 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   remarks = '';
 
   catering = {};
-  peopleonBoard = {
-    marine: 0,
-    marineContractors: 0,
-    project: 0
-  };
   PoBTotal = 0;
 
   liquidsObject = {
@@ -112,13 +107,13 @@ export class SovDprInputComponent implements OnInit, OnChanges {
   }
   setDPRInputFields() {
     if (this.dprInput) {
+      this.dprInput.accessDayType = this.dprInput.accessDayType || {status: undefined};
       this.hoc.Array = this.dprInput.hoc;
       this.toolbox.Array = this.dprInput.toolbox;
       this.vesselNonAvailability.Array = this.dprInput.vesselNonAvailability;
       this.standBy.Array = this.dprInput.standBy || [];
       this.weatherDowntime.Array = this.dprInput.weatherDowntime;
       this.liquidsObject = this.dprInput.liquids;
-      this.peopleonBoard = this.dprInput.PoB;
       this.remarks = this.dprInput.remarks;
       this.catering = this.dprInput.catering;
       this.dp.Array = this.dprInput.dp;
@@ -126,6 +121,7 @@ export class SovDprInputComponent implements OnInit, OnChanges {
       this.hoc.TotalNew = this.dprInput.HOCAmountNew;
       this.toolbox.TotalOld = this.dprInput.ToolboxAmountOld;
       this.toolbox.TotalNew = this.dprInput.ToolboxAmountNew;
+      this.accessDayType = this.dprInput.accessDayType;
     }
   }
 

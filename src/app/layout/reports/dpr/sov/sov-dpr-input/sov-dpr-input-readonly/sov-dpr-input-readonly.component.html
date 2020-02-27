@@ -2,7 +2,11 @@
 <div class="card-body">
   <div class="row">
     <div class="col-xl-12">
-      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount < 1" [dismissible]="false" type="warning">At this moment the DPR has not been signed off by the captain. All data shown is either automatically filled in or is data filled in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount == 0" [dismissible]="false" type="warning">At this
+        moment the DPR has not been signed off by the captain. All data shown is either automatically filled in or is
+        data filled in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
+      <ngb-alert style="position: relative;" *ngIf="dprApprovalCount == 1 && permission.sovCommercialSign" [dismissible]="false" type="warning">
+        This DPR has been signed off by the captain, but is still awaiting approval.</ngb-alert>
     </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
@@ -38,8 +42,8 @@
         </tr>
         <!-- split between -->
         <tr>
-          <th colspan="4" >
-          <div [ngbTooltip]="tooltipTechnicalDowntime">
+          <th colspan="4">
+            <div [ngbTooltip]="tooltipTechnicalDowntime">
               <h4>Technical downtime</h4>
             </div>
           </th>
@@ -101,6 +105,16 @@
         <tr *ngIf="weatherDowntime.Array.length==0">
           <td colspan="4"><i>No weather downtime entered</i></td>
         </tr>
+        <tr>
+          <th colspan="4">
+            <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
+          </th>
+        </tr>
+        <tr>
+          <ng-template #noDayType><td colspan="4"><i>Access day type not entered</i></td></ng-template>
+          <td colspan="4" *ngIf="accessDayType && accessDayType.status; else noDayType"> 
+            {{accessDayType.status}}
+        </tr>
       </table>
     </div>
 
@@ -108,11 +122,13 @@
       <table class="table table-bordered">
         <tr>
           <th colspan="4">
-            <h4>HSE incidents & toolbox talks</h4>
+            <h4>Proactive reports & toolbox talks</h4>
           </th>
         </tr>
         <tr>
-          <th><div [ngbTooltip]="tooltipHocCards">HOC cards: {{hoc.Total}}</div></th>
+          <th>
+            <div [ngbTooltip]="tooltipHocCards">SOC cards: {{hoc.Total}}</div>
+          </th>
           <td colspan="3">
             <ng-container *ngFor="let HoC of hoc.Array">
               {{HoC.value}} - {{HoC.amount}} time(s)
@@ -122,7 +138,7 @@
           </td>
         </tr>
         <tr>
-          <th>HOC total Previous</th>
+          <th>SOC total Previous</th>
           <td>{{hoc.TotalOld}}</td>
           <th>New total</th>
           <td>{{hoc.TotalNew}}</td>
@@ -171,7 +187,7 @@
           <td>{{liquids.potwater.oldValue}}</td>
         </tr>
         <tr>
-          <th>Loaded / Made</th>
+          <th>Loaded / made</th>
           <td>{{liquids.fuel.loaded}}
           </td>
           <td>{{liquids.luboil.loaded}}</td>
@@ -186,7 +202,7 @@
           <td>{{liquids.potwater.consumed}}</td>
         </tr>
         <tr>
-          <th>Discharged to Client</th>
+          <th>Discharged to client</th>
           <td>{{liquids.fuel.discharged}}</td>
           <td>{{liquids.luboil.discharged}}</td>
           <td>{{liquids.domwater.discharged}}</td>
@@ -201,46 +217,18 @@
         </tr>
       </table>
     </div>
+
     <div class="col-xl-6">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="2">
-            <h4 [ngbTooltip]="tooltipPOB">People on board</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Marine</th>
-          <td>{{peopleOnVessel.marine}}</td>
-        </tr>
-        <tr>
-          <th>Marine contractors</th>
-          <td>{{peopleOnVessel.marineContractors}}</td>
-        </tr>
-        <tr>
-          <th>Project</th>
-          <td>{{peopleOnVessel.project}}</td>
-        </tr>
-        <tr>
-          <th>Total People on board</th>
-          <td> {{peopleOnVessel.Total}}</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-  <hr class="plsdonotprintthisforfsake">
-  
-  <div class="row ">
-    <div class="col-xl-6">
-      <table class="table table-bordered">
-
         <tr>
           <th colspan="3">
             <h4>Catering</h4>
           </th>
         </tr>
         <tr>
-          <th><div [ngbTooltip]="tooltipCateringPob">People on board</div></th>
+          <th>
+            <div [ngbTooltip]="tooltipCateringPob">People on board</div>
+          </th>
           <td></td>
           <td></td>
         </tr>
@@ -260,6 +248,11 @@
           <td>{{catering.marineContractors}}</td>
         </tr>
         <tr>
+          <td></td>
+          <td>Total people on board</td>
+          <td>{{catering.totalPob}}</td>
+        </tr>
+        <tr>
           <th>Extra meals</th>
           <td></td>
           <td></td>
@@ -271,17 +264,21 @@
         </tr>
         <tr>
           <td></td>
-          <td>Marine + Marine Contractors</td>
+          <td>Marine + marine contractors</td>
           <td>{{catering.marineContractors}}</td>
         </tr>
-
         <tr>
-          <th>Packed Meals</th>
+          <th>Packed meals</th>
           <td>Ordered</td>
           <td>{{catering.packedLunches}}</td>
         </tr>
       </table>
     </div>
+  </div>
+
+  <hr class="plsdonotprintthisforfsake">
+
+  <div class="row ">
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
@@ -311,28 +308,29 @@
           <td colspan="4"><i>No dp usage entered</i></td>
         </tr>
       </table>
+    </div>
+    <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
         <tr>
           <td>
-            <h4>Vessel Operations / remarks</h4>
+            <h4>Vessel operations / remarks</h4>
           </td>
         </tr>
         <tr>
           <td style="white-space: pre-wrap;" *ngIf="remarks.length>0; else noRemarks">{{remarks}}</td>
-          <ng-template #noRemarks> <td style="white-space: pre-wrap;"><i>No remarks</i></td>
+          <ng-template #noRemarks>
+            <td style="white-space: pre-wrap;"><i>No remarks</i></td>
           </ng-template>
         </tr>
-        <tr *ngIf="dprApprovalCount == 1 && tokenInfo.userPermission !== 'Vessel master'">
+        <tr *ngIf="dprApprovalCount == 1 && permission.sovCommercialSign">
           <td>
-            <button
-                class="btn btn-lg btn-danger" (click)="openModal(refuseSignoffModal)"
-                style="float:right" type="button">
-                Refuse DPR
+            <button class="btn btn-lg btn-danger" (click)="openModal(refuseSignoffModal)" style="float:right"
+              type="button">
+              Refuse DPR
             </button>
-            <button
-                class="btn btn-lg btn-primary" (click)="openModal(acceptSignoffModal)"
-                style="float:right" type="button">
-                Sign off DPR
+            <button class="btn btn-lg btn-primary" (click)="openModal(acceptSignoffModal)" style="float:right"
+              type="button">
+              Sign off DPR
             </button>
           </td>
         </tr>
@@ -342,8 +340,8 @@
 </div>
 
 <ng-template #acceptSignoffModal let-modal>
-  <app-confirm title="Confirm DPR?" body="This will mark this dpr as final." [modal]="modal"
-   successTag="Refuse" (onConfirm)="signOffDprClient()"></app-confirm>
+  <app-confirm title="Confirm DPR?" body="This will mark this dpr as final." [modal]="modal" successTag="Refuse"
+    (onConfirm)="signOffDprClient()"></app-confirm>
 </ng-template>
 
 <ng-template #refuseSignoffModal let-modal>
@@ -352,13 +350,12 @@
     (onConfirm)="declineDprClient($event)" feedback="Reason of refusal"></app-confirm>
 </ng-template>
 
-
 <ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
 <ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
-technical issues with the vessel. Provide further details in the hse DPR and remark section
+  technical issues with the vessel. Provide further details in the hse DPR and remark section
 </ng-template>
 <ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
-<ng-template #tooltipPOB>Number of people on board of the vessel at the end of day</ng-template>
 <ng-template #tooltipCateringPob>Number of people on board of the vessel who used the catering</ng-template>
+<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, any select any of the more specific options if relevant.</ng-template>

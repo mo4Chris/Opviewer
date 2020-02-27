@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-xl-12 col-lg-24">
+  <div class="col-xl-12 col-lg-24 page-single-print">
     <div class="card mb-3">
       <div class="card-header">Daily Summary</div>
       <div class="card-body">
@@ -9,7 +9,6 @@
 
         <div class="col-xl-6 dailySummary">
           <table class="table table-responsive table-bordered tableSummary">
-
             <ng-container>
               <tr *ngIf="summary.departureFromHarbour != 'N/a'">
                 <td>Departure from harbour</td>
@@ -122,12 +121,14 @@
         </div>
 
         <div class="col-xl-6 dailySummary">
-          <div *ngIf="operationalChartCalculated">
-            <canvas id="operationalStats"></canvas>
-          </div>
-          <div *ngIf="sovHasLimiters">
-            <canvas id="gangwayLimitations"></canvas>
-          </div>
+          <tr>
+            <div [hidden]="!operationalChartCalculated" class="pie-chart-container">
+              <canvas id="operationalStats"></canvas>
+            </div>
+            <div [hidden]="!sovHasLimiters" class="pie-chart-container">
+              <canvas id="gangwayLimitations"></canvas>
+            </div>
+          </tr>
         </div>
       </div>
     </div>
