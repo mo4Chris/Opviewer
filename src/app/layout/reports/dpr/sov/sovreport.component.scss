@@ -110,6 +110,7 @@ textarea {
 }
 
 @media print {
+
     .plsdonotprintthisforfsake {
         display: none !important;
         z-index: 1;

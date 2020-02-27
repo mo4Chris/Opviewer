@@ -41,21 +41,21 @@
                     <td>{{transfer.peakWindGust}}</td>
                     <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
                     <td>
-                      <input type="number" min="0" class="form-control-sm col-sm-5"
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                         [(ngModel)]="transfer.paxIn" [value]="transfer.paxIn"
                           (ngModelChange)="updatev2vPaxCargoTotal();">
                         incoming <br>
-                      <input type="number" min="0" class="form-control-sm col-sm-5"
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                         [(ngModel)]="transfer.paxOut" [value]="transfer.paxOut"
                         (ngModelChange)="updatev2vPaxCargoTotal();">
                       outgoing
                       </td>
                     <td>
-                      <input type="number" min="0" class="form-control-sm col-sm-5"
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn"
                           (ngModelChange)="updatev2vPaxCargoTotal();">
                       kg incoming <br>
-                      <input type="number" min="0" class="form-control-sm col-sm-5"
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut"
                           (ngModelChange)="updatev2vPaxCargoTotal();">
                       kg outgoing

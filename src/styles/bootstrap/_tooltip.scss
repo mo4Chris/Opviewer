@@ -29,6 +29,14 @@
   }
 }
 
+@media print {
+  .tooltip {
+    display: none !important;
+    visibility: hidden;
+  }
+}
+
+
 .bs-tooltip-top {
   padding: $tooltip-arrow-height 0;
 
