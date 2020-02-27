@@ -79,7 +79,7 @@ export class ReportsDprComponent implements OnInit {
     longitude: null,
   };
   googleMap: google.maps.Map;
-  printMode = 0;
+  printMode = 1;
 
   streetViewControl = false;
   changedCommentObj = { newComment: '', otherComment: '' };
