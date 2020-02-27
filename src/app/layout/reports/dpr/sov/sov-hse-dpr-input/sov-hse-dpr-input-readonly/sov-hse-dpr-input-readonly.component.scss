@@ -1,3 +1,13 @@
 .pagebreak {
     page-break-before: always !important;
 }
+
+.row {
+    page-break-inside: auto;
+}
+
+@media print {
+    .row {
+        display: block;
+    }
+}

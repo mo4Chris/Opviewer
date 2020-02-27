@@ -4,199 +4,203 @@
       <div class="card-header">HSE input</div>
       <div class="card-body">
         <div class="row">
-          <div class="col-xl-12">
+          <div class="col-xl-12 col-lg-24">
             <ngb-alert *ngIf="hseDprApprovalCount < 1" [dismissible]="false" type="warning">At this moment the DPR has
               not been signed off by the captain. All data shown is either automatically filled in or is data filled
               in by the captain. Shown data may be incomplete or partially incorrect until sign-off</ngb-alert>
           </div>
-          <div class="col-xl-6 singlepage-print-port">
+          <div class="col-xl-6 col-lg-12">
             <table class="table table-bordered">
-              <tr>
-                <th colspan="3">
-                  <h4>
-                    <div [ngbTooltip]="tooltipCrew">General crew</div>
-                  </h4>
-                </th>
-              </tr>
-              <tr>
-                <th></th>
-                <th>On board</th>
-                <th>Personnel days</th>
-              </tr>
+              <ng-container class="single-block-print">
+                <tr>
+                  <th colspan="3">
+                    <h4>
+                      <div [ngbTooltip]="tooltipCrew">General crew</div>
+                    </h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>On board</th>
+                  <th>Personnel days</th>
+                </tr>
 
-              <tr>
-                <th>Marine crew</th>
-                <td>{{dprData.marineCount.value}}</td>
-                <td>{{dprData.marineCount.value}}</td>
-              </tr>
-              <tr>
-                <th>Client crew</th>
-                <td>{{dprData.clientCrewCount.value}}</td>
-                <td>{{dprData.clientCrewCount.value / 2}}</td>
-              </tr>
-              <tr>
-                <th>Total</th>
-                <td>{{dprData.clientCrewCount.value + dprData.marineCount.value}}</td>
-                <td>{{dprData.clientCrewCount.value / 2 + dprData.marineCount.value}}</td>
-              </tr>
+                <tr>
+                  <th>Marine crew</th>
+                  <td>{{dprData.marineCount.value}}</td>
+                  <td>{{dprData.marineCount.value}}</td>
+                </tr>
+                <tr>
+                  <th>Client crew</th>
+                  <td>{{dprData.clientCrewCount.value}}</td>
+                  <td>{{dprData.clientCrewCount.value / 2}}</td>
+                </tr>
+                <tr>
+                  <th>Total</th>
+                  <td>{{dprData.clientCrewCount.value + dprData.marineCount.value}}</td>
+                  <td>{{dprData.clientCrewCount.value / 2 + dprData.marineCount.value}}</td>
+                </tr>
 
-              <tr>
-                <th colspan="3">
-                  <h4>Incidents</h4>
-                </th>
-              </tr>
-              <tr>
-                <th></th>
-                <th>Value</th>
-                <th>Comment</th>
-              </tr>
+                <tr>
+                  <th colspan="3">
+                    <h4>Incidents</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>Value</th>
+                  <th>Comment</th>
+                </tr>
+              </ng-container>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipLostTimeInjury">Lost time injuries</div>
-                </th>
-                <td>
-                  {{hseData.lostTimeInjuries.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.lostTimeInjuries.comment && hseData.lostTimeInjuries.commentlength>0; else noComment">
-                    {{hseData.lostTimeInjuries.comment}}
-                  </div>
-                </td>
-              </tr>
+              <ng-container class="single-block-print">
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipLostTimeInjury">Lost time injuries</div>
+                  </th>
+                  <td>
+                    {{hseData.lostTimeInjuries.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.lostTimeInjuries.comment && hseData.lostTimeInjuries.commentlength>0; else noComment">
+                      {{hseData.lostTimeInjuries.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipRestrictedWorkDay">Restricted workday cases</div>
-                </th>
-                <td>
-                  {{hseData.restrictedWorkday.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.restrictedWorkday.comment && hseData.restrictedWorkday.comment.length>0; else noComment">
-                    {{hseData.restrictedWorkday.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipRestrictedWorkDay">Restricted workday cases</div>
+                  </th>
+                  <td>
+                    {{hseData.restrictedWorkday.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.restrictedWorkday.comment && hseData.restrictedWorkday.comment.length>0; else noComment">
+                      {{hseData.restrictedWorkday.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipDefaultIncident">Medical treatment cases</div>
-                </th>
-                <td>
-                  {{hseData.MedicalTreatment.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.MedicalTreatment.comment && hseData.MedicalTreatment.comment.length>0; else noComment">
-                    {{hseData.MedicalTreatment.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipDefaultIncident">Medical treatment cases</div>
+                  </th>
+                  <td>
+                    {{hseData.MedicalTreatment.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.MedicalTreatment.comment && hseData.MedicalTreatment.comment.length>0; else noComment">
+                      {{hseData.MedicalTreatment.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipDefaultIncident">First aid cases</div>
-                </th>
-                <td>
-                  {{hseData.firstAid.value}}
-                </td>
-                <td>
-                  <div *ngIf="hseData.firstAid.comment && hseData.firstAid.comment.length>0; else noComment">
-                    {{hseData.firstAid.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipDefaultIncident">Environmental incidents</div>
-                </th>
-                <td>
-                  {{hseData.environmentalIncidents.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.environmentalIncidents.comment && hseData.environmentalIncidents.comment.length>0; else noComment">
-                    {{hseData.environmentalIncidents.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipDefaultIncident">First aid cases</div>
+                  </th>
+                  <td>
+                    {{hseData.firstAid.value}}
+                  </td>
+                  <td>
+                    <div *ngIf="hseData.firstAid.comment && hseData.firstAid.comment.length>0; else noComment">
+                      {{hseData.firstAid.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipDefaultIncident">Environmental incidents</div>
+                  </th>
+                  <td>
+                    {{hseData.environmentalIncidents.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.environmentalIncidents.comment && hseData.environmentalIncidents.comment.length>0; else noComment">
+                      {{hseData.environmentalIncidents.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipDefaultIncident">Equipment damage</div>
-                </th>
-                <td>
-                  {{hseData.equipmentDamage.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.equipmentDamage.comment && hseData.equipmentDamage.comment.length>0; else noComment">
-                    {{hseData.equipmentDamage.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipDefaultIncident">Equipment damage</div>
+                  </th>
+                  <td>
+                    {{hseData.equipmentDamage.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.equipmentDamage.comment && hseData.equipmentDamage.comment.length>0; else noComment">
+                      {{hseData.equipmentDamage.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipTechBreakdowns">Technical breakdowns</div>
-                </th>
-                <td>
-                  {{dprData.technicalBreakdownAmount.value}}
-                </td>
-                <td>
-                  <div
-                    *ngIf="dprData.technicalBreakdownAmount.comment && dprData.technicalBreakdownAmount.comment.length>0; else noComment">
-                    {{dprData.technicalBreakdownAmount.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipTechBreakdowns">Technical breakdowns</div>
+                  </th>
+                  <td>
+                    {{dprData.technicalBreakdownAmount.value}}
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="dprData.technicalBreakdownAmount.comment && dprData.technicalBreakdownAmount.comment.length>0; else noComment">
+                      {{dprData.technicalBreakdownAmount.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipRiskAssessment">Proactive reports</div>
-                </th>
-                <td>
-                  {{dprData.hocAmount.value}}
-                </td>
-                <td>
-                  <div *ngIf="dprData.hocAmount.comment && dprData.hocAmount.comment.length>0; else noComment">
-                    {{dprData.hocAmount.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipRiskAssessment">Proactive reports</div>
+                  </th>
+                  <td>
+                    {{dprData.hocAmount.value}}
+                  </td>
+                  <td>
+                    <div *ngIf="dprData.hocAmount.comment && dprData.hocAmount.comment.length>0; else noComment">
+                      {{dprData.hocAmount.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipToolboxTalks">Toolbox talks</div>
-                </th>
-                <td>
-                  {{dprData.toolboxAmount.value}}
-                </td>
-                <td>
-                  <div *ngIf="dprData.toolboxAmount.comment && dprData.toolboxAmount.comment.length>0; else noComment">
-                    {{dprData.toolboxAmount.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipToolboxTalks">Toolbox talks</div>
+                  </th>
+                  <td>
+                    {{dprData.toolboxAmount.value}}
+                  </td>
+                  <td>
+                    <div *ngIf="dprData.toolboxAmount.comment && dprData.toolboxAmount.comment.length>0; else noComment">
+                      {{dprData.toolboxAmount.comment}}
+                    </div>
+                  </td>
+                </tr>
 
-              <tr>
-                <th>
-                  <div [ngbTooltip]="tooltipDefaultIncident">Near hit reports</div>
-                </th>
-                <td>
-                  {{hseData.nearHitMisses.value}}
-                </td>
-                <td>
-                  <div *ngIf="hseData.nearHitMisses.comment && hseData.nearHitMisses.comment.length>0; else noComment">
-                    {{hseData.nearHitMisses.comment}}
-                  </div>
-                </td>
-              </tr>
+                <tr>
+                  <th>
+                    <div [ngbTooltip]="tooltipDefaultIncident">Near hit reports</div>
+                  </th>
+                  <td>
+                    {{hseData.nearHitMisses.value}}
+                  </td>
+                  <td>
+                    <div *ngIf="hseData.nearHitMisses.comment && hseData.nearHitMisses.comment.length>0; else noComment">
+                      {{hseData.nearHitMisses.comment}}
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
 
-              <ng-container class="print-block">
+              <ng-container class="single-block-print">
                 <tr>
                   <th colspan="3">
                     <h4>Meetings</h4>
@@ -252,236 +256,238 @@
             </table>
           </div>
 
-          <div class="col-xl-6  singlepage-print-port">
+          <div class="col-xl-6  singlepage-print-port pagebreak">
             <table class="table table-bordered">
-              <tr>
-                <th colspan="3">
-                  <h4>Consumption / Landed / Disposed</h4>
-                </th>
-              </tr>
-              <tr>
-                <th></th>
-                <th>Value</th>
-                <th>Comment</th>
-              </tr>
-              <!-- need input-->
-              <tr>
-                <th>Fuel oil consumption</th>
-                <td>
-                  {{dprData.fuelConsumption.value}} m<sup>3</sup>
-                </td>
-                <td>
-                  <div
-                    *ngIf="dprData.fuelConsumption.comment && dprData.fuelConsumption.comment.length>0; else noComment">
-                    {{dprData.fuelConsumption.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Lub oil consumption</th>
-                <td>
-                  {{dprData.lubOilConsumption.value}} m<sup>3</sup>
-                </td>
-                <td>
-                  <div
-                    *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
-                    {{dprData.lubOilConsumption.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Water consumption</th>
-                <td>
-                  {{dprData.waterConsumption.value}} m<sup>3</sup>
-                </td>
-                <td>
-                  <div
-                    *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
-                    {{dprData.lubOilConsumption.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Shore power consumed</th>
-                <td>
-                  {{hseData.shorePower.value}} kWh
-                </td>
-                <td>
-                  <div *ngIf="hseData.shorePower.comment && hseData.shorePower.comment.length>0; else noComment">
-                    {{hseData.shorePower.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Plastic incinerated</th>
-                <td>
-                  {{hseData.plasticIncinerated.value}} m<sup>3</sup>
-                </td>
-                <td>
-                  <div
-                    *ngIf="hseData.plasticIncinerated.comment && hseData.plasticIncinerated.comment.length>0; else noComment">
-                    {{hseData.plasticIncinerated.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Plastic landed</th>
-                <td>
-                  {{hseData.plasticLanded.value}} m<sup>3</sup>
-                </td>
+              <ng-container class="single-block-print">
+                <tr>
+                  <th colspan="3">
+                    <h4>Consumption / Landed / Disposed</h4>
+                  </th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>Value</th>
+                  <th>Comment</th>
+                </tr>
+                <!-- need input-->
+                <tr>
+                  <th>Fuel oil consumption</th>
+                  <td>
+                    {{dprData.fuelConsumption.value}} m<sup>3</sup>
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="dprData.fuelConsumption.comment && dprData.fuelConsumption.comment.length>0; else noComment">
+                      {{dprData.fuelConsumption.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Lub oil consumption</th>
+                  <td>
+                    {{dprData.lubOilConsumption.value}} m<sup>3</sup>
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
+                      {{dprData.lubOilConsumption.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Water consumption</th>
+                  <td>
+                    {{dprData.waterConsumption.value}} m<sup>3</sup>
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="dprData.lubOilConsumption.comment && dprData.lubOilConsumption.comment.length>0; else noComment">
+                      {{dprData.lubOilConsumption.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Shore power consumed</th>
+                  <td>
+                    {{hseData.shorePower.value}} kWh
+                  </td>
+                  <td>
+                    <div *ngIf="hseData.shorePower.comment && hseData.shorePower.comment.length>0; else noComment">
+                      {{hseData.shorePower.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Plastic incinerated</th>
+                  <td>
+                    {{hseData.plasticIncinerated.value}} m<sup>3</sup>
+                  </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.plasticIncinerated.comment && hseData.plasticIncinerated.comment.length>0; else noComment">
+                      {{hseData.plasticIncinerated.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Plastic landed</th>
+                  <td>
+                    {{hseData.plasticLanded.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div *ngIf="hseData.plasticLanded.comment && hseData.plasticLanded.comment.length>0; else noComment">
-                    {{hseData.plasticLanded.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Food incinerated</th>
-                <td>
-                  {{hseData.foodIncinerated.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div *ngIf="hseData.plasticLanded.comment && hseData.plasticLanded.comment.length>0; else noComment">
+                      {{hseData.plasticLanded.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food incinerated</th>
+                  <td>
+                    {{hseData.foodIncinerated.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.foodIncinerated.comment && hseData.foodIncinerated.comment.length>0; else noComment">
-                    {{hseData.foodIncinerated.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Food landed</th>
-                <td>
-                  {{hseData.foodLanded.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.foodIncinerated.comment && hseData.foodIncinerated.comment.length>0; else noComment">
+                      {{hseData.foodIncinerated.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food landed</th>
+                  <td>
+                    {{hseData.foodLanded.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div *ngIf="hseData.foodLanded.comment && hseData.foodLanded.comment.length>0; else noComment">
-                    {{hseData.foodLanded.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Food macerated</th>
-                <td>
-                  {{hseData.foodMacerated.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div *ngIf="hseData.foodLanded.comment && hseData.foodLanded.comment.length>0; else noComment">
+                      {{hseData.foodLanded.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Food macerated</th>
+                  <td>
+                    {{hseData.foodMacerated.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div *ngIf="hseData.foodMacerated.comment && hseData.foodMacerated.comment.length>0; else noComment">
-                    {{hseData.foodMacerated.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Domestic waste landed</th>
-                <td>
-                  {{hseData.domWasteLanded.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div *ngIf="hseData.foodMacerated.comment && hseData.foodMacerated.comment.length>0; else noComment">
+                      {{hseData.foodMacerated.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Domestic waste landed</th>
+                  <td>
+                    {{hseData.domWasteLanded.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.domWasteLanded.comment && hseData.domWasteLanded.comment.length>0; else noComment">
-                    {{hseData.domWasteLanded.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Domestic waste incinerated</th>
-                <td>
-                  {{hseData.domWasteIncinerated.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.domWasteLanded.comment && hseData.domWasteLanded.comment.length>0; else noComment">
+                      {{hseData.domWasteLanded.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Domestic waste incinerated</th>
+                  <td>
+                    {{hseData.domWasteIncinerated.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.domWasteIncinerated.comment && hseData.domWasteIncinerated.comment.length>0; else noComment">
-                    {{hseData.domWasteIncinerated.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Cooking oil landed</th>
-                <td>
-                  {{hseData.cookingoilLanded.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.domWasteIncinerated.comment && hseData.domWasteIncinerated.comment.length>0; else noComment">
+                      {{hseData.domWasteIncinerated.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Cooking oil landed</th>
+                  <td>
+                    {{hseData.cookingoilLanded.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.cookingoilLanded.comment && hseData.cookingoilLanded.comment.length>0; else noComment">
-                    {{hseData.cookingoilLanded.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Operational waste landed</th>
-                <td>
-                  {{hseData.opsWasteLanded.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.cookingoilLanded.comment && hseData.cookingoilLanded.comment.length>0; else noComment">
+                      {{hseData.cookingoilLanded.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Operational waste landed</th>
+                  <td>
+                    {{hseData.opsWasteLanded.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.opsWasteLanded.comment && hseData.opsWasteLanded.comment.length>0; else noComment">
-                    {{hseData.opsWasteLanded.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>Operational waste incinerated</th>
-                <td>
-                  {{hseData.opsWasteIncinerated.value}} m<sup>3</sup>
-                </td>
+                  <td>
+                    <div
+                      *ngIf="hseData.opsWasteLanded.comment && hseData.opsWasteLanded.comment.length>0; else noComment">
+                      {{hseData.opsWasteLanded.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Operational waste incinerated</th>
+                  <td>
+                    {{hseData.opsWasteIncinerated.value}} m<sup>3</sup>
+                  </td>
 
-                <td>
-                  <div
-                    *ngIf="hseData.opsWasteIncinerated.comment && hseData.opsWasteIncinerated.comment.length>0; else noComment">
-                    {{hseData.opsWasteIncinerated.comment}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th colspan="2">Additional remarks captain</th>
-                <td colspan="2">
-                  <div *ngIf="hseData.remarks && hseData.remarks.length>0; else noComment">
-                    {{hseData.remarks}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th colspan="2">Additional remarks QHSE</th>
-                <td *ngIf="tokenInfo.userPermission !== 'Qhse Specialist' && tokenInfo.userPermission !== 'admin'"
-                  colspan="2">
-                  <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
-                    {{hseData.remarksQhse}}
-                  </div>
-                </td>
-                <td *ngIf="tokenInfo.userPermission === 'Qhse Specialist' || tokenInfo.userPermission === 'admin'">
-                  <ng-container [ngSwitch]="hseDprApprovalCount">
-                    <textarea *ngSwitchCase="1" [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
-                      class="form-control" cols="50"> </textarea>
-                    <ng-container *ngSwitchCase="2">
-                      <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
-                        {{hseData.remarksQhse}}
-                      </div>
+                  <td>
+                    <div
+                      *ngIf="hseData.opsWasteIncinerated.comment && hseData.opsWasteIncinerated.comment.length>0; else noComment">
+                      {{hseData.opsWasteIncinerated.comment}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th colspan="2">Additional remarks captain</th>
+                  <td colspan="2">
+                    <div *ngIf="hseData.remarks && hseData.remarks.length>0; else noComment">
+                      {{hseData.remarks}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th colspan="2">Additional remarks QHSE</th>
+                  <td *ngIf="tokenInfo.userPermission !== 'Qhse Specialist' && tokenInfo.userPermission !== 'admin'"
+                    colspan="2">
+                    <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
+                      {{hseData.remarksQhse}}
+                    </div>
+                  </td>
+                  <td *ngIf="tokenInfo.userPermission === 'Qhse Specialist' || tokenInfo.userPermission === 'admin'">
+                    <ng-container [ngSwitch]="hseDprApprovalCount">
+                      <textarea *ngSwitchCase="1" [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
+                        class="form-control" cols="50"> </textarea>
+                      <ng-container *ngSwitchCase="2">
+                        <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
+                          {{hseData.remarksQhse}}
+                        </div>
+                      </ng-container>
+                      <i *ngSwitchDefault>Not available until the skipper signs off</i>
                     </ng-container>
-                    <i *ngSwitchDefault>Not available until the skipper signs off</i>
-                  </ng-container>
-                </td>
-              </tr>
-              <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
-                <td colspan="4">
+                  </td>
+                </tr>
+                <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
+                  <td colspan="4">
 
-                  <button class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
-                    style="float:right; margin-right: 10px;" type="button">Sign off HSE DPR
-                  </button>
-                  <button *ngIf="tokenInfo.userPermission !== 'Vessel master'" class="btn btn-lg btn-danger"
-                    (click)="declineHseDprClient()" style="float:right; margin-right: 10px;" type="button">Refuse HSE
-                    DPR
-                  </button>
-                  <button class="btn btn-lg submitBtnDate" type="button" style="float:right; margin-right: 10px;"
-                    (click)="saveQHSERemark()">Save remark</button>
+                    <button class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
+                      style="float:right; margin-right: 10px;" type="button">Sign off HSE DPR
+                    </button>
+                    <button *ngIf="tokenInfo.userPermission !== 'Vessel master'" class="btn btn-lg btn-danger"
+                      (click)="declineHseDprClient()" style="float:right; margin-right: 10px;" type="button">Refuse HSE
+                      DPR
+                    </button>
+                    <button class="btn btn-lg submitBtnDate" type="button" style="float:right; margin-right: 10px;"
+                      (click)="saveQHSERemark()">Save remark</button>
 
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              </ng-container>
             </table>
           </div>
         </div>

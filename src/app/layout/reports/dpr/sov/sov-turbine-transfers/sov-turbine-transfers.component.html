@@ -1,5 +1,5 @@
 <!-- Turbine transfers - not read only-->
-<div class="row">
+<div class="row single-block-print">
   <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
@@ -197,7 +197,7 @@
 </div>
 
 <!-- Turbine transfers - readonly-->
-<div class="row">
+<div class="row single-block-print">
   <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
@@ -331,7 +331,7 @@
 </div>
 
 <!-- gangway transfers -->
-<div class="row">
+<div class="row single-block-print">
   <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
     <div class="card mb-3">
       <div class="card-header">
@@ -391,7 +391,7 @@
   </div>
 </div>
 <!-- Cycle times -->
-<div class="row" *ngIf="cycleTimes.length > 0">
+<div class="row single-block-print" *ngIf="cycleTimes.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">

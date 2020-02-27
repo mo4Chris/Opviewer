@@ -51,6 +51,11 @@ agm-map {
     vertical-align: top;
 }
 
+.single-block-print {
+    page-break-before: auto;
+    page-break-inside: avoid;
+}
+
 .weatherOverview {
     display: inline-block;
     position: relative;
@@ -119,7 +124,7 @@ textarea {
         text-indent: 1px;
         text-overflow: '';
     }
-    .row {
+    tr {
         page-break-inside: avoid;
         page-break-after: auto;
         //ToDO: Change this so page break soccur at block level instead of row level
@@ -130,6 +135,9 @@ textarea {
         padding: 0;
         font-size: 10pt;
         page-break-inside: auto;
+    }
+    .table-bordered-print {
+        border: 1px solid #dee2e6;
     }
     .btn {
         display: none;

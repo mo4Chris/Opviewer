@@ -6,7 +6,7 @@
         <span style="float:right"> <button class="btn btn-primary submitBtnDate" (click)="saveAllPlatformTransfers()"
             type="button">Save all transfers</button></span>
       </div>
-      <div class="card-body table-responsive">
+      <div class="card-body table-responsive single-block-print">
         <table class="table table-hover table-striped">
           <thead>
             <tr>
@@ -210,7 +210,7 @@
 </div>
 
 <!-- Platform transfers without input-->
-<div class="row">
+<div class="row single-block-print">
   <div *ngIf="readonly" class="card mb-3">
     <div class="card-header">Platform docking list</div>
     <div class="card-body table-responsive">
@@ -348,7 +348,7 @@
 </div>
 
 <!-- gangway stats-->
-<div class="row">
+<div class="row single-block-print">
   <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
     <div class="card mb-3">
       <div class="card-header">
