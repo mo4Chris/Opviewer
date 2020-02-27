@@ -1,12 +1,12 @@
 <!-- Turbine transfers - not read only-->
-<div class="row">
+<div class="row single-block-print">
   <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers
       </div>
       <div class="card-body table-responsive">
-        <table class="table table-hover table-striped">
+        <table class="table table-hover table-striped table-bordered-print">
           <thead>
             <tr>
               <th>Location</th>
@@ -197,14 +197,14 @@
 </div>
 
 <!-- Turbine transfers - readonly-->
-<div class="row">
+<div class="row single-block-print">
   <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers
       </div>
       <div class="card-body table-responsive">
-        <table class="table table-hover table-striped">
+        <table class="table table-hover table-striped table-bordered-print">
           <thead>
             <tr>
               <th>Location</th>
@@ -331,14 +331,14 @@
 </div>
 
 <!-- gangway transfers -->
-<div class="row">
+<div class="row single-block-print">
   <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
     <div class="card mb-3">
       <div class="card-header">
         Gangway usage
       </div>
       <div class="card-body table-responsive">
-        <table class="table table-hover table-striped">
+        <table class="table table-hover table-striped table-bordered-print">
           <thead>
             <tr>
               <th>Location</th>
@@ -391,14 +391,14 @@
   </div>
 </div>
 <!-- Cycle times -->
-<div class="row" *ngIf="cycleTimes.length > 0">
+<div class="row single-block-print" *ngIf="cycleTimes.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">
         Cycle Times
       </div>
       <div class="card-body table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover table-bordered-print">
           <thead>
             <tr>
               <th>From turbine</th>

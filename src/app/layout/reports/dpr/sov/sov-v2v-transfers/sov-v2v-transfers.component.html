@@ -1,6 +1,6 @@
 <!--Vessel master - with input-->
 <br>
-<div class="row" *ngIf="!readonly && vessel2vessels.length > 0">
+<div class="row single-block-print" *ngIf="!readonly && vessel2vessels.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">
@@ -88,13 +88,13 @@
 </div>
 
 <!--Not vessel master - without input-->
-<div class="row" *ngIf="readonly && vessel2vessels.length > 0">
+<div class="row single-block-print" *ngIf="readonly && vessel2vessels.length > 0">
   <div class="col-xl-12 col-lg-24">
     <div class="card mb-3">
       <div class="card-header">
         Vessel Transfers
       </div>
-      <div class="card-body table-responsive">
+      <div class="card-body table-responsive table-bordered-print">
         <table class="table table-hover">
           <thead>
             <tr>

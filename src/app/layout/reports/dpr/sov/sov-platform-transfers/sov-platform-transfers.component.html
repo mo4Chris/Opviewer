@@ -6,7 +6,7 @@
         <span style="float:right"> <button class="btn btn-primary submitBtnDate" (click)="saveAllPlatformTransfers()"
             type="button">Save all transfers</button></span>
       </div>
-      <div class="card-body table-responsive">
+      <div class="card-body table-responsive single-block-print">
         <table class="table table-hover table-striped">
           <thead>
             <tr>
@@ -210,145 +210,147 @@
 </div>
 
 <!-- Platform transfers without input-->
-<div class="row">
-  <div *ngIf="readonly" class="card mb-3">
-    <div class="card-header">Platform docking list</div>
-    <div class="card-body table-responsive">
-      <table class="table table-hover table-striped">
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th>Enter waiting zone</th>
-            <th>Enter Exclusion Zone</th>
-            <th>Arrival time platform</th>
-            <th>Departure time platform</th>
-            <th>Leave Exclusion Zone</th>
-            <ng-template #helpTotalTimePlatformTransfers class="helpContent">
-              Time from 1000m waiting range until leaving platform
-            </ng-template>
-            <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
-              Total duration</th>
-            <th>Pax in / out</th>
-            <th>Cargo in / out</th>
-            <th>Peak gust wind</th>
-            <th>Hs</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let platformTransfer of platformTransfers">
+<div class="row single-block-print col">
+  <div class="col-xl-12 col-lg-24">
+    <div *ngIf="readonly" class="card mb-3">
+      <div class="card-header">Platform docking list</div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover table-striped table-bordered-print">
+          <thead>
             <tr>
-              <ng-container *ngIf="platformTransfer.locationname != undefined">
-                <th>{{platformTransfer.locationname}}</th>
-              </ng-container>
-              <ng-container *ngIf="platformTransfer.location != undefined">
-                <th>{{platformTransfer.location}}</th>
-              </ng-container>
-              <td>{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}
-              </td>
-              <td>{{getMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}
-              </td>
-              <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}
-              </td>
-              <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}
-              </td>
-              <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}
-              </td>
-              <td>{{platformTransfer.totalDuration}} minutes</td>
-              <td>
-                {{platformTransfer.paxIn || 0}} incoming <br>
-                {{platformTransfer.paxOut || 0}} outgoing
-              </td>
-              <td>
-                {{platformTransfer.cargoIn || 0}} kg incoming <br>
-                {{platformTransfer.cargoOut || 0}} kg outgoing
-              </td>
-              <td>{{platformTransfer.peakWindGust}}</td>
-              <td>{{platformTransfer.Hs}}</td>
+              <th>Location</th>
+              <th>Enter waiting zone</th>
+              <th>Enter Exclusion Zone</th>
+              <th>Arrival time platform</th>
+              <th>Departure time platform</th>
+              <th>Leave Exclusion Zone</th>
+              <ng-template #helpTotalTimePlatformTransfers class="helpContent">
+                Time from 1000m waiting range until leaving platform
+              </ng-template>
+              <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
+                Total duration</th>
+              <th>Pax in / out</th>
+              <th>Cargo in / out</th>
+              <th>Peak gust wind</th>
+              <th>Hs</th>
             </tr>
-          </ng-container>
-          <tr class="tableTotal">
-            <th>Missed transfers</th>
-            <th>
-              Start time transfer
-            </th>
-            <th>Stop time transfer</th>
-            <td colspan="8"></td>
-          </tr>
-          <tr *ngFor="let transfer of missedPaxCargo">
-            <td>{{transfer.location}}</td>
-            <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
-            <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
-            <td colspan="4"></td>
-            <td>
-              {{transfer.paxIn || 0}} incoming <br>
-              {{transfer.paxOut || 0}} outgoing
-            </td>
-            <td>
-              {{transfer.cargoIn || 0}} kg incoming <br>
-              {{transfer.cargoOut || 0}} kg outgoing
-            </td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <th>Helicopter transfers</th>
-            <th>
-              Start time transfer
-            </th>
-            <th>Stop time transfer</th>
-            <td colspan="8"></td>
-          </tr>
-          <tr *ngFor="let transfer of helicopterPaxCargo">
-            <th></th>
-            <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
-            <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
-            <td colspan="4"></td>
-            <td>
-              {{transfer.paxIn || 0}} incoming <br>
-              {{transfer.paxOut || 0}} outgoing
-            </td>
-            <td>
-              {{transfer.cargoIn || 0}} kg incoming <br>
-              {{transfer.cargoOut || 0}} kg outgoing
-            </td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr *ngIf="v2vPaxCargoTotals" class="tableTotal">
-            <th>V2V transfers</th>
-            <td colspan="6"></td>
-            <td>
-              {{v2vPaxCargoTotals.paxIn}} incoming <br>
-              {{v2vPaxCargoTotals.paxOut}} outgoing
-            </td>
-            <td>
-              {{v2vPaxCargoTotals.cargoIn}} kg incoming <br>
-              {{v2vPaxCargoTotals.cargoOut}} kg outgoing
-            </td>
-            <td colspan="2"></td>
-          </tr>
-          <tr class="tableTotal">
-            <th>Total</th>
-            <td colspan="6"></td>
-            <td>
-              {{totalPaxIn}} incoming <br>
-              {{totalPaxOut}} outgoing
-            </td>
-            <td>
-              {{totalCargoIn}} kg incoming <br>
-              {{totalCargoOut}} kg outgoing
-            </td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let platformTransfer of platformTransfers">
+              <tr>
+                <ng-container *ngIf="platformTransfer.locationname != undefined">
+                  <th>{{platformTransfer.locationname}}</th>
+                </ng-container>
+                <ng-container *ngIf="platformTransfer.location != undefined">
+                  <th>{{platformTransfer.location}}</th>
+                </ng-container>
+                <td>{{getMatlabDateToCustomJSTime(platformTransfer.Tentry1000mWaitingRange,'HH:mm')}}
+                </td>
+                <td>{{getMatlabDateToCustomJSTime(platformTransfer.TentryExclusionZone,'HH:mm')}}
+                </td>
+                <td>{{getMatlabDateToCustomJSTime(platformTransfer.arrivalTimePlatform,'HH:mm')}}
+                </td>
+                <td>{{getMatlabDateToCustomJSTime(platformTransfer.departureTimePlatform,'HH:mm')}}
+                </td>
+                <td>{{getMatlabDateToCustomJSTime(platformTransfer.TexitExclusionZone,'HH:mm')}}
+                </td>
+                <td>{{platformTransfer.totalDuration}} minutes</td>
+                <td>
+                  {{platformTransfer.paxIn || 0}} incoming <br>
+                  {{platformTransfer.paxOut || 0}} outgoing
+                </td>
+                <td>
+                  {{platformTransfer.cargoIn || 0}} kg incoming <br>
+                  {{platformTransfer.cargoOut || 0}} kg outgoing
+                </td>
+                <td>{{platformTransfer.peakWindGust}}</td>
+                <td>{{platformTransfer.Hs}}</td>
+              </tr>
+            </ng-container>
+            <tr class="tableTotal">
+              <th>Missed transfers</th>
+              <th>
+                Start time transfer
+              </th>
+              <th>Stop time transfer</th>
+              <td colspan="8"></td>
+            </tr>
+            <tr *ngFor="let transfer of missedPaxCargo">
+              <td>{{transfer.location}}</td>
+              <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
+              <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
+              <td colspan="4"></td>
+              <td>
+                {{transfer.paxIn || 0}} incoming <br>
+                {{transfer.paxOut || 0}} outgoing
+              </td>
+              <td>
+                {{transfer.cargoIn || 0}} kg incoming <br>
+                {{transfer.cargoOut || 0}} kg outgoing
+              </td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Helicopter transfers</th>
+              <th>
+                Start time transfer
+              </th>
+              <th>Stop time transfer</th>
+              <td colspan="8"></td>
+            </tr>
+            <tr *ngFor="let transfer of helicopterPaxCargo">
+              <th></th>
+              <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
+              <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
+              <td colspan="4"></td>
+              <td>
+                {{transfer.paxIn || 0}} incoming <br>
+                {{transfer.paxOut || 0}} outgoing
+              </td>
+              <td>
+                {{transfer.cargoIn || 0}} kg incoming <br>
+                {{transfer.cargoOut || 0}} kg outgoing
+              </td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr *ngIf="v2vPaxCargoTotals" class="tableTotal">
+              <th>V2V transfers</th>
+              <td colspan="6"></td>
+              <td>
+                {{v2vPaxCargoTotals.paxIn}} incoming <br>
+                {{v2vPaxCargoTotals.paxOut}} outgoing
+              </td>
+              <td>
+                {{v2vPaxCargoTotals.cargoIn}} kg incoming <br>
+                {{v2vPaxCargoTotals.cargoOut}} kg outgoing
+              </td>
+              <td colspan="2"></td>
+            </tr>
+            <tr class="tableTotal">
+              <th>Total</th>
+              <td colspan="6"></td>
+              <td>
+                {{totalPaxIn}} incoming <br>
+                {{totalPaxOut}} outgoing
+              </td>
+              <td>
+                {{totalCargoIn}} kg incoming <br>
+                {{totalCargoOut}} kg outgoing
+              </td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- gangway stats-->
-<div class="row">
+<div class="row single-block-print table-bordered-print">
   <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
     <div class="card mb-3">
       <div class="card-header">
