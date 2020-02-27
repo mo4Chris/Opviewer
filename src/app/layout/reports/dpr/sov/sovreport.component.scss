@@ -105,14 +105,6 @@ textarea {
 }
 
 @media print {
-    ngb-tooltip-window { 
-        display:none !important;
-        visibility: hidden;
-    }
-
-    .tooltip{
-        display:none !important;
-    }
 
     .plsdonotprintthisforfsake {
         display: none !important;
