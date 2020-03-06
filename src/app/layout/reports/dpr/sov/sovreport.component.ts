@@ -45,6 +45,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   // rather than having to redraw all html elements
   showContent = false;
   hasDprData = false;
+  hasDcEvents = false;
 
   activeTab = 'summary';
 
@@ -118,7 +119,6 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.datetimeService.vesselOffset = sov[0].utcOffset;
           }
           this.getWaveSpectrumAvailable();
-
           forkJoin([
             this.commonService.getPlatformTransfers(
               this.vesselObject.mmsi,
@@ -186,6 +186,7 @@ export class SovreportComponent implements OnInit, OnChanges {
                 );
               });
               // Loading wind farm name content
+              this.hasDcEvents = false;
               if (this.sovModel.vessel2vessels.length > 0) {
                 this.sovModel.vessel2vessels[0].CTVactivity.forEach(
                   v2v => {
@@ -206,6 +207,10 @@ export class SovreportComponent implements OnInit, OnChanges {
                     }
                   }
                 );
+                this.hasDcEvents = this.sovModel.vessel2vessels[0].transfers.some(_transfer => {
+                  console.log(_transfer);
+                  return _transfer.type === 'Daughter-craft departure' || _transfer.type === 'Daughter-craft return';
+                });
               }
               this.loadFieldFromFieldnames(sovFieldNames);
 

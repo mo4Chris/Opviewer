@@ -21,6 +21,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 
 
 @NgModule({
@@ -52,6 +53,7 @@ import { SupportModelModule } from '@app/models/support-model.module';
     WaveSpectrumComponentComponent,
     SovHseDprInputReadonlyComponent,
     SovHseDprInputVesselmasterComponent,
+    SovDcTransfersComponent,
   ],
   exports: [SovreportComponent]
 })
