@@ -18,14 +18,23 @@
               <td>Token expires</td>
               <td>{{getTokenExpiredDate()}}</td>
             </tr>
-            <tr [ngbTooltip]="helpTimeDisplay" placement="bottom">
+            <tr>
               <td>Time display</td>
-                <td>
+              <td>
+                <div [ngbTooltip]="helpTimeDisplay" placement="bottom">
                   <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting()">
-                    <option *ngFor="let option of settings.options.time" class="dropdown-item">{{option}}</option>
+                    <option *ngFor="let option of settings.options.time" class="dropdown-item">
+                      {{option}}
+                    </option>
                   </select>
-
-                </td>
+                  <select *ngIf="settings.Timezone=='fixed'" class="form-control selectType margin-up" type="number"
+                    [(ngModel)]="settings.fixedTimeZoneOffset">
+                    <option *ngFor="let option of settings.options.customTimeZone" class="dropdown-item" [value]="option.value">
+                      {{option.name}}
+                    </option>
+                  </select>
+                </div>
+              </td>
             </tr>
           </table>
         </div>
@@ -78,6 +87,7 @@
 <ng-template #helpTimeDisplay class="helpContent">
   Determines the way time is shown throughout the application (wherever possible). The utc mode shows all time as UTC. 
   This is equivalent to the time used to record on the vessel by the BMO measurement unit. Vessel mode shows all time 
-  in the time zone the vessel is sailing, regardless of where the user is. Finally, the own mode shows all time relative
+  in the time zone the vessel is sailing, regardless of where the user is. The 'own' mode shows all time relative
   to the timezone the user is currently in. This equals the old behaviour, and is still the current behaviour for most graphs.
+  Finally, a fixed utc offset can be chosen.
 </ng-template>

@@ -1826,7 +1826,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                     }
                 }
             );
-            const _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
+            let _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
                 ' has been signed off by the skipper. Please review the dpr and sign off if in agreement!<br><br>' +
                 'Link to the relevant report:<br>' +
                 process.env.IP_USER + '/reports/dpr;mmsi=' + mmsi + ';date=' + date

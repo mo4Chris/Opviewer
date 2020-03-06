@@ -59,7 +59,6 @@ export class CtvreportComponent implements OnInit {
   times = [];
   allHours = [];
   all5Minutes = [];
-  utcOffset = 0;
   dateData = { transfer: undefined, general: undefined };
   modalReference: NgbModalRef;
   multiSelectSettings = {
@@ -575,7 +574,6 @@ export class CtvreportComponent implements OnInit {
     // We reset these value - they are overwritten if the relevant data is present
     this.generalInputStats.mmsi = this.vesselObject.mmsi;
     this.generalInputStats.date = this.vesselObject.date;
-    this.utcOffset = 0;
     this.resetInputStats();
     this.noTransits = true;
     this.general = {};
@@ -584,7 +582,7 @@ export class CtvreportComponent implements OnInit {
       if (general && general.data && general.data.length > 0) {
         const _general: CTVGeneralStatsModel = general.data[0];
         if (_general.utcOffset) {
-          this.utcOffset = _general.utcOffset;
+          this.dateTimeService.vesselOffset = _general.utcOffset;
         }
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
