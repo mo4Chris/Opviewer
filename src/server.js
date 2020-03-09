@@ -2025,7 +2025,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                 }
             );
             const _body = 'The hse dpr for vessel ' + vesselname + ', ' + dateString +
-                ' has been signed off by client. Please review the dpr and sign off if in agreement!<br><br>' +
+                ' has been signed off by the vessel master. Please review the dpr and sign off if in agreement!<br><br>' +
                 'Link to the relevant report:<br>' +
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
                 // ToDo: set proper recipient
