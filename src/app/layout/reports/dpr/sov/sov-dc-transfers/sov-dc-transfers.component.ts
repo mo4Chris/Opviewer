@@ -23,7 +23,7 @@ export class SovDcTransfersComponent implements OnChanges {
   }]; // Always array of length 1!
   @Input() sovInfo = {};
   @Input() vesselObject: VesselObjectModel;
-  // @Output() v2vPaxTotals = new EventEmitter<V2vPaxTotalModel>();
+
   constructor(
     private datetimeService: DatetimeService,
     private calcService: CalculationService,
