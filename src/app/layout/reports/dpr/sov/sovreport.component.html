@@ -106,6 +106,9 @@
         [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" [readonly]="true">
       </app-sov-v2v-transfers>
     </ng-container>
+    <app-sov-dc-transfers *ngIf="hasDcEvents" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+      [sovInfo]="sovModel.sovInfo" [readonly]="true">
+    </app-sov-dc-transfers>
     <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
       <br>
       <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
@@ -151,6 +154,9 @@
         [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" [readonly]="true">
       </app-sov-v2v-transfers>
     </ng-container>
+    <app-sov-dc-transfers *ngIf="hasDcEvents" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+      [sovInfo]="sovModel.sovInfo" [readonly]="true">
+    </app-sov-dc-transfers>
     <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
       <br>
       <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"

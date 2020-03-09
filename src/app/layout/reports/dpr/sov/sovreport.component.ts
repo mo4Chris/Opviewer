@@ -208,7 +208,6 @@ export class SovreportComponent implements OnInit, OnChanges {
                   }
                 );
                 this.hasDcEvents = this.sovModel.vessel2vessels[0].transfers.some(_transfer => {
-                  console.log(_transfer);
                   return _transfer.type === 'Daughter-craft departure' || _transfer.type === 'Daughter-craft return';
                 });
               }
