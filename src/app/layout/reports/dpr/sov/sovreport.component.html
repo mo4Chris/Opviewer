@@ -8,7 +8,8 @@
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
       <ng-template #summaryTest id="tab-summary" ngbTabContent>
         <br>
-        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
+        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName"
+          [dprApprovalCount]="dprApproval" [hseApprovalCount]="hseDprApproval">
         </app-sov-summary>
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>

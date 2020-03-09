@@ -117,6 +117,18 @@
               <td>Maximum wind speed during operations</td>
               <td>{{summary.maxWindSpeedDuringOperations}}</td>
             </tr>
+            <tr *ngIf="approvalStatus" class="plsdonotprintthisforfsake">
+              <td>
+                <div [ngbTooltip]="helpDprStatus">Commercial DPR status</div>
+              </td>
+              <td>{{approvalStatus}}</td>
+            </tr>
+            <tr *ngIf="hseApprovalStatus" class="plsdonotprintthisforfsake">
+              <td>
+                <div [ngbTooltip]="helpHseStatus">HSE DPR status</div>
+              </td>
+              <td>{{hseApprovalStatus}}</td>
+            </tr>
           </table>
         </div>
 
@@ -134,3 +146,16 @@
     </div>
   </div>
 </div>
+
+<ng-template #helpDprStatus>
+  Shows the approval status of the commerical DPR. The commercial DPR must be filled in by the vessel.
+  Once done, it can be signed off by the vessel. Then, the client representative must approve or refuse
+  the DPR. Once a day approved by vessel and client, the DPR is considered final. If refused, the vessel
+  must make changes and then sign off again. Hidden during print.
+</ng-template>
+<ng-template #helpHseStatus>
+  Shows the approval status of the hse DPR. The hse DPR must be filled in by the vessel.
+  Once done, it can be signed off by the vessel. Then, the QHSE specialist must approve or refuse
+  the hse DPR. Once a day is approved by both parties, the DPR is considered final. If refused, the vessel
+  must make changes and then sign off again. Hidden during print.
+</ng-template>
