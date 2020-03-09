@@ -11,16 +11,6 @@
     max-height: 450px !important;
 }
 
-.tableSummary td:nth-child(1) {
-    background: gray;
-    color: white;
-}
-
-.tableSummarySpecial {
-    background: gray;
-    color: white;
-}
-
 .tableTotal {
     border-top: 3px black solid;
 }
@@ -107,10 +97,17 @@ textarea {
     .noScreen {
         display: none;
     }
+    .tableSummarySpecial {
+        background: gray;
+        color: white;
+    }
+    .tableSummary td:nth-child(1) {
+        background: gray;
+        color: white;
+    }
 }
 
 @media print {
-
     .plsdonotprintthisforfsake {
         display: none !important;
         z-index: 1;

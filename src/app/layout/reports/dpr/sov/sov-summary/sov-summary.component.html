@@ -7,7 +7,7 @@
           Summary not available!
         </div>
 
-        <div class="col-xl-6 dailySummary">
+        <div class="col-xl-6 col-print-6 dailySummary">
           <table class="table table-responsive table-bordered tableSummary">
             <ng-container>
               <tr *ngIf="summary.departureFromHarbour != 'N/a'">
@@ -132,7 +132,7 @@
           </table>
         </div>
 
-        <div class="col-xl-6 dailySummary">
+        <div class="col-xl-6 col-print-3 dailySummary">
           <tr>
             <div [hidden]="!operationalChartCalculated" class="pie-chart-container">
               <canvas id="operationalStats"></canvas>
