@@ -216,7 +216,9 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   signOffDpr() {
     this.saveStats('saveDprSigningSkipper', {
       date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
+      mmsi: this.vesselObject.mmsi,
+      vesselName: this.vesselObject.vesselName,
+      dateString: this.vesselObject.dateNormal
     });
     this.dprApproval.emit(this.dprSignedBySkipper);
   }

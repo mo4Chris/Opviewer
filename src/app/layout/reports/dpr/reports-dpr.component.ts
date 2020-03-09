@@ -167,7 +167,7 @@ export class ReportsDprComponent implements OnInit {
         // We overwrite the vesselObject to trigger the reload of subcomponents
         this.vesselObject = {
           date: this.vesselObject.date,
-          dateNormal: this.vesselObject.dateNormal,
+          dateNormal: this.dateTimeService.MatlabDateToJSDateYMD(this.vesselObject.date),
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
           vesselName: validatedValue[0].nicename,
