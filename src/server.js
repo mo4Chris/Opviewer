@@ -1539,7 +1539,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                                         project: 0
                                     },
                                     "dp": [],
-                                    "signedOff": data.signedOff || { amount: 0, signedOffSkipper: '', signedOffClient: '' },
+                                    "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
                                 };
                             }
                             let sovDprData = new SovDprInputmodel(dprData);
