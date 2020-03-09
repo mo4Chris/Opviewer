@@ -11,6 +11,7 @@ export class V2vTransfer {
     peakHeave: string;
     DPutilisation: string;
     current: string;
+    type: string;
     Hs: string;
     Ts: string;
     turbineActivity: string;

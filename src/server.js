@@ -1283,6 +1283,11 @@ app.get("/api/getLatestBoatLocation", function(req, res) {
         return res.status(401).send('Access denied');
     }
     boatLocationmodel.aggregate([{
+            $match: {
+                active: { $ne: false }
+            }
+        },
+        {
             $group: {
                 _id: "$MMSI",
                 "LON": {
@@ -1296,11 +1301,7 @@ app.get("/api/getLatestBoatLocation", function(req, res) {
                 }
             }
         },
-        {
-            $match: {
-                active: { $ne: false }
-            }
-        },
+        // This code runs every 30 seconds if left in place
         {
             $lookup: {
                 from: 'vessels',
@@ -1389,6 +1390,7 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
                         }
                     }
                 },
+                // This code runs every 30 seconds if left in place
                 {
                     $lookup: {
                         from: 'vessels',

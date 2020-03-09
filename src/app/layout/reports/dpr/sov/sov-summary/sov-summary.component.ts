@@ -18,10 +18,14 @@ export class SovSummaryComponent implements OnChanges {
   @Input() sovModel: SovModel;
   @Input() backgroundColors: any[];
   @Input() fieldName: string;
+  @Input() dprApprovalCount: number;
+  @Input() hseApprovalCount: number;
 
   // Summary
   summary: SummaryModel;
   hasSummaryData = true;
+  approvalStatus: string;
+  hseApprovalStatus: string;
 
   // Some dependency
   SovTypeEnum = SovType;
@@ -52,6 +56,7 @@ export class SovSummaryComponent implements OnChanges {
     this.summary = this.calculationService.ReplaceEmptyColumnValues(this.summary);
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
+    this.setApprovalStatus();
   }
 
 
@@ -208,6 +213,42 @@ export class SovSummaryComponent implements OnChanges {
         }
     }
 
+    setApprovalStatus() {
+      switch (this.dprApprovalCount) {
+        case 0:
+          this.approvalStatus = 'Not signed off by vessel';
+          break;
+        case 1:
+          this.approvalStatus = 'Signed off by vessel but not by client';
+          break;
+        case 2:
+          this.approvalStatus = 'Signed off by vessel and client';
+          break;
+        case -1: case -2:
+          this.approvalStatus = 'Refused by client';
+          break;
+        default:
+          console.error('Unknown dpr approval code!');
+          this.approvalStatus = null;
+      }
+      switch (this.hseApprovalCount) {
+        case 0:
+          this.hseApprovalStatus = 'Not signed off by vessel';
+          break;
+        case 1:
+          this.hseApprovalStatus = 'Signed off by vessel but not by QHSE specialist';
+          break;
+        case 2:
+          this.hseApprovalStatus = 'Signed off by vessel and QHSE specialist';
+          break;
+        case -1: case -2:
+          this.hseApprovalStatus = 'Refused by QHSE specialist';
+          break;
+        default:
+          console.error('Unknown hse approval code!');
+          this.hseApprovalStatus = null;
+      }
+    }
 
     private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
       return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);

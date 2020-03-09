@@ -1,0 +1,172 @@
+<!-- Turbine transfers - not read only-->
+<div class="row single-block-print">
+  <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        Turbine transfers for daughtercraft: {{vesselName}}
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover table-striped table-bordered-print">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Start time transfer</th>
+              <th>Stop time transfer</th>
+              <th>Pax in / out</th>
+              <th>Cargo in / out</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="transfers.length==0">
+              <td colspan="10">
+                No DC transfers were detected
+              </td>
+            </tr>
+            <ng-container *ngFor="let turbineTransfer of transfers">
+              <tr>
+                <th>{{turbineTransfer.location}}</th>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
+                <td>
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" 
+                  [(ngModel)]="turbineTransfer.paxIn" (ngModelChange)="updatePaxCargoTotal()">
+                  incoming <br>
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" 
+                  [(ngModel)]="turbineTransfer.paxOut" (ngModelChange)="updatePaxCargoTotal()">
+                  outgoing
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
+                  [(ngModel)]="turbineTransfer.cargoIn" (ngModelChange)="updatePaxCargoTotal()">
+                  kg incoming <br>
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
+                  [(ngModel)]="turbineTransfer.cargoOut" (ngModelChange)="updatePaxCargoTotal()">
+                  kg outgoing
+                </td>
+              </tr>
+            </ng-container>
+            <tr class="tableTotal">
+              <th>Missed transfers</th>
+              <th>
+                Start time transfer
+              </th>
+              <th>Stop time transfer</th>
+              <td>
+                <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray();updatePaxCargoTotal()"
+                  type="button">Add missed transfer</button>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-danger"
+                  (click)="removeLastFromMissedTransferArray();updatePaxCargoTotal()" type="button">Remove last
+                  transfer</button>
+              </td>
+            </tr>
+            <tr *ngFor="let transfer of missedTransfers">
+              <td><input type="text" min="0" class="form-control-sm col-sm-8" [value]="transfer.location"
+                  [(ngModel)]="transfer.location" placeholder="turbine" (ngModelChange)="updatePaxCargoTotal()"></td>
+              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+                  [(ngModel)]="transfer.from.hour" placeholder="HH" (ngModelChange)="updatePaxCargoTotal()">
+                <span class="col-print-1">:</span>
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+                  [(ngModel)]="transfer.from.minutes" placeholder="MM" (ngModelChange)="updatePaxCargoTotal()">
+              </td>
+              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3" [(ngModel)]="transfer.to.hour"
+                  [(ngModel)]="transfer.to.hour" placeholder="HH" (ngModelChange)="updatePaxCargoTotal()">
+                <span class="col-print-1">:</span>
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+                  [(ngModel)]="transfer.to.minutes" placeholder="MM" (ngModelChange)="updatePaxCargoTotal()">
+              </td>
+              <td>
+                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxIn"
+                (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
+                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxOut"
+                (ngModelChange)="updatePaxCargoTotal()"> outgoing
+              </td>
+              <td>
+                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoIn"
+                (ngModelChange)="updatePaxCargoTotal()">kg incoming <br>
+                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoOut"
+                (ngModelChange)="updatePaxCargoTotal()">kg outgoing
+              </td>
+            </tr>
+            <tr *ngIf="hasChanges">
+              <td colspan="4"></td>
+              <td>
+                <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveTransfers()"
+                  type="button">Save all transfers</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Turbine transfers - readonly-->
+<div class="row single-block-print">
+  <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        Turbine transfers for daughtercraft: {{vesselName}}
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover table-striped table-bordered-print">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Start time transfer</th>
+              <th>Stop time transfer</th>
+              <th>Pax in / out</th>
+              <th>Cargo in / out</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="transfers.length==0">
+              <td colspan="10">
+                No DC transfers were detected
+              </td>
+            </tr>
+            <ng-container *ngFor="let turbineTransfer of transfers">
+              <tr>
+                <th>{{turbineTransfer.location}}</th>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
+                <td>
+                  {{turbineTransfer.paxIn || 0}} incoming <br>
+                  {{turbineTransfer.paxOut || 0}} outgoing
+                </td>
+                <td>
+                  {{turbineTransfer.cargoIn || 0}} kg incoming <br>
+                  {{turbineTransfer.cargoOut || 0}} kg outgoing
+                </td>
+              </tr>
+            </ng-container>
+            <tr class="tableTotal" *ngIf="missedTransfers && missedTransfers.length>0">
+              <th>Missed transfers</th>
+              <th>
+                Start time transfer
+              </th>
+              <th>Stop time transfer</th>
+              <td colspan="6"></td>
+            </tr>
+            <tr *ngFor="let transfer of missedTransfers">
+              <td>{{transfer.location}}</td>
+              <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
+              <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
+              <td colspan="4"></td>
+              <td>
+                {{transfer.paxIn || 0}} incoming <br>
+                {{transfer.paxOut || 0}} outgoing
+              </td>
+              <td>
+                {{transfer.cargoIn || 0}} kg incoming <br>
+                {{transfer.cargoOut || 0}} kg outgoing
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

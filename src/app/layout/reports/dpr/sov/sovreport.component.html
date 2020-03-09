@@ -8,7 +8,8 @@
     <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
       <ng-template #summaryTest id="tab-summary" ngbTabContent>
         <br>
-        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
+        <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName"
+          [dprApprovalCount]="dprApproval" [hseApprovalCount]="hseDprApproval">
         </app-sov-summary>
         <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
       </ng-template>
@@ -20,6 +21,9 @@
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
           [vesselObject]="vesselObject" [readonly]="!permission.sovCommercialWrite">
         </app-sov-v2v-transfers>
+        <app-sov-dc-transfers *ngIf="hasDcEvents" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+          [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite">
+        </app-sov-dc-transfers>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
           <br>
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
@@ -103,6 +107,9 @@
         [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" [readonly]="true">
       </app-sov-v2v-transfers>
     </ng-container>
+    <app-sov-dc-transfers *ngIf="hasDcEvents" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+      [sovInfo]="sovModel.sovInfo" [readonly]="true">
+    </app-sov-dc-transfers>
     <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
       <br>
       <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
@@ -148,6 +155,9 @@
         [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" [readonly]="true">
       </app-sov-v2v-transfers>
     </ng-container>
+    <app-sov-dc-transfers *ngIf="hasDcEvents" [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
+      [sovInfo]="sovModel.sovInfo" [readonly]="true">
+    </app-sov-dc-transfers>
     <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
       <br>
       <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
