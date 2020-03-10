@@ -2053,6 +2053,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
     var serveradres = process.env.IP_USER.split(",");
     let token = verifyToken(req, res);
     let title = '';
+    let recipient = "webmaster@bmo-offshore.com";
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
