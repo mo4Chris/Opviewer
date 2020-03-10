@@ -608,7 +608,7 @@ function mailTo(subject, html, user) {
 
     let mailOptions = {
         from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
-        to: user, //'bar@example.com, baz@example.com' list of receivers
+        to: 'chris.devos@bmo-offshore.com', //'bar@example.com, baz@example.com' list of receivers
         bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
         subject: subject, //'Hello ✔' Subject line
         html: body //'<b>Hello world?</b>' html body
@@ -1834,11 +1834,13 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                 // ToDo: set proper recipient
             let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
             let recipient = [];
+
             Usermodel.find({
                 active: { $ne: false },
+                client: token.userCompany,
                 permissions: 'Client representative'
             }, {
-                usename: 1,
+                username: 1,
             }, (err, data) => {
                 if (err || data.length === 0) {
                     if (err) {
@@ -1850,8 +1852,11 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                     recipient = data.map(user => user.username);
                 }
             });
-            _body = _body + '<br><br>' + recipient[0]
-            mailTo(title, _body, 'erwin@bmo-offshore.com')
+
+            setTimeout(function(){
+                mailTo(title, _body, recipient)
+            }, 3000);
+           
         }
     });
 });
@@ -1889,6 +1894,8 @@ app.post("/api/declineDprClient", function(req, res) {
     let token = verifyToken(req, res);
     let mmsi = req.body.mmsi;
     let date = req.body.date;
+    let title = '';
+    let recipient = 'webmaster@bmo-offshore.com';
     let vesselname = req.body.vesselName || '<invalid vessel name>';
     let dateString = req.body.dateString || '<invalid date>';
     var serveradres = process.env.IP_USER.split(",");
@@ -1915,13 +1922,33 @@ app.post("/api/declineDprClient", function(req, res) {
                     }
                 }
             );
+
+            SovDprInputmodel.findOne({
+                mmsi: mmsi,
+                date: date,
+                active: { $ne: false }
+            }, {}, (err, data) => {
+                if (err || data.length === 0) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    recipient = ['webmaster@bmo-offshore.com']
+                    title = 'Failed to deliver: skipper not found!'
+                } else {
+                    recipient = data.signedOff.signedOffSkipper
+                    title = 'DPR signoff refused by client';
+                }
+            });
+
             const _body = 'The dpr for vessel ' + vesselname + ',' + dateString +
                 ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
                 'Link to the relevant report:<br>' +
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
                 '<br><br>Feedback from client:<br>' + req.body.feedback;
             // ToDo: set proper recipient
-            mailTo('DPR signoff refused by client', _body, 'erwin@bmo-offshore.com')
+            setTimeout(function(){
+                mailTo(title, _body, recipient)
+            }, 3000);
         }
     });
 });
@@ -1929,6 +1956,8 @@ app.post("/api/declineDprClient", function(req, res) {
 app.post("/api/declineHseDprClient", function(req, res) {
     let mmsi = req.body.mmsi;
     let date = req.body.date;
+    let title = '';
+    let recipient = 'webmaster@bmo-offshore.com';
     let vesselname = req.body.vesselName || '<invalid vessel name>';
     let dateString = req.body.dateString || '<invalid date>';
     var serveradres = process.env.IP_USER.split(",");
@@ -1956,13 +1985,33 @@ app.post("/api/declineHseDprClient", function(req, res) {
                     }
                 }
             );
+
+            SovHseDprInputmodel.findOne({
+                mmsi: mmsi,
+                date: date,
+                active: { $ne: false }
+            }, {}, (err, data) => {
+                if (err || data.length === 0) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    recipient = ['webmaster@bmo-offshore.com']
+                    title = 'Failed to deliver: skipper not found!'
+                } else {
+                    recipient = data.signedOff.signedOffSkipper
+                    title = 'HSE DPR signoff refused by client';
+                }
+            });
+
             const _body = 'The HSE DPR for vessel ' + vesselname + ', ' + dateString +
                 ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
                 'Link to the relevant report:<br>' +
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
                 '<br><br>Feedback from client:<br>' + req.body.feedback;
             // ToDo: set proper recipient
-            mailTo('HSE DPR signoff refused by client', _body, 'erwin@bmo-offshore.com')
+            setTimeout(function(){
+                mailTo(title, _body, recipient)
+            }, 3000);
         }
     });
 });
@@ -2003,6 +2052,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
     let dateString = req.body.dateString || '<invalid date>';
     var serveradres = process.env.IP_USER.split(",");
     let token = verifyToken(req, res);
+    let title = '';
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
@@ -2026,12 +2076,35 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                     }
                 }
             );
+
+            Usermodel.find({
+                active: { $ne: false },
+                client: token.userCompany,
+                permissions: 'Qhse specialist'
+            }, {
+                username: 1,
+            }, (err, data) => {
+                if (err || data.length === 0) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    recipient = ['webmaster@bmo-offshore.com'];
+                    title = 'Failed to deliver: QHSE employee not found!';
+                } else {
+                    title = 'HSE DPR signed off by vessel master';
+                    recipient = data.map(user => user.username);
+                }
+            });
+            
             const _body = 'The hse dpr for vessel ' + vesselname + ', ' + dateString +
                 ' has been signed off by the vessel master. Please review the dpr and sign off if in agreement!<br><br>' +
                 'Link to the relevant report:<br>' +
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
                 // ToDo: set proper recipient
-            mailTo('HSE DPR signed off by vessel master', _body, 'erwin@bmo-offshore.com')
+                setTimeout(function(){
+                    mailTo(title, _body, recipient)
+                }, 3000);
+
         }
     });
 });
