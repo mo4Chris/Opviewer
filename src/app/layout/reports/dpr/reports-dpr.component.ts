@@ -26,6 +26,8 @@ import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { Vessel2vesselModel } from './sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { V2vTransfer } from './sov/models/Transfers/vessel2vessel/V2vTransfer';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -98,6 +100,7 @@ export class ReportsDprComponent implements OnInit {
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
+  v2vTransfers: V2vTransfer[];
 
   @ViewChild(CtvreportComponent)
   private ctvChild: CtvreportComponent;
@@ -148,6 +151,11 @@ export class ReportsDprComponent implements OnInit {
       this.showMap = !Object.keys(childData.zoomInfo).some(key => isNaN(childData.zoomInfo[key]));
       this.boatLocationData = childData.boatLocationData;
       this.zoominfo = childData.zoomInfo;
+      if (childData.v2vData) {
+        this.v2vTransfers = childData.v2vData;
+      } else {
+        this.v2vTransfers = [];
+      }
     }
   }
 
@@ -344,6 +352,7 @@ export class ReportsDprComponent implements OnInit {
   buildGoogleMap() {
     this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
     this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
+    this.mapService.addV2VtransfersToMap(this.googleMap, this.v2vTransfers, this.boatLocationData);
   }
   getMapZoomLvl(mapZoomLvl: number): void {
     this.zoominfo.mapZoomLvl = mapZoomLvl;
@@ -460,6 +469,7 @@ export interface DprChildData {
   zoomInfo: MapZoomInfo;
   // turbineLocationData: any;
   platformLocationData: any;
+  v2vData?: any[];
 
   routeFound: boolean;
 }
