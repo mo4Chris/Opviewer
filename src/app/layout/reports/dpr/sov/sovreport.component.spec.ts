@@ -1,7 +1,6 @@
 import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 
 import { SovreportComponent } from './sovreport.component';
-import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SharedPipesModule, PageHeaderModule } from '@app/shared';
 import { CommonModule } from '@angular/common';
@@ -9,8 +8,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AgmCoreModule } from '@agm/core';
-import { CommonService } from '@app/common.service';
-import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { SovSummaryComponent } from './sov-summary/sov-summary.component';
 import { SovDprInputComponent } from './sov-dpr-input/sov-dpr-input.component';
@@ -25,11 +23,10 @@ import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-read
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
 import { AutosizeModule } from 'ngx-autosize';
 import { PlotlyModule } from 'angular-plotly.js';
-import { UserService } from '@app/shared/services/user.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { TokenModel } from '@app/models/tokenModel';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SimpleChange } from '@angular/core';
+import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -67,6 +64,7 @@ describe('SovreportComponent', () => {
         SovTurbineTransfersComponent,
         SovPlatformTransfersComponent,
         SovV2vTransfersComponent,
+        SovDcTransfersComponent,
       ],
       providers: [
         MockedCommonServiceProvider,

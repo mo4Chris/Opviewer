@@ -254,7 +254,8 @@ export class SovreportComponent implements OnInit, OnChanges {
           longitude: mapProperties.avgLongitude,
           mapZoomLvl: mapProperties.zoomLevel
         },
-        platformLocationData: null
+        platformLocationData: null,
+        v2vData: this.sovModel.vessel2vessels[0] ? this.sovModel.vessel2vessels[0].transfers : [],
       });
     } else {
       this.sovChildData.emit({
@@ -464,6 +465,9 @@ export class SovreportComponent implements OnInit, OnChanges {
             'km/h',
             this.settings.unit_speed
           )
+        );
+        transfer.gangwayUtilisationLimiter = this.formatGangwayLimiter(
+          transfer.gangwayUtilisationLimiter
         );
       });
       this.gangwayActive = naCountGangway !== this.sovModel.turbineTransfers.length;

@@ -18,9 +18,9 @@ export class ConfirmComponent implements OnInit {
   @Input() modal: NgbActiveModal;
   @Input() body: string;
   @Input() title: string;
-  @Input() confirmTag: string = 'Confirm';
-  @Input() cancelTag: string = 'Cancel';
-  @Input() feedback: string = ''; // If provided, enables feedback box
+  @Input() confirmTag = 'Confirm';
+  @Input() cancelTag = 'Cancel';
+  @Input() feedback = ''; // If provided, enables feedback box
   @Output() onConfirm = new EventEmitter();
   @Output() onCancel = new EventEmitter();
 
@@ -28,7 +28,7 @@ export class ConfirmComponent implements OnInit {
 
   ngOnInit() {
     if (this.modal === undefined || this.modal === null) {
-      console.error('Invalid modal template provided!')
+      console.error('Invalid confirmation modal template provided!');
     }
   }
 
