@@ -198,7 +198,7 @@ export class SovSummaryComponent implements OnChanges {
                         title: {
                             display: true,
                             position: 'top',
-                            text: 'Gangway Limitations',
+                            text: 'Gangway limiters',
                             fontSize: 25
                         },
                         responsive: true,

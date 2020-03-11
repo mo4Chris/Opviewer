@@ -39,10 +39,10 @@
               </tr>
               <tr>
                 <ng-template #helpAvgDockingTime class="helpContent">
-                  Average time spend from entering exclusion zone until leaving the platform.
+                  Average time spent from entering exclusion zone until leaving the platform.
                 </ng-template>
-                <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">Average time
-                  spent docking</td>
+                <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">
+                  Average time spent docking</td>
                 <td>{{summary.AvgTimeDocking}}</td>
               </tr>
               <tr>
@@ -58,10 +58,10 @@
               </tr>
               <tr>
                 <ng-template #helpAvgDockingTime2 class="helpContent">
-                  Average time spend from entering exclusion zone until leaving the platform.
+                  Average time spent from entering exclusion zone until leaving the platform.
                 </ng-template>
-                <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">Average time
-                  spent docking</td>
+                <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">
+                  Average time spent docking</td>
                 <td>{{summary.AvgTimeDocking}}</td>
               </tr>
             </ng-container>
@@ -71,8 +71,8 @@
                 <ng-template #helpNumV2VTransfers class="helpContent">
                   Total number of transfers between this SOV and other CTVs.
                 </ng-template>
-                <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">Number of
-                  CTV vessel to vessel transfers</td>
+                <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">
+                  Number of CTV vessel to vessel transfers</td>
                 <td>{{summary.NrOfVesselTransfers}}</td>
               </tr>
               <tr>
@@ -105,7 +105,7 @@
 
             <ng-container *ngIf="fieldName !== ''">
               <tr>
-                <td>Field with transfers</td>
+                <td><div  [ngbTooltip]="helpWindfield">Field with transfers</div></td>
                 <td>{{fieldName}}</td>
               </tr>
             </ng-container>
@@ -150,12 +150,15 @@
 <ng-template #helpDprStatus>
   Shows the approval status of the commerical DPR. The commercial DPR must be filled in by the vessel.
   Once done, it can be signed off by the vessel. Then, the client representative must approve or refuse
-  the DPR. Once a day approved by vessel and client, the DPR is considered final. If refused, the vessel
+  the DPR. Once the DPR approved by vessel and client, it is considered final. If refused, the vessel
   must make changes and then sign off again. Hidden during print.
 </ng-template>
 <ng-template #helpHseStatus>
-  Shows the approval status of the hse DPR. The hse DPR must be filled in by the vessel.
+  Shows the approval status of the HSE DPR. The HSE DPR must be filled in by the vessel.
   Once done, it can be signed off by the vessel. Then, the QHSE specialist must approve or refuse
-  the hse DPR. Once a day is approved by both parties, the DPR is considered final. If refused, the vessel
-  must make changes and then sign off again. Hidden during print.
+  the HSE DPR. Once the HSE DPR is approved by both parties, it is considered final. If refused,
+  the vessel must make changes and sign off again. Hidden during print.
+</ng-template>
+<ng-template #helpWindfield>
+  Wind farms with transfers this day. If multiple fields were visited, only the first is shown.
 </ng-template>
