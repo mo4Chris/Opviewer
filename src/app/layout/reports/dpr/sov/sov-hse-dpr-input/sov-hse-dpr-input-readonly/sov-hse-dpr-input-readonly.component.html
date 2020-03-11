@@ -453,13 +453,13 @@
                 </tr>
                 <tr>
                   <th colspan="2">Additional remarks QHSE</th>
-                  <td *ngIf="tokenInfo.userPermission !== 'Qhse Specialist' && tokenInfo.userPermission !== 'admin'"
+                  <td *ngIf="tokenInfo.userPermission !== 'Qhse specialist' && tokenInfo.userPermission !== 'admin'"
                     colspan="2">
                     <div *ngIf="hseData.remarksQhse && hseData.remarksQhse.length>0; else noComment">
                       {{hseData.remarksQhse}}
                     </div>
                   </td>
-                  <td *ngIf="tokenInfo.userPermission === 'Qhse Specialist' || tokenInfo.userPermission === 'admin'">
+                  <td *ngIf="tokenInfo.userPermission === 'Qhse specialist' || tokenInfo.userPermission === 'admin'">
                     <ng-container [ngSwitch]="hseDprApprovalCount">
                       <textarea *ngSwitchCase="1" [value]="hseData.remarksQhse" [(ngModel)]="hseData.remarksQhse" autosize
                         class="form-control" cols="50"> </textarea>
