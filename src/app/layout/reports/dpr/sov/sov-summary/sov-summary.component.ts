@@ -66,8 +66,10 @@ export class SovSummaryComponent implements OnChanges {
     // Average time vessel docking
     let totalVesselDockingDuration = 0;
     let nmrVesselTransfers = 0;
+    let v2vTransfersTotal = 0;
     this.sovModel.vessel2vessels.forEach(vessel2vessel => {
       let totalDockingDurationOfVessel2vessel = 0;
+      v2vTransfersTotal += vessel2vessel.transfers.length || 1;
       vessel2vessel.transfers.forEach(transfer => {
         if (transfer) {
           if (typeof (transfer.duration) !== 'string') {
@@ -79,7 +81,7 @@ export class SovSummaryComponent implements OnChanges {
       const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;
       totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
     });
-    _summary.NrOfVesselTransfers = nmrVesselTransfers;
+    _summary.NrOfVesselTransfers = v2vTransfersTotal;
     _summary.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
     _summary.NrOfDaughterCraftLaunches = 0;
