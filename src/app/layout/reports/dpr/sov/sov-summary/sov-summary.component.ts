@@ -69,7 +69,7 @@ export class SovSummaryComponent implements OnChanges {
     let v2vTransfersTotal = 0;
     this.sovModel.vessel2vessels.forEach(vessel2vessel => {
       let totalDockingDurationOfVessel2vessel = 0;
-      v2vTransfersTotal += vessel2vessel.transfers.length;
+      v2vTransfersTotal += vessel2vessel.transfers.length || 1;
       vessel2vessel.transfers.forEach(transfer => {
         if (transfer) {
           if (typeof (transfer.duration) !== 'string') {
