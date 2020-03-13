@@ -335,9 +335,6 @@ export class SovreportComponent implements OnInit, OnChanges {
     } else {
       this.hasDprData = false;
     }
-    console.log('Has DPR data:')
-    console.log(this.hasDprData)
-    console.log(this.dprInput)
     try {
       this.CheckForNullValues();
     } catch (e) {

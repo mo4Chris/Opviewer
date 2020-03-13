@@ -166,7 +166,7 @@
       ></app-sov-platform-transfers>
     </ng-container>
 
-    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || sovModel.turbineTransfers">
+    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || hasMissedtransfers">
       <br>
       <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
         [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="true"
