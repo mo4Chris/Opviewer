@@ -31,7 +31,7 @@
             [helicopterPaxCargo]="dprInput.helicopterPaxCargo" 
           ></app-sov-platform-transfers>
         </ng-container>
-        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+        <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || sovModel.sovType == SovTypeEnum.Unknown">
           <br>
           <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
             [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="!permission.sovCommercialWrite"
@@ -118,7 +118,7 @@
       ></app-sov-platform-transfers>
     </ng-container>
 
-    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || hasMissedtransfers">
       <br>
       <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
         [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="true"
@@ -136,7 +136,7 @@
 
   <div *ngIf="permission.sovHseRead" class="pagebreak">
     <ng-container *ngIf="permission.sovHseRead">
-        <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput[0]" [tokenInfo]="tokenInfo" [hseDprApprovalCount]="hseDprApproval"
+        <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [tokenInfo]="tokenInfo" [hseDprApprovalCount]="hseDprApproval"
         [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
     </ng-container>
   </div>
@@ -166,7 +166,7 @@
       ></app-sov-platform-transfers>
     </ng-container>
 
-    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine">
+    <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || hasMissedtransfers">
       <br>
       <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
         [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="true"

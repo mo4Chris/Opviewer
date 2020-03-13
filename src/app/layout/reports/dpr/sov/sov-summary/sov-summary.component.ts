@@ -229,6 +229,9 @@ export class SovSummaryComponent implements OnChanges {
         case -1: case -2:
           this.approvalStatus = 'Refused by client';
           break;
+        case undefined: // Catch undefined for print
+          this.approvalStatus = null;
+          break;
         default:
           console.error('Unknown dpr approval code!');
           this.approvalStatus = null;
@@ -245,6 +248,9 @@ export class SovSummaryComponent implements OnChanges {
           break;
         case -1: case -2:
           this.hseApprovalStatus = 'Refused by QHSE specialist';
+          break;
+        case undefined: // Catch undefined for print
+          this.hseApprovalStatus = null;
           break;
         default:
           console.error('Unknown hse approval code!');

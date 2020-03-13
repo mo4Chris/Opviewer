@@ -35,7 +35,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Input() printMode: number;
 
   sovModel: SovModel = new SovModel();
-  dprInput: DprChildData;
+  dprInput;
   hseDprInput;
   dprApproval;
   hseDprApproval;
@@ -52,6 +52,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   vesselHasWavespectrum = false;
   waveSpectrumAvailable = false;
   hasGeneral = false;
+  hasMissedtransfers = false;
 
   dateData = { general: undefined, transfer: undefined };
 
@@ -106,6 +107,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.hseDprInput = hseDprInput[0];
         const dprSigned = dprInput[0] ? dprInput[0].signedOff : {amount: 0};
         const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
+        
         this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
         this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
 
@@ -318,8 +320,14 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   buildPageWhenAllLoaded() {
+    this.hasMissedtransfers = (this.dprInput.missedPaxCargo && this.dprInput.missedPaxCargo.length > 0)
+      || (this.dprInput.helicopterPaxCargo && this.dprInput.helicopterPaxCargo.length > 0)
     if (this.sovModel.vessel2vessels.length > 0) {
       this.hasDprData = true;
+    } else if (this.permission.sovCommercialWrite) {
+      this.hasDprData = true;
+    } else if (this.hasMissedtransfers) {
+      this.hasDprData = true
     } else if (this.sovModel.sovType === SovType.Platform) {
       this.hasDprData = this.sovModel.platformTransfers.length > 0;
     } else if (this.sovModel.sovType === SovType.Turbine) {
