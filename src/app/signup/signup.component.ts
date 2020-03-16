@@ -26,7 +26,7 @@ export class SignupComponent implements OnInit {
     };
 
     businessNames: string[]; // Loaded iff admin
-    createPermissions: UserType[] = ['Vessel master', 'Marine controller'];
+    createPermissions: UserType[] = ['Vessel master', 'Marine controller','Client representative', 'QHSE specialist'];
 
     constructor(
       public router: Router,
@@ -78,7 +78,7 @@ export class SignupComponent implements OnInit {
                 this.router.navigate(['/access-denied']);
             }
         } else {
-            this.createPermissions = this.createPermissions.concat(['admin', 'Client representative', 'QHSE specialist', 'Logistics specialist']);
+            this.createPermissions = this.createPermissions.concat(['admin', 'Logistics specialist']);
             this.newService.getCompanies().subscribe(data => this.businessNames = data);
         }
     }
