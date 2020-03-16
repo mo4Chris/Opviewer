@@ -170,15 +170,36 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.incidentsChanged = false;
   }
   saveWeatherDowntimeStats() {
-    this.saveStats('saveWeatherDowntimeDpr', {
-      weatherDowntime: this.weatherDowntime.Array,
-    });
-    this.saveStats('saveNonAvailabilityDpr', {
-      vesselNonAvailability: this.vesselNonAvailability.Array,
-    });
-    this.saveStats('saveStandByDpr', {
-      standBy: this.standby.Array
-    });
+    if (this.checkValidityInput(this.weatherDowntime.Array)) {
+      this.saveStats('saveWeatherDowntimeDpr', {
+        weatherDowntime: this.weatherDowntime.Array,
+      });
+    } else {
+      this.alert.sendAlert({
+        type: 'danger',
+        text: 'Weather start time must take place before stop time',
+      });
+    }
+    if (this.checkValidityInput(this.vesselNonAvailability.Array)) {
+      this.saveStats('saveNonAvailabilityDpr', {
+        vesselNonAvailability: this.vesselNonAvailability.Array,
+      });
+    } else {
+      this.alert.sendAlert({
+        type: 'danger',
+        text: 'Non availability start time must take place before stop time',
+      });
+    }
+    if (this.checkValidityInput(this.standby.Array)) {
+      this.saveStats('saveStandByDpr', {
+        standBy: this.standby.Array
+      });
+    } else {
+      this.alert.sendAlert({
+        type: 'danger',
+        text: 'Stand by start time must take place before stop time',
+      });
+    }
     this.saveStats('saveAccessDayType', {accessDayType: this.accessDayType});
     this.weatherDowntimeChanged = false;
   }
@@ -188,17 +209,24 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     });
     this.cateringChanged = false;
   }
+
   saveDPStats() {
     for (let i = 0; i < this.dp.Array.length; i++) {
       if (this.dp.Array[i].to.hour === '24') {
         this.dp.Array[i].to.minutes = '00';
       }
     }
-
-    this.saveStats('saveDPStats', {
-      dp: this.dp.Array
-    });
-    this.dpChanged = false;
+    if (this.checkValidityInput(this.dp.Array)) {
+      this.saveStats('saveDPStats', {
+        dp: this.dp.Array
+      });
+      this.dpChanged = false;
+    } else {
+      this.alert.sendAlert({
+        type: 'danger',
+        text: 'On DP has to take place before Off DP',
+      });
+    }
   }
   saveRemarksStats() {
     this.saveStats('saveRemarksStats', {
@@ -207,11 +235,47 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.remarksChanged = false;
   }
 
+  objectTimeDifference(object) {
+    return this.datetimeService.objectTimeDifference(object);
+  }
+
   confirmSignoff(modalRef: NgbModalRef) {
     this.modalService.open(modalRef, {
       ariaLabelledBy: 'modal-basic-title',
     });
   }
+
+  checkValidityInput(input) {
+    let count = 0;
+      for (let _i = 0; _i < input.length; _i++) {
+          if (input[_i].from.hour < input[_i].to.hour) {
+              count ++;
+          } else {
+              if (input[_i].from.hour === input[_i].to.hour && input[_i].from.minutes < input[_i].to.minutes) {
+              count ++;
+              }
+          }
+      }
+      if (count === input.length) {
+          return true;
+      } else {
+          return false;
+      }
+    }
+
+    checkValidityInputString(input) {
+      let count = 0;
+      for (let _i = 0; _i < input.length; _i++) {
+          if (input[_i].from < input[_i].to) {
+              count ++;
+          }
+      }
+      if (count === input.length) {
+          return true;
+      } else {
+          return false;
+      }
+    }
 
   signOffDpr() {
     this.saveStats('saveDprSigningSkipper', {
