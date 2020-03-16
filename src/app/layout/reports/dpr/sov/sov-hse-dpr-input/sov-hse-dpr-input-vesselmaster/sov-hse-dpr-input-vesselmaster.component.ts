@@ -104,7 +104,9 @@ export class SovHseDprInputVesselmasterComponent implements OnInit {
 
     this.saveStats('saveHseDprSigningSkipper', {
       date: this.vesselObject.date,
-      mmsi: this.vesselObject.mmsi
+      mmsi: this.vesselObject.mmsi,
+      vesselName: this.vesselObject.vesselName,
+      dateString: this.vesselObject.dateNormal
     });
     this.hseDprApproval.emit(this.hseDprSavedBySkipper);
   }
