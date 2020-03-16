@@ -178,6 +178,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
       this.alert.sendAlert({
         type: 'danger',
         text: 'Weather start time must take place before stop time',
+        timeout: 5000,
       });
     }
     if (this.checkValidityInput(this.vesselNonAvailability.Array)) {
@@ -188,6 +189,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
       this.alert.sendAlert({
         type: 'danger',
         text: 'Non availability start time must take place before stop time',
+        timeout: 5000,
       });
     }
     if (this.checkValidityInput(this.standby.Array)) {
@@ -198,6 +200,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
       this.alert.sendAlert({
         type: 'danger',
         text: 'Stand by start time must take place before stop time',
+        timeout: 5000,
       });
     }
     this.saveStats('saveAccessDayType', {accessDayType: this.accessDayType});
@@ -225,6 +228,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
       this.alert.sendAlert({
         type: 'danger',
         text: 'On DP has to take place before Off DP',
+        timeout: 5000,
       });
     }
   }
