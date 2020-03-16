@@ -148,8 +148,9 @@ class LogisticSpecialist extends PermissionModel {
 
   ctvVideoRequest = true;
 
-  userRead: true;
-  userCreate: true;
+  userRead = true;
+  userCreate = true;
+  userManage = true;
 }
 
 class HseSpecialist extends PermissionModel {
