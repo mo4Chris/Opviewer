@@ -254,7 +254,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.standby.Array.push({ reason: 'No work planned', from: '00:00', to: '00:00' });
   }
   addWeatherDowntimeToArray() {
-    this.weatherDowntime.Array.push({ decidedBy: 'Siemens Gamesa', from: '00:00', to: '00:00', vesselsystem: 'Gangway' });
+    this.weatherDowntime.Array.push({ decidedBy: 'Charterer', from: '00:00', to: '00:00', vesselsystem: 'Gangway' });
   }
   addDPToArray() {
     this.dp.Array.push({ from: { hour: '00', minutes: '00' }, to: { hour: '00', minutes: '00' } });
