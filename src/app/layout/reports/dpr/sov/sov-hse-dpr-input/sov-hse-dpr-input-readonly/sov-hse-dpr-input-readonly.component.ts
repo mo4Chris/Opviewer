@@ -3,6 +3,7 @@ import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-sov-hse-dpr-input-readonly',
@@ -15,6 +16,7 @@ export class SovHseDprInputReadonlyComponent implements OnInit {
   constructor(
     private commonService: CommonService,
     private alert: AlertService,
+    public permission: PermissionService,
     ) { }
 
   @Output() hseDprApproval: EventEmitter<any> = new EventEmitter<any>();
