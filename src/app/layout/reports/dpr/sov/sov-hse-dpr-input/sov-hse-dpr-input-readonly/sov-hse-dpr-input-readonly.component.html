@@ -472,7 +472,7 @@
                     </ng-container>
                   </td>
                 </tr>
-                <tr *ngIf="hseDprApprovalCount == 1" class="plsdonotprintthisforfsake">
+                <tr *ngIf="hseDprApprovalCount == 1 && permission.sovCommercialSign" class="plsdonotprintthisforfsake">
                   <td colspan="4">
 
                     <button class="btn btn-lg btn-primary" (click)="signOffHseDprClient()"
