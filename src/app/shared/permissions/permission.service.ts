@@ -89,7 +89,7 @@ export class PermissionService extends PermissionModel {
         return new VesselMaster();
       case 'Marine controller':
         return new MarineController();
-      case 'Q specialist':
+      case 'Qhse specialist':
         return new HseSpecialist();
       case 'Client representative':
         return new ClientRepresentative();
