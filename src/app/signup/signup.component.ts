@@ -26,7 +26,7 @@ export class SignupComponent implements OnInit {
     };
 
     businessNames: string[]; // Loaded iff admin
-    createPermissions: UserType[] = ['Vessel master', 'Marine controller','Client representative', 'QHSE specialist'];
+    createPermissions: UserType[] = ['Vessel master', 'Marine controller','Client representative', 'Qhse specialist'];
 
     constructor(
       public router: Router,

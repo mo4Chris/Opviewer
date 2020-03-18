@@ -141,11 +141,11 @@ describe('SovreportComponent', () => {
     done();
   });
 
-  it('should create as QHSE specialist', (done) => {
+  it('should create as Qhse specialist', (done) => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
-    component.permission = <PermissionService> PermissionService.getDefaultPermission('QHSE specialist');
+    component.permission = <PermissionService> PermissionService.getDefaultPermission('Qhse specialist');
 
     component.ngOnChanges(fakeSimpleChange);
 
