@@ -251,7 +251,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return timeDifference;
   }
 
-  objectTimeDifference(dateobj) {
+  objectTimeDifference(dateobj: {to: string, from: string, total: string}) {
     const dateMoment = moment(dateobj.from, 'HH:mm');
     let dateMomentEnd;
 
@@ -265,7 +265,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return dateobj;
   }
 
-  arrayTotalTime(dateArray) {
+  arrayTotalTime(dateArray: {to: string, from: string, total: string}[]) {
     let dateMoment = moment('00:00', 'HH:mm');
 
     for (let j = 0; j < dateArray.length; j++) {
