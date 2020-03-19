@@ -13,7 +13,7 @@ import { routerTransition } from '@app/router.animations';
   selector: 'app-wave-spectrum-component',
   templateUrl: './wave-spectrum-component.component.html',
   styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
@@ -188,6 +188,9 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         this.waveSpectrum = spectrums[0];
         this.parseSpectrum();
         this.loaded = true;
+        this.ref.detectChanges();
+      } else {
+        console.error('Received invalid wave spectrum!')
       }
     });
   }
