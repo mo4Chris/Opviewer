@@ -111,8 +111,7 @@
           </th>
         </tr>
         <tr *ngIf="accessDayType && accessDayType.status">
-          <ng-template #noDayType><td colspan="4"><i>Access day type not entered</i></td></ng-template>
-          <td colspan="4" *ngIf="accessDayType && accessDayType.status; else noDayType"> 
+          <td colspan="4"> 
             {{accessDayType.status}}
         </tr>
       </table>
