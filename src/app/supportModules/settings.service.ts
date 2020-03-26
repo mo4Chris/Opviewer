@@ -19,7 +19,7 @@ export class SettingsService {
     }
 
     options = {
-        time: ['vessel', 'own', 'utc', 'fixed'],
+        time: ['vessel', 'own', 'utc', 'custom'],
         customTimeZone: [
           {name: 'utc -12 hours', value: -12},
           {name: 'utc -11 hours', value: -11},
@@ -69,7 +69,7 @@ export class SettingsService {
                     return this.localTimeZoneOffset;
                 case 'utc':
                     return 0;
-                case 'fixed':
+                case 'custom':
                   return this.fixedTimeZoneOffset;
                 default:
                     console.error('Invalid timezone setting!');
@@ -103,7 +103,7 @@ export class SettingsService {
     }
 }
 
-type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'fixed';
+type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'custom';
 type speedOptions = 'km/h' | 'mph' | 'knots' | 'm/s';
 type distanceOptions = 'km' | 'mile' | 'NM';
 type weightOptions = 'ton' | 'kg';

@@ -24,7 +24,7 @@
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway
                 capacity [%]</th>
               <th>Pax in / out</th>
-              <th>Cargo in / out</th>
+              <th>Cargo lift on / off</th>
               <th>Peak gust wind</th>
               <th>Hs [m]</th>
             </tr>
@@ -46,9 +46,9 @@
                 </td>
                 <td>
                   <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoIn"
-                    (ngModelChange)="updatePaxCargoTotal()"> kg incoming <br>
+                    (ngModelChange)="updatePaxCargoTotal()"> lift on <br>
                   <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoOut"
-                    (ngModelChange)="updatePaxCargoTotal()"> kg outgoing
+                    (ngModelChange)="updatePaxCargoTotal()"> lift off outgoing
                 </td>
                 <td>{{turbineTransfer.peakWindGust}}</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
@@ -99,12 +99,10 @@
               <td>
                 <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoIn"
                   (ngModelChange)="updatePaxCargoTotal()">
-                kg
-                incoming <br>
+                lift on <br>
                 <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoOut"
                   (ngModelChange)="updatePaxCargoTotal()">
-                kg
-                outgoing
+               lift off
               </td>
               <td></td>
               <td></td>
@@ -167,8 +165,8 @@
                 {{v2vPaxCargoTotals.paxOut}} outgoing
               </td>
               <td>
-                {{v2vPaxCargoTotals.cargoIn}} kg incoming <br>
-                {{v2vPaxCargoTotals.cargoOut}} kg outgoing
+                {{v2vPaxCargoTotals.cargoIn}} lift on <br>
+                {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
               <td colspan="3"></td>
             </tr>
@@ -180,8 +178,8 @@
                 {{totalPaxOut}} outgoing
               </td>
               <td>
-                {{totalCargoIn}} kg incoming <br>
-                {{totalCargoOut}} kg outgoing
+                {{totalCargoIn}} lift on <br>
+                {{totalCargoOut}} lift off
               </td>
               <td></td>
               <td>
@@ -221,7 +219,7 @@
               </ng-template>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway
                 capacity [%]</th>
-              <th>Pax in / out</th>
+              <th>Pax lift on / off</th>
               <th>Cargo in / out</th>
               <th>Peak gust wind</th>
               <th>Hs [m]</th>
@@ -241,8 +239,8 @@
                   {{turbineTransfer.paxOut}} outgoing
                 </td>
                 <td>
-                  {{turbineTransfer.cargoIn}} kg incoming <br>
-                  {{turbineTransfer.cargoOut}} kg outgoing
+                  {{turbineTransfer.cargoIn}} lift on <br>
+                  {{turbineTransfer.cargoOut}} lift off
                 </td>
                 <td>{{turbineTransfer.peakWindGust}}</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
@@ -266,8 +264,8 @@
                 {{transfer.paxOut || 0}} outgoing
               </td>
               <td>
-                {{transfer.cargoIn || 0}} kg incoming <br>
-                {{transfer.cargoOut || 0}} kg outgoing
+                {{transfer.cargoIn || 0}} lift on <br>
+                {{transfer.cargoOut || 0}} lift off
               </td>
               <td></td>
               <td></td>
@@ -290,8 +288,8 @@
                 {{transfer.paxOut || 0}} outgoing
               </td>
               <td>
-                {{transfer.cargoIn || 0}} kg incoming <br>
-                {{transfer.cargoOut || 0}} kg outgoing
+                {{transfer.cargoIn || 0}} lift on <br>
+                {{transfer.cargoOut || 0}} lift off
               </td>
               <td></td>
               <td></td>
@@ -304,8 +302,8 @@
                 {{v2vPaxCargoTotals.paxOut}} outgoing
               </td>
               <td>
-                {{v2vPaxCargoTotals.cargoIn}} kg incoming <br>
-                {{v2vPaxCargoTotals.cargoOut}} kg outgoing
+                {{v2vPaxCargoTotals.cargoIn}} lift on <br>
+                {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
               <td colspan="3"></td>
             </tr>
@@ -317,8 +315,8 @@
                 {{totalPaxOut}} outgoing
               </td>
               <td>
-                {{totalCargoIn}} kg incoming <br>
-                {{totalCargoOut}} kg outgoing
+                {{totalCargoIn}} lift on <br>
+                {{totalCargoOut}} lift off
               </td>
               <td></td>
               <td></td>

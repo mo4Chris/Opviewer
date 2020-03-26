@@ -153,6 +153,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
   }
 
+  DecimalTimeToFormattedTime(dateInput) {
+    return moment(0).utc().add(dateInput, 'minutes').format('HH:mm:ss');
+  }
+
   getMatlabDateYesterday() {
     const matlabValueYesterday = moment().add(-1, 'days');
     matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });

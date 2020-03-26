@@ -2077,35 +2077,40 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
                     }
                 }
             );
+        
+        
+            // Email notifications are currently not required for the Bibby QHSE employees
 
-            Usermodel.find({
-                active: { $ne: false },
-                client: token.userCompany,
-                permissions: 'Qhse specialist'
-            }, {
-                username: 1,
-            }, (err, data) => {
-                if (err || data.length === 0) {
-                    if (err) {
-                        console.log(err);
-                    }
-                    recipient = ['webmaster@bmo-offshore.com'];
-                    title = 'Failed to deliver: QHSE employee not found!';
-                } else {
-                    title = 'HSE DPR signed off by vessel master';
-                    recipient = data.map(user => user.username);
-                }
-            });
+        //     Usermodel.find({
+        //         active: { $ne: false },
+        //         client: token.userCompany,
+        //         permissions: 'Qhse specialist'
+        //     }, {
+        //         username: 1,
+        //     }, (err, data) => {
+        //         if (err || data.length === 0) {
+        //             if (err) {
+        //                 console.log(err);
+        //             }
+        //             recipient = ['webmaster@bmo-offshore.com'];
+        //             title = 'Failed to deliver: QHSE employee not found!';
+        //         } else {
+        //             title = 'HSE DPR signed off by vessel master';
+        //             recipient = data.map(user => user.username);
+        //         }
+        //     });
             
-            const _body = 'The hse dpr for vessel ' + vesselname + ', ' + dateString +
-                ' has been signed off by the vessel master. Please review the dpr and sign off if in agreement!<br><br>' +
-                'Link to the relevant report:<br>' +
-                serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
-                // ToDo: set proper recipient
-                setTimeout(function(){
-                    mailTo(title, _body, recipient)
-                }, 3000);
+        //     const _body = 'The hse dpr for vessel ' + vesselname + ', ' + dateString +
+        //         ' has been signed off by the vessel master. Please review the dpr and sign off if in agreement!<br><br>' +
+        //         'Link to the relevant report:<br>' +
+        //         serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+        //         // ToDo: set proper recipient
+        //         setTimeout(function(){
+        //             mailTo(title, _body, recipient)
+        //         }, 3000);
 
+        // }
+        //});
         }
     });
 });
@@ -2507,7 +2512,7 @@ app.post("/api/getUsersForCompany", function(req, res) {
     }
     Usermodel.find({
         client: companyName,
-        permissions: ["Vessel master", "Marine controller"]
+        permissions: ["Vessel master", "Marine controller", "Qhse specialist", "Client representative"]
     }, null, {
 
     }, function(err, data) {

@@ -521,7 +521,7 @@
               cols="70"></textarea></td>
         </tr>
         <tr >
-          <td><button  class="btn btn-lg btn-primary" style="float:right"
+          <td><button *ngIf="remarksChanged == true;" class="btn btn-lg btn-primary" style="float:right"
               (click)="saveRemarksStats();" type="button">Save remarks</button>
               <button
               class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"

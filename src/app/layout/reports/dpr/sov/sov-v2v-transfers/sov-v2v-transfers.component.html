@@ -18,7 +18,7 @@
                   <th>Peak wind gust [{{settings.unit_speed}}]</th>
                   <th>Peak heave [m]</th>
                   <th>Pax in / out</th>
-                  <th>Cargo in / out</th>
+                  <th>Cargo lift on / off</th>
                   <th>save</th>
               </tr>
           </thead>
@@ -54,11 +54,11 @@
                       <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn"
                           (ngModelChange)="updatev2vPaxCargoTotal();">
-                      kg incoming <br>
+                      lift on <br>
                       <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
                           [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut"
                           (ngModelChange)="updatev2vPaxCargoTotal();">
-                      kg outgoing
+                      lift off
                     </td>
                     <td><button class="btn btn-lg btn-primary submitBtnDate"
                       (click)="savev2vPaxInput()" type="button">Save</button></td>
@@ -74,8 +74,8 @@
                 {{v2vPaxOut}} outgoing
               </td>
               <td>
-                {{v2vCargoIn}} kg incoming <br>
-                {{v2vCargoOut}} kg outgoing
+                {{v2vCargoIn}} lift on <br>
+                {{v2vCargoOut}} lift off
               </td>
               <td><button class="btn btn-lg btn-primary submitBtnDate"
                 (click)="savev2vPaxInput()" type="button">Save all</button></td>
@@ -106,7 +106,7 @@
               <th>Peak wind gust [{{settings.unit_speed}}]</th>
               <th>Peak heave [m]</th>
               <th>Pax in / out</th>
-              <th>Cargo in / out</th>
+              <th>Cargo lift on / off</th>
             </tr>
           </thead>
           <tbody>
@@ -132,8 +132,8 @@
                       {{transfer.paxOut || 0}} outgoing
                     </td>
                     <td>
-                      {{transfer.cargoIn || 0}} kg incoming <br>
-                      {{transfer.cargoOut || 0}} kg outgoing
+                      {{transfer.cargoIn || 0}} lift on <br>
+                      {{transfer.cargoOut || 0}} lift off
                     </td>
                   </tr>
                 </ng-container>
@@ -147,8 +147,8 @@
                 {{v2vPaxOut || 0}} outgoing
               </td>
               <td>
-                {{v2vCargoIn || 0}} kg incoming <br>
-                {{v2vCargoOut || 0}} kg outgoing
+                {{v2vCargoIn || 0}} lift on <br>
+                {{v2vCargoOut || 0}} lift off
               </td>
             </tr>
           </tbody>

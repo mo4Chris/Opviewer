@@ -105,12 +105,12 @@
         <tr *ngIf="weatherDowntime.Array.length==0">
           <td colspan="4"><i>No weather downtime entered</i></td>
         </tr>
-        <tr>
+        <tr *ngIf="accessDayType && accessDayType.status">
           <th colspan="4">
             <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
           </th>
         </tr>
-        <tr>
+        <tr *ngIf="accessDayType && accessDayType.status">
           <ng-template #noDayType><td colspan="4"><i>Access day type not entered</i></td></ng-template>
           <td colspan="4" *ngIf="accessDayType && accessDayType.status; else noDayType"> 
             {{accessDayType.status}}
@@ -357,5 +357,5 @@
 <ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
-<ng-template #tooltipCateringPob>Number of people on board of the vessel who used the catering</ng-template>
+<ng-template #tooltipCateringPob>Number of people on board of the vessel at the end of day who used the catering</ng-template>
 <ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, select any of the more specific options if relevant.</ng-template>
