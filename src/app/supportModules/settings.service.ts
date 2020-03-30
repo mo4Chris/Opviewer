@@ -86,6 +86,9 @@ export class SettingsService {
                     if (_key in this) {
                         this[_key] = settings[_key];
                     }
+                    if (_key === 'Timezone' &&  settings[_key] === 'fixed') {
+                        this[_key] = 'custom';
+                    }
                 });
             }
         });

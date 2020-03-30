@@ -4,7 +4,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
+    <div class="divContainer" >
         <div *ngIf="!scatterPlot.allGraphsEmpty; else allGraphsEmpty">
             <app-vesselinfo [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [newService]="newService"
                 (navigateToVesselreport)="navigateToDPR($event)">
