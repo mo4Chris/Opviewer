@@ -28,7 +28,7 @@
               <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
                 <option value="No work planned">No work planned</option>
                 <option value="EHS issues">EHS issues</option>
-                <option value="Delay Siemens">Delay Siemens</option>
+                <option value="Delay Siemens">Delay charterer</option>
                 <option value="Delay vessel">Delay vessel</option>
               </select></td>
             <td>
@@ -128,8 +128,8 @@
               <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.decidedBy"
                 class="form-control">
                 <option value="Charterer">Charterer</option>
-                <option value="Marine Coordinator">Marine Coordinator</option>
                 <option value="Vessel Master">Vessel Master</option>
+                <option value="Marine Coordinator">Joint decision</option>
               </select></td>
             <td>
               <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.from" class="form-control">
@@ -521,7 +521,7 @@
               cols="70"></textarea></td>
         </tr>
         <tr >
-          <td><button  class="btn btn-lg btn-primary" style="float:right"
+          <td><button *ngIf="remarksChanged == true;" class="btn btn-lg btn-primary" style="float:right"
               (click)="saveRemarksStats();" type="button">Save remarks</button>
               <button
               class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"

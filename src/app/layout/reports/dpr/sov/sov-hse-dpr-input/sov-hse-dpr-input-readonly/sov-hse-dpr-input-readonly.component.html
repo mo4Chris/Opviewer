@@ -22,23 +22,23 @@
                 <tr>
                   <th></th>
                   <th>On board</th>
-                  <th>Personnel days</th>
+                  <th>Personnel hours</th>
                 </tr>
 
                 <tr>
-                  <th>Marine crew</th>
+                  <th>Marine crew (8 hours)</th>
                   <td>{{dprData.marineCount.value}}</td>
-                  <td>{{dprData.marineCount.value}}</td>
+                  <td>{{dprData.marineCount.value * 8}}</td>
                 </tr>
                 <tr>
-                  <th>Client crew</th>
+                  <th>Client crew (4 hours)</th>
                   <td>{{dprData.clientCrewCount.value}}</td>
-                  <td>{{dprData.clientCrewCount.value / 2}}</td>
+                  <td>{{dprData.clientCrewCount.value * 4}}</td>
                 </tr>
                 <tr>
                   <th>Total</th>
                   <td>{{dprData.clientCrewCount.value + dprData.marineCount.value}}</td>
-                  <td>{{dprData.clientCrewCount.value / 2 + dprData.marineCount.value}}</td>
+                  <td>{{dprData.clientCrewCount.value * 4 + dprData.marineCount.value * 8}}</td>
                 </tr>
 
                 <tr>
