@@ -118,7 +118,8 @@ export class SovreportComponent implements OnInit, OnChanges {
           this.hasGeneral = true;
           this.sovModel.sovInfo = sov[0];
           if (sov[0].utcOffset) {
-            this.datetimeService.vesselOffset = sov[0].utcOffset;
+            // sov utc offset is in days
+            this.datetimeService.vesselOffsetHours = 24 * sov[0].utcOffset;
           }
           this.getWaveSpectrumAvailable();
           forkJoin([

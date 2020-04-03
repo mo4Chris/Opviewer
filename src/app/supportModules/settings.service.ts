@@ -55,7 +55,7 @@ export class SettingsService {
     fixedTimeZoneOffset = 0;
 
     // ##################### Functions ###########################
-    getTimeOffset(vesselOffset: number = 0): number {
+    getTimeOffset(vesselOffsetHours: number = 0): number {
         // Returns the time offset in hours according to the chosen timezone settings
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
@@ -64,7 +64,7 @@ export class SettingsService {
         } else {
             switch (timezone) {
                 case 'vessel':
-                    return vesselOffset;
+                    return vesselOffsetHours;
                 case 'own':
                     return this.localTimeZoneOffset;
                 case 'utc':

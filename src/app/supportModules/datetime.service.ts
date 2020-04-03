@@ -13,7 +13,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   constructor(
     private setting: SettingsService
   ) { }
-  vesselOffset = this.setting.localTimeZoneOffset; // Default to the local timezone
+  vesselOffsetHours = this.setting.localTimeZoneOffset; // Default to the local timezone, offset in hours
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   MatlabDurationToMinutes(serial, roundMinutes = true) {
@@ -65,7 +65,8 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   applyTimeOffsetToMoment(_moment: moment.Moment) {
-    _moment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffset));
+    // moment.utcOffset expects minutes, our application expects hours
+    _moment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffsetHours));
   }
 
   MatlabDateToJSTime(serial: number): string {
@@ -189,7 +190,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   jsDateToMDHMString(date: Date) {
-    const offsetHours = this.setting.getTimeOffset(this.vesselOffset);
+    const offsetHours = this.setting.getTimeOffset(this.vesselOffsetHours);
     date = this.dateAddHours(date, offsetHours);
     let hours: number | string = date.getUTCHours();
     let mins: number | string  = date.getUTCMinutes();
