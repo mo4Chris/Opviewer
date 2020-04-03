@@ -25,14 +25,12 @@
           [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite">
         </app-sov-dc-transfers>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
-          <br>
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
             [readonly]="!permission.sovCommercialWrite" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [missedPaxCargo]="dprInput.missedPaxCargo"
             [helicopterPaxCargo]="dprInput.helicopterPaxCargo" 
           ></app-sov-platform-transfers>
         </ng-container>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine || sovModel.sovType == SovTypeEnum.Unknown">
-          <br>
           <app-sov-turbine-transfers [turbineTransfers]="sovModel.turbineTransfers" [cycleTimes]="sovModel.cycleTimes"
             [vesselObject]="vesselObject" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [readonly]="!permission.sovCommercialWrite"
             [missedPaxCargo]="dprInput.missedPaxCargo" [helicopterPaxCargo]="dprInput.helicopterPaxCargo"

@@ -582,7 +582,8 @@ export class CtvreportComponent implements OnInit {
       if (general && general.data && general.data.length > 0) {
         const _general: CTVGeneralStatsModel = general.data[0];
         if (_general.utcOffset) {
-          this.dateTimeService.vesselOffset = _general.utcOffset;
+          // General stats utc offset is in days
+          this.dateTimeService.vesselOffsetHours = 24 * _general.utcOffset;
         }
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
