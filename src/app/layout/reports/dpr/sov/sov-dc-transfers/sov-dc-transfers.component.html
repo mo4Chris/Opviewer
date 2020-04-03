@@ -1,6 +1,8 @@
-<!-- Turbine transfers - not read only-->
-<div class="row single-block-print">
-  <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+<br>
+
+<!-- DC transfers - not read only-->
+<div class="row single-block-print" *ngIf="!readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers for daughtercraft: {{vesselName}}
@@ -103,9 +105,9 @@
   </div>
 </div>
 
-<!-- Turbine transfers - readonly-->
-<div class="row single-block-print">
-  <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+<!-- DC transfers - readonly-->
+<div class="row single-block-print" *ngIf="readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers for daughtercraft: {{vesselName}}
