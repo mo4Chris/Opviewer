@@ -11,7 +11,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 @Component({
   selector: 'app-sov-dc-transfers',
   templateUrl: './sov-dc-transfers.component.html',
-  styleUrls: ['./sov-dc-transfers.component.scss']
+  styleUrls: ['./sov-dc-transfers.component.scss', '../sovreport.component.scss']
 })
 export class SovDcTransfersComponent implements OnChanges {
   @Input() readonly = true;

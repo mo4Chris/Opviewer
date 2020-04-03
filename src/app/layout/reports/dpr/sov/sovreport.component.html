@@ -21,7 +21,6 @@
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
           [vesselObject]="vesselObject" [readonly]="!permission.sovCommercialWrite">
         </app-sov-v2v-transfers>
-        <br>
         <app-sov-dc-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
           [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite">
         </app-sov-dc-transfers>
