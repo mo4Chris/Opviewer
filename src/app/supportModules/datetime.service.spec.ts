@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import { MockedSettingsService } from './mocked.settings.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 
-fdescribe('DatetimeService', () => {
+describe('DatetimeService', () => {
   let service: DatetimeService;
 
   beforeEach(() => {
