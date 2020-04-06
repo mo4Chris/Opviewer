@@ -33,8 +33,8 @@
             <ng-container *ngFor="let turbineTransfer of turbineTransfers">
               <tr>
                 <th>{{turbineTransfer.location}}</th>
-                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
-                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.TentryExclusionZone, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.TdepartureExclusionZone, 'HH:mm')}}</td>
                 <td>{{turbineTransfer.duration}} minutes</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}
                 </td>
@@ -229,8 +229,8 @@
             <ng-container *ngFor="let turbineTransfer of turbineTransfers">
               <tr>
                 <th>{{turbineTransfer.location}}</th>
-                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
-                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.TentryExclusionZone, 'HH:mm')}}</td>
+                <td>{{getMatlabDateToCustomJSTime(turbineTransfer.TdepartureExclusionZone, 'HH:mm')}}</td>
                 <td>{{turbineTransfer.duration}} minutes</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.gangwayUtilisation, '%')}}
                 </td>

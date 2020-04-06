@@ -2512,7 +2512,7 @@ app.post("/api/getUsersForCompany", function(req, res) {
     }
     Usermodel.find({
         client: companyName,
-        permissions: ["Vessel master", "Marine controller", "Qhse specialist", "Client representative"]
+        permissions: ["Vessel master", "Marine controller", "Logistics specialist", "Qhse specialist", "Client representative"]
     }, null, {
 
     }, function(err, data) {
