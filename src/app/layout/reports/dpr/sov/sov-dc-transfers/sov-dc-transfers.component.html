@@ -1,6 +1,8 @@
-<!-- Turbine transfers - not read only-->
-<div class="row single-block-print">
-  <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+<br>
+
+<!-- DC transfers - not read only-->
+<div class="row single-block-print" *ngIf="!readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers for daughtercraft: {{vesselName}}
@@ -36,10 +38,10 @@
                   outgoing
                 </td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
+                  <input type="number" min="0" class="form-control-sm col-sm-5 form-number" placeholder="0"
                   [(ngModel)]="turbineTransfer.cargoIn" (ngModelChange)="updatePaxCargoTotal()">
                   kg incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
+                  <input type="number" min="0" class="form-control-sm col-sm-5 form-number" placeholder="0"
                   [(ngModel)]="turbineTransfer.cargoOut" (ngModelChange)="updatePaxCargoTotal()">
                   kg outgoing
                 </td>
@@ -62,30 +64,30 @@
               </td>
             </tr>
             <tr *ngFor="let transfer of missedTransfers">
-              <td><input type="text" min="0" class="form-control-sm col-sm-8" [value]="transfer.location"
+              <td><input type="text" min="0" class="form-control-sm col-sm-8 form-number" [value]="transfer.location"
                   [(ngModel)]="transfer.location" placeholder="turbine" (ngModelChange)="updatePaxCargoTotal()"></td>
-              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
                   [(ngModel)]="transfer.from.hour" placeholder="HH" (ngModelChange)="updatePaxCargoTotal()">
                 <span class="col-print-1">:</span>
-                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
                   [(ngModel)]="transfer.from.minutes" placeholder="MM" (ngModelChange)="updatePaxCargoTotal()">
               </td>
-              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3" [(ngModel)]="transfer.to.hour"
+              <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number" [(ngModel)]="transfer.to.hour"
                   [(ngModel)]="transfer.to.hour" placeholder="HH" (ngModelChange)="updatePaxCargoTotal()">
                 <span class="col-print-1">:</span>
-                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
                   [(ngModel)]="transfer.to.minutes" placeholder="MM" (ngModelChange)="updatePaxCargoTotal()">
               </td>
               <td>
-                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxIn"
+                <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.paxIn"
                 (ngModelChange)="updatePaxCargoTotal()"> incoming <br>
-                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.paxOut"
+                <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.paxOut"
                 (ngModelChange)="updatePaxCargoTotal()"> outgoing
               </td>
               <td>
-                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoIn"
+                <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.cargoIn"
                 (ngModelChange)="updatePaxCargoTotal()">kg incoming <br>
-                <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoOut"
+                <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.cargoOut"
                 (ngModelChange)="updatePaxCargoTotal()">kg outgoing
               </td>
             </tr>
@@ -103,9 +105,9 @@
   </div>
 </div>
 
-<!-- Turbine transfers - readonly-->
-<div class="row single-block-print">
-  <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
+<!-- DC transfers - readonly-->
+<div class="row single-block-print" *ngIf="readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
         Turbine transfers for daughtercraft: {{vesselName}}
