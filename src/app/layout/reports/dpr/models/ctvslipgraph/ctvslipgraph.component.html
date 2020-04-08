@@ -1,0 +1,7 @@
+<span *ngIf="slipGraph !== undefined && slipGraph.slipX.length > 0">
+  <h3>Transfer: #{{index + 1}} - location: {{transfer_Data.location}} - Score:
+      {{roundNumber(score, 10)}}</h3>
+</span>
+<div class="chartContainer">
+  <canvas *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length>0" id="canvas">{{chart}}</canvas>
+</div>
