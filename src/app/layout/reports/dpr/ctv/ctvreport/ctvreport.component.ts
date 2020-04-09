@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
@@ -17,7 +17,8 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-ctvreport',
   templateUrl: './ctvreport.component.html',
-  styleUrls: ['./ctvreport.component.scss']
+  styleUrls: ['./ctvreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvreportComponent implements OnInit {
   @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
@@ -137,30 +138,33 @@ export class CtvreportComponent implements OnInit {
 
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
-        this.getTransfersForVessel(this.vesselObject).subscribe(() => {
-          this.getComments(this.vesselObject).subscribe(() => {
-            this.getVideoRequests(this.vesselObject).subscribe(() => {
-              this.newService.getVideoBudgetByMmsi(this.vesselObject).subscribe(data => {
-                if (data[0]) {
-                  this.videoBudget = data[0];
-                } else {
-                  this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                }
-                this.matchCommentsWithTransfers();
-                this.getGeneralStats();
-              });
-            });
-          });
-
-          if (this.transferData.length !== 0) {
-            this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-              this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
+        forkJoin(
+          this.getTransfersForVessel(),
+          this.getComments(this.vesselObject),
+          this.getVideoRequests(this.vesselObject),
+          this.newService.getVideoBudgetByMmsi(this.vesselObject),
+        ).subscribe(([_transfers, _comments, _videoRequests, data]) => {
+          if (data[0]) {
+            this.videoBudget = data[0];
+          } else {
+            this.videoBudget = { maxBudget: -1, currentBudget: -1 };
+          }
+          this.matchCommentsWithTransfers();
+          this.getGeneralStats();
+          if (this.transferData.length > 0) {
+            this.newService.getDistinctFieldnames({
+              mmsi: this.transferData[0].mmsi,
+              date: this.transferData[0].date 
+            }).subscribe(data => {
+              this.newService.getSpecificPark({
+                park: data
+              }).subscribe(locData => {
                 if (locData.length > 0) {
                   const locationData = {
-                    'turbineLocations': locData,
-                    'transfers': this.transferData,
-                    'type': '',
-                    'vesselType': 'CTV'
+                    turbineLocations: locData,
+                    transfers: this.transferData,
+                    type: '',
+                    vesselType: 'CTV'
                   };
                   this.turbineLocationData.emit(locationData);
                   this.parkFound.emit(true);
@@ -169,28 +173,6 @@ export class CtvreportComponent implements OnInit {
                 }
               });
             });
-          }
-          // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
-          if (this.charts.length <= 0) {
-            setTimeout(() => this.createSlipgraphs(), 10);
-          } else {
-            let deleteCharts = false;
-            for (let i = 0; i < this.transferData.length; i++) {
-              if (typeof this.transferData[i] !== 'undefined' && typeof this.transferData[i].slipGraph !== 'undefined' && typeof this.transferData[i].slipGraph.slipX !== 'undefined' && this.transferData[i].slipGraph.slipX.length > 0) {
-                deleteCharts = true;
-                break;
-              }
-            }
-            if (deleteCharts) {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
-              }
-              setTimeout(() => this.createSlipgraphs(), 10);
-            } else {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
-              }
-            }
           }
         }, null, () => {
           this.showContent.emit(true);
@@ -295,79 +277,7 @@ export class CtvreportComponent implements OnInit {
     }
   }
 
-  createSlipgraphs() {
-    this.charts = [];
-    let createCharts = false;
-    for (let i = 0; i < this.transferData.length; i++) {
-      if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length > 0) {
-        createCharts = true;
-        break;
-      }
-    }
-    if (this.transferData.length > 0 && createCharts) {
-      const array = [];
-      for (let i = 0; i < this.transferData.length; i++) {
-        const line = {
-          type: 'line',
-          data: {
-            datasets: this.XYvars[i]
-          },
-          options: {
-            scaleShowVerticalLines: false,
-            legend: false,
-            tooltips: false,
-            responsive: true,
-            elements: {
-              point:
-                { radius: 0 },
-              line:
-                { tension: 0 }
-            },
-            animation: {
-              duration: 0,
-            },
-            hover: {
-              animationDuration: 0,
-            },
-            responsiveAnimationDuration: 0,
-            scales: {
-              xAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Time'
-                },
-                type: 'time'
-              }],
-              yAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Slip (m)'
-                }
-              }]
-            },
-            annotation: {
-              annotations: [
-                {
-                  type: 'line',
-                  drawTime: 'afterDatasetsDraw',
-                  id: 'average',
-                  mode: 'horizontal',
-                  scaleID: 'y-axis-0',
-                  value: this.transferData[0].slipGraph.slipLimit,
-                  borderWidth: 2,
-                  borderColor: 'red'
-                }
-              ]
-            },
-          },
-        };
-        array.push(line);
-      }
-      this.createCharts(array);
-    }
-  }
-
-  getTransfersForVessel(vessel) {
+  getTransfersForVessel() {
     let isTransfering = false;
     const responseTimes = [];
 
