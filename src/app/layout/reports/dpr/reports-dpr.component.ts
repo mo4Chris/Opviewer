@@ -4,7 +4,7 @@ import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 import { isArray } from 'util';
 
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { ActivatedRoute, Router, ChildActivationEnd } from '@angular/router';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';

@@ -3,7 +3,7 @@ import { CommonService } from '@app/common.service';
 import { routerTransition } from '@app/router.animations';
 
 
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '@app/shared/services/user.service';

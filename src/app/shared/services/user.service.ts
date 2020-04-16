@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as jwt_decode from 'jwt-decode';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { Router } from '@angular/router';
 import { TokenModel } from '../../models/tokenModel';
 

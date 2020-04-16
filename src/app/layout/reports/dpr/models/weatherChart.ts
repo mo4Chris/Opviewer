@@ -1,7 +1,7 @@
 import * as Chart from 'chart.js';
 import { Moment } from 'moment';
 import { CalculationService } from '../../../../supportModules/calculation.service';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { SettingsService } from '../../../../supportModules/settings.service';
 import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
@@ -194,6 +194,7 @@ export class WeatherOverviewChart {
             },
             title: function (tooltipItem, data) {
               const xlabel = tooltipItem[0].xLabel;
+              // moeten we hier ook alles om gaan zetten naar timezones? Zie dat er nog geen configurations gebruikt worden
               const _mom = moment.utc(xlabel).format('HH:mm');
               return _mom;
             }

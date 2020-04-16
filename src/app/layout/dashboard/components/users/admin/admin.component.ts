@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { AisMarkerModel } from '../../../dashboard.component';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
@@ -46,6 +46,7 @@ export class AdminComponent implements OnInit {
 
   parseRawTimestamp(locationData: AisMarkerModel): moment.Moment {
     // Parses the raw AIS timestamps
+    // Moeten we hier ook rekening gaan houden met lokale tijdzone? Dat lijkt zo te zien niet te gebeuren
     return moment.utc(locationData.TIMESTAMP, 'YYYY-MM-DDThh:mm:ss');
   }
 

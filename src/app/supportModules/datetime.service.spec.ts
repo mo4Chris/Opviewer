@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { DatetimeService } from './datetime.service';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { MockedSettingsService } from './mocked.settings.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 
@@ -29,6 +29,6 @@ describe('DatetimeService', () => {
     service.vesselOffsetHours = 1;
     service.applyTimeOffsetToMoment(m);
     const b = m.hour();
-    expect(a + 1).toEqual(b)
-  })
+    expect(a + 1).toEqual(b);
+  });
 });

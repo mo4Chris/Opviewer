@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { SettingsService } from './settings.service';
 import { isArray } from 'util';
 
@@ -43,7 +43,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToUnixEpoch(serial: number) {
-    const time_info = moment.utc((serial - 719529) * 864e5);
+    const time_info = moment.tz((serial - 719529) * 864e5, 'Europe/London');
     return time_info;
   }
 
@@ -55,6 +55,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   MatlabDateToJSDateYMD(serial: number): string {
     const datevar = this.MatlabDateToUnixEpoch(serial).format('YYYY-MM-DD');
+
     return datevar;
   }
 
@@ -66,14 +67,27 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   applyTimeOffsetToMoment(_moment: moment.Moment) {
     // moment.utcOffset expects minutes, our application expects hours
-    _moment.utcOffset(60 * this.setting.getTimeOffset(this.vesselOffsetHours));
+    _moment.utcOffset(60 * +this.setting.getTimeOffset(this.vesselOffsetHours));
   }
 
   MatlabDateToJSTime(serial: number): string {
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
+    const tz = 'Europe/Amsterdam';
+
+    console.log(serialMoment.format('HH:mm:ss') + ' - ' + moment.tz(serialMoment, tz).format('HH:mm:ss z'));
+    // console.log(moment.tz(serialMoment, tz).isDST());
+
+
+
     if (serialMoment.isValid()) {
-      this.applyTimeOffsetToMoment(serialMoment);
-      const time_info = serialMoment.format('HH:mm:ss');
+      let time_info;
+      if (this.setting.Timezone === 'timezone') {
+        time_info = moment.tz(serialMoment, this.setting.fixedTimeZoneLoc).format('HH:mm:ss z');
+      } else {
+        this.applyTimeOffsetToMoment(serialMoment);
+        time_info = serialMoment.format('HH:mm:ss');
+      }
+      console.log(time_info);
       return time_info;
     } else {
       return 'N/a';
