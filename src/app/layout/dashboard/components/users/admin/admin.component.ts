@@ -46,7 +46,6 @@ export class AdminComponent implements OnInit {
 
   parseRawTimestamp(locationData: AisMarkerModel): moment.Moment {
     // Parses the raw AIS timestamps
-    // Moeten we hier ook rekening gaan houden met lokale tijdzone? Dat lijkt zo te zien niet te gebeuren
     return moment.utc(locationData.TIMESTAMP, 'YYYY-MM-DDThh:mm:ss');
   }
 

@@ -194,7 +194,6 @@ export class WeatherOverviewChart {
             },
             title: function (tooltipItem, data) {
               const xlabel = tooltipItem[0].xLabel;
-              // moeten we hier ook alles om gaan zetten naar timezones? Zie dat er nog geen configurations gebruikt worden
               const _mom = moment.utc(xlabel).format('HH:mm');
               return _mom;
             }

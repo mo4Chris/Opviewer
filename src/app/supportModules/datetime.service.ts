@@ -43,7 +43,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToUnixEpoch(serial: number) {
-    const time_info = moment.tz((serial - 719529) * 864e5, 'Europe/London');
+    const time_info = moment.tz((serial - 719529) * 864e5, 'Etc/UTC');
     return time_info;
   }
 
