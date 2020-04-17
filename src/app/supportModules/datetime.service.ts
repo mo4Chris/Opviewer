@@ -72,12 +72,6 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   MatlabDateToJSTime(serial: number): string {
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
-    const tz = 'Europe/Amsterdam';
-
-    console.log(serialMoment.format('HH:mm:ss') + ' - ' + moment.tz(serialMoment, tz).format('HH:mm:ss z'));
-    // console.log(moment.tz(serialMoment, tz).isDST());
-
-
 
     if (serialMoment.isValid()) {
       let time_info;
@@ -87,7 +81,6 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
         this.applyTimeOffsetToMoment(serialMoment);
         time_info = serialMoment.format('HH:mm:ss');
       }
-      console.log(time_info);
       return time_info;
     } else {
       return 'N/a';

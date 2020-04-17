@@ -72,7 +72,6 @@ export class SettingsService {
         // Returns the time offset in hours according to the chosen timezone settings
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
-        console.log(timezone);
         if (isNumber(timezone)) {
             return <number> timezone;
         } else {
