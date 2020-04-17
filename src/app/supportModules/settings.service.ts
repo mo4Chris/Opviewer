@@ -1,6 +1,6 @@
 import { Injectable, NgModule } from '@angular/core';
 import { isNumber } from 'util';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { CommonService } from '../common.service';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class SettingsService {
     }
 
     options = {
-        time: ['vessel', 'own', 'utc', 'custom'],
+        time: ['vessel', 'own', 'utc', 'custom', 'timezone'],
         customTimeZone: [
           {name: 'utc -12 hours', value: -12},
           {name: 'utc -11 hours', value: -11},
@@ -47,15 +47,28 @@ export class SettingsService {
           {name: 'utc +11 hours', value: 11},
           {name: 'utc +12 hours', value: 12},
         ],
+        customTimeZoneLocations: [
+            {name: 'London UTC', value: 'Europe/London'},
+            {name: 'Dublin UTC', value: 'Europe/Dublin'},
+            {name: 'Amsterdam UTC +1', value: 'Europe/Amsterdam'},
+            {name: 'Berlin UTC +1', value: 'Europe/Berlin'},
+            {name: 'Brussels UTC +1', value: 'Europe/Brussels'},
+            {name: 'Copenhagen UTC +1', value: 'Europe/Copenhagen'},
+            {name: 'Oslo UTC +1', value: 'Europe/Oslo'},
+            {name: 'Paris UTC +1', value: 'Europe/Paris'},
+            {name: 'Stockholm UTC +1', value: 'Europe/Stockholm'},
+            {name: 'Helsinki UTC +2', value: 'Europe/Helsinki'},
+        ],
         weight: ['ton', 'kg'],
         speed: ['km/h', 'mph', 'knots', 'm/s'],
         distance: ['km', 'mile', 'NM'],
     };
     localTimeZoneOffset: number = moment().utcOffset() / 60; // Offset in hours
     fixedTimeZoneOffset = 0;
+    fixedTimeZoneLoc = 'Europe/London';
 
     // ##################### Functions ###########################
-    getTimeOffset(vesselOffsetHours: number = 0): number {
+    getTimeOffset(vesselOffsetHours: number = 0) {
         // Returns the time offset in hours according to the chosen timezone settings
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
@@ -71,6 +84,8 @@ export class SettingsService {
                     return 0;
                 case 'custom':
                   return this.fixedTimeZoneOffset;
+                case 'timezone':
+                    return 0;
                 default:
                     console.error('Invalid timezone setting!');
             }
@@ -98,15 +113,15 @@ export class SettingsService {
         this.newService.saveUserSettings({
             Timezone: this.Timezone,
             fixedTimeZoneOffset: +this.fixedTimeZoneOffset,
+            fixedTimeZoneLoc: this.fixedTimeZoneLoc,
             unit_distance: this.unit_distance,
             unit_speed: this.unit_speed,
             unit_weight: this.unit_weight,
         });
-        console.log(this);
     }
 }
 
-type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'custom';
+type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'custom' | 'timezone';
 type speedOptions = 'km/h' | 'mph' | 'knots' | 'm/s';
 type distanceOptions = 'km' | 'mile' | 'NM';
 type weightOptions = 'ton' | 'kg';
