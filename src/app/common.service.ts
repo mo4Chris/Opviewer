@@ -109,6 +109,11 @@ export class CommonService {
       }));
   }
 
+  getEnginedata(mmsi: number, date: number) {
+    return this.get('/api/getEnginedata/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getCycleTimesForSov(mmsi: number, date: number) {
     return this.get('/api/getCycleTimesForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
