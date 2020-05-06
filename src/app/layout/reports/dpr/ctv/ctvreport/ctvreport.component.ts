@@ -539,6 +539,7 @@ export class CtvreportComponent implements OnInit {
     return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).subscribe(data => {
       if (data.length > 0) {
         this.enginedata = data[0];
+        this.enginedata['fuelOther'] = data[0].fuelUsedTotalM3 - data[0].fuelUsedDepartM3 - data[0].fuelUsedReturnM3 - data[0].fuelUsedTransferM3;
       } else {
         this.enginedata = {
           c02TotalKg: 0,
@@ -551,6 +552,7 @@ export class CtvreportComponent implements OnInit {
           fuelUsedReturnM3: 0,
           fuelUsedTotalM3: 0,
           fuelUsedTransferM3: 0,
+          fuelOther: 0,
         };
       }
     });

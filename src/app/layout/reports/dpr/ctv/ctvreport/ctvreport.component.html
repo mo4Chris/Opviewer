@@ -52,36 +52,41 @@
                         <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
                         <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m<sup>3</sup></td>
                     </tr>
-                    <tr>
-                        <td>Fuel consumed transit to park</td>
-                        <td>{{roundNumber(enginedata.fuelUsedDepartM3, 10)}} m<sup>3</sup></td>
-                    </tr>
-                    <tr>
-                        <td>Fuel consumed transit from park</td>
-                        <td>{{roundNumber(enginedata.fuelUsedReturnM3, 10)}} m<sup>3</sup></td>
-                    </tr>
-                    <tr>
-                        <td>Fuel consumed dockings</td>
-                        <td>{{roundNumber(enginedata.fuelUsedTransferM3, 10)}} m<sup>3</sup></td>
-                    </tr>
                 </table>
             </div>
             <div class="col-lg-4">
                 <table class="table table-bordered transitTable">
                     <tr>
-                        <th colspan="2"><h4>Engine stats</h4></th>
+                        <th colspan="2"><h4>Fuel stats</h4></th>
                     </tr>
                     <tr>
                         <td style="width: 50%">Fuel economy</td>
-                        <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+                        <td>{{roundNumber(general.FuelEcon, 1000)}}</td>
                     </tr>
                     <tr>
                         <td>Efficiency of the trip</td>
-                        <td>[insert interesting trip efficiency number]</td>
+                        <td>{{roundNumber((91.4 / enginedata.fuelUsedTotalM3 ), 100)}}</td>
                     </tr>
                     <tr>
                         <td>Vessel fuel profiles</td>
-                        <td>[insert interesting profile]</td>
+                        <td><button type="button" class="btn btn-outline-primary">Open fuel profile
+                          </button></td>
+                    </tr>
+                    <tr>
+                        <td>Fuel consumed transit to park</td>
+                        <td>{{roundNumber(enginedata.fuelUsedDepartM3, 1000)}} m<sup>3</sup></td>
+                    </tr>
+                    <tr>
+                        <td>Fuel consumed transit from park</td>
+                        <td>{{roundNumber(enginedata.fuelUsedReturnM3, 1000)}} m<sup>3</sup></td>
+                    </tr>
+                    <tr>
+                        <td>Fuel consumed dockings</td>
+                        <td>{{roundNumber(enginedata.fuelUsedTransferM3, 1000)}} m<sup>3</sup></td>
+                    </tr>
+                    <tr>
+                        <td>Fuel consumed other</td>
+                        <td>{{roundNumber(enginedata.fuelOther, 1000)}} m<sup>3</sup></td>
                     </tr>  
                     <tr>
                         <td>Co2 emission</td>
@@ -121,7 +126,7 @@
             <div class="col-lg-4">
                 <table class="table table-bordered transitTable">
                     <tr>
-                        <th colspan="2"><h4>Vessel perfomance</h4></th>
+                        <th colspan="2"><h4>Vessel performance</h4></th>
                     </tr>
                     <tr>
                         <td style="width: 50%">Avg. speed outbound</td>
@@ -138,6 +143,10 @@
                     <tr>
                         <td>Max. speed inbound</td>
                         <td>{{general.AvgSpeedInboundUnrestricted}}</td>
+                    </tr>
+                    <tr>
+                        <td>Number of dockings</td>
+                        <td>{{roundNumber(general.numDockings, 1)}}</td>
                     </tr>
                     <tr>
                         <td>Average docking time</td>
