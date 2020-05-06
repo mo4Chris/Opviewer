@@ -64,13 +64,13 @@ export class SettingsService {
         } else {
             switch (timezone) {
                 case 'vessel':
-                    return vesselOffsetHours;
+                    return +vesselOffsetHours;
                 case 'own':
-                    return this.localTimeZoneOffset;
+                    return +this.localTimeZoneOffset;
                 case 'utc':
                     return 0;
                 case 'custom':
-                  return this.fixedTimeZoneOffset;
+                  return +this.fixedTimeZoneOffset;
                 default:
                     console.error('Invalid timezone setting!');
             }

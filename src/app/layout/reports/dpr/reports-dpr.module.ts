@@ -21,7 +21,7 @@ import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
 import { SovreportModule } from './sov/sovreport.module';
-import { CtvslipgraphComponent } from './models/ctvslipgraph/ctvslipgraph.component';
+import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.component';
 
 @NgModule({
     imports: [

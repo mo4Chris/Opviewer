@@ -52,8 +52,7 @@ export class CtvreportComponent implements OnInit {
   videoBudget;
   noTransits;
   general = {};
-  XYvars = [];
-  charts = [];
+  
   vessels;
   noPermissionForData;
   vessel;
@@ -98,6 +97,7 @@ export class CtvreportComponent implements OnInit {
   visitedPark = '';
 
   public showAlert = false;
+  public vesselUtcOffset: number;
   alert = { type: '', message: '' };
   timeout;
 
@@ -287,48 +287,6 @@ export class CtvreportComponent implements OnInit {
           this.visitedPark = transfers[0] ? transfers[0].fieldname : '';
           // ToDo: map this to the nice fieldname & make sure to handle v2v events etc. (maybe use mode if multipe?)
           this.transferData = transfers;
-          if (transfers !== 0) {
-            this.XYvars = [];
-            const XYTempvars = [];
-            for (let i = 0; i < transfers.length; i++) {
-              if (transfers[i].slipGraph !== undefined) {
-                XYTempvars.push([]);
-                responseTimes.push([]);
-                for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
-
-                  XYTempvars[i].push({ x: this.dateTimeService.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
-
-                  if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
-                    responseTimes[i].push(_i);
-                    isTransfering = true;
-                  } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
-                    responseTimes[i].push(_i);
-                    isTransfering = false;
-                  }
-                }
-              }
-            }
-            for (let i = 0; i < transfers.length; i++) {
-              this.XYvars.push([]);
-
-              if (responseTimes.length !== 0) {
-                for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++ , _j++) {
-                  let pointColor;
-                  pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
-                  const BorderColor = 'rgba(0, 0, 0, 0)';
-
-                  this.XYvars[i].push({ data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0 });
-                  if (_i === 0) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
-                  } else if (_i === responseTimes[i].length) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
-                  } else {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
-                  }
-                }
-              }
-            }
-          }
         }),
       catchError(error => {
         console.log('error ' + error);
@@ -343,16 +301,6 @@ export class CtvreportComponent implements OnInit {
   createSeperateTimes() {
     this.allHours = this.dateTimeService.createHoursTimes();
     this.all5Minutes = this.dateTimeService.createFiveMinutesTimes();
-  }
-
-
-  createCharts(lineData) {
-    for (let j = 0; j < lineData.length; j++) {
-      if (lineData[j].data.datasets[0].data.length > 0) {
-        const tempChart = new Chart('canvas' + j, lineData[j]);
-        this.charts.push(tempChart);
-      }
-    }
   }
 
   getDatesWithTransfers(date) {
@@ -493,7 +441,8 @@ export class CtvreportComponent implements OnInit {
         const _general: CTVGeneralStatsModel = general.data[0];
         if (_general.utcOffset) {
           // General stats utc offset is in days
-          this.dateTimeService.vesselOffsetHours = 24 * _general.utcOffset;
+          this.vesselUtcOffset = _general.utcOffset;
+          this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
         }
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;

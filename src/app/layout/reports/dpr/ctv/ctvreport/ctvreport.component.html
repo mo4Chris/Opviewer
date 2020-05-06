@@ -234,7 +234,7 @@
                 <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
             </div> -->
             <app-ctvslipgraph *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX.length>0"
-                [index]="ind" [transfer]="transfer_Data" [XYvar]="XYvars[ind]"></app-ctvslipgraph>
+                [index]="ind" [transfer]="transfer_Data" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>
     </div>
     <div class="videoRequestLoading" *ngIf="videoRequestLoading">
