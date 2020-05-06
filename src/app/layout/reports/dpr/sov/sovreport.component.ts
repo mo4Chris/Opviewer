@@ -54,6 +54,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hasGeneral = false;
   hasMissedtransfers = false;
 
+  vesselUtcOffset = 0;
   dateData = { general: undefined, transfer: undefined };
 
   // used for comparison in the HTML
@@ -119,7 +120,10 @@ export class SovreportComponent implements OnInit, OnChanges {
           this.sovModel.sovInfo = sov[0];
           if (sov[0].utcOffset) {
             // sov utc offset is in days
-            this.datetimeService.vesselOffsetHours = 24 * sov[0].utcOffset;
+            this.vesselUtcOffset = 24 * sov[0].utcOffset || 0;
+            this.datetimeService.vesselOffsetHours = this.vesselUtcOffset;
+          } else {
+            this.vesselUtcOffset = 0;
           }
           this.getWaveSpectrumAvailable();
           forkJoin([

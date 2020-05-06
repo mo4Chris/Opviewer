@@ -1748,7 +1748,6 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-
             SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { transfers: req.body.transfers },
                 function(err, data) {
                     if (err) {
