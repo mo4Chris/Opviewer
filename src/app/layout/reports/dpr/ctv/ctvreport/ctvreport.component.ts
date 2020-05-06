@@ -536,8 +536,6 @@ export class CtvreportComponent implements OnInit {
   }
 
   getEngineStats() {
-    console.log('enter Engine Stats');
-
     return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).subscribe(data => {
       if (data.length > 0) {
         this.enginedata = data[0];
