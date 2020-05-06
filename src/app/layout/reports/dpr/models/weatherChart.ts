@@ -20,6 +20,7 @@ export class WeatherOverviewChart {
   ];
 
   Chart: Chart;
+  private timeLabel: string;
 
   constructor(
     args: WeatherChartArguments,
@@ -48,6 +49,12 @@ export class WeatherOverviewChart {
         y: y_mean
       };
     };
+    
+    if (args.utcOffset){
+      this.timeLabel = 'Time (UTC +' + args.utcOffset + ')';
+    } else {
+      this.timeLabel = 'Time';
+    }
 
     // Fixing dset units
     const dsets = this.sortByAxisID(args.dsets);
@@ -96,7 +103,7 @@ export class WeatherOverviewChart {
           xAxes: [{
             scaleLabel: {
               display: true,
-              labelString: 'Local time'
+              labelString: this.timeLabel
             },
             type: 'time',
             time: {
@@ -294,4 +301,5 @@ interface WeatherChartArguments {
   dsets: any[];
   timeStamps: Moment[];
   wavedataSourceName?: string;
+  utcOffset?: number;
 }
