@@ -73,6 +73,7 @@ export class CtvreportComponent implements OnInit {
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   toolboxConducted = [];
   hseOptions = [];
+  enginedata = {};
 
 
   generalInputStats = {
@@ -148,6 +149,7 @@ export class CtvreportComponent implements OnInit {
                 }
                 this.matchCommentsWithTransfers();
                 this.getGeneralStats();
+                this.getEngineStats();
               });
             });
           });
@@ -531,6 +533,29 @@ export class CtvreportComponent implements OnInit {
         throw error;
       })
     );
+  }
+
+  getEngineStats() {
+    console.log('enter Engine Stats');
+
+    return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).subscribe(data => {
+      if (data.length > 0) {
+        this.enginedata = data[0];
+      } else {
+        this.enginedata = {
+          c02TotalKg: 0,
+          fuelPerHour: 0,
+          fuelPerHourDepart: 0,
+          fuelPerHourReturn: 0,
+          fuelPerHourTotal: 0,
+          fuelPerHourTransfer: 0,
+          fuelUsedDepartM3: 0,
+          fuelUsedReturnM3: 0,
+          fuelUsedTotalM3: 0,
+          fuelUsedTransferM3: 0,
+        };
+      }
+    });
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
