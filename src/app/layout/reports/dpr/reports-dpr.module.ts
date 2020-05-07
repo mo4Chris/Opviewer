@@ -22,6 +22,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
 import { SovreportModule } from './sov/sovreport.module';
 import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.component';
+import { CtvSummaryComponent } from './ctv/ctv-summary/ctv-summary.component';
 
 @NgModule({
     imports: [
@@ -39,7 +40,7 @@ import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.co
         SharedPipesModule,
         SovreportModule,
     ],
-    declarations: [CtvreportComponent, ReportsDprComponent, CtvslipgraphComponent],
+    declarations: [CtvreportComponent, ReportsDprComponent, CtvslipgraphComponent, CtvSummaryComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [ReportsDprComponent],
     exports: [ReportsDprComponent],

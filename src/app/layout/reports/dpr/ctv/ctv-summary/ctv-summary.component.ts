@@ -1,0 +1,57 @@
+import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
+import { CTVGeneralStatsModel } from '../../models/generalstats.model';
+import { TokenModel } from '@app/models/tokenModel';
+import { AlertService } from '@app/supportModules/alert.service';
+import { CommonService } from '@app/common.service';
+import { map, catchError } from 'rxjs/operators';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+
+@Component({
+  selector: 'app-ctv-summary',
+  templateUrl: './ctv-summary.component.html',
+  styleUrls: ['./ctv-summary.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CtvSummaryComponent implements OnChanges {
+  @Input() general: CTVGeneralStatsModel
+  @Input() generalInputStats: CTVGeneralStatsModel
+  @Input() engine: CTVGeneralStatsModel
+  @Input() tokenInfo: TokenModel // ToDo remove in favour of permission service
+
+  constructor(
+    private alert: AlertService,
+    private newService: CommonService,
+    private dateService: DatetimeService,
+    private calcService: CalculationService,
+    private permission: PermissionService,
+  ) { }
+
+  ngOnChanges() {
+  }
+
+  saveGeneralStats() {
+    // ToDo We need some way to trigger this function
+    this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
+      map(res => {
+        this.alert.sendAlert({text: res.data, type: 'success'});
+      }),
+      catchError(error => {
+        this.alert.sendAlert({text: error, type: 'danger'});
+        throw error;
+      })).subscribe();
+  }
+
+  getMatlabDateToJSTime(serial) {
+    return this.dateService.MatlabDateToJSTime(serial);
+  }
+
+  roundNumber(number, decimal = 10, addString = '') {
+    return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
+  }
+
+  getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
+    return this.dateService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
+  }
+}

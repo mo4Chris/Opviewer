@@ -13,6 +13,7 @@ import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstats.model';
 import { SettingsService } from '../../../../../supportModules/settings.service';
 import { forkJoin } from 'rxjs';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-ctvreport',
@@ -99,8 +100,6 @@ export class CtvreportComponent implements OnInit {
 
   public showAlert = false;
   public vesselUtcOffset: number;
-  alert = { type: '', message: '' };
-  timeout;
 
   constructor(
     private newService: CommonService,
@@ -108,6 +107,7 @@ export class CtvreportComponent implements OnInit {
     private modalService: NgbModal,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
+    private alert: AlertService,
   ) {
   }
 
@@ -530,24 +530,6 @@ export class CtvreportComponent implements OnInit {
     this.generalInputStats.customInput = '-';
   }
 
-  saveGeneralStats() {
-    this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
-      map(res => {
-        this.alert.type = 'success';
-        this.alert.message = res.data;
-      }),
-      catchError(error => {
-        this.alert.type = 'danger';
-        this.alert.message = error;
-        throw error;
-      })).subscribe(data => {
-        this.showAlert = true;
-        this.timeout = setTimeout(() => {
-          this.showAlert = false;
-        }, 7000);
-      });
-  }
-
   matchVideoRequestWithTransfer(transfer): VideoRequestModel {
     let vid: VideoRequestModel;
     if (!this.videoRequests) {
@@ -625,17 +607,14 @@ export class CtvreportComponent implements OnInit {
         .saveVideoRequest(transferData)
         .pipe(
           map(res => {
-            this.alert.type = 'success';
-            this.alert.message = res.data;
+            this.alert.sendAlert({text: res.data, type: 'success'});
             transferData.formChanged = false;
           }),
           catchError(error => {
-            this.alert.type = 'danger';
-            this.alert.message = error;
+            this.alert.sendAlert({text: error, type: 'danger'});
             throw error;
           })
-        )
-        .subscribe(_ => {
+        ).subscribe(_ => {
           this.getVideoRequests(this.vesselObject).subscribe(__ => {
             for (let i = 0; i < this.transferData.length; i++) {
               this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(
@@ -647,11 +626,6 @@ export class CtvreportComponent implements OnInit {
           this.newService
             .getVideoBudgetByMmsi(this.vesselObject)
             .subscribe(data => (this.videoBudget = data[0]));
-          clearTimeout(this.timeout);
-          this.showAlert = true;
-          this.timeout = setTimeout(() => {
-            this.showAlert = false;
-          }, 7000);
         });
     }
   }
@@ -666,23 +640,14 @@ export class CtvreportComponent implements OnInit {
       .saveTransfer(transferData)
       .pipe(
         map(res => {
-          this.alert.type = 'success';
-          this.alert.message = res.data;
+          this.alert.sendAlert({text: res.data, type: 'success'});
           transferData.formChanged = false;
         }),
         catchError(error => {
-          this.alert.type = 'danger';
-          this.alert.message = error;
+            this.alert.sendAlert({text: error, type: 'danger'});
           throw error;
         })
-      )
-      .subscribe(_ => {
-        clearTimeout(this.timeout);
-        this.showAlert = true;
-        this.timeout = setTimeout(() => {
-          this.showAlert = false;
-        }, 7000);
-      });
+      ).subscribe();
   }
 }
 
