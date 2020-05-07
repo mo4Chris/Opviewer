@@ -67,7 +67,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   applyTimeOffsetToMoment(_moment: moment.Moment) {
     // moment.utcOffset expects minutes, our application expects hours
-    _moment.utcOffset(60 * +this.setting.getTimeOffset(this.vesselOffsetHours));
+    _moment.utcOffset(60 * +this.setting.getTimeOffset(this.vesselOffsetHours, _moment));
   }
 
   MatlabDateToJSTime(serial: number): string {
