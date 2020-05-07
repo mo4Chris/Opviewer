@@ -20,6 +20,12 @@ export class CtvSummaryComponent implements OnChanges {
   @Input() engine: CTVGeneralStatsModel
   @Input() tokenInfo: TokenModel // ToDo remove in favour of permission service
 
+  
+  toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
+    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
+    'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
+  drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
+
   constructor(
     private alert: AlertService,
     private newService: CommonService,

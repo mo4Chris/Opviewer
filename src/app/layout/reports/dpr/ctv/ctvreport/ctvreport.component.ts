@@ -42,10 +42,6 @@ export class CtvreportComponent implements OnInit {
   videoRequestLoading = false;
 
   transferData;
-  commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-    'Incident', 'Embarkation', 'Vessel2Vessel',
-    'Too much wind for craning', 'Trial docking',
-    'Transfer of PAX not possible', 'Other'];
   commentsChanged;
   changedCommentObj = { newComment: '', otherComment: '' };
 
@@ -55,7 +51,7 @@ export class CtvreportComponent implements OnInit {
   general = {};
   
   vessels;
-  noPermissionForData;
+  noPermissionForData: boolean;
   vessel;
   times = [];
   allHours = [];
@@ -68,10 +64,6 @@ export class CtvreportComponent implements OnInit {
     allowSearchFilter: true,
     singleSelection: false
   };
-  toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
-    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
-    'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
-  drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   toolboxConducted = [];
   hseOptions = [];
   enginedata = {};
@@ -146,12 +138,10 @@ export class CtvreportComponent implements OnInit {
           this.newService.getVideoBudgetByMmsi(this.vesselObject),
           this.getEngineStats(),
         ).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine]) => {
-          if (_videoBudget[0]) {
-            this.videoBudget = _videoBudget[0];
-          } else {
-            this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-          }
-          this.matchCommentsWithTransfers();
+          this.videoBudget = _videoBudget[0] || { maxBudget: -1, currentBudget: -1 };
+          this.matchCommentsWithTransfers(_transfers); // Requires video budget
+          this.transferData = _transfers; // Needs to happen after match comments!
+          this.enginedata = _engine;
           this.getGeneralStats();
           if (this.transferData.length > 0) {
             this.newService.getDistinctFieldnames({
@@ -284,8 +274,7 @@ export class CtvreportComponent implements OnInit {
       map(
         (transfers) => {
           this.visitedPark = transfers[0] ? transfers[0].fieldname : '';
-          // ToDo: map this to the nice fieldname & make sure to handle v2v events etc. (maybe use mode if multipe?)
-          this.transferData = transfers;
+          return transfers;
         }),
       catchError(error => {
         console.log('error ' + error);
@@ -394,9 +383,9 @@ export class CtvreportComponent implements OnInit {
     return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).pipe(
       map(data => {
         if (data.length > 0) {
-          this.enginedata = data[0];
+          return data[0];
         } else {
-          this.enginedata = {
+          return {
             c02TotalKg: 0,
             fuelPerHour: 0,
             fuelPerHourDepart: 0,
@@ -424,25 +413,21 @@ export class CtvreportComponent implements OnInit {
     );
   }
 
-  matchCommentsWithTransfers() {
-    for (let i = 0; i < this.transferData.length; i++) {
-      this.transferData[i].oldComment = this.transferData[i].comment;
-      this.transferData[i].showCommentChanged = false;
-      this.transferData[i].commentChanged = this.changedCommentObj;
-      this.transferData[i].formChanged = false;
-      this.transferData[
-        i
-      ].video_requested = this.matchVideoRequestWithTransfer(
-        this.transferData[i]
-      );
+  matchCommentsWithTransfers(_transfers) {
+    for (let i = 0; i < _transfers.length; i++) {
+      _transfers[i].oldComment = _transfers[i].comment;
+      _transfers[i].showCommentChanged = false;
+      _transfers[i].commentChanged = this.changedCommentObj;
+      _transfers[i].formChanged = false;
+      _transfers[i].video_requested = this.matchVideoRequestWithTransfer(_transfers[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (
-          this.transferData[i]._id ===
+          _transfers[i]._id ===
           this.commentsChanged[j].idTransfer
         ) {
-          this.transferData[i].commentChanged = this.commentsChanged[j];
-          this.transferData[i].comment = this.commentsChanged[j].newComment;
-          this.transferData[i].showCommentChanged = true;
+          _transfers[i].commentChanged = this.commentsChanged[j];
+          _transfers[i].comment = this.commentsChanged[j].newComment;
+          _transfers[i].showCommentChanged = true;
           this.commentsChanged.splice(j, 1);
         }
       }
