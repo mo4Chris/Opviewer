@@ -6,7 +6,7 @@ import { DatetimeService } from '../../../supportModules/datetime.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../shared/services/user.service';
 import { CommonService } from '../../../common.service';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 @Component({
     selector: 'app-fleets',

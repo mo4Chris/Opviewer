@@ -92,7 +92,7 @@ export class SovDcTransfersComponent implements OnChanges {
   }
 
   saveTransfers() {
-    this.transfers.forEach(_transfer => {
+    this.missedTransfers.forEach(_transfer => {
       _transfer.paxIn = _transfer.paxIn || 0;
       _transfer.paxOut = _transfer.paxOut || 0;
       _transfer.cargoIn = _transfer.cargoIn || 0;

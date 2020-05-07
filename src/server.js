@@ -322,6 +322,24 @@ var SovVessel2vesselTransfers = new Schema({
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
+var engineData = new Schema({
+    date: { type: Number },
+    mmsi: { type: Number },
+    c02TotalKg: { type: Number },
+    fuelPerHour: { type: Array },
+    fuelPerHourDepart: { type: Number },
+    fuelPerHourReturn: { type: Number },
+    fuelPerHourTotal: { type: Number },
+    fuelPerHourTransfer: { type: Number },
+    fuelUsedDepartM3: { type: Number },
+    fuelUsedReturnM3: { type: Number },
+    fuelUsedTotalM3: { type: Number },
+    fuelUsedTransferM3: { type: Number },
+    speed: { type: Array },
+    timeStamp: { type: Array },
+});
+var engineDatamodel = mongo.model('engine', engineData, 'engine');
+
 var SovDprInput = new Schema({
     liquids: { type: Object },
     toolbox: { type: Array },
@@ -818,7 +836,8 @@ app.post("/api/saveTransfer", function(req, res) {
                     paxUp: req.body.paxUp,
                     paxDown: req.body.paxDown,
                     cargoUp: req.body.cargoUp,
-                    cargoDown: req.body.cargoDown
+                    cargoDown: req.body.cargoDown,
+                    comment: req.body.comment,
                 }, function(err, data) {
                     if (err) {
                         res.send(err);
@@ -1072,6 +1091,27 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function(req, res) {
             if (err) {
                 res.send(err);
             } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        engineDatamodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            } else {
+                console.log(data);
                 res.send(data);
             }
         });
@@ -1748,7 +1788,6 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-
             SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { transfers: req.body.transfers },
                 function(err, data) {
                     if (err) {

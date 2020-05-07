@@ -73,6 +73,7 @@ export class CtvreportComponent implements OnInit {
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   toolboxConducted = [];
   hseOptions = [];
+  enginedata = {};
 
 
   generalInputStats = {
@@ -143,7 +144,8 @@ export class CtvreportComponent implements OnInit {
           this.getComments(this.vesselObject),
           this.getVideoRequests(this.vesselObject),
           this.newService.getVideoBudgetByMmsi(this.vesselObject),
-        ).subscribe(([_transfers, _comments, _videoRequests, data]) => {
+          this.getEngineStats(),
+        ).subscribe(([_transfers, _comments, _videoRequests, data, _engine]) => {
           if (data[0]) {
             this.videoBudget = data[0];
           } else {
@@ -389,6 +391,28 @@ export class CtvreportComponent implements OnInit {
         throw error;
       })
     );
+  }
+
+  getEngineStats() {
+    return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).pipe(
+      map(data => {
+        if (data.length > 0) {
+          this.enginedata = data[0];
+        } else {
+          this.enginedata = {
+            c02TotalKg: 0,
+            fuelPerHour: 0,
+            fuelPerHourDepart: 0,
+            fuelPerHourReturn: 0,
+            fuelPerHourTotal: 0,
+            fuelPerHourTransfer: 0,
+            fuelUsedDepartM3: 0,
+            fuelUsedReturnM3: 0,
+            fuelUsedTotalM3: 0,
+            fuelUsedTransferM3: 0,
+          };
+        }
+    }));
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
