@@ -145,9 +145,9 @@ export class CtvreportComponent implements OnInit {
           this.getVideoRequests(this.vesselObject),
           this.newService.getVideoBudgetByMmsi(this.vesselObject),
           this.getEngineStats(),
-        ).subscribe(([_transfers, _comments, _videoRequests, data, _engine]) => {
-          if (data[0]) {
-            this.videoBudget = data[0];
+        ).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine]) => {
+          if (_videoBudget[0]) {
+            this.videoBudget = _videoBudget[0];
           } else {
             this.videoBudget = { maxBudget: -1, currentBudget: -1 };
           }
@@ -280,9 +280,6 @@ export class CtvreportComponent implements OnInit {
   }
 
   getTransfersForVessel() {
-    let isTransfering = false;
-    const responseTimes = [];
-
     return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
       map(
         (transfers) => {

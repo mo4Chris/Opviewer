@@ -28,7 +28,7 @@ describe('Settings service', () => {
     expect(errorSpy).toHaveBeenCalledTimes(0);
   });
 
-  fit('Should return correct time offsets', () => {
+  it('Should return correct time offsets', () => {
     service.Timezone = 'utc'
     expect(service.getTimeOffset()).toEqual(0);
     // DST = 29 MAR - 25 OCT
