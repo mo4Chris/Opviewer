@@ -77,7 +77,7 @@ export class SettingsService {
         } else {
             switch (timezone) {
                 case 'vessel':
-                    return +vesselOffsetHours;
+                    return +vesselOffsetHours || 0;
                 case 'own':
                     return +this.localTimeZoneOffset;
                 case 'utc':
@@ -88,7 +88,8 @@ export class SettingsService {
                     // ToDo: implement timezone coding?
                     const T = moment.tz(date, this.fixedTimeZoneLoc)
                     const timezoneOffset = T._offset/60;
-                    // console.log(T)
+                    console.log(T)
+                    console.log(date)
                     // console.log(T._d.getTimezoneOffset())
                     return timezoneOffset;
                 default:

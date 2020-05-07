@@ -72,7 +72,6 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   MatlabDateToJSTime(serial: number): string {
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
-
     if (serialMoment.isValid()) {
       let time_info;
       if (this.setting.Timezone === 'timezone') {
