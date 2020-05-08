@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 import { TokenModel } from '@app/models/tokenModel';
 import { CommonService } from '@app/common.service';
@@ -10,12 +10,16 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 @Component({
   selector: 'app-ctv-turbine-transfer',
   templateUrl: './ctv-turbine-transfer.component.html',
-  styleUrls: ['./ctv-turbine-transfer.component.scss'],
+  styleUrls: [
+    './ctv-turbine-transfer.component.scss',
+    '../ctvreport/ctvreport.component.scss',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CtvTurbineTransferComponent implements OnInit, OnChanges {
   @Input() transfers: TurbineTransfer[]
   @Input() tokenInfo: TokenModel
+  @Output() onVideoRequest = new EventEmitter();
 
   
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
@@ -57,6 +61,9 @@ export class CtvTurbineTransferComponent implements OnInit, OnChanges {
       ).subscribe();
   }
 
+  setRequest(transfer: any) {
+    this.onVideoRequest.emit(transfer);
+  }
   
   getMatlabDateToJSTime(serial) {
     return this.dateService.MatlabDateToJSTime(serial);

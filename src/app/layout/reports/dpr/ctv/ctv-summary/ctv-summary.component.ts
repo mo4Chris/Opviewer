@@ -11,7 +11,10 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 @Component({
   selector: 'app-ctv-summary',
   templateUrl: './ctv-summary.component.html',
-  styleUrls: ['./ctv-summary.component.scss'],
+  styleUrls: [
+    './ctv-summary.component.scss',
+    '../ctvreport/ctvreport.component.scss',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvSummaryComponent implements OnChanges {

@@ -36,7 +36,8 @@
     </div>
 
     <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
-        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"></app-ctv-turbine-transfer>
+        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
+          (onVideoRequest)="setRequest($event)"></app-ctv-turbine-transfer>
     </div>
     <div class="row singlepage-print singlepage-print-port"></div>
     <div class="row singlepage-print singlepage-print-port">
