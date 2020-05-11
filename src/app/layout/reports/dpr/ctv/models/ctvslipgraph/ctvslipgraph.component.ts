@@ -167,7 +167,6 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
       }
     })
     addDataset(temp);
-    // console.log(datas)
     return datas;
   }
 
