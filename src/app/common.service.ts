@@ -320,6 +320,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  updateSOVv2vTurbineTransfers(ctvInfo: v2vTurbineTransferInfo) {
+    return this.post('/api/updateSOVv2vTurbineTransfers', {info: ctvInfo}).pipe(
+      map((response) => response.json()))
+  }
+
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
     return this.post('/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
       map((response: Response) => response.json()));
@@ -609,3 +614,16 @@ export interface SovDprSignOrRefuseModel {
   vesselName: string;
   feedback?: string;
 }
+interface v2vTurbineTransferInfo {
+  mmsi: number;
+  date: number;
+  turbineTransfers: v2vTurbineTransfer[];
+  map ?: any;
+ }
+interface v2vTurbineTransfer {
+  startTime: number;
+  stopTime: number;
+  durationMinutes: number;
+  fieldname: string;
+  location: string;
+ }
