@@ -16,7 +16,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CtvTurbineTransferComponent implements OnInit, OnChanges {
+export class CtvTurbineTransferComponent {
   @Input() transfers: TurbineTransfer[]
   @Input() tokenInfo: TokenModel
   @Output() onVideoRequest = new EventEmitter();
@@ -33,13 +33,6 @@ export class CtvTurbineTransferComponent implements OnInit, OnChanges {
     private calcService: CalculationService,
     private dateService: DatetimeService,
   ) { }
-
-  ngOnInit() {
-  }
-
-  ngOnChanges() {
-
-  }
 
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {

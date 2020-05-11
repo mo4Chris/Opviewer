@@ -17,7 +17,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CtvSummaryComponent implements OnChanges {
+export class CtvSummaryComponent {
   @Input() general: CTVGeneralStatsModel
   @Input() generalInputStats: CTVGeneralStatsModel
   @Input() engine: CTVGeneralStatsModel
@@ -36,9 +36,6 @@ export class CtvSummaryComponent implements OnChanges {
     private calcService: CalculationService,
     private permission: PermissionService,
   ) { }
-
-  ngOnChanges() {
-  }
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function

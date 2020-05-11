@@ -42,13 +42,6 @@
     <div class="row singlepage-print singlepage-print-port"></div>
     <div class="row singlepage-print singlepage-print-port">
         <div class="col-lg-7 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
-            <!-- <span *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX.length > 0">
-                <h3>Transfer: #{{ind + 1}} - location: {{transfer_Data.location}} - Score:
-                    {{roundNumber(transfer_Data.score, 10)}}</h3>
-            </span>
-            <div class="chartContainer">
-                <canvas *ngIf="transfer_Data.slipGraph !== undefined && transfer_Data.slipGraph.slipX && transfer_Data.slipGraph.slipX.length !== undefined" id="canvas{{ind}}">{{charts[ind]}}</canvas>
-            </div> -->
             <app-ctvslipgraph *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX.length>0"
                 [index]="ind" [transfer]="transfer_Data" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>
