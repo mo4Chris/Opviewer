@@ -79,12 +79,25 @@ var userActivitySchema = new Schema({
 var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
 
 var VesselsSchema = new Schema({
+    mmsi: { type: String },
+    nicename: { type: String },
+    client: { type: Array },
+    mmsi: { type: Number },
+    active: {type: Boolean},
+    operationsClass: {type: String},
+}, { versionKey: false });
+var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
+
+var SovInfoSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
     client: { type: Array },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    active: {type: Boolean},
+    operationsClass: {type: String},
+    daughtercraft_mmsi: {type: Number},
 }, { versionKey: false });
-var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
+var SovInfomodel = mongo.model('sovInfo', SovInfoSchema, 'sovInfo');
 
 var TransferSchema = new Schema({
     mmsi: { type: Number },
@@ -315,10 +328,6 @@ var SovVessel2vesselTransfers = new Schema({
     CTVactivity: { type: Object },
     date: { type: Number },
     mmsi: { type: Number },
-    paxIn: { type: Number },
-    paxOut: { type: Number },
-    cargoIn: { type: Number },
-    cargoOut: { type: Number }
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
@@ -1111,7 +1120,6 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                console.log(data);
                 res.send(data);
             }
         });
@@ -1805,6 +1813,27 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
                 });
         }
     });
+});
+
+app.post("/api/getSovInfo/", function (req, res) {
+    // Updates transfer info turbine transfers by DC craft.
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovInfomodel.find({
+                mmsi: req.body.mmsi
+            }, 
+            function(err, data) {
+                if (err) {
+                    console.log('Error getting sov info')
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            });
+    }
+});
 });
 
 app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {

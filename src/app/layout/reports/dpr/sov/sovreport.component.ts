@@ -16,6 +16,7 @@ import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { DaughtercraftInfoModel } from './sov-dc-transfers/sov-dc-transfers.component';
 
 @Component({
   selector: 'app-sovreport',
@@ -34,6 +35,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   @Input() mapPixelWidth: number;
   @Input() printMode: number;
 
+
   sovModel: SovModel = new SovModel();
   dprInput;
   hseDprInput;
@@ -46,6 +48,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   showContent = false;
   hasDprData = false;
   hasDcEvents = false;
+  dcInfo: DaughtercraftInfoModel;
 
   activeTab = 'summary';
 
@@ -97,11 +100,13 @@ export class SovreportComponent implements OnInit, OnChanges {
       this.commonService.getSov(this.vesselObject),
       this.commonService.getSovDprInput(this.vesselObject),
       this.commonService.getSovHseDprInput(this.vesselObject),
+      this.commonService.getSovInfo(this.vesselObject),
     ).subscribe(
       ([
         sov,
         dprInput,
         hseDprInput,
+        sovInfo,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
         this.dprInput = dprInput[0];
@@ -111,6 +116,12 @@ export class SovreportComponent implements OnInit, OnChanges {
         
         this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
         this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
+        if (sovInfo[0]) {
+          this.dcInfo = {
+            mmsi: sovInfo[0].daughtercraft_mmsi,
+            nicename: sovInfo[0].daughtercraft_nicename
+          } 
+        }
 
         if (
           sov.length !== 0 &&
@@ -622,5 +633,6 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.fieldName = '';
     this.hseDprApproval = 0;
     this.dprApproval = 0;
+    this.dcInfo = null;
   }
 }

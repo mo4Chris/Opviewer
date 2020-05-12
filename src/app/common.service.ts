@@ -12,6 +12,7 @@ import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 
 @Injectable({
   providedIn: 'root',
@@ -320,8 +321,12 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  updateSOVv2vTurbineTransfers(ctvInfo: v2vTurbineTransferInfo) {
-    return this.post('/api/updateSOVv2vTurbineTransfers', {info: ctvInfo}).pipe(
+  updateSOVv2vTurbineTransfers(ctvInfo: {
+    update: V2vCtvActivity
+    mmsi: number;
+    date: number;
+  }) {
+    return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo).pipe(
       map((response) => response.json()))
   }
 
@@ -372,6 +377,11 @@ export class CommonService {
 
   sendFeedback(feedback: {message: string, page: string, person: any}) {
     return this.post('/api/sendFeedback/', feedback).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getSovInfo(vessel: VesselObjectModel) {
+    return this.post('/api/getSovInfo/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -614,16 +624,3 @@ export interface SovDprSignOrRefuseModel {
   vesselName: string;
   feedback?: string;
 }
-interface v2vTurbineTransferInfo {
-  mmsi: number;
-  date: number;
-  turbineTransfers: v2vTurbineTransfer[];
-  map ?: any;
- }
-interface v2vTurbineTransfer {
-  startTime: number;
-  stopTime: number;
-  durationMinutes: number;
-  fieldname: string;
-  location: string;
- }
