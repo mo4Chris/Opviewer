@@ -20,6 +20,9 @@ import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymen
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { LongtermBarGraphComponent } from './ctv/models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermTrendGraphComponent } from './ctv/models/longterm-trend-graph/longterm-trend-graph.component';
+import { LongtermScatterGraphComponent } from './ctv/models/longterm-scatter-graph/longterm-scatter-graph.component';
 
 @NgModule({
     imports: [
@@ -42,7 +45,10 @@ import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/sieme
         UtilizationGraphComponent,
         VesselinfoComponent,
         LongtermComponent,
-        SiemensKpiOverviewComponent
+        SiemensKpiOverviewComponent,
+        LongtermScatterGraphComponent,
+        LongtermBarGraphComponent,
+        LongtermTrendGraphComponent
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

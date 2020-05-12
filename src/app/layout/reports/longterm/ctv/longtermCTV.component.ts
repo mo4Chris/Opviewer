@@ -116,7 +116,7 @@ export class LongtermCTVComponent implements OnInit {
     }
 
     buildPageWithCurrentInformation() {
-        this.scatterPlot.vesselObject = this.vesselObject;
+        // this.scatterPlot.vesselObject = this.vesselObject;
         if (this.vesselObject.mmsi.length > 0) {
             this.getVesselLabels({
                 mmsi: this.vesselObject.mmsi,
@@ -125,12 +125,12 @@ export class LongtermCTVComponent implements OnInit {
                 dateMin: this.vesselObject.dateMin,
                 dateMax: this.vesselObject.dateMax
             }).subscribe(_ => {
-                this.getGraphDataPerComparison();
+                // this.getGraphDataPerComparison();
             });
         } else {
-            this.scatterPlot.destroyCurrentCharts();
+            // this.scatterPlot.destroyCurrentCharts();
         }
-        this.myChart = this.scatterPlot.myChart;
+        // this.myChart = this.scatterPlot.myChart;
     }
 
     // Data acquisition
