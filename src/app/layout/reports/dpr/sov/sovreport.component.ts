@@ -101,12 +101,17 @@ export class SovreportComponent implements OnInit, OnChanges {
       this.commonService.getSovDprInput(this.vesselObject),
       this.commonService.getSovHseDprInput(this.vesselObject),
       this.commonService.getSovInfo(this.vesselObject),
+      this.commonService.getVessel2vesselsForSov(
+        this.vesselObject.mmsi,
+        this.vesselObject.date
+      ),
     ).subscribe(
       ([
         sov,
         dprInput,
         hseDprInput,
         sovInfo,
+        vessel2vessels,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
         this.dprInput = dprInput[0];
@@ -146,10 +151,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject.mmsi,
               this.vesselObject.date
             ),
-            this.commonService.getVessel2vesselsForSov(
-              this.vesselObject.mmsi,
-              this.vesselObject.date
-            ),
             this.commonService.getCycleTimesForSov(
               this.vesselObject.mmsi,
               this.vesselObject.date
@@ -162,7 +163,6 @@ export class SovreportComponent implements OnInit, OnChanges {
             ([
               platformTransfers,
               turbineTransfers,
-              vessel2vessels,
               cycleTimes,
               sovFieldNames,
               platformLocations
@@ -178,7 +178,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.sovModel.platformTransfers = platformTransfers;
               this.sovModel.turbineTransfers = turbineTransfers;
               this.sovModel.cycleTimes = cycleTimes;
-              this.sovModel.vessel2vessels = vessel2vessels;
 
               // Setting cycle stats according to user settings -> this should be moved
               this.sovModel.cycleTimes.forEach(cycle => {
@@ -244,6 +243,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           if (sov.length > 0) {
             this.sovModel.sovInfo = sov[0];
           }
+          this.sovModel.vessel2vessels = vessel2vessels;
           // We need to load in the relevant hse / dpr Input data.
           this.hasGeneral = false;
           this.buildPageWhenAllLoaded();

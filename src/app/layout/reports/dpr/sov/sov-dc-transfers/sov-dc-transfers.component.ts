@@ -42,10 +42,6 @@ export class SovDcTransfersComponent implements OnChanges {
     this.transfers = [];
     this.missedTransfers = [];
     this.hasChanges = false;
-    console.log(this)
-    console.log(this.vessel2vessels)
-    console.log(this.vesselObject)
-
     if (this.dcInfo && this.dcInfo.mmsi) {
       this.vessel2vessels.forEach(v2vs => {
         v2vs.CTVactivity.forEach(_activity => {
@@ -99,7 +95,7 @@ export class SovDcTransfersComponent implements OnChanges {
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
       update: {
-        mmsi: this.dcInfo.mmsi,
+        mmsi: this.dcInfo.mmsi || 0,
         date: this.vesselObject.date,
         turbineVisits: this.transfers,
         missedVisits: this.missedTransfers,

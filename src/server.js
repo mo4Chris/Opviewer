@@ -1842,41 +1842,51 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            let info = req.body.info;
+            let info = req.body.update;
             SovVessel2vesselTransfersmodel.findOne({
-                mmsi: info.mmsi,
-                date: info.date,
+                mmsi: req.body.mmsi,
+                date: req.body.date,
                 active: { $ne: false }
-            }, 
-                function(err, v2v) {
-                    if (err) {
-                        res.send(err);
-                    } else {
-                        console.log(v2v);
-                        if (!isArray(v2v.CTVactivity)) {
-                            v2v.CTVactivity = [v2v.CTVactivity];
-                        }
-                        const match = v2v.CTVactivity.find(_act => _act.mmsi == info.mmsi);
-                        console.log(match)
-                        if (match) {
-                            match = {...match, ...info};
-                        } else {
-                            v2v.CTVactivity.push(info);
-                        }
-                        console.log(match)
-                        // SovVessel2vesselTransfersmodel.update({
-                        //     mmsi: info.mmsi,
-                        //     date: info.date,
-                        //     active: { $ne: false }
-                        // }, v2v, (err, data) => {
-                        //     if (err) {
-                        //         res.send(err);
-                        //     } {
-                        //         res.send({ data: "Succesfully saved the v2v transfer stats" });
-                        //     }
-                        // });
+            }, function(err, v2v) {
+                if (err) {
+                    console.log('Error in find using updateSOVv2vTurbineTransfers')
+                    res.send(err);
+                } else if (v2v) {
+                    if (!Array.isArray(v2v.CTVactivity)) {
+                        v2v.CTVactivity = [v2v.CTVactivity];
                     }
-                });
+                    let match = v2v.CTVactivity.find(_act => _act.mmsi == info.mmsi);
+                    if (match) {
+                        match = {...match, ...info};
+                    } else {
+                        v2v.CTVactivity.push(info);
+                    }
+                    SovVessel2vesselTransfersmodel.update({
+                        mmsi: req.body.mmsi,
+                        date: req.body.date,
+                        active: { $ne: false }
+                    }, v2v, (err, data) => {
+                        if (err) {
+                            res.send(err);
+                        } {
+                            res.send({ data: "Succesfully saved the v2v transfer stats" });
+                        }
+                    });
+                } else { // v2v does not yet exist
+                    new SovVessel2vesselTransfersmodel({
+                        mmsi: req.body.mmsi,
+                        date: req.body.date,
+                        CTVactivity: [info],
+                        transfers: [],
+                    }).save((err, data) => {
+                        if (err) {
+                            res.send(err);
+                        } {
+                            res.send({ data: "Succesfully saved the v2v transfer stats" });
+                        }
+                    });
+                }
+            });
         }
     });
 });
