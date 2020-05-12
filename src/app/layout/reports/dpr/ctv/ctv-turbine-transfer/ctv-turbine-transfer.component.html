@@ -1,0 +1,84 @@
+<h3>Dockings</h3>
+<table class="table table-hover table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Start time</th>
+      <th>Stop time</th>
+      <th>Duration</th>
+      <th>Max impact</th>
+      <th>Score</th>
+      <th>Location</th>
+      <th>Pax in / out</th>
+      <th>Cargo in / out</th>
+      <th>Comment</th>
+      <th>Detector</th>
+      <th class="plsdonotprintthisforfsake">save</th>
+      <th class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">
+        Video request
+        <button type="button" class="btn btn-outline-secondary helpBtn longtermModule" [autoClose]="true"
+          [ngbPopover]="helpVideoRequests" placement="bottom" popoverClass="helpPopup" container="body">?
+        </button>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let transfer_Data of transfers;let ind = index" ng-form="myForm">
+      <td>{{ind + 1}}</td>
+      <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
+      <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>
+      <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
+      <td>{{roundNumber((transfer_Data.impactForceNmax / 1000), 1, 'KN')}} </td>
+      <td>{{roundNumber(transfer_Data.score, 10)}}</td>
+      <td>{{transfer_Data.location}}</td>
+      <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+        <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-5 form-number"
+          [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br>
+        <input type="number" min="0" [value]="transfer_Data.paxDown" class="form-control-sm col-sm-5 form-number"
+          [(ngModel)]="transfer_Data.paxDown" (change)="transfer_Data.formChanged=true"> outgoing
+      </td>
+      <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+        <input type="number" min="0" step="10" [value]="transfer_Data.cargoUp" [(ngModel)]="transfer_Data.cargoUp"
+          class="form-control-sm col-sm-3 col-xl-6 form-number" (change)="transfer_Data.formChanged=true"> KG incoming
+        <br>
+        <input type="number" min="0" step="10" [value]="transfer_Data.cargoDown" [(ngModel)]="transfer_Data.cargoDown"
+          class="form-control-sm col-sm-3 col-xl-6 form-number" (change)="transfer_Data.formChanged=true"> KG outgoing
+      </td>
+      <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+        {{transfer_Data.paxUp}} incoming <br>
+        {{transfer_Data.paxDown}} outgoing
+      </td>
+      <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+        {{ transfer_Data.cargoUp }} KG incoming <br>
+        {{ transfer_Data.cargoDown}} KG outgoing
+      </td>
+      <td class="comment">
+        <span ngbDropdown class="d-inline-block dropdown">
+          <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'"
+            ngbDropdownToggle>
+            <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>
+          </button>
+          <span ngbDropdownMenu>
+            <button *ngFor="let opt of commentOptions" class="dropdown-item"
+              (click)="transfer_Data.comment = opt;transfer_Data.formChanged=true">{{opt}}</button>
+          </span>
+        </span>
+        <span *ngIf="transfer_Data.comment == 'Other'">
+          <input name="otherComment" [(ngModel)]="transfer_Data.commentChanged.otherComment" type="text"
+            class="form-control otherComment" (ngModelChange)="transfer_Data.formChanged=true" />
+        </span>
+      </td>
+      <td>{{transfer_Data.detector}}</td>
+      <td class="plsdonotprintthisforfsake">
+        <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveComment(transfer_Data)" type="button"
+          [disabled]="!transfer_Data.formChanged">Save</button>
+      </td>
+      <td class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">
+        <button *ngIf="transfer_Data.video_requested"
+          class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}"
+          (click)="setRequest(transfer_Data);" type="button"
+          [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

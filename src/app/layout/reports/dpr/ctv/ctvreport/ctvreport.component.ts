@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
@@ -13,11 +13,13 @@ import { TurbineTransfer } from '../../sov/models/Transfers/TurbineTransfer';
 import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstats.model';
 import { SettingsService } from '../../../../../supportModules/settings.service';
 import { forkJoin } from 'rxjs';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-ctvreport',
   templateUrl: './ctvreport.component.html',
-  styleUrls: ['./ctvreport.component.scss']
+  styleUrls: ['./ctvreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvreportComponent implements OnInit {
   @Output() mapZoomLvl: EventEmitter<number> = new EventEmitter<number>();
@@ -40,10 +42,6 @@ export class CtvreportComponent implements OnInit {
   videoRequestLoading = false;
 
   transferData;
-  commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
-    'Incident', 'Embarkation', 'Vessel2Vessel',
-    'Too much wind for craning', 'Trial docking',
-    'Transfer of PAX not possible', 'Other'];
   commentsChanged;
   changedCommentObj = { newComment: '', otherComment: '' };
 
@@ -51,10 +49,9 @@ export class CtvreportComponent implements OnInit {
   videoBudget;
   noTransits;
   general = {};
-  XYvars = [];
-  charts = [];
+  
   vessels;
-  noPermissionForData;
+  noPermissionForData: boolean;
   vessel;
   times = [];
   allHours = [];
@@ -67,10 +64,6 @@ export class CtvreportComponent implements OnInit {
     allowSearchFilter: true,
     singleSelection: false
   };
-  toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
-    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
-    'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
-  drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   toolboxConducted = [];
   hseOptions = [];
   enginedata = {};
@@ -98,8 +91,7 @@ export class CtvreportComponent implements OnInit {
   visitedPark = '';
 
   public showAlert = false;
-  alert = { type: '', message: '' };
-  timeout;
+  public vesselUtcOffset: number;
 
   constructor(
     private newService: CommonService,
@@ -107,6 +99,7 @@ export class CtvreportComponent implements OnInit {
     private modalService: NgbModal,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
+    private alert: AlertService,
   ) {
   }
 
@@ -138,31 +131,32 @@ export class CtvreportComponent implements OnInit {
 
     this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
-        this.getTransfersForVessel(this.vesselObject).subscribe(() => {
-          this.getComments(this.vesselObject).subscribe(() => {
-            this.getVideoRequests(this.vesselObject).subscribe(() => {
-              this.newService.getVideoBudgetByMmsi(this.vesselObject).subscribe(data => {
-                if (data[0]) {
-                  this.videoBudget = data[0];
-                } else {
-                  this.videoBudget = { maxBudget: -1, currentBudget: -1 };
-                }
-                this.matchCommentsWithTransfers();
-                this.getGeneralStats();
-                this.getEngineStats();
-              });
-            });
-          });
-
-          if (this.transferData.length !== 0) {
-            this.newService.getDistinctFieldnames({ 'mmsi': this.transferData[0].mmsi, 'date': this.transferData[0].date }).subscribe(data => {
-              this.newService.getSpecificPark({ 'park': data }).subscribe(locData => {
+        forkJoin(
+          this.getTransfersForVessel(),
+          this.getComments(this.vesselObject),
+          this.getVideoRequests(this.vesselObject),
+          this.newService.getVideoBudgetByMmsi(this.vesselObject),
+          this.getEngineStats(),
+        ).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine]) => {
+          this.videoBudget = _videoBudget[0] || { maxBudget: -1, currentBudget: -1 };
+          this.matchCommentsWithTransfers(_transfers); // Requires video budget
+          this.transferData = _transfers; // Needs to happen after match comments!
+          this.enginedata = _engine;
+          this.getGeneralStats();
+          if (this.transferData.length > 0) {
+            this.newService.getDistinctFieldnames({
+              mmsi: this.transferData[0].mmsi,
+              date: this.transferData[0].date 
+            }).subscribe(data => {
+              this.newService.getSpecificPark({
+                park: data
+              }).subscribe(locData => {
                 if (locData.length > 0) {
                   const locationData = {
-                    'turbineLocations': locData,
-                    'transfers': this.transferData,
-                    'type': '',
-                    'vesselType': 'CTV'
+                    turbineLocations: locData,
+                    transfers: this.transferData,
+                    type: '',
+                    vesselType: 'CTV'
                   };
                   this.turbineLocationData.emit(locationData);
                   this.parkFound.emit(true);
@@ -171,28 +165,6 @@ export class CtvreportComponent implements OnInit {
                 }
               });
             });
-          }
-          // when chartinfo has been generated create slipgraphs. If previously slipgraphes have existed destroy them before creating new ones.
-          if (this.charts.length <= 0) {
-            setTimeout(() => this.createSlipgraphs(), 10);
-          } else {
-            let deleteCharts = false;
-            for (let i = 0; i < this.transferData.length; i++) {
-              if (typeof this.transferData[i] !== 'undefined' && typeof this.transferData[i].slipGraph !== 'undefined' && typeof this.transferData[i].slipGraph.slipX !== 'undefined' && this.transferData[i].slipGraph.slipX.length > 0) {
-                deleteCharts = true;
-                break;
-              }
-            }
-            if (deleteCharts) {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
-              }
-              setTimeout(() => this.createSlipgraphs(), 10);
-            } else {
-              for (let i = 0; i < this.charts.length; i++) {
-                this.charts[i].destroy();
-              }
-            }
           }
         }, null, () => {
           this.showContent.emit(true);
@@ -297,130 +269,12 @@ export class CtvreportComponent implements OnInit {
     }
   }
 
-  createSlipgraphs() {
-    this.charts = [];
-    let createCharts = false;
-    for (let i = 0; i < this.transferData.length; i++) {
-      if (this.transferData[i].slipGraph !== undefined && this.transferData[i].slipGraph.slipX.length > 0) {
-        createCharts = true;
-        break;
-      }
-    }
-    if (this.transferData.length > 0 && createCharts) {
-      const array = [];
-      for (let i = 0; i < this.transferData.length; i++) {
-        const line = {
-          type: 'line',
-          data: {
-            datasets: this.XYvars[i]
-          },
-          options: {
-            scaleShowVerticalLines: false,
-            legend: false,
-            tooltips: false,
-            responsive: true,
-            elements: {
-              point:
-                { radius: 0 },
-              line:
-                { tension: 0 }
-            },
-            animation: {
-              duration: 0,
-            },
-            hover: {
-              animationDuration: 0,
-            },
-            responsiveAnimationDuration: 0,
-            scales: {
-              xAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Time'
-                },
-                type: 'time'
-              }],
-              yAxes: [{
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Slip (m)'
-                }
-              }]
-            },
-            annotation: {
-              annotations: [
-                {
-                  type: 'line',
-                  drawTime: 'afterDatasetsDraw',
-                  id: 'average',
-                  mode: 'horizontal',
-                  scaleID: 'y-axis-0',
-                  value: this.transferData[0].slipGraph.slipLimit,
-                  borderWidth: 2,
-                  borderColor: 'red'
-                }
-              ]
-            },
-          },
-        };
-        array.push(line);
-      }
-      this.createCharts(array);
-    }
-  }
-
-  getTransfersForVessel(vessel) {
-    let isTransfering = false;
-    const responseTimes = [];
-
+  getTransfersForVessel() {
     return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
       map(
         (transfers) => {
           this.visitedPark = transfers[0] ? transfers[0].fieldname : '';
-          // ToDo: map this to the nice fieldname & make sure to handle v2v events etc. (maybe use mode if multipe?)
-          this.transferData = transfers;
-          if (transfers !== 0) {
-            this.XYvars = [];
-            const XYTempvars = [];
-            for (let i = 0; i < transfers.length; i++) {
-              if (transfers[i].slipGraph !== undefined) {
-                XYTempvars.push([]);
-                responseTimes.push([]);
-                for (let _i = 0; _i < transfers[i].slipGraph.slipX.length; _i++) {
-
-                  XYTempvars[i].push({ x: this.dateTimeService.MatlabDateToUnixEpoch(transfers[i].slipGraph.slipX[_i]), y: transfers[i].slipGraph.slipY[_i] });
-
-                  if (isTransfering === false && transfers[i].slipGraph.transferPossible[_i] === 1) {
-                    responseTimes[i].push(_i);
-                    isTransfering = true;
-                  } else if (isTransfering === true && transfers[i].slipGraph.transferPossible[_i] === 0) {
-                    responseTimes[i].push(_i);
-                    isTransfering = false;
-                  }
-                }
-              }
-            }
-            for (let i = 0; i < transfers.length; i++) {
-              this.XYvars.push([]);
-
-              if (responseTimes.length !== 0) {
-                for (let _i = 0, _j = -1; _i < responseTimes[i].length + 1; _i++ , _j++) {
-                  let pointColor;
-                  pointColor = ((_i % 2 === 0) ? (pointColor = 'rgba(255, 0, 0, 0.4)') : (pointColor = 'rgba(0, 150, 0, 0.4)'));
-                  const BorderColor = 'rgba(0, 0, 0, 0)';
-
-                  this.XYvars[i].push({ data: [], backgroundColor: pointColor, borderColor: BorderColor, pointHoverRadius: 0 });
-                  if (_i === 0) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(0, responseTimes[i][_i]);
-                  } else if (_i === responseTimes[i].length) {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j]);
-                  } else {
-                    this.XYvars[i][_i].data = XYTempvars[i].slice(responseTimes[i][_j], responseTimes[i][_i]);
-                  }
-                }
-              }
-            }
-          }
+          return transfers;
         }),
       catchError(error => {
         console.log('error ' + error);
@@ -435,16 +289,6 @@ export class CtvreportComponent implements OnInit {
   createSeperateTimes() {
     this.allHours = this.dateTimeService.createHoursTimes();
     this.all5Minutes = this.dateTimeService.createFiveMinutesTimes();
-  }
-
-
-  createCharts(lineData) {
-    for (let j = 0; j < lineData.length; j++) {
-      if (lineData[j].data.datasets[0].data.length > 0) {
-        const tempChart = new Chart('canvas' + j, lineData[j]);
-        this.charts.push(tempChart);
-      }
-    }
   }
 
   getDatesWithTransfers(date) {
@@ -536,24 +380,25 @@ export class CtvreportComponent implements OnInit {
   }
 
   getEngineStats() {
-    return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).subscribe(data => {
-      if (data.length > 0) {
-        this.enginedata = data[0];
-      } else {
-        this.enginedata = {
-          c02TotalKg: 0,
-          fuelPerHour: 0,
-          fuelPerHourDepart: 0,
-          fuelPerHourReturn: 0,
-          fuelPerHourTotal: 0,
-          fuelPerHourTransfer: 0,
-          fuelUsedDepartM3: 0,
-          fuelUsedReturnM3: 0,
-          fuelUsedTotalM3: 0,
-          fuelUsedTransferM3: 0,
-        };
-      }
-    });
+    return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).pipe(
+      map(data => {
+        if (data.length > 0) {
+          return data[0];
+        } else {
+          return {
+            c02TotalKg: 0,
+            fuelPerHour: 0,
+            fuelPerHourDepart: 0,
+            fuelPerHourReturn: 0,
+            fuelPerHourTotal: 0,
+            fuelPerHourTransfer: 0,
+            fuelUsedDepartM3: 0,
+            fuelUsedReturnM3: 0,
+            fuelUsedTotalM3: 0,
+            fuelUsedTransferM3: 0,
+          };
+        }
+    }));
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
@@ -568,25 +413,21 @@ export class CtvreportComponent implements OnInit {
     );
   }
 
-  matchCommentsWithTransfers() {
-    for (let i = 0; i < this.transferData.length; i++) {
-      this.transferData[i].oldComment = this.transferData[i].comment;
-      this.transferData[i].showCommentChanged = false;
-      this.transferData[i].commentChanged = this.changedCommentObj;
-      this.transferData[i].formChanged = false;
-      this.transferData[
-        i
-      ].video_requested = this.matchVideoRequestWithTransfer(
-        this.transferData[i]
-      );
+  matchCommentsWithTransfers(_transfers) {
+    for (let i = 0; i < _transfers.length; i++) {
+      _transfers[i].oldComment = _transfers[i].comment;
+      _transfers[i].showCommentChanged = false;
+      _transfers[i].commentChanged = this.changedCommentObj;
+      _transfers[i].formChanged = false;
+      _transfers[i].video_requested = this.matchVideoRequestWithTransfer(_transfers[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
         if (
-          this.transferData[i]._id ===
+          _transfers[i]._id ===
           this.commentsChanged[j].idTransfer
         ) {
-          this.transferData[i].commentChanged = this.commentsChanged[j];
-          this.transferData[i].comment = this.commentsChanged[j].newComment;
-          this.transferData[i].showCommentChanged = true;
+          _transfers[i].commentChanged = this.commentsChanged[j];
+          _transfers[i].comment = this.commentsChanged[j].newComment;
+          _transfers[i].showCommentChanged = true;
           this.commentsChanged.splice(j, 1);
         }
       }
@@ -606,7 +447,8 @@ export class CtvreportComponent implements OnInit {
         const _general: CTVGeneralStatsModel = general.data[0];
         if (_general.utcOffset) {
           // General stats utc offset is in days
-          this.dateTimeService.vesselOffsetHours = 24 * _general.utcOffset;
+          this.vesselUtcOffset = _general.utcOffset;
+          this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
         }
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
@@ -671,24 +513,6 @@ export class CtvreportComponent implements OnInit {
     this.generalInputStats.drillsConducted = [null];
     this.generalInputStats.passengers = false;
     this.generalInputStats.customInput = '-';
-  }
-
-  saveGeneralStats() {
-    this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
-      map(res => {
-        this.alert.type = 'success';
-        this.alert.message = res.data;
-      }),
-      catchError(error => {
-        this.alert.type = 'danger';
-        this.alert.message = error;
-        throw error;
-      })).subscribe(data => {
-        this.showAlert = true;
-        this.timeout = setTimeout(() => {
-          this.showAlert = false;
-        }, 7000);
-      });
   }
 
   matchVideoRequestWithTransfer(transfer): VideoRequestModel {
@@ -768,17 +592,14 @@ export class CtvreportComponent implements OnInit {
         .saveVideoRequest(transferData)
         .pipe(
           map(res => {
-            this.alert.type = 'success';
-            this.alert.message = res.data;
+            this.alert.sendAlert({text: res.data, type: 'success'});
             transferData.formChanged = false;
           }),
           catchError(error => {
-            this.alert.type = 'danger';
-            this.alert.message = error;
+            this.alert.sendAlert({text: error, type: 'danger'});
             throw error;
           })
-        )
-        .subscribe(_ => {
+        ).subscribe(_ => {
           this.getVideoRequests(this.vesselObject).subscribe(__ => {
             for (let i = 0; i < this.transferData.length; i++) {
               this.transferData[i].video_requested = this.matchVideoRequestWithTransfer(
@@ -790,11 +611,6 @@ export class CtvreportComponent implements OnInit {
           this.newService
             .getVideoBudgetByMmsi(this.vesselObject)
             .subscribe(data => (this.videoBudget = data[0]));
-          clearTimeout(this.timeout);
-          this.showAlert = true;
-          this.timeout = setTimeout(() => {
-            this.showAlert = false;
-          }, 7000);
         });
     }
   }
@@ -809,23 +625,14 @@ export class CtvreportComponent implements OnInit {
       .saveTransfer(transferData)
       .pipe(
         map(res => {
-          this.alert.type = 'success';
-          this.alert.message = res.data;
+          this.alert.sendAlert({text: res.data, type: 'success'});
           transferData.formChanged = false;
         }),
         catchError(error => {
-          this.alert.type = 'danger';
-          this.alert.message = error;
+            this.alert.sendAlert({text: error, type: 'danger'});
           throw error;
         })
-      )
-      .subscribe(_ => {
-        clearTimeout(this.timeout);
-        this.showAlert = true;
-        this.timeout = setTimeout(() => {
-          this.showAlert = false;
-        }, 7000);
-      });
+      ).subscribe();
   }
 }
 

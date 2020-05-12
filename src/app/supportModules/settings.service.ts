@@ -68,7 +68,7 @@ export class SettingsService {
     fixedTimeZoneLoc = 'Europe/London';
 
     // ##################### Functions ###########################
-    getTimeOffset(vesselOffsetHours: number = 0) {
+    getTimeOffset(vesselOffsetHours: number = 0, date?: any) {
         // Returns the time offset in hours according to the chosen timezone settings
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
@@ -77,15 +77,18 @@ export class SettingsService {
         } else {
             switch (timezone) {
                 case 'vessel':
-                    return vesselOffsetHours;
+                    return +vesselOffsetHours || 0;
                 case 'own':
-                    return this.localTimeZoneOffset;
+                    return +this.localTimeZoneOffset;
                 case 'utc':
                     return 0;
                 case 'custom':
-                  return this.fixedTimeZoneOffset;
+                  return +this.fixedTimeZoneOffset;
                 case 'timezone':
-                    return 0;
+                    // ToDo: implement timezone coding?
+                    const T = moment.tz(date, this.fixedTimeZoneLoc)
+                    const timezoneOffset = T._offset/60;
+                    return timezoneOffset;
                 default:
                     console.error('Invalid timezone setting!');
             }

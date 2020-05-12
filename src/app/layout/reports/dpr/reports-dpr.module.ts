@@ -21,6 +21,9 @@ import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
 import { SovreportModule } from './sov/sovreport.module';
+import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.component';
+import { CtvSummaryComponent } from './ctv/ctv-summary/ctv-summary.component';
+import { CtvTurbineTransferComponent } from './ctv/ctv-turbine-transfer/ctv-turbine-transfer.component';
 
 @NgModule({
     imports: [
@@ -38,7 +41,7 @@ import { SovreportModule } from './sov/sovreport.module';
         SharedPipesModule,
         SovreportModule,
     ],
-    declarations: [CtvreportComponent, ReportsDprComponent],
+    declarations: [CtvreportComponent, ReportsDprComponent, CtvslipgraphComponent, CtvSummaryComponent, CtvTurbineTransferComponent],
     providers: [CommonService, CalculationService, UserService, EventService, RouterService],
     bootstrap: [ReportsDprComponent],
     exports: [ReportsDprComponent],
