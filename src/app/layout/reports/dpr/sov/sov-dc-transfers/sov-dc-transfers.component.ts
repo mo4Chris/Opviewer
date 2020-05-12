@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { Vessel2vesselModel } from '../models/Transfers/vessel2vessel/Vessel2vessel';
 import { isArray, isObject, isNumber } from 'util';
@@ -11,7 +11,8 @@ import { AlertService } from '@app/supportModules/alert.service';
 @Component({
   selector: 'app-sov-dc-transfers',
   templateUrl: './sov-dc-transfers.component.html',
-  styleUrls: ['./sov-dc-transfers.component.scss', '../sovreport.component.scss']
+  styleUrls: ['./sov-dc-transfers.component.scss', '../sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SovDcTransfersComponent implements OnChanges {
   @Input() readonly = true;
@@ -30,6 +31,7 @@ export class SovDcTransfersComponent implements OnChanges {
     private calcService: CalculationService,
     private commonService: CommonService,
     private alert: AlertService,
+    private ref: ChangeDetectorRef,
   ) { }
 
   map = [];
@@ -108,6 +110,8 @@ export class SovDcTransfersComponent implements OnChanges {
             type: 'success',
             text: res.data,
           });
+          this.hasChanges = false;
+          this.ref.detectChanges();
         }
       ),
       catchError(error => {

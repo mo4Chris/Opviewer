@@ -1855,17 +1855,19 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
                     if (!Array.isArray(v2v.CTVactivity)) {
                         v2v.CTVactivity = [v2v.CTVactivity];
                     }
-                    let match = v2v.CTVactivity.find(_act => _act.mmsi == info.mmsi);
-                    if (match) {
-                        match = {...match, ...info};
+                    let match = v2v.CTVactivity.findIndex(_act => _act.mmsi == info.mmsi);
+                    if (match >= 0) {
+                        v2v.CTVactivity[match] = {...v2v.CTVactivity[match], ...info};
                     } else {
                         v2v.CTVactivity.push(info);
                     }
-                    SovVessel2vesselTransfersmodel.update({
+                    SovVessel2vesselTransfersmodel.findOneAndUpdate({
                         mmsi: req.body.mmsi,
                         date: req.body.date,
                         active: { $ne: false }
-                    }, v2v, (err, data) => {
+                    }, {
+                        CTVactivity: v2v.CTVactivity
+                    }, (err, data) => {
                         if (err) {
                             res.send(err);
                         } {
