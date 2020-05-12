@@ -1,0 +1,230 @@
+<h3>General Stats</h3>
+<div class="row">
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>Transit stats</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%">Departure port</td>
+        <td>{{getMatlabDateToJSTime(general.portDepartureTime)}}</td>
+      </tr>
+      <tr>
+        <td>Arrival wind farm</td>
+        <td>{{getMatlabDateToJSTime(general.WindFarmArrivalTime)}}</td>
+      </tr>
+      <tr>
+        <td>Departure wind farm</td>
+        <td>{{getMatlabDateToJSTime(general.departureWindFarmTime)}}</td>
+      </tr>
+      <tr>
+        <td>Arrival port</td>
+        <td>{{getMatlabDateToJSTime(general.portArrivalTime)}}</td>
+      </tr>
+      <tr>
+        <td>Visited wind farm(s)</td>
+        <td>{{visitedPark}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>Consumed & landed stats</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%">Fuel consumed</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10"
+            [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(engine.fuelUsedTotalM3, 10)}}
+          m<sup>3</sup></td>
+      </tr>
+      <tr>
+        <td>Waste oil landed</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10"
+            [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedOil}} liters</td>
+      </tr>
+      <tr>
+        <td>Garbage landed</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10"
+            [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{generalInputStats.landedGarbage}} m<sup>3</sup>
+        </td>
+      </tr>
+      <tr>
+        <td>Fuel consumed transit to park</td>
+        <td>{{roundNumber(engine.fuelUsedDepartM3, 10)}} m<sup>3</sup></td>
+      </tr>
+      <tr>
+        <td>Fuel consumed transit from park</td>
+        <td>{{roundNumber(engine.fuelUsedReturnM3, 10)}} m<sup>3</sup></td>
+      </tr>
+      <tr>
+        <td>Fuel consumed dockings</td>
+        <td>{{roundNumber(engine.fuelUsedTransferM3, 10)}} m<sup>3</sup></td>
+      </tr>
+    </table>
+  </div>
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>Engine stats</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%">Fuel economy</td>
+        <td>{{roundNumber(general.FuelEcon, 10)}}</td>
+      </tr>
+      <tr>
+        <td>Efficiency of the trip</td>
+        <td>[insert interesting trip efficiency number]</td>
+      </tr>
+      <tr>
+        <td>Vessel fuel profiles</td>
+        <td>[insert interesting profile]</td>
+      </tr>
+      <tr>
+        <td>Co2 emission</td>
+        <td>{{roundNumber(engine.co2TotalKg, 10, 'kg')}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>Transit stats</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%">MSI outbound</td>
+        <td>{{roundNumber(general.MsiOutbound, 10, '%')}}</td>
+      </tr>
+      <tr>
+        <td>MSI inbound</td>
+        <td>{{roundNumber(general.MsiInbound, 10, '%')}}</td>
+      </tr>
+      <tr>
+        <td>WBV, technicians</td>
+        <td>{{roundNumber(general.WBVtechs, 100, ' (A8)')}}</td>
+      </tr>
+      <tr>
+        <td>WBV, vessel crew</td>
+        <td>{{roundNumber(general.WBVcrew, 100, ' (A8)')}}</td>
+      </tr>
+      <tr>
+        <td>Distance sailed</td>
+        <td>{{general.sailedDistance}}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>Vessel perfomance</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%">Avg. speed outbound</td>
+        <td>{{general.AvgSpeedOutbound}}</td>
+      </tr>
+      <tr>
+        <td>Avg. speed inbound</td>
+        <td>{{general.AvgSpeedInbound}}</td>
+      </tr>
+      <tr>
+        <td>Max. speed outbound</td>
+        <td>{{general.AvgSpeedOutboundUnrestricted}}</td>
+      </tr>
+      <tr>
+        <td>Max. speed inbound</td>
+        <td>{{general.AvgSpeedInboundUnrestricted}}</td>
+      </tr>
+      <tr>
+        <td>Average docking time</td>
+        <td>{{roundNumber(general.AverageDockedTime, 1)}}</td>
+      </tr>
+      <tr>
+        <td>Amount of unique PAX</td>
+        <td>16</td>
+      </tr>
+    </table>
+  </div>
+  <div class="col-lg-4">
+    <table class="table table-bordered transitTable">
+      <tr>
+        <th colspan="2">
+          <h4>HSE</h4>
+        </th>
+      </tr>
+      <tr>
+        <td style="width: 50%"> HSE Observations</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+          <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="true" name="observations"> Yes
+          <input type="radio" [(ngModel)]="generalInputStats.observations" [value]="false" name="observations"> No
+        </td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.observations) ? 'Yes' : 'No'}}
+        </td>
+      </tr>
+
+      <tr>
+        <td>HSE Incidents</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+          <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="true" name="hseReports"> Yes
+          <input type="radio" [(ngModel)]="generalInputStats.incidents" [value]="false" name="hseReports"> No
+        </td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.incidents) ? 'Yes' : 'No'}}
+        </td>
+      </tr>
+      <tr>
+        <td>Tool box talks conducted</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+          <ng-multiselect-dropdown class="d-inline-block msdd" [placeholder]="'Select tool box talks'"
+            [data]="toolboxOptions" [(ngModel)]="generalInputStats.toolboxConducted" [settings]="multiSelectSettings">
+          </ng-multiselect-dropdown>
+        </td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+          {{(generalInputStats.toolboxConducted == '') ? 'None' : generalInputStats.toolboxConducted }}</td>
+      </tr>
+
+      <tr>
+        <td>Drills conducted</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+          <ng-multiselect-dropdown class="d-inline-block msdd" [placeholder]="'Select drills'" [data]="drillOptions"
+            [(ngModel)]="generalInputStats.drillsConducted" [settings]="multiSelectSettings">
+          </ng-multiselect-dropdown>
+        </td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+          {{(generalInputStats.drillsConducted == '') ? 'None' : generalInputStats.drillsConducted }} </td>
+      </tr>
+      <tr>
+        <td>Drills involved passengers</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+          <fieldset [disabled]="generalInputStats.drillsConducted.length == 0">
+            <input type="radio" [(ngModel)]="generalInputStats.passengers" [value]="true" name="passengers"> Yes
+            <input type="radio" [(ngModel)]="generalInputStats.passengers" [value]="false" name="passengers"> No
+          </fieldset>
+        </td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{(generalInputStats.passengers) ? 'Yes' : 'No'}}
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 50%" rowspan>Comments field</td>
+        <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'" rowspan='2'><textarea class="form-control" rows='4'
+            [(ngModel)]="generalInputStats.customInput"></textarea></td>
+        <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'" rowspan='2'>
+          <!-- {{generalInputStats.customInput}} !--> no comment has been inputted</td>
+      </tr>
+    </table>
+  </div>
+</div>
