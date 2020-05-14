@@ -17,7 +17,11 @@
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
-                        [fromDate]="fromDate" [toDate]="toDate"></app-longterm-scatter-graph>
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        ></app-longterm-scatter-graph>
+                    <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        ></app-longterm-trend-graph>
                     <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>
                         <div class="col-lg-8">
                             <canvas id="canvas{{ind}}"></canvas>

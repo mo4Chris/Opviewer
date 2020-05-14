@@ -45,6 +45,7 @@ export class LongtermComponent implements OnInit {
   maxDate = this.getMaxDate();
   vesselObject: LongtermVesselObjectModel = {
     mmsi: [this.getMMSIFromParameter()],
+    vesselName: [this.getVesselNameFromParameter()],
     dateMin: this.getMatlabDateLastMonth(),
     dateNormalMin: this.getJSDateLastMonthYMD(),
     dateMax: this.getMatlabDateYesterday(),
@@ -141,6 +142,7 @@ export class LongtermComponent implements OnInit {
 
   onSelectVessel(event: { mmsi: number, nicename: string }[]) {
     this.vesselObject.mmsi = event.map(x => x.mmsi);
+    this.vesselObject.vesselName = event.map(x => x.nicename);
     this.buildPageWithCurrentInformation();
   }
 
@@ -347,6 +349,7 @@ export class LongtermComponent implements OnInit {
 
 export interface LongtermVesselObjectModel {
   mmsi: number[];
+  vesselName: string[];
   dateMin: number;
   dateMax: number;
   dateNormalMin: string;

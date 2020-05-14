@@ -4,6 +4,7 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { ComprisonArrayElt, RawScatterData } from './scatterInterface';
 import { CommonService, StatsRangeRequest } from '@app/common.service';
+import * as Chart from 'chart.js';
 import { Observable } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
 

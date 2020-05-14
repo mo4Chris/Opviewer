@@ -1,3 +1,9 @@
-<p>
-  longterm-trend-graph works!
-</p>
+Trend graph
+<div class="row" [hidden]="!hasData">
+  <div class="col-lg-8">
+      <canvas #canvas id="canvas"></canvas>
+  </div>
+  <div class="col-lg-3">
+      {{info}}
+  </div>
+</div>

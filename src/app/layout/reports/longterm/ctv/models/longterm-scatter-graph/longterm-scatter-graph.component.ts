@@ -23,7 +23,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
-  @Input() vesselLabels: string[] = ['Label A'];
+  @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -67,11 +67,11 @@ export class LongtermScatterGraphComponent implements OnChanges {
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {
-        return _parsed.some(_elt => _elt.x && _elt.y);
+        return _parsed.some(_elt => _elt.x && <any> _elt.x !== '_NaN_' && _elt.y);
       })
       if (this.hasData) {
         const __dset = this.parser.createChartlyDset(parsedData, 'scatter', this.vesselLabels)
-        this.createScatterChart({
+        this.createChart({
           axisType: this.parser.getAxisType(__dset),
           datasets: __dset,
           comparisonElt: this.data
@@ -99,7 +99,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
     });
   }
 
-  createScatterChart(args: ScatterArguments) {
+  createChart(args: ScatterArguments) {
     const dateService = this.dateService;
     const createNewLegendAndAttach = this.parser.createNewLegendAndAttach;
     this.chart = new Chart(this.context, {
@@ -171,7 +171,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
         onClick: function (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
           if (this.lastClick !== undefined && now() - this.lastClick < 300) {
             // Two clicks < 300ms ==> double click
-            if (chartElt.length > 0) {
+            if (chartElt && chartElt.length > 0) {
               chartElt = chartElt[0];
               const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
               if (dataElt.callback !== undefined) {
