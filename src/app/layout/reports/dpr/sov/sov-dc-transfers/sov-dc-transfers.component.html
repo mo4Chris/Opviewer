@@ -1,11 +1,10 @@
 <br>
-
 <!-- DC transfers - not read only-->
-<div class="row single-block-print" *ngIf="!readonly">
+<div class="row single-block-print" *ngIf="!readonly && dcInfo">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
-        Turbine transfers for daughtercraft: {{vesselName}}
+        Turbine transfers for daughtercraft: {{dcInfo.nicename}}
       </div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">
@@ -86,9 +85,9 @@
               </td>
               <td>
                 <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.cargoIn"
-                (ngModelChange)="updatePaxCargoTotal()">lifts incoming <br>
+                (ngModelChange)="updatePaxCargoTotal()"> lifts incoming <br>
                 <input type="number" min="0" class="form-control-sm col-sm-5 form-number" [(ngModel)]="transfer.cargoOut"
-                (ngModelChange)="updatePaxCargoTotal()">lifts outgoing
+                (ngModelChange)="updatePaxCargoTotal()"> lifts outgoing
               </td>
             </tr>
             <tr *ngIf="hasChanges">
@@ -106,11 +105,11 @@
 </div>
 
 <!-- DC transfers - readonly-->
-<div class="row single-block-print" *ngIf="readonly">
+<div class="row single-block-print" *ngIf="readonly && dcInfo">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
-        Turbine transfers for daughtercraft: {{vesselName}}
+        Turbine transfers for daughtercraft: {{dcInfo.nicename}}
       </div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">

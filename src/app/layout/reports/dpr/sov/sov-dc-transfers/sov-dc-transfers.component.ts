@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { Vessel2vesselModel } from '../models/Transfers/vessel2vessel/Vessel2vessel';
 import { isArray, isObject, isNumber } from 'util';
@@ -11,7 +11,8 @@ import { AlertService } from '@app/supportModules/alert.service';
 @Component({
   selector: 'app-sov-dc-transfers',
   templateUrl: './sov-dc-transfers.component.html',
-  styleUrls: ['./sov-dc-transfers.component.scss', '../sovreport.component.scss']
+  styleUrls: ['./sov-dc-transfers.component.scss', '../sovreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SovDcTransfersComponent implements OnChanges {
   @Input() readonly = true;
@@ -23,52 +24,46 @@ export class SovDcTransfersComponent implements OnChanges {
   }]; // Always array of length 1!
   @Input() sovInfo = {};
   @Input() vesselObject: VesselObjectModel;
+  @Input() dcInfo: DaughtercraftInfoModel;
 
   constructor(
     private datetimeService: DatetimeService,
     private calcService: CalculationService,
     private commonService: CommonService,
     private alert: AlertService,
+    private ref: ChangeDetectorRef,
   ) { }
 
+  map = [];
   transfers = [];
   missedTransfers = [];
   hasChanges = false;
-  mmsi: number;
   vesselName = '';
 
   ngOnChanges() {
-    this.mmsi = null;
     this.transfers = [];
     this.missedTransfers = [];
     this.hasChanges = false;
-    this.vessel2vessels.forEach(v2vs => {
-      v2vs.transfers.forEach(_transfer => {
-        if (_transfer.type === 'Daughter-craft departure' || _transfer.type === 'Daughter-craft return') {
-          if (this.mmsi > 0 && this.mmsi !== _transfer.toMMSI) {
-            console.error('Implementation only supports 1 daughtercraft!');
-          } else {
-            this.mmsi = _transfer.toMMSI;
-            this.vesselName = _transfer.toVesselname;
+    if (this.dcInfo && this.dcInfo.mmsi) {
+      this.vessel2vessels.forEach(v2vs => {
+        v2vs.CTVactivity.forEach(_activity => {
+          if (_activity.mmsi === this.dcInfo.mmsi) {
+            this.map = _activity.map
+            if (isArray(_activity.turbineVisits)) {
+              this.transfers = _activity.turbineVisits;
+            } else if (isObject(_activity.turbineVisits) && isNumber(_activity.turbineVisits['startTime'])) {
+              this.transfers = [_activity.turbineVisits];
+            }
+            if (isArray(_activity.missedVisits)) {
+              this.missedTransfers = _activity.missedVisits;
+            } else {
+              // We need to link our empty array to the one in the v2v object
+              _activity.missedVisits = this.missedTransfers;
+            }
           }
-        }
+        });
       });
-      v2vs.CTVactivity.forEach(_activity => {
-        if (_activity.mmsi === this.mmsi) {
-          if (isArray(_activity.turbineVisits)) {
-            this.transfers = _activity.turbineVisits;
-          } else if (isObject(_activity.turbineVisits) && isNumber(_activity.turbineVisits['startTime'])) {
-            this.transfers = [_activity.turbineVisits];
-          }
-          if (isArray(_activity.missedVisits)) {
-            this.missedTransfers = _activity.missedVisits;
-          } else {
-            // We need to link our empty array to the one in the v2v object
-            _activity.missedVisits = this.missedTransfers;
-          }
-        }
-      });
-    });
+    }
   }
 
   addMissedTransferToArray() {
@@ -98,10 +93,16 @@ export class SovDcTransfersComponent implements OnChanges {
       _transfer.cargoIn = _transfer.cargoIn || 0;
       _transfer.cargoOut = _transfer.cargoOut || 0;
     });
-    this.commonService.updateSOVv2vPaxInput({
+    this.commonService.updateSOVv2vTurbineTransfers({
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
-      transfers: this.transfers
+      update: {
+        mmsi: this.dcInfo.mmsi || 0,
+        date: this.vesselObject.date,
+        turbineVisits: this.transfers,
+        missedVisits: this.missedTransfers,
+        map: this.map,
+      }
     }).pipe(
       map(
         (res) => {
@@ -109,6 +110,8 @@ export class SovDcTransfersComponent implements OnChanges {
             type: 'success',
             text: res.data,
           });
+          this.hasChanges = false;
+          this.ref.detectChanges();
         }
       ),
       catchError(error => {
@@ -134,4 +137,9 @@ export class SovDcTransfersComponent implements OnChanges {
     return this.datetimeService.MatlabDurationToMinutes(serial);
   }
 
+}
+
+export interface DaughtercraftInfoModel {
+  mmsi: number;
+  nicename: string;
 }
