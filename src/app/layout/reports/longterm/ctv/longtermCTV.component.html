@@ -6,8 +6,7 @@
 <div class="row">
     <div class="divContainer" >
         <div *ngIf="!scatterPlot.allGraphsEmpty; else allGraphsEmpty">
-            <app-vesselinfo [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [newService]="newService"
-                (navigateToVesselreport)="navigateToDPR($event)">
+            <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
@@ -17,13 +16,14 @@
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
-                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
                         ></app-longterm-scatter-graph>
                     <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
-                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
                         ></app-longterm-trend-graph>
                     <app-longterm-bar-graph *ngSwitchCase="'bar'" [data]="transfer_Data" [vesselObject]="vesselObject"
-                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" [callback]="transfer_Data.barCallback"
+                        (navigateToVesselreport)="navigateToDPR($event)"
                         ></app-longterm-bar-graph>
                     <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>
                         <div class="col-lg-8">

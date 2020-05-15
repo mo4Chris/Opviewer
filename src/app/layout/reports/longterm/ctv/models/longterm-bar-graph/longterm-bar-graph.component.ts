@@ -24,6 +24,8 @@ export class LongtermBarGraphComponent implements OnChanges {
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Placeholder A', 'Placeholder B', 'Placeholder C'];
 
+  @Input() callback: (data: RawScatterData) => {x: number[], y: number[]}[] = (data) => [];
+
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
@@ -36,10 +38,6 @@ export class LongtermBarGraphComponent implements OnChanges {
   axisType: any;
 
   constructor(
-    private calcService: CalculationService,
-    private dateService: DatetimeService,
-    private settings: SettingsService,
-    private newService: CommonService,
     private parser: LongtermProcessingService,
   ) { }
 
@@ -66,62 +64,142 @@ export class LongtermBarGraphComponent implements OnChanges {
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {
-        return true
-        // return _parsed.trend.length > 1 || _parsed.outliers.length > 0
+        return _parsed[0].x.length > 0
       })
       if (this.hasData) {
-        let dsets = [];
-        // parsedData.forEach((vesseldata, i) => {
-        //   dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3}))
-        //   dsets.push(this.parser.createChartlyLine(vesseldata.ub, i, {label: this.vesselLabels[i], fill: '+1'})) // Fills area until lower bound
-        //   dsets.push(this.parser.createChartlyLine(vesseldata.lb, i, {label: this.vesselLabels[i]}))
-        //   dsets.push(this.parser.createChartlyScatter(vesseldata.outliers, i, {label: this.vesselLabels[i]}))
-        // });
-        // this.createChart({
-        //   axisType: this.parser.getAxisType(dsets),
-        //   datasets: dsets,
-        //   comparisonElt: this.data
-        // })
+        let dsets = parsedData.map((_data: any[], i: number) => {
+          return this.parser.createChartlyBar(_data, i, {label: this.vesselLabels[i]})
+        });
+        // if (this.chart) {
+        //   this.updateChart(dsets)
+        // } else {
+          this.createChart(dsets)
+        // }
       }
     })
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
-    return rawScatterData.map((data) => {
-      return data;
+    this.reduceLabels(rawScatterData.map(_data => _data._id));
+    return rawScatterData.map((data, _i) => {
+      return this.callback(data);
     });
   }
   
-  createChart(args: ScatterArguments) {
-    const dateService = this.dateService;
-    const createNewLegendAndAttach = this.parser.createNewLegendAndAttach;
-  }
-
-  buildAxisFromType(Label: String, axisId: string) {
-    return [{
-      id: axisId,
-      ticks: {
-        beginAtZero: true,
-      },
-      scaleLabel: {
-        display: true,
-        labelString: Label
+  createChart(datasets: LongtermScatterValueArray[]) {
+    const labelLength =  datasets.map((dset: {data}) => dset.data[0].x.length);
+    let largestLabelLength = 0;
+    const largestDataBin = labelLength.reduce((prev, curr, _i) => {
+      if (curr > largestLabelLength) {
+        largestLabelLength = curr;
+        return _i;
+      } else {
+        return prev;
       }
-    }];
+    }, 0);
+    const barLabels = datasets[largestDataBin].data[0].x; // string[]
+    const dataSets = [];
+    datasets.forEach(vesseldata => {
+      vesseldata.data.forEach((stackdata, _i) => {
+        dataSets.push({
+          label: vesseldata.label,
+          key: stackdata.key ? stackdata.key : 'Value:',
+          data: stackdata.y,
+          stack: vesseldata.label,
+          showInLegend: _i === 0,
+          borderWidth: 1,
+          borderColor: 'rgba(0,0,0,0.7)',
+          backgroundColor: vesseldata.backgroundColor.replace('1)', (vesseldata.data.length - _i) / (vesseldata.data.length) + ')'),
+        });
+      });
+    });
+    this.chart = new Chart(this.context, {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: dataSets,
+      },
+      options: {
+        tooltips: {
+          callbacks: {
+            label: function (tooltipItem, data) {
+              return data.datasets[tooltipItem.datasetIndex].label;
+            },
+            afterLabel: function(tooltipItem, data) {
+              return data.datasets[tooltipItem.datasetIndex].key + ' ' + tooltipItem.value;
+            },
+          }
+        },
+        title: {
+          display: true,
+          fontSize: 20,
+          text: this.data.yLabel,
+          position: 'top'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            defaultFontSize: 24,
+            defaultFontStyle: 'bold',
+            filter: (legItem: LegendEntryCallbackElement, chart) => {
+              return chart.datasets[legItem.datasetIndex].showInLegend;
+            }
+          },
+          onClick: (event: MouseEvent, legItem: LegendEntryCallbackElement) => {
+            const Key = legItem.text;
+            const chart = this.chart;
+            const dsets = chart.config.data.datasets;
+            dsets.forEach(dset => {
+              const metaKey = Object.keys(dset._meta)[0];
+              if (dset.label === Key && dset._meta[metaKey]) {
+                dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
+              }
+            });
+            chart.update();
+          }
+        },
+        scales: {
+          xAxes: [{
+            id: 'x-axis-0',
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: this.data.xLabel,
+            },
+          }],
+          yAxes: [{
+            id: 'y-axis-0',
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: this.data.yLabel,
+            },
+            ticks: {
+              beginAtZero: true
+          }
+          }],
+        },
+        responsiveAnimationDuration: 0,
+      },
+    });
   }
 
   reset() {
     this.chart.destroy();
   }
 
+  reduceLabels(received_mmsi: number[]) {
+    this.vesselLabels = this.vesselLabels.filter((_, index) => {
+      return received_mmsi.some(_mmsi => _mmsi === this.vesselObject.mmsi[index]);
+    })
+  }
 }
-
-
 
 interface ScatterArguments {
   axisType: { x: string, y: string };
   datasets: LongtermScatterValueArray[];
-  comparisonElt: ComprisonArrayElt;
   bins?: number[];
 }
 

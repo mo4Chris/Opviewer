@@ -17,6 +17,8 @@ import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { isArray } from 'util';
+import { eventNames } from 'cluster';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -140,9 +142,9 @@ export class LongtermComponent implements OnInit {
     }
   }
 
-  onSelectVessel(event: { mmsi: number, nicename: string }[]) {
-    this.vesselObject.mmsi = event.map(x => x.mmsi);
-    this.vesselObject.vesselName = event.map(x => x.nicename);
+  onSelectVessel() {
+    this.vesselObject.mmsi = this.dropdownValues.map(x => x.mmsi);
+    this.vesselObject.vesselName = this.dropdownValues.map(x => x.nicename);
     this.buildPageWithCurrentInformation();
   }
 

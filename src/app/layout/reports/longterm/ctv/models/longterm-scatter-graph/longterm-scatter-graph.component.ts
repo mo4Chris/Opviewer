@@ -37,10 +37,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   axisType: any;
 
   constructor(
-    private calcService: CalculationService,
     private dateService: DatetimeService,
-    private settings: SettingsService,
-    private newService: CommonService,
     private parser: LongtermProcessingService,
   ) { }
 
@@ -83,6 +80,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
+    this.reduceLabels(rawScatterData.map(_data => _data._id));
     return rawScatterData.map((data) => {
       const scatterData: { x: number | Date, y: number | Date, callback?: Function }[] = [];
       let x: number | Date;
@@ -249,6 +247,9 @@ export class LongtermScatterGraphComponent implements OnChanges {
           scaleLabel: {
             display: true,
             labelString: Label
+          },
+          ticks: {
+            suggestedMin: 0
           }
         }, {
           id: 'Hs',
@@ -258,7 +259,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
           },
           ticks: {
             min: 0,
-            max: 3,
+            suggestedMax: 3,
           },
           display: false,
         }];
@@ -267,6 +268,12 @@ export class LongtermScatterGraphComponent implements OnChanges {
 
   reset() {
     this.chart.destroy();
+  }
+
+  reduceLabels(received_mmsi: number[]) {
+    this.vesselLabels = this.vesselLabels.filter((_, index) => {
+      return received_mmsi.some(_mmsi => _mmsi === this.vesselObject.mmsi[index]);
+    })
   }
 }
 

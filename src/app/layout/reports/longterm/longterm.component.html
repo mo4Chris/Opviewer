@@ -50,10 +50,10 @@
           </button>
           <div class="form-group">
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
-              class="multiSelectDiv" (onSelect)="searchTransfersByNewSpecificDate()"
-              (onDeSelect)="searchTransfersByNewSpecificDate()" (onSelectAll)="onSelectVessel($event)"
-              (onDeSelectAll)="onSelectVessel($event)" [placeholder]="'Select vessel'" [data]="Vessels"
-              [(ngModel)]="dropdownValues" [settings]="multiSelectSettings">
+              class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
+              (onSelectAll)="onSelectVessel()" (onDeSelectAll)="onSelectVessel($event)" 
+              [placeholder]="'Select vessel'" [data]="Vessels" [(ngModel)]="dropdownValues"
+              [settings]="multiSelectSettings">
             </ng-multiselect-dropdown>
             <!-- Wavedata is currently disabled for SOV -->
             <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"

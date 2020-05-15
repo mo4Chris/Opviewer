@@ -7,6 +7,7 @@ import { CommonService, StatsRangeRequest } from '@app/common.service';
 import * as Chart from 'chart.js';
 import { Observable } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -143,6 +144,22 @@ export class LongtermProcessingService {
     },... opts};
   }
 
+  createChartlyBar(datas: ScatterDataElt[], index: number = 0, opts: LongtermScatterValueArrayOpts = {}): LongtermScatterValueArray {
+    return {... {
+      data: datas,
+      label: 'N/a',
+      type: 'line',
+      showInLegend: false,
+      showLine: true,
+      pointRadius: 0,
+      backgroundColor: this.backgroundcolors[index], // We need to lower opacity
+      borderColor: this.bordercolors[index],
+      fill: false,
+      borderWidth: 0,
+      lineTension: 0.1,
+    },... opts};
+  }
+
  createNewLegendAndAttach(chartInstance, legendOpts) {
     const legend = new Chart.NewLegend({
       ctx: chartInstance.chart.ctx,
@@ -181,6 +198,16 @@ export class LongtermProcessingService {
   }
   parseScatterDate(t: number) {
     return new Date(this.MatlabDateToUnixEpochViaDate(t).getTime())
+  }
+
+  private fixLoadOrder(query: StatsRangeRequest, raws: any[]) {
+    const proper = new Array(query.mmsi.length);
+    let mmsi: number;
+    for (let i = 0; i<query.mmsi.length; i++) {
+      mmsi = query.mmsi[i];
+      proper[i] = raws.find(_raw => _raw.id == mmsi)      
+    }
+    return raws;
   }
 }
 
