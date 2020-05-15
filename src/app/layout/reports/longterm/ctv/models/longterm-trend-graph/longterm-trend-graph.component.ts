@@ -8,7 +8,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
-import { LongtermProcessingService } from '../../../models/longterm-processing-service.service';
+import { LongtermProcessingService, LongtermScatterValueArray } from '../../../models/longterm-processing-service.service';
 import { now } from 'moment';
 
 @Component({
@@ -18,7 +18,6 @@ import { now } from 'moment';
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermTrendGraphComponent implements OnChanges {
-
   @Input() data: ComprisonArrayElt
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
@@ -46,85 +45,6 @@ export class LongtermTrendGraphComponent implements OnChanges {
     private parser: LongtermProcessingService,
   ) { }
 
-  // const datasets = [];
-  // args.datasets.forEach( (vesselScatterData) => {
-  //   // Iterates over vessels
-  //   let vesselDataSets: ScatterDataElt[] = [];
-  //   const line = [{x: 0, y: 10}];
-  //   const line_lb = [{x: 0, y: 10}];
-  //   const line_ub = [{x: 0, y: 10}];
-  //   for (let binIdx = 0; binIdx < args.bins.length - 1; binIdx++ ) {
-  //     // Iterate over bins
-  //     const lb = args.bins[binIdx];
-  //     const ub = args.bins[binIdx + 1];
-  //     let cnt = 0;
-  //     const idx =  vesselScatterData.data.map((elt, __i) => {
-  //           if (elt.x >= lb && elt.x < ub) {
-  //             cnt ++;
-  //             return true;
-  //           } else {
-  //             return false;
-  //           }
-  //         });
-  //     const newDataElts = vesselScatterData.data.filter((_, _idx) => idx[_idx]);
-  //     if (cnt < 5) {
-  //       // Add points to scatter array
-  //       vesselDataSets = vesselDataSets.concat(newDataElts);
-  //     } else {
-  //       const yVals = newDataElts.map(data => data.y) as number[];
-  //       const mean = this.calculationService.getNanMean(yVals as number[]);
-  //       const std = this.calculationService.getNanStd(yVals as number[]);
-  //       const outliers = newDataElts.filter((data) => data.y < mean - 2 * std || data.y > mean + 2 * std);
-  //       vesselDataSets = vesselDataSets.concat(outliers);
-  //       const upperLimit = this.calculationService.getNanMax(yVals);
-  //       const lowerLimit = this.calculationService.getNanMin(yVals);
-  //       line.push({
-  //         x: lb / 2 + ub / 2,
-  //         y: mean
-  //       });
-  //       line_lb.push({
-  //         x: lb / 2 + ub / 2,
-  //         y: Math.max(lowerLimit, mean - 2 * std),
-  //       });
-  //       line_ub.push({
-  //         x: lb / 2 + ub / 2,
-  //         y: Math.min(upperLimit, mean + 2 * std),
-  //       });
-  //     }
-  //   }
-  //   vesselScatterData.data = vesselDataSets;
-  //   vesselScatterData.showInLegend = true;
-  //   datasets.push(vesselScatterData);
-  //   if (vesselDataSets.length > 0) {
-  //     datasets.push({
-  //       data: line,
-  //       label: vesselScatterData.label,
-  //       type: 'line',
-  //       showInLegend: false,
-  //       fill: false,
-  //       borderColor: vesselScatterData.backgroundColor,
-  //       backgroundColor: vesselScatterData.backgroundColor,
-  //       showLine: true,
-  //       borderWidth: 5
-  //     });
-  //     const bbox = line_lb.concat(line_ub.reverse());
-  //     bbox.push(line_lb[0]);
-  //     datasets.push({
-  //       data: bbox,
-  //       label: vesselScatterData.label,
-  //       type: 'line',
-  //       showInLegend: false,
-  //       showLine: true,
-  //       pointRadius: 0,
-  //       backgroundColor: vesselScatterData.backgroundColor.replace('1)', '0.4)'), // We need to lower opacity
-  //       borderColor: vesselScatterData.backgroundColor,
-  //       fill: true,
-  //       borderWidth: 0,
-  //       lineTension: 0.1,
-  //     });
-  //   }
-  // });
-
   ngOnChanges() {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     if (this.chart) {
@@ -147,16 +67,20 @@ export class LongtermTrendGraphComponent implements OnChanges {
       console.log('error: ' + error);
       throw error;
     })).subscribe(parsedData => {
-      console.log(parsedData)
       this.hasData = parsedData.some(_parsed => {
-        return _parsed.some(_datas => _datas.length > 1)
+        return _parsed.trend.length > 1 || _parsed.outliers.length > 0
       })
       if (this.hasData) {
-        console.log('Data found')
-        const __dset = this.parser.createChartlyDset(parsedData, 'scatter', this.vesselLabels)
+        let dsets = [];
+        parsedData.forEach((vesseldata, i) => {
+          dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3}))
+          dsets.push(this.parser.createChartlyLine(vesseldata.ub, i, {label: this.vesselLabels[i], fill: '+1'})) // Fills area until lower bound
+          dsets.push(this.parser.createChartlyLine(vesseldata.lb, i, {label: this.vesselLabels[i]}))
+          dsets.push(this.parser.createChartlyScatter(vesseldata.outliers, i, {label: this.vesselLabels[i]}))
+        });
         this.createChart({
-          axisType: this.parser.getAxisType(__dset),
-          datasets: __dset,
+          axisType: this.parser.getAxisType(dsets),
+          datasets: dsets,
           comparisonElt: this.data
         })
       }
@@ -167,21 +91,6 @@ export class LongtermTrendGraphComponent implements OnChanges {
     return rawScatterData.map((data) => {
       console.log(this.data)
       console.log(data)
-      // const scatterData: { x: number | Date, y: number | Date, callback?: Function }[] = [];
-      // let x: number | Date;
-      // let y: number | Date;
-      // data[this.data.x].forEach((_x: number, __i: number) => {
-      //   const _y = data[this.data.y][__i];
-      //   x = this.parser.processData(this.data.x, _x);
-      //   y = this.parser.processData(this.data.y, _y);
-      //   const matlabDate = Math.floor(data.date[__i]);
-      //   const navToDPRByDate = () => {
-      //     return this.navigateToVesselreport.emit({ mmsi: data._id, matlabDate: matlabDate });
-      //   };
-      //   scatterData.push({ x: x, y: y, callback: navToDPRByDate });
-      // });
-      // return scatterData;
-      
       let vesselDataSets: ScatterDataElt[] = [];
       const line = [{x: 0, y: 10}];
       const line_lb = [{x: 0, y: 10}];
@@ -199,7 +108,6 @@ export class LongtermTrendGraphComponent implements OnChanges {
             return false;
           }
         });
-        console.log('Lb: ' + lb + ', ub: ' + ub + ', cnt: ' + cnt)
         const xVals = data[this.data.x].filter((_, _idx) => idx[_idx]) as number[];
         const yVals = data[this.data.y].filter((_, _idx) => idx[_idx]) as number[];
         if (cnt < this.outlierThreshold) {
@@ -239,14 +147,12 @@ export class LongtermTrendGraphComponent implements OnChanges {
           });
         }
       }
-      // vesselScatterData.data = vesselDataSets;
-      // vesselScatterData.showInLegend = true;
-      return [
-        line,
-        line_lb,
-        line_ub,
-        vesselDataSets,
-      ]
+      return {
+        trend: line,
+        lb: line_lb,
+        ub: line_ub,
+        outliers: vesselDataSets,
+      }
     });
   }
 
@@ -385,22 +291,9 @@ export class LongtermTrendGraphComponent implements OnChanges {
 
 interface ScatterArguments {
   axisType: { x: string, y: string };
-  datasets: ScatterValueArray[];
+  datasets: LongtermScatterValueArray[];
   comparisonElt: ComprisonArrayElt;
   bins?: number[];
-}
-
-interface ScatterValueArray {
-  data: ScatterDataElt[];
-  label: string;
-  pointStyle: string;
-  backgroundColor: string;
-  borderColor: string;
-  radius: number;
-  pointHoverRadius: number;
-  borderWidth: number;
-  hitRadius: number;
-  showInLegend?: boolean;
 }
 
 interface ScatterDataElt {
@@ -435,3 +328,5 @@ interface LegendEntryCallbackElement {
   // Point style of the legend box (only used if usePointStyle is true)
   pointStyle: string;
 }
+
+

@@ -112,22 +112,37 @@ export class LongtermProcessingService {
     return type;
   }
 
-  createChartlyDset(datas: any[], type: string, labels: string[]): ScatterValueArray[] {
-    return datas.map((_data, i) => {
-      return {
-        data: this.filterNans(_data, type),
-        label: labels[i],
-        pointStyle: this.pointStyles[i],
-        backgroundColor: i < this.backgroundcolors.length ? this.backgroundcolors[i] : 'rgba(0,0,0,0.3)',
-        borderColor: this.bordercolors[i],
-        radius: 4,
-        pointHoverRadius: 10,
-        borderWidth: this.borderWidth[i],
-        hitRadius: 10,
-      } as ScatterValueArray
-    })
+  createChartlyScatter(datas: ScatterDataElt[], index: number = 0, opts: LongtermScatterValueArrayOpts = {}): LongtermScatterValueArray {
+    return {... {
+      data: this.filterNans(datas, 'scatter'),
+      label: 'N/a',
+      pointStyle: this.pointStyles[index],
+      backgroundColor: this.backgroundcolors[index] || 'rgba(0,0,0,0.3)',
+      borderColor: this.bordercolors[index],
+      radius: 4,
+      pointHoverRadius: 10,
+      borderWidth: this.borderWidth[index],
+      hitRadius: 10,
+      showInLegend: true
+    },... opts};
   }
-  
+
+  createChartlyLine(datas: ScatterDataElt[], index: number = 0, opts: LongtermScatterValueArrayOpts = {}): LongtermScatterValueArray {
+    return {... {
+      data: this.filterNans(datas, 'area'),
+      label: 'N/a',
+      type: 'line',
+      showInLegend: false,
+      showLine: true,
+      pointRadius: 0,
+      backgroundColor: this.backgroundcolors[index].replace('1)', '0.4)'), // We need to lower opacity
+      borderColor: this.backgroundcolors[index],
+      fill: false,
+      borderWidth: 0,
+      lineTension: 0.1,
+    },... opts};
+  }
+
  createNewLegendAndAttach(chartInstance, legendOpts) {
     const legend = new Chart.NewLegend({
       ctx: chartInstance.chart.ctx,
@@ -178,22 +193,44 @@ interface axisType {
 interface ScatterArguments {
   axisType: {x: string, y: string};
   graphIndex: number;
-  datasets: ScatterValueArray[];
+  datasets: LongtermScatterValueArray[];
   comparisonElt: ComprisonArrayElt;
   bins ?: number[];
 }
 
-interface ScatterValueArray {
+export interface LongtermScatterValueArray {
   data: ScatterDataElt[];
   label: string;
-  pointStyle: string;
-  backgroundColor: string;
-  borderColor: string;
-  radius: number;
-  pointHoverRadius: number;
-  borderWidth: number;
-  hitRadius: number;
+  pointStyle?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  radius?: number;
+  pointHoverRadius?: number;
+  borderWidth?: number;
+  hitRadius?: number;
   showInLegend?: boolean;
+  type?: string;
+  showLine?: boolean;
+  pointRadius?: number;
+  fill?: boolean | string,
+  lineTension?: number,
+}
+
+interface LongtermScatterValueArrayOpts {
+  type?: string;
+  label?: string;
+  backgroundColor?: string;
+  borderWidth?: number;
+  borderColor?: string;
+  radius?: number;
+  hitRadius?: number;
+  showInLegend?: boolean;
+  showLine?: boolean;
+  lineTension?: number,
+  pointStyle?: string;
+  pointRadius?: number;
+  pointHoverRadius?: number;
+  fill?: boolean | string,
 }
 
 interface ScatterDataElt {

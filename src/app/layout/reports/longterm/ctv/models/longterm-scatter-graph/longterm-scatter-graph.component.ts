@@ -9,7 +9,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
-import { LongtermProcessingService } from '../../../models/longterm-processing-service.service';
+import { LongtermProcessingService, LongtermScatterValueArray } from '../../../models/longterm-processing-service.service';
 import { now } from 'moment';
 
 @Component({
@@ -66,11 +66,13 @@ export class LongtermScatterGraphComponent implements OnChanges {
       console.log('error: ' + error);
       throw error;
     })).subscribe(parsedData => {
-      this.hasData = parsedData.some(_parsed => {
-        return _parsed.some(_elt => _elt.x && <any> _elt.x !== '_NaN_' && _elt.y);
+      this.hasData = <boolean> parsedData.some(_parsed => {
+        return _parsed.some(_elt => (<any>_elt.x && <any> _elt.x !== '_NaN_' && <any> _elt.y) as boolean);
       })
       if (this.hasData) {
-        const __dset = this.parser.createChartlyDset(parsedData, 'scatter', this.vesselLabels)
+        const __dset = parsedData.map((_data, _i) =>
+          this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
+        );
         this.createChart({
           axisType: this.parser.getAxisType(__dset),
           datasets: __dset,
@@ -270,22 +272,9 @@ export class LongtermScatterGraphComponent implements OnChanges {
 
 interface ScatterArguments {
   axisType: { x: string, y: string };
-  datasets: ScatterValueArray[];
+  datasets: LongtermScatterValueArray[];
   comparisonElt: ComprisonArrayElt;
   bins?: number[];
-}
-
-interface ScatterValueArray {
-  data: ScatterDataElt[];
-  label: string;
-  pointStyle: string;
-  backgroundColor: string;
-  borderColor: string;
-  radius: number;
-  pointHoverRadius: number;
-  borderWidth: number;
-  hitRadius: number;
-  showInLegend?: boolean;
 }
 
 interface ScatterDataElt {

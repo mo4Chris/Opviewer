@@ -22,8 +22,12 @@
                     <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
                         ></app-longterm-trend-graph>
+                    <app-longterm-bar-graph *ngSwitchCase="'bar'" [data]="transfer_Data" [vesselObject]="vesselObject"
+                        [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName"
+                        ></app-longterm-bar-graph>
                     <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>
                         <div class="col-lg-8">
+                            Da bad graph
                             <canvas id="canvas{{ind}}"></canvas>
                         </div>
                         <div class="col-lg-3">
