@@ -54,7 +54,6 @@ export class SovV2vTransfersComponent implements OnChanges {
     this.updatev2vPaxCargoTotal();
   }
 
-
   GetMatlabDateToJSTime(serial) {
       return this.datetimeService.MatlabDateToJSTime(serial);
   }

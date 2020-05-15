@@ -22,7 +22,7 @@
           [vesselObject]="vesselObject" [readonly]="!permission.sovCommercialWrite">
         </app-sov-v2v-transfers>
         <app-sov-dc-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
-          [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite">
+          [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite" [dcInfo]="dcInfo">
         </app-sov-dc-transfers>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
