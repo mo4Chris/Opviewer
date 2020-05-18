@@ -1,39 +1,37 @@
-import { TokenModel } from '../../../../../../models/tokenModel';
+import { TokenModel } from '@app/models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import { CommonService } from '../../../../../../common.service';
-import { CalculationService } from '../../../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../../../supportModules/datetime.service';
+import { CommonService } from '@app/common.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as Chart from 'chart.js';
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { now } from 'moment';
+import { LongtermParsedWavedata } from '../../../models/longterm-processing-service.service';
+import { LongtermVesselObjectModel } from '../../../longterm.component';
 
 
 @Component({
     selector: 'app-deployment-graph',
     templateUrl: './deployment.component.html',
     styleUrls: ['../../longtermCTV.component.scss',
-        './deployment.component.scss']
+        './deployment.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeploymentGraphComponent implements OnInit {
+export class DeploymentGraphComponent implements OnInit, OnChanges {
     constructor(
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
+        private ref: ChangeDetectorRef,
     ) {
     }
 
-    @Input() vesselObject: { dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[] };
+    @Input() vesselObject: LongtermVesselObjectModel
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
-    @Input() wavedata: {
-        timeStamp: any[],
-        Hs: number[],
-        Tp: any[],
-        waveDir: any[],
-        wind: any[],
-        windDir: any[]
-    };
+    @Input() wavedata: LongtermParsedWavedata;
+    @Input() vesselLabels: string[] = [];
     @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
     Chart: Chart;
@@ -53,6 +51,11 @@ export class DeploymentGraphComponent implements OnInit {
 
     ngOnInit() {
         this.updateChart();
+    }
+
+    ngOnChanges() {
+        this.updateChart();
+        this.ref.detectChanges();
     }
 
     checkGoodSailingDay(dayNum: number): WeatherInfo {
@@ -174,7 +177,7 @@ export class DeploymentGraphComponent implements OnInit {
                 // Looping over vessels
                 if (this.RawData[_i] && this.RawData[_i][0]) {
                     const dset = {
-                        label: this.RawData[_i][0].vesselname,
+                        label: this.vesselLabels[_i] || 'N/a',
                         backgroundColor: [],
                         data: [],
                         weatherInfo: goodSailingDays,
@@ -190,7 +193,7 @@ export class DeploymentGraphComponent implements OnInit {
                     };
                     sailingHours.forEach((hour, _j) => {
                         // Looping over dates
-                        const localWeatherInfo = goodSailingDays[_j];
+                        const localWeatherInfo = goodSailingDays[_j] || {hasWeatherData: false};
                         if (hour > 0) {
                             dset.data.push(hour);
                             if (localWeatherInfo.hasWeatherData === false) {
@@ -238,7 +241,6 @@ export class DeploymentGraphComponent implements OnInit {
                 minutesInField: 1,
                 date: 1,
                 mmsi: 1,
-                vesselname: 1,
             }
         }).subscribe((rawdata: RawGeneralModel[][]) => {
             this.RawData = rawdata.map(_raw => this.appendMissingDates(_raw));
@@ -298,7 +300,7 @@ export class DeploymentGraphComponent implements OnInit {
         };
         const getSailingWindowLength = (tooltipItem, data) => {
             const info: WeatherInfo = data.datasets[tooltipItem.datasetIndex].weatherInfo[tooltipItem.index];
-            if (info.hasWeatherData) {
+            if (info && info.hasWeatherData) {
                 return +Math.round(info.maxStablePeriod * 100) / 100 + ' hours';
             } else {
                 return 'N/a';
@@ -322,9 +324,10 @@ export class DeploymentGraphComponent implements OnInit {
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
                             const curr_date: Date = data.labels[tooltipItem.index];
+                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a'
                             return [
                                 data.datasets[tooltipItem.datasetIndex].label,
-                                dateService.jsDateToDMYString(curr_date),
+                                curr_date_string
                             ];
                         },
                         label: function (tooltipItem, data) {

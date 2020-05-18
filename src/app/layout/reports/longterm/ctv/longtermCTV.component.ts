@@ -100,8 +100,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     };
     public wavedataAvailabe = false;
 
-    @ViewChild(DeploymentGraphComponent)
-    deploymentGraph: DeploymentGraphComponent;
     @ViewChild(VesselinfoComponent)
     vesselinfoChild: VesselinfoComponent;
 
@@ -208,7 +206,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             this.wavedataArray = wavedata;
             this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
             this.wavedataAvailabe = true;
-            this.addWavedataToGraphs();
         });
     }
 
@@ -226,7 +223,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     }
 
     updateActiveField(source_id: string) {
-        console.error('Add wavedata to graph is currently broken!')
+        // console.error('Add wavedata to graph is currently broken!')
         // Called whenever longterm.components selects / deselects field
         this.fieldname = source_id;
         // this.clearWavedataFromGraphs();
@@ -236,42 +233,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             this.wavedataAvailabe = false;
         } else {
             this.loadWavedata();
-        }
-    }
-
-    addWavedataToGraphs() {
-        console.error('Add wavedata to graph is currently broken!')
-
-        // const timeStamps = this.mergedWavedata.timeStamp.map(timeStamp => {
-        //     return this.scatterPlot.createTimeLabels(timeStamp);
-        // });
-        // const dset = {
-        //     label: 'Hs',
-        //     data: this.mergedWavedata.Hs.map((elt, _idx) => {
-        //         return { x: timeStamps[_idx], y: elt };
-        //     }),
-        //     showLine: true,
-        //     pointRadius: 0,
-        //     fill: false,
-        //     yAxisID: 'Hs',
-        //     borderColor: 'rgb(0, 0, 0, 0.5);',
-        //     backgroundColor: 'rgb(0, 0, 0, 0.5);',
-        // };
-        // this.myChart.forEach((graph, _i) => {
-        //     const axis_x = graph.scales['x-axis-0'];
-        //     if (axis_x.type === 'time' && true) {
-        //         graph.scales['Hs'].options.display = true;
-        //         graph.data.datasets.push(dset);
-        //         graph.update();
-        //     }
-        // });
-        // this.updateDeploymentGraph();
-    }
-
-    updateDeploymentGraph() {
-        console.log('Update should be moved to ngOnChanges!')
-        if (this.deploymentGraph) {
-            this.deploymentGraph.updateChart();
         }
     }
 

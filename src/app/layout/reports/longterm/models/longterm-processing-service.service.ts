@@ -294,3 +294,12 @@ interface ScatterDataElt {
   key?: string;
   callback?: Function;
 }
+
+export interface LongtermParsedWavedata{
+  timeStamp: any[];
+  Hs: any[];
+  Tp: any[];
+  waveDir: any[];
+  wind: any[];
+  windDir: any[];
+};

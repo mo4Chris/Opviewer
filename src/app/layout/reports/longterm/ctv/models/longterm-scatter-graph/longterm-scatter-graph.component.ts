@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../../../models/scatterInterface';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
@@ -9,14 +9,14 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
-import { LongtermProcessingService, LongtermScatterValueArray } from '../../../models/longterm-processing-service.service';
+import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWavedata } from '../../../models/longterm-processing-service.service';
 import { now } from 'moment';
 
 @Component({
   selector: 'app-longterm-scatter-graph',
   templateUrl: './longterm-scatter-graph.component.html',
   styleUrls: ['./longterm-scatter-graph.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermScatterGraphComponent implements OnChanges {
   @Input() data: ComprisonArrayElt
@@ -24,6 +24,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
+  @Input() wavedata: LongtermParsedWavedata;
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -39,7 +40,10 @@ export class LongtermScatterGraphComponent implements OnChanges {
   constructor(
     private dateService: DatetimeService,
     private parser: LongtermProcessingService,
-  ) { }
+    private ref: ChangeDetectorRef,
+  ) {
+
+  }
 
   ngOnChanges() {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
@@ -72,9 +76,37 @@ export class LongtermScatterGraphComponent implements OnChanges {
           axisType: this.parser.getAxisType(dsets),
           datasets: dsets,
           comparisonElt: this.data
-        })
+        });
+        if (this.wavedata) {
+          this.addWavedata();
+        }
+        this.ref.detectChanges();
       }
     })
+  }
+
+  addWavedata() {
+    const timeStamps = this.wavedata.timeStamp.map(timeStamp => {
+        return this.parser.createTimeLabels(timeStamp);
+    });
+    const dset = {
+      label: 'Hs',
+      data: this.wavedata.Hs.map((elt, _idx) => {
+          return { x: timeStamps[_idx], y: elt };
+      }),
+      showLine: true,
+      pointRadius: 0,
+      fill: false,
+      yAxisID: 'Hs',
+      borderColor: 'rgb(0, 0, 0, 0.5);',
+      backgroundColor: 'rgb(0, 0, 0, 0.5);',
+    };
+    const axis_x = this.chart.scales['x-axis-0'];
+    if (axis_x.type === 'time' && true) {
+      this.chart.scales['Hs'].options.display = true;
+      this.chart.data.datasets.push(dset);
+      this.chart.update();
+    }
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
