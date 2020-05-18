@@ -63,16 +63,14 @@ export class LongtermScatterGraphComponent implements OnChanges {
       console.log('error: ' + error);
       throw error;
     })).subscribe(parsedData => {
-      this.hasData = <boolean> parsedData.some(_parsed => {
-        return _parsed.some(_elt => (<any>_elt.x && <any> _elt.x !== '_NaN_' && <any> _elt.y) as boolean);
-      })
+      const dsets = parsedData.map((_data, _i) =>
+        this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
+      );
+      this.hasData = dsets.some(_dset => _dset.data.length > 0);
       if (this.hasData) {
-        const __dset = parsedData.map((_data, _i) =>
-          this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
-        );
         this.createChart({
-          axisType: this.parser.getAxisType(__dset),
-          datasets: __dset,
+          axisType: this.parser.getAxisType(dsets),
+          datasets: dsets,
           comparisonElt: this.data
         })
       }
@@ -270,10 +268,8 @@ export class LongtermScatterGraphComponent implements OnChanges {
     this.chart.destroy();
   }
 
-  reduceLabels(received_mmsi: number[]) {
-    this.vesselLabels = this.vesselLabels.filter((_, index) => {
-      return received_mmsi.some(_mmsi => _mmsi === this.vesselObject.mmsi[index]);
-    })
+  reduceLabels(received_mmsi: number[]): void {
+    this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }
 }
 

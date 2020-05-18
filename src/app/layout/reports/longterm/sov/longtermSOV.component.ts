@@ -7,12 +7,12 @@ import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '../../../../supportModules/datetime.service';
 import { CalculationService } from '../../../../supportModules/calculation.service';
-import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { ComprisonArrayElt, RawScatterData, SOVRawScatterData } from '../models/scatterInterface';
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { LongtermProcessingService } from '../models/longterm-processing-service.service';
 
 @Component({
   selector: 'app-longterm-sov',
@@ -27,6 +27,7 @@ export class LongtermSOVComponent implements OnInit {
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
         private permission: PermissionService,
+        private parser: LongtermProcessingService,
         ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
@@ -51,28 +52,21 @@ export class LongtermSOVComponent implements OnInit {
         { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'turbine',
         info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
-        annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+        annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
         { x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
             `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown. Both turbine and platform transfers are shown.
             `, barCallback: (data: SOVRawScatterData) => this.usagePerHsBin(data),
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         { x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'platform',
         info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')},
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
     myChart = [];
     allGraphsEmpty = false;
-    scatterPlot = new ScatterplotComponent(
-        this.vesselObject,
-        this.comparisonArray,
-        this.calculationService,
-        this.dateTimeService
-        );
-
 
     // On (re)load
     ngOnInit() {
@@ -80,97 +74,96 @@ export class LongtermSOVComponent implements OnInit {
     }
 
     buildPageWithCurrentInformation() {
-        this.scatterPlot.vesselObject = this.vesselObject;
-        if (this.vesselObject.mmsi.length > 0) {
-            this.getGraphDataPerComparison();
-        } else {
-            this.scatterPlot.destroyCurrentCharts();
-        }
-        this.myChart = this.scatterPlot.myChart;
+        // if (this.vesselObject.mmsi.length > 0) {
+        //     this.getGraphDataPerComparison();
+        // } else {
+        //     this.scatterPlot.destroyCurrentCharts();
+        // }
+        // this.myChart = this.scatterPlot.myChart;
         if (this.vesselObject.mmsi.length > 0) {
             this.utilizationGraph.updateChart();
         }
     }
 
-    getGraphDataPerComparison() {
-        const loaded = [];
-        const proceedWhenAllLoaded = () => {
-            if (loaded.reduce((x, y) => x && y, true)) {
-                this.scatterPlot.createValues();
-                this.showContent.emit(true);
-            }
-        };
-        let handler: Observable<any>;
-        this.comparisonArray.forEach((compElt, _i) => {
-            loaded.push(false);
-            const queryElt = {
-                mmsi: this.vesselObject.mmsi,
-                dateMin: this.vesselObject.dateMin,
-                dateMax: this.vesselObject.dateMax,
-                reqFields: [compElt.x, compElt.y],
-            };
-            switch (compElt.dataType) {
-                case 'transfer':
-                    handler = this.getCombinedTransferObservable(queryElt);
-                    break;
-                case 'turbine':
-                    handler = this.newService.getTurbineTransfersForVesselByRangeForSOV(queryElt);
-                    break;
-                case 'platform':
-                    handler = this.newService.getPlatformTransfersForVesselByRangeForSOV(queryElt);
-                    break;
-                case 'transit':
-                    handler = this.newService.getTransitsForVesselByRangeForSOV(queryElt);
-                    break;
-                default:
-                    console.error('Invalid data type!');
-            }
-            handler.pipe(
-                map(rawScatterData => this.parseRawData(rawScatterData, _i, compElt)),
-                catchError(error => {
-                    console.log('error: ' + error);
-                    throw error;
-                })).subscribe(() => {
-                    loaded[_i] = true;
-                    proceedWhenAllLoaded();
-            });
-        });
-    }
+    // getGraphDataPerComparison() {
+    //     const loaded = [];
+    //     const proceedWhenAllLoaded = () => {
+    //         if (loaded.reduce((x, y) => x && y, true)) {
+    //             // this.scatterPlot.createValues();
+    //             this.showContent.emit(true);
+    //         }
+    //     };
+    //     let handler: Observable<any>;
+    //     this.comparisonArray.forEach((compElt, _i) => {
+    //         loaded.push(false);
+    //         const queryElt = {
+    //             mmsi: this.vesselObject.mmsi,
+    //             dateMin: this.vesselObject.dateMin,
+    //             dateMax: this.vesselObject.dateMax,
+    //             reqFields: [compElt.x, compElt.y],
+    //         };
+    //         switch (compElt.dataType) {
+    //             case 'transfer':
+    //                 handler = this.getCombinedTransferObservable(queryElt);
+    //                 break;
+    //             case 'turbine':
+    //                 handler = this.newService.getTurbineTransfersForVesselByRangeForSOV(queryElt);
+    //                 break;
+    //             case 'platform':
+    //                 handler = this.newService.getPlatformTransfersForVesselByRangeForSOV(queryElt);
+    //                 break;
+    //             case 'transit':
+    //                 handler = this.newService.getTransitsForVesselByRangeForSOV(queryElt);
+    //                 break;
+    //             default:
+    //                 console.error('Invalid data type!');
+    //         }
+    //         handler.pipe(
+    //             map(rawScatterData => this.parseRawData(rawScatterData, _i, compElt)),
+    //             catchError(error => {
+    //                 console.log('error: ' + error);
+    //                 throw error;
+    //             })).subscribe(() => {
+    //                 loaded[_i] = true;
+    //                 proceedWhenAllLoaded();
+    //         });
+    //     });
+    // }
 
-    parseRawData(rawScatterData:  RawScatterData[], graphIndex: number, compElt: ComprisonArrayElt) {
-        rawScatterData.forEach((data, _i) => {
-            if (data.label.length > 0) {
-                this.scatterPlot.labelValues[_i] = data.label[0].replace('_', ' ');
-            }
-        });
-        switch (compElt.graph) {
-            case 'scatter': case 'areaScatter':
-                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
-                    let x: number|Date;
-                    let y: number|Date;
-                    data[compElt.x].forEach((_x, __i) => {
-                        const _y = data[compElt.y][__i];
-                        x = this.processData(this.comparisonArray[graphIndex].x, _x);
-                        y = this.processData(this.comparisonArray[graphIndex].y, _y);
-                        const matlabDate = Math.floor(data.date[__i]);
-                        const navToDPRByDate = () => {
-                            return this.navigateToDPR({mmsi: data._id, matlabDate: matlabDate});
-                        };
-                        scatterData.push({x: x, y: y, callback: navToDPRByDate});
-                    });
-                    return scatterData;
-                });
-                break;
-            case 'bar':
-                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map(scatterElt => {
-                    return compElt.barCallback(scatterElt);
-                });
-                break;
-            default:
-                console.error('Undefined graphtype detected in parseRawData!');
-        }
-    }
+    // parseRawData(rawScatterData:  RawScatterData[], graphIndex: number, compElt: ComprisonArrayElt) {
+    //     rawScatterData.forEach((data, _i) => {
+    //         if (data.label.length > 0) {
+    //             this.scatterPlot.labelValues[_i] = data.label[0].replace('_', ' ');
+    //         }
+    //     });
+    //     switch (compElt.graph) {
+    //         case 'scatter': case 'areaScatter':
+    //             this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
+    //                 const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
+    //                 let x: number|Date;
+    //                 let y: number|Date;
+    //                 data[compElt.x].forEach((_x, __i) => {
+    //                     const _y = data[compElt.y][__i];
+    //                     x = this.processData(this.comparisonArray[graphIndex].x, _x);
+    //                     y = this.processData(this.comparisonArray[graphIndex].y, _y);
+    //                     const matlabDate = Math.floor(data.date[__i]);
+    //                     const navToDPRByDate = () => {
+    //                         return this.navigateToDPR({mmsi: data._id, matlabDate: matlabDate});
+    //                     };
+    //                     scatterData.push({x: x, y: y, callback: navToDPRByDate});
+    //                 });
+    //                 return scatterData;
+    //             });
+    //             break;
+    //         case 'bar':
+    //             this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map(scatterElt => {
+    //                 return compElt.barCallback(scatterElt);
+    //             });
+    //             break;
+    //         default:
+    //             console.error('Undefined graphtype detected in parseRawData!');
+    //     }
+    // }
 
     navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
         this.navigateToVesselreport.emit(navItem);
@@ -179,7 +172,7 @@ export class LongtermSOVComponent implements OnInit {
     processData(Type: string, elt: number) {
         switch (Type) {
             case 'startTime': case 'dayNum': case 'arrivalTimePlatform':
-                return this.scatterPlot.createTimeLabels(elt);
+                return this.parser.createTimeLabels(elt);
             case 'impactForceNmax':
                 return elt / 1000;
             default:

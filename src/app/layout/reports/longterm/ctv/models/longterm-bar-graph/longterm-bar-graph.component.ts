@@ -190,10 +190,8 @@ export class LongtermBarGraphComponent implements OnChanges {
     this.chart.destroy();
   }
 
-  reduceLabels(received_mmsi: number[]) {
-    this.vesselLabels = this.vesselLabels.filter((_, index) => {
-      return received_mmsi.some(_mmsi => _mmsi === this.vesselObject.mmsi[index]);
-    })
+  reduceLabels(received_mmsi: number[]): void {
+    this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }
 }
 

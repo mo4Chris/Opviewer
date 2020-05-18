@@ -5,7 +5,7 @@
 </div>
 <div class="row">
     <div class="divContainer" >
-        <div *ngIf="!scatterPlot.allGraphsEmpty; else allGraphsEmpty">
+        <div *ngIf="!allGraphsEmpty; else noData">
             <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
@@ -46,7 +46,7 @@
     </div>
 </ng-template>
 
-<ng-template #allGraphsEmpty>
+<ng-template #noData>
     <div class="divContainer">
         <h3> There is no valid data for selected vessel(s)!</h3>
     </div>

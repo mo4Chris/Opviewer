@@ -7,7 +7,7 @@ import { CommonService, StatsRangeRequest } from '@app/common.service';
 import * as Chart from 'chart.js';
 import { Observable } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
-import { map } from 'rxjs/operators';
+import { LongtermVesselObjectModel } from '../longterm.component';
 
 @Injectable({
   providedIn: 'root'
@@ -78,12 +78,8 @@ export class LongtermProcessingService {
     if (type === 'bar') {
       return rawData;
     } else {
-      return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.y === 0));
+      return rawData.filter(data => !(isNaN(data.x as number) || isNaN(data.y as number) || data.x === null || data.y === 0 || data.y === null));
     }
-  }
-
-  setAnnotations(compElt: ComprisonArrayElt) {
-    return compElt.annotation ? [compElt.annotation()] : [];
   }
 
   getAxisType(dataArrays: {data: {x: any, y: any}[]}[]): axisType {
@@ -160,8 +156,8 @@ export class LongtermProcessingService {
     },... opts};
   }
 
- createNewLegendAndAttach(chartInstance, legendOpts) {
-    const legend = new Chart.NewLegend({
+  createNewLegendAndAttach(chartInstance, legendOpts): void {
+    const legend = new Chart.Legend({
       ctx: chartInstance.chart.ctx,
       options: legendOpts,
       chart: chartInstance
@@ -172,6 +168,38 @@ export class LongtermProcessingService {
     }
     chartInstance.newLegend = legend;
     Chart.layoutService.addBox(chartInstance, legend);
+  }
+
+  reduceLabels(vesselObject: LongtermVesselObjectModel, received_mmsi: number[]): string[] {
+    return received_mmsi.map(mmsi => {
+      return vesselObject.vesselName[
+        vesselObject.mmsi.findIndex(_mmsi => _mmsi === mmsi)
+      ];
+    })
+  }
+
+  setAnnotations(compElt: ComprisonArrayElt) {
+    return compElt.annotation ? [compElt.annotation()] : [];
+  }
+
+  drawHorizontalLine(yVal: number, label?: string) {
+    return {
+      passive: false,
+      type: 'line',
+      mode: 'horizontal',
+      scaleID: 'y-axis-0',
+      value: 1.0001 * yVal, // we add small number to make graphs auto-scale above the line
+      borderColor: 'rgb(75, 192, 192)',
+      borderWidth: 3,
+      label: {
+        position: 'left',
+        xAdjust: 10,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        fontColor: '#fff',
+        enabled: true,
+        content: label
+      }
+    };
   }
 
   // Utility

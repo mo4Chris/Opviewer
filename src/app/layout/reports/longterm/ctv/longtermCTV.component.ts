@@ -1,20 +1,19 @@
 import { Component, OnInit, Output, EventEmitter, Input, ViewChild, OnChanges } from '@angular/core';
-import { CommonService } from '../../../../common.service';
+import { CommonService } from '@app/common.service';
 
-import { map, catchError, reduce } from 'rxjs/operators';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
-import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
-import { TokenModel } from '../../../../models/tokenModel';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { TokenModel } from '@app/models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { WavedataModel, WaveSourceModel } from '../../../../models/wavedataModel';
+import { WavedataModel, WaveSourceModel } from '@app/models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
-import { SettingsService } from '../../../../supportModules/settings.service';
+import { SettingsService } from '@app/supportModules/settings.service';
+import { LongtermProcessingService } from '../models/longterm-processing-service.service';
 
 @Component({
     selector: 'app-longterm-ctv',
@@ -27,6 +26,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
         private settings: SettingsService,
+        private parser: LongtermProcessingService,
     ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
@@ -57,45 +57,40 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 `Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel
             connection is during  transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.
-            `, annotation: () => this.scatterPlot.drawHorizontalLine(6)
+            `, annotation: () => this.parser.drawHorizontalLine(6)
         },
         {
             x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
                 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
                 'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         {
             x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(6)
+            annotation: () => this.parser.drawHorizontalLine(6)
         },
         {
             x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
                 `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown.
             `, barCallback: (data: RawScatterData) => this.usagePerHsBin(data),
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         {
             x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
                 'Transfers without valid transfer scores have been omitted.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
     ];
-
-    vesselNames = [];
-    allGraphsEmpty = false;
-    scatterPlot = new ScatterplotComponent(
-        this.vesselObject,
-        this.comparisonArray,
-        this.calculationService,
-        this.dateTimeService
-    );
-    fieldname: string;
+    
     wavedataArray: WavedataModel[];
-    mergedWavedata: {
+
+    public vesselNames = [];
+    public allGraphsEmpty = false;
+    public fieldname: string;
+    public mergedWavedata: {
         timeStamp: any[],
         Hs: any[],
         Tp: any[],
@@ -103,7 +98,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         wind: any[],
         windDir: any[]
     };
-    wavedataAvailabe = false;
+    public wavedataAvailabe = false;
 
     @ViewChild(DeploymentGraphComponent)
     deploymentGraph: DeploymentGraphComponent;

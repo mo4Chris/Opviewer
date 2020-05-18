@@ -17,8 +17,6 @@ import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
-import { isArray } from 'util';
-import { eventNames } from 'cluster';
 
 @Component({
   selector: 'app-reports-longterm',
