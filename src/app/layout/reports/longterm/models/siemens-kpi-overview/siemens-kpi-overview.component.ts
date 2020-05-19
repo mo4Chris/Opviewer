@@ -33,6 +33,8 @@ const EMPTY_DPR = {
 })
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
+  @Input() vesselNames: string[];
+  
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
     site: 'TEST',
@@ -57,7 +59,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     private ref: ChangeDetectorRef,
   ) { }
   currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
-  vesselNames: string[] = [];
 
 
   ngOnChanges(change) {
@@ -82,7 +83,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
       this.kpis = [];
-      this.vesselNames = [];
       this.mmsi.forEach((_mmsi, _i) => {
         const matchedTransfers = transfers.find(val => val._id === _mmsi);
         const matchedPlatforms = platforms.find(val => val._id === _mmsi);
@@ -91,13 +91,13 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
         const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
         const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-        if (matchedTransfers) {
-          this.vesselNames.push(this.formatVesselNames(matchedTransfers.label[0]))
-        } else if (matchedPlatforms) {
-          this.vesselNames.push(this.formatVesselNames(matchedPlatforms.label[0]))
-        } else {
-          this.vesselNames.push('-')
-        }
+        // if (matchedTransfers) {
+        //   this.vesselNames.push(this.formatVesselNames(matchedTransfers.label[0]))
+        // } else if (matchedPlatforms) {
+        //   this.vesselNames.push(this.formatVesselNames(matchedPlatforms.label[0]))
+        // } else {
+        //   this.vesselNames.push('-')
+        // }
         let _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
@@ -221,13 +221,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   private formatFieldName(rawname: string) {
     if (rawname) {
       return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
-    } else {
-      return '-'
-    }
-  }
-  private formatVesselNames(rawname: string) {
-    if (rawname) {
-      return rawname.replace(/_/g, ' ').replace(/(\S)([A-Z0-9])/g, '$1 $2').trim();
     } else {
       return '-'
     }

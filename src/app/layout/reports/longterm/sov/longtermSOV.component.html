@@ -6,16 +6,16 @@
 <div class="row">
   <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
     <div class="graphContainer" *ngIf="permission.sovSiemensMonthlyKpis">
-      <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi"></app-siemens-kpi-overview>
+      <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames"></app-siemens-kpi-overview>
     </div>
-    <div *ngIf="scatterPlot.allGraphsEmpty">
+    <div *ngIf="allGraphsEmpty">
       <div class="divContainer">
         <h3> There is no valid data for selected vessel(s)!</h3>
       </div>
     </div>
-    <div class="graphContainer" *ngIf="true">
+    <div class="graphContainer">
       <app-utilization-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
-        [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)">
+        [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
       </app-utilization-graph>
     </div>
     <!-- <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
@@ -30,14 +30,19 @@
     </div> -->
     <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
       <ng-container [ngSwitch]="transfer_Data.graph">
+        {{transfer_Data.xLabel}}
+        {{transfer_Data.graph}}
           <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
-              [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
+              [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" (navigateToVesselreport)="navigateToDPR($event)"
+              vesselType="SOV"
               ></app-longterm-scatter-graph>
           <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
-              [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
+              [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" (navigateToVesselreport)="navigateToDPR($event)"
+              vesselType="SOV"
               ></app-longterm-trend-graph>
           <app-longterm-bar-graph *ngSwitchCase="'bar'" [data]="transfer_Data" [vesselObject]="vesselObject"
               [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" [callback]="transfer_Data.barCallback"
+              vesselType="SOV"
               (navigateToVesselreport)="navigateToDPR($event)"
               ></app-longterm-bar-graph>
           <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>

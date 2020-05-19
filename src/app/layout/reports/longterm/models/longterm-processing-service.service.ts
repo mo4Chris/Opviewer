@@ -5,9 +5,11 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { ComprisonArrayElt, RawScatterData } from './scatterInterface';
 import { CommonService, StatsRangeRequest } from '@app/common.service';
 import * as Chart from 'chart.js';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
 import { LongtermVesselObjectModel } from '../longterm.component';
+import { map } from 'rxjs/operators';
+import { now } from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -25,24 +27,48 @@ export class LongtermProcessingService {
     private newService: CommonService,
   ) { }
 
-  load(queryElt: StatsRangeRequest, dataType: string): Observable<any> {
+  load(queryElt: StatsRangeRequest, dataType: string, vesselType: 'CTV' | 'SOV' | 'OSV', cb?: Function): Observable<any> {
     let loadable: Observable<any>;
-    switch (dataType) {
-      case 'transfer':
-        loadable = this.newService.getTransfersForVesselByRange(queryElt);
+    switch (vesselType) {
+      case 'CTV':
+        switch (dataType) {
+          case 'transfer':
+            loadable = this.newService.getTransfersForVesselByRange(queryElt);
+            break;
+          case 'transit':
+            loadable = this.newService.getTransfersForVesselByRange(queryElt);
+            break;
+          default:
+            throw Error('Unsupported CTV data pipeline <' + dataType + '>!')
+        }
         break;
-      case 'transit':
-        loadable = this.newService.getTransfersForVesselByRange(queryElt);
+      case 'OSV': case 'SOV':
+        switch (dataType) {
+          case 'turbine':
+            loadable = this.newService.getTurbineTransfersForVesselByRangeForSOV(queryElt);
+            break;
+          case 'platform':
+            loadable = this.newService.getPlatformTransfersForVesselByRangeForSOV(queryElt);
+            break;
+          case 'transit':
+            loadable = this.newService.getTransitsForVesselByRangeForSOV(queryElt);
+            break;
+          case 'transfer':
+            loadable = this.getCombinedTransferObservable(queryElt, cb);
+            break;
+          default:
+            throw Error('Unsupported SOV data pipeline <' + dataType + '>!')
+        }
         break;
       default:
-        throw Error('Unsupported data pipeline!')
+        throw Error('Invalid vessel type <' + vesselType + '>!')
     }
     return loadable;
   }
 
   processData(Type: string, elt: number) {
     switch (Type) {
-      case 'startTime': case 'date':
+      case 'startTime': case 'date': case'arrivalTimePlatform':
         return this.createTimeLabels(elt);
       case 'Hs':
         return elt;
@@ -54,6 +80,8 @@ export class LongtermProcessingService {
         return elt;
       case 'transitTimeMinutes':
         return elt;
+      case 'visitDuration': case 'duration':
+        return elt;
       case 'vesselname':
         return elt;
       case 'date':
@@ -61,13 +89,14 @@ export class LongtermProcessingService {
       case 'speed': case 'speedInTransitAvgKMH': case 'speedInTransitKMH':
         return this.calculationService.switchSpeedUnits([elt], 'km/h', this.settings.unit_speed)[0];
       default:
+        throw Error('Unsupported type ' + Type);
         return NaN;
     }
   }
 
   createTimeLabels(timeElt: number) {
     if (timeElt !== null && typeof timeElt !== 'object') {
-      return this.MatlabDateToUnixEpochViaDate(timeElt);
+      return this.dateTimeService.MatlabDateToUnixEpochViaDate(timeElt);
     } else {
       return NaN;
     }
@@ -202,6 +231,23 @@ export class LongtermProcessingService {
     };
   }
 
+  defaultClickHandler (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
+    console.log('Click!')
+    const ct = this as Chart;
+    console.log(ct)
+    if (ct.lastClick !== undefined && now() - ct.lastClick < 300) {
+      // Two clicks < 300ms ==> double click
+      if (chartElt && chartElt.length > 0) {
+        chartElt = chartElt[0];
+        const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
+        if (dataElt.callback !== undefined) {
+          dataElt.callback();
+        }
+      }
+    }
+    ct.lastClick = now();
+  }
+
   // Utility
   getMatlabDateYesterday() {
     return this.dateTimeService.getMatlabDateYesterday();
@@ -215,13 +261,13 @@ export class LongtermProcessingService {
   getJSDateLastMonthYMD() {
     return this.dateTimeService.getJSDateLastMonthYMD();
   }
-  MatlabDateToJSDateYMD(serial) {
+  MatlabDateToJSDateYMD(serial: number) {
     return this.dateTimeService.MatlabDateToJSDateYMD(serial);
   }
-  unixEpochtoMatlabDate(epochDate) {
+  unixEpochtoMatlabDate(epochDate: number) {
     return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
-  MatlabDateToUnixEpochViaDate(serial) {
+  MatlabDateToUnixEpochViaDate(serial: number) {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
   parseScatterDate(t: number) {
@@ -236,6 +282,57 @@ export class LongtermProcessingService {
       proper[i] = raws.find(_raw => _raw.id == mmsi)      
     }
     return raws;
+  }
+
+  private getCombinedTransferObservable(queryElt: {
+      mmsi: number[],
+      dateMin: number,
+      dateMax: number,
+      reqFields: string[],
+  }, groupCallback: Function): Observable<any> {
+    // Retrieves data for both turbine and platform transfer stats
+    const index = (arr: Array<any>, _mmsi: number) => {
+      let content = null;
+      arr.some((elt) => {
+        if (elt._id === _mmsi) {
+          content = elt;
+          return true;
+        }
+        return false;
+      });
+      if (content) {
+        content.groups = this.dateTimeService.groupDataByMonth(content);
+      }
+      return content;
+    };
+    const queryEltTurb = { ... queryElt, ... {reqFields: ['startTime', 'duration', 'Hs']}};
+    const queryEltPlatform = { ... queryElt, ... {reqFields: ['date', 'arrivalTimePlatform', 'visitDuration', 'Hs']}};
+
+    return forkJoin(
+      this.newService.getTurbineTransfersForVesselByRangeForSOV(queryEltTurb),
+      this.newService.getPlatformTransfersForVesselByRangeForSOV(queryEltPlatform)
+    ).pipe(map(([turbine = null, platform = null]) => {
+        const output = [];
+        queryElt.mmsi.forEach((_mmsi: number, _i) => {
+          const local = {
+            _id: _mmsi,
+            label: [''],
+            turbine: null,
+            platform: null,
+          };
+          local.turbine = index(turbine, _mmsi);
+          local.platform = index(platform, _mmsi);
+          if (local.turbine) {
+            local.label = local.turbine.label;
+            output.push(local);
+          } else if (local.platform) {
+            local.label = local.platform.label;
+            output.push(local);
+          }
+        });
+        return output;
+      }
+    ));
   }
 }
 

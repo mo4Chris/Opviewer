@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonService } from '../../../../../common.service';
 import { CalculationService } from '../../../../../supportModules/calculation.service';
 import { DatetimeService } from '../../../../../supportModules/datetime.service';
@@ -14,13 +14,14 @@ import { LongtermColorScheme } from '../../models/color_scheme';
     templateUrl: './utilizationGraph.component.html',
     styleUrls: ['../longtermSOV.component.scss',
         './utilizationGraph.component.scss'],
-        changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtilizationGraphComponent implements OnInit {
     constructor(
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
+        private ref: ChangeDetectorRef,
     ) {
     }
 
@@ -39,6 +40,11 @@ export class UtilizationGraphComponent implements OnInit {
 
     ngOnInit() {
         this.updateChart();
+    }
+
+    ngOnChanges() {
+        this.updateChart();
+        this.ref.detectChanges();
     }
 
     updateChart() {

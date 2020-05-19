@@ -33,6 +33,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
+    @Input() activeField: string;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
@@ -88,7 +89,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     wavedataArray: WavedataModel[];
 
     public vesselNames = [];
-    public allGraphsEmpty = false;
+    public allGraphsEmpty = false; // Not working
     public fieldname: string;
     public mergedWavedata: {
         timeStamp: any[],
@@ -100,20 +101,14 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     };
     public wavedataAvailabe = false;
 
-    @ViewChild(VesselinfoComponent)
-    vesselinfoChild: VesselinfoComponent;
-
     // On (re)load
     ngOnInit() {
         Chart.pluginService.register(ChartAnnotation);
     }
 
     ngOnChanges () {
-        this.buildPageWithCurrentInformation();
-    }
-
-    buildPageWithCurrentInformation() {
         this.vesselNames = this.vesselObject.vesselName;
+        this.updateActiveField(this.activeField);
     }
 
     navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
@@ -208,25 +203,9 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             this.wavedataAvailabe = true;
         });
     }
-
-    clearWavedataFromGraphs() {
-        console.error('Add wavedata to graph is currently broken!')
-    //     this.myChart.forEach((graph, _i) => {
-    //         const axis_x = graph.scales['x-axis-0'];
-    //         if (axis_x.type === 'time' && graph) {
-    //             graph.scales['Hs'].options.display = false;
-    //             graph.data.datasets = graph.data.datasets.filter(dset => {
-    //                 return dset.label !== 'Hs';
-    //             });
-    //         }
-    //     });
-    }
-
     updateActiveField(source_id: string) {
-        // console.error('Add wavedata to graph is currently broken!')
         // Called whenever longterm.components selects / deselects field
         this.fieldname = source_id;
-        // this.clearWavedataFromGraphs();
         if (source_id === '') {
             this.wavedataArray = null;
             this.mergedWavedata = null;

@@ -84,12 +84,6 @@ export class LongtermComponent implements OnInit {
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
 
-  @ViewChild(LongtermCTVComponent)
-  private ctvChild: LongtermCTVComponent;
-
-  @ViewChild(LongtermSOVComponent)
-  private sovChild: LongtermSOVComponent;
-
   // onInit
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
@@ -176,17 +170,6 @@ export class LongtermComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     this.datePickerValue = this.fromDate;
-    setTimeout(() => {
-      if (this.vesselType === 'CTV') {
-        // Build CTV module
-        this.ctvChild.buildPageWithCurrentInformation();
-      } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-        // Build SOV module
-        this.sovChild.buildPageWithCurrentInformation();
-      } else {
-        console.error('Invalid DPR - no CTV or SOV child rendered!');
-      }
-    });
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
@@ -294,13 +277,13 @@ export class LongtermComponent implements OnInit {
   }
 
   updateWavedataForChild() {
-    if (this.vesselType === 'CTV') {
-      // Build CTV module
-      this.ctvChild.updateActiveField(this.selectedField);
-    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-      // Build SOV module
-      // this.sovChild.buildPageWithCurrentInformation();
-    }
+    // if (this.vesselType === 'CTV') {
+    //   // Build CTV module
+    //   this.ctvChild.updateActiveField(this.selectedField);
+    // } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+    //   // Build SOV module
+    //   // this.sovChild.buildPageWithCurrentInformation();
+    // }
   }
 
   // Utility

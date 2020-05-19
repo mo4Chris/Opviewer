@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 import { CommonService } from '../../../../common.service';
 
 import { map, catchError } from 'rxjs/operators';
@@ -21,7 +21,7 @@ import { LongtermProcessingService } from '../models/longterm-processing-service
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class LongtermSOVComponent implements OnInit {
+export class LongtermSOVComponent implements OnInit, OnChanges {
     constructor(
         private newService: CommonService,
         private calculationService: CalculationService,
@@ -37,10 +37,7 @@ export class LongtermSOVComponent implements OnInit {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
-    @ViewChild(UtilizationGraphComponent)
-    utilizationGraph: UtilizationGraphComponent;
-
-    comparisonArray: ComprisonArrayElt[] = [
+    public comparisonArray: ComprisonArrayElt[] = [
         { x: 'turbine', y: 'platform', graph: 'bar', xLabel: 'Time', yLabel: 'Number of transfers',
         dataType: 'transfer', barCallback: this.usagePerMonth, info: `Number of turbine or platform
         transfers performed on a monthly basis. Platform transfers are indicated by the lighter colour.
@@ -49,7 +46,7 @@ export class LongtermSOVComponent implements OnInit {
         dataType: 'turbine', info: 'Turbine transfer duration' },
         { x: 'arrivalTimePlatform', y: 'visitDuration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
         dataType: 'platform', info: 'Platform transfer duration' },
-        { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'turbine',
+        { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Turbine transfer duration [mns]', dataType: 'turbine',
         info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
         annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
@@ -59,112 +56,24 @@ export class LongtermSOVComponent implements OnInit {
             `, barCallback: (data: SOVRawScatterData) => this.usagePerHsBin(data),
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
-        { x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer duration [mns]', dataType: 'platform',
+        { x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Platform transfer duration [mns]', dataType: 'platform',
         info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
     ];
 
-    myChart = [];
-    allGraphsEmpty = false;
+    public allGraphsEmpty = false; // Not working
+    public vesselNames: string [];
 
     // On (re)load
     ngOnInit() {
         Chart.pluginService.register(ChartAnnotation);
     }
 
-    buildPageWithCurrentInformation() {
-        // if (this.vesselObject.mmsi.length > 0) {
-        //     this.getGraphDataPerComparison();
-        // } else {
-        //     this.scatterPlot.destroyCurrentCharts();
-        // }
-        // this.myChart = this.scatterPlot.myChart;
-        if (this.vesselObject.mmsi.length > 0) {
-            this.utilizationGraph.updateChart();
-        }
+    ngOnChanges() {
+        this.vesselNames = this.vesselObject.vesselName;
     }
-
-    // getGraphDataPerComparison() {
-    //     const loaded = [];
-    //     const proceedWhenAllLoaded = () => {
-    //         if (loaded.reduce((x, y) => x && y, true)) {
-    //             // this.scatterPlot.createValues();
-    //             this.showContent.emit(true);
-    //         }
-    //     };
-    //     let handler: Observable<any>;
-    //     this.comparisonArray.forEach((compElt, _i) => {
-    //         loaded.push(false);
-    //         const queryElt = {
-    //             mmsi: this.vesselObject.mmsi,
-    //             dateMin: this.vesselObject.dateMin,
-    //             dateMax: this.vesselObject.dateMax,
-    //             reqFields: [compElt.x, compElt.y],
-    //         };
-    //         switch (compElt.dataType) {
-    //             case 'transfer':
-    //                 handler = this.getCombinedTransferObservable(queryElt);
-    //                 break;
-    //             case 'turbine':
-    //                 handler = this.newService.getTurbineTransfersForVesselByRangeForSOV(queryElt);
-    //                 break;
-    //             case 'platform':
-    //                 handler = this.newService.getPlatformTransfersForVesselByRangeForSOV(queryElt);
-    //                 break;
-    //             case 'transit':
-    //                 handler = this.newService.getTransitsForVesselByRangeForSOV(queryElt);
-    //                 break;
-    //             default:
-    //                 console.error('Invalid data type!');
-    //         }
-    //         handler.pipe(
-    //             map(rawScatterData => this.parseRawData(rawScatterData, _i, compElt)),
-    //             catchError(error => {
-    //                 console.log('error: ' + error);
-    //                 throw error;
-    //             })).subscribe(() => {
-    //                 loaded[_i] = true;
-    //                 proceedWhenAllLoaded();
-    //         });
-    //     });
-    // }
-
-    // parseRawData(rawScatterData:  RawScatterData[], graphIndex: number, compElt: ComprisonArrayElt) {
-    //     rawScatterData.forEach((data, _i) => {
-    //         if (data.label.length > 0) {
-    //             this.scatterPlot.labelValues[_i] = data.label[0].replace('_', ' ');
-    //         }
-    //     });
-    //     switch (compElt.graph) {
-    //         case 'scatter': case 'areaScatter':
-    //             this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-    //                 const scatterData: {x: number|Date, y: number|Date, callback?: Function}[] = [];
-    //                 let x: number|Date;
-    //                 let y: number|Date;
-    //                 data[compElt.x].forEach((_x, __i) => {
-    //                     const _y = data[compElt.y][__i];
-    //                     x = this.processData(this.comparisonArray[graphIndex].x, _x);
-    //                     y = this.processData(this.comparisonArray[graphIndex].y, _y);
-    //                     const matlabDate = Math.floor(data.date[__i]);
-    //                     const navToDPRByDate = () => {
-    //                         return this.navigateToDPR({mmsi: data._id, matlabDate: matlabDate});
-    //                     };
-    //                     scatterData.push({x: x, y: y, callback: navToDPRByDate});
-    //                 });
-    //                 return scatterData;
-    //             });
-    //             break;
-    //         case 'bar':
-    //             this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map(scatterElt => {
-    //                 return compElt.barCallback(scatterElt);
-    //             });
-    //             break;
-    //         default:
-    //             console.error('Undefined graphtype detected in parseRawData!');
-    //     }
-    // }
-
+    
     navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
         this.navigateToVesselreport.emit(navItem);
     }
@@ -180,16 +89,20 @@ export class LongtermSOVComponent implements OnInit {
         }
     }
 
-    usagePerMonth(data): {x: number[], y: number[], key: string}[] { // : {_id: number, label: string[], turbine: any, platform: any}
+    usagePerMonth(data: SOVRawScatterData): {x: number[], y: number[], key: string}[] { // : {_id: number, label: string[], turbine: any, platform: any}d
         const turbInfo = {x: [], y: [], key: 'Turbine transfers:'};
         const platInfo = {x: [], y: [], key: 'Platform transfers:'};
+        const vessel = this.parser.reduceLabels(this.vesselObject, [data.turbine._id]);
+        const len = Math.max(data.turbine.groups.length, data.platform.groups.length);
+        const vessels = this.calculationService.fillArray(vessel[0], len);
+
         if (data.turbine) {
-            turbInfo.x = data.turbine.groups.labels;
-            turbInfo.y = data.turbine.groups.dates.map((elts: Array<number>) => elts.length);
+            turbInfo.x = vessels;
+            turbInfo.y = data.turbine.groups.map(_group => _group.date.length);
         }
         if (data.platform) {
-            platInfo.x = data.platform.groups.labels;
-            platInfo.y = data.platform.groups.dates.map(elts => elts.length);
+            platInfo.x = vessels;
+            platInfo.y = data.platform.groups.map(_group => _group.date.length);
         }
         return [turbInfo, platInfo];
     }
@@ -219,6 +132,7 @@ export class LongtermSOVComponent implements OnInit {
         }, 0);
         return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length), key: '# transfers:' }];
     }
+
     groupDataByBin(data: RawScatterData, binData: {param: string, val: number[] }): {data: number[][], labels: string[]} {
         if (data === null) {
             return {
@@ -240,58 +154,6 @@ export class LongtermSOVComponent implements OnInit {
             binnedData.push(data[binParam].filter(dateElt => dateElt >= lower && dateElt < upper));
         }
         return { data: binnedData, labels: labels };
-    }
-
-    getCombinedTransferObservable(queryElt: {
-        mmsi: number[],
-        dateMin: number,
-        dateMax: number,
-        reqFields: string[],
-    }): Observable<any> {
-        // Retrieves data for both turbine and platform transfer stats
-        const index = (arr: Array<any>, _mmsi: number) => {
-            let content = null;
-            arr.some((elt) => {
-                if (elt._id === _mmsi) {
-                    content = elt;
-                    return true;
-                }
-                return false;
-            });
-            if (content) {
-                content.groups = this.groupDataByMonth(content);
-            }
-            return content;
-        };
-        const queryEltTurb = { ... queryElt, ... {reqFields: ['startTime', 'duration', 'Hs']}};
-        const queryEltPlatform = { ... queryElt, ... {reqFields: ['date', 'arrivalTimePlatform', 'visitDuration', 'Hs']}};
-
-        return forkJoin(
-            this.newService.getTurbineTransfersForVesselByRangeForSOV(queryEltTurb),
-            this.newService.getPlatformTransfersForVesselByRangeForSOV(queryEltPlatform)
-        ).pipe(
-            map(([turbine = null, platform = null]) => {
-                const output = [];
-                queryElt.mmsi.forEach((_mmsi: number, _i) => {
-                    const local = {
-                        _id: _mmsi,
-                        label: [''],
-                        turbine: null,
-                        platform: null,
-                    };
-                    local.turbine = index(turbine, _mmsi);
-                    local.platform = index(platform, _mmsi);
-                    if (local.turbine) {
-                        local.label = local.turbine.label;
-                        output.push(local);
-                    } else if (local.platform) {
-                        local.label = local.platform.label;
-                        output.push(local);
-                    }
-                });
-                return output;
-            }
-        ));
     }
 
     groupDataByMonth(data: {date: number[]} ) {

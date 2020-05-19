@@ -25,6 +25,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
   @Input() vesselLabels: string[] = ['Placeholder A', 'Placeholder B', 'Placeholder C'];
   @Input() bins = [0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.25,3.5,3.75,4];
   @Input() outlierThreshold = 5;
+  @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -59,7 +60,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
       y: this.data.y,
     }
     
-    this.parser.load(query, this.data.dataType).pipe(map(
+    this.parser.load(query, this.data.dataType, this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
       console.log('error: ' + error);
@@ -86,6 +87,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
+    const navToDpr = (info: {mmsi: number, matlabDate: number}) => this.navigateToVesselreport.emit(info);
     this.reduceLabels(rawScatterData.map(_data => _data._id));
     return rawScatterData.map((data) => {
       let vesselDataSets: ScatterDataElt[] = [];
@@ -107,6 +109,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
         });
         const xVals = data[this.data.x].filter((_, _idx) => idx[_idx]) as number[];
         const yVals = data[this.data.y].filter((_, _idx) => idx[_idx]) as number[];
+        const dates = data.date.filter((_, _idx) => idx[_idx]) as number[];
+
         if (cnt < this.outlierThreshold) {
           // Add points to scatter array
           vesselDataSets = vesselDataSets.concat(xVals.map((x, i) => {
@@ -118,12 +122,13 @@ export class LongtermTrendGraphComponent implements OnChanges {
         } else {
           const mean = this.calcService.getNanMean(yVals as number[]);
           const std = this.calcService.getNanStd(yVals as number[]);
-          const outliers = [];
+          const outliers: ScatterDataElt[] = [];
           yVals.forEach((yVal, i) => {
             if (yVal <  mean - 2 * std || yVal > mean + 2 * std) {
               outliers.push({
                 x: data[this.data.x][i],
                 y: yVal,
+                callback: () => navToDpr({mmsi: data._id, matlabDate: dates[i]})
               })
             }
           });
@@ -144,6 +149,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
           });
         }
       }
+      line_lb.push(line_ub[line_ub.length - 1]);
       return {
         trend: line,
         lb: line_lb,
@@ -232,6 +238,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
             xAxes: this.buildAxisFromType(args.comparisonElt.xLabel, 'x-axis-0'),
             yAxes: this.buildAxisFromType(args.comparisonElt.yLabel, 'y-axis-0'),
           },
+          onClick: this.parser.defaultClickHandler
       },
       plugins: [
         {

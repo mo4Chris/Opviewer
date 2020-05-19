@@ -23,7 +23,7 @@ export class LongtermBarGraphComponent implements OnChanges {
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Placeholder A', 'Placeholder B', 'Placeholder C'];
-
+  @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
   @Input() callback: (data: RawScatterData) => {x: number[], y: number[]}[] = (data) => [];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -39,6 +39,7 @@ export class LongtermBarGraphComponent implements OnChanges {
 
   constructor(
     private parser: LongtermProcessingService,
+    private calculationService: CalculationService, // Used in callbacks!
   ) { }
 
   ngOnChanges() {
@@ -57,7 +58,7 @@ export class LongtermBarGraphComponent implements OnChanges {
       y: this.data.y,
     }
     
-    this.parser.load(query, this.data.dataType).pipe(map(
+    this.parser.load(query, this.data.dataType, this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
       console.log('error: ' + error);

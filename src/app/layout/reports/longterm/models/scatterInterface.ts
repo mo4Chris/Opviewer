@@ -16,11 +16,12 @@ export interface RawScatterData {
     label: string[];
     date: number[];
     queryFields: {[prop: string]: string};
+    groups?: any[];
 }
 
 export interface SOVRawScatterData {
     _id: string;
-    labels: string[];
+    label: string[];
     turbine: null | RawScatterData;
     platform: null | RawScatterData;
 }

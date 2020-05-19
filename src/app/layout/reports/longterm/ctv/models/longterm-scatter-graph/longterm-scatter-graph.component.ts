@@ -25,6 +25,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
   @Input() wavedata: LongtermParsedWavedata;
+  @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -42,7 +43,6 @@ export class LongtermScatterGraphComponent implements OnChanges {
     private parser: LongtermProcessingService,
     private ref: ChangeDetectorRef,
   ) {
-
   }
 
   ngOnChanges() {
@@ -61,7 +61,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
       y: this.data.y,
     }
     
-    this.parser.load(query, this.data.dataType).pipe(map(
+    this.parser.load(query, this.data.dataType,  this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
       console.log('error: ' + error);
@@ -198,19 +198,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
           events: ['mouseover', 'mouseout', 'dblclick', 'click'],
           annotations: this.parser.setAnnotations(args.comparisonElt)
         },
-        onClick: function (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
-          if (this.lastClick !== undefined && now() - this.lastClick < 300) {
-            // Two clicks < 300ms ==> double click
-            if (chartElt && chartElt.length > 0) {
-              chartElt = chartElt[0];
-              const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
-              if (dataElt.callback !== undefined) {
-                dataElt.callback();
-              }
-            }
-          }
-          this.lastClick = now();
-        }
+        onClick: this.parser.defaultClickHandler
       },
       plugins: [
         {

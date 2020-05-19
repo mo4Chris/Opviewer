@@ -18,14 +18,15 @@
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
-                        [wavedata]="mergedWavedata"
+                        [wavedata]="mergedWavedata" vesselType="CTV"
                         ></app-longterm-scatter-graph>
                     <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
+                        vesselType="CTV"
                         ></app-longterm-trend-graph>
                     <app-longterm-bar-graph *ngSwitchCase="'bar'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" [callback]="transfer_Data.barCallback"
-                        (navigateToVesselreport)="navigateToDPR($event)"
+                        (navigateToVesselreport)="navigateToDPR($event)" vesselType="CTV"
                         ></app-longterm-bar-graph>
                     <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>
                         <div class="col-lg-8">
