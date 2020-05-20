@@ -327,7 +327,7 @@ export class CommonService {
     date: number;
   }) {
     return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo).pipe(
-      map((response) => response.json()))
+      map((response) => response.json()));
   }
 
   saveNonAvailabilityDpr(sovnonavailabilitystats) {

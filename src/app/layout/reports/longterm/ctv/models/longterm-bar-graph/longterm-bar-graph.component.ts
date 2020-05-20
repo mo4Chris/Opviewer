@@ -18,13 +18,17 @@ import { now } from 'moment';
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermBarGraphComponent implements OnChanges {
-  @Input() data: ComprisonArrayElt
+
+  constructor(
+    private parser: LongtermProcessingService,
+    private calculationService: CalculationService, // Used in callbacks!
+  ) { }
+  @Input() data: ComprisonArrayElt;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Placeholder A', 'Placeholder B', 'Placeholder C'];
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
-  @Input() callback: (data: RawScatterData) => {x: number[], y: number[]}[] = (data) => [];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -36,11 +40,7 @@ export class LongtermBarGraphComponent implements OnChanges {
   info: string;
   chart: Chart;
   axisType: any;
-
-  constructor(
-    private parser: LongtermProcessingService,
-    private calculationService: CalculationService, // Used in callbacks!
-  ) { }
+  @Input() callback: (data: RawScatterData) => {x: number[], y: number[]}[] = (data) => [];
 
   ngOnChanges() {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
@@ -56,8 +56,8 @@ export class LongtermBarGraphComponent implements OnChanges {
       reqFields: [this.data.x, this.data.y],
       x: this.data.x,
       y: this.data.y,
-    }
-    
+    };
+
     this.parser.load(query, this.data.dataType, this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
@@ -65,19 +65,19 @@ export class LongtermBarGraphComponent implements OnChanges {
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {
-        return _parsed[0].x.length > 0
-      })
+        return _parsed[0].x.length > 0;
+      });
       if (this.hasData) {
-        let dsets = parsedData.map((_data: any[], i: number) => {
-          return this.parser.createChartlyBar(_data, i, {label: this.vesselLabels[i]})
+        const dsets = parsedData.map((_data: any[], i: number) => {
+          return this.parser.createChartlyBar(_data, i, {label: this.vesselLabels[i]});
         });
         // if (this.chart) {
         //   this.updateChart(dsets)
         // } else {
-          this.createChart(dsets)
+          this.createChart(dsets);
         // }
       }
-    })
+    });
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
@@ -86,7 +86,7 @@ export class LongtermBarGraphComponent implements OnChanges {
       return this.callback(data);
     });
   }
-  
+
   createChart(datasets: LongtermScatterValueArray[]) {
     const labelLength =  datasets.map((dset: {data}) => dset.data[0].x.length);
     let largestLabelLength = 0;

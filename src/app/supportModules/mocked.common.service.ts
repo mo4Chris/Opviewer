@@ -239,6 +239,15 @@ export class MockedCommonService extends CommonService {
             Propulsion_type: 'CPP'
         }];
     }
+    getEnginedata(mmsi: number, date: number) {
+      return mockedObservable([{
+        fuelUsedDepartM3: 1,
+        fuelUsedReturnM3: 2,
+        fuelUsedTotalM3: 3,
+        fuelUsedTransferM3: 4,
+        co2TotalKg: 5,
+      }]);
+    }
 
     getUserByUsername(username: any) {
         return mockedObservable([
@@ -439,6 +448,12 @@ export class MockedCommonService extends CommonService {
             waterConsumption: { value: 0, comment: '' }
         }
       }));
+    }
+    getSovInfo(vessel: VesselObjectModel) {
+      return mockedObservable([{
+        daughtercraft_mmsi: 123456789,
+        daughtercraft_nicename: 'Boaty McDcFace'
+      }]);
     }
 
 

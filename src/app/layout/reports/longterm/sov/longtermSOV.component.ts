@@ -43,9 +43,9 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         transfers performed on a monthly basis. Platform transfers are indicated by the lighter colour.
         `},
         { x: 'startTime', y: 'duration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
-        dataType: 'turbine', info: 'Turbine transfer duration' },
+        dataType: 'turbine', info: 'Turbine transfer duration for all transfers in the selected period.' },
         { x: 'arrivalTimePlatform', y: 'visitDuration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
-        dataType: 'platform', info: 'Platform transfer duration' },
+        dataType: 'platform', info: 'Platform transfer duration for all transfers in the selected period.' },
         { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Turbine transfer duration [mns]', dataType: 'turbine',
         info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
@@ -73,7 +73,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
     ngOnChanges() {
         this.vesselNames = this.vesselObject.vesselName;
     }
-    
+
     navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
         this.navigateToVesselreport.emit(navItem);
     }
@@ -93,7 +93,8 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         const turbInfo = {x: [], y: [], key: 'Turbine transfers:'};
         const platInfo = {x: [], y: [], key: 'Platform transfers:'};
         const vessel = this.parser.reduceLabels(this.vesselObject, [data.turbine._id]);
-        const len = Math.max(data.turbine.groups.length, data.platform.groups.length);
+
+        const len = Math.max(data.turbine ? data.turbine.groups.length : 0, data.platform ? data.platform.groups.length : 0);
         const vessels = this.calculationService.fillArray(vessel[0], len);
 
         if (data.turbine) {

@@ -1,14 +1,40 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvSummaryComponent } from './ctv-summary.component';
+import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
+import { CommonModule } from '@angular/common';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 
 describe('CtvSummaryComponent', () => {
   let component: CtvSummaryComponent;
   let fixture: ComponentFixture<CtvSummaryComponent>;
+  const mocker = new MockedCommonService();
+  let general: CTVGeneralStatsModel;
+  mocker.getGeneral({
+    mmsi: 123456789,
+    date: 737700,
+    vesselName: 'Test CTV',
+    vesselType: 'CTV',
+  }).subscribe(_gen => general = _gen);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CtvSummaryComponent ]
+      declarations: [ CtvSummaryComponent ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ],
+      imports: [
+        NgbModule,
+        FormsModule,
+        CommonModule,
+        NgMultiSelectDropDownModule,
+      ]
     })
     .compileComponents();
   }));
@@ -16,6 +42,29 @@ describe('CtvSummaryComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(CtvSummaryComponent);
     component = fixture.componentInstance;
+    component.tokenInfo = UserTestService.getMockedAccessToken();
+
+    component.general = general;
+    component.generalInputStats = {
+      date: general.date,
+      customInput: 'CUSTOM INPUT',
+      drillsConducted: [],
+      fuelConsumption: 1,
+      mmsi: general.mmsi,
+      landedGarbage: 10,
+      landedOil: 100,
+      toolboxConducted: [],
+      observations: [],
+      incidents: [],
+      passengers: [],
+    };
+    component.engine = {
+      fuelUsedDepartM3: 1,
+      fuelUsedReturnM3: 2,
+      fuelUsedTotalM3: 3,
+      fuelUsedTransferM3: 4,
+      co2TotalKg: 5,
+    };
     fixture.detectChanges();
   });
 

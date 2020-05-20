@@ -1,12 +1,19 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, async } from '@angular/core/testing';
 
-import { LongtermProcessingServiceService } from './longterm-processing-service.service';
+import { LongtermProcessingService } from './longterm-processing-service.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
-describe('LongtermProcessingServiceService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+describe('LongtermProcessingService', () => {
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        MockedCommonServiceProvider
+      ]
+    });
+  }));
 
   it('should be created', () => {
-    const service: LongtermProcessingServiceService = TestBed.get(LongtermProcessingServiceService);
+    const service: LongtermProcessingService = TestBed.get(LongtermProcessingService);
     expect(service).toBeTruthy();
   });
 });

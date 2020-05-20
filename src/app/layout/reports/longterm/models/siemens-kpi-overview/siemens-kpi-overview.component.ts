@@ -34,7 +34,7 @@ const EMPTY_DPR = {
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   @Input() vesselNames: string[];
-  
+
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
     site: 'TEST',
@@ -98,7 +98,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         // } else {
         //   this.vesselNames.push('-')
         // }
-        let _kpis = [];
+        const _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
           const transfer = filter(_transfers);
@@ -109,8 +109,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           const site = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
           _kpis.push(this.computeKpiForMonth({site: site}, _dpr, portcall, transfer, platform, v2v));
         });
-        this.kpis.push(_kpis.reverse())
-      })
+        this.kpis.push(_kpis.reverse());
+      });
       this.ref.markForCheck();
     });
   }
@@ -133,7 +133,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
       this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
-      
+
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
       }, 0);
@@ -200,8 +200,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         if (filter(time)) {
           const index = this.objectToIndex(time);
           if (index.stop < index.start) {
-            console.warn('Got decreasing indices!')
-            console.warn(index)
+            console.warn('Got decreasing indices!');
+            console.warn(index);
           }
           for (let _i = index.start; _i <= index.stop; _i++) {
             ops[_i] = code;
@@ -222,7 +222,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     if (rawname) {
       return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
     } else {
-      return '-'
+      return '-';
     }
   }
 }
