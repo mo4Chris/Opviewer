@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../../../models/scatterInterface';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
@@ -15,7 +15,7 @@ import { now } from 'moment';
   selector: 'app-longterm-trend-graph',
   templateUrl: './longterm-trend-graph.component.html',
   styleUrls: ['./longterm-trend-graph.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermTrendGraphComponent implements OnChanges {
   @Input() data: ComprisonArrayElt
@@ -42,6 +42,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
     private calcService: CalculationService,
     private dateService: DatetimeService,
     private parser: LongtermProcessingService,
+    private ref: ChangeDetectorRef,
   ) { }
 
   ngOnChanges() {
@@ -81,8 +82,9 @@ export class LongtermTrendGraphComponent implements OnChanges {
           axisType: this.parser.getAxisType(dsets),
           datasets: dsets,
           comparisonElt: this.data
-        })
+        });
       }
+      this.ref.detectChanges();
     })
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../../../models/scatterInterface';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
@@ -15,13 +15,14 @@ import { now } from 'moment';
   selector: 'app-longterm-bar-graph',
   templateUrl: './longterm-bar-graph.component.html',
   styleUrls: ['./longterm-bar-graph.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermBarGraphComponent implements OnChanges {
 
   constructor(
     private parser: LongtermProcessingService,
-    private calculationService: CalculationService, // Used in callbacks!
+    public calculationService: CalculationService, // Used in callbacks!
+    private ref: ChangeDetectorRef,
   ) { }
   @Input() data: ComprisonArrayElt;
   @Input() fromDate: NgbDate;
@@ -72,11 +73,13 @@ export class LongtermBarGraphComponent implements OnChanges {
           return this.parser.createChartlyBar(_data, i, {label: this.vesselLabels[i]});
         });
         // if (this.chart) {
+        // // Chart updates do not work in current setup, as we cant pass arguments to it the same way.
         //   this.updateChart(dsets)
         // } else {
           this.createChart(dsets);
         // }
       }
+      this.ref.detectChanges();
     });
   }
 

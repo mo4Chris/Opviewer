@@ -28,9 +28,8 @@
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" [callback]="transfer_Data.barCallback"
                         (navigateToVesselreport)="navigateToDPR($event)" vesselType="CTV"
                         ></app-longterm-bar-graph>
-                    <div class="row" id='hideIfNoData{{ind}}' *ngSwitchDefault>
+                    <div class="row" id='hideIfNoData{{ind}}' [hidden]="true" *ngSwitchDefault>
                         <div class="col-lg-8">
-                            Da bad graph
                             <canvas id="canvas{{ind}}"></canvas>
                         </div>
                         <div class="col-lg-3">

@@ -10,7 +10,6 @@ import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWavedata } from '../../../models/longterm-processing-service.service';
-import { now } from 'moment';
 
 @Component({
   selector: 'app-longterm-scatter-graph',
@@ -80,8 +79,8 @@ export class LongtermScatterGraphComponent implements OnChanges {
         if (this.wavedata) {
           this.addWavedata();
         }
-        this.ref.detectChanges();
       }
+      this.ref.detectChanges();
     })
   }
 

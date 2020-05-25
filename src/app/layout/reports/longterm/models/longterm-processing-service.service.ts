@@ -232,9 +232,7 @@ export class LongtermProcessingService {
   }
 
   defaultClickHandler (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
-    console.log('Click!')
     const ct = this as Chart;
-    console.log(ct)
     if (ct.lastClick !== undefined && now() - ct.lastClick < 300) {
       // Two clicks < 300ms ==> double click
       if (chartElt && chartElt.length > 0) {
