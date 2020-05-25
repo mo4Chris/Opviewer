@@ -17,11 +17,11 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CtvTurbineTransferComponent {
-  @Input() transfers: TurbineTransfer[]
-  @Input() tokenInfo: TokenModel
+  @Input() transfers: TurbineTransfer[];
+  @Input() tokenInfo: TokenModel;
   @Output() onVideoRequest = new EventEmitter();
 
-  
+
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
     'Incident', 'Embarkation', 'Vessel2Vessel',
     'Too much wind for craning', 'Trial docking',
@@ -57,7 +57,7 @@ export class CtvTurbineTransferComponent {
   setRequest(transfer: any) {
     this.onVideoRequest.emit(transfer);
   }
-  
+
   getMatlabDateToJSTime(serial) {
     return this.dateService.MatlabDateToJSTime(serial);
   }

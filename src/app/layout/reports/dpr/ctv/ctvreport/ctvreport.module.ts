@@ -6,8 +6,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   imports: [
-    NgbModule.forRoot(),
-    CommonModule
+    NgbModule,
+    CommonModule,
   ],
   providers: [CommonService, DatetimeService],
   declarations: []

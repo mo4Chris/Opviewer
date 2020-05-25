@@ -14,10 +14,12 @@ import { UserService } from '@app/shared/services/user.service';
 import { UserTestService } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { MockedCommonService } from '@app/supportModules/mocked.common.service';
+import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
@@ -32,19 +34,22 @@ describe('Longterm_CTV', () => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
-        NgbModule.forRoot(),
+        NgbModule,
         ReactiveFormsModule,
         PageHeaderModule,
         HttpModule,
         HttpClientModule,
         CommonModule,
-        NgMultiSelectDropDownModule.forRoot(),
+        NgMultiSelectDropDownModule,
         RouterTestingModule
       ],
       declarations: [
         LongtermCTVComponent,
         DeploymentGraphComponent,
-        VesselinfoComponent
+        VesselinfoComponent,
+        LongtermBarGraphComponent,
+        LongtermScatterGraphComponent,
+        LongtermTrendGraphComponent,
       ],
       providers: [
         {provide: CommonService, useClass: MockedCommonService},

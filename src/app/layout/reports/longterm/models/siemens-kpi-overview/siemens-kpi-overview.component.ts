@@ -33,6 +33,8 @@ const EMPTY_DPR = {
 })
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
+  @Input() vesselNames: string[];
+
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
     site: 'TEST',
@@ -49,15 +51,15 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numPortCalls: 1,
     numMaintainanceOps: 1,
   }]];
+  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
+
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
   ) { }
-  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
-  vesselNames: string[] = [];
 
 
   ngOnChanges(change) {
@@ -82,7 +84,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
       this.kpis = [];
-      this.vesselNames = [];
       this.mmsi.forEach((_mmsi, _i) => {
         const matchedTransfers = transfers.find(val => val._id === _mmsi);
         const matchedPlatforms = platforms.find(val => val._id === _mmsi);
@@ -91,14 +92,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
         const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
         const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-        if (matchedTransfers) {
-          this.vesselNames.push(this.formatVesselNames(matchedTransfers.label[0]))
-        } else if (matchedPlatforms) {
-          this.vesselNames.push(this.formatVesselNames(matchedPlatforms.label[0]))
-        } else {
-          this.vesselNames.push('-')
-        }
-        let _kpis = [];
+        
+        const _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
           const transfer = filter(_transfers);
@@ -109,8 +104,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           const site = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
           _kpis.push(this.computeKpiForMonth({site: site}, _dpr, portcall, transfer, platform, v2v));
         });
-        this.kpis.push(_kpis.reverse())
-      })
+        this.kpis.push(_kpis.reverse());
+      });
       this.ref.markForCheck();
     });
   }
@@ -133,7 +128,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
       this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
-      
+
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
       }, 0);
@@ -200,8 +195,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         if (filter(time)) {
           const index = this.objectToIndex(time);
           if (index.stop < index.start) {
-            console.warn('Got decreasing indices!')
-            console.warn(index)
+            console.warn('Got decreasing indices!');
+            console.warn(index);
           }
           for (let _i = index.start; _i <= index.stop; _i++) {
             ops[_i] = code;
@@ -222,14 +217,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     if (rawname) {
       return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
     } else {
-      return '-'
-    }
-  }
-  private formatVesselNames(rawname: string) {
-    if (rawname) {
-      return rawname.replace(/_/g, ' ').replace(/(\S)([A-Z0-9])/g, '$1 $2').trim();
-    } else {
-      return '-'
+      return '-';
     }
   }
 }

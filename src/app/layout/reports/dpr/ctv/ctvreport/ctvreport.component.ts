@@ -48,8 +48,8 @@ export class CtvreportComponent implements OnInit {
   videoRequests;
   videoBudget;
   noTransits;
-  general = {};
-  
+  general: CTVGeneralStatsModel;
+
   vessels;
   noPermissionForData: boolean;
   vessel;
@@ -146,7 +146,7 @@ export class CtvreportComponent implements OnInit {
           if (this.transferData.length > 0) {
             this.newService.getDistinctFieldnames({
               mmsi: this.transferData[0].mmsi,
-              date: this.transferData[0].date 
+              date: this.transferData[0].date
             }).subscribe(data => {
               this.newService.getSpecificPark({
                 park: data
@@ -440,7 +440,7 @@ export class CtvreportComponent implements OnInit {
     this.generalInputStats.date = this.vesselObject.date;
     this.resetInputStats();
     this.noTransits = true;
-    this.general = {};
+    this.general = null;
 
     this.newService.getGeneral(this.vesselObject).subscribe(general => {
       if (general && general.data && general.data.length > 0) {

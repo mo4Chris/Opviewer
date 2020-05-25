@@ -3,6 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SiemensKpiOverviewComponent } from './siemens-kpi-overview.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SiemensKpiOverviewComponent', () => {
   let component: SiemensKpiOverviewComponent;
@@ -15,8 +16,9 @@ describe('SiemensKpiOverviewComponent', () => {
       ],
       declarations: [ SiemensKpiOverviewComponent ],
       providers: [
-        MockedCommonServiceProvider
-      ]
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ],
     })
     .compileComponents();
   }));
@@ -24,6 +26,10 @@ describe('SiemensKpiOverviewComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SiemensKpiOverviewComponent);
     component = fixture.componentInstance;
+
+    component.mmsi = [987654321];
+    component.vesselNames = ['Test SOV'];
+
     fixture.detectChanges();
   });
 

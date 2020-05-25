@@ -1,38 +1,39 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
-import { CommonService } from '../../../../common.service';
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild, OnChanges } from '@angular/core';
+import { CommonService } from '@app/common.service';
 
-import { map, catchError, reduce } from 'rxjs/operators';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
-import { ScatterplotComponent } from '../models/scatterplot/scatterplot.component';
-import { TokenModel } from '../../../../models/tokenModel';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { TokenModel } from '@app/models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { WavedataModel, WaveSourceModel } from '../../../../models/wavedataModel';
+import { WavedataModel, WaveSourceModel } from '@app/models/wavedataModel';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { LongtermVesselObjectModel } from '../longterm.component';
-import { SettingsService } from '../../../../supportModules/settings.service';
+import { SettingsService } from '@app/supportModules/settings.service';
+import { LongtermProcessingService } from '../models/longterm-processing-service.service';
 
 @Component({
     selector: 'app-longterm-ctv',
     templateUrl: './longtermCTV.component.html',
     styleUrls: ['./longtermCTV.component.scss']
 })
-export class LongtermCTVComponent implements OnInit {
+export class LongtermCTVComponent implements OnInit, OnChanges {
     constructor(
         private newService: CommonService,
         private calculationService: CalculationService,
         private dateTimeService: DatetimeService,
         private settings: SettingsService,
+        private parser: LongtermProcessingService,
     ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
+    @Input() activeField: string;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
@@ -57,45 +58,40 @@ export class LongtermCTVComponent implements OnInit {
             x: 'startTime', y: 'score', graph: 'scatter', xLabel: 'Time', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 `Transfer score for each vessel in the selected period. Transfer score is an estimate for how stable the vessel
             connection is during  transfer, rated between 1 and 10. Scores under 6 indicate unworkable conditions.
-            `, annotation: () => this.scatterPlot.drawHorizontalLine(6)
+            `, annotation: () => this.parser.drawHorizontalLine(6)
         },
         {
             x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
                 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
                 'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         {
             x: 'Hs', y: 'score', graph: 'scatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 'Hs versus docking scores. Low scores during low sea conditions might indicate a problem with the captain or fender.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(6)
+            annotation: () => this.parser.drawHorizontalLine(6)
         },
         {
             x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
                 `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown.
             `, barCallback: (data: RawScatterData) => this.usagePerHsBin(data),
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         {
             x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
                 'Transfers without valid transfer scores have been omitted.',
-            annotation: () => this.scatterPlot.drawHorizontalLine(20, 'MSI threshold')
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
     ];
-
-    myChart = [];
-    allGraphsEmpty = false;
-    scatterPlot = new ScatterplotComponent(
-        this.vesselObject,
-        this.comparisonArray,
-        this.calculationService,
-        this.dateTimeService
-    );
-    fieldname: string;
+    
     wavedataArray: WavedataModel[];
-    mergedWavedata: {
+
+    public vesselNames = [];
+    public allGraphsEmpty = false; // Not working
+    public fieldname: string;
+    public mergedWavedata: {
         timeStamp: any[],
         Hs: any[],
         Tp: any[],
@@ -103,149 +99,16 @@ export class LongtermCTVComponent implements OnInit {
         wind: any[],
         windDir: any[]
     };
-    wavedataAvailabe = false;
-
-    @ViewChild(DeploymentGraphComponent)
-    deploymentGraph: DeploymentGraphComponent;
-    @ViewChild(VesselinfoComponent)
-    vesselinfoChild: VesselinfoComponent;
+    public wavedataAvailabe = false;
 
     // On (re)load
     ngOnInit() {
         Chart.pluginService.register(ChartAnnotation);
     }
 
-    buildPageWithCurrentInformation() {
-        this.scatterPlot.vesselObject = this.vesselObject;
-        if (this.vesselObject.mmsi.length > 0) {
-            this.getVesselLabels({
-                mmsi: this.vesselObject.mmsi,
-                x: this.comparisonArray[0].x as string,
-                y: this.comparisonArray[0].y as string,
-                dateMin: this.vesselObject.dateMin,
-                dateMax: this.vesselObject.dateMax
-            }).subscribe(_ => {
-                this.getGraphDataPerComparison();
-            });
-        } else {
-            this.scatterPlot.destroyCurrentCharts();
-        }
-        this.myChart = this.scatterPlot.myChart;
-    }
-
-    // Data acquisition
-    getVesselLabels(vessel: { mmsi: number[], x: string | number, y: string | number, dateMin: any, dateMax: any }) {
-        const request = {
-            mmsi: vessel.mmsi,
-            reqFields: [],
-            dateMin: vessel.dateMin,
-            dateMax: vessel.dateMax
-        };
-        return this.newService.getTransfersForVesselByRange(request).pipe(
-            map(
-                (transfers: { date: number, label: string }[]) => {
-                    for (let _j = 0; _j < transfers.length; _j++) {
-                        this.scatterPlot.labelValues[_j] = transfers[_j].label[0].replace('_', ' ');
-                    }
-                    return {
-                        label: transfers.length > 0 ? [transfers[0].label] : [''],
-                        startTime: transfers.map(transfer => transfer.date),
-                        x: transfers.map(transfer => transfer[vessel.x]),
-                        y: transfers.map(transfer => transfer[vessel.y]),
-                    };
-                }),
-            catchError(error => {
-                console.log('error ' + error);
-                throw error;
-            }));
-    }
-
-    getGraphDataPerComparison() {
-        const loaded = [];
-        const proceedWhenAllLoaded = () => {
-            if (loaded.reduce((x, y) => x && y, true)) {
-                this.scatterPlot.createValues();
-                this.showContent.emit(true);
-                if (this.vesselinfoChild) {
-                    this.vesselinfoChild.update();
-                }
-            }
-        };
-        this.comparisonArray.forEach((compElt, _i) => {
-            loaded.push(false);
-            this.contructSingleGraph(compElt, _i, () => {
-                loaded[_i] = true;
-                proceedWhenAllLoaded();
-            });
-        });
-    }
-
-    contructSingleGraph(compElt: ComprisonArrayElt, graphIndex: number, onLoadedCB?: () => void) {
-        const queryElt = {
-            mmsi: this.vesselObject.mmsi,
-            dateMin: this.vesselObject.dateMin,
-            dateMax: this.vesselObject.dateMax,
-            reqFields: [compElt.x, compElt.y],
-            x: compElt.x,
-            y: compElt.y
-        };
-        switch (compElt.dataType) {
-            case 'transfer':
-                this.newService.getTransfersForVesselByRange(queryElt).pipe(map(
-                    (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData, graphIndex, compElt)
-                ), catchError(error => {
-                    console.log('error: ' + error);
-                    throw error;
-                })).subscribe(null, null, () => {
-                    onLoadedCB();
-                });
-                break;
-            case 'transit':
-                this.newService.getTransitsForVesselByRange(queryElt).pipe(map(
-                    (rawScatterData: RawScatterData[]) => {
-                        this.parseRawData(rawScatterData, graphIndex, compElt);
-                    }
-                ), catchError(error => {
-                    console.log('error: ' + error);
-                    throw error;
-                })).subscribe(null, null, () => {
-                    onLoadedCB();
-                });
-                break;
-            default:
-                console.error('Invalid data type!');
-        }
-    }
-
-
-    parseRawData(rawScatterData: RawScatterData[], graphIndex: number, compElt: ComprisonArrayElt) {
-        switch (compElt.graph) {
-            case 'scatter': case 'areaScatter':
-                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map((data) => {
-                    const scatterData: { x: number | Date, y: number | Date, callback?: Function }[] = [];
-                    let x: number | Date;
-                    let y: number | Date;
-                    data[compElt.x].forEach((_x, __i) => {
-                        const _y = data[compElt.y][__i];
-                        x = this.processData(this.comparisonArray[graphIndex].x, _x);
-                        y = this.processData(this.comparisonArray[graphIndex].y, _y);
-                        const matlabDate = Math.floor(data.date[__i]);
-                        const navToDPRByDate = () => {
-                            return this.navigateToDPR({ mmsi: data._id, matlabDate: matlabDate });
-                        };
-                        scatterData.push({ x: x, y: y, callback: navToDPRByDate });
-                    });
-                    return scatterData;
-                });
-                break;
-            case 'bar':
-                this.scatterPlot.scatterDataArrayVessel[graphIndex] = rawScatterData.map(scatterElt => {
-                    return compElt.barCallback(scatterElt);
-                });
-                break;
-            default:
-                console.error('Undefined graphtype detected in parseRawData!');
-        }
+    ngOnChanges () {
+        this.vesselNames = this.vesselObject.vesselName;
+        this.updateActiveField(this.activeField);
     }
 
     navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
@@ -272,31 +135,6 @@ export class LongtermCTVComponent implements OnInit {
             }
         });
         return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length) }];
-    }
-
-    processData(Type: string, elt: number) {
-        switch (Type) {
-            case 'startTime': case 'date':
-                return this.scatterPlot.createTimeLabels(elt);
-            case 'Hs':
-                return elt;
-            case 'score':
-                return elt;
-            case 'impactForceNmax':
-                return elt / 1000;
-            case 'MSI':
-                return elt;
-            case 'transitTimeMinutes':
-                return elt;
-            case 'vesselname':
-                return elt;
-            case 'date':
-                return elt;
-            case 'speed': case 'speedInTransitAvgKMH': case 'speedInTransitKMH':
-                return this.calculationService.switchSpeedUnits([elt], 'km/h', this.settings.unit_speed)[0];
-            default:
-                return NaN;
-        }
     }
 
     groupDataByMonth(data: { date: number[], score?: number[], [prop: string]: any }) {
@@ -363,66 +201,17 @@ export class LongtermCTVComponent implements OnInit {
             this.wavedataArray = wavedata;
             this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
             this.wavedataAvailabe = true;
-            this.addWavedataToGraphs();
         });
     }
-
-    clearWavedataFromGraphs() {
-        this.myChart.forEach((graph, _i) => {
-            const axis_x = graph.scales['x-axis-0'];
-            if (axis_x.type === 'time' && graph) {
-                graph.scales['Hs'].options.display = false;
-                graph.data.datasets = graph.data.datasets.filter(dset => {
-                    return dset.label !== 'Hs';
-                });
-            }
-        });
-    }
-
     updateActiveField(source_id: string) {
         // Called whenever longterm.components selects / deselects field
         this.fieldname = source_id;
-        this.clearWavedataFromGraphs();
         if (source_id === '') {
             this.wavedataArray = null;
             this.mergedWavedata = null;
             this.wavedataAvailabe = false;
         } else {
             this.loadWavedata();
-        }
-    }
-
-    addWavedataToGraphs() {
-        const timeStamps = this.mergedWavedata.timeStamp.map(timeStamp => {
-            return this.scatterPlot.createTimeLabels(timeStamp);
-        });
-        const dset = {
-            label: 'Hs',
-            data: this.mergedWavedata.Hs.map((elt, _idx) => {
-                return { x: timeStamps[_idx], y: elt };
-            }),
-            showLine: true,
-            pointRadius: 0,
-            fill: false,
-            yAxisID: 'Hs',
-            borderColor: 'rgb(0, 0, 0, 0.5);',
-            backgroundColor: 'rgb(0, 0, 0, 0.5);',
-        };
-        this.myChart.forEach((graph, _i) => {
-            const axis_x = graph.scales['x-axis-0'];
-            if (axis_x.type === 'time' && true) {
-                graph.scales['Hs'].options.display = true;
-                graph.data.datasets.push(dset);
-                graph.update();
-            }
-        });
-        this.updateDeploymentGraph();
-    }
-
-    updateDeploymentGraph() {
-        const graph = this.deploymentGraph;
-        if (graph) {
-            this.deploymentGraph.updateChart();
         }
     }
 
