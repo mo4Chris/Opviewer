@@ -51,14 +51,15 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numPortCalls: 1,
     numMaintainanceOps: 1,
   }]];
+  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
+
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
   ) { }
-  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
 
 
   ngOnChanges(change) {
@@ -91,13 +92,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
         const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
         const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-        // if (matchedTransfers) {
-        //   this.vesselNames.push(this.formatVesselNames(matchedTransfers.label[0]))
-        // } else if (matchedPlatforms) {
-        //   this.vesselNames.push(this.formatVesselNames(matchedPlatforms.label[0]))
-        // } else {
-        //   this.vesselNames.push('-')
-        // }
+        
         const _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
