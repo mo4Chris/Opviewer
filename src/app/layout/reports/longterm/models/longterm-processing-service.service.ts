@@ -37,6 +37,10 @@ export class LongtermProcessingService {
             break;
           case 'transit':
             loadable = this.newService.getTransfersForVesselByRange(queryElt);
+            // .pipe(map(_transits => {
+            //   console.log(_transits);
+            //   return _transits.filter(_transit => _transit.combinedId === '12' || _transit.combinedId === '21');
+            // }));
             break;
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!')
@@ -76,7 +80,7 @@ export class LongtermProcessingService {
         return elt;
       case 'impactForceNmax':
         return elt / 1000;
-      case 'MSI':
+      case 'MSI': case 'msi':
         return elt;
       case 'transitTimeMinutes':
         return elt;

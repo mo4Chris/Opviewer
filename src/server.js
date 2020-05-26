@@ -629,7 +629,7 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
-function mailTo(subject, html, user) {
+function get(subject, html, user) {
     // setup email data with unicode symbols
     body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
 
@@ -1751,7 +1751,8 @@ app.post("/api/saveIncidentDpr", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } },
+                { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
                 function(err, data) {
                     if (err) {
                         console.log(err);
