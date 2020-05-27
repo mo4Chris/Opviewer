@@ -7,19 +7,22 @@ import { LongtermRoutingModule } from './longterm-routing.module';
 import { LongtermComponent } from './longterm.component';
 import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
-import { PageHeaderModule } from '../../../shared';
+import { PageHeaderModule } from '@app/shared';
 
 // modules mongoDB
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonService } from '../../../common.service';
-import { UserService } from '../../../shared/services/user.service';
+import { CommonService } from '@app/common.service';
+import { UserService } from '@app/shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { LongtermBarGraphComponent } from './ctv/models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermTrendGraphComponent } from './ctv/models/longterm-trend-graph/longterm-trend-graph.component';
+import { LongtermScatterGraphComponent } from './ctv/models/longterm-scatter-graph/longterm-scatter-graph.component';
 
 @NgModule({
     imports: [
@@ -42,7 +45,10 @@ import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/sieme
         UtilizationGraphComponent,
         VesselinfoComponent,
         LongtermComponent,
-        SiemensKpiOverviewComponent
+        SiemensKpiOverviewComponent,
+        LongtermScatterGraphComponent,
+        LongtermBarGraphComponent,
+        LongtermTrendGraphComponent
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

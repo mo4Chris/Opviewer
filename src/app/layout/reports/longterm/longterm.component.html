@@ -50,10 +50,10 @@
           </button>
           <div class="form-group">
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
-              class="multiSelectDiv" (onSelect)="searchTransfersByNewSpecificDate()"
-              (onDeSelect)="searchTransfersByNewSpecificDate()" (onSelectAll)="onSelectVessel($event)"
-              (onDeSelectAll)="onSelectVessel($event)" [placeholder]="'Select vessel'" [data]="Vessels"
-              [(ngModel)]="dropdownValues" [settings]="multiSelectSettings">
+              class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
+              (onSelectAll)="onSelectVessel()" (onDeSelectAll)="onSelectVessel($event)" 
+              [placeholder]="'Select vessel'" [data]="Vessels" [(ngModel)]="dropdownValues"
+              [settings]="multiSelectSettings">
             </ng-multiselect-dropdown>
             <!-- Wavedata is currently disabled for SOV -->
             <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"
@@ -73,7 +73,7 @@
   <hr>
   <div *ngIf="noPermissionForData == false; else noPermission">
     <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
-      [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"
+      [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
       (navigateToVesselreport)="navigateToVesselreport($event)">
     </app-longterm-ctv>
     <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="childLoaded($event)"

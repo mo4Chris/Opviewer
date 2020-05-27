@@ -1,8 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VesselinfoComponent } from './vesselinfo.component';
-import { MockedCommonService } from '@app/supportModules/mocked.common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('VesselinfoComponent', () => {
   let component: VesselinfoComponent;
@@ -12,7 +13,11 @@ describe('VesselinfoComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VesselinfoComponent ]
+      declarations: [ VesselinfoComponent ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ],
     })
     .compileComponents();
   }));
@@ -28,14 +33,8 @@ describe('VesselinfoComponent', () => {
   });
 
   it('should update', async(() => {
-    component.vesselObject = <LongtermVesselObjectModel> {
-      dateMin: 0,
-      dateMax: 1,
-      dateNormalMin: '0',
-      dateNormalMax: '1',
-      mmsi: defaultVessel.map(vessel => vessel.mmsi),
-    };
-    component.newService = <any> mockedCommonService;
+    component.mmsi = defaultVessel.map(vessel => vessel.mmsi);
+    component.vesselStore = defaultVessel;
     component.update(); // Async operation -> need timeout before test
     setTimeout(() => {
       expect(component).toBeTruthy();

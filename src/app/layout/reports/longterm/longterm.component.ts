@@ -45,6 +45,7 @@ export class LongtermComponent implements OnInit {
   maxDate = this.getMaxDate();
   vesselObject: LongtermVesselObjectModel = {
     mmsi: [this.getMMSIFromParameter()],
+    vesselName: [this.getVesselNameFromParameter()],
     dateMin: this.getMatlabDateLastMonth(),
     dateNormalMin: this.getJSDateLastMonthYMD(),
     dateMax: this.getMatlabDateYesterday(),
@@ -82,12 +83,6 @@ export class LongtermComponent implements OnInit {
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-
-  @ViewChild(LongtermCTVComponent)
-  private ctvChild: LongtermCTVComponent;
-
-  @ViewChild(LongtermSOVComponent)
-  private sovChild: LongtermSOVComponent;
 
   // onInit
   ngOnInit() {
@@ -139,8 +134,9 @@ export class LongtermComponent implements OnInit {
     }
   }
 
-  onSelectVessel(event: { mmsi: number, nicename: string }[]) {
-    this.vesselObject.mmsi = event.map(x => x.mmsi);
+  onSelectVessel() {
+    this.vesselObject.mmsi = this.dropdownValues.map(x => x.mmsi);
+    this.vesselObject.vesselName = this.dropdownValues.map(x => x.nicename);
     this.buildPageWithCurrentInformation();
   }
 
@@ -174,17 +170,6 @@ export class LongtermComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     this.datePickerValue = this.fromDate;
-    setTimeout(() => {
-      if (this.vesselType === 'CTV') {
-        // Build CTV module
-        this.ctvChild.buildPageWithCurrentInformation();
-      } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-        // Build SOV module
-        this.sovChild.buildPageWithCurrentInformation();
-      } else {
-        console.error('Invalid DPR - no CTV or SOV child rendered!');
-      }
-    });
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data
@@ -292,13 +277,13 @@ export class LongtermComponent implements OnInit {
   }
 
   updateWavedataForChild() {
-    if (this.vesselType === 'CTV') {
-      // Build CTV module
-      this.ctvChild.updateActiveField(this.selectedField);
-    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-      // Build SOV module
-      // this.sovChild.buildPageWithCurrentInformation();
-    }
+    // if (this.vesselType === 'CTV') {
+    //   // Build CTV module
+    //   this.ctvChild.updateActiveField(this.selectedField);
+    // } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
+    //   // Build SOV module
+    //   // this.sovChild.buildPageWithCurrentInformation();
+    // }
   }
 
   // Utility
@@ -347,6 +332,7 @@ export class LongtermComponent implements OnInit {
 
 export interface LongtermVesselObjectModel {
   mmsi: number[];
+  vesselName: string[];
   dateMin: number;
   dateMax: number;
   dateNormalMin: string;

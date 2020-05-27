@@ -52,7 +52,6 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  // http://localhost:4200/reports/dpr;mmsi=235102532;date=737913
   createSlipgraph() {
     this.slipGraph = this.transfer.slipGraph;
     this.chart = null;
@@ -168,7 +167,6 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
       }
     })
     addDataset(temp);
-    // console.log(datas)
     return datas;
   }
 

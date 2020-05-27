@@ -79,12 +79,25 @@ var userActivitySchema = new Schema({
 var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
 
 var VesselsSchema = new Schema({
+    mmsi: { type: String },
+    nicename: { type: String },
+    client: { type: Array },
+    mmsi: { type: Number },
+    active: {type: Boolean},
+    operationsClass: {type: String},
+}, { versionKey: false });
+var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
+
+var SovInfoSchema = new Schema({
     vesselname: { type: String },
     nicename: { type: String },
     client: { type: Array },
-    mmsi: { type: Number }
+    mmsi: { type: Number },
+    active: {type: Boolean},
+    operationsClass: {type: String},
+    daughtercraft_mmsi: {type: Number},
 }, { versionKey: false });
-var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
+var SovInfomodel = mongo.model('sovInfo', SovInfoSchema, 'sovInfo');
 
 var TransferSchema = new Schema({
     mmsi: { type: Number },
@@ -315,10 +328,6 @@ var SovVessel2vesselTransfers = new Schema({
     CTVactivity: { type: Object },
     date: { type: Number },
     mmsi: { type: Number },
-    paxIn: { type: Number },
-    paxOut: { type: Number },
-    cargoIn: { type: Number },
-    cargoOut: { type: Number }
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
@@ -1111,7 +1120,6 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
                 console.log(err);
                 res.send(err);
             } else {
-                console.log(data);
                 res.send(data);
             }
         });
@@ -1784,11 +1792,18 @@ app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
 
 
 app.post("/api/updateSOVv2vPaxInput", function(req, res) {
+    // Updates transfer info between SOV and other vessels
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            SovVessel2vesselTransfersmodel.findOneAndUpdate({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { transfers: req.body.transfers },
+            SovVessel2vesselTransfersmodel.findOneAndUpdate({
+                mmsi: req.body.mmsi,
+                date: req.body.date,
+                active: { $ne: false }
+            }, {
+                transfers: req.body.transfers
+            },
                 function(err, data) {
                     if (err) {
                         res.send(err);
@@ -1796,6 +1811,84 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
                         res.send({ data: "Succesfully saved the v2v transfer stats" });
                     }
                 });
+        }
+    });
+});
+
+app.post("/api/getSovInfo/", function (req, res) {
+    // Updates transfer info turbine transfers by DC craft.
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovInfomodel.find({
+                mmsi: req.body.mmsi
+            }, 
+            function(err, data) {
+                if (err) {
+                    console.log('Error getting sov info')
+                    res.send(err);
+                } else {
+                    res.send(data);
+                }
+            });
+    }
+});
+});
+
+app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
+    // Updates transfer info turbine transfers by DC craft.
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            let info = req.body.update;
+            SovVessel2vesselTransfersmodel.findOne({
+                mmsi: req.body.mmsi,
+                date: req.body.date,
+                active: { $ne: false }
+            }, function(err, v2v) {
+                if (err) {
+                    console.log('Error in find using updateSOVv2vTurbineTransfers')
+                    res.send(err);
+                } else if (v2v) {
+                    if (!Array.isArray(v2v.CTVactivity)) {
+                        v2v.CTVactivity = [v2v.CTVactivity];
+                    }
+                    let match = v2v.CTVactivity.findIndex(_act => _act.mmsi == info.mmsi);
+                    if (match >= 0) {
+                        v2v.CTVactivity[match] = {...v2v.CTVactivity[match], ...info};
+                    } else {
+                        v2v.CTVactivity.push(info);
+                    }
+                    SovVessel2vesselTransfersmodel.findOneAndUpdate({
+                        mmsi: req.body.mmsi,
+                        date: req.body.date,
+                        active: { $ne: false }
+                    }, {
+                        CTVactivity: v2v.CTVactivity
+                    }, (err, data) => {
+                        if (err) {
+                            res.send(err);
+                        } {
+                            res.send({ data: "Succesfully saved the v2v transfer stats" });
+                        }
+                    });
+                } else { // v2v does not yet exist
+                    new SovVessel2vesselTransfersmodel({
+                        mmsi: req.body.mmsi,
+                        date: req.body.date,
+                        CTVactivity: [info],
+                        transfers: [],
+                    }).save((err, data) => {
+                        if (err) {
+                            res.send(err);
+                        } {
+                            res.send({ data: "Succesfully saved the v2v transfer stats" });
+                        }
+                    });
+                }
+            });
         }
     });
 });

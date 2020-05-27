@@ -1,15 +1,17 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvreportComponent } from './ctvreport.component';
-import { UserTestService } from '../../../../../shared/services/test.user.service';
+import { UserTestService } from '@app/shared/services/test.user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { PageHeaderModule, SharedPipesModule } from '../../../../../shared';
+import { PageHeaderModule, SharedPipesModule } from '@app/shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { RouterTestingModule } from '@angular/router/testing';
-import { HttpModule } from '@angular/http';
-import { VesselObjectModel, MockedCommonServiceProvider } from '../../../../../supportModules/mocked.common.service';
+import { VesselObjectModel, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { CtvSummaryComponent } from '../ctv-summary/ctv-summary.component';
+import { CtvTurbineTransferComponent } from '../ctv-turbine-transfer/ctv-turbine-transfer.component';
+import { CtvslipgraphComponent } from '../models/ctvslipgraph/ctvslipgraph.component';
+import { AlertService } from '@app/supportModules/alert.service';
 
 
 describe('CtvReportComponent', () => {
@@ -52,10 +54,13 @@ describe('CtvReportComponent', () => {
         CommonModule,
         PageHeaderModule,
         SharedPipesModule,
-        RouterTestingModule,
-        HttpModule
       ],
-      declarations: [ CtvreportComponent ],
+      declarations: [
+        CtvreportComponent,
+        CtvSummaryComponent,
+        CtvTurbineTransferComponent,
+        CtvslipgraphComponent,
+      ],
       providers: [
         MockedCommonServiceProvider
       ]
@@ -63,7 +68,6 @@ describe('CtvReportComponent', () => {
   }));
 
   beforeEach(async(() => {
-    spyOn(CtvreportComponent.prototype, 'createCharts');
 
 
     fixture = TestBed.createComponent(CtvreportComponent);
@@ -134,6 +138,7 @@ describe('CtvReportComponent', () => {
   }));
 
   it('Should save comments', () => {
+    const spy = spyOn(AlertService.prototype, 'sendAlert').and.callThrough();
     component.tokenInfo = tokenInfo.admin;
     component.saveComment({
       comment: 'Test',
@@ -141,7 +146,7 @@ describe('CtvReportComponent', () => {
         otherComment: '',
       },
     });
-      expect(component.alert.message).toEqual('saveTransfer');
+    expect(spy).toHaveBeenCalled();
   });
 
   it('Should make requests', (done) => {
@@ -159,8 +164,6 @@ describe('CtvReportComponent', () => {
     };
     expect(component).toBeTruthy();
     component.setRequest(transfer);
-    expect(component.alert).toBeTruthy();
-    expect(component.alert.message).toEqual('saveVideoRequest');
     done();
   });
 

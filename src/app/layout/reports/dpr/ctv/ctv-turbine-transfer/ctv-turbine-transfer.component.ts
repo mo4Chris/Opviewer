@@ -16,12 +16,12 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CtvTurbineTransferComponent implements OnInit, OnChanges {
-  @Input() transfers: TurbineTransfer[]
-  @Input() tokenInfo: TokenModel
+export class CtvTurbineTransferComponent {
+  @Input() transfers: TurbineTransfer[];
+  @Input() tokenInfo: TokenModel;
   @Output() onVideoRequest = new EventEmitter();
 
-  
+
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
     'Incident', 'Embarkation', 'Vessel2Vessel',
     'Too much wind for craning', 'Trial docking',
@@ -33,13 +33,6 @@ export class CtvTurbineTransferComponent implements OnInit, OnChanges {
     private calcService: CalculationService,
     private dateService: DatetimeService,
   ) { }
-
-  ngOnInit() {
-  }
-
-  ngOnChanges() {
-
-  }
 
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {
@@ -64,7 +57,7 @@ export class CtvTurbineTransferComponent implements OnInit, OnChanges {
   setRequest(transfer: any) {
     this.onVideoRequest.emit(transfer);
   }
-  
+
   getMatlabDateToJSTime(serial) {
     return this.dateService.MatlabDateToJSTime(serial);
   }
