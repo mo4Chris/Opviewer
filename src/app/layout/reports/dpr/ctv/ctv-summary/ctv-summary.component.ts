@@ -18,12 +18,12 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvSummaryComponent implements OnChanges {
-  @Input() general: CTVGeneralStatsModel
-  @Input() generalInputStats: CTVGeneralStatsModel
-  @Input() engine: CTVGeneralStatsModel
-  @Input() tokenInfo: TokenModel // ToDo remove in favour of permission service
+  @Input() general: CTVGeneralStatsModel;
+  @Input() generalInputStats: CTVGeneralStatsModel;
+  @Input() engine: CTVGeneralStatsModel;
+  @Input() tokenInfo: TokenModel; // ToDo remove in favour of permission service
 
-  
+
   toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
