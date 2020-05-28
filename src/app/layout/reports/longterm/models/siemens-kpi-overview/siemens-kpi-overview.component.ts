@@ -35,6 +35,7 @@ const EMPTY_DPR = {
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   @Input() vesselNames: string[];
+  @Input() matlabDateMin: number;
 
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
@@ -54,14 +55,16 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   }]];
   currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
+  private defaultMinDate: number;
 
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
-  ) { }
-
+  ) {
+    this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
+  }
 
   ngOnChanges(change) {
     this.loadData();
@@ -71,8 +74,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   loadData() {
     const makeRequest = (reqFields: string[]) => {
       return {
-        dateMin: 737730, // 1 november 2019
-        dateMax: 1000000000,
+        dateMin: this.matlabDateMin ? Math.max(this.defaultMinDate, this.matlabDateMin) : this.defaultMinDate, // 1 november 2019
+        dateMax: this.dateService.getMatlabDateYesterday(),
         mmsi: this.mmsi,
         reqFields: reqFields,
       };

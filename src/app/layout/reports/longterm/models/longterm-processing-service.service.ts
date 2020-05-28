@@ -241,6 +241,7 @@ export class LongtermProcessingService {
       // Two clicks < 300ms ==> double click
       if (chartElt && chartElt.length > 0) {
         chartElt = chartElt[0];
+        console.log(chartElt)
         const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
         if (dataElt.callback !== undefined) {
           dataElt.callback();

@@ -6,7 +6,8 @@
 <div class="row">
   <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
     <div class="graphContainer" *ngIf="permission.sovSiemensMonthlyKpis">
-      <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames"></app-siemens-kpi-overview>
+      <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin] =""
+      ></app-siemens-kpi-overview>
     </div>
     <div *ngIf="allGraphsEmpty">
       <div class="divContainer">
