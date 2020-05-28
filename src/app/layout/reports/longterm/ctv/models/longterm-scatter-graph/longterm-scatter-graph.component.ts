@@ -80,8 +80,8 @@ export class LongtermScatterGraphComponent implements OnChanges {
           this.addWavedata();
         }
       }
-      console.log(this)
-      console.log(dsets)
+      // console.log(this)
+      // console.log(dsets)
       this.ref.detectChanges();
     })
   }
@@ -112,8 +112,8 @@ export class LongtermScatterGraphComponent implements OnChanges {
 
   parseRawData(rawScatterData: RawScatterData[]) {
     this.reduceLabels(rawScatterData.map(_data => _data._id));
-    console.log('rawScatterData')
-    console.log(rawScatterData[0])
+    // console.log('rawScatterData')
+    // console.log(rawScatterData[0])
     return rawScatterData.map((data) => {
       const scatterData: { x: number | Date, y: number | Date, callback?: Function }[] = [];
       let x: number | Date;
