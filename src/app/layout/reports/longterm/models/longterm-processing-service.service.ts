@@ -37,10 +37,6 @@ export class LongtermProcessingService {
             break;
           case 'transit':
             loadable = this.newService.getTransfersForVesselByRange(queryElt);
-            // .pipe(map(_transits => {
-            //   console.log(_transits);
-            //   return _transits.filter(_transit => _transit.combinedId === '12' || _transit.combinedId === '21');
-            // }));
             break;
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!')
@@ -241,7 +237,6 @@ export class LongtermProcessingService {
       // Two clicks < 300ms ==> double click
       if (chartElt && chartElt.length > 0) {
         chartElt = chartElt[0];
-        console.log(chartElt)
         const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex].data[chartElt._index];
         if (dataElt.callback !== undefined) {
           dataElt.callback();
