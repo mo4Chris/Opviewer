@@ -61,7 +61,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             `, annotation: () => this.parser.drawHorizontalLine(6)
         },
         {
-            x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
+            x: 'startTime', y: 'msi', graph: 'scatter', xLabel: 'Time', yLabel: 'Motion sickness index', dataType: 'transit', info:
                 'Motion sickness index computed during the transit from the harbour to the wind field. This value is not normalized, ' +
                 'meaning it scales with transit duration. Values exceeding 20 indicate potential problems.',
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')

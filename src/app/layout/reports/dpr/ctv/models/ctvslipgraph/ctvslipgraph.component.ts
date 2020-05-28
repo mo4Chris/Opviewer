@@ -43,10 +43,6 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
     const localOffset = this.settings.localTimeZoneOffset;
     this.utcOffset = this.settings.getTimeOffset(this.vesselUtcOffset) - localOffset || 0;
     // This is an ugly ass hack needed only because the graphs show in local timezone...
-    // console.log('Vessel utc offset = ' + this.vesselUtcOffset)
-    // console.log('Local utc offset = ' + localOffset)
-    // console.log('Total utc offset = ' + this.utcOffset)
-    // console.log('----------------')
     if (this.transfer !== undefined) {
       this.createSlipgraph();
     }

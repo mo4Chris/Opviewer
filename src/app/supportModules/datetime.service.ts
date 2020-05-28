@@ -223,6 +223,15 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return dateAsMatlab;
   }
 
+  getMatlabDateMonthsAgo(diffMonths: number) {
+    const matlabValueYesterday = moment().add(diffMonths, 'months');
+    matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+    matlabValueYesterday.format();
+    const momentDateAsIso = moment(matlabValueYesterday).unix();
+    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    return dateAsMatlab;
+  }
+
   getJSDateLastMonthYMD() {
     const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({
       date: 1,

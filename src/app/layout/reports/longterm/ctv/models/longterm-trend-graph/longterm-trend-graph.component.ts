@@ -73,7 +73,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
       if (this.hasData) {
         let dsets = [];
         parsedData.forEach((vesseldata, i) => {
-          dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3}))
+          dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3, pointRadius: 3, pointStyle: 'fill', pointHoverRadius: 6, hitRadius: 10}))
           dsets.push(this.parser.createChartlyLine(vesseldata.ub, i, {label: this.vesselLabels[i], fill: '+1'})) // Fills area until lower bound
           dsets.push(this.parser.createChartlyLine(vesseldata.lb, i, {label: this.vesselLabels[i]}))
           dsets.push(this.parser.createChartlyScatter(vesseldata.outliers, i, {label: this.vesselLabels[i]}))
@@ -89,7 +89,9 @@ export class LongtermTrendGraphComponent implements OnChanges {
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
-    const navToDpr = (info: {mmsi: number, matlabDate: number}) => this.navigateToVesselreport.emit(info);
+    const navToDpr = (info: {mmsi: number, matlabDate: number}) => {
+      this.navigateToVesselreport.emit(info);
+    }
     this.reduceLabels(rawScatterData.map(_data => _data._id));
     return rawScatterData.map((data) => {
       let vesselDataSets: ScatterDataElt[] = [];
@@ -101,7 +103,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
         const lb = this.bins[binIdx];
         const ub = this.bins[binIdx + 1];
         let cnt = 0;
-        const idx =  data[this.data.x].map((elt, __i) => {
+        const idx: boolean[] = data[this.data.x].map((elt, __i) => {
           if (elt >= lb && elt < ub) {
             cnt ++;
             return true;
@@ -130,7 +132,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
               outliers.push({
                 x: data[this.data.x][i],
                 y: yVal,
-                callback: () => navToDpr({mmsi: data._id, matlabDate: dates[i]})
+                callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
+                date: dates[i],
               })
             }
           });
@@ -164,6 +167,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
   createChart(args: ScatterArguments) {
     const dateService = this.dateService;
     const createNewLegendAndAttach = this.parser.createNewLegendAndAttach;
+    const xLabel = this.data.xLabel;
+    const yLabel = this.data.yLabel;
     this.chart = new Chart(this.context, {
       type: 'scatter',
       data: {
@@ -179,24 +184,17 @@ export class LongtermTrendGraphComponent implements OnChanges {
           tooltips: {
             callbacks: {
               beforeLabel: function (tooltipItem, data) {
-                return data.datasets[tooltipItem.datasetIndex].label;
+                const elt = data.datasets[tooltipItem.datasetIndex];
+                return [
+                  elt.label,
+                  dateService.MatlabDateToJSDate(elt.data[tooltipItem.index].date)
+                ];
               },
               label: function (tooltipItem, data) {
-                switch (args.axisType.x) {
-                  case 'date':
-                   return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
-                  case 'numeric':
-                    return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
-                  default:
-                    return '';
-                }
+                return xLabel + ': ' + Math.round(tooltipItem.xLabel * 100) / 100;
               },
               afterLabel: function(tooltipItem, data) {
-                if (args.axisType.y === 'date') {
-                  return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
-                } else {
-                  return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
-                }
+                return yLabel + ': ' + Math.round(tooltipItem.yLabel * 100) / 100;
               },
               title: function(tooltipItem, data) {
                 // Prevents a bug from showing up in the bar chart tooltip
@@ -309,6 +307,7 @@ interface ScatterDataElt {
   y: number | Date;
   key?: string;
   callback?: Function;
+  date?: number;
 }
 
 

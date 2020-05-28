@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { isArray, isNumber, isString } from 'util';
 
 
 // Encode daily operations per 15 minutes
@@ -34,6 +35,7 @@ const EMPTY_DPR = {
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   @Input() vesselNames: string[];
+  @Input() matlabDateMin: number;
 
   kpis: SiemensKpi[][] = [[{
     month: 'Test Date',
@@ -53,14 +55,16 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   }]];
   currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
+  private defaultMinDate: number;
 
   constructor(
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
-  ) { }
-
+  ) {
+    this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
+  }
 
   ngOnChanges(change) {
     this.loadData();
@@ -70,15 +74,15 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   loadData() {
     const makeRequest = (reqFields: string[]) => {
       return {
-        dateMin: 737730, // 1 november 2019
-        dateMax: 1000000000,
+        dateMin: this.matlabDateMin ? Math.max(this.defaultMinDate, this.matlabDateMin) : this.defaultMinDate, // 1 november 2019
+        dateMax: this.dateService.getMatlabDateYesterday(),
         mmsi: this.mmsi,
         reqFields: reqFields,
       };
     };
     forkJoin([
-      this.newService.getVessel2vesselsByRangeForSov(makeRequest(['paxIn', 'paxOut', 'cargoIn', 'cargoOut'])),
-      this.newService.getPortcallsByRange(makeRequest(['date'])),
+      this.newService.getVessel2vesselsByRangeForSov(makeRequest(['date', 'transfers'])),
+      this.newService.getPortcallsByRange(makeRequest(['date', 'startTime', 'stopTime', 'durationHr','plannedUnplannedStatus'])),
       this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
@@ -122,12 +126,27 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     } else {
       numDaysInMonth = dprs.month.numDays;
     }
+
     for (let i = 0; i < dprs.date.length; i++) {
       const ops = new Array(4 * 24).fill(STATUS_WORKING);
+
       this.applyDowntime(ops, STATUS_STANDBY, dprs.standBy[i]);
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
       this.applyDowntime(ops, STATUS_WEATHER_OTHER, dprs.weatherDowntime[i], (x) => x.vesselsystem !== 'Whole vessel');
+
+      const pcIndex = portcalls.date.findIndex(_date => _date === dprs.date[i]);
+      if (pcIndex >= 0) {
+        const s = portcalls.startTime[pcIndex];
+        const e = portcalls.stopTime[pcIndex];
+        const dtObj = {
+          from: s === '_NaN_' ? '00:00' : this.dateService.MatlabDateToUnixEpoch(s).format('HH:mm'),
+          to: e === '_NaN_' ? '24:00' : this.dateService.MatlabDateToUnixEpoch(e).format('HH:mm'),
+          isPlanned: portcalls.plannedUnplannedStatus !== 'unplanned',
+        };
+        this.applyDowntime(ops, STATUS_PORTCALL_PLANNED, [dtObj], (x) => x.isPlanned);
+        this.applyDowntime(ops, STATUS_PORTCALL_UNPLANNED, [dtObj], (x) => !x.isPlanned);
+      }
 
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
@@ -169,11 +188,23 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       paxGangwayTransfer += platform.paxOut.reduce((prev, curr) => curr && curr.gangwayDeployedDuration > 0 ? prev + curr : prev, 0);
     }
     if (v2v) {
-      paxTransfer += v2v.paxIn.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      paxTransfer += v2v.paxOut.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      cargoOps += v2v.cargoIn.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
-      cargoOps += v2v.cargoOut.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
+      v2v.transfers.forEach(_transfers => {
+        if (isArray(_transfers)) {
+          _transfers.forEach(_transfer => {
+            paxTransfer += this.parseInput(_transfer.paxIn);
+            paxTransfer += this.parseInput(_transfer.paxOut);
+            cargoOps += this.parseInput(_transfer.cargoIn);
+            cargoOps += this.parseInput(_transfer.cargoOut);
+          })
+        } else { // Only 1 transfer => not an array
+          paxTransfer += this.parseInput(_transfers.paxIn);
+          paxTransfer += this.parseInput(_transfers.paxOut);
+          cargoOps += this.parseInput(_transfers.cargoIn);
+          cargoOps += this.parseInput(_transfers.cargoOut);
+        }
+      });
     }
+    
     kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
     kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
     kpi.totalUtilHours = Math.round(utilHours);
@@ -192,13 +223,13 @@ export class SiemensKpiOverviewComponent implements OnChanges {
   private applyDowntime(ops: any[], code: number, times: {from: string, to: string}[], filter = (_: any) => true) {
     if (times) {
       times.forEach(time => {
-        if (filter(time)) {
+        if (time && filter(time)) {
           const index = this.objectToIndex(time);
           if (index.stop < index.start) {
             console.warn('Got decreasing indices!');
             console.warn(index);
           }
-          for (let _i = index.start; _i <= index.stop; _i++) {
+          for (let _i = Math.round(index.start); _i <= index.stop; _i++) {
             ops[_i] = code;
           }
         }
@@ -218,6 +249,20 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
     } else {
       return '-';
+    }
+  }
+
+  private parseInput(n: number | string) : number {
+    if (n) {
+      if (isNumber(n)) {
+        return isNaN(n) ? 0 : n;
+      } else if (isString(n)) {
+        return parseInt(n);
+      } else {
+        return 0;
+      }
+    } else {
+      return 0;
     }
   }
 }

@@ -76,7 +76,7 @@ export class LongtermProcessingService {
         return elt;
       case 'impactForceNmax':
         return elt / 1000;
-      case 'MSI':
+      case 'MSI': case 'msi':
         return elt;
       case 'transitTimeMinutes':
         return elt;
