@@ -629,7 +629,7 @@ function validatePermissionToViewData(req, res, callback) {
     });
 }
 
-function get(subject, html, user) {
+function mailTo(subject, html, user) {
     // setup email data with unicode symbols
     body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
 
