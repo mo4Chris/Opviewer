@@ -170,7 +170,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.incidentsChanged = false;
   }
   saveWeatherDowntimeStats() {
-    if (this.checkValidityInput(this.weatherDowntime.Array)) {
+    if (this.checkValidityInputString(this.weatherDowntime.Array)) {
       this.saveStats('saveWeatherDowntimeDpr', {
         weatherDowntime: this.weatherDowntime.Array,
       });
@@ -181,7 +181,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
         timeout: 5000,
       });
     }
-    if (this.checkValidityInput(this.vesselNonAvailability.Array)) {
+    if (this.checkValidityInputString(this.vesselNonAvailability.Array)) {
       this.saveStats('saveNonAvailabilityDpr', {
         vesselNonAvailability: this.vesselNonAvailability.Array,
       });
@@ -192,7 +192,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
         timeout: 5000,
       });
     }
-    if (this.checkValidityInput(this.standby.Array)) {
+    if (this.checkValidityInputString(this.standby.Array)) {
       this.saveStats('saveStandByDpr', {
         standBy: this.standby.Array
       });

@@ -252,11 +252,12 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     }
   }
 
-  private parseInput(n: number | string) : number {
+  private parseInput(n) {
     if (n) {
       if (isNumber(n)) {
         return isNaN(n) ? 0 : n;
       } else if (isString(n)) {
+        // tslint:disable-next-line:radix
         return parseInt(n);
       } else {
         return 0;
