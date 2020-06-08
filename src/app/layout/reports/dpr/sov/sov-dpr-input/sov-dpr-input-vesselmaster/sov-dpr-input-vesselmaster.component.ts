@@ -83,7 +83,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.weatherDowntimeChanged = false;
     this.cateringChanged = false;
     this.remarksChanged = false;
-    this.checkDecidedBy();
 
     // This one was in the onChanges, but the other update functions are not - can one be removed?
     this.updatePoB();
@@ -91,16 +90,6 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.updateHOCTotal();
     this.updateToolboxTotal();
     this.loaded.emit(true);
-  }
-
-  checkDecidedBy() {
-    if (this.weatherDowntime.Array && this.weatherDowntime.Array.length > 0) {
-      for (let index = 0; index < this.weatherDowntime.Array.length; index++) {
-        if ( this.weatherDowntime.Array[index].decidedBy === 'Joint decision') {
-          this.weatherDowntime.Array[index].decidedBy = 'Marine Coordinator';
-        }
-      }
-    }
   }
 
   updateHOCTotal() {
@@ -181,7 +170,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.incidentsChanged = false;
   }
   saveWeatherDowntimeStats() {
-    if (this.checkValidityInputString(this.weatherDowntime.Array)) {
+    if (this.checkValidityInput(this.weatherDowntime.Array)) {
       this.saveStats('saveWeatherDowntimeDpr', {
         weatherDowntime: this.weatherDowntime.Array,
       });
@@ -192,7 +181,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
         timeout: 5000,
       });
     }
-    if (this.checkValidityInputString(this.vesselNonAvailability.Array)) {
+    if (this.checkValidityInput(this.vesselNonAvailability.Array)) {
       this.saveStats('saveNonAvailabilityDpr', {
         vesselNonAvailability: this.vesselNonAvailability.Array,
       });
@@ -203,7 +192,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
         timeout: 5000,
       });
     }
-    if (this.checkValidityInputString(this.standby.Array)) {
+    if (this.checkValidityInput(this.standby.Array)) {
       this.saveStats('saveStandByDpr', {
         standBy: this.standby.Array
       });

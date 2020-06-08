@@ -45,21 +45,10 @@ export class SovDprInputReadonlyComponent implements OnChanges {
     this.setTotalPob();
     this.updateHOCTotal();
     this.updateToolboxTotal();
-    this.checkDecidedBy();
   }
 
   setTotalPob() {
     this.catering.totalPob = (0 + +this.catering.marineContractors + +this.catering.marine + +this.catering.project);
-  }
-
-  checkDecidedBy() {
-    if (this.weatherDowntime.Array && this.weatherDowntime.Array.length > 0) {
-      for (let index = 0; index < this.weatherDowntime.Array.length; index++) {
-        if ( this.weatherDowntime.Array[index].decidedBy === 'Marine Coordinator') {
-          this.weatherDowntime.Array[index].decidedBy = 'Joint decision';
-        }
-      }
-    }
   }
 
   signOffDprClient() {
