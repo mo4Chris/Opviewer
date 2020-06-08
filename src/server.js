@@ -113,6 +113,7 @@ var TransferSchema = new Schema({
     cargoUp: { type: Number },
     cargoDown: { type: Number },
     comment: { type: String },
+    commentChanged: { type: Object },
     detector: { type: String },
     videoAvailable: { type: Number },
     videoPath: { type: String },
@@ -822,7 +823,7 @@ app.post("/api/saveTransfer", function(req, res) {
         var comment = new CommentsChangedmodel();
         comment.oldComment = req.body.oldComment;
         comment.newComment = req.body.comment;
-        comment.otherComment = req.body.commentChanged.otherComment;
+        comment.commentChanged = req.body.commentChanged;
         comment.idTransfer = req.body._id;
         comment.date = req.body.commentDate;
         comment.mmsi = req.body.mmsi;
@@ -847,6 +848,7 @@ app.post("/api/saveTransfer", function(req, res) {
                     cargoUp: req.body.cargoUp,
                     cargoDown: req.body.cargoDown,
                     comment: req.body.comment,
+                    commentChanged: req.body.commentChanged
                 }, function(err, data) {
                     if (err) {
                         res.send(err);
