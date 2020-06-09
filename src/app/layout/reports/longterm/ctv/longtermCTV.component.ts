@@ -47,7 +47,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         },
         {
             x: 'startTime', y: 'speedInTransitAvgKMH', graph: 'scatter', xLabel: 'Time', yLabel: 'Speed [' + this.settings.unit_speed + ']', dataType: 'transit', info:
-                'Average speed of when sailing from or to the windfield. Aborted attempts are not shown.',
+                'Average speed of when sailing from or to the windfield. Transits other than harbour-field or back are not shown.',
         },
         {
             x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
