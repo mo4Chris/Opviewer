@@ -88,7 +88,7 @@ export class CtvreportComponent implements OnInit {
   wavedataLoaded = false;
   wavegraphMinimized = false;
   weatherOverviewChart: WeatherOverviewChart;
-  visitedPark = '';
+  visitedPark = 'N/a';
 
   public showAlert = false;
   public vesselUtcOffset: number;
@@ -120,7 +120,7 @@ export class CtvreportComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     // At this point are loaded: tokenInfo, vesselObject
-    this.visitedPark = '';
+    this.visitedPark = 'N/a';
     if (this.weatherOverviewChart) {
       this.weatherOverviewChart.destroy();
     }

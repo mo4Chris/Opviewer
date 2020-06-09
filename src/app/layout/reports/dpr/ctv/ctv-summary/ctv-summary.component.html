@@ -25,7 +25,7 @@
       </tr>
       <tr>
         <td>Visited wind farm(s)</td>
-        <td>{{visitedPark}}</td>
+        <td>{{visitedPark || 'N/a'}}</td>
       </tr>
     </table>
   </div>
@@ -84,11 +84,11 @@
       </tr>
       <tr>
         <td>Efficiency of the trip</td>
-        <td>[insert interesting trip efficiency number]</td>
+        <td>{{roundNumber(general.FuelEfficiency)}}</td>
       </tr>
       <tr>
         <td>Vessel fuel profiles</td>
-        <td>[insert interesting profile]</td>
+        <td>{{roundNumber(general.FuelProfile)}}</td>
       </tr>
       <tr>
         <td>Co2 emission</td>

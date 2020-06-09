@@ -17,10 +17,11 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CtvSummaryComponent {
+export class CtvSummaryComponent implements OnChanges {
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
+  @Input() visitedPark: string;
   @Input() tokenInfo: TokenModel; // ToDo remove in favour of permission service
 
   toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
@@ -35,6 +36,9 @@ export class CtvSummaryComponent {
     private calcService: CalculationService,
     private permission: PermissionService,
   ) { }
+
+  ngOnChanges() {
+  }
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function

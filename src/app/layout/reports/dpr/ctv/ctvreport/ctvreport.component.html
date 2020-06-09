@@ -3,7 +3,7 @@
     <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
         <h3 *ngIf="noTransits">There is no transit data available</h3>
         <app-ctv-summary *ngIf="!noTransits" [general]="general" [generalInputStats]="generalInputStats"
-            [engine]="enginedata" [tokenInfo]="tokenInfo"></app-ctv-summary>
+            [engine]="enginedata" [tokenInfo]="tokenInfo" [visitedPark]="visitedPark"></app-ctv-summary>
     </div>
     <br><br>
 
