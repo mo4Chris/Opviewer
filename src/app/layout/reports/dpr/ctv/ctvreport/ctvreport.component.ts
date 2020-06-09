@@ -88,7 +88,7 @@ export class CtvreportComponent implements OnInit {
   wavedataLoaded = false;
   wavegraphMinimized = false;
   weatherOverviewChart: WeatherOverviewChart;
-  visitedPark = '';
+  visitedPark = 'N/a';
 
   public showAlert = false;
   public vesselUtcOffset: number;
@@ -120,7 +120,7 @@ export class CtvreportComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     // At this point are loaded: tokenInfo, vesselObject
-    this.visitedPark = '';
+    this.visitedPark = 'N/a';
     if (this.weatherOverviewChart) {
       this.weatherOverviewChart.destroy();
     }
@@ -383,6 +383,7 @@ export class CtvreportComponent implements OnInit {
     return this.newService.getEnginedata(this.vesselObject.mmsi, this.vesselObject.date ).pipe(
       map(data => {
         if (data.length > 0) {
+          data[0]['fuelOther'] = data[0].fuelUsedTotalM3 - data[0].fuelUsedDepartM3 - data[0].fuelUsedReturnM3 - data[0].fuelUsedTransferM3;
           return data[0];
         } else {
           return {
@@ -396,6 +397,7 @@ export class CtvreportComponent implements OnInit {
             fuelUsedReturnM3: 0,
             fuelUsedTotalM3: 0,
             fuelUsedTransferM3: 0,
+            fuelOther: 0,
           };
         }
     }));

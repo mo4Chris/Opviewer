@@ -1,7 +1,9 @@
-<span>
-  <h3>Transfer: #{{index + 1}} - location: {{transfer.location}} - Score:
-      {{roundNumber(transfer.score, 10)}}</h3>
-</span>
-<div class="chartContainer">
-  <canvas #canvas>{{chart}}</canvas>
+<div class='graphContainer'>
+  <span>
+    <h3>Transfer: #{{index + 1}} - location: {{transfer.location}} - Score:
+        {{roundNumber(transfer.score, 10)}}</h3>
+  </span>
+  <div class="chartContainer">
+    <canvas #canvas>{{chart}}</canvas>
+  </div>
 </div>
