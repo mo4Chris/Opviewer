@@ -27,7 +27,8 @@ export class CtvSummaryComponent {
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
-
+  visitedPark: any;
+  
   constructor(
     private alert: AlertService,
     private newService: CommonService,

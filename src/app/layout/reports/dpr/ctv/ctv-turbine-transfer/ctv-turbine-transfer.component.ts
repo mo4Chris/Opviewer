@@ -26,6 +26,7 @@ export class CtvTurbineTransferComponent {
     'Incident', 'Embarkation', 'Vessel2Vessel',
     'Too much wind for craning', 'Trial docking',
     'Transfer of PAX not possible', 'Other'];
+    videoRequestPermission: any;
 
   constructor(
     private newService: CommonService,

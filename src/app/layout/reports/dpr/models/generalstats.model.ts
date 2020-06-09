@@ -25,6 +25,23 @@ export interface CTVGeneralStatsModel {
     time: matArray;
     utcOffset: number;
     inputStats?: any;
+    WindFarmArrivalTime: string;
+    departureWindFarmTime: string;
+    portArrivalTime: string;
+    portDepartureTime: any;
+    visitedPark: string;
+    FuelEcon: any;
+    MsiOutbound: any;
+    MsiInbound: any;
+    sailedDistance: any;
+    AvgSpeedOutbound: any;
+    AvgSpeedInbound: any;
+    AvgSpeedOutboundUnrestricted: any;
+    AvgSpeedInboundUnrestricted: any;
+    AverageDockedTime:any;
+    videoRequestPermission: any;
+    WBVtechs: any;
+    WBVcrew: any;
 }
 
 
@@ -47,4 +64,5 @@ export interface CtvDprStatsModel {
     MsiInbound: NAnumber;
     WBVcrew: NAnumber;
     AverageDockedTime: string;
+    WBVtech: any;
 }

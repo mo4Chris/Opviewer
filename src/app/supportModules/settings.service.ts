@@ -87,6 +87,7 @@ export class SettingsService {
                 case 'timezone':
                     // ToDo: implement timezone coding?
                     const T = moment.tz(date, this.fixedTimeZoneLoc)
+                    // @ts-ignore
                     const timezoneOffset = T._offset/60;
                     return timezoneOffset;
                 default:
