@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { text } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,14 @@ export class CalculationService {
   }
 
   roundNumber(number, decimal = 10, addString: string = '') {
+    if (addString) {
+      switch (addString) {
+        case 'm2': case ' m2':
+          addString = ' m\u00B2'
+        case 'm3': case ' m3':
+          addString = ' m\u00B3'
+      }
+    }
     if (typeof number === 'string' || number instanceof String) {
       if (number === '_NaN_' || number === 'n/a' || number === 'n/a ') {
         return 'N/a';

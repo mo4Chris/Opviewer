@@ -39,9 +39,8 @@
         <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
           (onVideoRequest)="setRequest($event)"></app-ctv-turbine-transfer>
     </div>
-    <div class="row singlepage-print singlepage-print-port"></div>
     <div class="row singlepage-print singlepage-print-port">
-        <div class="col-lg-7 singlepage-print"  *ngFor="let transfer_Data of transferData;let ind = index">
+        <div class="col-lg-7"  *ngFor="let transfer_Data of transferData;let ind = index">
             <app-ctvslipgraph *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX.length>0"
                 [index]="ind" [transfer]="transfer_Data" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>

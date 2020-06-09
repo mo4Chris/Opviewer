@@ -34,10 +34,24 @@ export class CtvSummaryComponent implements OnChanges {
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
-    private permission: PermissionService,
+    public permission: PermissionService,
   ) { }
 
   ngOnChanges() {
+    this.debug()
+  }
+
+  debug() {
+    console.log('---- Debug information for ctv summary ----')
+    console.log('general')
+    console.log(this.general)
+    console.log('generalInputStats')
+    console.log(this.generalInputStats)
+    console.log('visitedPark')
+    console.log(this.visitedPark)
+    console.log('engine')
+    console.log(this.engine)
+    console.log('-- end of ctv summary debug --')
   }
 
   saveGeneralStats() {
