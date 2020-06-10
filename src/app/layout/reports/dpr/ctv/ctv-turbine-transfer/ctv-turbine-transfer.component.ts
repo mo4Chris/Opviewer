@@ -20,12 +20,14 @@ export class CtvTurbineTransferComponent {
   @Input() transfers: TurbineTransfer[];
   @Input() tokenInfo: TokenModel;
   @Output() onVideoRequest = new EventEmitter();
+  videoRequestPermission: any;
 
 
   commentOptions = ['Transfer OK', 'Unassigned', 'Tied off',
     'Incident', 'Embarkation', 'Vessel2Vessel',
     'Too much wind for craning', 'Trial docking',
     'Transfer of PAX not possible', 'Other'];
+
 
   constructor(
     private newService: CommonService,

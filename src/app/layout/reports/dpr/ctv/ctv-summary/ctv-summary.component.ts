@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { TokenModel } from '@app/models/tokenModel';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -21,19 +21,20 @@ export class CtvSummaryComponent {
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
+  @Input() visitedPark: string;
   @Input() tokenInfo: TokenModel; // ToDo remove in favour of permission service
 
   toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
-
+  
   constructor(
     private alert: AlertService,
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
-    private permission: PermissionService,
+    public permission: PermissionService,
   ) { }
 
   saveGeneralStats() {
@@ -66,7 +67,10 @@ interface CtvEngineModel {
   fuelUsedDepartM3: number;
   fuelUsedReturnM3: number;
   fuelUsedTransferM3: number;
+  fuelPerHour: number;
+  fuelOther: number;
   co2TotalKg: number;
+
 }
 
 interface CtvGeneralInputStatsModel {
