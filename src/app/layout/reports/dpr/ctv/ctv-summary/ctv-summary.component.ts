@@ -28,7 +28,6 @@ export class CtvSummaryComponent implements OnChanges {
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
-  visitedPark: any;
   
   constructor(
     private alert: AlertService,
@@ -37,23 +36,6 @@ export class CtvSummaryComponent implements OnChanges {
     private calcService: CalculationService,
     public permission: PermissionService,
   ) { }
-
-  ngOnChanges() {
-    this.debug()
-  }
-
-  debug() {
-    console.log('---- Debug information for ctv summary ----')
-    console.log('general')
-    console.log(this.general)
-    console.log('generalInputStats')
-    console.log(this.generalInputStats)
-    console.log('visitedPark')
-    console.log(this.visitedPark)
-    console.log('engine')
-    console.log(this.engine)
-    console.log('-- end of ctv summary debug --')
-  }
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function
@@ -85,7 +67,10 @@ interface CtvEngineModel {
   fuelUsedDepartM3: number;
   fuelUsedReturnM3: number;
   fuelUsedTransferM3: number;
+  fuelPerHour: number;
+  fuelOther: number;
   co2TotalKg: number;
+
 }
 
 interface CtvGeneralInputStatsModel {
