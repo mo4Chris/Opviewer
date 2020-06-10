@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { TokenModel } from '@app/models/tokenModel';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -17,7 +17,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CtvSummaryComponent implements OnChanges {
+export class CtvSummaryComponent {
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
