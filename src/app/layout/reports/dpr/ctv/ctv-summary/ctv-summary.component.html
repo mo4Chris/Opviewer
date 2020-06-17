@@ -1,4 +1,6 @@
-<h3>General statistics</h3>
+<h3>General statistics
+  <button class="btn btn-primary submitBtnDate"  (click)="saveGeneralStats()"type="button">Save general stats</button>
+</h3>  
 <div class="row">
   <div class="col-lg-4">
     <table class="table table-bordered transitTable">
@@ -229,6 +231,7 @@
            {{generalInputStats.customInput}}</td>
       </tr>
     </table>
+    <button class="btn btn-lg btn-primary submitBtnDate" style="float:right;" (click)="saveGeneralStats()"type="button">Save general stats</button>
   </div>
 </div>
 
