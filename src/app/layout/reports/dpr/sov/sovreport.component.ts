@@ -114,6 +114,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         vessel2vessels,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
+        this.sovModel.vessel2vessels = vessel2vessels;
         this.dprInput = dprInput[0];
         this.hseDprInput = hseDprInput[0];
         const dprSigned = dprInput[0] ? dprInput[0].signedOff : {amount: 0};
