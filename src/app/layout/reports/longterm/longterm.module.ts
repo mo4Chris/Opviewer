@@ -19,10 +19,10 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
 import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
-import { SiemensKpiOverviewComponent } from './models/siemens-kpi-overview/siemens-kpi-overview.component';
-import { LongtermBarGraphComponent } from './ctv/models/longterm-bar-graph/longterm-bar-graph.component';
-import { LongtermTrendGraphComponent } from './ctv/models/longterm-trend-graph/longterm-trend-graph.component';
-import { LongtermScatterGraphComponent } from './ctv/models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
+import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
 
 @NgModule({
     imports: [

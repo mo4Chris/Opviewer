@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CommonService } from '../../../../../common.service';
-import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
-import { TokenModel } from '../../../../../models/tokenModel';
+import { CommonService } from '@app/common.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { TokenModel } from '@app/models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { now } from 'moment';

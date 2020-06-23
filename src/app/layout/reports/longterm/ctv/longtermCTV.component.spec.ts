@@ -17,9 +17,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterTestingModule } from '@angular/router/testing';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
 import { MockedCommonService } from '@app/supportModules/mocked.common.service';
-import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
-import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
-import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
+import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;

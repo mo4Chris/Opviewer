@@ -81,8 +81,9 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         {
             x: 'Hs', y: 'score', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Transfer scores', dataType: 'transfer', info:
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
-                'Transfers without valid transfer scores have been omitted.',
-            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
+                'Transfers without valid transfer scores have been omitted, and transfers rated 1 are drawn as outliers but are not used for computing mean and spread.',
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold'),
+            filterCB: (elt) => elt == 1
         },
     ];
     

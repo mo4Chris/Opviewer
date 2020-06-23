@@ -22,7 +22,7 @@
                         ></app-longterm-scatter-graph>
                     <app-longterm-trend-graph *ngSwitchCase="'areaScatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselObject.vesselName" (navigateToVesselreport)="navigateToDPR($event)"
-                        vesselType="CTV"
+                        vesselType="CTV" [hideFromTrend]="transfer_Data.filterCB"
                         ></app-longterm-trend-graph>
                     <app-longterm-bar-graph *ngSwitchCase="'bar'" [data]="transfer_Data" [vesselObject]="vesselObject"
                         [fromDate]="fromDate" [toDate]="toDate" [vesselLabels]="vesselNames" [callback]="transfer_Data.barCallback"

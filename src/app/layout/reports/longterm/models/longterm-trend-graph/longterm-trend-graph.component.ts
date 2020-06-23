@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { ComprisonArrayElt, RawScatterData } from '../../../models/scatterInterface';
-import { LongtermVesselObjectModel } from '../../../longterm.component';
+import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
+import { LongtermVesselObjectModel } from '../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { SettingsService } from '@app/supportModules/settings.service';
@@ -8,7 +8,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
-import { LongtermProcessingService, LongtermScatterValueArray } from '../../../models/longterm-processing-service.service';
+import { LongtermProcessingService, LongtermScatterValueArray } from '../longterm-processing-service.service';
 import { now } from 'moment';
 
 @Component({
@@ -26,6 +26,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
   @Input() bins = [0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.25,3.5,3.75,4];
   @Input() outlierThreshold = 5;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
+  @Input() hideFromTrend: (elt: number) => boolean;
+  @Input() showHiddenAsOutlier = true;
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -111,9 +113,11 @@ export class LongtermTrendGraphComponent implements OnChanges {
             return false;
           }
         });
-        const xVals = data[this.data.x].filter((_, _idx) => idx[_idx]) as number[];
-        const yVals = data[this.data.y].filter((_, _idx) => idx[_idx]) as number[];
-        const dates = data.date.filter((_, _idx) => idx[_idx]) as number[];
+        let xVals = data[this.data.x].filter((_, _idx) => idx[_idx]) as number[];
+        let yVals = data[this.data.y].filter((_, _idx) => idx[_idx]) as number[];
+        let dates = data.date.filter((_, _idx) => idx[_idx]) as number[];
+
+
 
         if (cnt < this.outlierThreshold) {
           // Add points to scatter array
@@ -121,22 +125,46 @@ export class LongtermTrendGraphComponent implements OnChanges {
             return {
               x: x,
               y: yVals[i],
+              date: dates[i],
+              callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
             }
           }));
         } else {
           const mean = this.calcService.getNanMean(yVals as number[]);
           const std = this.calcService.getNanStd(yVals as number[]);
           const outliers: ScatterDataElt[] = [];
+
+          // We filter any noise if required
+          if (this.hideFromTrend) {
+            const tf: boolean[] = yVals.map(this.hideFromTrend);
+            if (this.showHiddenAsOutlier) {
+              tf.forEach((_isOutlier, i) => {
+                if (_isOutlier) {
+                  outliers.push({
+                    x: xVals[i],
+                    y: yVals[i],
+                    callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
+                    date: dates[i],
+                  })
+                }
+              });
+            }
+            xVals = xVals.filter((_, idx) => !tf[idx]);
+            yVals = yVals.filter((_, idx) => !tf[idx]);
+            dates = dates.filter((_, idx) => !tf[idx]);
+          }
+
           yVals.forEach((yVal, i) => {
             if (yVal <  mean - 2 * std || yVal > mean + 2 * std) {
               outliers.push({
-                x: data[this.data.x][i],
+                x: xVals[i],
                 y: yVal,
                 callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
                 date: dates[i],
               })
             }
           });
+          
           vesselDataSets = vesselDataSets.concat(outliers);
           const upperLimit = this.calcService.getNanMax(yVals);
           const lowerLimit = this.calcService.getNanMin(yVals);
@@ -185,10 +213,11 @@ export class LongtermTrendGraphComponent implements OnChanges {
             callbacks: {
               beforeLabel: function (tooltipItem, data) {
                 const elt = data.datasets[tooltipItem.datasetIndex];
-                return [
+                const date = elt.data[tooltipItem.index].date
+                return date? [
                   elt.label,
-                  dateService.MatlabDateToJSDate(elt.data[tooltipItem.index].date)
-                ];
+                  dateService.MatlabDateToJSDate(date)
+                ] : elt.label;
               },
               label: function (tooltipItem, data) {
                 return xLabel + ': ' + Math.round(tooltipItem.xLabel * 100) / 100;
