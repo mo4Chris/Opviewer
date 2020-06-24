@@ -9,6 +9,7 @@ export interface ComprisonArrayElt {
     info?: string;
     annotation?: () => {};
     barCallback?: (data: RawScatterData | SOVRawScatterData) => {x: any, y: any}[];
+    filterCB?: (elt: number) => boolean;
 }
 
 export interface RawScatterData {

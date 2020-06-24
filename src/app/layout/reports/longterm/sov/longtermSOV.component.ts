@@ -1,12 +1,12 @@
 import { Component, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectionStrategy, OnChanges } from '@angular/core';
-import { CommonService } from '../../../../common.service';
+import { CommonService } from '@app/common.service';
 
 import { map, catchError } from 'rxjs/operators';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { DatetimeService } from '../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { ComprisonArrayElt, RawScatterData, SOVRawScatterData } from '../models/scatterInterface';
 import { Observable, forkJoin } from 'rxjs';
 import { UtilizationGraphComponent } from './models/utilizationGraph.component';
