@@ -38,8 +38,10 @@ export interface TurbineTransfer {
     detector: string;
     gangwayUtilisationTrace: string;
     positionalStability: string;
-    paxIn: number ;
-    paxOut: number ;
-    cargoIn: number ;
-    cargoOut: number ;
+    paxIn?: number ;
+    paxOut?: number ;
+    cargoIn?: number ;
+    cargoOut?: number ;
+    default_paxUp?: number;
+    default_paxDown?: number;
 }

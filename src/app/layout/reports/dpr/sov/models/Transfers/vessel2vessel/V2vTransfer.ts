@@ -17,6 +17,9 @@ export class V2vTransfer {
     turbineActivity: string;
     paxIn: number;
     paxOut: number;
+    
     cargoIn: number;
     cargoOut: number;
+    default_cargoIn: number;
+    default_cargoOut: number;
 }

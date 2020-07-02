@@ -17,6 +17,9 @@ import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { DaughtercraftInfoModel } from './sov-dc-transfers/sov-dc-transfers.component';
+import { TurbineTransfer } from './models/Transfers/TurbineTransfer';
+import { PlatformTransfer } from './models/Transfers/PlatformTransfer';
+import { V2vTransfer } from './models/Transfers/vessel2vessel/V2vTransfer';
 
 @Component({
   selector: 'app-sovreport',
@@ -114,6 +117,10 @@ export class SovreportComponent implements OnInit, OnChanges {
         vessel2vessels,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
+        vessel2vessels.forEach(_v2v => {
+          this.setPaxFromDefault(_v2v.transfers);
+        });
+        
         this.sovModel.vessel2vessels = vessel2vessels;
         this.dprInput = dprInput[0];
         this.hseDprInput = hseDprInput[0];
@@ -169,6 +176,9 @@ export class SovreportComponent implements OnInit, OnChanges {
               platformLocations
             ]) => {
               // All data is loaded beyond this point
+              this.setPaxFromDefault(platformTransfers);
+              this.setPaxFromDefault(turbineTransfers);
+
               if (platformTransfers.length > 0) {
                 this.sovModel.sovType = SovType.Platform;
               } else if (turbineTransfers.length > 0) {
@@ -626,6 +636,13 @@ export class SovreportComponent implements OnInit, OnChanges {
       default:
         return raw_limiter;
     }
+  }
+
+  setPaxFromDefault(transfers: TurbineTransfer[] | PlatformTransfer[] | V2vTransfer[]) {
+    transfers.forEach(_transfer => {
+      _transfer.paxUp = _transfer.paxUp || _transfer.default_paxUp || 0
+      _transfer.paxDown = _transfer.paxDown || _transfer.default_paxDown || 0
+    })
   }
 
   private ResetTransfers() {
