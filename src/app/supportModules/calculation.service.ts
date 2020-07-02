@@ -16,9 +16,9 @@ export class CalculationService {
     if (addString) {
       switch (addString) {
         case 'm2': case ' m2':
-          addString = ' m\u00B2'
+          addString = ' m\u00B2';
         case 'm3': case ' m3':
-          addString = ' m\u00B3'
+          addString = ' m\u00B3';
       }
     }
     if (typeof number === 'string' || number instanceof String) {
@@ -172,7 +172,7 @@ export class CalculationService {
   }
 
   linspace(start: number, stop: number, step: number = 1) {
-    const linspace = new Array(Math.round((stop - start) / step));
+    const linspace = start <= stop ? new Array(Math.round((stop - start) / step)) : [];
     let curr = start;
     for (let _i = 0; _i < linspace.length; _i++) {
       linspace[_i] = curr;
@@ -394,10 +394,10 @@ export class CalculationService {
   }
 
   fillArray(value: any, len: number) {
-    if (len == 0) return [];
-    var a = [value];
-    while (a.length * 2 <= len) a = a.concat(a);
-    if (a.length < len) a = a.concat(a.slice(0, len - a.length));
+    if (len === 0) { return []; }
+    let a = [value];
+    while (a.length * 2 <= len) { a = a.concat(a); }
+    if (a.length < len) { a = a.concat(a.slice(0, len - a.length)); }
     return a;
   }
 }

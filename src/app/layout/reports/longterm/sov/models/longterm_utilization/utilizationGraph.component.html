@@ -1,4 +1,4 @@
-<div class="row" *ngIf="!noData">
+<div class="row" *ngIf="!noData; else noUtilGraph">
     <div class="col-lg-8">
         <canvas id="utilizationGraph"></canvas>
     </div>
@@ -9,3 +9,7 @@
         combined time spend on turbine, CTV and platform operations.
     </div>
 </div>
+
+<ng-template #noUtilGraph>
+  <div class="row">Utilization graph is not available!</div>
+</ng-template>

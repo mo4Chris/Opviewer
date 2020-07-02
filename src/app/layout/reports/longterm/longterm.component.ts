@@ -30,13 +30,13 @@ export class LongtermComponent implements OnInit {
     private newService: CommonService,
     private route: ActivatedRoute,
     private modalService: NgbModal,
-    calendar: NgbCalendar,
+    private calendar: NgbCalendar,
     private routerService: RouterService,
     private userService: UserService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
-    private permission: PermissionService
+    private permission: PermissionService,
   ) {
     this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
     this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
@@ -151,17 +151,20 @@ export class LongtermComponent implements OnInit {
     const dateMinAsMatlab = this.unixEpochtoMatlabDate(momentMinDateAsIso);
     const momentMaxDateAsIso = moment(maxpickerValueAsMomentDate).unix();
     const dateMaxAsMatlab = this.unixEpochtoMatlabDate(momentMaxDateAsIso);
-    this.vesselObject.dateMin = dateMinAsMatlab;
-    this.vesselObject.dateMax = dateMaxAsMatlab;
-    this.vesselObject.dateNormalMin = this.MatlabDateToJSDateYMD(dateMinAsMatlab);
-    this.vesselObject.dateNormalMax = this.MatlabDateToJSDateYMD(dateMaxAsMatlab);
     const mmsiArray = [];
     if (this.dropdownValues && this.dropdownValues.length > 0 && <any> this.dropdownValues[0].mmsi !== []) {
       for (let _j = 0; _j < this.dropdownValues.length; _j++) {
         mmsiArray.push(this.dropdownValues[_j].mmsi);
       }
     }
-    this.vesselObject.mmsi = mmsiArray;
+
+    this.vesselObject = { ... this.vesselObject, ... {
+      mmsi: mmsiArray,
+      dateMin:  dateMinAsMatlab,
+      dateMax: dateMaxAsMatlab,
+      dateNormalMin: this.MatlabDateToJSDateYMD(dateMinAsMatlab),
+      dateNormalMax: this.MatlabDateToJSDateYMD(dateMaxAsMatlab)
+    }};
     this.buildPageWithCurrentInformation();
     setTimeout(() => {
       this.updateWavedataForChild();
@@ -170,6 +173,10 @@ export class LongtermComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     this.datePickerValue = this.fromDate;
+    console.log('UPDATING');
+    // this.vesselObject = {... this.vesselObject, ... {
+    //   dateMin
+    // }};
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data

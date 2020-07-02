@@ -45,13 +45,13 @@ export class LongtermProcessingService {
                   if (transit[name]) {
                     transit[name] = transit[name].filter((_: any, _i: number) => valid[_i]);
                   }
-                })
-              })
-              return _transits
+                });
+              });
+              return _transits;
             }));
             break;
           default:
-            throw Error('Unsupported CTV data pipeline <' + dataType + '>!')
+            throw Error('Unsupported CTV data pipeline <' + dataType + '>!');
         }
         break;
       case 'OSV': case 'SOV':
@@ -69,11 +69,11 @@ export class LongtermProcessingService {
             loadable = this.getCombinedTransferObservable(queryElt, cb);
             break;
           default:
-            throw Error('Unsupported SOV data pipeline <' + dataType + '>!')
+            throw Error('Unsupported SOV data pipeline <' + dataType + '>!');
         }
         break;
       default:
-        throw Error('Invalid vessel type <' + vesselType + '>!')
+        throw Error('Invalid vessel type <' + vesselType + '>!');
     }
     return loadable;
   }
@@ -162,7 +162,7 @@ export class LongtermProcessingService {
       borderWidth: this.borderWidth[index],
       hitRadius: 10,
       showInLegend: true
-    },... opts};
+    }, ... opts};
   }
 
   createChartlyLine(datas: ScatterDataElt[], index: number = 0, opts: LongtermScatterValueArrayOpts = {}): LongtermScatterValueArray {
@@ -178,7 +178,7 @@ export class LongtermProcessingService {
       fill: false,
       borderWidth: 0,
       lineTension: 0.1,
-    },... opts};
+    }, ... opts};
   }
 
   createChartlyBar(datas: ScatterDataElt[], index: number = 0, opts: LongtermScatterValueArrayOpts = {}): LongtermScatterValueArray {
@@ -194,7 +194,7 @@ export class LongtermProcessingService {
       fill: false,
       borderWidth: 0,
       lineTension: 0.1,
-    },... opts};
+    }, ... opts};
   }
 
   createNewLegendAndAttach(chartInstance, legendOpts): void {
@@ -216,7 +216,7 @@ export class LongtermProcessingService {
       return vesselObject.vesselName[
         vesselObject.mmsi.findIndex(_mmsi => _mmsi === mmsi)
       ];
-    })
+    });
   }
 
   setAnnotations(compElt: ComprisonArrayElt) {
@@ -281,15 +281,15 @@ export class LongtermProcessingService {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
   parseScatterDate(t: number) {
-    return new Date(this.MatlabDateToUnixEpochViaDate(t).getTime())
+    return new Date(this.MatlabDateToUnixEpochViaDate(t).getTime());
   }
 
   private fixLoadOrder(query: StatsRangeRequest, raws: any[]) {
     const proper = new Array(query.mmsi.length);
     let mmsi: number;
-    for (let i = 0; i<query.mmsi.length; i++) {
+    for (let i = 0; i < query.mmsi.length; i++) {
       mmsi = query.mmsi[i];
-      proper[i] = raws.find(_raw => _raw.id == mmsi)      
+      proper[i] = raws.find(_raw => _raw.id === mmsi);
     }
     return raws;
   }
@@ -346,10 +346,10 @@ export class LongtermProcessingService {
   }
 }
 
-type SingleAxisType = 'hidden' | 'date' | 'numeric' | 'label'
+type SingleAxisType = 'hidden' | 'date' | 'numeric' | 'label';
 interface axisType {
-  x: SingleAxisType,
-  y: SingleAxisType,
+  x: SingleAxisType;
+  y: SingleAxisType;
 }
 
 interface ScatterArguments {
@@ -374,8 +374,8 @@ export interface LongtermScatterValueArray {
   type?: string;
   showLine?: boolean;
   pointRadius?: number;
-  fill?: boolean | string,
-  lineTension?: number,
+  fill?: boolean | string;
+  lineTension?: number;
 }
 
 interface LongtermScatterValueArrayOpts {
@@ -388,11 +388,11 @@ interface LongtermScatterValueArrayOpts {
   hitRadius?: number;
   showInLegend?: boolean;
   showLine?: boolean;
-  lineTension?: number,
+  lineTension?: number;
   pointStyle?: string;
   pointRadius?: number;
   pointHoverRadius?: number;
-  fill?: boolean | string,
+  fill?: boolean | string;
 }
 
 interface ScatterDataElt {
@@ -402,11 +402,11 @@ interface ScatterDataElt {
   callback?: Function;
 }
 
-export interface LongtermParsedWavedata{
+export interface LongtermParsedWavedata {
   timeStamp: any[];
   Hs: any[];
   Tp: any[];
   waveDir: any[];
   wind: any[];
   windDir: any[];
-};
+}
