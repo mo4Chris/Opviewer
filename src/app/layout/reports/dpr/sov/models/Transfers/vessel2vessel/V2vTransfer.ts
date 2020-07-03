@@ -15,11 +15,11 @@ export class V2vTransfer {
     Hs: string;
     Ts: string;
     turbineActivity: string;
-    paxIn: number;
-    paxOut: number;
-    
-    cargoIn: number;
-    cargoOut: number;
-    default_cargoIn: number;
-    default_cargoOut: number;
+
+    paxIn?: number;
+    paxOut?: number;
+    cargoIn?: number;
+    cargoOut?: number;
+    default_paxIn?: number;
+    default_paxOut?: number;
 }

@@ -42,6 +42,6 @@ export interface TurbineTransfer {
     paxOut?: number ;
     cargoIn?: number ;
     cargoOut?: number ;
-    default_paxUp?: number;
-    default_paxDown?: number;
+    default_paxIn?: number;
+    default_paxOut?: number;
 }

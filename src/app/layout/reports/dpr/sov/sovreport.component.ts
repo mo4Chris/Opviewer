@@ -638,11 +638,11 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
-  setPaxFromDefault(transfers: TurbineTransfer[] | PlatformTransfer[] | V2vTransfer[]) {
-    transfers.forEach(_transfer => {
-      _transfer.paxUp = _transfer.paxUp || _transfer.default_paxUp || 0
-      _transfer.paxDown = _transfer.paxDown || _transfer.default_paxDown || 0
-    })
+  setPaxFromDefault(transfers: TurbineTransfer[] | PlatformTransfer[] | V2vTransfer[]): void {
+    transfers.forEach((_transfer: TurbineTransfer | PlatformTransfer | V2vTransfer) => {
+      _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
+      _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
+    });
   }
 
   private ResetTransfers() {
