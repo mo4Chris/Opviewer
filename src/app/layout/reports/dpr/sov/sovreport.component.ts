@@ -394,7 +394,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     });
   }
 
-  updateV2vTotal(total) {
+  updateV2vTotal(total: V2vPaxTotalModel) {
     this.v2vPaxCargoTotals = total;
   }
 
@@ -652,7 +652,15 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.hseDprApproval = 0;
     this.dprApproval = 0;
     this.dcInfo = null;
+    this.v2vPaxCargoTotals = {
+      paxIn: 0,
+      paxOut: 0,
+      cargoIn: 0,
+      cargoOut: 0,
+    }
   }
 }
 
 type anyTransfer = TurbineTransfer | PlatformTransfer | V2vTransfer;
+
+
