@@ -64,6 +64,8 @@ describe('CtvSummaryComponent', () => {
       fuelUsedTotalM3: 3,
       fuelUsedTransferM3: 4,
       co2TotalKg: 5,
+      fuelOther: 0,
+      fuelPerHour: 1,
     };
     fixture.detectChanges();
   });

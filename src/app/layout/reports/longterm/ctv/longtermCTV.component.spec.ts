@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
@@ -21,7 +21,7 @@ import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
 
-describe('Longterm_CTV', () => {
+fdescribe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
   let fixture: ComponentFixture<LongtermCTVComponent>;
 
@@ -64,11 +64,13 @@ describe('Longterm_CTV', () => {
     component = fixture.componentInstance;
     component.vesselObject = <LongtermVesselObjectModel> {
       mmsi: [userBoats[0].mmsi],
-      dateMin: 747700,
-      dateMax: 747710,
+      dateMin: 737791, // 1 jan 2020
+      dateMax: 737851, // 1 mar 2020
       dateNormalMin: 'Test date 1',
       dateNormalMax: 'Test date 2',
     };
+    component.fromDate = new NgbDate(2020,1,1);
+    component.toDate = new NgbDate(2020,3,1);
     const testToken: any = UserTestService.getMockedAccessToken({
       'userPermission': 'admin',
       'userBoats': userBoats
@@ -79,6 +81,11 @@ describe('Longterm_CTV', () => {
   });
 
   it('should create', () => {
+    expect(component).toBeTruthy();
+  })
+
+  it('Should run ngOnChanges', () => {
+    component.ngOnChanges();
     expect(component).toBeTruthy();
   });
 });
