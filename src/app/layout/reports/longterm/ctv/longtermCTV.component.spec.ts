@@ -21,7 +21,7 @@ import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
 
-fdescribe('Longterm_CTV', () => {
+describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
   let fixture: ComponentFixture<LongtermCTVComponent>;
 
