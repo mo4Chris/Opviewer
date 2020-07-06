@@ -173,10 +173,6 @@ export class LongtermComponent implements OnInit {
 
   buildPageWithCurrentInformation() {
     this.datePickerValue = this.fromDate;
-    console.log('UPDATING');
-    // this.vesselObject = {... this.vesselObject, ... {
-    //   dateMin
-    // }};
   }
 
   childLoaded() { // Runs when CTV or SOV child is done loading data

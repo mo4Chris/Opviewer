@@ -638,8 +638,8 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
-  setPaxFromDefault(transfers: TurbineTransfer[] | PlatformTransfer[] | V2vTransfer[]): void {
-    transfers.forEach((_transfer: TurbineTransfer | PlatformTransfer | V2vTransfer) => {
+  setPaxFromDefault(transfers: anyTransfer[]): void {
+    transfers.forEach((_transfer: anyTransfer) => {
       _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
       _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
     });
@@ -654,3 +654,5 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.dcInfo = null;
   }
 }
+
+type anyTransfer = TurbineTransfer | PlatformTransfer | V2vTransfer;
