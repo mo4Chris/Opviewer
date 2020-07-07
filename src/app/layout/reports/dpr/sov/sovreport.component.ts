@@ -17,6 +17,9 @@ import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { DaughtercraftInfoModel } from './sov-dc-transfers/sov-dc-transfers.component';
+import { TurbineTransfer } from './models/Transfers/TurbineTransfer';
+import { PlatformTransfer } from './models/Transfers/PlatformTransfer';
+import { V2vTransfer } from './models/Transfers/vessel2vessel/V2vTransfer';
 
 @Component({
   selector: 'app-sovreport',
@@ -114,6 +117,10 @@ export class SovreportComponent implements OnInit, OnChanges {
         vessel2vessels,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
+        vessel2vessels.forEach(_v2v => {
+          this.setPaxFromDefault(_v2v.transfers);
+        });
+        
         this.sovModel.vessel2vessels = vessel2vessels;
         this.dprInput = dprInput[0];
         this.hseDprInput = hseDprInput[0];
@@ -169,6 +176,9 @@ export class SovreportComponent implements OnInit, OnChanges {
               platformLocations
             ]) => {
               // All data is loaded beyond this point
+              this.setPaxFromDefault(platformTransfers);
+              this.setPaxFromDefault(turbineTransfers);
+
               if (platformTransfers.length > 0) {
                 this.sovModel.sovType = SovType.Platform;
               } else if (turbineTransfers.length > 0) {
@@ -384,7 +394,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     });
   }
 
-  updateV2vTotal(total) {
+  updateV2vTotal(total: V2vPaxTotalModel) {
     this.v2vPaxCargoTotals = total;
   }
 
@@ -628,6 +638,13 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
+  setPaxFromDefault(transfers: anyTransfer[]): void {
+    transfers.forEach((_transfer: anyTransfer) => {
+      _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
+      _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
+    });
+  }
+
   private ResetTransfers() {
     this.sovModel = new SovModel();
     this.showContent = false;
@@ -635,5 +652,15 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.hseDprApproval = 0;
     this.dprApproval = 0;
     this.dcInfo = null;
+    this.v2vPaxCargoTotals = {
+      paxIn: 0,
+      paxOut: 0,
+      cargoIn: 0,
+      cargoOut: 0,
+    }
   }
 }
+
+type anyTransfer = TurbineTransfer | PlatformTransfer | V2vTransfer;
+
+
