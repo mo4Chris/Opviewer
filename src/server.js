@@ -384,6 +384,13 @@ var SovHseDprInput = new Schema({
 });
 var SovHseDprInputmodel = mongo.model('SOV_hseDprInput', SovHseDprInput, 'SOV_hseDprInput');
 
+var SovRovOperations = new Schema({
+    date: { type: Number },
+    mmsi: { type: Number },
+    transfers: { type: Array }
+});
+var SovRovOperationsmodel = mongo.model('SOV_rovOperations', SovRovOperations, 'SOV_rovOperations');
+
 var SovCycleTimes = new Schema({
     startTime: { type: String },
     durationMinutes: { type: Number },
@@ -1105,6 +1112,50 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function(req, res) {
                 res.send(data);
             }
         });
+    });
+});
+
+app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
+    let mmsi = parseInt(req.params.mmsi);
+    let date = req.params.date;
+    req.body.mmsi = mmsi;
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        }
+
+        SovRovOperationsmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        });
+    });
+});
+
+app.post("/api/updateSovRovOperations", function(req, res) {
+    // Updates ROV Operations
+    console.log('entry');
+    validatePermissionToViewData(req, res, function(validated) {
+        if (validated.length < 1) {
+            return res.status(401).send('Access denied');
+        } else {
+            SovRovOperationsmodel.findOneAndUpdate({
+                mmsi: req.body.mmsi,
+                date: req.body.date,
+                active: { $ne: false }
+            }, {
+                transfers: req.body.transfers
+            },
+                function(err, data) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        res.send({ data: "Succesfully saved the ROV operations" });
+                    }
+                });
+        }
     });
 });
 
@@ -1837,7 +1888,7 @@ app.post("/api/getSovInfo/", function (req, res) {
             });
     }
 });
-});
+}); 
 
 app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
     // Updates transfer info turbine transfers by DC craft.

@@ -115,6 +115,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getSovRovOperations(mmsi: number, date: number) {
+    return this.get('/api/getSovRovOperations/' + mmsi + '/' + date).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getCycleTimesForSov(mmsi: number, date: number) {
     return this.get('/api/getCycleTimesForSov/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
@@ -318,6 +323,11 @@ export class CommonService {
 
   updateSOVv2vPaxInput(transfer) {
     return this.post('/api/updateSOVv2vPaxInput/', transfer).pipe(
+      map((response: Response) => response.json()));
+  }
+
+  updateSovRovOperations(transfer) {
+    return this.post('/api/updateSovRovOperations/', transfer).pipe(
       map((response: Response) => response.json()));
   }
 
