@@ -41,6 +41,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hseDprInput;
   dprApproval;
   hseDprApproval;
+  rovOperations = {Array: []};
   // This forces reload on all subcomponent, but reduces performance.
   // In the future, we should move to a more workable version where sovModel is
   // replaced when all data is loaded, so reload of other components is automatic
@@ -119,14 +120,14 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.hseDprInput = hseDprInput[0];
         const dprSigned = dprInput[0] ? dprInput[0].signedOff : {amount: 0};
         const hseSigned = hseDprInput[0] ? hseDprInput[0].signedOff : {amount: 0};
-        
+
         this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
         this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
         if (sovInfo[0]) {
           this.dcInfo = {
             mmsi: sovInfo[0].daughtercraft_mmsi,
             nicename: sovInfo[0].daughtercraft_nicename
-          } 
+          };
         }
 
         if (
@@ -152,6 +153,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject.mmsi,
               this.vesselObject.date
             ),
+            this.commonService.getSovRovOperations(
+              this.vesselObject.mmsi,
+              this.vesselObject.date
+            ),
             this.commonService.getCycleTimesForSov(
               this.vesselObject.mmsi,
               this.vesselObject.date
@@ -164,6 +169,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             ([
               platformTransfers,
               turbineTransfers,
+              rovOperations,
               cycleTimes,
               sovFieldNames,
               platformLocations
@@ -178,6 +184,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               }
               this.sovModel.platformTransfers = platformTransfers;
               this.sovModel.turbineTransfers = turbineTransfers;
+              this.rovOperations.Array = rovOperations;
               this.sovModel.cycleTimes = cycleTimes;
 
               // Setting cycle stats according to user settings -> this should be moved
@@ -338,13 +345,13 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   buildPageWhenAllLoaded() {
     this.hasMissedtransfers = (this.dprInput.missedPaxCargo && this.dprInput.missedPaxCargo.length > 0)
-      || (this.dprInput.helicopterPaxCargo && this.dprInput.helicopterPaxCargo.length > 0)
+      || (this.dprInput.helicopterPaxCargo && this.dprInput.helicopterPaxCargo.length > 0);
     if (this.sovModel.vessel2vessels.length > 0) {
       this.hasDprData = true;
     } else if (this.permission.sovCommercialWrite) {
       this.hasDprData = true;
     } else if (this.hasMissedtransfers) {
-      this.hasDprData = true
+      this.hasDprData = true;
     } else if (this.sovModel.sovType === SovType.Platform) {
       this.hasDprData = this.sovModel.platformTransfers.length > 0;
     } else if (this.sovModel.sovType === SovType.Turbine) {

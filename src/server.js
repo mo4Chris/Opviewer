@@ -1136,21 +1136,25 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
 
 app.post("/api/updateSovRovOperations", function(req, res) {
     // Updates ROV Operations
-    console.log('entry');
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
+            console.log(req.body);
             SovRovOperationsmodel.findOneAndUpdate({
                 mmsi: req.body.mmsi,
                 date: req.body.date,
                 active: { $ne: false }
             }, {
-                transfers: req.body.transfers
+                transfers: req.body.rovOperations
+            }, {
+                strict: false,
+                upsert: true,
             },
                 function(err, data) {
-                    if (err) {
+                    if (err) { 
                         res.send(err);
+                        
                     } else {
                         res.send({ data: "Succesfully saved the ROV operations" });
                     }

@@ -18,9 +18,10 @@ export class SovRovOperationsComponent implements OnChanges {
   @Input() readonly = true;
   @Input() vesselObject: VesselObjectModel;
   @Input() sovRovOperations;
-  //@Input() rovOperations: ReadonlyInput;
+  @Input() rovOperations: ReadonlyInput;
 
-  rovOperations = {Array: []};
+  allHours = [];
+  all5Minutes = [];
 
   constructor(
     private datetimeService: DatetimeService,
@@ -32,15 +33,21 @@ export class SovRovOperationsComponent implements OnChanges {
 
 
   ngOnChanges() {
-    console.log(this.sovRovOperations);
+    console.log(this.rovOperations);
   }
 
   addRovOperationsToArray() {
-    this.rovOperations.Array.push({ location: '', rovDeployed: '00:00', rovRetrieved: '00:00', observations: '' })
+    this.rovOperations.Array.push({ location: '', rovDeployed: {hours: '00', minutes: '00'}, rovRetrieved: {hours: '00', minutes: '00'}, observations: '' })
   }
   removeLastFromRovOperationsArray() {
     this.rovOperations.Array.pop();
   }
+
+  createSeperateTimes() {
+    this.allHours = this.datetimeService.createHoursTimes();
+    this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
+  }
+
   saveTransfers() {
     this.rovOperations.Array.forEach(_rovOperations => {
       _rovOperations.location = _rovOperations.location || '';
