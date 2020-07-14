@@ -101,7 +101,7 @@ export class LongtermBarGraphComponent implements OnChanges {
         return prev;
       }
     }, 0);
-    const barLabels = datasets[largestDataBin].data[0].x; // string[]
+    const barLabels = datasets[largestDataBin].data[0].label || datasets[largestDataBin].data[0].x; // string[]
     const dataSets = [];
     datasets.forEach(vesseldata => {
       vesseldata.data.forEach((stackdata, _i) => {
@@ -198,20 +198,6 @@ export class LongtermBarGraphComponent implements OnChanges {
     this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }
 }
-
-interface ScatterArguments {
-  axisType: { x: string, y: string };
-  datasets: LongtermScatterValueArray[];
-  bins?: number[];
-}
-
-interface ScatterDataElt {
-  x: number | Date;
-  y: number | Date;
-  key?: string;
-  callback?: Function;
-}
-
 
 interface LegendEntryCallbackElement {
   // Number of dataset

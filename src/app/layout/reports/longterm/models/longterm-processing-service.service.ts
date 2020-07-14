@@ -396,8 +396,9 @@ interface LongtermScatterValueArrayOpts {
 }
 
 interface ScatterDataElt {
-  x: number|Date;
-  y: number|Date;
+  x: number | Date;
+  y: number | Date;
+  label?: string[];
   key?: string;
   callback?: Function;
 }

@@ -14,10 +14,10 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { LongtermProcessingService } from '../models/longterm-processing-service.service';
 
 @Component({
-  selector: 'app-longterm-sov',
-  templateUrl: './longtermSOV.component.html',
-  styleUrls: ['./longtermSOV.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-longterm-sov',
+    templateUrl: './longtermSOV.component.html',
+    styleUrls: ['./longtermSOV.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class LongtermSOVComponent implements OnInit, OnChanges {
@@ -27,42 +27,52 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         private dateTimeService: DatetimeService,
         private permission: PermissionService,
         private parser: LongtermProcessingService,
-        ) {
+    ) {
     }
     @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
+    @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
     public comparisonArray: ComprisonArrayElt[] = [
-        { x: 'turbine', y: 'platform', graph: 'bar', xLabel: 'Time', yLabel: 'Number of transfers',
-        dataType: 'transfer', barCallback: this.usagePerMonth, info: `Number of turbine or platform
-        transfers performed on a monthly basis. Platform transfers are indicated by the lighter colour.
-        `},
-        { x: 'startTime', y: 'duration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
-        dataType: 'turbine', info: 'Turbine transfer duration for all transfers in the selected period.' },
-        { x: 'arrivalTimePlatform', y: 'visitDuration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
-        dataType: 'platform', info: 'Platform transfer duration for all transfers in the selected period.' },
-        { x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Turbine transfer duration [mns]', dataType: 'turbine',
-        info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
+        {
+            x: 'turbine', y: 'platform', graph: 'bar', xLabel: 'Time', yLabel: 'Number of transfers',
+            dataType: 'transfer', barCallback: this.usagePerMonth, info: `Number of turbine or platform
+            transfers performed on a monthly basis. Platform transfers are indicated by the lighter colour.
+            `},
+        {
+            x: 'startTime', y: 'duration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
+            dataType: 'turbine', info: 'Turbine transfer duration for all transfers in the selected period.'
+        },
+        {
+            x: 'arrivalTimePlatform', y: 'visitDuration', graph: 'scatter', xLabel: 'Time', yLabel: 'Duration',
+            dataType: 'platform', info: 'Platform transfer duration for all transfers in the selected period.'
+        },
+        {
+            x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Turbine transfer duration [mns]', dataType: 'turbine',
+            info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
-        annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
-        { x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
-            `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
+        },
+        {
+            x: 'date', y: 'Hs', graph: 'bar', xLabel: 'Hs [m]', yLabel: 'Number of transfers', dataType: 'transfer', info:
+                `Deployment distribution for various values of Hs. This gives an indication up to which conditions the vessel is deployed.
             Only bins in which the vessels have been deployed are shown. Both turbine and platform transfers are shown.
             `, barCallback: (data: SOVRawScatterData) => this.usagePerHsBin(data),
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
-        { x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Platform transfer duration [mns]', dataType: 'platform',
-        info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
+        {
+            x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Platform transfer duration [mns]', dataType: 'platform',
+            info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
             outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
-            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')},
+            annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
+        },
     ];
 
     public allGraphsEmpty = false; // Not working
-    public vesselNames: string [];
+    public vesselNames: string[];
 
     // On (re)load
     ngOnInit() {
@@ -73,7 +83,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         this.vesselNames = this.vesselObject.vesselName;
     }
 
-    navigateToDPR(navItem: {mmsi: number, matlabDate: number}) {
+    navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
         this.navigateToVesselreport.emit(navItem);
     }
 
@@ -88,9 +98,9 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         }
     }
 
-    usagePerMonth(data: SOVRawScatterData): {x: number[], y: number[], key: string}[] { // : {_id: number, label: string[], turbine: any, platform: any}d
-        const turbInfo = {x: [], y: [], key: 'Turbine transfers:'};
-        const platInfo = {x: [], y: [], key: 'Platform transfers:'};
+    usagePerMonth(data: SOVRawScatterData): { x: number[], y: number[], key: string, label: string[] }[] { // : {_id: number, label: string[], turbine: any, platform: any}d
+        const turbInfo = { x: [], y: [], key: 'Turbine transfers:', label: [] };
+        const platInfo = { x: [], y: [], key: 'Platform transfers:', label: [] };
         const vessel = this.parser.reduceLabels(this.vesselObject, [data.turbine._id]);
 
         const len = Math.max(data.turbine ? data.turbine.groups.length : 0, data.platform ? data.platform.groups.length : 0);
@@ -99,22 +109,24 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         if (data.turbine) {
             turbInfo.x = vessels;
             turbInfo.y = data.turbine.groups.map(_group => _group.date.length);
+            turbInfo.label = data.turbine.groups.map(_group => _group.month.dateString);
         }
         if (data.platform) {
             platInfo.x = vessels;
             platInfo.y = data.platform.groups.map(_group => _group.date.length);
+            turbInfo.label = data.platform.groups.map(_group => _group.month.dateString);
         }
         return [turbInfo, platInfo];
     }
 
     usagePerHsBin(rawScatterData: SOVRawScatterData) {
-        let groupedData: {data: number[][], labels: string[]};
+        let groupedData: { data: number[][], labels: string[] };
         const hsBins = this.calculationService.linspace(0, 5, 0.2);
         if (rawScatterData.turbine) {
-            groupedData = this.groupDataByBin(rawScatterData.turbine, {param: 'Hs', val: hsBins});
+            groupedData = this.groupDataByBin(rawScatterData.turbine, { param: 'Hs', val: hsBins });
         }
         if (rawScatterData.platform) {
-            const groupedPlatforms = this.groupDataByBin(rawScatterData.turbine, {param: 'Hs', val: hsBins});
+            const groupedPlatforms = this.groupDataByBin(rawScatterData.turbine, { param: 'Hs', val: hsBins });
             if (groupedData) {
                 groupedData.data.forEach((elt, _i) => {
                     elt.concat(groupedPlatforms.data[_i]);
@@ -125,15 +137,15 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         }
         const largestDataBin = groupedData.data.reduce((prev, curr, _i) => {
             if (curr.length > 0) {
-                return <number> _i;
+                return <number>_i;
             } else {
-                return <number> prev;
+                return <number>prev;
             }
         }, 0);
         return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length), key: '# transfers:' }];
     }
 
-    groupDataByBin(data: RawScatterData, binData: {param: string, val: number[] }): {data: number[][], labels: string[]} {
+    groupDataByBin(data: RawScatterData, binData: { param: string, val: number[] }): { data: number[][], labels: string[] } {
         if (data === null) {
             return {
                 data: [],
@@ -156,7 +168,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         return { data: binnedData, labels: labels };
     }
 
-    groupDataByMonth(data: {date: number[]} ) {
+    groupDataByMonth(data: { date: number[] }) {
         const dateObj = Object.create(this.fromDate);
         dateObj.year = this.fromDate.year;
         dateObj.month = this.fromDate.month;
@@ -183,12 +195,12 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
             }
             matlabStopDate = this.dateTimeService.objectToMatlabDate(dateObj) - 1;
             // Actually sorting the data
-            const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate );
+            const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate);
             dataPerMonth.push(
                 data.date.filter((_, _i) => dataInMonth[_i]),
             );
         }
-        return {dates: dataPerMonth, labels: monthLabels};
+        return { dates: dataPerMonth, labels: monthLabels };
     }
 
     // Utility

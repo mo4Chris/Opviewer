@@ -500,6 +500,9 @@ export class MockedCommonService extends CommonService {
     getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
         return mockedObservable([]);
     }
+    getFieldsWithWaveSourcesByCompany() {
+        return mockedObservable([]);
+    }
 
     getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {
         return mockedObservable([{
