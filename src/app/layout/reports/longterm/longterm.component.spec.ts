@@ -24,7 +24,7 @@ import { UtilizationGraphComponent } from "./sov/models/longterm_utilization/uti
 
 
 
-fdescribe('ReportsComponent - CTV', () => {
+describe('ReportsComponent - CTV', () => {
     let component: LongtermComponent;
     let fixture: ComponentFixture<LongtermComponent>;
 
