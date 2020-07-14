@@ -41,7 +41,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hseDprInput;
   dprApproval;
   hseDprApproval;
-  rovOperations = {Array: []};
+  rovOperations = {};
   // This forces reload on all subcomponent, but reduces performance.
   // In the future, we should move to a more workable version where sovModel is
   // replaced when all data is loaded, so reload of other components is automatic
@@ -184,7 +184,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               }
               this.sovModel.platformTransfers = platformTransfers;
               this.sovModel.turbineTransfers = turbineTransfers;
-              this.rovOperations.Array = rovOperations;
+              this.rovOperations = rovOperations;
               this.sovModel.cycleTimes = cycleTimes;
 
               // Setting cycle stats according to user settings -> this should be moved

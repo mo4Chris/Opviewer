@@ -18,7 +18,7 @@ export class SovRovOperationsComponent implements OnChanges {
   @Input() readonly = true;
   @Input() vesselObject: VesselObjectModel;
   @Input() sovRovOperations;
-  @Input() rovOperations: ReadonlyInput;
+  @Input() rovOperations;
 
   allHours = [];
   all5Minutes = [];
@@ -33,14 +33,13 @@ export class SovRovOperationsComponent implements OnChanges {
 
 
   ngOnChanges() {
-    console.log(this.rovOperations);
   }
 
   addRovOperationsToArray() {
-    this.rovOperations.Array.push({ location: '', rovDeployed: {hours: '00', minutes: '00'}, rovRetrieved: {hours: '00', minutes: '00'}, observations: '' })
+    this.rovOperations.transfers.push({ location: '', rovDeployed: {hours: '', minutes: ''}, rovRetrieved: {hours: '', minutes: ''}, observations: '' })
   }
   removeLastFromRovOperationsArray() {
-    this.rovOperations.Array.pop();
+    this.rovOperations.transfers.pop();
   }
 
   createSeperateTimes() {
@@ -49,16 +48,18 @@ export class SovRovOperationsComponent implements OnChanges {
   }
 
   saveTransfers() {
-    this.rovOperations.Array.forEach(_rovOperations => {
-      _rovOperations.location = _rovOperations.location || '';
-      _rovOperations.rovDeployed = _rovOperations.rovDeployed || 0;
-      _rovOperations.rovRetrieved = _rovOperations.rovRetrieved || 0;
-      _rovOperations.observations = _rovOperations.observations || '';
-    });
+    if(this.rovOperations.length > 0) {
+      this.rovOperations.forEach(_rovOperations => {
+        _rovOperations.location = _rovOperations.location || '';
+        _rovOperations.rovDeployed = _rovOperations.rovDeployed || {hours: '00', minutes: '00'};
+        _rovOperations.rovRetrieved = _rovOperations.rovRetrieved || {hours: '00', minutes: '00'};
+        _rovOperations.observations = _rovOperations.observations || '';
+      });
+    }
     this.commonService.updateSovRovOperations({
       mmsi: this.vesselObject.mmsi,
       date: this.vesselObject.date,
-      rovOperations: this.rovOperations.Array,
+      rovOperations: this.rovOperations,
     }).pipe(
       map(
         (res) => {

@@ -1124,11 +1124,15 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovRovOperationsmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+        SovRovOperationsmodel.findOne({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
             if (err) {
                 res.send(err);
             } else {
-                res.send(data);
+                if(data == null) {
+                    res.send({transfers: []})
+                } else {
+                    res.send(data);
+                }
             }
         });
     });
@@ -1140,13 +1144,12 @@ app.post("/api/updateSovRovOperations", function(req, res) {
         if (validated.length < 1) {
             return res.status(401).send('Access denied');
         } else {
-            console.log(req.body);
             SovRovOperationsmodel.findOneAndUpdate({
                 mmsi: req.body.mmsi,
                 date: req.body.date,
                 active: { $ne: false }
             }, {
-                transfers: req.body.rovOperations
+                transfers: req.body.rovOperations.transfers
             }, {
                 strict: false,
                 upsert: true,
