@@ -70,7 +70,6 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-        console.log('input changed');
         this.vesselNames = this.vesselObject.vesselName;
     }
 
