@@ -17,7 +17,7 @@ import { CommonService } from '@app/common.service';
 import { UserService } from '@app/shared/services/user.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
-import { UtilizationGraphComponent } from './sov/models/utilizationGraph.component';
+import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';

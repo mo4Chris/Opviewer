@@ -494,6 +494,12 @@ export class MockedCommonService extends CommonService {
     getTransfersForVesselByRange(request: StatsRangeRequest) {
         return mockedObservable([]);
     }
+    getTransitsForVesselByRange(request: StatsRangeRequest) {
+        return mockedObservable([]);
+    }
+    getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
+        return mockedObservable([]);
+    }
 
     getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {
         return mockedObservable([{

@@ -37,9 +37,12 @@ export interface PlatformTransfer {
     lat: number;
     paxCntEstimate: string;
     TexitExclusionZone: number;
-    date:  number ;
-    paxIn: number ;
-    paxOut: number ;
-    cargoIn: number ;
-    cargoOut: number ;
+
+    date?:  number ;
+    paxIn?: number ;
+    paxOut?: number ;
+    cargoIn?: number ;
+    cargoOut?: number ;
+    default_paxIn?: number;
+    default_paxOut?: number;
 }
