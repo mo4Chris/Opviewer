@@ -326,8 +326,8 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  updateSovRovOperations(transfer) {
-    return this.post('/api/updateSovRovOperations/', transfer).pipe(
+  updateSovRovOperations(rovOperations: RovOperationsModel) {
+    return this.post('/api/updateSovRovOperations/', rovOperations).pipe(
       map((response: Response) => response.json()));
   }
 
@@ -626,6 +626,12 @@ export interface StatsRangeRequest {
   dateMax: number;
   reqFields: string[];
 }
+
+export interface RovOperationsModel {
+  mmsi: number;
+  date: number;
+  rovOperations?: Object[];
+} 
 
 export interface SovDprSignOrRefuseModel {
   mmsi: number;
