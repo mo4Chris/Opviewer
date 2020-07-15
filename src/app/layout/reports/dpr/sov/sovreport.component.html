@@ -24,6 +24,9 @@
         <app-sov-dc-transfers [vessel2vessels]="sovModel.vessel2vessels" [vesselObject]="vesselObject"
           [sovInfo]="sovModel.sovInfo" [readonly]="!permission.sovCommercialWrite" [dcInfo]="dcInfo">
         </app-sov-dc-transfers>
+        <app-sov-rov-operations [vesselObject]="vesselObject" [rovOperations]="rovOperations"
+          [readonly]="!permission.sovCommercialWrite">
+        </app-sov-rov-operations>
         <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform">
           <app-sov-platform-transfers [platformTransfers]="sovModel.platformTransfers" [vesselObject]="vesselObject"
             [readonly]="!permission.sovCommercialWrite" [v2vPaxCargoTotals]="v2vPaxCargoTotals" [missedPaxCargo]="dprInput.missedPaxCargo"

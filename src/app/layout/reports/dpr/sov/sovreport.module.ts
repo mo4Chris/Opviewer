@@ -14,6 +14,7 @@ import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-
 import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-readonly/sov-dpr-input-readonly.component';
 import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbine-transfers.component';
 import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
+import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
 import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
@@ -48,6 +49,7 @@ import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.com
     SovDprInputReadonlyComponent,
     SovTurbineTransfersComponent,
     SovPlatformTransfersComponent,
+    SovRovOperationsComponent,
     SovV2vTransfersComponent,
     SovWeatherchartComponent,
     WaveSpectrumComponentComponent,
