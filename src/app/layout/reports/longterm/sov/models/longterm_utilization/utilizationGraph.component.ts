@@ -70,8 +70,6 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
         };
         return { ...def, ...options };
       };
-      console.log(TimeBreakdowns);
-      console.log(breakdownDates);
 
       const waiting = getDset({
         label: 'Waiting',

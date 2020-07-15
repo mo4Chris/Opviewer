@@ -43,7 +43,7 @@ export class Vessel2VesselActivity {
             v2v.CTVactivity.forEach(ctvActivity => {
                 if (ctvActivity.mmsi === this.mmsi) {
                     this.ctvActivity = ctvActivity;
-                    if (isArray(ctvActivity.turbineVisits) && ctvActivity.turbineVisits[0].fieldname !== undefined) {
+                    if (isArray(ctvActivity.turbineVisits) && ctvActivity.turbineVisits.length > 0 && ctvActivity.turbineVisits[0].fieldname !== undefined) {
                         this.hasTurbineTransfers = true;
                     } else {
                         this.hasTurbineTransfers = false;
