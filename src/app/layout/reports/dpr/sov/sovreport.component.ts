@@ -44,7 +44,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hseDprInput;
   dprApproval;
   hseDprApproval;
-  rovOperations = {};
+  rovOperations = [];
   // This forces reload on all subcomponent, but reduces performance.
   // In the future, we should move to a more workable version where sovModel is
   // replaced when all data is loaded, so reload of other components is automatic
@@ -109,6 +109,10 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.vesselObject.mmsi,
         this.vesselObject.date
       ),
+      this.commonService.getSovRovOperations(
+        this.vesselObject.mmsi,
+        this.vesselObject.date
+      ),
     ).subscribe(
       ([
         sov,
@@ -116,13 +120,15 @@ export class SovreportComponent implements OnInit, OnChanges {
         hseDprInput,
         sovInfo,
         vessel2vessels,
+        rovOpsModel,
       ]) => {
         // Commercial or hse DPR data needs to be loaded even when general is not available
         vessel2vessels.forEach(_v2v => {
           this.setPaxFromDefault(_v2v.transfers);
         });
         
-        this.sovModel.vessel2vessels = vessel2vessels;
+        this.sovModel.vessel2vessels = vessel2vessels || [];
+        this.rovOperations = rovOpsModel.rovOperations || [];
         this.dprInput = dprInput[0];
         this.hseDprInput = hseDprInput[0];
         const dprSigned = dprInput[0] ? dprInput[0].signedOff : {amount: 0};
@@ -160,10 +166,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               this.vesselObject.mmsi,
               this.vesselObject.date
             ),
-            this.commonService.getSovRovOperations(
-              this.vesselObject.mmsi,
-              this.vesselObject.date
-            ),
             this.commonService.getCycleTimesForSov(
               this.vesselObject.mmsi,
               this.vesselObject.date
@@ -176,10 +178,9 @@ export class SovreportComponent implements OnInit, OnChanges {
             ([
               platformTransfers,
               turbineTransfers,
-              rovOperations,
               cycleTimes,
               sovFieldNames,
-              platformLocations
+              platformLocations,
             ]) => {
               // All data is loaded beyond this point
               this.setPaxFromDefault(platformTransfers);
@@ -194,7 +195,6 @@ export class SovreportComponent implements OnInit, OnChanges {
               }
               this.sovModel.platformTransfers = platformTransfers;
               this.sovModel.turbineTransfers = turbineTransfers;
-              this.rovOperations = rovOperations;
               this.sovModel.cycleTimes = cycleTimes;
 
               // Setting cycle stats according to user settings -> this should be moved

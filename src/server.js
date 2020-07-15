@@ -1129,7 +1129,7 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
                 res.send(err);
             } else {
                 if(data == null) {
-                    res.send({transfers: []})
+                    res.send({rovOperations: []})
                 } else {
                     res.send(data);
                 }
@@ -1149,7 +1149,7 @@ app.post("/api/updateSovRovOperations", function(req, res) {
                 date: req.body.date,
                 active: { $ne: false }
             }, {
-                transfers: req.body.rovOperations.transfers
+                rovOperations: req.body.rovOperations
             }, {
                 strict: false,
                 upsert: true,
