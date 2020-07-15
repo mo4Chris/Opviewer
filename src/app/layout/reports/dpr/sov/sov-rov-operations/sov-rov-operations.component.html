@@ -19,7 +19,7 @@
             <th>ROV retrieved at</th>
             <th>Notes/Observations</th>
           </tr>
-          <ng-container *ngFor="let _rovOperations of rovOperations.transfers">
+          <ng-container *ngFor="let _rovOperations of rovOperations">
             <tr>
               <td>
                 <input type="text" class="form-control-sm"
@@ -47,7 +47,7 @@
           </ng-container>
           <tr class="tableTotal">
             <th colspan="3">Daily Total</th>
-            <td>{{rovOperations.transfers.length}}</td>
+            <td>{{rovOperations.length}}</td>
           </tr>
           <tr class="plsdonotprintthisforfsake ">
             <td colspan="4">
@@ -86,7 +86,7 @@
             <th>ROV retrieved at</th>
             <th>Notes/Observations</th>
           </tr>
-          <ng-container *ngFor="let _rovOperations of rovOperations.transfers">
+          <ng-container *ngFor="let _rovOperations of rovOperations">
             <tr>
               <td>
                 {{_rovOperations.location}}
@@ -102,7 +102,7 @@
           </ng-container>
           <tr class="tableTotal">
             <th colspan="3">Daily Total</th>
-            <td>{{rovOperations.transfers.length}}</td>
+            <td>{{rovOperations.length}}</td>
           </tr>
         </table>
       </div>

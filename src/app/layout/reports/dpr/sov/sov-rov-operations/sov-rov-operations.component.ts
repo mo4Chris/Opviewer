@@ -1,9 +1,6 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { Vessel2vesselModel } from '../models/Transfers/vessel2vessel/Vessel2vessel';
-import { isArray, isObject, isNumber } from 'util';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -17,15 +14,9 @@ import { AlertService } from '@app/supportModules/alert.service';
 export class SovRovOperationsComponent implements OnChanges {
   @Input() readonly = true;
   @Input() vesselObject: VesselObjectModel;
-  @Input() sovRovOperations;
-  @Input() rovOperations;
-
-  allHours = [];
-  all5Minutes = [];
+  @Input() rovOperations: SovRovOpsModel[] = [];
 
   constructor(
-    private datetimeService: DatetimeService,
-    private calcService: CalculationService,
     private commonService: CommonService,
     private alert: AlertService,
     private ref: ChangeDetectorRef,
@@ -36,15 +27,16 @@ export class SovRovOperationsComponent implements OnChanges {
   }
 
   addRovOperationsToArray() {
-    this.rovOperations.transfers.push({ location: '', rovDeployed: {hours: '', minutes: ''}, rovRetrieved: {hours: '', minutes: ''}, observations: '' })
-  }
-  removeLastFromRovOperationsArray() {
-    this.rovOperations.transfers.pop();
+    this.rovOperations.push({
+      location: '',
+      rovDeployed: {hours: '', minutes: ''},
+      rovRetrieved: {hours: '', minutes: ''},
+      observations: ''
+    });
   }
 
-  createSeperateTimes() {
-    this.allHours = this.datetimeService.createHoursTimes();
-    this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
+  removeLastFromRovOperationsArray() {
+    this.rovOperations.pop();
   }
 
   saveTransfers() {
@@ -81,9 +73,14 @@ export class SovRovOperationsComponent implements OnChanges {
   }
 }
 
-interface ReadonlyInput {
-  Array: Array<any>;
-  Total?: number;
-  TotalOld?: number;
-  TotalNew?: number;
+interface TimeObject {
+  hours: string;
+  minutes: string;
+}
+
+interface SovRovOpsModel {
+  location: string;
+  rovDeployed: TimeObject | '';
+  rovRetrieved: TimeObject | '';
+  observations: string;
 }

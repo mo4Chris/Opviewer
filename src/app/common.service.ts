@@ -326,7 +326,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  updateSovRovOperations(rovOperations: RovOperationsModel) {
+  updateSovRovOperations(rovOperations: RovOperationsSaveModel) {
     return this.post('/api/updateSovRovOperations/', rovOperations).pipe(
       map((response: Response) => response.json()));
   }
@@ -627,7 +627,7 @@ export interface StatsRangeRequest {
   reqFields: string[];
 }
 
-export interface RovOperationsModel {
+export interface RovOperationsSaveModel {
   mmsi: number;
   date: number;
   rovOperations?: Object[];

@@ -27,6 +27,8 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SimpleChange } from '@angular/core';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
+import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
+import { MockComponent, MockComponents } from 'ng-mocks';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -58,6 +60,7 @@ describe('SovreportComponent', () => {
 
         SovHseDprInputReadonlyComponent,
         SovHseDprInputVesselmasterComponent,
+        MockComponents(SovRovOperationsComponent,),
 
         SovWeatherchartComponent,
         WaveSpectrumComponentComponent,
@@ -90,17 +93,15 @@ describe('SovreportComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('Should instantiate', (done) => {
+  it('Should instantiate', () => {
     expect(component).toBeTruthy();
     expect(component.alert).toBeTruthy();
     expect(component.permission).toBeTruthy();
-    done();
   });
 
-  it('Should run ngOnChanges', (done) => {
+  it('Should run ngOnChanges', () => {
     component.ngOnChanges(fakeSimpleChange);
     expect(component).toBeTruthy();
-    done();
   });
 
   it('should create as admin', (done) => {

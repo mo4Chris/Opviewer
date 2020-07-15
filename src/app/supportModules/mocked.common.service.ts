@@ -408,6 +408,9 @@ export class MockedCommonService extends CommonService {
     getVideoRequests(vessel: VesselObjectModel) {
         return mockedObservable([]);
     }
+    getSovRovOperations(mmsi: number, date: number) {
+        return mockedObservable([]);
+    }
     getSovHseDprInput(vessel: VesselObjectModel) {
       return(mockedObservable({
         mmsi: vessel.mmsi,
@@ -498,6 +501,9 @@ export class MockedCommonService extends CommonService {
         return mockedObservable([]);
     }
     getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
+        return mockedObservable([]);
+    }
+    getFieldsWithWaveSourcesByCompany() {
         return mockedObservable([]);
     }
 
