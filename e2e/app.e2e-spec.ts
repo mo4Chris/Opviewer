@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('test-ng4 App', () => {
+describe('Admin login page', () => {
   let page: AppPage;
 
   beforeEach(() => {
@@ -11,4 +11,20 @@ describe('test-ng4 App', () => {
     page.navigateTo();
     expect(page.getParagraphText()).toEqual('BMO Dataviewer');
   });
+
+  it('should login to website', () => {
+    page.setPasswordText();
+    page.setUsernameText();
+    page.clickLoginButton();
+  });
+
+  it('Should display dashboard', () => {
+    page.pageRedirectsDashboard();
+  });
+
+  it('Should display dasboard data', () => {
+    expect(page.checkDashboardHeader()).toContain('Dashboard');
+    expect(page.checkDashboardMapExists()).toBe(true);
+  }); 
+
 });
