@@ -25,7 +25,6 @@ export class AppPage {
   }
 
   pageRedirectsDashboard() {
-    // Waits for the URL to contain 'foo'.
     return browser.wait(EC.urlContains('/dashboard'), 5000);
   }
 
@@ -34,7 +33,6 @@ export class AppPage {
   }
 
   checkDashboardMapExists() {
-    browser.wait(EC.presenceOf(element(by.id('mapLegendID'))), 100000);
     return element(by.id('mapLegendID')).isPresent();
   }
  
