@@ -1,5 +1,3 @@
-import { StaticInjector } from "@angular/core/src/di/injector";
-
 export interface PlatformTransfer {
     _id: string;
     vesselname: string;
