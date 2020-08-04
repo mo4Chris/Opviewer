@@ -18,8 +18,6 @@ var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function(
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
 
-var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-
 app.get("/api/connectionTest", function(req, res) {
     console.log('Hello world');
     res.send("Hello World");
