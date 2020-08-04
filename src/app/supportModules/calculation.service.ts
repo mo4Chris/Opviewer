@@ -70,17 +70,6 @@ export class CalculationService {
     return resetObject;
   }
 
-  ReplaceEmptyColumnValuesInt(resetObject: any) {
-    const keys = Object.keys(resetObject);
-    keys.forEach(key => {
-        if (typeof(resetObject[key]) === typeof('')) {
-            resetObject[key] = resetObject[key].replace('_NaN_', 0);
-        }
-    });
-    return resetObject;
-  }
-  
-
   GetMaxValueInMultipleDimensionArray(array) {
     if (array._ArrayType_ || array.length === 0) {
       return NaN;

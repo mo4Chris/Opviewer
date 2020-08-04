@@ -335,7 +335,6 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfers = this.sovModel.platformTransfers;
           sovType = 'Platform';
         } else if (this.sovModel.sovType === SovType.Turbine) {
-          console.log(this.sovModel.turbineTransfers);
           transfers = this.sovModel.turbineTransfers;
           sovType = 'Turbine';
         }
@@ -664,8 +663,6 @@ export class SovreportComponent implements OnInit, OnChanges {
       } else {
         _transfer.paxOut = 0;
       }
-      // _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
-      // _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
     });
   }
 
