@@ -335,6 +335,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfers = this.sovModel.platformTransfers;
           sovType = 'Platform';
         } else if (this.sovModel.sovType === SovType.Turbine) {
+          console.log(this.sovModel.turbineTransfers);
           transfers = this.sovModel.turbineTransfers;
           sovType = 'Turbine';
         }
@@ -522,6 +523,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         transfer = this.calculationService.ReplaceEmptyColumnValues(
           transfer
         );
+        
         transfer.totalDuration = <any>(
           this.calculationService.GetDecimalValueForNumber(
             transfer.totalDuration
@@ -647,8 +649,23 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   setPaxFromDefault(transfers: anyTransfer[]): void {
     transfers.forEach((_transfer: anyTransfer) => {
-      _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
-      _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
+      if (_transfer.paxIn != 'N/a') {
+        _transfer.paxIn = _transfer.paxIn || 0
+      } else if (_transfer.default_paxIn  != 'N/a'){
+        _transfer.paxIn = _transfer.default_paxIn || 0
+      } else {
+        _transfer.paxIn = 0;
+      }
+
+      if (_transfer.paxOut != 'N/a') {
+        _transfer.paxOut = _transfer.paxOut || 0
+      } else if (_transfer.default_paxOut  != 'N/a'){
+        _transfer.paxOut = _transfer.default_paxOut || 0
+      } else {
+        _transfer.paxOut = 0;
+      }
+      // _transfer.paxIn = _transfer.paxIn || _transfer.default_paxIn || 0
+      // _transfer.paxOut = _transfer.paxOut || _transfer.default_paxOut || 0
     });
   }
 

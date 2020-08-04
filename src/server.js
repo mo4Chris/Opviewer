@@ -6,6 +6,9 @@ var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
 var moment = require('moment');
+var morgan = require('morgan');
+var fs = require('fs')
+var path = require('path')
 
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
@@ -17,6 +20,9 @@ var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function(
 
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
+
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morgan('dev', { stream: accessLogStream }))
 
 app.get("/api/connectionTest", function(req, res) {
     console.log('Hello world');
