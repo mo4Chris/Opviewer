@@ -1,4 +1,4 @@
-import { AppPage } from './app.po';
+import { AppPage } from './login.po';
 
 describe('Admin login page', () => {
   let page: AppPage;
@@ -16,6 +16,8 @@ describe('Admin login page', () => {
     page.setPasswordText();
     page.setUsernameText();
     page.clickLoginButton();
+
+    
   });
 
   it('Should display dashboard', () => {

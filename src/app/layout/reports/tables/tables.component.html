@@ -11,25 +11,25 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th class='clickable'
+                <th id=vesselname class='clickable'
                   (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
                   Vesselname
                   <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th class='clickable' *ngIf="permission.admin"
+                <th id=clients class='clickable' *ngIf="permission.admin"
                   (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
                   Client
                   <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
+                <th id=mmsi class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
                   mmsi
                   <i class="fa" [class.hidden]="sort.active!='mmsi'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
                 <th *ngIf="permission.admin"> On hire </th>
-                <th> Daily vessel report </th>
+                <th > Daily vessel report </th>
                 <th *ngIf="permission.longterm">Long term reports</th>
               </tr>
             </thead>

@@ -20,4 +20,7 @@ export class AppPage {
     return element(by.css('tableTitle')).getText();
   }
  
+  clickSortButton(key: string) {
+    return element(by.id(key)).click();
+  }
 }
