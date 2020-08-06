@@ -63,6 +63,7 @@
     "nodemailer": "^4.7.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "pino": "^6.5.0",
     "plotly": "^1.0.6",
     "plotly.js": "^1.54.6",
     "pm2": "^3.5.2",
