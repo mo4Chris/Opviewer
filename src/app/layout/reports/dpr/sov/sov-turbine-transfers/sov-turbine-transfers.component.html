@@ -12,15 +12,8 @@
               <th>Location</th>
               <th>Safety zone entry</th>
               <th>Safety zone exit</th>
-              <ng-template #helpDurationSafetyZone class="helpContent">
-                Minutes between entering safety zone, performing the transfer, and once
-                again leaving the safety zone
-              </ng-template>
               <th [ngbTooltip]="helpDurationSafetyZone" placement="top" container="body">
-                Duration in safety zone</th>
-              <ng-template #helpGangwayUtil class="helpContent">
-                Performance of gangway relative to its performance limitations.
-              </ng-template>
+                Duration at asset</th>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway
                 capacity [%]</th>
               <th>Pax in / out</th>
@@ -210,15 +203,8 @@
               <th>Location</th>
               <th>Safety zone entry</th>
               <th>Safety zone exit</th>
-              <ng-template #helpDurationSafetyZone class="helpContent">
-                Minutes between entering safety zone, performing the transfer, and once
-                again leaving the safety zone
-              </ng-template>
               <th [ngbTooltip]="helpDurationSafetyZone" placement="top" container="body">
-                Duration in safety zone</th>
-              <ng-template #helpGangwayUtil class="helpContent">
-                Performance of gangway relative to its performance limitations.
-              </ng-template>
+                Duration at asset</th>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway
                 capacity [%]</th>
               <th>Pax lift on / off</th>
@@ -342,32 +328,16 @@
           <thead>
             <tr>
               <th>Location</th>
-              <ng-template #helpGangwayReady class="helpContent">
-                Starttime indicating the gangway is attached and ready for transfers
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready
               </th>
               <th>Gangway disengaged</th>
-              <ng-template #helpGangwayReadyDuaration class="helpContent">
-                Duration for which gangway is attached and ready for transfer
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReadyDuaration" placement="top" container="body">
                 Ready duration
               </th>
-              <ng-template #helpGangwayReadyDeployed class="helpContent">
-                Duration for which the gangway was used active this tranfer, not just ready to
-                tranfers
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
                 Deployed duration</th>
-              <ng-template #helpGangwayUtil class="helpContent">
-                Performance of gangway relative to its performance limitations.
-              </ng-template>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity
                 [%]</th>
-              <ng-template #helpGangwayLimiter class="helpContent">
-                Indicates which part is the most limiting parameter for gangway utilisation.
-              </ng-template>
               <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
           </thead>
           <tbody>
@@ -410,9 +380,6 @@
               <th>Average speed</th>
               <th>Maximum speed</th>
               <th>Transfer time [mns]</th>
-              <ng-template #helpCycleAbove5Knots class="helpContent">
-                Percentage of time spend travelling above 5 knots.
-              </ng-template>
               <th [ngbTooltip]="helpCycleAbove5Knots" placement="top" container="body">Speed above
                 5 kts</th>
             </tr>
@@ -440,3 +407,29 @@
     </div>
   </div>
 </div>
+
+<ng-template #helpDurationSafetyZone class="helpContent">
+  Minutes at asset performing the transfer, not including the time spend to and from the asset in the safety zone
+</ng-template>
+<ng-template #helpCycleAbove5Knots class="helpContent">
+  Percentage of time spend travelling above 5 knots.
+</ng-template>
+<ng-template #helpGangwayLimiter class="helpContent">
+  Indicates which part is the most limiting parameter for gangway utilisation.
+</ng-template>
+<ng-template #helpGangwayUtil class="helpContent">
+  Performance of gangway relative to its performance limitations.
+</ng-template>
+<ng-template #helpGangwayReadyDeployed class="helpContent">
+  Duration for which the gangway was used active this tranfer, not just ready to
+  tranfers
+</ng-template>
+<ng-template #helpGangwayReadyDuaration class="helpContent">
+  Duration for which gangway is attached and ready for transfer
+</ng-template>
+<ng-template #helpGangwayReady class="helpContent">
+  Starttime indicating the gangway is attached and ready for transfers
+</ng-template>
+
+
+

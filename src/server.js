@@ -1596,6 +1596,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                                     "catering": {
                                         project: 0,
                                         extraMeals: 0,
+                                        extraMealsMarineContractors: 0,
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0
@@ -1637,6 +1638,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                                     "catering": {
                                         project: 0,
                                         extraMeals: 0,
+                                        extraMealsMarineContractors: 0,
                                         packedLunches: 0,
                                         marine: 0,
                                         marineContractors: 0

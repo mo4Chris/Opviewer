@@ -39,10 +39,10 @@ export interface PlatformTransfer {
     TexitExclusionZone: number;
 
     date?:  number ;
-    paxIn?: number ;
-    paxOut?: number ;
+    paxIn?:  number | string ;
+    paxOut?:  number | string ;
     cargoIn?: number ;
     cargoOut?: number ;
-    default_paxIn?: number;
-    default_paxOut?: number;
+    default_paxIn?: number | string;
+    default_paxOut?:  number | string;
 }

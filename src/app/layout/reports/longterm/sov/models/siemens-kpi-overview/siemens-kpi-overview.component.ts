@@ -83,11 +83,14 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     forkJoin([
       this.newService.getVessel2vesselsByRangeForSov(makeRequest(['date', 'transfers'])),
       this.newService.getPortcallsByRange(makeRequest(['date', 'startTime', 'stopTime', 'durationHr','plannedUnplannedStatus'])),
-      this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
+      this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
     )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
       this.kpis = [];
+      this.parsePaxDefaults(v2vs);
+      this.parsePaxDefaults(transfers);
+      this.parsePaxDefaults(platforms);
       this.mmsi.forEach((_mmsi, _i) => {
         const matchedTransfers = transfers.find(val => val._id === _mmsi);
         const matchedPlatforms = platforms.find(val => val._id === _mmsi);
@@ -204,7 +207,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
       });
     }
-    
+
     kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
     kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
     kpi.totalUtilHours = Math.round(utilHours);
@@ -257,12 +260,37 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       if (typeof(n) === 'number') {
         return isNaN(n) ? 0 : n;
       } else if (typeof(n) === 'string') {
-        return parseInt(n);
+        return parseInt(n) || 0;
       } else {
         return 0;
       }
     } else {
       return 0;
+    }
+  }
+
+  private parsePaxDefaults(transfers: any[]) {
+    if (transfers) {
+      transfers.forEach(_transfer => {
+        if (_transfer.paxIn) {
+          _transfer.paxIn.forEach((pax: number, _i: number)  => {
+            if (pax == null) {
+              _transfer.paxIn[_i] = +_transfer.default_paxIn[_i] || 0;
+            }
+          });
+        } else {
+          _transfer.paxIn = [];
+        }
+        if (_transfer.paxOut) {
+          _transfer.paxOut.forEach((pax: number, _i: number)  => {
+            if (pax && !(pax >= 0)) {
+              _transfer.paxOut[_i] = +_transfer.default_paxOut[_i] || 0;
+            }
+          });
+        } else {
+          _transfer.paxOut = [];
+        }
+      });
     }
   }
 }
