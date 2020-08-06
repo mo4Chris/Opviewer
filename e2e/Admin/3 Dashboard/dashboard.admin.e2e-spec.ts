@@ -21,15 +21,15 @@ describe('Dashboard', () => {
             expect(page.checkDashboardHeader()).toMatch('Dashboard')
         });
 
-        fit('Should have correctly loaded the legend', () => {
+        it('Should have correctly loaded the legend', () => {
             page.navigateTo();
-            let legend = element(by.xpath("//div[@id='mapLegendID']"))
-            expect(legend.isPresent()).toBe('true','Legend failed to load')
+            let legend = element(by.id('mapLegendID'))
+            expect(legend.isPresent()).toBe(true,'Legend failed to load')
             let entries = element.all(by.xpath("//div[@id='mapLegendID']/div/span"))
             expect(entries.count()).toBeGreaterThan(1, 'Legend has no entries');
         });
 
-        fit('Should have correctly loaded a map', () => {
+        it('Should have correctly loaded a map', () => {
             page.navigateTo();
             expect(page.checkDashboardMapExists()).toBe(true);
         });

@@ -1,15 +1,61 @@
 import { browser, element, by } from 'protractor';
+import { CtvDprPage } from './ctv.dpr';
+import { env } from 'process';
 
 
-describe('CTV dpr', () => {
-    let vesselname: string;
-    beforeEach(() => {
-        browser.get('/reports');
-        let firstVesselBtn = element.all(by.buttonText('Daily Vessel Report')).first();
-        element.all(by.id('vesselnameValue')).first().then((vname) => {
-            vesselname = vname;
+fdescribe('CTV dpr', () => {
+    let page: CtvDprPage;
+
+    describe('Should not fail without data', () => {
+        beforeEach(() => {
+            page = new CtvDprPage();
+            page.navigateToEmpty();
         })
-        firstVesselBtn.click();
-        browser.waitForAngular();
+
+        it('Should not redirect', ()=> {
+            expect(page.getUrl).toMatch('reports/dpr;mmsi')
+        })
+
+        it('Should display no data message', () => {
+
+        });
+    })
+
+    describe('Should create a map', () => {
+        beforeEach(() => {
+            page = new CtvDprPage();
+            page.navigateTo();
+        })
+
+        it('Should load a map', () => {
+            expect(page.getMap().isPresent()).toBe(true);
+        })
+
+        // Check if route is drawn
+        // Check if turbines are drawn
+        // Check if zoom is ok
+    });
+
+    describe('Should generate print preview', () => {
+
+    })
+
+    describe('Should switch dates', () => {
+        it('Should not redirect', ()=> {
+            expect(page.getUrl).toMatch('reports/dpr;mmsi')
+        })
+
+    })
+
+    describe('Should generate statistics', () => {
+
+    })
+
+    describe('Should generate dockings', () => {
+
+    })
+
+    describe('Should create slip graphs', () => {
+
     })
 })

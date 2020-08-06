@@ -1,11 +1,11 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
+import { env } from 'process';
 
 var EC = ExpectedConditions;
 
 export class ReportsPage {
   navigateTo() {
-    return browser.get('reports');
-    // return browser.get('/login');
+    return browser.get(env.baseUrl + '/reports');
   }
 
   pageCheckReports() {
@@ -28,7 +28,9 @@ export class ReportsPage {
     return element(by.id('searchBox'));
   }
 
-  getActiveVesselnames() {
-    return element.all(by.repeater("let rd of filter;let ind = index"))
+  getActiveVesselNames() {
+    return element.all(by.xpath("//tr/td[@id='vesselnameValue']"))
   }
+
+  getActi
 }
