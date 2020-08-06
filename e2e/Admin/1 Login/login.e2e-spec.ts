@@ -1,10 +1,11 @@
-import { AppPage } from './login.po';
+import { LoginPage } from './login.po';
+import { browser, element, by } from 'protractor';
 
 describe('Admin login page', () => {
-  let page: AppPage;
+  let page: LoginPage;
 
   beforeEach(() => {
-    page = new AppPage();
+    page = new LoginPage();
   });
 
   it('should display welcome message', () => {
@@ -13,20 +14,24 @@ describe('Admin login page', () => {
   });
 
   it('should login to website', () => {
+    page.navigateTo();
     page.setPasswordText();
     page.setUsernameText();
     page.clickLoginButton();
-
-    
+    expect(page.pageRedirectsDashboard()).toBe(true);
   });
 
-  it('Should display dashboard', () => {
-    page.pageRedirectsDashboard();
-  });
-
-  it('Should display dasboard data', () => {
-    expect(page.checkDashboardHeader()).toContain('Dashboard');
-    expect(page.checkDashboardMapExists()).toBe(true);
-  }); 
-
+  it('should open and close 2fa help button', ()=>{
+    page.navigateTo();
+    const helpbtn = element(by.className('helpBtn'));
+    let helpRef = element(by.className('popover-body'));
+    expect(helpRef.isPresent()).toBe(false);
+    helpbtn.click();
+    helpRef = element(by.className('popover-body'));
+    expect(helpRef.isPresent()).toBe(true);
+    expect(helpRef.getText()).toMatch('2FA');
+    helpbtn.click();
+    helpRef = element(by.className('popover-body'));
+    expect(helpRef.isPresent()).toBe(false);
+  })
 });

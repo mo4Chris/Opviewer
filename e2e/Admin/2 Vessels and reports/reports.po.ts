@@ -1,11 +1,11 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 
 var EC = ExpectedConditions;
-browser.ignoreSynchronization = true;
 
-export class AppPage {
+export class ReportsPage {
   navigateTo() {
-    return browser.get('/dashboard');
+    return browser.get('reports');
+    // return browser.get('/login');
   }
 
   pageCheckReports() {
@@ -17,10 +17,18 @@ export class AppPage {
   }
 
   checkVesselsHeader() {
-    return element(by.css('tableTitle')).getText();
+    return element(by.className('tableTitle')).getText();
   }
  
   clickSortButton(key: string) {
     return element(by.id(key)).click();
+  }
+
+  getSearchField() {
+    return element(by.id('searchBox'));
+  }
+
+  getActiveVesselnames() {
+    return element.all(by.repeater("let rd of filter;let ind = index"))
   }
 }

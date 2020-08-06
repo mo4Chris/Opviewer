@@ -1,11 +1,12 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
+import { env } from 'process';
 
 var EC = ExpectedConditions;
-browser.ignoreSynchronization = true;
+// browser.ignoreSynchronization = true;
 
-export class AppPage {
+export class LoginPage {
   navigateTo() {
-    return browser.get('/login');
+    return browser.get(env.baseUrl + '/login');
   }
 
   getParagraphText() {
@@ -25,15 +26,8 @@ export class AppPage {
   }
 
   pageRedirectsDashboard() {
-    return browser.wait(EC.urlContains('/dashboard'), 5000);
+    return browser.wait(EC.urlContains('/dashboard'), 2000);
   }
 
-  checkDashboardHeader() {
-    return element(by.id('DashboardHeader')).getText();
-  }
-
-  checkDashboardMapExists() {
-    return element(by.id('mapLegendID')).isPresent();
-  }
  
 }
