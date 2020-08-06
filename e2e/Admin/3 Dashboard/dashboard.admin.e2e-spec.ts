@@ -6,31 +6,29 @@ describe('Dashboard', () => {
 
     beforeEach(() => {
         page = new DashboardPage();
+        page.navigateTo();
     });
 
-    describe('Should loaded general info', () => {
-        it('Should not be redirected', () => {
+    describe('should load general info', () => {
+        it('and not redirect', () => {
             expect(page.pageRedirectsDashboard()).toBe(true);
         })
 
-        it('Should have correct title', () => {
-            page.navigateTo();
+        it('and have correct title', () => {
             // page.checkDashboardHeader().then((header) => {
             //     expect(header).toMatch('Dashboard');
             // })
             expect(page.checkDashboardHeader()).toMatch('Dashboard')
         });
 
-        it('Should have correctly loaded the legend', () => {
-            page.navigateTo();
+        it('and have correctly loaded the legend', () => {
             let legend = element(by.id('mapLegendID'))
             expect(legend.isPresent()).toBe(true,'Legend failed to load')
             let entries = element.all(by.xpath("//div[@id='mapLegendID']/div/span"))
             expect(entries.count()).toBeGreaterThan(1, 'Legend has no entries');
         });
 
-        it('Should have correctly loaded a map', () => {
-            page.navigateTo();
+        it('and correctly load the map', () => {
             expect(page.checkDashboardMapExists()).toBe(true);
         });
     });
