@@ -1,10 +1,14 @@
-import { browser, element, by, ExpectedConditions } from 'protractor';
-import { CtvDprPage } from './ctv.dpr';
+import { browser, element, by, ExpectedConditions, ElementFinder } from 'protractor';
+import { CtvDprPage } from './reports.ctv.dpr';
 import { env } from 'process';
 import { elementEnd } from '@angular/core/src/render3';
 import { callbackify } from 'util';
+import { E2eDropdownHandler } from '../../SupportFunctions/e2eDropdown.support';
+import { E2eRandomTools } from '../../SupportFunctions/e2eRandom.support';
 
 
+let dropdownHandler = new E2eDropdownHandler();
+let e2eRng = new E2eRandomTools();
 describe('CTV dpr', () => {
     let page: CtvDprPage;
 
@@ -19,8 +23,9 @@ describe('CTV dpr', () => {
         })
 
         it('Should display no data message', () => {
-            let noDataMsg = element(by.tagName('h3')).getText();
-            expect(noDataMsg).toMatch('There is no map available for the selected day and vessel.')
+            let noDataMsg = element(by.tagName('h3'))
+            expect(noDataMsg.isDisplayed()).toBe(true);
+            expect(noDataMsg.getText()).toMatch('There is no map available for the selected day and vessel.')
         });
     })
 
@@ -57,6 +62,7 @@ describe('CTV dpr', () => {
             page = new CtvDprPage();
             page.navigateTo();
         })
+        
         it('Should not redirect', ()=> {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi')
         })
@@ -75,17 +81,132 @@ describe('CTV dpr', () => {
             nanElts = page.getEltsWithText('_NaN_');
             expect(nanElts.count()).toBe(0);
         })
+
+        fit('Should save fuel consumption', () => {
+            let fuelConsumed = page.getFuelInput();
+            let oldFuel = e2eRng.getRandomInt(500, 1000);
+            fuelConsumed.clear();
+            fuelConsumed.sendKeys(oldFuel);
+            let saveBtn = page.getStatsSaveBtn();
+            // saveBtn.click();
+            // page.navigateTo();
+            // fuelConsumed = page.getFuelInput();
+            // expect(fuelConsumed.getText()).toBe(oldFuel.toString());
+        })
+
     })
 
     describe('Should generate dockings', () => {
+        let dockingRow: ElementFinder;
+        let saveBtn: ElementFinder;
+
         beforeEach(() => {
             page = new CtvDprPage();
             page.navigateTo();
+            dockingRow = page.getFirstDockingEntry();
+            saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
         })
 
         it('Should have multiple dockings', () => {
-            let dockings = element.all(by.xpath('//app-ctv-turbine-transfer/table/tbody/tr'))
+            let dockings = page.getAllDockings();
             expect(dockings.count()).toBeGreaterThan(0);
+        });
+
+        it('Should set normal values for docking table', () => {
+            expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
+            expect(page.getEltInDockingRow(dockingRow, 0).getText()).toBe('1');
+            expect(page.getEltInDockingRow(dockingRow, 1).getText()).toMatch(/\d{2}:\d{2}/, "Start time should be formatted");
+            expect(page.getEltInDockingRow(dockingRow, 2).getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
+            expect(page.getEltInDockingRow(dockingRow, 3).getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
+            expect(page.getEltInDockingRow(dockingRow, 4).getText()).toMatch(/\d+/, 'Impact should be formatted');
+            expect(page.getEltInDockingRow(dockingRow, 5).getText()).toMatch(/\d.\d/, 'Score should be formatted');
+            expect(page.getEltInDockingRow(dockingRow, 6).getText()).toMatch(/\w+/, 'Location should be formatted');
+            expect(page.getEltInDockingRow(dockingRow, 10).getText()).toMatch(/\w+/, 'Detector should be formatted');
+        })
+
+        it('Should allow users to input pax in / out', () => {
+            // Init pax in/out
+            expect(saveBtn.isEnabled()).toBe(false, 'Save button should only enable on input change')
+            let paxInInput = page.getPaxInputFromDockingRow(dockingRow);
+            let paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
+            paxInInput.clear();paxInInput.sendKeys(1);
+            paxOutInput.clear();paxOutInput.sendKeys(2);
+            let cargoInput = page.getCargoInputFromDockingRow(dockingRow);
+            let cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
+            cargoInput.clear();cargoInput.sendKeys(3);
+            cargoOutput.clear();cargoOutput.sendKeys(4);
+            saveBtn.click();
+
+            // Save
+            page.navigateTo();
+            paxInInput = page.getPaxInputFromDockingRow(dockingRow);
+            expect(paxInInput.getValue()).toBe('1');
+            paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
+            expect(paxOutInput.getValue()).toBe('2');
+            paxInInput.clear();paxInInput.sendKeys(0);
+            paxOutInput.clear();paxOutInput.sendKeys(0);
+            cargoInput = page.getCargoInputFromDockingRow(dockingRow);
+            expect(cargoInput.getValue()).toBe('3');
+            cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
+            expect(cargoOutput.getValue()).toBe('4');
+            cargoInput.clear();cargoInput.sendKeys(0);
+            cargoOutput.clear();cargoOutput.sendKeys(0);
+            
+            saveBtn.click();
+
+            // Check if we were not seeing old values
+            page.navigateTo();
+            paxInInput = page.getPaxInputFromDockingRow(dockingRow);
+            expect(paxInInput.getValue()).toBe('0');
+            paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
+            expect(paxOutInput.getValue()).toBe('0');
+            cargoInput = page.getCargoInputFromDockingRow(dockingRow);
+            expect(cargoInput.getValue()).toBe('0');
+            cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
+            expect(cargoOutput.getValue()).toBe('0');
+        });
+
+        it('Should save default comments', () => {
+            let commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
+            expect(dropdownHandler.getValue(commentBtn)).toMatch(/\w+/, 'Comment should be formatted');
+            expect(dropdownHandler.getNumOptions(commentBtn)).toBeGreaterThan(1);
+
+            dropdownHandler.setValueByIndex(commentBtn, 1);
+            let oldValue = dropdownHandler.getValue(commentBtn);
+
+            saveBtn.click();
+            
+            commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
+            oldValue.then(_oldValue => {
+                expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
+            })
+            
+            dropdownHandler.setValueByIndex(commentBtn, 0);
+            oldValue = dropdownHandler.getValue(commentBtn);
+            saveBtn.click();
+
+            commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
+            oldValue.then(_oldValue => {
+                expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
+            })
+        });
+
+        it('Should save other comments', () => {
+            let commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
+            dropdownHandler.setValue(commentBtn, 'Other');
+            let otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
+            expect(otherInput.isDisplayed()).toBe(true);
+            
+            let str = e2eRng.getRandomString();
+            otherInput.clear();
+            otherInput.sendKeys(str)
+            saveBtn.click();
+            
+            page.navigateTo();
+            dockingRow = page.getFirstDockingEntry();
+            otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
+            expect(otherInput.isDisplayed()).toBe(true);
+            expect(otherInput.getText()).toBe(str);
         });
     })
 
@@ -95,5 +216,22 @@ describe('CTV dpr', () => {
             page.navigateTo();
         })
 
+        it('Should have loaded slip graphs', () => {
+            expect(page.getSlipGraphs().count()).toBeGreaterThan(0);
+            let slip = page.getSlipGraph(0);
+            expect(slip.isDisplayed()).toBe(true);
+        })
+
+        it('Should have formatted slip graphs', () => {
+            let slips = page.getSlipGraphs();
+            slips.each(_slip => {
+                expect(_slip.isDisplayed()).toBe(true);
+                let title = page.getTitleFromSlipGraph(_slip);
+                expect(title.isDisplayed()).toBe(true);
+                expect(title.getText()).toMatch(/Transfer: #\d+ - location: \w+ - Score: \d/)
+                let canvas = page.getCanvasFromSlipGraph(_slip);
+                expect(canvas.isDisplayed()).toBe(true);
+            })
+        })
     })
 })

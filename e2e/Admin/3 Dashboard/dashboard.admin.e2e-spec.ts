@@ -15,9 +15,6 @@ describe('Dashboard', () => {
         })
 
         it('and have correct title', () => {
-            // page.checkDashboardHeader().then((header) => {
-            //     expect(header).toMatch('Dashboard');
-            // })
             expect(page.checkDashboardHeader()).toMatch('Dashboard')
         });
 
