@@ -455,7 +455,7 @@ export class CtvreportComponent implements OnInit {
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
           const dpr = <any>_general.DPRstats;
-          dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
+          dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedOutbound, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedInbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedOutboundUnrestricted = this.switchUnit(dpr.AvgSpeedOutboundUnrestricted, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedInboundUnrestricted = this.switchUnit(dpr.AvgSpeedInboundUnrestricted, 'knots', this.settings.unit_speed);
