@@ -419,7 +419,7 @@ export class CtvreportComponent implements OnInit {
     for (let i = 0; i < _transfers.length; i++) {
       _transfers[i].oldComment = _transfers[i].comment;
       _transfers[i].showCommentChanged = false;
-      _transfers[i].commentChanged = this.changedCommentObj;
+      _transfers[i].commentChanged = _transfers[i].commentChanged || this.changedCommentObj;
       _transfers[i].formChanged = false;
       _transfers[i].video_requested = this.matchVideoRequestWithTransfer(_transfers[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
@@ -455,7 +455,7 @@ export class CtvreportComponent implements OnInit {
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
           const dpr = <any>_general.DPRstats;
-          dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
+          dpr.AvgSpeedOutbound = this.switchUnit(dpr.AvgSpeedOutbound, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedInbound = this.switchUnit(dpr.AvgSpeedInbound, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedOutboundUnrestricted = this.switchUnit(dpr.AvgSpeedOutboundUnrestricted, 'knots', this.settings.unit_speed);
           dpr.AvgSpeedInboundUnrestricted = this.switchUnit(dpr.AvgSpeedInboundUnrestricted, 'knots', this.settings.unit_speed);
