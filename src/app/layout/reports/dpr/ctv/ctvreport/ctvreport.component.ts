@@ -419,7 +419,7 @@ export class CtvreportComponent implements OnInit {
     for (let i = 0; i < _transfers.length; i++) {
       _transfers[i].oldComment = _transfers[i].comment;
       _transfers[i].showCommentChanged = false;
-      _transfers[i].commentChanged = this.changedCommentObj;
+      _transfers[i].commentChanged = _transfers[i].commentChanged || this.changedCommentObj;
       _transfers[i].formChanged = false;
       _transfers[i].video_requested = this.matchVideoRequestWithTransfer(_transfers[i]);
       for (let j = 0; j < this.commentsChanged.length; j++) {
