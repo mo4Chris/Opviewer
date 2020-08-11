@@ -33,7 +33,7 @@ export class CtvDprPage {
     }
 
     getCurrentPrintMode() {
-        return element(by.binding('printMode')).getText();
+        // return element(by.binding('printMode')).getText();
     }
 
     getEltsWithText(txt: string) {
@@ -41,7 +41,15 @@ export class CtvDprPage {
     }
 
     getFuelInput() {
-        return element(by.binding('generalInputStats.fuelConsumption'))
+        return this.addGetValue(element(by.id('fuelConsumedInput')));
+    }
+
+    getWasteoilInput() {
+        return this.addGetValue(element(by.id('wasteOilInput')));
+    }
+
+    getGarbagelandedInput() {
+        return this.addGetValue(element(by.id('garbageLandedInput')));
     }
 
     getStatsSaveBtn(index = 0) {

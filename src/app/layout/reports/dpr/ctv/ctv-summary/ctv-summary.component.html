@@ -43,18 +43,21 @@
         </tr>
         <tr>
             <td>Fuel consumed</td>
-            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
-            <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(engine.fuelUsedTotalM3, 10, 'm3')}}</td>
+            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
+              <input id="fuelConsumedInput" type="number" min="0" step="10" [(ngModel)]="generalInputStats.fuelConsumption" class="form-control-sm col-sm-10"> liters</td>
+            <td id="fuelConsumedReadonly" *ngIf="this.tokenInfo.userPermission != 'Vessel master'">
+              {{roundNumber(engine.fuelUsedTotalM3, 10, 'm3')}}
+            </td>
         </tr>
         <tr>
             <td>Waste oil landed</td>
-            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
-            <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats.landedOil, 1, ' liters')}}</td>
+            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input id="wasteOilInput" type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
+            <td id="wasteOilReadonly" *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats.landedOil, 1, ' liters')}}</td>
         </tr>
         <tr>
             <td>Garbage landed</td>
-            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
-            <td *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats.landedGarbage, 1, 'm3')}}</td>
+            <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input id="garbageLandedInput" type="number" min="0" step="0.01" [(ngModel)]="generalInputStats.landedGarbage" class="form-control-sm col-sm-10"> m<sup>3</sup></td>
+            <td id="garbageLandedReadonly" *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats.landedGarbage, 1, 'm3')}}</td>
         </tr>
     </table>
 </div>

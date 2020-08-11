@@ -82,16 +82,46 @@ describe('CTV dpr', () => {
             expect(nanElts.count()).toBe(0);
         })
 
-        fit('Should save fuel consumption', () => {
+        it('Should save fuel consumption', () => {
             let fuelConsumed = page.getFuelInput();
             let oldFuel = e2eRng.getRandomInt(500, 1000);
+            
+            expect(fuelConsumed.isDisplayed()).toBe(true);
             fuelConsumed.clear();
             fuelConsumed.sendKeys(oldFuel);
             let saveBtn = page.getStatsSaveBtn();
-            // saveBtn.click();
-            // page.navigateTo();
-            // fuelConsumed = page.getFuelInput();
-            // expect(fuelConsumed.getText()).toBe(oldFuel.toString());
+            saveBtn.click();
+            page.navigateTo();
+            fuelConsumed = page.getFuelInput();
+            expect(fuelConsumed.getValue()).toBe(oldFuel.toString());
+        })
+
+        it('Should save waste oil consumption', () => {
+            let wasteOilLanded = page.getWasteoilInput();
+            let oldFuel = e2eRng.getRandomInt(0, 100);
+            
+            expect(wasteOilLanded.isDisplayed()).toBe(true);
+            wasteOilLanded.clear();
+            wasteOilLanded.sendKeys(oldFuel);
+            let saveBtn = page.getStatsSaveBtn();
+            saveBtn.click();
+            page.navigateTo();
+            wasteOilLanded = page.getWasteoilInput();
+            expect(wasteOilLanded.getValue()).toBe(oldFuel.toString());
+        })
+
+        it('Should save garbage landed', () => {
+            let garbageLanded = page.getGarbagelandedInput();
+            let landed = e2eRng.getRandomNumber(0, 0.5);
+            
+            expect(garbageLanded.isDisplayed()).toBe(true);
+            garbageLanded.clear();
+            garbageLanded.sendKeys(landed);
+            let saveBtn = page.getStatsSaveBtn();
+            saveBtn.click();
+            page.navigateTo();
+            garbageLanded = page.getGarbagelandedInput();
+            expect(garbageLanded.getValue()).toBe(landed.toString());
         })
 
     })
@@ -177,18 +207,14 @@ describe('CTV dpr', () => {
             saveBtn.click();
             
             commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
-            oldValue.then(_oldValue => {
-                expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
-            })
+            expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
             
             dropdownHandler.setValueByIndex(commentBtn, 0);
             oldValue = dropdownHandler.getValue(commentBtn);
             saveBtn.click();
 
             commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
-            oldValue.then(_oldValue => {
-                expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
-            })
+            expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue)
         });
 
         it('Should save other comments', () => {
