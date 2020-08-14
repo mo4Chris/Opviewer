@@ -227,7 +227,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     } else {
       this.alert.sendAlert({
         type: 'danger',
-        text: 'On DP has to take place before Off DP',
+        text: 'Start DP has to take place before Stop DP',
         timeout: 5000,
       });
     }
