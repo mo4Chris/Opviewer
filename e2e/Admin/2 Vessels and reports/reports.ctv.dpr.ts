@@ -1,10 +1,9 @@
 import { browser, element, by, ElementFinder } from "protractor";
 import { env } from "process";
-import { E2eDropdownHandler } from "../SupportFunctions/e2eDropdown.support";
-import { E2ePageObject } from "../SupportFunctions/e2epage.support";
+import { E2eDropdownHandler } from "../../SupportFunctions/e2eDropdown.support";
 
 var dropdownHandler = new E2eDropdownHandler();
-export class CtvDprPage extends E2ePageObject {
+export class CtvDprPage {
     navigateTo() {
         browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789;date=737700');
     }
@@ -15,6 +14,10 @@ export class CtvDprPage extends E2ePageObject {
 
     navigateToLatest() {
         browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789');
+    }
+
+    getUrl() {
+        return browser.getCurrentUrl();
     }
 
     getMap() {
@@ -30,8 +33,11 @@ export class CtvDprPage extends E2ePageObject {
     }
 
     getCurrentPrintMode() {
-        throw ('To be done!')
         // return element(by.binding('printMode')).getText();
+    }
+
+    getEltsWithText(txt: string) {
+        return element.all(by.xpath("//*[contains(text(),'" + txt + "')]"))
     }
 
     getFuelInput() {

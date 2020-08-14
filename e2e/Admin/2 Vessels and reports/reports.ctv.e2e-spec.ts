@@ -1,10 +1,10 @@
 import { browser, element, by, ExpectedConditions, ElementFinder } from 'protractor';
-import { CtvDprPage } from './ctvdpr.po';
+import { CtvDprPage } from './reports.ctv.dpr';
 import { env } from 'process';
 import { elementEnd } from '@angular/core/src/render3';
 import { callbackify } from 'util';
-import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
-import { E2eRandomTools } from '../SupportFunctions/e2eRandom.support';
+import { E2eDropdownHandler } from '../../SupportFunctions/e2eDropdown.support';
+import { E2eRandomTools } from '../../SupportFunctions/e2eRandom.support';
 
 
 let dropdownHandler = new E2eDropdownHandler();
