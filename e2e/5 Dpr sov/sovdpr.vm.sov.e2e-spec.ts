@@ -101,4 +101,34 @@ fdescribe('Sov dpr', () => {
             expect(page.getWeatherOverviewChart());
         })
     })
+
+    describe('transfers tab', () => {
+        beforeEach(() => {
+            page = new SovDprPage();
+            page.navigateTo();
+            page.clickTabByName('Transfers');
+        })
+
+        it('should be selected on intialization', () => {
+            expect(page.getActiveTab().getText()).toMatch('Summary')
+        })
+        it('should not show NaNs', () => {
+            expect(page.getNanCount()).toBe(0);
+        })
+        it('should render daily stats', () => {
+            expect(page.getValueByCellKey('Distance sailed').getText()).toMatch(/\d+/)
+            expect(page.getValueByCellKey('Number of gangway connections').getText()).toMatch(/\d+/)
+            let avgDockingTime = page.getValueByCellKey('Average time spent docking');
+            expect(page.getTooltipForElt(avgDockingTime).isPresent()).toBe(true);
+            expect(avgDockingTime.getText()).toMatch(/\d+/)
+            expect()
+        })
+        it('should render charts', () => {
+            expect(page.getOperationActivityChart().isDisplayed()).toBe(true);
+            expect(page.getGangwayLimitationChart().isDisplayed()).toBe(true);
+        })
+        it('should render weather overview', () => {
+            expect(page.getWeatherOverviewChart());
+        })
+    })
 })
