@@ -53,7 +53,7 @@
         {{ transfer_Data.cargoDown}} KG outgoing
       </td>
       <td class="comment">
-        <span ngbDropdown class="d-inline-block dropdown">
+        <span ngbDropdown class="d-inline-block dropdown" name=dockingComment>
           <button class="btn btn-outline-primary" [class.commentOptions]="transfer_Data.comment != 'Other'"
             ngbDropdownToggle>
             <span [class.commentButton]="transfer_Data.comment != 'Other'">{{transfer_Data.comment}}</span>

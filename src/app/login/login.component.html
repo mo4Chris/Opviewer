@@ -37,7 +37,7 @@
 
           </div>
         </div>
-        <a id=clickme class="btn rounded-btn" (click)="onLoggedin()"> Log in </a>&nbsp;
+        <a id="loginButton" class="btn rounded-btn" (click)="onLoggedin()"> Log in </a>&nbsp;
       </form>
       <br>
       <ngb-alert *ngIf="alert.active" class="userCreateAlert" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>

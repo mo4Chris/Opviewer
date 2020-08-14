@@ -11,39 +11,39 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th class='clickable'
+                <th id=vesselname class='clickable'
                   (click)="sortData({active: 'nicename', isAsc: sort.active=='nicename'?!sort.isAsc:true})">
                   Vesselname
                   <i class="fa" [class.hidden]="sort.active!='nicename'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th class='clickable' *ngIf="permission.admin"
+                <th id=clients class='clickable' *ngIf="permission.admin"
                   (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
                   Client
                   <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
+                <th id=mmsi class='clickable' (click)="sortData({active: 'mmsi', isAsc: sort.active=='mmsi'?!sort.isAsc:true})">
                   mmsi
                   <i class="fa" [class.hidden]="sort.active!='mmsi'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
                 <th *ngIf="permission.admin"> On hire </th>
-                <th> Daily vessel report </th>
+                <th > Daily vessel report </th>
                 <th *ngIf="permission.longterm">Long term reports</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let rd of filter;let ind = index">
                 <td>{{ind + 1}}</td>
-                <td>{{rd.nicename}}</td>
+                <td id=vesselnameValue>{{rd.nicename}}</td>
                 <td *ngIf="permission.admin">{{rd.client}}</td>
                 <td>{{rd.mmsi}}</td>
                 <td *ngIf="permission.admin">{{rd.onHire}}</td>
-                <td><a class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a>
+                <td><a id=routeToDpr class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a>
                 </td>
                 <td *ngIf="permission.longterm">
-                  <div><a class="btn rounded-btn" (click)="redirectLongterm(rd.mmsi, rd.nicename)"> Long term reports
+                  <div><a id=routeToLtm class="btn rounded-btn" (click)="redirectLongterm(rd.mmsi, rd.nicename)"> Long term reports
                     </a></div>
                 </td>
               </tr>

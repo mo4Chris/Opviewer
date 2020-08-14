@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, SystemJsNgModuleLoader } from '@angular/core';
+import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
@@ -35,7 +35,8 @@ export class DashboardComponent implements OnInit {
         private mapService: GmapService,
         private routerService: RouterService,
         private alert: AlertService,
-        public permission: PermissionService
+        public permission: PermissionService,
+        private ngZone: NgZone,
      ) {   }
     locationData: AisMarkerModel[];
 
@@ -143,13 +144,17 @@ export class DashboardComponent implements OnInit {
             }
             this.eventService.closeLatestAgmInfoWindow();
         }, 1000);
-        setTimeout(() => {
-            this.eventService.closeLatestAgmInfoWindow();
+        this.ngZone.runOutsideAngular(() => {
+            // We need to tell angular that the 10 minute dashboard update
+            // should not be waited for with regards to change detection.
+            setTimeout(() => {
+                this.eventService.closeLatestAgmInfoWindow();
 
-            if (this.router.url === '/dashboard') {
-                this.getLocations();
-            }
-        }, 60000);
+                if (this.router.url === '/dashboard') {
+                    this.getLocations();
+                }
+            }, 60000);
+        });
     }
 
     buildGoogleMap( googleMap: google.maps.Map ) {
