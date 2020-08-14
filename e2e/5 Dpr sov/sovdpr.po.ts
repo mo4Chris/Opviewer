@@ -2,9 +2,12 @@ import { browser, element, by, ElementFinder, ElementArrayFinder } from "protrac
 import { env } from "process";
 import { E2eDropdownHandler } from "../SupportFunctions/e2eDropdown.support";
 import { E2ePageObject } from "../SupportFunctions/e2epage.support";
+import { E2eDatePicker } from "../SupportFunctions/e2eDatepicker.support";
 
 var dropdownHandler = new E2eDropdownHandler();
 export class SovDprPage extends E2ePageObject {
+    summary = new SovDprSummaryTab();
+    transfer = new SovDprTransferTab();
 
     navigateTo() {
         browser.get(env.baseUrl + '/reports/dpr;mmsi=987654321;date=737700');
@@ -41,13 +44,6 @@ export class SovDprPage extends E2ePageObject {
         return printIsClicked;
     }
 
-    getDropdownValue(dropdown: ElementFinder) {
-        return dropdownHandler.getValue(dropdown);
-    }
-    getButtonValue(btn: ElementFinder) {
-        // We add getValue as function to the returned promise
-        return btn.getAttribute('value');
-    }
     getContainerByTitle(name: string) {
         return element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
     }
@@ -72,6 +68,31 @@ export class SovDprPage extends E2ePageObject {
         this.clickTab(this.getTabByName(name));
     }
 
+    getPrevDayButton() {
+        return element(by.id('prevDayButton'))
+    }
+    getCurrentDateField() {
+        return element(by.xpath('//div[contains(@class, "datepicker-input")]/input'));
+    }
+    getDatePickerbtn() {
+        return element(by.id('datePickBtn'))
+    }
+    getDatePickerString() {
+        return this.getCurrentDateField().getAttribute('value');
+    }
+    getNextDayButton() {
+        return element(by.id('nextDayButton'))
+    }
+    switchDate(date: {year: number, month: number, day: number}) {
+        let pickerBtn = this.getDatePickerbtn();
+        pickerBtn.click();
+        let picker = element(by.tagName('ngb-datepicker'));
+        let helper = new E2eDatePicker(picker);
+        helper.setDate(date);
+    }
+} 
+
+class SovDprSummaryTab {
     getOperationActivityChart() {
         return element(by.id('operationalStats'));
     }
@@ -79,6 +100,33 @@ export class SovDprPage extends E2ePageObject {
         return element(by.id('gangwayLimitations'));
     }
     getWeatherOverviewChart() {
-
+        return element(by.id('weatherOverview'));
     }
-} 
+}
+
+class SovDprTransferTab {
+    private getContainerByTitle(name: string) {
+        return element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
+    }
+    getV2vPresent() {
+        return this.getContainerByTitle('Vessel Transfers').isPresent();
+    }
+    getDcPresent() {
+        return this.getContainerByTitle('Turbine transfers for daughtercraft').isPresent();
+    }
+    getRovPresent() {
+        return this.getContainerByTitle('ROV Operations').isPresent();
+    }
+    getTurbinePresent() {
+        return this.getContainerByTitle('Turbine transfers').isPresent();
+    }
+    getPlatformPresent() {
+        return this.getContainerByTitle('Platform transfers').isPresent();
+    }
+    getGangwayPresent() {
+        return this.getContainerByTitle('Gangway usage').isPresent();
+    }
+    getCycleTimePresent() {
+        return this.getContainerByTitle('Cycle Times').isPresent();
+    }
+}

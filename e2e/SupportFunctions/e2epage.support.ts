@@ -11,9 +11,11 @@ export abstract class E2ePageObject {
     getUrl() {
         return browser.getCurrentUrl();
     }
+    getCellByKey(key: string) {
+        return element(by.xpath("//tr/td[contains(text(),'" + key + "')]"));
+    }
     getValueByCellKey(key: string) {
-        let cell = element(by.xpath("//tr/td[contains(text(),'" + key + "')]"));
-        return cell.all(by.xpath('../td')).get(1);
+        return this.getCellByKey(key).all(by.xpath('../td')).get(1);
     }
     getEltsWithText(txt: string) {
         return element.all(by.xpath("//*[contains(text(),'" + txt + "')]"))
@@ -21,11 +23,19 @@ export abstract class E2ePageObject {
     getNanCount() {
         return this.getEltsWithText('NaN').count();
     }
+    getDropdownValue(dropdown: ElementFinder) {
+        return this.dropdown.getValue(dropdown);
+    }
+    getButtonValue(btn: ElementFinder) {
+        // We add getValue as function to the returned promise
+        return btn.getAttribute('value');
+    }
     getActiveTooltips() {
-        return element.all(by.xpath('//ng-tooltip-window/div[contains(@class, "tooltip-inner")]'))
+        return element.all(by.xpath('//ngb-tooltip-window/div[contains(@class, "tooltip-inner")]'))
     }
     getTooltipForElt(elt: ElementFinder) {
-        browser.actions().mouseMove(elt);
+        browser.actions().mouseMove(elt).perform();
+        browser.waitForAngular();
         return this.getActiveTooltips().first();
     }
 }
