@@ -226,12 +226,16 @@ describe('CTV dpr', () => {
             let str = e2eRng.getRandomString();
             otherInput.clear();
             otherInput.sendKeys(str)
+            console.log(str);
             saveBtn.click();
-            
+
             page.navigateTo();
             dockingRow = page.getFirstDockingEntry();
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(otherInput.isDisplayed()).toBe(true);
+            otherInput.getText().then(function(text) {
+                console.log(text);
+              });
             expect(otherInput.getText()).toBe(str);
         });
     })
