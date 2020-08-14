@@ -1,9 +1,10 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 import { env } from 'process';
+import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 
 var EC = ExpectedConditions;
 
-export class ReportsPage {
+export class ReportsPage extends E2ePageObject {
   navigateTo() {
     return browser.get(env.baseUrl + '/reports');
   }
@@ -19,6 +20,10 @@ export class ReportsPage {
   checkVesselsHeader() {
     return element(by.className('tableTitle')).getText();
   }
+
+  getTableHeaderByName(txt: string) {
+    return element(by.xpath("//th[contains(text(),'" + txt + "')]"))
+  }
  
   clickSortButton(key: string) {
     return element(by.id(key)).click();
@@ -29,8 +34,16 @@ export class ReportsPage {
   }
 
   getActiveVesselNames() {
-    return element.all(by.xpath("//tr/td[@id='vesselnameValue']"))
+    return element.all(by.xpath("//tr/td[@id='vesselnameValue']"));
   }
 
-  getActi
+  getDprButtons() {
+    return element.all(by.xpath('//a[contains(text(), "Daily Vessel Report")]'))
+  }
+
+  getLtmButtons() {
+    // return element.all(by.buttonText('Long term reports'));
+    return element.all(by.xpath('//a[contains(text(), "Long term reports")]'))
+  }
+
 }

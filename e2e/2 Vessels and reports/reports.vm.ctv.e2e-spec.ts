@@ -1,7 +1,7 @@
 import { ReportsPage } from './reports.po';
 import { browser, element, by, ExpectedConditions, Key } from 'protractor';
 
-describe('Admin Vessels and Reports page', () => {
+describe('Vessels and Reports page', () => {
   let page: ReportsPage;
 
   beforeEach(() => {
@@ -15,11 +15,6 @@ describe('Admin Vessels and Reports page', () => {
   })
 
   it('should have correct header', () => {
-    expect(page.checkVesselsHeader()).toContain('Vessel overview');
-  });
-
-  it('should display vessel list', () => {
-    let vessels = element.all(by.binding('nicename')).first()
     expect(page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
@@ -68,12 +63,21 @@ describe('Admin Vessels and Reports page', () => {
     })
   });
 
-  it('Should successfully click the dpr button', () => {
-    element.all(by.id('routeToDpr')).first().click();
+  fit('should successfully click the dpr button', () => {
+    let dprButton = page.getDprButtons();
+    expect(dprButton.count()).toBe(1);
+    dprButton.first().click();
     browser.waitForAngular();
     expect(browser.getCurrentUrl()).toMatch('/reports/dpr');
   });
 
+  it('should not have access to the LTM module', () => {
+    expect(page.getLtmButtons().get(0).isPresent()).toBe(false);
+  })
+
+  it('Should not display onHire status', () => {
+    expect(page.getTableHeaderByName('On hire').isPresent()).toBe(false);
+  })
   // it('Should successfully click the ltm button', () => {
   //   // Not working as vessel master (or marine controller?)
   //   element.all(by.id('routeToLtm')).first().click();
