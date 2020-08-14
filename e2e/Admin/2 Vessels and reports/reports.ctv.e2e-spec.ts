@@ -232,7 +232,7 @@ describe('CTV dpr', () => {
             dockingRow = page.getFirstDockingEntry();
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(otherInput.isDisplayed()).toBe(true);
-            expect(otherInput.getText()).toBe(str);
+            expect(otherInput.getAttribute('value')).toBe(str);
         });
     })
 
