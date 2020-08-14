@@ -1,11 +1,10 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 import { env } from 'process';
-import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 
 var EC = ExpectedConditions;
 // browser.ignoreSynchronization = true;
 
-export class LoginPage extends E2ePageObject {
+export class LoginPage {
   navigateTo() {
     return browser.get(env.baseUrl + '/login');
   }
