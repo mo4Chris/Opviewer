@@ -177,6 +177,7 @@ var CommentsChangedSchema = new Schema({
     newComment: { type: String },
     idTransfer: { type: String },
     otherComment: { type: String },
+    commentChanged: {type: Object},
     userID: { type: String },
     processed: { type: String },
     paxUp: { type: Number },
@@ -861,6 +862,7 @@ app.post("/api/saveTransfer", function(req, res) {
         comment.oldComment = req.body.oldComment;
         comment.newComment = req.body.comment;
         comment.commentChanged = req.body.commentChanged;
+        comment.otherComment = req.body.commentChanged.otherComment;
         comment.idTransfer = req.body._id;
         comment.date = req.body.commentDate;
         comment.mmsi = req.body.mmsi;
@@ -1007,7 +1009,8 @@ app.post("/api/getCommentsForVessel", function(req, res) {
                     "date": { "$last": "$date" },
                     "idTransfer": { "$last": "$idTransfer" },
                     "newComment": { "$last": "$newComment" },
-                    "otherComment": { "$last": "$otherComment" }
+                    "otherComment": { "$last": "$otherComment" },
+                    "commentChanged": {"$last" : "$commentChanged"}
                 }
             }
         ]).exec(function(err, data) {
