@@ -153,7 +153,7 @@ describe('Sov dpr', () => {
         })
     })
 
-    fdescribe('DPR input tab', () => {
+    describe('DPR input tab', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateToEmpty('DPR input');
@@ -200,7 +200,6 @@ describe('Sov dpr', () => {
             io.checkRowTimes(weatherdt.rows.first(), weatherTimes);
             expect(selectHelper.getValue(accessDayType)).toBe(selectedAccessType);
         })
-
         it('should have a functioning reports & toolbox talks table', () => {
             let io = page.dprinput;
             io.getSocCards().each(() => io.rmSocCard());
@@ -223,7 +222,6 @@ describe('Sov dpr', () => {
             expect(socArea.getAttribute('value')).toBe(socText);
             expect(tbArea.getAttribute('value')).toBe(tbText);
         })
-
         it('should have a functioning fuel input', () => {
             let io = page.dprinput;
             let index = page.rng.getRandomInt(0,15);
@@ -239,23 +237,48 @@ describe('Sov dpr', () => {
             page.navigateToEmpty('DPR input');
             expect(fuelIn.getAttribute('value')).toBe(rndFuel);
         })
-
         it('should have a functioning catering', () => {
             let io = page.dprinput;
-            let table = io.getDprInputTable(4);
-            let rndFuel = page.rng.getRandomInt(20, 1000).toString();\
+            let table = io.getDprInputTable(3);
+            let rndMeals = page.rng.getRandomInt(1, 100).toString();
+            let cateringInput = table.all(by.tagName('input')).get(2);
+            cateringInput.clear();
+            cateringInput.sendKeys(rndMeals);
             table.element(by.buttonText('Save')).click();
             browser.waitForAngular();
 
             page.navigateToEmpty('DPR input');
-            expect(table.getAttribute('value')).toBe(rndFuel);
+            expect(cateringInput.getAttribute('value')).toBe(rndMeals);
+        })
+        it('should have a functioning dp usage', () => {
+            // Geen zin in
+        })
+        it('should have proper remarks', () => {
+            let io = page.dprinput;
+            let table = io.getDprInputTable(5);
+            let remark = page.rng.getRandomString();
+            let remarkField = table.element(by.tagName('textarea'))
+            remarkField.clear();
+            remarkField.sendKeys(remark);
+            table.element(by.buttonText('Save remarks')).click();
+            browser.waitForAngular();
+
+            page.navigateToEmpty('DPR input');
+            expect(remarkField.getAttribute('value')).toBe(remark);
         })
     })
 
-    describe('Commercial overview tab', () => {
+    fdescribe('Commercial overview tab', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateTo('Commercial overview');
+        })
+
+        fit('should have proper data', () => {
+            let io = page.dprinput;
+            expect(io.getStandby().rows.count()).toBeGreaterThan(0)
+            expect(io.getTechnicalDowntime().rows.count()).toBeGreaterThan(0)
+            expect(io.getWeatherDowntime().rows.count()).toBeGreaterThan(0)
         })
     })
 
@@ -263,6 +286,10 @@ describe('Sov dpr', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateTo('HSE overview');
+        })
+
+        it('Should have proper data', () => {
+            expect(page.getNanCount()).toBe(0);
         })
     })
 })
