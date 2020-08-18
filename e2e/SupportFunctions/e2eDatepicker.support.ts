@@ -1,4 +1,4 @@
-import { ElementFinder, by, browser } from "protractor";
+import { ElementFinder, by, browser, element } from "protractor";
 
 export class E2eDatePicker {
     y: ElementFinder;
@@ -11,12 +11,19 @@ export class E2eDatePicker {
         this.m = this.picker.element(by.xpath('//select[@title="Select month"]'));
     }
 
+    static open() {
+        // Finds the datepicker button on the website, opens the picker, and returns instance of E2eDatePicker
+        let pickerBtn = element(by.id('datePickBtn'));
+        pickerBtn.click();
+        let picker = element(by.tagName('ngb-datepicker'));
+        return new E2eDatePicker(picker);
+    }
     getYear() {
         return log(getValue(this.y));
     }
     setYear(year: number) {
         this.y.click();
-        let btn = this.y.element(by.xpath('//option[@value=' + year + ']'));
+        let btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
         btn.click();
     }
     getMonth() {
@@ -24,11 +31,13 @@ export class E2eDatePicker {
     }
     setMonth(month: number) {
         this.m.click();
-        let btn = this.m.element(by.xpath('//option[@value=' + month + ']'));
+        let btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
         btn.click();
     }
     getDay() {
-
+        let btn = this.picker.element(by.className('ngb-dp-day ng-star-inserted'));
+        // return getValue(btn);
+        return btn.getText();
     }
     setDay(day: number) {
         // Warning: this will cause the datepicker to close and start navigation
@@ -37,7 +46,7 @@ export class E2eDatePicker {
     }
 
     getDayCell(day: number) {
-        return this.picker.element(by.xpath('//div[@role="gridcell"]/div[contains(text(),"' + day + '")]'))
+        return this.picker.element(by.xpath('//div[@role="gridcell"]/div[text()=' + day + ']'))
     }
 
     getDate() {
@@ -51,7 +60,7 @@ export class E2eDatePicker {
         // Warning: this will cause the datepicker to close and start navigation
         this.setYear(date.year);
         this.setMonth(date.month);
-        this.setDay(date.day);
+        this.setDay(date.day); // Triggers navigation
     }
 }
 

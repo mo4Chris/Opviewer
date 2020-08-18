@@ -1,6 +1,7 @@
 import { browser, element, by, ElementFinder } from "protractor";
 import { E2eDropdownHandler } from "./e2eDropdown.support";
 import { E2eRandomTools } from "./e2eRandom.support";
+import { protractor } from "protractor/built/ptor";
 
 // Abstract class from which to extend the e2e test classes
 export abstract class E2ePageObject {
@@ -37,5 +38,12 @@ export abstract class E2ePageObject {
         browser.actions().mouseMove(elt).perform();
         browser.waitForAngular();
         return this.getActiveTooltips().first();
+    }
+    getInputByPlaceholder(txt: string, elt?: ElementFinder) {
+        if (elt) {
+            elt.element(by.xpath('//input[@placeholder="' + txt + '"]'));
+        } else {
+            return element(by.xpath('//input[@placeholder="' + txt + '"]'));
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 export class E2eRandomTools {
     getRandomInt(min = 0, max = 100): number {
-        return Math.round(min + Math.random() * (max - min));
+        return Math.floor(min + Math.random() * (max - min + 1));
     }
 
     getRandomNumber(min = 0, max = 100): number {
