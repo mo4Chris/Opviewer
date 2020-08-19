@@ -1,9 +1,9 @@
 <!-- Turbine transfers - not read only-->
-<div class="row single-block-print">
+<div id="sovTurbineTransfers" class="row single-block-print">
   <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
-        Turbine transfers
+        Turbine transfer
       </div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">
@@ -101,7 +101,7 @@
               <td></td>
             </tr>
 
-            <tr>
+            <tr name='helicopter'>
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -118,7 +118,7 @@
                   transfer</button>
               </td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
               <td><input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.hour"
                   [value]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">:
@@ -258,7 +258,7 @@
               <td></td>
               <td></td>
             </tr>
-            <tr>
+            <tr name="helicopter">
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -266,7 +266,7 @@
               <th>Stop time transfer</th>
               <td colspan="6"></td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th>AYAY</th>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>

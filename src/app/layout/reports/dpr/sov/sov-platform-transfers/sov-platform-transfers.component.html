@@ -113,7 +113,7 @@
               <td></td>
               <td></td>
             </tr>
-            <tr>
+            <tr name="helicopter">
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -284,7 +284,7 @@
               <td></td>
               <td></td>
             </tr>
-            <tr>
+            <tr name="helicopter">
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -292,7 +292,7 @@
               <th>Stop time transfer</th>
               <td colspan="8"></td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>

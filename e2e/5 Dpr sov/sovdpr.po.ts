@@ -118,7 +118,8 @@ class SovDprSummaryTab {
 
 class SovDprTransferTab {
     private getContainerByTitle(name: string) {
-        return element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
+        let headerDiv = element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
+        return headerDiv.element(by.xpath('../..'))
     }
     getV2vTable() {
         return this.getContainerByTitle('Vessel Transfers')
@@ -129,20 +130,39 @@ class SovDprTransferTab {
     getDcSaveBtn() {
         return this.getDcTable().element(by.buttonText('Save all transfers'));
     }
-    getRovPresent() {
+    getRovTable() {
         return this.getContainerByTitle('ROV Operations');
     }
-    getTurbinePresent() {
-        return this.getContainerByTitle('Turbine transfers');
+    getTurbineTable() {
+        return element(by.id("sovTurbineTransfers"))
     }
-    getPlatformPresent() {
+    getPlatformTable() {
         return this.getContainerByTitle('Platform transfers');
     }
-    getGangwayPresent() {
+    getGangwayTable() {
         return this.getContainerByTitle('Gangway usage');
     }
-    getCycleTimePresent() {
+    getCycleTimeTable() {
         return this.getContainerByTitle('Cycle Times');
+    }
+
+    setPaxCargo(row: ElementFinder, input: {paxIn: number, paxOut: number, cargoIn: number, cargoOut: number}) {
+        
+    }
+    getPaxCargo(row: ElementFinder) {
+        return  {
+            // paxIn: row.element(by.binding('paxIn')).getAttribute('value'),
+        }
+    }
+    getHeader(table: ElementFinder) {
+        return table.all(by.xpath('.//thead/tr'));
+    }
+    getRows(table: ElementFinder) {
+        return table.all(by.xpath('.//tbody/tr'));
+    }
+    getHeliRows(table: ElementFinder) {
+        // return table.element(by.xpath('tr/th[contains(text(),"Helicopter")]/..'))
+        let rows = table.element(by.name('heli'));
     }
 }
 
@@ -205,10 +225,10 @@ class SovDprInputTab {
     }
 
     getDprInputTable(index: number) {
-        return this.dprInput.all(by.xpath('//table/tbody')).get(index);
+        return this.dprInput.all(by.xpath('.//table/tbody')).get(index);
     }
     getHseInputTable(index: number) {
-        return this.hseInput.all(by.xpath('//table/tbody')).get(index);
+        return this.hseInput.all(by.xpath('.//table/tbody')).get(index);
     }
     getStandby(): E2eDprInputTableElt {
         return {

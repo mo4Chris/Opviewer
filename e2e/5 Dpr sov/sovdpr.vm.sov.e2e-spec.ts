@@ -151,6 +151,30 @@ describe('Sov dpr', () => {
             page.getInputByPlaceholder('Location', opsTable).sendKeys('Test turbine');
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(true);
         })
+
+        fdescribe('turbine table', () => {
+            let table: ElementFinder;
+            beforeEach(() => {
+                table = page.transfer.getTurbineTable();
+            })
+
+            it('should load properly', () => {
+                let turb = page.transfer;
+                expect(table.isDisplayed()).toBe(true);
+                expect(turb.getPlatformTable().isPresent()).toBe(false);
+                let row = turb.getRows(table);
+
+                expect(row.count()).toBeGreaterThan(0);
+                // let paxcargo = turb.getPaxCargo(row.first());
+
+            })
+            fit('should allow adding heli transfers', () => {
+                let turb = page.transfer;
+                browser.sleep(5000)
+                let helirows = turb.getHeliRows(table);
+                expect(helirows.count()).toBe(5);
+            })
+        })
     })
 
     describe('DPR input tab', () => {
@@ -268,13 +292,13 @@ describe('Sov dpr', () => {
         })
     })
 
-    fdescribe('Commercial overview tab', () => {
+    describe('Commercial overview tab', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateTo('Commercial overview');
         })
 
-        fit('should have proper data', () => {
+        it('should have proper data', () => {
             let io = page.dprinput;
             expect(io.getStandby().rows.count()).toBeGreaterThan(0)
             expect(io.getTechnicalDowntime().rows.count()).toBeGreaterThan(0)
