@@ -1,4 +1,4 @@
-import { ElementFinder, by, promise } from "protractor";
+import { ElementFinder, by, promise } from 'protractor';
 
 // Support functions for e2e tests with ngbDropdown. Input for any
 // functions below should be the dropdown container.
@@ -14,7 +14,7 @@ export class E2eDropdownHandler {
     getOptions(elt: ElementFinder) { // Possibly broken!
         return this._getOptions(elt).getText() as unknown as promise.Promise<string[]>;
     }
-    
+
     open(elt: ElementFinder) {
         this._getButton(elt).click();
     }
@@ -23,13 +23,13 @@ export class E2eDropdownHandler {
         this.open(elt);
         // this.getOptions(elt).then(opts => console.log(opts))
         this.getOptions(elt).then(_opts => {
-            let idx = _opts.findIndex(_s => _s == s);
+            const idx = _opts.findIndex(_s => _s === s);
             if (idx >= 0) {
                 this._getOptions(elt).get(idx).click();
             } else {
-                fail('Could not select dropdown option "' + s + '" - it does not exist')
+                fail('Could not select dropdown option "' + s + '" - it does not exist');
             }
-        })
+        });
 
     }
 
