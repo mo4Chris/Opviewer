@@ -19,9 +19,10 @@ describe('Sov dpr', () => {
             expect(noDataMsg.isDisplayed()).toBe(true);
             expect(noDataMsg.getText()).toMatch('There is no map available for the selected day and vessel.')
         });
-        it('should disable the summary tab', () => {
+        fit('should disable the summary tab', () => {
             page.clickTabByName('Transfers');
-            expect(page.getTabByName('Summary').isEnabled()).toBe(false)
+            let tab = page.getTabByName('Summary');
+            expect(page.tabIsEnabled(tab)).toBe(false, 'Summary tab holds no usefull information w/out data')
         })
     })
 
@@ -127,19 +128,22 @@ describe('Sov dpr', () => {
         it('should not show NaNs', () => {
             expect(page.getNanCount()).toBe(0);
         })
-        it('should have a proper DC table', () => {
+        fit('should have a proper daughtercraft transfer table', () => {
             let dcTable = page.transfer.getDcTable();
-            expect(dcTable.isPresent()).toBe(true, 'DC table must be loaded');
+            expect(dcTable.isDisplayed()).toBe(true, 'DC table must be loaded');
             let addMissedTransferBtn = element(by.buttonText('Add missed transfer'))
             expect(addMissedTransferBtn.isPresent()).toBe(true);
             let removeLastMissedTransferBtn = element(by.buttonText('Remove last transfer'))
             expect(removeLastMissedTransferBtn.isPresent()).toBe(true);
 
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(false);
+            removeLastMissedTransferBtn.click();
             page.getInputByPlaceholder('turbine', dcTable).sendKeys('Test turbine');
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(true);
+
+            // ToDo: add save / load test
         })
-        it('should have a proper Rov ops table', () => {
+        fit('should have a proper Rov ops table', () => {
             let opsTable = page.transfer.getDcTable();
             expect(opsTable.isPresent()).toBe(true, 'Rov ops table must be loaded');
             let addMissedTransferBtn = element(by.buttonText('Add line'))
@@ -148,11 +152,13 @@ describe('Sov dpr', () => {
             expect(removeLastMissedTransferBtn.isPresent()).toBe(true);
 
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(false);
+            removeLastMissedTransferBtn.click();
             page.getInputByPlaceholder('Location', opsTable).sendKeys('Test turbine');
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(true);
+            // ToDo: add save / load test
         })
 
-        fdescribe('turbine table', () => {
+        describe('turbine table', () => {
             let table: ElementFinder;
             beforeEach(() => {
                 table = page.transfer.getTurbineTable();
@@ -165,15 +171,162 @@ describe('Sov dpr', () => {
                 let row = turb.getRows(table);
 
                 expect(row.count()).toBeGreaterThan(0);
-                // let paxcargo = turb.getPaxCargo(row.first());
 
             })
-            fit('should allow adding heli transfers', () => {
+            it('should allow save pax in/out', () => {
                 let turb = page.transfer;
-                browser.sleep(5000)
-                let helirows = turb.getHeliRows(table);
-                expect(helirows.count()).toBe(5);
+                let row = turb.getRows(table).get(0);
+                let rndPaxCargo = turb.getRndpaxCargo();
+                let rowCnt = turb.getRows(table).count();
+                turb.setPaxCargo(row, rndPaxCargo);
+                turb.saveTurbineTransfers();
+
+                page.navigateTo('Transfers');
+                expect(turb.getRows(table).count()).toBe(rowCnt);
+                let newPax = turb.getPaxCargo(row);
+                expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+                expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+                expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+                expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
             })
+            it('should allow adding heli transfers', () => {
+                let turb = page.transfer;
+                let helirows = turb.getHeliRows(table);
+                helirows.each((_, index) => {
+                    if (index > 0 ) {
+                        helirows.first().element(by.buttonText('remove last transfer')).click();
+                    }
+                })
+                expect(helirows.count()).toBeGreaterThan(0);
+                helirows.first().element(by.buttonText('add helicopter transfer')).click();
+                let rndPaxCargo = turb.getRndpaxCargo();
+                turb.setPaxCargo(helirows.last(), rndPaxCargo);
+                turb.saveTurbineTransfers();
+
+                page.navigateTo('Transfers');
+                expect(helirows.count()).toBe(2);
+                let hrow = helirows.get(1);
+                let newPax = turb.getPaxCargo(hrow);
+                expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+                expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+                expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+                expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
+            })
+            it('should allow adding missed transfers', () => {
+                let turb = page.transfer;
+                let rows = turb.getMissedTransferRows(table);
+                rows.each((_, index) => {
+                    if (index > 0 ) {
+                        rows.first().element(by.buttonText('remove last transfer')).click();
+                    }
+                })
+                expect(rows.count()).toBeGreaterThan(0);
+                rows.first().element(by.buttonText('add missed transfer')).click();
+                let rndPaxCargo = turb.getRndpaxCargo();
+                turb.setPaxCargo(rows.last(), rndPaxCargo);
+                let rndLoc = page.rng.getRandomString();
+                rows.last().all(by.tagName('input')).get(0).clear();
+                rows.last().all(by.tagName('input')).get(0).sendKeys(rndLoc);
+                turb.saveTurbineTransfers();
+
+                page.navigateTo('Transfers');
+                expect(rows.count()).toBe(2);
+                let hrow = rows.get(1);
+                let newLoc = hrow.all(by.tagName('input')).get(0).getAttribute('value');
+                expect(newLoc).toBe(rndLoc);
+                let newPax = turb.getPaxCargo(hrow);
+                expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+                expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+                expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+                expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
+            })
+        })
+    })
+
+    describe('platform table', () => {
+        let table: ElementFinder;
+        beforeEach(() => {
+            page = new SovDprPage();
+            page.navigateToPlatform('Transfers');
+            table = page.transfer.getPlatformTable();
+        })
+
+        it('should load properly', () => {
+            let turb = page.transfer;
+            expect(page.getNanCount()).toBe(0);
+            expect(table.isDisplayed()).toBe(true);
+            expect(turb.getTurbineTable().isPresent()).toBe(false);
+            let row = turb.getRows(table);
+
+            expect(row.count()).toBeGreaterThan(0);
+
+        })
+        it('should allow save pax in/out', () => {
+            let turb = page.transfer;
+            let row = turb.getRows(table).get(0);
+            let rndPaxCargo = turb.getRndpaxCargo();
+            let rowCnt = turb.getRows(table).count();
+            turb.setPaxCargo(row, rndPaxCargo);
+            turb.savePlatformTransfers();
+
+            page.navigateToPlatform('Transfers');
+            expect(turb.getRows(table).count()).toBe(rowCnt);
+            let newPax = turb.getPaxCargo(row);
+            expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+            expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+            expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+            expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
+        })
+        it('should allow adding heli transfers', () => {
+            let turb = page.transfer;
+            let helirows = turb.getHeliRows(table);
+            helirows.each((_, index) => {
+                if (index > 0 ) {
+                    helirows.first().element(by.buttonText('remove last transfer')).click();
+                }
+            })
+            expect(helirows.count()).toBeGreaterThan(0);
+            helirows.first().element(by.buttonText('add helicopter transfer')).click();
+            let rndPaxCargo = turb.getRndpaxCargo();
+            turb.setPaxCargo(helirows.last(), rndPaxCargo);
+            turb.savePlatformTransfers();
+
+            page.navigateToPlatform('Transfers');
+            expect(helirows.count()).toBe(2);
+            let hrow = helirows.get(1);
+            let newPax = turb.getPaxCargo(hrow);
+            expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+            expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+            expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+            expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
+        })
+        it('should allow adding missed transfers', () => {
+            let turb = page.transfer;
+            let rows = turb.getMissedTransferRows(table);
+            rows.each((_, index) => {
+                if (index > 0 ) {
+                    rows.first().element(by.buttonText('remove last transfer')).click();
+                }
+            })
+            expect(rows.count()).toBeGreaterThan(0);
+            rows.first().element(by.buttonText('add missed transfer')).click();
+            let rndPaxCargo = turb.getRndpaxCargo();
+            turb.setPaxCargo(rows.last(), rndPaxCargo);
+            let rndLoc = page.rng.getRandomString();
+            rows.last().all(by.tagName('input')).get(0).clear();
+            rows.last().all(by.tagName('input')).get(0).sendKeys(rndLoc);
+            turb.savePlatformTransfers();
+
+            page.navigateToPlatform('Transfers');
+            expect(rows.count()).toBe(2);
+            let hrow = rows.get(1);
+            let newLoc = hrow.all(by.tagName('input')).get(0).getAttribute('value');
+            expect(newLoc).toBe(rndLoc);
+            let newPax = turb.getPaxCargo(hrow);
+            expect(newPax.paxIn).toBe(rndPaxCargo.paxIn);
+            expect(newPax.paxOut).toBe(rndPaxCargo.paxOut);
+            expect(newPax.cargoIn).toBe(rndPaxCargo.cargoIn);
+            expect(newPax.cargoOut).toBe(rndPaxCargo.cargoOut);
         })
     })
 
@@ -183,6 +336,11 @@ describe('Sov dpr', () => {
             page.navigateToEmpty('DPR input');
         })
 
+        it('should load both tables', () => {
+            let io = page.dprinput;
+            expect(io.dprInput.isDisplayed()).toBe(true)
+            expect(io.hseInput.isDisplayed()).toBe(true)
+        })
         it('should correctly enter the first table', () => {
             let io = page.dprinput;
             let clearArray = (elt: {rows: ElementArrayFinder, addline: ElementFinder}) => {
@@ -235,8 +393,10 @@ describe('Sov dpr', () => {
             let socText = page.rng.getRandomString();
             let tbText = page.rng.getRandomString();
             let socArea = io.getSocCards().first().element(by.tagName('textarea'));
+            expect(socArea.isPresent()).toBe(true);
             socArea.sendKeys(socText);
             let tbArea = io.getToolboxTalks().first().element(by.tagName('textarea'));
+            expect(tbArea.isPresent()).toBe(true);
             tbArea.sendKeys(tbText);
             io.saveSocToolbox();
 
@@ -289,6 +449,24 @@ describe('Sov dpr', () => {
 
             page.navigateToEmpty('DPR input');
             expect(remarkField.getAttribute('value')).toBe(remark);
+        })
+        fit('should save at least 1 hse input value', () => {
+            let hse = page.dprinput.hseInput;
+            expect(hse.isDisplayed()).toBe(true)
+            let cnt = hse.all(by.tagName('input')).first();
+            let txt = hse.all(by.tagName('textarea')).first();
+            let rndTxt = page.rng.getRandomString();
+            let rndCnt = page.rng.getRandomInt(1, 20);
+            cnt.clear();
+            cnt.sendKeys(rndCnt);
+            txt.clear();
+            txt.sendKeys(rndTxt);
+            hse.element(by.buttonText('Save HSE input')).click();
+            browser.waitForAngular();
+
+            page.navigateTo('DPR input');
+            expect(cnt.getText()).toBe(rndCnt.toString())
+            expect(txt.getText()).toBe(rndTxt.toString())
         })
     })
 

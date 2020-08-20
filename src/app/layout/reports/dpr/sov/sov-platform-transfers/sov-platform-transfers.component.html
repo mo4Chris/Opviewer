@@ -60,7 +60,7 @@
                 <td>{{platformTransfer.Hs}}</td>
               </tr>
             </ng-container>
-            <tr class="tableTotal">
+            <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
               <th>
                 Start time transfer
@@ -77,7 +77,7 @@
                   transfer</button>
               </td>
             </tr>
-            <tr *ngFor="let transfer of missedPaxCargo">
+            <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td><input type="text" min="0" class="form-control-sm col-sm-8" [value]="transfer.location"
                   [(ngModel)]="transfer.location" (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
               <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
@@ -133,7 +133,7 @@
                 </button>
               </td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
               <td><input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.hour"
                   [value]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">
@@ -260,7 +260,7 @@
                 <td>{{platformTransfer.Hs}}</td>
               </tr>
             </ng-container>
-            <tr class="tableTotal">
+            <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
               <th>
                 Start time transfer
@@ -268,7 +268,7 @@
               <th>Stop time transfer</th>
               <td colspan="8"></td>
             </tr>
-            <tr *ngFor="let transfer of missedPaxCargo">
+            <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td>{{transfer.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>

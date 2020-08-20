@@ -41,7 +41,7 @@ export abstract class E2ePageObject {
     }
     getInputByPlaceholder(txt: string, elt?: ElementFinder) {
         if (elt) {
-            elt.element(by.xpath('//input[@placeholder="' + txt + '"]'));
+            return elt.element(by.xpath('//input[@placeholder="' + txt + '"]'));
         } else {
             return element(by.xpath('//input[@placeholder="' + txt + '"]'));
         }
