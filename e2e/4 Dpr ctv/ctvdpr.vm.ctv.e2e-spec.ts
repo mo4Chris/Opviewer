@@ -1,5 +1,5 @@
 import { browser, element, by, ExpectedConditions, ElementFinder } from 'protractor';
-import { CtvDprPage } from './reports.ctv.dpr.po';
+import { CtvDprPage } from './ctvdpr.po';
 import { env } from 'process';
 import { elementEnd } from '@angular/core/src/render3';
 import { callbackify } from 'util';
