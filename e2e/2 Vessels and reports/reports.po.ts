@@ -1,9 +1,11 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 import { env } from 'process';
 
-var EC = ExpectedConditions;
+const EC = ExpectedConditions;
 
 export class ReportsPage {
+
+  getActi;
   navigateTo() {
     return browser.get(env.baseUrl + '/reports');
   }
@@ -12,14 +14,14 @@ export class ReportsPage {
     return browser.wait(EC.urlContains('/reports'), 5000);
   }
 
-  clickVesselsAndReportsLink(){
+  clickVesselsAndReportsLink() {
     return element(by.css('[href="/reports"]')).click();
   }
 
   checkVesselsHeader() {
     return element(by.className('tableTitle')).getText();
   }
- 
+
   clickSortButton(key: string) {
     return element(by.id(key)).click();
   }
@@ -29,8 +31,6 @@ export class ReportsPage {
   }
 
   getActiveVesselNames() {
-    return element.all(by.xpath("//tr/td[@id='vesselnameValue']"))
+    return element.all(by.xpath('//tr/td[@id=\'vesselnameValue\']'));
   }
-
-  getActi
 }

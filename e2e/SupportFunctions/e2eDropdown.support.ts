@@ -1,5 +1,5 @@
-import { ElementFinder, by, promise, $$, browser } from "protractor";
-import { filter } from "rxjs/operators";
+import { ElementFinder, by, promise, $$, browser } from 'protractor';
+import { filter } from 'rxjs/operators';
 
 // Support functions for e2e tests with ngbDropdown. Input for any
 // functions below should be the dropdown container.
@@ -19,13 +19,13 @@ export class E2eDropdownHandler {
     setValue(elt: ElementFinder, s: string) {
         this.open(elt);
         this.getOptions(elt).then(_opts => {
-            let idx = _opts.findIndex(_s => _s == s);
+            const idx = _opts.findIndex(_s => _s === s);
             if (idx >= 0) {
                 this._getOptions(elt).get(idx).click();
             } else {
-                fail('Could not select dropdown option "' + s + '" - it does not exist')
+                fail('Could not select dropdown option "' + s + '" - it does not exist');
             }
-        })
+        });
 
     }
     setValueByIndex(elt: ElementFinder, idx: number) {
@@ -62,28 +62,28 @@ export class E2eSelectHandler {
         this.open(elt);
         // this.getOptions(elt).then(opts => console.log(opts))
         this.getOptions(elt).then(_opts => {
-            let idx = _opts.findIndex(_s => _s == s);
+            const idx = _opts.findIndex(_s => _s === s);
             if (idx >= 0) {
                 this._getOptions(elt).get(idx).click();
             } else {
-                fail('Could not select dropdown option "' + s + '" - it does not exist')
+                fail('Could not select dropdown option "' + s + '" - it does not exist');
             }
-        })
+        });
     }
     setValueByIndex(elt: ElementFinder, idx: number) {
         this.open(elt);
         this._getOptions(elt).get(idx).click();
     }
     setNewOption(elt: ElementFinder) {
-        let opt = this.AsyncSetNewOption(elt);
+        const opt = this.AsyncSetNewOption(elt);
         browser.wait(opt, 2000).catch(() => {
-            console.error('Failed to select new option - reached 2s timeout')
+            console.error('Failed to select new option - reached 2s timeout');
         });
         return opt;
     }
 
     private _getButton(elt: ElementFinder) {
-        return elt.$$("option").filter(function (_option) {
+        return elt.$$('option').filter(function (_option) {
             return _option.isSelected();
         }).first();
     }
@@ -92,23 +92,23 @@ export class E2eSelectHandler {
     }
     private async AsyncSetNewOption(elt: ElementFinder) {
         this.open(elt);
-        let nonSelectedOptions = elt.$$("option")
-            .filter(e => e.getAttribute('value').then(v => v !== 'undefined'))
+        const nonSelectedOptions = elt.$$('option')
+            .filter(e => e.getAttribute('value').then(v => v !== 'undefined'));
             // .filter(o => o.isSelected().then(tf => !tf)); // This breaks the function...
         return await nonSelectedOptions.count().then(async c => {
-            let rnd = Math.floor( c * Math.random());
+            const rnd = Math.floor( c * Math.random());
             // let newOpt = log(nonSelectedOptions.get(rnd));
-            let newOpt = nonSelectedOptions.get(rnd);
+            const newOpt = nonSelectedOptions.get(rnd);
             await newOpt.click();
             return newOpt.getText();
-        })
+        });
     }
 }
 
-let log = (e: ElementFinder) => {
+const log = (e: ElementFinder) => {
     e.getText().then(t => {
-        console.log('Logger cb in e2eDropdown.support')
-        console.log(t)
-    })
+        console.log('Logger cb in e2eDropdown.support');
+        console.log(t);
+    });
     return e;
-}
+};
