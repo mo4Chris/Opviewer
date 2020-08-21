@@ -1,9 +1,10 @@
 import { browser, element, by, ElementFinder } from 'protractor';
 import { env } from 'process';
 import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
+import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 
 const dropdownHandler = new E2eDropdownHandler();
-export class CtvDprPage {
+export class CtvDprPage extends E2ePageObject {
     navigateTo() {
         browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789;date=737700');
     }

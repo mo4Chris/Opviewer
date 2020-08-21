@@ -48,9 +48,9 @@ export class CtvLtmPage extends E2ePageObject {
     return element(by.xpath('//app-utilization-graph/div'));
   }
 
-  // private getContainerByTitle() {
-  //   return element()
-  // }
+  getGraphContainers() {
+    return element.all(by.className('graphContainer'));
+  }
 }
 
 export class LtmDatePicker {

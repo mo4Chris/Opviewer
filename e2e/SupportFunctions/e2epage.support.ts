@@ -49,8 +49,12 @@ export abstract class E2ePageObject {
 
     validateNoConsoleLogs() {
       browser.manage().logs().get('browser').then(logs => {
-        console.log(logs);
-        expect(logs.length).toBe(0, 'Console logs were detected!');
+        const errorLogs = logs.filter(log => {
+          const tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
+          if (tf) {console.log(log); }
+          return tf;
+        });
+        expect(errorLogs.length).toBe(0, 'Console errors were detected!');
     });
     }
 }
