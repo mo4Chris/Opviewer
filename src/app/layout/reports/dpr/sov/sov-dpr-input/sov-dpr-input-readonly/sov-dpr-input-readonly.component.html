@@ -290,20 +290,18 @@
           <th>Start DP</th>
           <th>Stop DP</th>
         </tr>
-        <ng-container *ngFor="let _dp of dp.Array">
-          <tr>
-            <td>
-              <div class="tableRow">
-                {{_dp.from.hour}}:{{_dp.from.minutes}}
-              </div>
-            </td>
-            <td>
-              <div class="tableRow">
-                {{_dp.to.hour}}:{{_dp.to.minutes}}
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+        <tr name="dpRow" *ngFor="let _dp of dp.Array">
+          <td>
+            <div class="tableRow">
+              {{_dp.from.hour}}:{{_dp.from.minutes}}
+            </div>
+          </td>
+          <td>
+            <div class="tableRow">
+              {{_dp.to.hour}}:{{_dp.to.minutes}}
+            </div>
+          </td>
+        </tr>
         <tr *ngIf="dp.Array.length==0">
           <td colspan="4"><i>No dp usage entered</i></td>
         </tr>

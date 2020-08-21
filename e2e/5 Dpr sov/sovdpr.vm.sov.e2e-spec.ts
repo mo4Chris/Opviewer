@@ -22,7 +22,7 @@ describe('Sov dpr', () => {
             expect(noDataMsg.isDisplayed()).toBe(true);
             expect(noDataMsg.getText()).toMatch('There is no map available for the selected day and vessel.');
         });
-        fit('should disable the summary tab', () => {
+        it('should disable the summary tab', () => {
             page.clickTabByName('Transfers');
             let tab = page.getTabByName('Summary');
             expect(page.tabIsEnabled(tab)).toBe(false, 'Summary tab holds no usefull information w/out data')
@@ -90,6 +90,8 @@ describe('Sov dpr', () => {
 
         it('should be selected on intialization', () => {
             expect(page.getActiveTab().getText()).toMatch('Summary');
+            let tab = page.getTabByName('Summary');
+            expect(page.tabIsEnabled(tab)).toBe(true)
         });
         it('should not show NaNs', () => {
             expect(page.getNanCount()).toBe(0);
@@ -134,29 +136,31 @@ describe('Sov dpr', () => {
         it('should have a proper DC table', () => {
             const dcTable = page.transfer.getDcTable();
             expect(dcTable.isPresent()).toBe(true, 'DC table must be loaded');
-            const addMissedTransferBtn = element(by.buttonText('Add missed transfer'));
+            const addMissedTransferBtn = dcTable.element(by.buttonText('Add missed transfer'));
             expect(addMissedTransferBtn.isPresent()).toBe(true);
-            const removeLastMissedTransferBtn = element(by.buttonText('Remove last transfer'));
+            const removeLastMissedTransferBtn = dcTable.element(by.buttonText('Remove last transfer'));
             expect(removeLastMissedTransferBtn.isPresent()).toBe(true);
 
-            expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(false);
+            expect(page.transfer.getDcSaveBtn().isPresent()).toBe(false);
             removeLastMissedTransferBtn.click();
             page.getInputByPlaceholder('turbine', dcTable).sendKeys('Test turbine');
             expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(true);
             // ToDo: add save / load test
         });
         it('should have a proper Rov ops table', () => {
-            const opsTable = page.transfer.getDcTable();
+            const opsTable = page.transfer.getRovTable();
             expect(opsTable.isPresent()).toBe(true, 'Rov ops table must be loaded');
-            const addMissedTransferBtn = element(by.buttonText('Add line'));
-            expect(addMissedTransferBtn.isPresent()).toBe(true);
-            const removeLastMissedTransferBtn = element(by.buttonText('remove last'));
-            expect(removeLastMissedTransferBtn.isPresent()).toBe(true);
+            const addMissedTransferBtn = opsTable.element(by.buttonText('add line'));
+            expect(addMissedTransferBtn.isPresent()).toBe(true, 'Must have add line btn');
+            const removeLastMissedTransferBtn = opsTable.element(by.buttonText('remove last'));
+            expect(removeLastMissedTransferBtn.isPresent()).toBe(true, 'Must have remove last line btn');
 
-            expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(false);
             removeLastMissedTransferBtn.click();
-            page.getInputByPlaceholder('Location', opsTable).sendKeys('Test turbine');
-            expect(page.transfer.getDcSaveBtn().isDisplayed()).toBe(true);
+            addMissedTransferBtn.click();
+            let LocationInput = page.getInputByPlaceholder('Location', opsTable)
+            expect(LocationInput.isPresent()).toBe(true, 'Location input must be present')
+            LocationInput.sendKeys('Test turbine');
+            expect(page.transfer.getRovSaveBtn().isPresent()).toBe(true, 'Save btn should be enabled');
             // ToDo: add save / load test
         });
 
@@ -168,7 +172,7 @@ describe('Sov dpr', () => {
 
             it('should load properly', () => {
                 const turb = page.transfer;
-                expect(table.isDisplayed()).toBe(true);
+                expect(table.isPresent()).toBe(true);
                 expect(turb.getPlatformTable().isPresent()).toBe(false);
                 const row = turb.getRows(table);
                 expect(row.count()).toBeGreaterThan(0);
@@ -433,7 +437,33 @@ describe('Sov dpr', () => {
             expect(cateringInput.getAttribute('value')).toBe(rndMeals);
         });
         it('should have a functioning dp usage', () => {
-            // Geen zin in
+            const io = page.dprinput;
+            let rng = page.rng;
+            const table = io.getDprInputTable(4);
+
+            let lines = table.all(by.name('dpRow'));
+            let addLine = table.element(by.buttonText('add line'));
+            let rmLine = table.element(by.buttonText('remove last'));
+            lines.each(() => {
+                rmLine.click();
+            })
+            expect(lines.count()).toBe(0);
+            addLine.click();
+            expect(lines.count()).toBe(1);
+
+            let start = rng.getRandomInt(11, 15);
+            let stop = rng.getRandomInt(16, 23);
+            let inputs = lines.first().all(by.tagName('select'));
+            // Technically these are select elements - might break
+            inputs.get(0).sendKeys(start)
+            inputs.get(2).sendKeys(stop)
+            table.element(by.buttonText('Save')).click();
+            browser.waitForAngular();
+
+            page.navigateToEmpty('DPR input');
+            expect(lines.count()).toBe(1);
+            expect(inputs.get(0).getAttribute('value')).toBe(start.toString());
+            expect(inputs.get(2).getAttribute('value')).toBe(stop.toString());
         });
         it('should have proper remarks', () => {
             const io = page.dprinput;
@@ -448,11 +478,12 @@ describe('Sov dpr', () => {
             page.navigateToEmpty('DPR input');
             expect(remarkField.getAttribute('value')).toBe(remark);
         })
-        fit('should save at least 1 hse input value', () => {
+        it('should save at least 1 hse input value', () => {
             let hse = page.dprinput.hseInput;
             expect(hse.isDisplayed()).toBe(true)
-            let cnt = hse.all(by.tagName('input')).first();
-            let txt = hse.all(by.tagName('textarea')).first();
+            let testFieldIndex = page.rng.getRandomInt(0, 21);
+            let cnt = hse.all(by.tagName('input')).get(testFieldIndex);
+            let txt = hse.all(by.tagName('textarea')).get(testFieldIndex);
             let rndTxt = page.rng.getRandomString();
             let rndCnt = page.rng.getRandomInt(1, 20);
             cnt.clear();
@@ -462,9 +493,11 @@ describe('Sov dpr', () => {
             hse.element(by.buttonText('Save HSE input')).click();
             browser.waitForAngular();
 
-            page.navigateTo('DPR input');
-            expect(cnt.getText()).toBe(rndCnt.toString())
-            expect(txt.getText()).toBe(rndTxt.toString())
+            page.navigateToEmpty('DPR input');
+            let newCnt = cnt.getAttribute('value');
+            let newTxt = txt.getAttribute('value');
+            expect(newCnt).toBe(rndCnt.toString(), 'Count does not match')
+            expect(newTxt).toBe(rndTxt, 'Text does not match')
         })
     })
 
@@ -493,3 +526,14 @@ describe('Sov dpr', () => {
         });
     });
 });
+
+const log = (elt: ElementFinder) => {
+    elt.getText().then(e => {
+        console.log(e);
+    });
+    return elt;
+}
+
+const sleep = (timeout: number) => {
+    browser.sleep(timeout)
+}

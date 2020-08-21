@@ -450,46 +450,44 @@
           <th>Start DP</th>
           <th>Stop DP</th>
         </tr>
-        <ng-container *ngFor="let _dp of dp.Array">
-          <tr>
-            <td>
-              <div class="tableRow">
-                HH:
-                <!-- ToDo: This does not allow the 24:00 option-->
-                <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let hour of allHours" [value]="hour">
-                    {{hour}}
-                  </option>
-                </select>
-                MM:
-                <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                    {{minutes}}
-                  </option>
-                </select>
-              </div>
-            </td>
-            <td>
-              <div class="tableRow">
-                HH:
-                <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let hour of allHours" [value]="hour">
-                    {{hour}}
-                  </option>
-                </select>
-                MM:
-                <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                    {{minutes}}
-                  </option>
-                </select>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+        <tr name="dpRow" *ngFor="let _dp of dp.Array">
+          <td>
+            <div class="tableRow">
+              HH:
+              <!-- ToDo: This does not allow the 24:00 option-->
+              <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let hour of allHours" [value]="hour">
+                  {{hour}}
+                </option>
+              </select>
+              MM:
+              <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                  {{minutes}}
+                </option>
+              </select>
+            </div>
+          </td>
+          <td>
+            <div class="tableRow">
+              HH:
+              <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let hour of allHours" [value]="hour">
+                  {{hour}}
+                </option>
+              </select>
+              MM:
+              <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                  {{minutes}}
+                </option>
+              </select>
+            </div>
+          </td>
+        </tr>
         <tr class="plsdonotprintthisforfsake">
           <td colspan="2">
             <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;" type="button">add

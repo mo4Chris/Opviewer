@@ -82,7 +82,9 @@ export class SovDprPage extends E2ePageObject {
         return element(by.xpath('//li/a[contains(@class, \'active\')]'));
     }
     async tabIsEnabled(tab: ElementFinder) {
-        return tab.getAttribute('class').then(c => c.match('disabled') !== null);
+        return tab.getAttribute('ariaDisabled').then(c => {
+            return c === 'false'
+        });
     }
     clickTabByName(name: string) {
         this.clickTab(this.getTabByName(name));
@@ -141,6 +143,9 @@ class SovDprTransferTab {
     }
     getRovTable() {
         return this.getContainerByTitle('ROV Operations');
+    }
+    getRovSaveBtn() {
+        return this.getRovTable().element(by.buttonText('Save'));
     }
     getTurbineTable() {
         return element(by.id('sovTurbineTransfers'));
