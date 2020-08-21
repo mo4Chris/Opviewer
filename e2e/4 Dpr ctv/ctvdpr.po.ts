@@ -1,8 +1,8 @@
-import { browser, element, by, ElementFinder } from "protractor";
-import { env } from "process";
-import { E2eDropdownHandler } from "../../SupportFunctions/e2eDropdown.support";
+import { browser, element, by, ElementFinder } from 'protractor';
+import { env } from 'process';
+import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
 
-var dropdownHandler = new E2eDropdownHandler();
+const dropdownHandler = new E2eDropdownHandler();
 export class CtvDprPage {
     navigateTo() {
         browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789;date=737700');
@@ -25,11 +25,11 @@ export class CtvDprPage {
     }
 
     getDate() {
-        throw ('To be done!')
+        throw new Error(('To be done!'));
     }
 
     getPrintFullButton() {
-        return element(by.buttonText('Print DPR Full'))
+        return element(by.buttonText('Print DPR Full'));
     }
 
     getCurrentPrintMode() {
@@ -37,7 +37,7 @@ export class CtvDprPage {
     }
 
     getEltsWithText(txt: string) {
-        return element.all(by.xpath("//*[contains(text(),'" + txt + "')]"))
+        return element.all(by.xpath('//*[contains(text(),\'' + txt + '\')]'));
     }
 
     getFuelInput() {
@@ -57,7 +57,7 @@ export class CtvDprPage {
     }
 
     clickPrintButton(printButton: ElementFinder) {
-        let printIsClicked = browser.executeAsyncScript(function (elm, callback) {
+        const printIsClicked = browser.executeAsyncScript(function (elm, callback) {
             function listener() {
                 callback(true);
             }
@@ -68,7 +68,7 @@ export class CtvDprPage {
     }
 
     getAllDockings() {
-        return element.all(by.xpath('//app-ctv-turbine-transfer/table/tbody/tr'))
+        return element.all(by.xpath('//app-ctv-turbine-transfer/table/tbody/tr'));
     }
 
     getFirstDockingEntry() {
@@ -81,22 +81,22 @@ export class CtvDprPage {
 
     getPaxInputFromDockingRow(row: ElementFinder) {
         const paxIndex = 7;
-        return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).first())
+        return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).first());
     }
 
     getPaxOutputFromDockingRow(row: ElementFinder) {
         const paxIndex = 7;
-        return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).last())
+        return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).last());
     }
 
     getCargoInputFromDockingRow(row: ElementFinder) {
         const cargoIndex = 8;
-        return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).first())
+        return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).first());
     }
 
     getCargoOutputFromDockingRow(row: ElementFinder) {
         const cargoIndex = 8;
-        return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).last())
+        return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).last());
     }
 
     getCommentButtonFromDockingRow(row: ElementFinder) {
@@ -109,7 +109,7 @@ export class CtvDprPage {
 
     selectDropdownbyNum(element: ElementFinder, optionNum: number): void {
         dropdownHandler.setValueByIndex(element, optionNum);
-    };
+    }
 
     getDropdownValue(dropdown: ElementFinder) {
         return dropdownHandler.getValue(dropdown);
