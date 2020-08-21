@@ -46,4 +46,11 @@ export abstract class E2ePageObject {
             return element(by.xpath('//input[@placeholder="' + txt + '"]'));
         }
     }
+
+    validateNoConsoleLogs() {
+      browser.manage().logs().get('browser').then(logs => {
+        console.log(logs);
+        expect(logs.length).toBe(0, 'Console logs were detected!');
+    });
+    }
 }
