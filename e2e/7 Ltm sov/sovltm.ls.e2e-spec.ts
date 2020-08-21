@@ -1,11 +1,12 @@
-import { CtvLtmPage } from './ctvltm.po';
+import { SovLtmPage } from './sovltm.po';
 import { browser, by } from 'protractor';
 
 
-describe('Ctv longterm module', () => {
-  let page: CtvLtmPage;
+
+describe('Sov longterm module', () => {
+  let page: SovLtmPage;
   beforeEach(() => {
-    page = new CtvLtmPage();
+    page = new SovLtmPage();
     page.navigateTo();
   });
   afterEach(() => {
@@ -17,6 +18,7 @@ describe('Ctv longterm module', () => {
     expect(page.dp.getLastMonthBtn().isEnabled()).toBe(true);
     expect(page.dp.getNextMonthBtn().isEnabled()).toBe(false);
     expect(page.getVesselList().count()).toBeGreaterThan(0);
+    expect(page.getKpiCard().isPresent()).toBe(false, 'BMO logistic specialist does not have KPI permission');
     expect(page.dp.isOpen()).toBe(false);
     expect(page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-\d{2}/);
   });
@@ -25,6 +27,7 @@ describe('Ctv longterm module', () => {
     expect(page.getNanCount()).toBe(0);
     expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
     expect(page.getVesselList().count()).toBeGreaterThan(0);
+    expect(page.getKpiCard().isPresent()).toBe(false, 'KPI should not be enabled for BMO logistic specialist');
     expect(page.dp.isOpen()).toBe(false, 'Date picker should be closed');
     expect(page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-01/);
   });
@@ -42,7 +45,10 @@ describe('Ctv longterm module', () => {
   it('should initialize correctly when data is present', () => {
     page.setDateRange({year: 2020, month: 1, day: 1}, {year: 2020, month: 2, day: 1});
     expect(page.getNanCount()).toBe(0, 'Can be no nans!');
-    expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');    expect(page.getGraphContainers().count()).toBeGreaterThan(3);
+    expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
+    expect(page.getUtilizationGraph().isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
+    expect(page.getUtilizationGraph().element(by.tagName('canvas')).isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
+    expect(page.getGraphContainers().count()).toBeGreaterThan(3);
   });
 });
 

@@ -8,7 +8,7 @@ export class CtvLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get(env.baseUrl + '/reports/longterm;mmsi=987654321;vesselName=SOV%20example');
+    browser.get(env.baseUrl + '/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {
@@ -40,12 +40,6 @@ export class CtvLtmPage extends E2ePageObject {
     this.getVesselList().filter((elt, cnt) => {
       return true;
     });
-  }
-  getKpiCard() {
-    return element(by.xpath('//app-siemens-kpi-overview/div/div/div'));
-  }
-  getUtilizationGraph() {
-    return element(by.xpath('//app-utilization-graph/div'));
   }
 
   getGraphContainers() {
