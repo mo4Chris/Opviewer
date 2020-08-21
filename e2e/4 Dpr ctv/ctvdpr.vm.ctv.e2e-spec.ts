@@ -11,6 +11,9 @@ const dropdownHandler = new E2eDropdownHandler();
 const e2eRng = new E2eRandomTools();
 describe('CTV dpr', () => {
     let page: CtvDprPage;
+    afterEach(() => {
+      page.validateNoConsoleLogs();
+    });
 
     describe('Should not fail without data', () => {
         beforeEach(() => {

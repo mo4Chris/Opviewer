@@ -1,5 +1,5 @@
 import { CtvLtmPage } from './ctvltm.po';
-import { browser } from 'protractor';
+import { browser, by } from 'protractor';
 
 
 
@@ -47,6 +47,8 @@ describe('Ctv longterm module', () => {
     expect(page.getNanCount()).toBe(0, 'Can be no nans!');
     expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
     expect(page.getUtilizationGraph().isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
+    expect(page.getUtilizationGraph().element(by.tagName('canvas')).isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
+    expect(page.getGraphContainers().count()).toBeGreaterThan(3);
   });
 });
 
