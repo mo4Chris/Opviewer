@@ -8,7 +8,7 @@ export class CtvLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get(env.baseUrl + '/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
+    browser.get('/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {

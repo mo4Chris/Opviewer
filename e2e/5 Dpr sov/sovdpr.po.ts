@@ -12,25 +12,25 @@ export class SovDprPage extends E2ePageObject {
     dprinput = new SovDprInputTab();
 
     navigateTo(tab?: string) {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=987654321;date=737700');
+        browser.get('/reports/dpr;mmsi=987654321;date=737700');
         if (tab) {
             this.clickTabByName(tab);
         }
     }
     navigateToEmpty(tab?: string) {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=987654321;date=737701');
+        browser.get('/reports/dpr;mmsi=987654321;date=737701');
         if (tab) {
             this.clickTabByName(tab);
         }
     }
     navigateToLatest(tab?: string) {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=987654321');
+        browser.get('/reports/dpr;mmsi=987654321');
         if (tab) {
             this.clickTabByName(tab);
         }
     }
     navigateToPlatform(tab?: string) {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=987654321;date=737622');
+        browser.get('/reports/dpr;mmsi=987654321;date=737622');
         if (tab) {
             this.clickTabByName(tab);
         }

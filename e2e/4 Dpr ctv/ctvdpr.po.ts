@@ -6,15 +6,15 @@ import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 const dropdownHandler = new E2eDropdownHandler();
 export class CtvDprPage extends E2ePageObject {
     navigateTo() {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789;date=737700');
+        browser.get('/reports/dpr;mmsi=123456789;date=737700');
     }
 
     navigateToEmpty() {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789;date=737701');
+        browser.get('/reports/dpr;mmsi=123456789;date=737701');
     }
 
     navigateToLatest() {
-        browser.get(env.baseUrl + '/reports/dpr;mmsi=123456789');
+        browser.get('/reports/dpr;mmsi=123456789');
     }
 
     getUrl() {

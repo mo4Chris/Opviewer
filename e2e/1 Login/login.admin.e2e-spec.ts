@@ -1,11 +1,13 @@
 import { LoginPage } from './login.po';
 import { browser, element, by } from 'protractor';
+import { env } from 'process';
 
 describe('Admin login page', () => {
   let page: LoginPage;
 
   beforeEach(() => {
     page = new LoginPage();
+    console.log(env);
   });
 
   it('should display welcome message', () => {

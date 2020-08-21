@@ -9,7 +9,7 @@ export class SovLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get(env.baseUrl + '/reports/longterm;mmsi=987654321;vesselName=SOV%20example');
+    browser.get('/reports/longterm;mmsi=987654321;vesselName=SOV%20example');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {

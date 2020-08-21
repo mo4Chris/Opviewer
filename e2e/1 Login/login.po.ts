@@ -8,7 +8,7 @@ export class LoginPage {
 
 
   navigateTo() {
-    return browser.get(env.baseUrl + '/login');
+    return browser.get('/login');
   }
 
   getParagraphText() {

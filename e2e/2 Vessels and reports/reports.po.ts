@@ -7,7 +7,7 @@ export class ReportsPage {
 
   getActi;
   navigateTo() {
-    return browser.get(env.baseUrl + '/reports');
+    return browser.get('/reports');
   }
 
   pageCheckReports() {
