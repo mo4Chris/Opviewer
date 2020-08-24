@@ -7,7 +7,6 @@ describe('Admin login page', () => {
 
   beforeEach(() => {
     page = new LoginPage();
-    console.log(env);
   });
 
   it('should display welcome message', () => {
