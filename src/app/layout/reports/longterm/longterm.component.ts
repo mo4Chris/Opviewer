@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { routerTransition } from '@app/router.animations';
-
-
 import * as moment from 'moment-timezone';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDate, NgbCalendar, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -10,13 +8,11 @@ import { UserService } from '@app/shared/services/user.service';
 import * as Chart from 'chart.js';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
-import { LongtermCTVComponent } from './ctv/longtermCTV.component';
-import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -33,17 +29,12 @@ export class LongtermComponent implements OnInit {
     private calendar: NgbCalendar,
     private routerService: RouterService,
     private userService: UserService,
-    private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
     private permission: PermissionService,
-  ) {
-    this.fromDate = calendar.getPrev(calendar.getPrev(calendar.getToday(), 'd', 1), 'm', 1);
-    this.toDate = calendar.getPrev(calendar.getToday(), 'd', 1);
-  }
+  ) {}
 
-  maxDate = this.getMaxDate();
-  vesselObject: LongtermVesselObjectModel = {
+  public vesselObject: LongtermVesselObjectModel = {
     mmsi: [this.getMMSIFromParameter()],
     vesselName: [this.getVesselNameFromParameter()],
     dateMin: this.getMatlabDateLastMonth(),
@@ -51,8 +42,7 @@ export class LongtermComponent implements OnInit {
     dateMax: this.getMatlabDateYesterday(),
     dateNormalMax: this.getJSDateYesterdayYMD()
   };
-
-  multiSelectSettings = {
+  public multiSelectSettings = {
     idField: 'mmsi',
     textField: 'nicename',
     allowSearchFilter: true,
@@ -60,7 +50,7 @@ export class LongtermComponent implements OnInit {
     unSelectAllText: 'UnSelect All',
     singleSelection: false,
   };
-  fieldSelectSettings = {
+  public fieldSelectSettings = {
     allowSearchFilter: true,
     singleSelection: true,
     closeDropDownOnSelection: true,
@@ -68,15 +58,16 @@ export class LongtermComponent implements OnInit {
     idField: '_id',
   };
 
+  public fromDate = this.calendar.getPrev(this.calendar.getPrev(this.calendar.getToday(), 'd', 1), 'm', 1);
+  public toDate = this.calendar.getPrev(this.calendar.getToday(), 'd', 1);
+  private _fromDate = copyNgbDate(this.fromDate);
+  private _toDate = copyNgbDate(this.toDate);
+  private maxDate = this.getMaxDate();
   vesselType: string;
   hoveredDate: NgbDate;
-  fromDate: NgbDate;
-  toDate: NgbDate;
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
   Vessels: VesselModel[] = [];
-  showContent: boolean;
-  loaded = { Vessels: false, vesselType: false };
   fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
   selectedField = '';
 
@@ -88,50 +79,32 @@ export class LongtermComponent implements OnInit {
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
-        Chart.pluginService.register(ChartAnnotation);
-        this.newService.getFieldsWithWaveSourcesByCompany().subscribe(fields => {
-          this.fieldsWithWavedata = fields;
-          this.fieldsWithWavedata.forEach(elt => {
-            elt.text = elt.site + ' - ' + elt.name;
-          });
-        });
         this.noPermissionForData = false;
-        if (this.permission.admin) {
-          this.newService.getVessel().subscribe(data => {
-            this.Vessels = data;
-            this.loaded.Vessels = true;
-          }, null, () => this.testIfAllInit());
-        } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-            this.Vessels = data;
-            this.loaded.Vessels = true;
-          }, null, () => this.testIfAllInit());
-        }
-        if (this.vesselObject.mmsi.length > 0) {
-          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] }).subscribe(
-            validatedValue => {
-              if (validatedValue.length === 1) {
-                this.vesselType = validatedValue[0].operationsClass;
-              } else {
-                this.showContent = true;
-                this.noPermissionForData = true;
-              }
-              this.loaded.vesselType = true;
-            }, null, () => this.testIfAllInit());
-        }
+        Chart.pluginService.register(ChartAnnotation);
+        forkJoin(
+          this.newService.getFieldsWithWaveSourcesByCompany(),
+          (this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }])),
+          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
+        ).subscribe(([fields, vessels, validatedValue]) => {
+          this.vesselType = validatedValue[0].operationsClass;
+          if (validatedValue.length === 1) {
+            this.vesselType = validatedValue[0].operationsClass;
+            this.fieldsWithWavedata = fields;
+            this.fieldsWithWavedata.forEach(elt => {
+              elt.text = elt.site + ' - ' + elt.name;
+            });
+            this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
+            this.buildPageWithCurrentInformation();
+          } else {
+            this.noPermissionForData = true;
+          }
+        })
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
         this.routerService.routeToLogin();
       }
     });
-  }
-
-  testIfAllInit() {
-    if (this.loaded.Vessels && this.loaded.vesselType) {
-      this.Vessels = this.Vessels.filter(elt => elt.operationsClass === this.vesselType);
-      this.buildPageWithCurrentInformation();
-    }
   }
 
   onSelectVessel() {
@@ -159,7 +132,6 @@ export class LongtermComponent implements OnInit {
         mmsiArray.push(this.dropdownValues[_j].mmsi);
       }
     }
-
     this.vesselObject = { ... this.vesselObject, ... {
       mmsi: mmsiArray,
       dateMin:  dateMinAsMatlab,
@@ -168,60 +140,54 @@ export class LongtermComponent implements OnInit {
       dateNormalMax: this.MatlabDateToJSDateYMD(dateMaxAsMatlab)
     }};
     this.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      this.updateWavedataForChild();
-    }, 1000);
   }
 
   buildPageWithCurrentInformation() {
     this.datePickerValue = this.fromDate;
   }
 
-  childLoaded() { // Runs when CTV or SOV child is done loading data
-    if (this.vesselType === 'CTV') {
-      // Build CTV module
-    } else if (this.vesselType === 'SOV' || this.vesselType === 'OSV') {
-      // Build SOV module
-    }
-  }
-
   // Vessel selection modal
   openVesselModal(content) {
   }
-
   // Date selection modal
   openModal(content) {
     this.modalReference = this.modalService.open(content);
   }
-
   closeModal() {
     this.modalReference.close();
   }
-
   onDateSelection(date: NgbDate) {
+    // Triggered when pressing a button in the LTM module - not necessarily on confirm
     if (!this.fromDate && !this.toDate) {
-      this.fromDate = date;
-    } else if (this.fromDate && !this.toDate && date.after(this.fromDate)) {
-      this.toDate = date;
+      this._fromDate = date;
+    } else if (this._fromDate && !this._toDate && date.after(this._fromDate)) {
+      this._toDate = date;
     } else {
-      this.toDate = null;
-      this.fromDate = date;
+      this._toDate = null;
+      this._fromDate = date;
     }
   }
+  onDateCancel() {
+    this._fromDate = copyNgbDate(this.fromDate);
+    this._toDate = copyNgbDate(this.toDate);
+  }
+  onDateConfirm() {
+    this.closeModal();
+    this.fromDate = copyNgbDate(this._fromDate);
+    this.toDate = copyNgbDate(this._toDate);
+    this.searchTransfersByNewSpecificDate();
+  }
+  public isHovered = (date: NgbDate) => this._fromDate && !this._toDate && this.hoveredDate && date.after(this._fromDate) && date.before(this.hoveredDate);
+  public isInside = (date: NgbDate) => date.after(this._fromDate) && date.before(this._toDate);
+  public isRange = (date: NgbDate) => date.equals(this._fromDate) || date.equals(this._toDate) || this.isInside(date) || this.isHovered(date);
 
   navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
     this.routerService.routeToDPR({ mmsi: vesselObject.mmsi, date: vesselObject.matlabDate });
   }
-
-  isHovered = (date: NgbDate) => this.fromDate && !this.toDate && this.hoveredDate && date.after(this.fromDate) && date.before(this.hoveredDate);
-  isInside = (date: NgbDate) => date.after(this.fromDate) && date.before(this.toDate);
-  isRange = (date: NgbDate) => date.equals(this.fromDate) || date.equals(this.toDate) || this.isInside(date) || this.isHovered(date);
-
   selectField(event: { _id: string, text: string, isDisabled: boolean }) {
     this.selectedField = event._id;
     this.updateWavedataForChild();
   }
-
   deselectField(event: string) {
     this.selectedField = '';
     this.updateWavedataForChild();
@@ -248,7 +214,6 @@ export class LongtermComponent implements OnInit {
     this.toDate.day = 1;
     this.searchTransfersByNewSpecificDate();
   }
-
   switchMonthForward() {
     const nextMonth = new NgbDate(this.fromDate.year, this.fromDate.month, 1);
     if (this.fromDate.month === 12) {
@@ -273,10 +238,7 @@ export class LongtermComponent implements OnInit {
     }
     this.toDate.day = 1;
     if (this.toDate.after(this.maxDate)) {
-      // Cant copy maxdate here since otherwise maxDate would start changing when moving back months
-      this.toDate.year = this.maxDate.year;
-      this.toDate.month = this.maxDate.month;
-      this.toDate.day = this.maxDate.day;
+      this.toDate = copyNgbDate(this.maxDate);
     }
     this.searchTransfersByNewSpecificDate();
   }
@@ -317,21 +279,20 @@ export class LongtermComponent implements OnInit {
   unixEpochtoMatlabDate(epochDate) {
     return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
   }
+  MatlabDateToUnixEpochViaDate(serial) {
+    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+  }
   getMMSIFromParameter() {
     let mmsi: number;
     this.route.params.subscribe(params => {
       mmsi = parseFloat(params.mmsi);
     });
-
     return mmsi;
   }
   getVesselNameFromParameter() {
-    let vesselName;
+    let vesselName: string;
     this.route.params.subscribe(params => vesselName = params.vesselName);
     return vesselName;
-  }
-  MatlabDateToUnixEpochViaDate(serial) {
-    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
   }
 }
 
@@ -342,4 +303,8 @@ export interface LongtermVesselObjectModel {
   dateMax: number;
   dateNormalMin: string;
   dateNormalMax: string;
+}
+
+function copyNgbDate(date: NgbDate) {
+  return new NgbDate(date.year, date.month, date.day);
 }

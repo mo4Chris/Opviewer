@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { LongtermVesselObjectModel } from '@app/layout/reports/longterm/longterm.component';
 import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
@@ -17,20 +17,11 @@ const STATUS_WEATHER_OTHER = 5;
 const STATUS_PORTCALL_PLANNED = 6;
 const STATUS_PORTCALL_UNPLANNED = 7;
 
-const EMPTY_DPR = {
-  standBy: [],
-  vesselNonAvailability: [],
-  weatherDowntime: [],
-  liquids: {
-    fuel: {loaded: 0, consumed: 0}
-  }
-
-};
-
 @Component({
   selector: 'app-siemens-kpi-overview',
   templateUrl: './siemens-kpi-overview.component.html',
-  styleUrls: ['./siemens-kpi-overview.component.scss']
+  styleUrls: ['./siemens-kpi-overview.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SiemensKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
@@ -66,10 +57,9 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
   }
 
-  ngOnChanges(change) {
+  ngOnChanges() {
     this.loadData();
   }
-
 
   loadData() {
     const makeRequest = (reqFields: string[]) => {
@@ -99,7 +89,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
         const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
         const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-        
         const _kpis = [];
         dpr.forEach(_dpr => {
           const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
@@ -129,10 +118,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     } else {
       numDaysInMonth = dprs.month.numDays;
     }
-
     for (let i = 0; i < dprs.date.length; i++) {
       const ops = new Array(4 * 24).fill(STATUS_WORKING);
-
       this.applyDowntime(ops, STATUS_STANDBY, dprs.standBy[i]);
       this.applyDowntime(ops, STATUS_TECHNICAL_DOWNTIME, dprs.vesselNonAvailability[i]);
       this.applyDowntime(ops, STATUS_WEATHER_ALLVESSEL, dprs.weatherDowntime[i], (x) => x.vesselsystem === 'Whole vessel');
@@ -162,7 +149,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       fuelUsed += +dprs.liquids[i].fuel.consumed || 0;
       maintainanceOps += dprs.vesselNonAvailability[i] ? dprs.vesselNonAvailability[i].length : 0;
     }
-
     let paxTransfer = 0, paxGangwayTransfer = 0, cargoOps = 0;
     if (turbine) {
       paxTransfer += turbine.paxIn.reduce((prev, curr) => curr ? prev + curr : prev, 0);
@@ -207,7 +193,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
       });
     }
-
     kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
     kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
     kpi.totalUtilHours = Math.round(utilHours);
@@ -254,7 +239,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       return '-';
     }
   }
-
   private parseInput(n: number | string) : number {
     if (n) {
       if (typeof(n) === 'number') {
@@ -268,14 +252,17 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       return 0;
     }
   }
-
   private parsePaxDefaults(transfers: any[]) {
     if (transfers) {
       transfers.forEach(_transfer => {
         if (_transfer.paxIn) {
           _transfer.paxIn.forEach((pax: number, _i: number)  => {
             if (pax == null) {
-              _transfer.paxIn[_i] = +_transfer.default_paxIn[_i] || 0;
+              if (_transfer.default_paxIn) {
+                _transfer.paxIn[_i] = +_transfer.default_paxIn[_i] || 0;
+              } else {
+                _transfer.paxIn[_i] = 0;
+              }
             }
           });
         } else {
@@ -284,7 +271,11 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         if (_transfer.paxOut) {
           _transfer.paxOut.forEach((pax: number, _i: number)  => {
             if (pax && !(pax >= 0)) {
-              _transfer.paxOut[_i] = +_transfer.default_paxOut[_i] || 0;
+              if (_transfer.default_paxOut) {
+                _transfer.paxOut[_i] = +_transfer.default_paxOut[_i] || 0;
+              } else {
+                _transfer.paxOut[_i] = 0;
+              }
             }
           });
         } else {
@@ -296,7 +287,6 @@ export class SiemensKpiOverviewComponent implements OnChanges {
 }
 
 
-
 interface FilteredDprData {
   month: any;
   date: number[];
@@ -305,7 +295,6 @@ interface FilteredDprData {
   weatherDowntime: any[];
   liquids: any[];
 }
-
 interface SiemensKpi {
   month: string;
   site: string;

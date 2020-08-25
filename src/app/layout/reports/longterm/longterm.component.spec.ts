@@ -72,7 +72,6 @@ describe('ReportsComponent - CTV', () => {
         }
         component.fromDate = new NgbDate(2020, 6, 1);
         component.toDate = new NgbDate(2020, 7, 10);
-        component.maxDate = component.maxDate;
         component.dropdownValues = [{
             mmsi: component.vesselObject.mmsi[0],
             nicename: component.vesselObject.vesselName[0],
