@@ -18,7 +18,6 @@ import { now } from 'moment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermBarGraphComponent implements OnChanges {
-
   constructor(
     private parser: LongtermProcessingService,
     public calculationService: CalculationService, // Used in callbacks!

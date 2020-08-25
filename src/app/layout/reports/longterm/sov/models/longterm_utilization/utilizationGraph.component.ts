@@ -66,7 +66,9 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
           callback: (index: number) => this.navigateToDPR({
             mmsi: this.vesselObject.mmsi[0],
             matlabDate: matlabDates[index],
-          })
+          }),
+          categoryPercentage: 1.0,
+          barPercentage: 1.0,
         };
         return { ...def, ...options };
       };
@@ -133,8 +135,8 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
       if (this.Chart) {
         // Update the chart
         this.Chart.data = dsets;
-        this.Chart.scales['x-axis-time'].options.time.min = dateLabels[0];
-        this.Chart.scales['x-axis-time'].options.time.max = dateLabels[-1];
+        this.Chart.scales['x-axis-time'].options.ticks.min = dateLabels[0];
+        this.Chart.scales['x-axis-time'].options.ticks.max = dateLabels[-1];
         this.Chart.update();
       } else {
         this.constructNewChart(dsets);
@@ -263,8 +265,6 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
         scales: {
           xAxes: [{
             id: 'x-axis-0',
-            categoryPercentage: 1.0,
-            barPercentage: 1.0,
             stacked: true,
             display: false,
             min: 0,
@@ -273,12 +273,8 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
             type: 'time',
             display: true,
             beginAtZero: false,
-            time: {
-              unit: 'day',
-              min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
-              max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
-            },
             ticks: {
+              unit: 'day',
               min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
               max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
             }
