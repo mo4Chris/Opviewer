@@ -101,7 +101,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
     usagePerMonth(data: SOVRawScatterData): { x: number[], y: number[], key: string, label: string[] }[] { // : {_id: number, label: string[], turbine: any, platform: any}d
         const turbInfo = { x: [], y: [], key: 'Turbine transfers:', label: [] };
         const platInfo = { x: [], y: [], key: 'Platform transfers:', label: [] };
-        const vessel = this.parser.reduceLabels(this.vesselObject, [data.turbine._id]);
+        const vessel = this.parser.reduceLabels(this.vesselObject, [data.turbine ? data.turbine._id : (data.platform._id || null)]);
 
         const len = Math.max(data.turbine ? data.turbine.groups.length : 0, data.platform ? data.platform.groups.length : 0);
         const vessels = this.calculationService.fillArray(vessel[0], len);
