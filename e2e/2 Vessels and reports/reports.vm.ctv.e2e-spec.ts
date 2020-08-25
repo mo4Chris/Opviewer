@@ -10,16 +10,16 @@ describe('Admin Vessels and Reports page', () => {
   });
 
   it('Should not be redirected', () => {
-    let isRedirected = browser.wait(ExpectedConditions.urlContains('/reports'), 2000);
+    const isRedirected = browser.wait(ExpectedConditions.urlContains('/reports'), 2000);
     expect(isRedirected).toBe(true);
-  })
+  });
 
   it('should have correct header', () => {
     expect(page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
   it('should display vessel list', () => {
-    let vessels = element.all(by.binding('nicename')).first()
+    const vessels = element.all(by.binding('nicename')).first();
     expect(page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
@@ -43,14 +43,14 @@ describe('Admin Vessels and Reports page', () => {
   // });
 
   it('Should allow for filtering', (done) => {
-    let searchField = page.getSearchField();
+    const searchField = page.getSearchField();
     let vessels = page.getActiveVesselNames();
     let original: string;
-    
+
     expect(vessels.count()).toBeGreaterThan(0, 'Expect at least one vessel before filtering');
     vessels.first().getText().then(txt => {
       original = txt;
-    })
+    });
 
     searchField.sendKeys('nonExiSTentVesselName');
     browser.waitForAngular();
@@ -65,7 +65,7 @@ describe('Admin Vessels and Reports page', () => {
     vessels.first().getText().then(txt => {
       expect(txt).toEqual(original);
       done();
-    })
+    });
   });
 
   it('Should successfully click the dpr button', () => {

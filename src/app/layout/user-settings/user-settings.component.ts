@@ -4,6 +4,7 @@ import { isNumber } from 'util';
 import { UserService } from '../../shared/services/user.service';
 import { SettingsService } from '../../supportModules/settings.service';
 import { AlertService } from '../../supportModules/alert.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-user-settings',
@@ -18,6 +19,7 @@ export class UserSettingsComponent implements OnInit {
     private userService: UserService,
     public settings: SettingsService,
     public alert: AlertService,
+    public permission: PermissionService,
   ) {
     this.settingsOptions = settings.options;
   }

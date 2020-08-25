@@ -14,8 +14,8 @@
               <td>Account permissions</td>
               <td>{{token.userPermission}}</td>
             </tr>
-            <tr>
-              <td>Token expires</td>
+            <tr *ngIf="permission.admin">
+              <td>Login token expires</td>
               <td>{{getTokenExpiredDate()}}</td>
             </tr>
             <tr>

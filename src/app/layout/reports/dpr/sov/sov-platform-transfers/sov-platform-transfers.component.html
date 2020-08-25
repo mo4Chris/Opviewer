@@ -11,19 +11,16 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th>Enter waiting zone</th>
-              <th>Enter Exclusion Zone</th>
-              <th>Arrival time platform</th>
+              <th [ngbTooltip]="helpWaitingZone">Enter waiting zone</th>
+              <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
+              <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
               <th>Leave Exclusion Zone</th>
-              <ng-template #helpTotalTimePlatformTransfers class="helpContent">
-                Time from 1000m waiting range until leaving platform
-              </ng-template>
               <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
                 Total duration</th>
               <th>Pax in / out</th>
               <th>Cargo lift on / off</th>
-              <th>Peak gust wind</th>
+              <th helpPeakGust>Peak gust wind</th>
               <th>Hs</th>
             </tr>
           </thead>
@@ -63,7 +60,7 @@
                 <td>{{platformTransfer.Hs}}</td>
               </tr>
             </ng-container>
-            <tr class="tableTotal">
+            <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
               <th>
                 Start time transfer
@@ -80,7 +77,7 @@
                   transfer</button>
               </td>
             </tr>
-            <tr *ngFor="let transfer of missedPaxCargo">
+            <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td><input type="text" min="0" class="form-control-sm col-sm-8" [value]="transfer.location"
                   [(ngModel)]="transfer.location" (ngModelChange)="updatePaxCargoTotal()" placeholder="turbine"></td>
               <td><input type="text" min="0" class="form-control-sm col-sm-3 col-print-3"
@@ -116,7 +113,7 @@
               <td></td>
               <td></td>
             </tr>
-            <tr>
+            <tr name="helicopter">
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -136,7 +133,7 @@
                 </button>
               </td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
               <td><input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.hour"
                   [value]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">
@@ -218,19 +215,16 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th>Enter waiting zone</th>
-              <th>Enter Exclusion Zone</th>
-              <th>Arrival time platform</th>
+              <th [ngbTooltip]="helpWaitingZone">Enter waiting zone</th>
+              <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
+              <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
               <th>Leave Exclusion Zone</th>
-              <ng-template #helpTotalTimePlatformTransfers class="helpContent">
-                Time from 1000m waiting range until leaving platform
-              </ng-template>
               <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
                 Total duration</th>
               <th>Pax in / out</th>
               <th>Cargo lift on / off</th>
-              <th>Peak gust wind</th>
+              <th [ngbTooltip]="helpPeakGust">Peak gust wind</th>
               <th>Hs</th>
             </tr>
           </thead>
@@ -266,7 +260,7 @@
                 <td>{{platformTransfer.Hs}}</td>
               </tr>
             </ng-container>
-            <tr class="tableTotal">
+            <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
               <th>
                 Start time transfer
@@ -274,7 +268,7 @@
               <th>Stop time transfer</th>
               <td colspan="8"></td>
             </tr>
-            <tr *ngFor="let transfer of missedPaxCargo">
+            <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td>{{transfer.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
@@ -290,7 +284,7 @@
               <td></td>
               <td></td>
             </tr>
-            <tr>
+            <tr name="helicopter">
               <th>Helicopter transfers</th>
               <th>
                 Start time transfer
@@ -298,7 +292,7 @@
               <th>Stop time transfer</th>
               <td colspan="8"></td>
             </tr>
-            <tr *ngFor="let transfer of helicopterPaxCargo">
+            <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
@@ -360,31 +354,15 @@
           <thead>
             <tr>
               <th>Location</th>
-              <ng-template #helpGangwayReady class="helpContent">
-                Starttime indicating the gangway is attached and ready for transfers
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready
               </th>
               <th>Gangway disengaged</th>
-              <ng-template #helpGangwayReadyDuaration class="helpContent">
-                Duration for which gangway is attached and ready for transfer
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration
                 [mns]</th>
-              <ng-template #helpGangwayReadyDeployed class="helpContent">
-                Duration for which the gangway was used active this tranfer, not just ready to
-                tranfers
-              </ng-template>
               <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
                 Deployed duration [mns]</th>
-              <ng-template #helpGangwayUtil class="helpContent">
-                Performance of gangway relative to its performance limitations.
-              </ng-template>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity
                 [%]</th>
-              <ng-template #helpGangwayLimiter class="helpContent">
-                Indicates which part is the most limiting parameter for gangway utilisation.
-              </ng-template>
               <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
           </thead>
           <tbody>
@@ -426,3 +404,30 @@
     </div>
   </div>
 </div>
+
+<ng-template #helpGangwayReady class="helpContent">
+  Starttime indicating the gangway is attached and ready for transfers
+</ng-template>
+<ng-template #helpGangwayReadyDuaration class="helpContent">
+  Duration for which gangway is attached and ready for transfer
+</ng-template>
+<ng-template #helpGangwayUtil class="helpContent">
+  Performance of gangway relative to its performance limitations.
+</ng-template>
+<ng-template #helpGangwayLimiter class="helpContent">
+  Indicates which part is the most limiting parameter for gangway utilisation.
+</ng-template>
+<ng-template #helpTotalTimePlatformTransfers class="helpContent">
+  Time from 1000m waiting range until leaving platform
+</ng-template>
+<ng-template #helpGangwayReadyDeployed class="helpContent">
+  Duration for which the gangway was used active this tranfer, not just ready to
+  tranfers
+</ng-template>
+<ng-template #helpWaitingZone class="helpContent">Time the vessel enters the 1000m waiting zone prior to visiting the platform.
+    When this time precedes the transfer start time significantly, the vessel may be used suboptimally. When making multiple visits
+    to the same platform, this is the time last leaving the exclusion zone.
+</ng-template>
+<ng-template #helpExclusionZone class="helpContent">Time the vessel first enters the 500m exclusion zone</ng-template>
+<ng-template #helpArrivalTimePlatform class="helpContent">Time the vessel starts the actual transfer with the platform</ng-template>
+<ng-template #helpPeakGust class="helpContent">Maximum windspeed measured by the wind sensor during the transfer</ng-template>

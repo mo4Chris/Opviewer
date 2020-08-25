@@ -22,33 +22,31 @@
           <th>To</th>
           <th></th>
         </tr>
-        <ng-container *ngFor="let _standby of standby.Array">
-          <tr>
-            <td>
-              <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
-                <option value="No work planned">No work planned</option>
-                <option value="EHS issues">EHS issues</option>
-                <option value="Delay Siemens">Delay charterer</option>
-                <option value="Delay vessel">Delay vessel</option>
-              </select></td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.from" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.to" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td></td>
-          </tr>
-        </ng-container>
-        <tr class="plsdonotprintthisforfsake">
+        <tr name="standby-array" *ngFor="let _standby of standby.Array">
+          <td>
+            <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
+              <option value="No work planned">No work planned</option>
+              <option value="EHS issues">EHS issues</option>
+              <option value="Delay Siemens">Delay charterer</option>
+              <option value="Delay vessel">Delay vessel</option>
+            </select></td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.from" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.to" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td></td>
+        </tr>
+        <tr name="standby-addrow" class="plsdonotprintthisforfsake">
           <td colspan="4">
             <button class="btn btn-sm btn-success" (click)="addStandByToArray(); weatherDowntimeChanged = true;"
               type="button">add
@@ -69,37 +67,35 @@
           <th>To</th>
           <th></th>
         </tr>
-        <ng-container *ngFor="let nonavailability of vesselNonAvailability.Array">
-          <tr>
-            <td>
-              <select [(ngModel)]="nonavailability.reason" (change)="weatherDowntimeChanged = true;"
-                class="form-control">
-                <option value="DC small breakdown">DC small breakdown</option>
-                <option value="Boatlanding breakdown">Boatlanding breakdown</option>
-                <option value="DP breakdown">DP breakdown</option>
-                <option value="Minor vessel breakdown - other">Minor vessel breakdown -
-                  other</option>
-                <option value="Major vessel breakdown - other">Major vessel breakdown -
-                  other</option>
-              </select></td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.from" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.to" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td></td>
-          </tr>
-        </ng-container>
-        <tr class="plsdonotprintthisforfsake">
+        <tr name="tdt-array" *ngFor="let nonavailability of vesselNonAvailability.Array">
+          <td>
+            <select [(ngModel)]="nonavailability.reason" (change)="weatherDowntimeChanged = true;"
+              class="form-control">
+              <option value="DC small breakdown">DC small breakdown</option>
+              <option value="Boatlanding breakdown">Boatlanding breakdown</option>
+              <option value="DP breakdown">DP breakdown</option>
+              <option value="Minor vessel breakdown - other">Minor vessel breakdown -
+                other</option>
+              <option value="Major vessel breakdown - other">Major vessel breakdown -
+                other</option>
+            </select></td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.from" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.to" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td></td>
+        </tr>
+        <tr name="tdt-addrow" class="plsdonotprintthisforfsake">
           <td colspan="4">
             <button class="btn btn-sm btn-success"
               (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;" type="button">add
@@ -122,43 +118,41 @@
           <th>To</th>
           <th>vessel / subsystem</th>
         </tr>
-        <ng-container *ngFor="let _weatherDowntime of weatherDowntime.Array">
-          <tr>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.decidedBy"
-                class="form-control">
-                <option value="Charterer">Charterer</option>
-                <option value="Vessel Master">Vessel Master</option>
-                <option value="Joint Decision">Joint decision</option>
-              </select></td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.from" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.to" class="form-control">
-                <option *ngFor="let time of times" [value]="time">
-                  {{time}}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.vesselsystem"
-                class="form-control">
-                <option value="Gangway">Gangway</option>
-                <option value="Crane">Crane</option>
-                <option value="CTV boatlanding">CTV boatlanding</option>
-                <option value="DC big">DC big</option>
-                <option value="DC small">DC small</option>
-                <option value="Whole vessel">Whole vessel</option>
-              </select>
-            </td>
-          </tr>
-        </ng-container>
-        <tr class="plsdonotprintthisforfsake">
+        <tr name="wdt-array" *ngFor="let _weatherDowntime of weatherDowntime.Array">
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.decidedBy"
+              class="form-control">
+              <option value="Charterer">Charterer</option>
+              <option value="Vessel Master">Vessel Master</option>
+              <option value="Joint Decision">Joint decision</option>
+            </select></td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.from" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.to" class="form-control">
+              <option *ngFor="let time of times" [value]="time">
+                {{time}}
+              </option>
+            </select>
+          </td>
+          <td>
+            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.vesselsystem"
+              class="form-control">
+              <option value="Gangway">Gangway</option>
+              <option value="Crane">Crane</option>
+              <option value="CTV boatlanding">CTV boatlanding</option>
+              <option value="DC big">DC big</option>
+              <option value="DC small">DC small</option>
+              <option value="Whole vessel">Whole vessel</option>
+            </select>
+          </td>
+        </tr>
+        <tr name="wdt-addrow" class="plsdonotprintthisforfsake">
           <td colspan="4">
             <button class="btn btn-sm btn-success" (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
               type="button">add line</button>
@@ -173,7 +167,7 @@
             <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
           </th>
         </tr>
-        <tr>
+        <tr id="accessDayType">
           <td colspan="4">
             <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="accessDayType.status"
               class="form-control">
@@ -204,7 +198,7 @@
             <h4>Proactive reports & toolbox talks</h4>
           </th>
         </tr>
-        <tr>
+        <tr id="socCards">
           <th><div [ngbTooltip]="tooltipHocCards">SOC cards: {{hoc.Total}}</div></th>
           <td colspan="3">
             <ng-container *ngFor="let HoC of hoc.Array">
@@ -238,7 +232,7 @@
           <th>New total</th>
           <td>{{hoc.TotalNew}}</td>
         </tr>
-        <tr>
+        <tr id="toolboxTalks">
           <th>Toolbox talks: {{toolbox.Total}}</th>
           <td colspan="3">
             <ng-container *ngFor="let _toolbox of toolbox.Array">
@@ -456,46 +450,44 @@
           <th>Start DP</th>
           <th>Stop DP</th>
         </tr>
-        <ng-container *ngFor="let _dp of dp.Array">
-          <tr>
-            <td>
-              <div class="tableRow">
-                HH:
-                <!-- ToDo: This does not allow the 24:00 option-->
-                <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let hour of allHours" [value]="hour">
-                    {{hour}}
-                  </option>
-                </select>
-                MM:
-                <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                    {{minutes}}
-                  </option>
-                </select>
-              </div>
-            </td>
-            <td>
-              <div class="tableRow">
-                HH:
-                <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let hour of allHours" [value]="hour">
-                    {{hour}}
-                  </option>
-                </select>
-                MM:
-                <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
-                  class="form-control col-xl-4 col-print-4">
-                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                    {{minutes}}
-                  </option>
-                </select>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+        <tr name="dpRow" *ngFor="let _dp of dp.Array">
+          <td>
+            <div class="tableRow">
+              HH:
+              <!-- ToDo: This does not allow the 24:00 option-->
+              <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let hour of allHours" [value]="hour">
+                  {{hour}}
+                </option>
+              </select>
+              MM:
+              <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                  {{minutes}}
+                </option>
+              </select>
+            </div>
+          </td>
+          <td>
+            <div class="tableRow">
+              HH:
+              <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let hour of allHours" [value]="hour">
+                  {{hour}}
+                </option>
+              </select>
+              MM:
+              <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
+                class="form-control col-xl-4 col-print-4">
+                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                  {{minutes}}
+                </option>
+              </select>
+            </div>
+          </td>
+        </tr>
         <tr class="plsdonotprintthisforfsake">
           <td colspan="2">
             <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;" type="button">add
