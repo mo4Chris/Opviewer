@@ -132,7 +132,6 @@ export class LongtermComponent implements OnInit {
         mmsiArray.push(this.dropdownValues[_j].mmsi);
       }
     }
-
     this.vesselObject = { ... this.vesselObject, ... {
       mmsi: mmsiArray,
       dateMin:  dateMinAsMatlab,
@@ -168,9 +167,12 @@ export class LongtermComponent implements OnInit {
       this._fromDate = date;
     }
   }
+  onDateCancel() {
+    this._fromDate = copyNgbDate(this.fromDate);
+    this._toDate = copyNgbDate(this.toDate);
+  }
   onDateConfirm() {
     this.closeModal();
-    console.log('Date confirmed!')
     this.fromDate = copyNgbDate(this._fromDate);
     this.toDate = copyNgbDate(this._toDate);
     this.searchTransfersByNewSpecificDate();

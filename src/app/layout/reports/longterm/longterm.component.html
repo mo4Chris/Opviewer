@@ -61,7 +61,7 @@
   <!-- Modal that opens when clicking the date selector -->
   <div class="modal-header">
     <h4 class="modal-title">Select your date range</h4>
-    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+    <button type="button" class="close" aria-label="Close" (click)="onDateCancel()">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -71,7 +71,7 @@
     </ngb-datepicker>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-light" (click)="closeModal()">Close without changing date</button>
+    <button type="button" class="btn btn-light" (click)="onDateCancel()">Close without changing date</button>
     <button type="button" class="btn btn-primary"
       (click)="onDateConfirm($event)">Search for new date range</button>
   </div>
