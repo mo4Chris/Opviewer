@@ -1,12 +1,14 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 import { env } from 'process';
 
-var EC = ExpectedConditions;
+const EC = ExpectedConditions;
 // browser.ignoreSynchronization = true;
 
 export class LoginPage {
+
+
   navigateTo() {
-    return browser.get(env.baseUrl + '/login');
+    return browser.get('/login');
   }
 
   getParagraphText() {
@@ -14,14 +16,14 @@ export class LoginPage {
   }
 
   setUsernameText() {
-    return element(by.id('username')).sendKeys('masterctv@bmo-offshore.com');
+    return element(by.id('username')).sendKeys(env.username);
   }
 
   setPasswordText() {
-    return element(by.id('password')).sendKeys('hanspasswordtocheck');
+    return element(by.id('password')).sendKeys(env.password);
   }
 
-  clickLoginButton(){
+  clickLoginButton() {
     return element(by.id('loginButton')).click();
   }
 
@@ -29,5 +31,5 @@ export class LoginPage {
     return browser.wait(EC.urlContains('/dashboard'), 2000);
   }
 
- 
+
 }

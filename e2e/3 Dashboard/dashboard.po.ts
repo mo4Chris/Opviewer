@@ -5,7 +5,7 @@ var EC = ExpectedConditions;
 
 export class DashboardPage {
     navigateTo() {
-        return browser.get(env.baseUrl + '/dashboard');
+        return browser.get('/dashboard');
     }
 
     checkDashboardHeader() {

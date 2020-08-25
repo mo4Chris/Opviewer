@@ -10,15 +10,7 @@
       <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp"
         [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate"
         [(ngModel)]="datePickerValue" (ngModelChange)="onChange()" [dayTemplate]="customDay">
-      <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
-        let-disabled="disabled" let-focused="focused">
-        <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
-          [class.text-muted]="disabled" [class.has-sailed-transfer]="hasSailedTransfer(date)"
-          [class.has-sailed-transit]="hasSailedTransit(date)" [class.has-sailed-other]="hasSailedOther(date)">
-          {{ date.day }}
-        </div>
-      </ng-template>
-      <button class="input-group-addon" (click)="dp.toggle()" type="button">
+      <button id="datePickBtn" class="input-group-addon" (click)="dp.toggle()" type="button">
         <span class="fa fa-calendar"></span>
       </button>
       <button id="nextDayButton" (click)="changeDay(1)" (disabled)="true">
@@ -80,20 +72,29 @@
         (turbineLocationData)="getTurbineLocationData($event)" (platformLocationData)="getPlatformLocationData($event)">
       </app-sovreport>
     </div>
-    <ng-template #other_content>
-      <div class="divContainer">
-        <h3>There is no data available for the selected day and vessel.</h3>
-      </div>
-    </ng-template>
-    <ng-template #noPermission>
-      <div class="divContainer">
-        <h3>You are not allowed to view the vessel you requested</h3>
-      </div>
-    </ng-template>
-    <ng-template #no_map_available>
-      <div class="divContainer">
-        <h3>There is no map available for the selected day and vessel.</h3>
-      </div>
-    </ng-template>
   </div>
 </div>
+
+<ng-template #other_content>
+  <div class="divContainer">
+    <h3>There is no data available for the selected day and vessel.</h3>
+  </div>
+</ng-template>
+<ng-template #noPermission>
+  <div class="divContainer">
+    <h3>You are not allowed to view the vessel you requested</h3>
+  </div>
+</ng-template>
+<ng-template #no_map_available>
+  <div class="divContainer">
+    <h3>There is no map available for the selected day and vessel.</h3>
+  </div>
+</ng-template>
+<ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
+  let-disabled="disabled" let-focused="focused">
+  <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
+    [class.text-muted]="disabled" [class.has-sailed-transfer]="hasSailedTransfer(date)"
+    [class.has-sailed-transit]="hasSailedTransit(date)" [class.has-sailed-other]="hasSailedOther(date)">
+    {{ date.day }}
+  </div>
+</ng-template>

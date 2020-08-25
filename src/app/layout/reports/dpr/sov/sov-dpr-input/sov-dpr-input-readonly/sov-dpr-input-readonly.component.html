@@ -17,26 +17,26 @@
             </div>
           </th>
         </tr>
+
         <tr>
           <th>Reason</th>
           <th>From</th>
           <th>To</th>
           <th></th>
         </tr>
-        <ng-container *ngFor="let _standby of standby.Array">
-          <tr>
-            <td>
-              {{_standby.reason}}</td>
-            <td>
-              {{_standby.from}}
-            </td>
-            <td>
-              {{_standby.to}}
-            </td>
-            <td></td>
 
-          </tr>
-        </ng-container>
+        <tr name="standby-array" *ngFor="let _standby of standby.Array">
+          <td>
+            {{_standby.reason}}</td>
+          <td>
+            {{_standby.from}}
+          </td>
+          <td>
+            {{_standby.to}}
+          </td>
+          <td></td>
+        </tr>
+
         <tr *ngIf="standby.Array.length==0">
           <td colspan="4"><i>No standby times entered</i></td>
         </tr>
@@ -48,26 +48,25 @@
             </div>
           </th>
         </tr>
+        
         <tr>
           <th>Reason</th>
           <th>From</th>
           <th>To</th>
           <th></th>
         </tr>
-        <ng-container *ngFor="let nonavailability of vesselNonAvailability.Array">
-          <tr>
-            <td>
-              {{nonavailability.reason}}
-            </td>
-            <td>
-              {{nonavailability.from}}
-            </td>
-            <td>
-              {{nonavailability.to}}
-            </td>
-            <td></td>
-          </tr>
-        </ng-container>
+        <tr name="tdt-array" *ngFor="let nonavailability of vesselNonAvailability.Array">
+          <td>
+            {{nonavailability.reason}}
+          </td>
+          <td>
+            {{nonavailability.from}}
+          </td>
+          <td>
+            {{nonavailability.to}}
+          </td>
+          <td></td>
+        </tr>
         <tr *ngIf="vesselNonAvailability.Array.length==0">
           <td colspan="4"><i>No technical downtime entered</i></td>
         </tr>
@@ -80,28 +79,29 @@
             </div>
           </th>
         </tr>
+
         <tr>
           <th>Decided by</th>
           <th>From</th>
           <th>To</th>
           <th>vessel / subsystem</th>
         </tr>
-        <ng-container *ngFor="let _weatherDowntime of weatherDowntime.Array">
-          <tr>
-            <td>
-              {{_weatherDowntime.decidedBy}}
-            </td>
-            <td>
-              {{_weatherDowntime.from}}
-            </td>
-            <td>
-              {{_weatherDowntime.to}}
-            </td>
-            <td>
-              {{_weatherDowntime.vesselsystem}}
-            </td>
-          </tr>
-        </ng-container>
+
+        <tr name="wdt-array" *ngFor="let _weatherDowntime of weatherDowntime.Array">
+          <td>
+            {{_weatherDowntime.decidedBy}}
+          </td>
+          <td>
+            {{_weatherDowntime.from}}
+          </td>
+          <td>
+            {{_weatherDowntime.to}}
+          </td>
+          <td>
+            {{_weatherDowntime.vesselsystem}}
+          </td>
+        </tr>
+          
         <tr *ngIf="weatherDowntime.Array.length==0">
           <td colspan="4"><i>No weather downtime entered</i></td>
         </tr>
@@ -290,20 +290,18 @@
           <th>Start DP</th>
           <th>Stop DP</th>
         </tr>
-        <ng-container *ngFor="let _dp of dp.Array">
-          <tr>
-            <td>
-              <div class="tableRow">
-                {{_dp.from.hour}}:{{_dp.from.minutes}}
-              </div>
-            </td>
-            <td>
-              <div class="tableRow">
-                {{_dp.to.hour}}:{{_dp.to.minutes}}
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+        <tr name="dpRow" *ngFor="let _dp of dp.Array">
+          <td>
+            <div class="tableRow">
+              {{_dp.from.hour}}:{{_dp.from.minutes}}
+            </div>
+          </td>
+          <td>
+            <div class="tableRow">
+              {{_dp.to.hour}}:{{_dp.to.minutes}}
+            </div>
+          </td>
+        </tr>
         <tr *ngIf="dp.Array.length==0">
           <td colspan="4"><i>No dp usage entered</i></td>
         </tr>
