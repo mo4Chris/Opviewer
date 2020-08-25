@@ -238,10 +238,7 @@ export class LongtermComponent implements OnInit {
     }
     this.toDate.day = 1;
     if (this.toDate.after(this.maxDate)) {
-      // Cant copy maxdate here since otherwise maxDate would start changing when moving back months
-      this.toDate.year = this.maxDate.year;
-      this.toDate.month = this.maxDate.month;
-      this.toDate.day = this.maxDate.day;
+      this.toDate = copyNgbDate(this.maxDate);
     }
     this.searchTransfersByNewSpecificDate();
   }
