@@ -273,8 +273,10 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
             type: 'time',
             display: true,
             beginAtZero: false,
+            time: {
+              unit: 'day'
+            },
             ticks: {
-              unit: 'day',
               min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
               max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
             }
