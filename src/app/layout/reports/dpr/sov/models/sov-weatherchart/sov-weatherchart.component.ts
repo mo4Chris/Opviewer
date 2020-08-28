@@ -112,7 +112,7 @@ export class SovWeatherchartComponent implements OnChanges {
       });
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Platform transfers',
-        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+        backgroundColor: 'rgba(0, 0, 100, 0.1)',
       })
 
       // Turbine operations
@@ -130,7 +130,7 @@ export class SovWeatherchartComponent implements OnChanges {
       });
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Turbine transfers',
-        backgroundColor: 'rgba(0, 255, 0, 0.1)',
+        backgroundColor: 'rgba(0, 100, 0, 0.1)',
       })
       
       // V2v transfers
@@ -150,11 +150,10 @@ export class SovWeatherchartComponent implements OnChanges {
       });
       this.addOperationsInfo(dsets, dockingData, {
         label: 'V2v transfers',
-        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+        backgroundColor: 'rgba(128, 0, 0, 0.1)',
       })
 
       // Transit
-      console.log(this.sovModel)
       dockingData = new Array();
       this.sovModel.transits.forEach(_transit => {
         start = this.datetimeService.MatlabDateToUnixEpoch(
