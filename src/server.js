@@ -16,7 +16,7 @@ var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
-var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function(err, response) {
+var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, response) {
     if (err) {
         logger.fatal(err);
     } else {
@@ -1106,7 +1106,7 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function(req, res) {
             return res.status(401).send('Access denied');
         }
 
-        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+        SovTransitsmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
             if (err) {
                 logger.error(err);
                 res.send(err);

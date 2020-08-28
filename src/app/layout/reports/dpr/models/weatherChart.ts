@@ -107,12 +107,12 @@ export class WeatherOverviewChart {
             },
             type: 'time',
             time: {
-              min: args.timeStamps[0],
-              max: args.timeStamps[args.timeStamps.length - 1],
               unit: 'hour',
               displayFormats: 'HH:mm',
             },
             ticks: {
+              min: args.timeStamps[0],
+              max: args.timeStamps[args.timeStamps.length - 1],
               callback: (value, index, values) => {
                 if (!values[index]) {
                   return;
