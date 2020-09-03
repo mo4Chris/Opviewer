@@ -75,7 +75,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       this.newService.getPortcallsByRange(makeRequest(['date', 'startTime', 'stopTime', 'durationHr', 'plannedUnplannedStatus'])),
       this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
-      this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date'])
+      this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date', 'missedPaxCargo'])
       )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
         this.kpis = [];
         this.parsePaxDefaults(v2vs);
@@ -193,6 +193,16 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
       });
     }
+    if (missedPaxCargo && isArray(missedPaxCargo)) {
+      missedPaxCargo.forEach(_transfers => {
+        _transfers.forEach(_transfer => {
+          paxTransfer += this.parseInput(_transfer.paxIn);
+          paxTransfer += this.parseInput(_transfer.paxOut);
+          cargoOps += this.parseInput(_transfer.cargoIn);
+          cargoOps += this.parseInput(_transfer.cargoOut);
+        });
+      })
+    }
     kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
     kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
     kpi.totalUtilHours = Math.round(utilHours);
@@ -294,6 +304,15 @@ interface FilteredDprData {
   vesselNonAvailability: any[];
   weatherDowntime: any[];
   liquids: any[];
+  missedPaxCargo: Array<{
+    from: {hour: string, minutes: string};
+    to: {hour: string, minutes: string};
+    location: string;
+    cargoIn: 0
+    cargoOut: 0
+    paxIn: 3
+    paxOut: 0
+  }[]>;
 }
 interface SiemensKpi {
   month: string;
