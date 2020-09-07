@@ -73,8 +73,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     forkJoin([
       this.newService.getVessel2vesselsByRangeForSov(makeRequest(['date', 'transfers'])),
       this.newService.getPortcallsByRange(makeRequest(['date', 'startTime', 'stopTime', 'durationHr', 'plannedUnplannedStatus'])),
-      this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
-      this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'paxOut', 'cargoIn', 'cargoOut', 'gangwayDeployedDuration'])),
+      this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayReadyDuration'])),
+      this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayReadyDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date', 'missedPaxCargo'])
       )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
         this.kpis = [];
@@ -106,13 +106,14 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       });
   }
 
-  computeKpiForMonth(info: {site: string}, dprs: FilteredDprData, portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
-    const kpi: SiemensKpi = <SiemensKpi> {};
+  computeKpiForMonth(info: { site: string }, dprs: FilteredDprData, portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
+    const kpi: SiemensKpi = <SiemensKpi>{};
     kpi.month = dprs.month.dateString;
     kpi.site = this.formatFieldName(info.site);
     let standByHours = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
     let portCallHours = 0, fuelUsed = 0, maintainanceOps = 0;
     let numDaysInMonth: number;
+    const missedPaxCargo = dprs.missedPaxCargo;
     if (dprs.month.date.year === this.currentDate.year && dprs.month.date.month === this.currentDate.month) {
       numDaysInMonth = this.currentDate.day;
     } else {
@@ -151,30 +152,25 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     }
     let paxTransfer = 0, paxGangwayTransfer = 0, cargoOps = 0;
     if (turbine) {
-      paxTransfer += turbine.paxIn.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      paxTransfer += turbine.paxOut.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      cargoOps += turbine.cargoIn.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
-      cargoOps += turbine.cargoOut.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
-      paxGangwayTransfer += turbine.gangwayDeployedDuration.reduce((prev: number, curr: any, _i: number) => {
-        if (curr && curr > 0) {
-          if (turbine.paxIn[_i]) {
-            prev += turbine.paxIn[_i];
-          }
-          if (turbine.paxOut[_i]) {
-            prev += turbine.paxOut[_i];
-          }
+      paxTransfer += turbine.paxIn   .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      paxTransfer += turbine.paxOut  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoOps    += turbine.cargoIn .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoOps    += turbine.cargoOut.reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      paxGangwayTransfer += turbine.gangwayReadyDuration.reduce((numPax: number, dur: any, _i: number) => {
+        if ((+dur) > 0) {
+          numPax += this.parseInput(turbine.paxIn[_i]);
+          numPax += this.parseInput(turbine.paxOut[_i]);
         }
-        return prev;
+        return numPax;
       }, 0);
     }
     if (platform) {
-      paxTransfer += platform.paxIn.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      paxTransfer += platform.paxOut.reduce((prev, curr) => curr ? prev + curr : prev, 0);
-      cargoOps += platform
-        .cargoIn.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
-      cargoOps += platform.cargoOut.reduce((prev, curr) => curr ? prev + 1 : prev, 0);
-      paxGangwayTransfer += platform.paxIn.reduce((prev, curr) => curr && curr.gangwayDeployedDuration > 0 ? prev + curr : prev, 0);
-      paxGangwayTransfer += platform.paxOut.reduce((prev, curr) => curr && curr.gangwayDeployedDuration > 0 ? prev + curr : prev, 0);
+      paxTransfer += platform.paxIn   .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      paxTransfer += platform.paxOut  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoOps    += platform.cargoIn .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoOps    += platform.cargoOut.reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      paxGangwayTransfer += platform.paxIn .reduce((prev, curr) => curr && curr.gangwayReadyDuration > 0 ? prev + this.parseInput(curr) : prev, 0);
+      paxGangwayTransfer += platform.paxOut.reduce((prev, curr) => curr && curr.gangwayReadyDuration > 0 ? prev + this.parseInput(curr) : prev, 0);
     }
     if (v2v) {
       v2v.transfers.forEach(_transfers => {
@@ -182,14 +178,14 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           _transfers.forEach(_transfer => {
             paxTransfer += this.parseInput(_transfer.paxIn);
             paxTransfer += this.parseInput(_transfer.paxOut);
-            cargoOps += this.parseInput(_transfer.cargoIn);
-            cargoOps += this.parseInput(_transfer.cargoOut);
+            cargoOps    += this.parseInput(_transfer.cargoIn);
+            cargoOps    += this.parseInput(_transfer.cargoOut);
           })
         } else { // Only 1 transfer => not an array
           paxTransfer += this.parseInput(_transfers.paxIn);
           paxTransfer += this.parseInput(_transfers.paxOut);
-          cargoOps += this.parseInput(_transfers.cargoIn);
-          cargoOps += this.parseInput(_transfers.cargoOut);
+          cargoOps    += this.parseInput(_transfers.cargoIn);
+          cargoOps    += this.parseInput(_transfers.cargoOut);
         }
       });
     }
@@ -198,8 +194,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         _transfers.forEach(_transfer => {
           paxTransfer += this.parseInput(_transfer.paxIn);
           paxTransfer += this.parseInput(_transfer.paxOut);
-          cargoOps += this.parseInput(_transfer.cargoIn);
-          cargoOps += this.parseInput(_transfer.cargoOut);
+          cargoOps    += this.parseInput(_transfer.cargoIn);
+          cargoOps    += this.parseInput(_transfer.cargoOut);
         });
       })
     }
@@ -218,7 +214,26 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     return kpi;
   }
 
-  private applyDowntime(ops: any[], code: number, times: {from: string, to: string}[], filter = (_: any) => true) {
+  private countPaxInForDnum(turbines, dnum: number) {
+    let count = 0;
+    turbines.date.forEach((_date: number, i: number) => {
+      if (Math.floor(_date) === dnum) {
+        count += this.parseInput(turbines.paxIn[i]);
+      }
+    })
+    return count
+  }
+  private countPaxOutForDnum(turbines, dnum: number) {
+    let count = 0;
+    turbines.date.forEach((_date: number, i: number) => {
+      if (Math.floor(_date) === dnum) {
+        count += this.parseInput(turbines.paxOut[i]);
+      }
+    })
+    return count
+  }
+
+  private applyDowntime(ops: any[], code: number, times: { from: string, to: string }[], filter = (_: any) => true) {
     if (times) {
       times.forEach(time => {
         if (time && filter(time)) {
