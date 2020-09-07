@@ -69,7 +69,8 @@ export class WeatherOverviewChart {
         dset.backgroundColor = WeatherOverviewChart.weatherChartColors[_i];
         dset.borderColor = WeatherOverviewChart.weatherChartColors[_i];
         if (_i > 0) {
-          dset.hidden = dset.label !== 'windGust';
+          //dset.hidden = dset.label !== 'windGust';
+          dset.hidden = false;
         }
       }
     });
