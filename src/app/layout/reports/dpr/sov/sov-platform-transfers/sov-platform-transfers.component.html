@@ -11,7 +11,7 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th [ngbTooltip]="helpWaitingZone">Enter waiting zone</th>
+              <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
               <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
               <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
@@ -215,7 +215,7 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th [ngbTooltip]="helpWaitingZone">Enter waiting zone</th>
+              <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
               <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
               <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
@@ -418,13 +418,13 @@
   Indicates which part is the most limiting parameter for gangway utilisation.
 </ng-template>
 <ng-template #helpTotalTimePlatformTransfers class="helpContent">
-  Time from 1000m waiting range until leaving platform
+  Time from 1000m standby range until leaving platform
 </ng-template>
 <ng-template #helpGangwayReadyDeployed class="helpContent">
   Duration for which the gangway was used active this tranfer, not just ready to
   tranfers
 </ng-template>
-<ng-template #helpWaitingZone class="helpContent">Time the vessel enters the 1000m waiting zone prior to visiting the platform.
+<ng-template #helpWaitingZone class="helpContent">Time the vessel enters the 1000m standby zone prior to visiting the platform.
     When this time precedes the transfer start time significantly, the vessel may be used suboptimally. When making multiple visits
     to the same platform, this is the time last leaving the exclusion zone.
 </ng-template>
