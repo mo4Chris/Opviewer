@@ -323,10 +323,10 @@ interface FilteredDprData {
     from: {hour: string, minutes: string};
     to: {hour: string, minutes: string};
     location: string;
-    cargoIn: 0
-    cargoOut: 0
-    paxIn: 3
-    paxOut: 0
+    cargoIn: number
+    cargoOut: number
+    paxIn: number
+    paxOut: number
   }[]>;
 }
 interface SiemensKpi {
