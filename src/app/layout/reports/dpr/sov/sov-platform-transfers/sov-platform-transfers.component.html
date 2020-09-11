@@ -12,10 +12,10 @@
             <tr>
               <th>Location</th>
               <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
-              <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
+              <th [ngbTooltip]="helpExclusionZone">Enter Safety Zone</th>
               <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
-              <th>Leave Exclusion Zone</th>
+              <th>Leave Safety Zone</th>
               <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
                 Total duration</th>
               <th>Pax in / out</th>
@@ -216,10 +216,10 @@
             <tr>
               <th>Location</th>
               <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
-              <th [ngbTooltip]="helpExclusionZone">Enter Exclusion Zone</th>
+              <th [ngbTooltip]="helpExclusionZone">Enter Safety Zone</th>
               <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
               <th>Departure time platform</th>
-              <th>Leave Exclusion Zone</th>
+              <th>Leave Safety Zone</th>
               <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
                 Total duration</th>
               <th>Pax in / out</th>
@@ -426,8 +426,8 @@
 </ng-template>
 <ng-template #helpWaitingZone class="helpContent">Time the vessel enters the 1000m standby zone prior to visiting the platform.
     When this time precedes the transfer start time significantly, the vessel may be used suboptimally. When making multiple visits
-    to the same platform, this is the time last leaving the exclusion zone.
+    to the same platform, this is the time last leaving the Safety zone.
 </ng-template>
-<ng-template #helpExclusionZone class="helpContent">Time the vessel first enters the 500m exclusion zone</ng-template>
+<ng-template #helpExclusionZone class="helpContent">Time the vessel first enters the 500m Safety zone</ng-template>
 <ng-template #helpArrivalTimePlatform class="helpContent">Time the vessel starts the actual transfer with the platform</ng-template>
 <ng-template #helpPeakGust class="helpContent">Maximum windspeed measured by the wind sensor during the transfer</ng-template>
