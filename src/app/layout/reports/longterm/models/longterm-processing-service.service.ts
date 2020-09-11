@@ -50,9 +50,8 @@ export class LongtermProcessingService {
               return _transits;
             }));
             break;
-
             case 'transitIn':
-            // We specifically filter transits to harbour-field or field harbour
+            // We specifically filter transits to field harbour
             queryElt.reqFields.push('combinedId');
             loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
               _transits.forEach(transit => {
@@ -66,9 +65,8 @@ export class LongtermProcessingService {
               return _transits;
             }));
             break;
-
             case 'transitOut':
-            // We specifically filter transits to harbour-field or field harbour
+            // We specifically filter transits to harbour-field
             queryElt.reqFields.push('combinedId');
             loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
               _transits.forEach(transit => {
@@ -82,7 +80,6 @@ export class LongtermProcessingService {
               return _transits;
             }));
             break;
-
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!');
         }
