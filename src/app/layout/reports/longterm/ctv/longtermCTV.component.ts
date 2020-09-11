@@ -50,14 +50,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 'Average speed of when sailing from or to the windfield. Transits other than harbour-field or back are not shown.',
         },
         {
-            x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'MSI % inbound', dataType: 'transitIn', info:
-            'MSI averages in percent during transit. This graph displays the inbound MSI only. ',
-        },
-        {
-            x: 'startTime', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'MSI % outbound', dataType: 'transitOut', info:
-                'MSI averages in percent during transit. This graph displays the outbound MSI only. ',
-        },
-        {
             x: 'speedInTransitAvgKMH', y: 'MSI', graph: 'scatter', xLabel: 'Speed [' + this.settings.unit_speed + ']', yLabel: 'MSI % inbound', dataType: 'transitIn', info:
             'MSI averages in percent during transit versus speed. This graph displays the inbound MSI only. ',
         },
