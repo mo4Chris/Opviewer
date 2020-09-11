@@ -50,6 +50,14 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 'Average speed of when sailing from or to the windfield. Transits other than harbour-field or back are not shown.',
         },
         {
+            x: 'speedInTransitAvgKMH', y: 'MSI', graph: 'scatter', xLabel: 'Speed [' + this.settings.unit_speed + ']', yLabel: 'MSI % inbound', dataType: 'transitIn', info:
+            'MSI averages in percent during transit versus speed. This graph displays the inbound MSI only. ',
+        },
+        {
+            x: 'speedInTransitAvgKMH', y: 'MSI', graph: 'scatter', xLabel: 'Speed [' + this.settings.unit_speed + ']', yLabel: 'MSI % outbound', dataType: 'transitOut', info:
+                'MSI averages in percent during transit versus speed. This graph displays the outbound MSI only. ',
+        },
+        {
             x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
                 'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
                 'and need not be the result of the initial approach.'
@@ -83,10 +91,10 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
                 'Transfers without valid transfer scores have been omitted, and transfers rated 1 are drawn as outliers but are not used for computing mean and spread.',
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold'),
-            filterCB: (elt) => elt == 1
+            filterCB: (elt) => elt === 1
         },
     ];
-    
+
     wavedataArray: WavedataModel[];
 
     public vesselNames = [];

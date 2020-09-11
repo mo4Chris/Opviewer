@@ -7,7 +7,7 @@ import { VesselModel } from '@app/models/vesselModel';
   templateUrl: './vesselinfo.component.html',
   styleUrls: ['./vesselinfo.component.scss']
 })
-export class VesselinfoComponent implements OnChanges {
+export class VesselinfoComponent implements OnChanges, OnInit {
   @Input() mmsi: number[];
   @Output() navigateToVesselreport: EventEmitter<{mmsi: number, matlabDate: number}> = new EventEmitter<{mmsi: number, matlabDate: number}>();
 
@@ -29,7 +29,7 @@ export class VesselinfoComponent implements OnChanges {
 
   ngOnChanges() {
     if (this.vesselStore) {
-      this.loadInfos()
+      this.loadInfos();
     }
   }
 
