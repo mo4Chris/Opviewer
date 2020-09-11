@@ -126,7 +126,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     ngOnChanges () {
         this.vesselNames = this.vesselObject.vesselName;
         this.updateActiveField(this.activeField);
-        console.log(this.comparisonArray);
     }
 
     navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
