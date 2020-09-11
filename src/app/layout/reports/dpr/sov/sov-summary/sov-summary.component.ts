@@ -147,7 +147,7 @@ export class SovSummaryComponent implements OnChanges {
                   borderWidth: 1
                 }
               ],
-              labels: ['Sailing', 'Waiting', 'Exclusion zone', 'CTV operations duration']
+              labels: ['Sailing', 'Waiting', 'Safety zone', 'CTV operations duration']
             },
             options: {
               title: {
