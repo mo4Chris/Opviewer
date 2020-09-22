@@ -104,6 +104,10 @@ export class CtvDprPage extends E2ePageObject {
         return row.element(by.name('dockingComment'));
     }
 
+    getVideoRequestButtonFromDockingRow(row: ElementFinder) {
+        return row.element(by.name('videoRequest'));
+    }
+
     getSaveButtonFromDockingRow(row: ElementFinder) {
         return row.element(by.buttonText('Save'));
     }

@@ -6,6 +6,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-ctv-turbine-transfer',
@@ -34,7 +35,10 @@ export class CtvTurbineTransferComponent {
     private alert: AlertService,
     private calcService: CalculationService,
     private dateService: DatetimeService,
-  ) { }
+    private permission: PermissionService,
+  ) {
+    this.videoRequestPermission = this.permission.ctvVideoRequest;
+   }
 
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {
