@@ -3004,7 +3004,6 @@ app.post("/api/saveVideoRequest", function(req, res) {
                                 }
                             });
                         } else {
-                            console.log('Entered the else statement');
                             var budget = new videoBudgetmodel();
                             budget.mmsi = req.body.mmsi;
                             budget.maxBudget = req.body.maxBudget;
