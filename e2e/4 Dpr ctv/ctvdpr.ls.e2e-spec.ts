@@ -136,7 +136,7 @@ describe('CTV dpr', () => {
     });
 
 
-    describe('Should not be able to manage video requests', () => {
+    describe('Should be able to manage video requests', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
