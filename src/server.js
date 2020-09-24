@@ -2079,7 +2079,8 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
             Usermodel.find({
                 active: { $ne: false },
                 client: token.userCompany,
-                permissions: 'Client representative'
+                permissions: 'Client representative',
+                boats: {$elemMatch: {mmsi: mmsi } }
             }, {
                 username: 1,
             }, (err, data) => {
