@@ -186,7 +186,7 @@ export class SovWeatherchartComponent implements OnChanges {
     }
   }
 
-  getAxis(label: string) {
+  private getAxis(label: string) {
     let unit = '';
     let axisID = 'hidden';
     switch (label) {
@@ -242,6 +242,7 @@ export class SovWeatherchartComponent implements OnChanges {
   }
 
   datasetIsActive(dset: { hidden: boolean }, dsetIndex: number, chart: Chart) {
+    // Is this still used?
     const meta = chart.getDatasetMeta(dsetIndex);
     let hidden: boolean;
     if (meta.hidden === null) {
