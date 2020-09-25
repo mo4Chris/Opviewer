@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -14,6 +14,7 @@ import { CTVGeneralStatsModel, CtvDprStatsModel } from '../../models/generalstat
 import { SettingsService } from '@app/supportModules/settings.service';
 import { forkJoin } from 'rxjs';
 import { AlertService } from '@app/supportModules/alert.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-ctvreport',
@@ -100,6 +101,7 @@ export class CtvreportComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
     private alert: AlertService,
+    private ref: ChangeDetectorRef,
   ) {
   }
 
@@ -609,6 +611,7 @@ export class CtvreportComponent implements OnInit {
               );
             }
             this.videoRequestLoading = false;
+            this.ref.detectChanges();
           });
           this.newService
             .getVideoBudgetByMmsi(this.vesselObject)

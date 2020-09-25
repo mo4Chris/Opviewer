@@ -134,6 +134,7 @@ class MarineController extends PermissionModel {
   sovDprInputWrite = true;
   sovDprInputSign = true;
   sovHseWrite = true;
+  longterm = true;
 
   sovWaveSpectrum = true;
 }

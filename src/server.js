@@ -2079,7 +2079,8 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
             Usermodel.find({
                 active: { $ne: false },
                 client: token.userCompany,
-                permissions: 'Client representative'
+                permissions: 'Client representative',
+                boats: {$elemMatch: {mmsi: mmsi } }
             }, {
                 username: 1,
             }, (err, data) => {
@@ -2965,7 +2966,21 @@ app.post("/api/saveVideoRequest", function(req, res) {
         videoRequest.active = req.body.video_requested.text === "Requested" ? true : false;
         videoRequest.status = '';
         videoRequest.username = token.username;
-        videoRequest.save(function(err, data) {
+        
+        videoRequestedmodel.findOneAndUpdate({
+            "requestID":  mongo.Types.ObjectId(videoRequest.requestID)
+        },{
+            mmsi: videoRequest.mmsi,
+            active: videoRequest.active,
+            videoPath: videoRequest.videoPath,
+            vesselname: videoRequest.vesselname,
+            date: videoRequest.date,
+            status: videoRequest.status,
+            username: videoRequest.username
+        },{
+            upsert: true,
+        }, function(err, data) {
+
             if (err) {
                 logger.error(err);
                 return res.send(err);
@@ -2978,8 +2993,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
                         if (data) {
                             videoBudgetmodel.findOneAndUpdate({
                                 mmsi: req.body.mmsi,
-                                active: { $ne: false }
-                            }, {
+                                date: req.body.date,                            }, {
                                 maxBudget: req.body.maxBudget,
                                 currentBudget: req.body.currentBudget
                             }, function(_err, _data) {
