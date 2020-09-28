@@ -211,7 +211,7 @@ export class SovSummaryComponent implements OnChanges {
             },
           }
         });
-      }, 500);
+      });
     }
   }
 

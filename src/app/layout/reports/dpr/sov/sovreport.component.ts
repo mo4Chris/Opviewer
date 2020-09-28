@@ -173,7 +173,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
-            this.commonService.getPlatformLocations('')
+            this.commonService.getPlatformLocations(''),
           ]).subscribe(
             ([
               platformTransfers,

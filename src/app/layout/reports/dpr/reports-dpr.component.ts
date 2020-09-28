@@ -14,7 +14,7 @@ import { UserService } from '@app/shared/services/user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { SovreportComponent } from './sov/sovreport.component';
 import { TurbineLocation } from './models/TurbineLocation';
-import { Observable, of, from } from 'rxjs';
+import { from } from 'rxjs';
 import { groupBy, mergeMap, toArray } from 'rxjs/operators';
 import { EventService } from '@app/supportModules/event.service';
 import { VesselTurbines } from './models/VesselTurbines';
@@ -26,7 +26,6 @@ import { TurbineLocsFromMongo } from './sov/models/vessel2vesselActivity';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { Vessel2vesselModel } from './sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vTransfer } from './sov/models/Transfers/vessel2vessel/V2vTransfer';
 
 @Component({
@@ -335,7 +334,7 @@ export class ReportsDprComponent implements OnInit {
       if (cb) {
         cb();
       }
-    }, 50);
+    });
   }
 
   // Handle events and get variables from child components//////////
