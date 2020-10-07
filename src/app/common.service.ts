@@ -216,37 +216,37 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRange(vessel: StatsRangeRequest) {
+  getTransitsForVesselByRange(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTransitsForVesselByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
+  getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest) {
+  getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest) {
+  getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getVessel2vesselsByRangeForSov(vessel: StatsRangeRequest) {
+  getVessel2vesselsByRangeForSov(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getVessel2vesselsByRangeForSov/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getPortcallsByRange(vessel: StatsRangeRequest) {
+  getPortcallsByRange(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getPortcallsByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
 
-  getDprInputsByRange(vessel: StatsRangeRequest) {
+  getDprInputsByRange(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getDprInputsByRange/', vessel).pipe(
       map((response: Response) => response.json()));
   }
@@ -631,7 +631,7 @@ export interface RovOperationsSaveModel {
   mmsi: number;
   date: number;
   rovOperations?: Object[];
-} 
+}
 
 export interface SovDprSignOrRefuseModel {
   mmsi: number;
