@@ -28,6 +28,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   @Input() remarks;
   @Input() dprApprovalCount;
 
+  @Output() remarksChange: EventEmitter<String> = new EventEmitter<String>();
   @Output() dprApproval: EventEmitter<any> = new EventEmitter<any>();
   @Output() loaded = new EventEmitter<boolean>();
 
@@ -236,6 +237,7 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
     this.saveStats('saveRemarksStats', {
       remarks: this.remarks
     });
+    this.remarksChange.emit(this.remarks);
     this.remarksChanged = false;
   }
 
