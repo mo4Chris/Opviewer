@@ -4,7 +4,6 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { isArray, isNumber, isString } from 'util';
 
 
 // Encode daily operations per 15 minutes
@@ -82,22 +81,26 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         this.parsePaxDefaults(transfers);
         this.parsePaxDefaults(platforms);
         this.mmsi.forEach((_mmsi, _i) => {
-          const matchedTransfers = transfers.find(val => val._id === _mmsi);
-          const matchedPlatforms = platforms.find(val => val._id === _mmsi);
-          const dpr = <FilteredDprData[]><any>this.dateService.groupDataByMonth(dprs.find(val => val._id === _mmsi) || {});
-          const _transfers = this.dateService.groupDataByMonth(matchedTransfers || {});
-          const _platforms = this.dateService.groupDataByMonth(matchedPlatforms || {});
-          const _v2vs = this.dateService.groupDataByMonth(v2vs.find(val => val._id === _mmsi) || {});
-          const _portcalls = this.dateService.groupDataByMonth(portcalls.find(val => val._id === _mmsi) || {});
-          const _kpis = [];
-          dpr.forEach(_dpr => {
-            const filter = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
-            const transfer = filter(_transfers);
-            const platform = filter(_platforms);
-            const v2v = filter(_v2vs);
-            const portcall = filter(_portcalls) || { date: [] };
+          const matchedTransfers  = transfers.find(val => val._id === _mmsi) || {};
+          const matchedPlatforms  = platforms.find(val => val._id === _mmsi) || {};
+          const matchedDprs       = dprs.find(val => val._id === _mmsi) || {};
+          const matchedV2vs       = v2vs.find(val => val._id === _mmsi) || {};
+          const matchedPortcalls  = portcalls.find(val => val._id === _mmsi) || {};
 
-            const site = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
+          const dpr         = <FilteredDprData[]><any>this.dateService.groupDataByMonth(matchedDprs);
+          const _transfers  = this.dateService.groupDataByMonth(matchedTransfers);
+          const _platforms  = this.dateService.groupDataByMonth(matchedPlatforms);
+          const _v2vs       = this.dateService.groupDataByMonth(matchedV2vs);
+          const _portcalls  = this.dateService.groupDataByMonth(matchedPortcalls);
+          const _kpis       = [];
+
+          dpr.forEach(_dpr => {
+            const filter    = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
+            const transfer  = filter(_transfers);
+            const platform  = filter(_platforms);
+            const v2v       = filter(_v2vs);
+            const portcall  = filter(_portcalls) || { date: [] };
+            const site      = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
             _kpis.push(this.computeKpiForMonth({ site: site }, _dpr, portcall, transfer, platform, v2v));
           });
           this.kpis.push(_kpis.reverse());
@@ -108,10 +111,10 @@ export class SiemensKpiOverviewComponent implements OnChanges {
 
   computeKpiForMonth(info: { site: string }, dprs: FilteredDprData, portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
     const kpi: SiemensKpi = <SiemensKpi>{};
-    kpi.month = dprs.month.dateString;
-    kpi.site = this.formatFieldName(info.site);
-    let standByHours = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
-    let portCallHours = 0, fuelUsed = 0, maintainanceOps = 0;
+    kpi.month           = dprs.month.dateString;
+    kpi.site            = this.formatFieldName(info.site);
+    let standByHours    = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
+    let portCallHours   = 0, fuelUsed = 0, maintainanceOps = 0;
     let numDaysInMonth: number;
     const missedPaxCargo = dprs.missedPaxCargo;
     if (dprs.month.date.year === this.currentDate.year && dprs.month.date.month === this.currentDate.month) {
@@ -142,13 +145,13 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       const applyOpsFilter = (codes: number[]) => ops.reduce((prev, curr) => {
         return codes.some(_code => curr === _code) ? prev + 1 / 4 : prev;
       }, 0);
-      standByHours += applyOpsFilter([STATUS_STANDBY]);
-      weatherDowntimeHours += applyOpsFilter([STATUS_WEATHER_ALLVESSEL]);
-      techDowntimeHours += applyOpsFilter([STATUS_TECHNICAL_DOWNTIME]);
-      portCallHours += applyOpsFilter([STATUS_PORTCALL_PLANNED, STATUS_PORTCALL_UNPLANNED]);
-      utilHours += 24 - applyOpsFilter([STATUS_STANDBY, STATUS_TECHNICAL_DOWNTIME, STATUS_PORTCALL_UNPLANNED]);
-      fuelUsed += +dprs.liquids[i].fuel.consumed || 0;
-      maintainanceOps += dprs.vesselNonAvailability[i] ? dprs.vesselNonAvailability[i].length : 0;
+      standByHours          += applyOpsFilter([STATUS_STANDBY]);
+      weatherDowntimeHours  += applyOpsFilter([STATUS_WEATHER_ALLVESSEL]);
+      techDowntimeHours     += applyOpsFilter([STATUS_TECHNICAL_DOWNTIME]);
+      portCallHours         += applyOpsFilter([STATUS_PORTCALL_PLANNED, STATUS_PORTCALL_UNPLANNED]);
+      utilHours             += 24 - applyOpsFilter([STATUS_STANDBY, STATUS_TECHNICAL_DOWNTIME, STATUS_PORTCALL_UNPLANNED]);
+      fuelUsed              += +dprs.liquids[i].fuel.consumed || 0;
+      maintainanceOps       += dprs.vesselNonAvailability[i] ? dprs.vesselNonAvailability[i].length : 0;
     }
     let paxTransfer = 0, paxGangwayTransfer = 0, cargoOps = 0;
     if (turbine) {
@@ -169,18 +172,23 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       paxTransfer += platform.paxOut  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       cargoOps    += platform.cargoIn .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       cargoOps    += platform.cargoOut.reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      paxGangwayTransfer += platform.paxIn .reduce((prev, curr) => curr && curr.gangwayReadyDuration > 0 ? prev + this.parseInput(curr) : prev, 0);
-      paxGangwayTransfer += platform.paxOut.reduce((prev, curr) => curr && curr.gangwayReadyDuration > 0 ? prev + this.parseInput(curr) : prev, 0);
+      paxGangwayTransfer += platform.gangwayReadyDuration.reduce((numPax: number, dur: any, _i: number) => {
+        if ((+dur) > 0) {
+          numPax += this.parseInput(platform.paxIn[_i]);
+          numPax += this.parseInput(platform.paxOut[_i]);
+        }
+        return numPax;
+      }, 0);
     }
     if (v2v) {
       v2v.transfers.forEach(_transfers => {
-        if (isArray(_transfers)) {
+        if (Array.isArray(_transfers)) {
           _transfers.forEach(_transfer => {
             paxTransfer += this.parseInput(_transfer.paxIn);
             paxTransfer += this.parseInput(_transfer.paxOut);
             cargoOps    += this.parseInput(_transfer.cargoIn);
             cargoOps    += this.parseInput(_transfer.cargoOut);
-          })
+          });
         } else { // Only 1 transfer => not an array
           paxTransfer += this.parseInput(_transfers.paxIn);
           paxTransfer += this.parseInput(_transfers.paxOut);
@@ -189,7 +197,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
       });
     }
-    if (missedPaxCargo && isArray(missedPaxCargo)) {
+    if (missedPaxCargo && Array.isArray(missedPaxCargo)) {
       missedPaxCargo.forEach(_transfers => {
         _transfers.forEach(_transfer => {
           paxTransfer += this.parseInput(_transfer.paxIn);
@@ -197,20 +205,20 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           cargoOps    += this.parseInput(_transfer.cargoIn);
           cargoOps    += this.parseInput(_transfer.cargoOut);
         });
-      })
+      });
     }
-    kpi.totalTechnicalDowntime = Math.round(techDowntimeHours);
-    kpi.totalWeatherDowntime = Math.round(weatherDowntimeHours);
-    kpi.totalUtilHours = Math.round(utilHours);
-    kpi.totalWorkingHours = Math.round(24 * numDaysInMonth - standByHours - weatherDowntimeHours - techDowntimeHours - portCallHours);
-    kpi.effectiveWorkingDays = Math.round(kpi.totalWorkingHours / 24);
-    kpi.numPortCalls = portcalls.date.length;
-    kpi.totalFuelUsed = this.calcService.roundNumber(fuelUsed || 0, 10, ' m³');
-    kpi.fuelUsedPerWorkingDay = this.calcService.roundNumber(fuelUsed / kpi.effectiveWorkingDays || 0, 100, ' m³/day');
-    kpi.totalPaxTransfered = paxTransfer;
-    kpi.paxTransferedGangway = paxGangwayTransfer;
-    kpi.numCargoOps = cargoOps;
-    kpi.numMaintainanceOps = maintainanceOps;
+    kpi.totalTechnicalDowntime  = Math.round(techDowntimeHours);
+    kpi.totalWeatherDowntime    = Math.round(weatherDowntimeHours);
+    kpi.totalUtilHours          = Math.round(utilHours);
+    kpi.totalWorkingHours       = Math.round(24 * numDaysInMonth - standByHours - weatherDowntimeHours - techDowntimeHours - portCallHours);
+    kpi.effectiveWorkingDays    = Math.round(kpi.totalWorkingHours / 24);
+    kpi.numPortCalls            = portcalls.date.length;
+    kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' m³');
+    kpi.fuelUsedPerWorkingDay   = this.calcService.roundNumber(fuelUsed / kpi.effectiveWorkingDays || 0, 100, ' m³/day');
+    kpi.totalPaxTransfered      = paxTransfer;
+    kpi.paxTransferedGangway    = paxGangwayTransfer;
+    kpi.numCargoOps             = cargoOps;
+    kpi.numMaintainanceOps      = maintainanceOps;
     return kpi;
   }
 
@@ -220,8 +228,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       if (Math.floor(_date) === dnum) {
         count += this.parseInput(turbines.paxIn[i]);
       }
-    })
-    return count
+    });
+    return count;
   }
   private countPaxOutForDnum(turbines, dnum: number) {
     let count = 0;
@@ -229,8 +237,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       if (Math.floor(_date) === dnum) {
         count += this.parseInput(turbines.paxOut[i]);
       }
-    })
-    return count
+    });
+    return count;
   }
 
   private applyDowntime(ops: any[], code: number, times: { from: string, to: string }[], filter = (_: any) => true) {
@@ -269,7 +277,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       if (typeof (n) === 'number') {
         return isNaN(n) ? 0 : n;
       } else if (typeof (n) === 'string') {
-        return parseInt(n) || 0;
+        return parseInt(n, 10) || 0;
       } else {
         return 0;
       }
@@ -282,7 +290,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       transfers.forEach(_transfer => {
         if (_transfer.paxIn) {
           _transfer.paxIn.forEach((pax: number, _i: number) => {
-            if (pax == null || <any>pax === "_NaN_" || <any>pax === "N/a") {
+            if (pax == null || <any>pax === '_NaN_' || <any>pax === 'N/a') {
               if (typeof _transfer.default_paxIn[_i] === 'number') {
                 _transfer.paxIn[_i] = +_transfer.default_paxIn[_i] || 0;
               } else {
@@ -295,7 +303,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
         if (_transfer.paxOut) {
           _transfer.paxOut.forEach((pax: number, _i: number) => {
-            if (pax == null || <any>pax === "_NaN_" || <any>pax === "N/a") {
+            if (pax == null || <any>pax === '_NaN_' || <any>pax === 'N/a') {
               if (typeof _transfer.default_paxOut[_i] === 'number') {
                 _transfer.paxOut[_i] = +_transfer.default_paxOut[_i] || 0;
               } else {
@@ -306,7 +314,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         } else {
           _transfer.paxIn = [];
         }
-      })
+      });
     }
   }
 }
