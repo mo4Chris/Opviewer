@@ -134,6 +134,7 @@ interface CateringInput {
   marine: number;
   marineContractors: number;
   extraMeals: number;
+  extraMealsMarineContractors: number;
   packedLunches: number;
   Array: Array<number>;
 }
