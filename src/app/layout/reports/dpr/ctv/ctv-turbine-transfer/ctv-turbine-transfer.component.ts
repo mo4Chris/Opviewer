@@ -37,7 +37,7 @@ export class CtvTurbineTransferComponent {
     private dateService: DatetimeService,
     private permission: PermissionService,
     ) {
-      this.videoRequestPermission = this.permission.ctvVideoRequest; 
+        this.videoRequestPermission = this.permission.ctvVideoRequest; 
     }
 
   saveComment(transferData) {
@@ -61,8 +61,7 @@ export class CtvTurbineTransferComponent {
   }
 
   setRequest(transfer: any) {
-    console.log(transfer);
-    //this.onVideoRequest.emit(transfer);
+    this.onVideoRequest.emit(transfer);
   }
 
   getMatlabDateToJSTime(serial) {
