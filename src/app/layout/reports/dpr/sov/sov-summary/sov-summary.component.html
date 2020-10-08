@@ -30,16 +30,16 @@
                 <td>{{sovModel.platformTransfers.length}}</td>
               </tr>
               <tr>
-                <td>Average time in waiting zone</td>
+                <td>Average time in standby zone</td>
                 <td>{{summary.AvgTimeInWaitingZone}}</td>
               </tr>
               <tr>
-                <td>Average time in exclusion zone</td>
+                <td>Average time in safety zone</td>
                 <td>{{summary.AvgTimeInExclusionZone}}</td>
               </tr>
               <tr>
                 <ng-template #helpAvgDockingTime class="helpContent">
-                  Average time spent from entering exclusion zone until leaving the platform.
+                  Average time spent from entering safety zone until leaving the platform.
                 </ng-template>
                 <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">
                   Average time spent docking</td>
@@ -58,7 +58,7 @@
               </tr>
               <tr>
                 <ng-template #helpAvgDockingTime2 class="helpContent">
-                  Average time spent from entering exclusion zone until leaving the platform.
+                  Average time spent from entering safety zone until leaving the platform.
                 </ng-template>
                 <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">
                   Average time spent docking</td>

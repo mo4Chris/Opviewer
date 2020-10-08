@@ -12,6 +12,16 @@ export class SettingsService {
     unit_speed: speedOptions = 'knots';
     unit_weight: weightOptions = 'ton';
 
+    // Some session settings - these are not saved across sessions
+    weatherChart = {
+        Hs: false,
+        windAvg: false,
+        'V2v transfers': true,
+        'Turbine transfers': true,
+        'Platform transfers': true,
+        'Transit': true,
+    };
+
     constructor (
         private newService: CommonService
     ) {

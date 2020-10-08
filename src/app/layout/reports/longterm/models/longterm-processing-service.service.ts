@@ -50,6 +50,36 @@ export class LongtermProcessingService {
               return _transits;
             }));
             break;
+            case 'transitIn':
+            // We specifically filter transits to field harbour
+            queryElt.reqFields.push('combinedId');
+            loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
+              _transits.forEach(transit => {
+                const valid = transit.combinedId.map((_combinedId: number) =>  _combinedId === 21);
+                queryElt.reqFields.map(name => {
+                  if (transit[name]) {
+                    transit[name] = transit[name].filter((_: any, _i: number) => valid[_i]);
+                  }
+                });
+              });
+              return _transits;
+            }));
+            break;
+            case 'transitOut':
+            // We specifically filter transits to harbour-field
+            queryElt.reqFields.push('combinedId');
+            loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
+              _transits.forEach(transit => {
+                const valid = transit.combinedId.map((_combinedId: number) => _combinedId === 12);
+                queryElt.reqFields.map(name => {
+                  if (transit[name]) {
+                    transit[name] = transit[name].filter((_: any, _i: number) => valid[_i]);
+                  }
+                });
+              });
+              return _transits;
+            }));
+            break;
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!');
         }

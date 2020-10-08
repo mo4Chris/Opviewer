@@ -76,7 +76,7 @@
       <td class="plsdonotprintthisforfsake" *ngIf="videoRequestPermission">
         <button *ngIf="transfer_Data.video_requested"
           class="btn btn-lg btn-primary submitBtnDate videoRequest {{transfer_Data.video_requested.status}}"
-          (click)="setRequest(transfer_Data);" type="button"
+          (click)="setRequest(transfer_Data);" name="videoRequest" type="button"
           [disabled]="transfer_Data.videoAvailable == 0 || transfer_Data.video_requested.disabled">{{transfer_Data.video_requested.text}}</button>
       </td>
     </tr>

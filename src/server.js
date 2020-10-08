@@ -16,7 +16,7 @@ var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 mongo.set('useFindAndModify', false);
-var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true }, function(err, response) {
+var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, response) {
     if (err) {
         logger.fatal(err);
     } else {
@@ -92,8 +92,8 @@ var VesselsSchema = new Schema({
     nicename: { type: String },
     client: { type: Array },
     mmsi: { type: Number },
-    active: {type: Boolean},
-    operationsClass: {type: String},
+    active: { type: Boolean },
+    operationsClass: { type: String },
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
@@ -102,9 +102,9 @@ var SovInfoSchema = new Schema({
     nicename: { type: String },
     client: { type: Array },
     mmsi: { type: Number },
-    active: {type: Boolean},
-    operationsClass: {type: String},
-    daughtercraft_mmsi: {type: Number},
+    active: { type: Boolean },
+    operationsClass: { type: String },
+    daughtercraft_mmsi: { type: Number },
 }, { versionKey: false });
 var SovInfomodel = mongo.model('sovInfo', SovInfoSchema, 'sovInfo');
 
@@ -177,7 +177,7 @@ var CommentsChangedSchema = new Schema({
     newComment: { type: String },
     idTransfer: { type: String },
     otherComment: { type: String },
-    commentChanged: {type: Object},
+    commentChanged: { type: Object },
     userID: { type: String },
     processed: { type: String },
     paxUp: { type: Number },
@@ -664,7 +664,7 @@ function mailTo(subject, html, user) {
 
     // send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
-        var maillogger = logger.child({recipient: user, subject: subject}); // Attach email to the logs
+        var maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
         if (error) {
             return maillogger.error(error);
         }
@@ -703,7 +703,7 @@ app.get("/api/getActiveConnections", function(req, res) {
 app.post("/api/registerUser", function(req, res) {
     let userData = req.body;
     let token = verifyToken(req, res);
-    logger.info('Received request to create new user: ' + userData.email );
+    logger.info('Received request to create new user: ' + userData.email);
     if (token.userPermission !== "admin") {
         if (token.userPermission === "Logistics specialist" && token.userCompany !== userData.client) {
             return res.status(401).send('Access denied');
@@ -949,7 +949,7 @@ app.post("/api/get2faExistence", function(req, res) {
 app.post("/api/getSovWaveSpectrum", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - setSovWaveSpectrum', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - setSovWaveSpectrum', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         sovWaveSpectrumModel.find({
@@ -969,7 +969,7 @@ app.post("/api/getSovWaveSpectrum", function(req, res) {
 app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovWaveSpectrumAvailable', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getSovWaveSpectrumAvailable', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         sovWaveSpectrumModel.find({
@@ -994,7 +994,7 @@ app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
 app.post("/api/getCommentsForVessel", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getCommentsForVessel', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getCommentsForVessel', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         CommentsChangedmodel.aggregate([{
@@ -1010,7 +1010,7 @@ app.post("/api/getCommentsForVessel", function(req, res) {
                     "idTransfer": { "$last": "$idTransfer" },
                     "newComment": { "$last": "$newComment" },
                     "otherComment": { "$last": "$otherComment" },
-                    "commentChanged": {"$last" : "$commentChanged"}
+                    "commentChanged": { "$last": "$commentChanged" }
                 }
             }
         ]).exec(function(err, data) {
@@ -1082,7 +1082,7 @@ app.get("/api/getSov/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSov', mmsi: mmsi, date: date})
+            logger.warn({ msg: 'Access denied - getSov', mmsi: mmsi, date: date })
             return res.status(401).send('Access denied');
         }
         SovModelmodel.find({ "mmsi": mmsi, "dayNum": date, active: { $ne: false } }, function(err, data) {
@@ -1102,11 +1102,11 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getTransitsForSov', mmsi: mmsi, date: date})
+            logger.warn({ msg: 'Access denied - getTransitsForSov', mmsi: mmsi, date: date })
             return res.status(401).send('Access denied');
         }
 
-        SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+        SovTransitsmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
             if (err) {
                 logger.error(err);
                 res.send(err);
@@ -1123,7 +1123,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getVessel2vesselForSov', mmsi: mmsi, date: date})
+            logger.warn({ msg: 'Access denied - getVessel2vesselForSov', mmsi: mmsi, date: date })
             return res.status(401).send('Access denied');
         }
 
@@ -1144,7 +1144,7 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovRovOperations', mmsi: mmsi, date: date})
+            logger.warn({ msg: 'Access denied - getSovRovOperations', mmsi: mmsi, date: date })
             return res.status(401).send('Access denied');
         }
 
@@ -1153,8 +1153,8 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
                 logger.error(err);
                 res.send(err);
             } else {
-                if(data == null) {
-                    res.send({rovOperations: []})
+                if (data == null) {
+                    res.send({ rovOperations: [] })
                 } else {
                     res.send(data);
                 }
@@ -1167,21 +1167,21 @@ app.post("/api/updateSovRovOperations", function(req, res) {
     // Updates ROV Operations
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSovRovOperations', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSovRovOperations', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovRovOperationsmodel.findOneAndUpdate({
-                mmsi: req.body.mmsi,
-                date: req.body.date,
-                active: { $ne: false }
-            }, {
-                rovOperations: req.body.rovOperations
-            }, {
-                strict: false,
-                upsert: true,
-            },
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    rovOperations: req.body.rovOperations
+                }, {
+                    strict: false,
+                    upsert: true,
+                },
                 function(err, data) {
-                    if (err) { 
+                    if (err) {
                         logger.error(err);
                         res.send(err);
                     } else {
@@ -1198,7 +1198,7 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getEnginedata', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getEnginedata', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
 
@@ -1219,7 +1219,7 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getCycleTimesForSov', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getCycleTimesForSov', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
 
@@ -1240,7 +1240,7 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getPlatformTransfers', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getPlatformTransfers', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         SovPlatformTransfersmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } },
@@ -1266,7 +1266,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
 
@@ -1291,8 +1291,8 @@ app.post("/api/getVesselsForCompany", function(req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-            logger.warn({msg: 'Access denied - getVesselsForCompany', client: companyName})
-            return res.status(401).send('Access denied');
+        logger.warn({ msg: 'Access denied - getVesselsForCompany', client: companyName })
+        return res.status(401).send('Access denied');
     }
     let filter = { client: companyName, active: { $ne: false } };
     // if (!req.body[0].notHired) {
@@ -1321,7 +1321,7 @@ app.post("/api/getVesselsForCompany", function(req, res) {
 app.get("/api/getCompanies", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getCompanies'})
+        logger.warn({ msg: 'Access denied - getCompanies' })
         return res.status(401).send('Access denied');
     }
     Vesselmodel.find({ active: { $ne: false } }).distinct('client', function(err, data) {
@@ -1340,7 +1340,7 @@ app.get("/api/getCompanies", function(req, res) {
 app.post("/api/getDistinctFieldnames", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: { $ne: false } }).distinct('fieldname', function(err, data) {
@@ -1363,7 +1363,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getSovDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } }).distinct('fieldname', function(err, data) {
@@ -1426,8 +1426,8 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
 app.get("/api/getLatestBoatLocation", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-            logger.warn({msg: 'Access denied - getLatestBoatLocation'})
-            return res.status(401).send('Access denied');
+        logger.warn({ msg: 'Access denied - getLatestBoatLocation' })
+        return res.status(401).send('Access denied');
     }
     boatLocationmodel.aggregate([{
             $match: {
@@ -1478,8 +1478,8 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
     let companyMmsi = [];
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-            logger.warn({msg: 'Access denied - getLatestBoatLocationForCompany', client: companyName})
-            return res.status(401).send('Access denied');
+        logger.warn({ msg: 'Access denied - getLatestBoatLocationForCompany', client: companyName })
+        return res.status(401).send('Access denied');
     }
     Vesselmodel.find({ client: companyName, active: { $ne: false } }, function(err, data) {
         if (err) {
@@ -1547,7 +1547,7 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
 app.post("/api/getDatesWithValues", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getDatesWithValues', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getDatesWithValues', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
         Transfermodel.find({ mmsi: req.body.mmsi, active: { $ne: false } }).distinct('date', function(err, data) {
@@ -1568,7 +1568,7 @@ app.post("/api/getDatesWithValues", function(req, res) {
 app.post("/api/getSovDprInput", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovDprInput', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getSovDprInput', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
 
@@ -1596,7 +1596,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                         } else {
                             let dprData = {};
                             if (data == null) {
-                                logger.info({msg: 'Generating new dpr input model', mmsi: req.body.mmsi, date: req.body.date})
+                                logger.info({ msg: 'Generating new dpr input model', mmsi: req.body.mmsi, date: req.body.date })
                                 dprData = {
                                     "mmsi": req.body.mmsi,
                                     "date": req.body.date,
@@ -1699,7 +1699,7 @@ app.post("/api/getSovDprInput", function(req, res) {
 app.post("/api/getSovHseDprInput", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovDprInput', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getSovDprInput', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         SovHseDprInputmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, null, {}, function(err, data) {
@@ -1777,14 +1777,14 @@ app.post("/api/getSovHseDprInput", function(req, res) {
 app.post("/api/updateSOVHseDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSOVHseDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSOVHseDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.findOneAndUpdate({
-                mmsi: req.body.mmsi,
-                date: req.body.date,
-                active: { $ne: false }
-            }, { hseFields: req.body.hseFields },
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, { hseFields: req.body.hseFields },
                 function(err, data) {
                     if (err) {
                         logger.error(err);
@@ -1800,14 +1800,14 @@ app.post("/api/updateSOVHseDpr", function(req, res) {
 app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateDprFieldsSOVHseDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateDprFieldsSOVHseDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.findOneAndUpdate({
-                mmsi: req.body.mmsi,
-                date: req.body.date,
-                active: { $ne: false }
-            }, { dprFields: req.body.dprFields },
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, { dprFields: req.body.dprFields },
                 function(err, data) {
                     if (err) {
                         logger.error(err);
@@ -1823,7 +1823,7 @@ app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
 app.post("/api/saveFuelStatsSovDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveFuelStatsSovDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveFuelStatsSovDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -1846,11 +1846,10 @@ app.post("/api/saveFuelStatsSovDpr", function(req, res) {
 app.post("/api/saveIncidentDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveIncidentDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveIncidentDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
-            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } },
-                { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
+            SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { toolbox: req.body.toolbox, hoc: req.body.hoc, ToolboxAmountNew: req.body.ToolboxAmountNew, HOCAmountNew: req.body.HOCAmountNew },
                 function(err, data) {
                     if (err) {
                         logger.error(err);
@@ -1866,7 +1865,7 @@ app.post("/api/saveIncidentDpr", function(req, res) {
 app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSOVTurbinePaxInput', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSOVTurbinePaxInput', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovTurbineTransfersmodel.findOneAndUpdate({
@@ -1895,16 +1894,16 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
     // Updates transfer info between SOV and other vessels
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSOVv2vPaxInput', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSOVv2vPaxInput', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovVessel2vesselTransfersmodel.findOneAndUpdate({
-                mmsi: req.body.mmsi,
-                date: req.body.date,
-                active: { $ne: false }
-            }, {
-                transfers: req.body.transfers
-            },
+                    mmsi: req.body.mmsi,
+                    date: req.body.date,
+                    active: { $ne: false }
+                }, {
+                    transfers: req.body.transfers
+                },
                 function(err, data) {
                     if (err) {
                         logger.error(err);
@@ -1917,33 +1916,33 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
     });
 });
 
-app.post("/api/getSovInfo/", function (req, res) {
+app.post("/api/getSovInfo/", function(req, res) {
     // Updates transfer info turbine transfers by DC craft.
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getSovInfo', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getSovInfo', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovInfomodel.find({
-                mmsi: req.body.mmsi
-            }, 
-            function(err, data) {
-                if (err) {
-                    logger.error('Error getting sov info')
-                    res.send(err);
-                } else {
-                    res.send(data);
-                }
-            });
-    }
+                    mmsi: req.body.mmsi
+                },
+                function(err, data) {
+                    if (err) {
+                        logger.error('Error getting sov info')
+                        res.send(err);
+                    } else {
+                        res.send(data);
+                    }
+                });
+        }
+    });
 });
-}); 
 
 app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
     // Updates transfer info turbine transfers by DC craft.
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSOVv2vTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSOVv2vTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             let info = req.body.update;
@@ -1961,7 +1960,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
                     }
                     let match = v2v.CTVactivity.findIndex(_act => _act.mmsi == info.mmsi);
                     if (match >= 0) {
-                        v2v.CTVactivity[match] = {...v2v.CTVactivity[match], ...info};
+                        v2v.CTVactivity[match] = {...v2v.CTVactivity[match], ...info };
                     } else {
                         v2v.CTVactivity.push(info);
                     }
@@ -2002,7 +2001,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
 app.post("/api/updateSOVPlatformPaxInput", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - updateSOVPlatformPaxInput', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - updateSOVPlatformPaxInput', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovPlatformTransfersmodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { paxIn: req.body.paxIn, paxOut: req.body.paxOut, cargoIn: req.body.cargoIn, cargoOut: req.body.cargoOut },
@@ -2021,7 +2020,7 @@ app.post("/api/updateSOVPlatformPaxInput", function(req, res) {
 app.post("/api/saveNonAvailabilityDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveNonAvailabilityDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveNonAvailabilityDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { vesselNonAvailability: req.body.vesselNonAvailability },
@@ -2046,7 +2045,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         let token = verifyToken(req, res);
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveDprSigningSkipper', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveDprSigningSkipper', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -2079,7 +2078,8 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
             Usermodel.find({
                 active: { $ne: false },
                 client: token.userCompany,
-                permissions: 'Client representative'
+                permissions: 'Client representative',
+                boats: { $elemMatch: { mmsi: mmsi } }
             }, {
                 username: 1,
             }, (err, data) => {
@@ -2094,10 +2094,10 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
                 }
             });
 
-            setTimeout(function(){
+            setTimeout(function() {
                 mailTo(title, _body, recipient)
             }, 3000);
-           
+
         }
     });
 });
@@ -2106,7 +2106,7 @@ app.post("/api/saveDprSigningClient", function(req, res) {
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveDprSigningClient', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveDprSigningClient', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -2143,7 +2143,7 @@ app.post("/api/declineDprClient", function(req, res) {
     var serveradres = process.env.IP_USER.split(",");
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - declineDprClient', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - declineDprClient', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -2189,7 +2189,7 @@ app.post("/api/declineDprClient", function(req, res) {
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
                 '<br><br>Feedback from client:<br>' + req.body.feedback;
             // ToDo: set proper recipient
-            setTimeout(function(){
+            setTimeout(function() {
                 mailTo(title, _body, recipient)
             }, 3000);
         }
@@ -2207,7 +2207,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - declineHseDprClient', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - declineHseDprClient', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
@@ -2253,7 +2253,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
                 serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
                 '<br><br>Feedback from client:<br>' + req.body.feedback;
             // ToDo: set proper recipient
-            setTimeout(function(){
+            setTimeout(function() {
                 mailTo(title, _body, recipient)
             }, 3000);
         }
@@ -2264,7 +2264,7 @@ app.post("/api/saveQHSERemark", function(req, res) {
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveQHSERemark', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveQHSERemark', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
@@ -2296,7 +2296,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveHseDprSigningSkipper', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveHseDprSigningSkipper', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
@@ -2326,7 +2326,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
     let token = verifyToken(req, res);
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveHseDprSigningClient', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveHseDprSigningClient', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovHseDprInputmodel.updateOne({
@@ -2354,7 +2354,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
 app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveWeatherDowntimeDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveWeatherDowntimeDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -2379,7 +2379,7 @@ app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
 app.post("/api/saveAccessDayType", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveAccessDayType', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveAccessDayType', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({
@@ -2404,7 +2404,7 @@ app.post("/api/saveAccessDayType", function(req, res) {
 app.post("/api/saveStandByDpr", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveStandByDpr', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveStandByDpr', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { standBy: req.body.standBy },
@@ -2423,7 +2423,7 @@ app.post("/api/saveStandByDpr", function(req, res) {
 app.post("/api/saveRemarksStats", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveRemarksStats', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveRemarksStats', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { remarks: req.body.remarks },
@@ -2442,7 +2442,7 @@ app.post("/api/saveRemarksStats", function(req, res) {
 app.post("/api/saveCateringStats", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveCateringStats', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveCateringStats', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { catering: req.body.catering },
@@ -2461,7 +2461,7 @@ app.post("/api/saveCateringStats", function(req, res) {
 app.post("/api/saveDPStats", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveDPStats', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveDPStats', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { dp: req.body.dp },
@@ -2480,7 +2480,7 @@ app.post("/api/saveDPStats", function(req, res) {
 app.post("/api/saveMissedPaxCargo", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveMissedPaxCargo', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveMissedPaxCargo', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { missedPaxCargo: req.body.MissedPaxCargo },
@@ -2499,7 +2499,7 @@ app.post("/api/saveMissedPaxCargo", function(req, res) {
 app.post("/api/saveHelicopterPaxCargo", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - saveHelicopterPaxCargo', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - saveHelicopterPaxCargo', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         } else {
             SovDprInputmodel.updateOne({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, { helicopterPaxCargo: req.body.HelicopterPaxCargo },
@@ -2520,7 +2520,7 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getDatesWithTransferForSov', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getDatesWithTransferForSov', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
         sovHasPlatformTransferModel.find({ "mmsi": mmsi, active: { $ne: false } }, ['date']).distinct('date', function(err, platformTransferDates) {
@@ -2559,7 +2559,7 @@ app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - GetDatesShipHasSailedForSov', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - GetDatesShipHasSailedForSov', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
         SovModelmodel.find({ mmsi: mmsi, active: { $ne: false }, distancekm: { $not: /_NaN_/ } }, ['dayNum', 'distancekm'], function(err, data) {
@@ -2579,7 +2579,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function(req, res) {
     req.body.mmsi = mmsi;
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getTransfersForVessel', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getTransfersForVessel', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         Transfermodel.find({
@@ -2603,7 +2603,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function(req, res) {
 app.post("/api/getGeneralForRange", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getGeneralForRange', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getGeneralForRange', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
     });
@@ -2682,7 +2682,7 @@ app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
 });
 
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
-    aggregateStatsOverModel(SovPlatformTransfersmodel, req, res);
+    aggregateStatsOverModel(SovPlatformTransfersmodel, req, res, { date: 'arrivalTimePlatform' });
 });
 
 app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
@@ -2708,7 +2708,7 @@ app.post("/api/getDprInputsByRange", function(req, res) {
 app.get("/api/getUsers", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getUsers'})
+        logger.warn({ msg: 'Access denied - getUsers' })
         return res.status(401).send('Access denied');
     }
     Usermodel.find({}, null, {
@@ -2730,11 +2730,11 @@ app.post("/api/getUsersForCompany", function(req, res) {
     let companyName = req.body[0].client;
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - getUsersForCompany', client: companyName})
+        logger.warn({ msg: 'Access denied - getUsersForCompany', client: companyName })
         return res.status(401).send('Access denied');
     }
     if (token.userPermission === "Logistics specialist" && token.userCompany !== companyName) {
-        logger.warn({msg: 'Access denied - getUsersForCompany', client: companyName})
+        logger.warn({ msg: 'Access denied - getUsersForCompany', client: companyName })
         return res.status(401).send('Access denied');
     }
     Usermodel.find({
@@ -2755,7 +2755,7 @@ app.post("/api/getUsersForCompany", function(req, res) {
 app.post("/api/getUserByUsername", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - getUserByUsername', username: req.body.username})
+        logger.warn({ msg: 'Access denied - getUserByUsername', username: req.body.username })
         return res.status(401).send('Access denied');
     }
     Usermodel.find({
@@ -2780,7 +2780,7 @@ app.post("/api/getUserByUsername", function(req, res) {
 app.get("/api/getUserClientById/:id/:client", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany != req.params.client) {
-        logger.warn({msg: 'Access denied - getUserClientById', client: req.params.client})
+        logger.warn({ msg: 'Access denied - getUserClientById', client: req.params.client })
         return res.status(401).send('Access denied');
     }
     const id = req.params.id.split(",").filter(function(el) { return el != null && el != '' });
@@ -2806,10 +2806,10 @@ app.post("/api/validatePermissionToViewData", function(req, res) {
 app.post("/api/saveUserBoats", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - saveUserBoats', client: req.body.client})
+        logger.warn({ msg: 'Access denied - saveUserBoats', client: req.body.client })
         return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        logger.warn({msg: 'Access denied - saveUserBoats', client: req.body.client})
+        logger.warn({ msg: 'Access denied - saveUserBoats', client: req.body.client })
         return res.status(401).send('Access denied');
     }
     Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { boats: req.body.boats },
@@ -2835,7 +2835,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
     }
 
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getLatestGeneral', mmsi: req.body.mmsi, date: req.body.date})
+        logger.warn({ msg: 'Access denied - getLatestGeneral', mmsi: req.body.mmsi, date: req.body.date })
         return res.status(401).send('Access denied');
     } else {
         generalmodel.aggregate([{
@@ -2874,7 +2874,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
 app.post("/api/getVideoRequests", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getVideoRequests', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getVideoRequests', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
         videoRequestedmodel.aggregate([{
@@ -2906,7 +2906,7 @@ app.post("/api/getVideoRequests", function(req, res) {
 app.post("/api/getVideoBudgetByMmsi", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getVideoBudgetByMmsi', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getVideoBudgetByMmsi', mmsi: req.body.mmsi })
             return res.status(401).send("Access denied");
         }
         videoBudgetmodel.find({
@@ -2952,7 +2952,7 @@ app.post("/api/getVideoBudgetByMmsi", function(req, res) {
 app.post("/api/saveVideoRequest", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1 || !req.body.videoAvailable || req.body.video_requested.disabled) {
-            logger.warn({msg: 'Access denied - saveVideoRequest', mmsi: req.body.mmsi, requestID: req.body.requestID})
+            logger.warn({ msg: 'Access denied - saveVideoRequest', mmsi: req.body.mmsi, requestID: req.body.requestID })
             return res.status(401).send('Access denied');
         }
         let token = verifyToken(req, res);
@@ -2965,7 +2965,21 @@ app.post("/api/saveVideoRequest", function(req, res) {
         videoRequest.active = req.body.video_requested.text === "Requested" ? true : false;
         videoRequest.status = '';
         videoRequest.username = token.username;
-        videoRequest.save(function(err, data) {
+
+        videoRequestedmodel.findOneAndUpdate({
+            "requestID": mongo.Types.ObjectId(videoRequest.requestID)
+        }, {
+            mmsi: videoRequest.mmsi,
+            active: videoRequest.active,
+            videoPath: videoRequest.videoPath,
+            vesselname: videoRequest.vesselname,
+            date: videoRequest.date,
+            status: videoRequest.status,
+            username: videoRequest.username
+        }, {
+            upsert: true,
+        }, function(err, data) {
+
             if (err) {
                 logger.error(err);
                 return res.send(err);
@@ -2978,7 +2992,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
                         if (data) {
                             videoBudgetmodel.findOneAndUpdate({
                                 mmsi: req.body.mmsi,
-                                active: { $ne: false }
+                                date: req.body.date,
                             }, {
                                 maxBudget: req.body.maxBudget,
                                 currentBudget: req.body.currentBudget
@@ -3018,10 +3032,10 @@ app.post("/api/resetPassword", function(req, res) {
     let token = verifyToken(req, res);
     logger.info('Password reset requested for user' + token.username)
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - resetPassword'})
+        logger.warn({ msg: 'Access denied - resetPassword' })
         return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        logger.warn({msg: 'Access denied - resetPassword'})
+        logger.warn({ msg: 'Access denied - resetPassword' })
         return res.status(401).send('Access denied');
     }
     randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
@@ -3045,10 +3059,10 @@ app.post("/api/resetPassword", function(req, res) {
 app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - setActive', username: req.body.user})
+        logger.warn({ msg: 'Access denied - setActive', username: req.body.user })
         return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        logger.warn({msg: 'Access denied - setActive', username: req.body.user})
+        logger.warn({ msg: 'Access denied - setActive', username: req.body.user })
         return res.status(401).send('Access denied');
     }
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 1 },
@@ -3076,10 +3090,10 @@ app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
 app.post("/api/setInactive", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
-        logger.warn({msg: 'Access denied - setInactive', target: req.body.user})
+        logger.warn({ msg: 'Access denied - setInactive', target: req.body.user })
         return res.status(401).send('Access denied');
     } else if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) {
-        logger.warn({msg: 'Access denied - setInactive',target: req.body.user})
+        logger.warn({ msg: 'Access denied - setInactive', target: req.body.user })
         return res.status(401).send('Access denied');
     }
     Usermodel.findOneAndUpdate({ _id: req.body._id }, { active: 0 },
@@ -3106,14 +3120,14 @@ app.post("/api/setInactive", function(req, res) {
 });
 
 app.post("/api/sendFeedback", function(req, res) {
-    feedbacklogger = logger.child({feedback: req.body.message, user: req.body.person, page: req.body.page})
+    feedbacklogger = logger.child({ feedback: req.body.message, user: req.body.person, page: req.body.page })
     Usermodel.findOne({ _id: req.body.person, active: { $ne: false } }, function(err, data) {
         if (err) {
             feedbacklogger.error(err);
             res.send(err);
         } else {
             if (data) {
-                feedbacklogger.info({msg: 'Received feedback!'})
+                feedbacklogger.info({ msg: 'Received feedback!' })
                 let html = 'feedback has been given by: ' + data.username + ' on page ' + req.body.page + '.<br><br>' +
                     'feedback message: ' + req.body.message;
                 mailTo('Feedback ' + data.client, html, 'Webmasters');
@@ -3172,7 +3186,7 @@ app.post("/api/setPassword", function(req, res) {
 app.post("/api/getGeneral", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getGeneral', mmsi: req.body.mmsi, date: req.body.date})
+            logger.warn({ msg: 'Access denied - getGeneral', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
         generalmodel.find({ mmsi: req.body.mmsi, date: req.body.date, active: { $ne: false } }, function(err, data) {
@@ -3189,7 +3203,7 @@ app.post("/api/getGeneral", function(req, res) {
 app.get("/api/getTurbineWarranty", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getTurbineWarranty'})
+        logger.warn({ msg: 'Access denied - getTurbineWarranty' })
         return res.status(401).send('Access denied');
     }
     turbineWarrantymodel.find({ active: { $ne: false } }, function(err, data) {
@@ -3215,11 +3229,11 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
             res.send(err);
         } else {
             if (!data) {
-                logger.warn({msg: 'No TWA found - getTurbineWarrantyOne'})
+                logger.warn({ msg: 'No TWA found - getTurbineWarrantyOne' })
                 return res.send({ err: "No TWA found" });
             }
             if (token.userPermission !== 'admin' && token.userCompany !== data.client) {
-                logger.warn({msg: 'Access denied - getTurbineWarrantyOne'})
+                logger.warn({ msg: 'Access denied - getTurbineWarrantyOne' })
                 return res.status(401).send('Access denied');
             }
             sailDayChangedmodel.find({ fleetID: data._id, active: { $ne: false } }, function(err, _data) {
@@ -3237,7 +3251,7 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
 app.post("/api/getTurbineWarrantyForCompany", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client && token.hasCampaigns) {
-        logger.warn({msg: 'Access denied - getTurbineWarrantyForCompany', client: token.userCompany})
+        logger.warn({ msg: 'Access denied - getTurbineWarrantyForCompany', client: token.userCompany })
         return res.status(401).send('Access denied');
     }
     turbineWarrantymodel.find({
@@ -3276,7 +3290,7 @@ app.post("/api/setSaildays", function(req, res) {
 app.post("/api/addVesselToFleet", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
-        logger.warn({msg: 'Access denied - addVesselToFleet'})
+        logger.warn({ msg: 'Access denied - addVesselToFleet' })
         return res.status(401).send('Access denied');
     }
     filter = {
@@ -3344,7 +3358,7 @@ app.get("/api/getParkLocationForVessels", function(req, res) {
     let companyName = req.params.company.replace('--_--', ' ');
     let token = verifyToken(req, res);
     if (token.userCompany !== companyName && token.userPermission !== "admin") {
-        logger.warn({msg: 'Access denied - getParkLocationForVessels', client: companyName})
+        logger.warn({ msg: 'Access denied - getParkLocationForVessels', client: companyName })
         return res.status(401).send('Access denied');
     }
     ParkLocationmodel.find({
@@ -3366,7 +3380,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(re
     let client = req.params.client;
     let stopDate = req.params.stopDate;
     if (token.userPermission !== 'admin' && token.userCompany !== client) {
-        logger.warn({msg: 'Access denied - getActiveListingsForFleet', client: client, fleetID: fleetID})
+        logger.warn({ msg: 'Access denied - getActiveListingsForFleet', client: client, fleetID: fleetID })
         return res.status(401).send('Access denied');
     }
     activeListingsModel.aggregate([{
@@ -3449,7 +3463,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function(req, res) {
     let token = verifyToken(req, res);
     let fleetID = req.params.fleetID;
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getAllActiveListingsForFleet'})
+        logger.warn({ msg: 'Access denied - getAllActiveListingsForFleet' })
         return res.status(401).send('Access denied');
     }
     activeListingsModel.find({ fleetID: fleetID, active: { $ne: false } }, function(err, data) {
@@ -3465,7 +3479,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function(req, res) {
 app.post("/api/setActiveListings", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) {
-        logger.warn({msg: 'Access denied - setActiveListings'})
+        logger.warn({ msg: 'Access denied - setActiveListings' })
         return res.status(401).send('Access denied');
     }
     let listings = req.body.listings;
@@ -3538,7 +3552,7 @@ app.post("/api/setActiveListings", function(req, res) {
 app.post("/api/getHasSailedDatesCTV", function(req, res) {
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - getHasSailedDatesCTV', mmsi: req.body.mmsi})
+            logger.warn({ msg: 'Access denied - getHasSailedDatesCTV', mmsi: req.body.mmsi })
             return res.status(401).send('Access denied');
         }
         hasSailedModelCTV.find({
@@ -3559,13 +3573,13 @@ app.post("/api/getHasSailedDatesCTV", function(req, res) {
 app.post("/api/getVesselsToAddToFleet", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin') {
-        logger.warn({msg: 'Access denied - getVesselsToAddToFleet', mmsi: req.body.mmsi, date: req.body.date})
+        logger.warn({ msg: 'Access denied - getVesselsToAddToFleet', mmsi: req.body.mmsi, date: req.body.date })
         return res.status(401).send('Access denied');
     }
     vesselsToAddToFleetmodel.find({
         campaignName: req.body.campaignName,
         active: { $ne: false },
-        windfield: req.body.windfield, 
+        windfield: req.body.windfield,
         startDate: req.body.startDate
     }, function(err, data) {
         if (err) {
@@ -3580,7 +3594,7 @@ app.post("/api/getVesselsToAddToFleet", function(req, res) {
 app.post("/api/saveFleetRequest", function(req, res) {
     let token = verifyToken(req, res);
     if (token.userPermission !== 'admin' && token.userPermission !== 'Logistics specialist') {
-        logger.warn({...{msg: 'Access denied - saveFleetRequest'}, ... req.body})
+        logger.warn({... { msg: 'Access denied - saveFleetRequest' }, ...req.body })
         return res.status(401).send('Access denied');
     }
     request = new turbineWarrantyRequestmodel();
@@ -3649,7 +3663,7 @@ app.post("/api/getWavedataForDay", function(req, res) {
                     logger.error(err);
                     res.send(err);
                 } else if (!hasAccessRights) {
-                    logger.warn({msg: 'Access denied - getWavedataForDay', mmsi: req.body.mmsi, site: req.body.site})
+                    logger.warn({ msg: 'Access denied - getWavedataForDay', mmsi: req.body.mmsi, site: req.body.site })
                     res.status(401).send('Access denied');
                 } else {
                     data.meta = meta;
@@ -3808,22 +3822,29 @@ function getUTCstring() {
     return dformat
 }
 
-function aggregateStatsOverModel(model, req, res) {
+function aggregateStatsOverModel(model, req, res, opts) {
     // Default aggregation function for turbine, transfer or transit stats
+    opts = {... {
+            key: 'mmsi',
+            label: 'vesselname',
+            date: 'startTime',
+        },
+        ...opts
+    }
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({msg: 'Access denied - aggregateStatsOverModel', mmsi: req.body.mmsi, dateMin: req.body.dateMin, dateMax: req.body.dateMax})
+            logger.warn({ msg: 'Access denied - aggregateStatsOverModel', mmsi: req.body.mmsi, dateMin: req.body.dateMin, dateMax: req.body.dateMax })
             return res.status(401).send('Access denied');
         }
         projObj = {
-            vesselname: 1,
-            mmsi: 1,
-            startTime: 1,
+            "vesselname": 1,
+            "mmsi": 1,
         }
+        projObj[opts.date] = 1;
         groupObj = {
-            _id: "$mmsi",
-            label: { $push: "$vesselname" },
-            date: { $push: "$startTime" }
+            _id: '$' + opts.key,
+            label: { $push: '$' + opts.label },
+            date: { $push: '$' + opts.date }
         }
         const reqFields = req.body.reqFields;
         reqFields.forEach(key => {

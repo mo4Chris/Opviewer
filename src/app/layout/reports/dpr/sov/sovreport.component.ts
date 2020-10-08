@@ -126,7 +126,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         vessel2vessels.forEach(_v2v => {
           this.setPaxFromDefault(_v2v.transfers);
         });
-        
+
         this.sovModel.vessel2vessels = vessel2vessels || [];
         this.rovOperations = rovOpsModel.rovOperations || [];
         this.dprInput = dprInput[0];
@@ -173,7 +173,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
-            this.commonService.getPlatformLocations('')
+            this.commonService.getPlatformLocations(''),
           ]).subscribe(
             ([
               platformTransfers,
@@ -522,7 +522,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         transfer = this.calculationService.ReplaceEmptyColumnValues(
           transfer
         );
-        
+
         transfer.totalDuration = <any>(
           this.calculationService.GetDecimalValueForNumber(
             transfer.totalDuration
@@ -648,18 +648,18 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   setPaxFromDefault(transfers: anyTransfer[]): void {
     transfers.forEach((_transfer: anyTransfer) => {
-      if (_transfer.paxIn != 'N/a' && typeof (_transfer.paxIn) == 'number') {
-        _transfer.paxIn = _transfer.paxIn || 0
-      } else if (_transfer.default_paxIn  != 'N/a' && typeof (_transfer.default_paxIn) == 'number'){
-        _transfer.paxIn = _transfer.default_paxIn || 0
+      if (_transfer.paxIn !== 'N/a' && typeof (_transfer.paxIn) === 'number') {
+        _transfer.paxIn = _transfer.paxIn || 0;
+      } else if (_transfer.default_paxIn  !== 'N/a' && typeof (_transfer.default_paxIn) === 'number') {
+        _transfer.paxIn = _transfer.default_paxIn || 0;
       } else {
         _transfer.paxIn = 0;
       }
 
-      if (_transfer.paxOut != 'N/a' && typeof (_transfer.paxOut) == 'number') {
-        _transfer.paxOut = _transfer.paxOut || 0
-      } else if (_transfer.default_paxOut  != 'N/a' && typeof (_transfer.default_paxOut) == 'number'){
-        _transfer.paxOut = _transfer.default_paxOut || 0
+      if (_transfer.paxOut !== 'N/a' && typeof (_transfer.paxOut) === 'number') {
+        _transfer.paxOut = _transfer.paxOut || 0;
+      } else if (_transfer.default_paxOut  !== 'N/a' && typeof (_transfer.default_paxOut) === 'number') {
+        _transfer.paxOut = _transfer.default_paxOut || 0;
       } else {
         _transfer.paxOut = 0;
       }
@@ -678,7 +678,7 @@ export class SovreportComponent implements OnInit, OnChanges {
       paxOut: 0,
       cargoIn: 0,
       cargoOut: 0,
-    }
+    };
   }
 }
 

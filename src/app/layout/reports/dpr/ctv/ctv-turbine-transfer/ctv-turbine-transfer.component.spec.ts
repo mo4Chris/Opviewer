@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvTurbineTransferComponent } from './ctv-turbine-transfer.component';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -23,6 +23,7 @@ describe('CtvTurbineTransferComponent', () => {
       ],
       providers: [
         MockedCommonServiceProvider,
+        MockedUserServiceProvider
       ]
     })
     .compileComponents();

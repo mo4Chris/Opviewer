@@ -1,9 +1,8 @@
 import * as Chart from 'chart.js';
+import * as moment from 'moment-timezone';
 import { Moment } from 'moment';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as moment from 'moment-timezone';
 import { SettingsService } from '@app/supportModules/settings.service';
-import { Injectable, NgModule, Optional, Inject, InjectionToken, Component } from '@angular/core';
 
 export class WeatherOverviewChart {
   static weatherChartColors = [
@@ -18,6 +17,12 @@ export class WeatherOverviewChart {
     'rgba(255, 206, 86, 1)',
     'rgba(0,0,0,0.4)'
   ];
+  Unit = {
+    Hs: 'm',
+    Tp: 's',
+    Direction: 'deg',
+    Wind: this.settings.unit_speed,
+  };
 
   Chart: Chart;
   private timeLabel: string;
@@ -49,13 +54,11 @@ export class WeatherOverviewChart {
         y: y_mean
       };
     };
-    
     if (args.utcOffset){
       this.timeLabel = 'Time (UTC +' + args.utcOffset + ')';
     } else {
       this.timeLabel = 'Time';
     }
-
     // Fixing dset units
     const dsets = this.sortByAxisID(args.dsets);
     dsets.forEach((dset, _i) => {
@@ -68,13 +71,10 @@ export class WeatherOverviewChart {
       if (dset.yAxisID !== 'hidden') {
         dset.backgroundColor = WeatherOverviewChart.weatherChartColors[_i];
         dset.borderColor = WeatherOverviewChart.weatherChartColors[_i];
-        if (_i > 0) {
-          dset.hidden = dset.label !== 'windGust';
-        }
       }
+      dset.hidden = this.getDsetHidden(dset.label);
     });
     const timezoneOffset = this.getTimezoneOffset(dsets);
-
     // Actual chart creation
     this.Chart = new Chart('weatherOverview', {
       type: 'line',
@@ -107,12 +107,12 @@ export class WeatherOverviewChart {
             },
             type: 'time',
             time: {
-              min: args.timeStamps[0],
-              max: args.timeStamps[args.timeStamps.length - 1],
               unit: 'hour',
               displayFormats: 'HH:mm',
             },
             ticks: {
+              min: args.timeStamps[0],
+              max: args.timeStamps[args.timeStamps.length - 1],
               callback: (value, index, values) => {
                 if (!values[index]) {
                   return;
@@ -209,21 +209,29 @@ export class WeatherOverviewChart {
           filter: function (tooltip, data) {
             return data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden';
           },
+        },
+        legend: {
+          onClick: (mouseEvent: MouseEvent, legendItem) => {
+            var index = legendItem.datasetIndex;
+            let ci = this.Chart;
+            var meta = ci.getDatasetMeta(index);
+            // See controller.isDatasetVisible comment
+            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+            // Store which graphs are enabled
+            let key = ci.data.datasets[index].label;
+            this.settings.weatherChart[key] = meta.hidden;
+            // We hid a dataset ... rerender the chart
+            ci.update();
+          }
         }
       }
     });
   }
 
-  Unit = {
-    Hs: 'm',
-    Tp: 's',
-    Direction: 'deg',
-    Wind: this.settings.unit_speed,
-  };
-
   getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
     // ToDo: properly implement the timezone check
+    console.warn('Timezone offset to be implemented')
     return 0;
   }
   destroy() {
@@ -248,8 +256,7 @@ export class WeatherOverviewChart {
       return dset;
     }
   }
-
-  getUnitByAxisId(id: string) {
+  private getUnitByAxisId(id: string) {
     switch (id) {
       case 'Hs':
         return this.Unit.Hs;
@@ -264,7 +271,6 @@ export class WeatherOverviewChart {
         return this.Unit[id];
     }
   }
-
   private sortByAxisID(dsets) {
     return dsets.sort((A, B) => {
       const valA = this.getValueForAxis(A.yAxisID);
@@ -278,7 +284,6 @@ export class WeatherOverviewChart {
       }
     });
   }
-
   private getValueForAxis(ID: string) {
     switch (ID) {
       case 'Hs':
@@ -293,6 +298,18 @@ export class WeatherOverviewChart {
         return 20;
       default:
         return 10;
+    }
+  }
+  private getDsetHidden (label: string) {
+    if (label === undefined) {
+      return true;
+    } else {
+      let current = this.settings.weatherChart[label];
+      if (current === undefined ){
+        return true;
+      } else {
+        return current;
+      }
     }
   }
 }

@@ -85,48 +85,6 @@ describe('CTV dpr', () => {
             expect(nanElts.count()).toBe(0);
         });
 
-        it('Should save fuel consumption', () => {
-            let fuelConsumed = page.getFuelInput();
-            const oldFuel = e2eRng.getRandomInt(500, 1000);
-
-            expect(fuelConsumed.isDisplayed()).toBe(true);
-            fuelConsumed.clear();
-            fuelConsumed.sendKeys(oldFuel);
-            const saveBtn = page.getStatsSaveBtn();
-            saveBtn.click();
-            page.navigateTo();
-            fuelConsumed = page.getFuelInput();
-            expect(fuelConsumed.getValue()).toBe(oldFuel.toString());
-        });
-
-        it('Should save waste oil consumption', () => {
-            let wasteOilLanded = page.getWasteoilInput();
-            const oldFuel = e2eRng.getRandomInt(0, 100);
-
-            expect(wasteOilLanded.isDisplayed()).toBe(true);
-            wasteOilLanded.clear();
-            wasteOilLanded.sendKeys(oldFuel);
-            const saveBtn = page.getStatsSaveBtn();
-            saveBtn.click();
-            page.navigateTo();
-            wasteOilLanded = page.getWasteoilInput();
-            expect(wasteOilLanded.getValue()).toBe(oldFuel.toString());
-        });
-
-        it('Should save garbage landed', () => {
-            let garbageLanded = page.getGarbagelandedInput();
-            const landed = e2eRng.getRandomNumber(0, 0.5);
-
-            expect(garbageLanded.isDisplayed()).toBe(true);
-            garbageLanded.clear();
-            garbageLanded.sendKeys(landed);
-            const saveBtn = page.getStatsSaveBtn();
-            saveBtn.click();
-            page.navigateTo();
-            garbageLanded = page.getGarbagelandedInput();
-            expect(garbageLanded.getValue()).toBe(landed.toString());
-        });
-
     });
 
     describe('Should generate dockings', () => {
@@ -157,69 +115,6 @@ describe('CTV dpr', () => {
             expect(page.getEltInDockingRow(dockingRow, 10).getText()).toMatch(/\w+/, 'Detector should be formatted');
         });
 
-        it('Should allow users to input pax in / out', () => {
-            // Init pax in/out
-            expect(saveBtn.isEnabled()).toBe(false, 'Save button should only enable on input change');
-            let paxInInput = page.getPaxInputFromDockingRow(dockingRow);
-            let paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
-            paxInInput.clear(); paxInInput.sendKeys(1);
-            paxOutInput.clear(); paxOutInput.sendKeys(2);
-            let cargoInput = page.getCargoInputFromDockingRow(dockingRow);
-            let cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
-            cargoInput.clear(); cargoInput.sendKeys(3);
-            cargoOutput.clear(); cargoOutput.sendKeys(4);
-            saveBtn.click();
-
-            // Save
-            page.navigateTo();
-            paxInInput = page.getPaxInputFromDockingRow(dockingRow);
-            expect(paxInInput.getValue()).toBe('1');
-            paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
-            expect(paxOutInput.getValue()).toBe('2');
-            paxInInput.clear(); paxInInput.sendKeys(0);
-            paxOutInput.clear(); paxOutInput.sendKeys(0);
-            cargoInput = page.getCargoInputFromDockingRow(dockingRow);
-            expect(cargoInput.getValue()).toBe('3');
-            cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
-            expect(cargoOutput.getValue()).toBe('4');
-            cargoInput.clear(); cargoInput.sendKeys(0);
-            cargoOutput.clear(); cargoOutput.sendKeys(0);
-
-            saveBtn.click();
-
-            // Check if we were not seeing old values
-            page.navigateTo();
-            paxInInput = page.getPaxInputFromDockingRow(dockingRow);
-            expect(paxInInput.getValue()).toBe('0');
-            paxOutInput = page.getPaxOutputFromDockingRow(dockingRow);
-            expect(paxOutInput.getValue()).toBe('0');
-            cargoInput = page.getCargoInputFromDockingRow(dockingRow);
-            expect(cargoInput.getValue()).toBe('0');
-            cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
-            expect(cargoOutput.getValue()).toBe('0');
-        });
-
-        it('Should save default comments', () => {
-            let commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
-            expect(dropdownHandler.getValue(commentBtn)).toMatch(/\w+/, 'Comment should be formatted');
-            expect(dropdownHandler.getNumOptions(commentBtn)).toBeGreaterThan(1);
-
-            dropdownHandler.setValueByIndex(commentBtn, 1);
-            let oldValue = dropdownHandler.getValue(commentBtn);
-
-            saveBtn.click();
-
-            commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
-            expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue);
-
-            dropdownHandler.setValueByIndex(commentBtn, 0);
-            oldValue = dropdownHandler.getValue(commentBtn);
-            saveBtn.click();
-
-            commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
-            expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue);
-        });
-
         it('Should save other comments', () => {
             const commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
             dropdownHandler.setValue(commentBtn, 'Other');
@@ -241,7 +136,7 @@ describe('CTV dpr', () => {
     });
 
 
-    describe('Should not be able to manage video requests', () => {
+    describe('Should be able to manage video requests', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
@@ -252,9 +147,24 @@ describe('CTV dpr', () => {
             saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('Video request should not be displayed', () => {
+        it('Should request video from docking', () => {
+            let videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
+            expect(videoRequestBtn.getText()).toBe('Not requested');
 
-            expect(element(by.name('videoRequest')).isPresent()).toBe(false);
+            videoRequestBtn.click();
+            expect(videoRequestBtn.getText()).toBe('Requested');
+
+            page.navigateTo();
+
+            videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
+            expect(videoRequestBtn.getText()).toBe('Requested');
+
+            videoRequestBtn.click();
+            expect(videoRequestBtn.getText()).toBe('Not requested');
+
+            page.navigateTo();
+
+            expect(videoRequestBtn.getText()).toBe('Not requested');
 
         });
     });
