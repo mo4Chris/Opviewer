@@ -1,0 +1,255 @@
+agm-map {
+    height: 480px;
+}
+
+.transitTable {
+    margin-bottom: 0;
+}
+
+.form-number {
+  min-width: 60px;
+}
+
+.divContainer {
+    width: 100%;
+    //min-height: 200px;
+    margin-top: 1rem;
+}
+
+@media only screen and (min-width: 667px) {
+    .boatSelectDropdown {
+        margin-left: 20px;
+    }
+    .topElt {
+        margin-bottom: 20px;
+    }
+}
+
+.ctvMap {
+    display: inline-block;
+}
+
+ngb-alert {
+    position: fixed;
+    bottom: 0px;
+}
+
+.pending_collection {
+    background-color: #f98a00;
+}
+
+:disabled {
+    opacity: 0.4;
+}
+
+.videoRequestLoading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.995);
+    z-index: 1050;
+}
+
+.custom-day {
+    text-align: center;
+    line-height: 2rem;
+    background-color: rgb(245, 245, 245);
+}
+
+.has-sailed-transfer {
+    background-color: rgb(198, 233, 255);
+}
+
+textarea {
+    resize: none
+}
+
+.has-sailed-transit {
+    background-color: rgb(255, 255, 211);
+}
+
+.disable-day {
+    background-color: white;
+    color: rgb(225, 225, 225) !important;
+}
+
+.noMapDataAlert {
+    position: relative;
+    width: 99%;
+}
+
+.loader {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+}
+
+.weatherOverview {
+    display: inline-block;
+    position: relative;
+    align-self: center;
+    width: 90%;
+    canvas {
+        position: relative;
+    }
+}
+
+.weatherMap {
+    padding-top: 25px;
+}
+
+.helpBtn {
+    margin: 0 !important;
+    padding: 0;
+    border-radius: 13px;
+    width: 26px;
+    height: 26px;
+    color: #427ded;
+    border-color: #427ded;
+    &::active,
+    &::hover {
+        background-color: #427ded;
+        color: white;
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+    }
+    &::focus {
+        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+    }
+    .totalsHelpBtn {
+        color: white;
+        border-color: white;
+    }
+    .addVesselHelp {
+        right: 60px;
+        position: absolute;
+    }
+}
+
+@media print {
+
+    .plsdonotprintthisforfsake {
+        display: none !important;
+        z-index: 1;
+    }
+    .table-responsive {
+        width: 100%;
+        margin-left: 0;
+        padding: 0;
+        font-size: 10pt;
+    }
+    .btn {
+        display: none;
+    }
+    .form-control {
+        border: 0;
+        padding: 0;
+        overflow: visible;
+    }
+    .form-control-sm {
+        border: 0;
+        padding: 0;
+        overflow: visible;
+    }
+    .btn-outline-primary {
+        border: 0;
+        padding: 0;
+        overflow: visible;
+        width: auto;
+    }
+    .chartContainer {
+        width: 225mm;
+    }
+    hr {
+        display: none;
+    }
+    .dropdown-toggle {
+        border: 0;
+        padding: 0;
+        overflow: visible;
+        width: auto;
+    }
+    .commentButton {
+        color: black;
+    }
+    td.comment {
+        width: 150px;
+    }
+    .dropdown-toggle::after {
+        display: none !important;
+    }
+    .col-print-1 {
+        width: 8%;
+        float: left;
+    }
+    .col-print-2 {
+        width: 16%;
+        float: left;
+    }
+    .col-print-3 {
+        width: 25%;
+        float: left;
+    }
+    .col-print-4 {
+        width: 33%;
+        float: left;
+    }
+    .col-print-5 {
+        width: 42%;
+        float: left;
+    }
+    .col-print-6 {
+        width: 50%;
+        float: left;
+    }
+    .col-print-7 {
+        width: 58%;
+        float: left;
+    }
+    .col-print-8 {
+        width: 66%;
+        float: left;
+    }
+    .col-print-9 {
+        width: 75%;
+        float: left;
+    }
+    .col-print-10 {
+        width: 83%;
+        float: left;
+    }
+    .col-print-11 {
+        width: 92%;
+        float: left;
+    }
+    .col-print-12 {
+        width: 100%;
+        float: left;
+    }
+    .no-print {
+        display: none;
+    }
+    @media (orientation: landscape) {
+        .singlepage-print {
+            display: block;
+            page-break-before: always;
+        }
+        agm-map {
+            height: 400px;
+            width: 297mm;
+            display: inline-flex;
+        }
+    }
+    @media (orientation: portrait) {
+        .singlepage-print-port {
+            display: block;
+            page-break-before: always;
+        }
+        agm-map {
+            height: 425px;
+            width: 297mm;
+            display: inline-flex;
+        }
+    }
+}

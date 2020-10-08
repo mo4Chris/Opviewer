@@ -6,6 +6,7 @@ import { CommonService } from '../../common.service';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { mockedObservable } from '../../models/testObservable';
 
 describe('FormComponent', () => {
     let component: FormComponent;
@@ -21,11 +22,12 @@ describe('FormComponent', () => {
         })
     );
 
-    beforeEach(() => {
+    beforeEach(async(() => {
+        spyOn(CommonService.prototype, 'getLatestBoatLocation').and.returnValue(mockedObservable([]));
         fixture = TestBed.createComponent(FormComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-    });
+    }));
 
     it('should create', () => {
         expect(component).toBeTruthy();

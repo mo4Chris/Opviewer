@@ -1,0 +1,11 @@
+@media print {
+    .row {
+        display: block;
+    }
+    .alert {
+        background-color: white !important;
+        color: darkgrey !important;
+        border-color: grey;
+        font-weight: bold;
+    }
+}

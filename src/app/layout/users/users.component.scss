@@ -9,6 +9,17 @@
     padding: 0 5px;
 }
 
+.rounded-btn-red {
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    color: rgb(255, 255, 255) !important;
+    background: rgb(228, 62, 62);
+    border: 2px solid rgba(228, 62, 62, 0.919);
+    font-size: 14px;
+    line-height: 25px;
+    padding: 0 5px;
+}
+
 .rounded-btn:hover,
 .rounded-btn:focus,
 .rounded-btn:active,
@@ -18,13 +29,17 @@
     outline: none;
 }
 
-a {
-    color: rgb(255,255,255);
+.rounded-btn-red:hover,
+.rounded-btn-red:focus,
+.rounded-btn-red:active,
+.rounded-btn-red:visited {
+    color: rgba(228, 62, 62, 1);
+    border: 2px solid rgba(228, 62, 62, 0.919);
+    outline: none;
 }
 
-ngb-alert {
-    position: fixed;
-    bottom: 0px;
+a {
+    color: rgb(255, 255, 255);
 }
 
 th:not(:first-child):not(:nth-last-of-type(-n+2)) {

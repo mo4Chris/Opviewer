@@ -1,0 +1,66 @@
+<div *ngIf="transferData?.length > 0">
+    <br><br>
+    <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
+        <h3 *ngIf="noTransits">There is no transit data available</h3>
+        <app-ctv-summary *ngIf="!noTransits" [general]="general" [generalInputStats]="generalInputStats"
+            [engine]="enginedata" [tokenInfo]="tokenInfo" [visitedPark]="visitedPark"></app-ctv-summary>
+    </div>
+    <br><br>
+
+    <div *ngIf="parkFound && wavedata" class="row" class="weatherMap">
+        <div class="col-xl-12 col-lg-24">
+            <div class="card mb-3">
+                <div class="card-header" >
+                    Weather overview: {{wavedata? wavedata.site: ''}}
+                    <ng-template #popContentWeatherOverview class="helpContent">
+                        Weather overview for selected day and vessel. 
+                        By default, only Hs and avg wind speed are shown.
+                        Hidden or missing data is crossed through. To show or 
+                        hide a particular dataset, click on the colored
+                        bars in the legend. Hovering over the graph will 
+                        display the recorded values at any time.
+                    </ng-template>
+                    <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
+                        [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
+                        
+                    <button class="minimizer" (click)="minimizeWaveGraph()">
+                        <i class="fa fa-window-minimize"></i>
+                    </button>
+                </div>
+                <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
+                    <canvas id="weatherOverview"></canvas>
+                </div>
+            </div>
+        </div>
+        <br><br>
+    </div>
+
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
+        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
+          (onVideoRequest)="setRequest($event)"></app-ctv-turbine-transfer>
+    </div>
+    <div class="row singlepage-print singlepage-print-port">
+        <div class="col-lg-7"  *ngFor="let transfer_Data of transferData;let ind = index">
+            <app-ctvslipgraph *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX.length>0"
+                [index]="ind" [transfer]="transfer_Data" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
+        </div>
+    </div>
+    <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+        <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+    </div>
+</div>
+
+<ng-template #helpVideoRequests>
+    Videos can be requested for recent transfers by anyone authorized to do so (If you see this button this is the case). 
+    After a request is made, the video will be downloaded as soon as the vessel is back in the harbour. This usually takes
+    up to 2 days. After the download is completed, a download link will be send to the account that made the request. Be
+    aware that the link is only valid for 7 days!
+    <br><br>
+    If a video of interest is not available, this usually means the video has been deleted (we have limited storage space).
+    This will not happen until at least a month has passed. We cannot recover deleted videos. To get access to a video which
+    was already requested before, send an email to <a href = "mailto: info@bmo-offshore.com">info@bmo-offshore.com</a>
+</ng-template>

@@ -1,0 +1,100 @@
+<h2 class="text-muted">Vessel report <small>
+    {{' || ' +  vesselObject.vesselName + ' || ' + getMatlabDateToJSDate(vesselObject.date) }}</small></h2>
+<!-- Date picker vessel reports-->
+<div class="form-inline no-print">
+  <div class="form-group">
+    <div class="input-group datepicker-input topElt">
+      <button id="prevDayButton" (click)="changeDay(-1)">
+        <i class="fa fa-caret-left"></i>
+      </button>
+      <input class="form-control form-control-lg" ngbDatepicker #dp="ngbDatepicker" name="dp"
+        [minDate]="{year: 2014, month: 1, day: 1}" [outsideDays]="outsideDays" [displayMonths]='1' [maxDate]="maxDate"
+        [(ngModel)]="datePickerValue" (ngModelChange)="onChange()" [dayTemplate]="customDay">
+      <button id="datePickBtn" class="input-group-addon" (click)="dp.toggle()" type="button">
+        <span class="fa fa-calendar"></span>
+      </button>
+      <button id="nextDayButton" (click)="changeDay(1)" (disabled)="true">
+        <i class="fa fa-caret-right"></i>
+      </button>
+    </div>
+  </div>
+  <div class="form-group topElt">
+    <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="vesselObject.mmsi"
+      (change)="onChange()" required [disabled]="tokenInfo.userPermission == 'Vessel master'">
+      <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.mmsi">{{vessel.nicename}}</option>
+    </select>
+  </div>
+  <button class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(1);" type="button">Print DPR Full</button>
+  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(2);" type="button">Print DPR Commercial</button>
+  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"  class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(3);" type="button">Print DPR HSE</button>
+</div>
+<!-- Plotting map-->
+<div class="loader" *ngIf="!loaded || !turbinesLoaded">
+  <div class="spinner">
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+  </div>
+</div>
+<div id="routeMap" style="width: 100%">
+  <div [hidden]="!loaded || !turbinesLoaded">
+    <div *ngIf="noPermissionForData == false; else noPermission">
+      <div class="divContainer" *ngIf="showContent == true; else other_content">
+        <div *ngIf="showMap; else no_map_available">
+          <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
+            <b>Warning!</b> no route found for the selected day and vessel.
+          </div>
+          <div *ngIf="vesselObject.vesselType == 'CTV' && !parkFound" class="alert alert-warning" role="alert">
+            <b>Warning!</b> no parks found for the selected day and vessel.
+          </div>
+          <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine"
+            class="alert alert-primary" role="alert">
+            <b>Info,</b> parks were found but have not been visited by vessel.
+          </div>
+          <agm-map id='googleMap' #gm [scrollwheel]='null' [scaleControl]="true" [latitude]="zoominfo.latitude"
+            [longitude]="zoominfo.longitude" [zoom]="zoominfo.mapZoomLvl" [mapTypeId]="'roadmap'"
+            [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'" (mapReady)="setMapReady($event)"
+            [styles]="mapStyle">
+          </agm-map>
+        </div>
+      </div>
+      <!-- This builds the CTV / SOV subpages -->
+      <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
+        [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)"
+        (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)"
+        (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+        (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)"
+        (parkFound)="getParkFound($event)" (platformLocationData)="getPlatformLocationData($event)">
+      </app-ctvreport>
+      <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
+        [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [mapPixelWidth]="mapPixelWidth"
+        (sailDates)="getDatesHasSailed($event)" (sovChildData)="onChildLoaded($event)" [printMode]="printMode"
+        (turbineLocationData)="getTurbineLocationData($event)" (platformLocationData)="getPlatformLocationData($event)">
+      </app-sovreport>
+    </div>
+  </div>
+</div>
+
+<ng-template #other_content>
+  <div class="divContainer">
+    <h3>There is no data available for the selected day and vessel.</h3>
+  </div>
+</ng-template>
+<ng-template #noPermission>
+  <div class="divContainer">
+    <h3>You are not allowed to view the vessel you requested</h3>
+  </div>
+</ng-template>
+<ng-template #no_map_available>
+  <div class="divContainer">
+    <h3>There is no map available for the selected day and vessel.</h3>
+  </div>
+</ng-template>
+<ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected"
+  let-disabled="disabled" let-focused="focused">
+  <div class="custom-day btn-light" [class.bg-primary]="selected" [class.disable-day]="disabled"
+    [class.text-muted]="disabled" [class.has-sailed-transfer]="hasSailedTransfer(date)"
+    [class.has-sailed-transit]="hasSailedTransit(date)" [class.has-sailed-other]="hasSailedOther(date)">
+    {{ date.day }}
+  </div>
+</ng-template>

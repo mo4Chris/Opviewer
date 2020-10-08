@@ -1,0 +1,164 @@
+<div class="row">
+  <div class="col-xl-12 col-lg-24 page-single-print">
+    <div class="card mb-3">
+      <div class="card-header">Daily Summary</div>
+      <div class="card-body">
+        <div class="col-xl-6 dailySummary" *ngIf="!hasSummaryData">
+          Summary not available!
+        </div>
+
+        <div class="col-xl-6 col-print-6 dailySummary">
+          <table class="table table-responsive table-bordered tableSummary">
+            <ng-container>
+              <tr *ngIf="summary.departureFromHarbour != 'N/a'">
+                <td>Departure from harbour</td>
+                <td>{{summary.departureFromHarbour}}</td>
+              </tr>
+              <tr *ngIf="summary.arrivalAtHarbour != 'N/a'">
+                <td>Arrival at harbour</td>
+                <td>{{summary.arrivalAtHarbour}}</td>
+              </tr>
+              <tr *ngIf="summary.TotalSailDistance != 'N/a'">
+                <td>Distance sailed</td>
+                <td>{{summary.TotalSailDistance}} </td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Platform && sovModel.platformTransfers.length > 0">
+              <tr>
+                <td>Number of platforms visited</td>
+                <td>{{sovModel.platformTransfers.length}}</td>
+              </tr>
+              <tr>
+                <td>Average time in standby zone</td>
+                <td>{{summary.AvgTimeInWaitingZone}}</td>
+              </tr>
+              <tr>
+                <td>Average time in safety zone</td>
+                <td>{{summary.AvgTimeInExclusionZone}}</td>
+              </tr>
+              <tr>
+                <ng-template #helpAvgDockingTime class="helpContent">
+                  Average time spent from entering safety zone until leaving the platform.
+                </ng-template>
+                <td [ngbTooltip]="helpAvgDockingTime" placement="top" container="body">
+                  Average time spent docking</td>
+                <td>{{summary.AvgTimeDocking}}</td>
+              </tr>
+              <tr>
+                <td>Average approachtime</td>
+                <td>{{summary.AvgTimeTravelingToPlatforms}}</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="sovModel.sovType == SovTypeEnum.Turbine && sovModel.turbineTransfers.length > 0">
+              <tr *ngIf="sovModel.turbineTransfers.length > 0">
+                <td>Number of gangway connections</td>
+                <td>{{sovModel.turbineTransfers.length}}</td>
+              </tr>
+              <tr>
+                <ng-template #helpAvgDockingTime2 class="helpContent">
+                  Average time spent from entering safety zone until leaving the platform.
+                </ng-template>
+                <td [ngbTooltip]="helpAvgDockingTime2" placement="top" container="body">
+                  Average time spent docking</td>
+                <td>{{summary.AvgTimeDocking}}</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="summary.NrOfVesselTransfers > 0">
+              <tr>
+                <ng-template #helpNumV2VTransfers class="helpContent">
+                  Total number of transfers between this SOV and other CTVs.
+                </ng-template>
+                <td [ngbTooltip]="helpNumV2VTransfers" placement="top" container="body">
+                  Number of CTV vessel to vessel transfers</td>
+                <td>{{summary.NrOfVesselTransfers}}</td>
+              </tr>
+              <tr>
+                <td>Average time spent docking (vessels)</td>
+                <td>{{summary.AvgTimeVesselDocking}}</td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="summary.NrOfDaughterCraftLaunches > 0">
+              <tr>
+                <td>Number of daughter-craft launches</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>DC sailing time</td>
+                <td></td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="summary.NrOfHelicopterVisits > 0">
+              <tr>
+                <td>Number of helicopter visits</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Average time helicopter on deck</td>
+                <td></td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="fieldName !== ''">
+              <tr>
+                <td><div  [ngbTooltip]="helpWindfield">Field with transfers</div></td>
+                <td>{{fieldName}}</td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="summary.maxSignificantWaveHeightdDuringOperations !== 'N/a'">
+              <td>Maximum significant wave height during operations</td>
+              <td>{{summary.maxSignificantWaveHeightdDuringOperations}}</td>
+            </tr>
+            <tr *ngIf="summary.maxWindSpeedDuringOperations !== 'N/a'">
+              <td>Maximum wind speed during operations</td>
+              <td>{{summary.maxWindSpeedDuringOperations}}</td>
+            </tr>
+            <tr *ngIf="approvalStatus" class="plsdonotprintthisforfsake">
+              <td>
+                <div [ngbTooltip]="helpDprStatus">Commercial DPR status</div>
+              </td>
+              <td>{{approvalStatus}}</td>
+            </tr>
+            <tr *ngIf="hseApprovalStatus" class="plsdonotprintthisforfsake">
+              <td>
+                <div [ngbTooltip]="helpHseStatus">HSE DPR status</div>
+              </td>
+              <td>{{hseApprovalStatus}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-xl-6 col-print-3 dailySummary">
+          <tr>
+            <div [hidden]="!operationalChartCalculated" class="pie-chart-container">
+              <canvas id="operationalStats"></canvas>
+            </div>
+            <div [hidden]="!sovHasLimiters" class="pie-chart-container">
+              <canvas id="gangwayLimitations"></canvas>
+            </div>
+          </tr>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #helpDprStatus>
+  Shows the approval status of the commerical DPR. The commercial DPR must be filled in by the vessel.
+  Once done, it can be signed off by the vessel. Then, the client representative must approve or refuse
+  the DPR. Once the DPR approved by vessel and client, it is considered final. If refused, the vessel
+  must make changes and then sign off again. Hidden during print.
+</ng-template>
+<ng-template #helpHseStatus>
+  Shows the approval status of the HSE DPR. The HSE DPR must be filled in by the vessel.
+  Once done, it can be signed off by the vessel. Then, the QHSE specialist must approve or refuse
+  the HSE DPR. Once the HSE DPR is approved by both parties, it is considered final. If refused,
+  the vessel must make changes and sign off again. Hidden during print.
+</ng-template>
+<ng-template #helpWindfield>
+  Wind farms with transfers this day. If multiple fields were visited, only the first is shown.
+</ng-template>

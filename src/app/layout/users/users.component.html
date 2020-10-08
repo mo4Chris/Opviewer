@@ -21,13 +21,14 @@
                                     <i class="fa" [class.hidden]="sort.active!='permissions'" [class.fa-arrow-up]="sort.isAsc"
                                         [class.fa-arrow-down]="!sort.isAsc"></i>
                                 </th>
-                                <th *ngIf="userPermission == 'admin'" (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
+                                <th *ngIf="permission.admin" (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
                                         Client
                                     <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                                         [class.fa-arrow-down]="!sort.isAsc"></i>
                                 </th>
                                 <th>Manage vessels</th>
                                 <th>Reset password</th>
+                                <th>(de-)activate user</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,13 +36,14 @@
                                 <td>{{ind + 1}}</td>
                                 <td>{{user_data.username}}</td>
                                 <td>{{user_data.permissions}}</td>
-                                <td *ngIf="userPermission == 'admin'">{{user_data.client}}</td>
-                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage Vessels</a></td>
+                                <td *ngIf="permission.admin">{{user_data.client}}</td>
+                                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage vessels</a></td>
                                 <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
+                                <td *ngIf="user_data.active == 1"><a class="btn rounded-btn-red" (click)="setInactive(user_data)">Deactivate user</a></td>
+                                <td *ngIf="user_data.active == 0"><a class="btn rounded-btn" (click)="setActive(user_data)">Activate user</a></td>
                             </tr>
                         </tbody>
                     </table>
-                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
                 </div>
             </div>
         </div>

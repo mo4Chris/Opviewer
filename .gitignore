@@ -46,3 +46,8 @@ testem.log
 Thumbs.db
 .vs/
 .vscode/
+TESTS-*.xml
+src/killnode.bat
+startNodeServer.bat
+startSeleniumServer.bat
+*.bat

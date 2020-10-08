@@ -1,0 +1,23 @@
+<tr>
+  <div class="row">
+    <div class="col-xl-9">
+      <div [hidden]="!loaded">
+        <plotly-plot [divId]="'SOV_waveSpectrum'" [data]="data" [className]="'spectrum'" [layout]='plotLayout'
+          (initialized)="onPlotlyInit($event)" [frames]="frames">
+        </plotly-plot>
+      </div>
+      <div [hidden]="loaded">
+        <app-ng-loading></app-ng-loading>
+      </div>
+    </div>
+    <div class="col-xl-3">
+      The wavespectrum as computed by Norsea. It shows the wave energy over time relative to the ship.
+      The closer the waves are to the center, the lower their frequency is, and therefore the longer the wave period.
+      When more than 1 hotspot is visible, the vessel is likely experiencing mixed waves from 2 different directions.
+      The intensity is correlated to the wave height: low values (&#60; 100) indicate low waves (or harbour) whilst high
+      values (>200)
+      indicate significant waves. The gap in the middle is a result of the radars maximum range, which equals 0.04 Hz
+      (waves with period up to 25 seconds). Heading of the vessel is indicated via the red arrow.
+    </div>
+  </div>
+</tr>

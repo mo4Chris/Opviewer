@@ -11,13 +11,13 @@
 
                     <div class="form-group">
                         <select name="selectPermission" [(ngModel)]="registerUserData.permissions">
-                            <option *ngFor="let permission of permissions" [ngValue]="permission">{{permission | titlecase}}</option>
+                            <option *ngFor="let _permission of createPermissions" [ngValue]="_permission">{{_permission | titlecase}}</option>
                         </select>
-                        <select *ngIf="userPermission == 'admin'" name="selectBusinessName" [(ngModel)]="registerUserData.client" required>
+                        <select *ngIf="permission.admin" name="selectBusinessName" [(ngModel)]="registerUserData.client" required>
                             <option *ngFor="let businessName of businessNames" [ngValue]="businessName">{{businessName}}</option>
                         </select>
                     </div>
-                    <ngb-alert *ngIf="showAlert" [type]="alert.type" (close)="showAlert=false">{{ alert.message }}</ngb-alert>
+                    <ngb-alert *ngIf="alert.active" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
                 </div>
                 <a class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
                 <a class="btn rounded-btn" [routerLink]="['/dashboard']">Cancel</a>

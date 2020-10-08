@@ -1,13 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgbCarouselModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCarouselModule, NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
 import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import {CommonService} from '../../common.service';
 
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
@@ -37,7 +36,8 @@ import { VesselMasterComponent } from './components/users/vessel-master/vessel-m
         }),
         AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,
-        StatModule
+        StatModule,
+        NgbModule,
     ],
     declarations: [
         DashboardComponent,

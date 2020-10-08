@@ -1,0 +1,115 @@
+<br>
+<!-- ROV Operations - Input-->
+<div class="row single-block-print" *ngIf="!readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        ROV Operations
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipRovOperations">ROV Operations</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>Location</th>
+            <th>ROV Deployed at</th>
+            <th>ROV retrieved at</th>
+            <th>Notes/Observations</th>
+          </tr>
+          <ng-container *ngFor="let _rovOperations of rovOperations">
+            <tr>
+              <td>
+                <input type="text" class="form-control-sm"
+                [(ngModel)]="_rovOperations.location" placeholder="Location" >
+              </td>
+              <td>
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
+                  [(ngModel)]="_rovOperations.rovDeployed.hours" placeholder="HH" >
+                  <span class="col-print-1">:</span>
+                  <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
+                    [(ngModel)]="_rovOperations.rovDeployed.minutes" placeholder="MM">
+              </td>
+              <td>
+                <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
+                  [(ngModel)]="_rovOperations.rovRetrieved.hours" placeholder="HH" >
+                  <span class="col-print-1">:</span>
+                  <input type="text" min="0" class="form-control-sm col-sm-3 col-print-3 form-number"
+                    [(ngModel)]="_rovOperations.rovRetrieved.minutes" placeholder="MM">
+              </td>
+              <td>
+                <textarea autosize [(ngModel)]="_rovOperations.observations" class="form-control"
+                cols="70"></textarea>
+              </td>
+            </tr>
+          </ng-container>
+          <tr class="tableTotal">
+            <th colspan="3">Daily Total</th>
+            <td>{{rovOperations.length}}</td>
+          </tr>
+          <tr class="plsdonotprintthisforfsake ">
+            <td colspan="4">
+              <button class="btn btn-sm btn-success" (click)="addRovOperationsToArray(); rovOperationsChanged = true;"
+                type="button">add line</button>
+              <button class="btn btn-sm btn-danger"
+                (click)="removeLastFromRovOperationsArray(); rovOperationsChanged = true;" type="button">remove
+                last</button>
+                <button class="btn btn-lg btn-primary" style="float:right"
+                (click)="saveTransfers();" type="button">Save</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROV operations - readonly-->
+<div class="row single-block-print" *ngIf="readonly">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        ROV Operations
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipRovOperations">ROV Operations</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>Location</th>
+            <th>ROV Deployed at</th>
+            <th>ROV retrieved at</th>
+            <th>Notes/Observations</th>
+          </tr>
+          <ng-container *ngFor="let _rovOperations of rovOperations">
+            <tr>
+              <td>
+                {{_rovOperations.location}}
+              </td>
+              <td>
+                {{_rovOperations.rovDeployed.hours}}:{{_rovOperations.rovDeployed.minutes}}
+              </td>
+              <td>
+               {{_rovOperations.rovRetrieved.hours}}:{{_rovOperations.rovRetrieved.minutes}}
+              </td>
+              <td style="white-space: pre-wrap;" *ngIf="_rovOperations.observations.length>0; else noRemarks">{{_rovOperations.observations}}</td>
+            </tr>
+          </ng-container>
+          <tr class="tableTotal">
+            <th colspan="3">Daily Total</th>
+            <td>{{rovOperations.length}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #noRemarks>
+  <td style="white-space: pre-wrap;"><i>No observations</i></td>
+</ng-template>
+<ng-template #tooltipRovOperations>All operations using a Remote Offshore Vehicle (ROV)  </ng-template>

@@ -8,6 +8,8 @@ import { CommonService } from '../common.service';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
+import { UserType } from '@app/shared/enums/UserType';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-set-password',
@@ -16,11 +18,10 @@ import * as twoFactor from 'node-2fa';
   animations: [routerTransition()]
 })
 export class SetPasswordComponent implements OnInit {
-
-    alert = { type: 'danger', message: 'Something is wrong, contact BMO Offshore' };
-    showAlert = false;
     passwords = { password: '', confirmPassword: '', confirm2fa: '' };
     user = '';
+    userCompany;
+    userPermissions: UserType;
     token = this.getTokenFromParameter();
     noUser = false;
     showAfterscreen = false;
@@ -30,7 +31,14 @@ export class SetPasswordComponent implements OnInit {
     initiate2fa;
     modalReference: NgbModalRef;
 
-    constructor(public router: Router, private newService: CommonService, private route: ActivatedRoute, private modalService: NgbModal, private _auth: AuthService) { }
+    constructor(
+        public router: Router,
+        private newService: CommonService,
+        private route: ActivatedRoute,
+        private modalService: NgbModal,
+        private _auth: AuthService,
+        private alert: AlertService,
+    ) { }
 
     getTokenFromParameter() {
         let _token;
@@ -48,6 +56,8 @@ export class SetPasswordComponent implements OnInit {
         this._auth.getUserByToken({ passwordToken: token, user: this.getUsernameFromParameter() }).subscribe(data => {
             if (data.username) {
                 this.user = data.username;
+                this.userCompany = data.userCompany;
+                this.userPermissions = data.permissions;
             } else {
                 this.noUser = true;
             }
@@ -97,19 +107,20 @@ export class SetPasswordComponent implements OnInit {
     }
 
     setUserPassword() {
-
         if (this.passwords.password.length < 7) {
-            this.alert.type = 'danger';
-            this.alert.message = 'Your password does not meet the minimum length of 7 characters';
-            this.showAlert = true;
-
+            this.alert.sendAlert({
+              text: 'Your password does not meet the minimum length of 7 characters',
+              type: 'danger'
+            });
         } else if (this.passwords.password !== this.passwords.confirmPassword) {
-            this.alert.type = 'danger';
-            this.alert.message = 'Your passwords are not the same.';
-            this.showAlert = true;
+          this.alert.sendAlert({
+            text: 'Password and confirmation are not equal!',
+            type: 'danger'
+          });
         } else {
-            if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) !== null) {
-                this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword, secret2fa: this.secretAsBase32 }).pipe(
+            // TO DO: Make sure that bibby fixes their stuff and then re-activate 2fa for them
+            if (this.userCompany === 'Bibby Marine' && this.userPermissions === 'Vessel master') {
+                this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).pipe(
                     map(
                         (res) => {
                             this.showAfterscreen = true;
@@ -117,17 +128,36 @@ export class SetPasswordComponent implements OnInit {
                         }
                     ),
                     catchError(error => {
-                        this.alert.type = 'danger';
-                        this.alert.message = error._body;
-                        this.showAlert = true;
+                        this.alert.sendAlert({
+                          text: error._body,
+                          type: 'danger'
+                        });
                         throw error;
                     })
                 ).subscribe();
             } else {
-                this.alert.type = 'danger';
-                this.alert.message = 'Your two factor authentication code is incorrect or has expired. Please try again';
-                this.showAlert = true;
-
+                if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) !== null) {
+                    this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword, secret2fa: this.secretAsBase32 }).pipe(
+                        map(
+                            (res) => {
+                                this.showAfterscreen = true;
+                                setTimeout(() => this.router.navigate(['/login']), 3000);
+                            }
+                        ),
+                        catchError(error => {
+                          this.alert.sendAlert({
+                            text: error._body,
+                            type: 'danger'
+                          });
+                          throw error;
+                        })
+                    ).subscribe();
+                } else {
+                    this.alert.sendAlert({
+                      text: 'Your two factor authentication code is incorrect or has expired. Please try again',
+                      type: 'danger'
+                    });
+                }
             }
         }
     }

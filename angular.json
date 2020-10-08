@@ -45,6 +45,14 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "staging": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ]
             }
           }
         },
@@ -56,6 +64,9 @@
           "configurations": {
             "production": {
               "browserTarget": "test-ng4:build:production"
+            },
+            "staging": {
+              "browserTarget": "test-ng4:build:staging"
             }
           }
         },
@@ -103,20 +114,35 @@
       "root": "",
       "sourceRoot": "",
       "projectType": "application",
+      "prefix": "",
       "architect": {
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "test-ng4:serve"
-          }
+            "protractorConfig": "./protractor.conf.js"
+          },
+          "configurations": {
+            "admin" : {
+              "protractorConfig": "e2e/conf.admin.js",
+            },
+            "ls" : {
+              "protractorConfig": "e2e/conf.ls.js"
+            },
+            "mc" : {
+              "protractorConfig": "e2e/conf.mc.js"
+            },
+            "vm-ctv" : {
+              "protractorConfig": "e2e/conf.vm.ctv.js"
+            },
+            "vm-sov" : {
+              "protractorConfig": "e2e/conf.vm.sov.js"
+            }          
+          },
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "e2e/tsconfig.e2e.json"
-            ],
+            "tsConfig": "e2e/config.e2e.json",
             "exclude": [
               "**/node_modules/**"
             ]

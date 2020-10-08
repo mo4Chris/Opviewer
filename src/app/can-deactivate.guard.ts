@@ -6,7 +6,7 @@ import {
     RouterStateSnapshot
 } from '@angular/router';
 
-import { FleetavailabilityComponent } from './layout/fleetavailability/fleetavailability.component';
+import { FleetavailabilityComponent } from './layout/TWA/fleetavailability/fleetavailability.component';
 
 @Injectable({
     providedIn: 'root',

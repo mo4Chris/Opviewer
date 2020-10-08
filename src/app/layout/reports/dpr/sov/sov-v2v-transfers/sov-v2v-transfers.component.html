@@ -1,0 +1,222 @@
+<!--Vessel master - with input-->
+<br>
+<div class="row single-block-print" *ngIf="!readonly && vessel2vessels.length > 0">
+  <div class="col-xl-12 col-lg-24">
+    <div class="card mb-3">
+      <div class="card-header">
+          Vessel Transfers
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover">
+          <thead>
+              <tr>
+                  <th>From vessel</th>
+                  <th>To vessel</th>
+                  <th>Start time</th>
+                  <th>End time</th>
+                  <th>Duration [mns]</th>
+                  <th>Peak wind gust [{{settings.unit_speed}}]</th>
+                  <th>Peak heave [m]</th>
+                  <th>Pax in / out</th>
+                  <th>Cargo lift on / off</th>
+                  <th>save</th>
+              </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let vessel2vessel of vessel2vessels">
+              <ng-container
+                *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
+                <tr>
+                  <th>{{sovInfo.vesselName}}</th>
+                  <th colspan="9"><a href="javascript:void(0)"
+                      (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a>
+                  </th>
+                </tr>
+                <ng-container *ngFor="let transfer of object.value">
+                  <tr>
+                    <td colspan="2"></td>
+                    <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                    <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                    <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
+                    <td>{{transfer.peakWindGust}}</td>
+                    <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
+                    <td>
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
+                        [(ngModel)]="transfer.paxIn" [value]="transfer.paxIn"
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
+                        incoming <br>
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
+                        [(ngModel)]="transfer.paxOut" [value]="transfer.paxOut"
+                        (ngModelChange)="updatev2vPaxCargoTotal();">
+                      outgoing
+                      </td>
+                    <td>
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
+                          [(ngModel)]="transfer.cargoIn" [value]="transfer.cargoIn"
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
+                      lift on <br>
+                      <input type="number" min="0" placeholder="0" class="form-control-sm col-sm-5"
+                          [(ngModel)]="transfer.cargoOut" [value]="transfer.cargoOut"
+                          (ngModelChange)="updatev2vPaxCargoTotal();">
+                      lift off
+                    </td>
+                    <td><button class="btn btn-lg btn-primary submitBtnDate"
+                      (click)="savev2vPaxInput()" type="button">Save</button></td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+            <tr *ngIf="vessel2vessels.length > 0" class="tableTotal">
+              <th>V2V transfers total</th>
+              <td colspan="6"></td>
+              <td>
+                {{v2vPaxIn}} incoming <br>
+                {{v2vPaxOut}} outgoing
+              </td>
+              <td>
+                {{v2vCargoIn}} lift on <br>
+                {{v2vCargoOut}} lift off
+              </td>
+              <td><button class="btn btn-lg btn-primary submitBtnDate"
+                (click)="savev2vPaxInput()" type="button">Save all</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>  
+    </div>
+  </div>
+</div>
+
+<!--Not vessel master - without input-->
+<div class="row single-block-print" *ngIf="readonly && vessel2vessels.length > 0">
+  <div class="col-xl-12 col-lg-24">
+    <div class="card mb-3">
+      <div class="card-header">
+        Vessel Transfers
+      </div>
+      <div class="card-body table-responsive table-bordered-print">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>From vessel</th>
+              <th>To vessel</th>
+              <th>Start time</th>
+              <th>End time</th>
+              <th>Duration [mns]</th>
+              <th>Peak wind gust [{{settings.unit_speed}}]</th>
+              <th>Peak heave [m]</th>
+              <th>Pax in / out</th>
+              <th>Cargo lift on / off</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let vessel2vessel of vessel2vessels">
+              <ng-container
+                *ngFor="let object of (vessel2vessel.transfers | groupBy:'toVesselname')">
+                <tr>
+                  <th>{{sovInfo.vesselName}}</th>
+                  <th colspan="9"><a href="javascript:void(0)"
+                    (click)="openVesselMap(content, object.key, object.value[0].toMMSI)">{{object.key}}</a>
+                  </th>
+                </tr>
+                <ng-container *ngFor="let transfer of object.value">
+                  <tr>
+                    <td colspan="2"></td>
+                    <td>{{getMatlabDateToCustomJSTime(transfer.startTime, 'HH:mm')}}</td>
+                    <td>{{getMatlabDateToCustomJSTime(transfer.stopTime, 'HH:mm')}}</td>
+                    <td>{{GetMatlabDurationToMinutes(transfer.duration)}}</td>
+                    <td>{{transfer.peakWindGust}}</td>
+                    <td>{{GetDecimalValueForNumber(transfer.peakHeave)}}</td>
+                    <td>
+                      {{transfer.paxIn || 0}} incoming <br>
+                      {{transfer.paxOut || 0}} outgoing
+                    </td>
+                    <td>
+                      {{transfer.cargoIn || 0}} lift on <br>
+                      {{transfer.cargoOut || 0}} lift off
+                    </td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+            <tr *ngIf="vessel2vessels.length > 0" class="tableTotal">
+              <th>V2V transfers total</th>
+              <td colspan="6"></td>
+              <td>
+                {{v2vPaxIn || 0}} incoming <br>
+                {{v2vPaxOut || 0}} outgoing
+              </td>
+              <td>
+                {{v2vCargoIn || 0}} lift on <br>
+                {{v2vCargoOut || 0}} lift off
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- template for 2v2 child map-->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Vessel: {{vessel2vesselActivityRoute.vessel}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <ng-template #noTurbinesVisited>
+    <thead>
+      <tr>
+        <td colspan="5"> There were no turbines visited by this vessel</td>
+      </tr>
+    </thead>
+  </ng-template>
+  <div class="modal-body" *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers; else noTurbinesVisited">
+    <p>Turbines visited by this vessel</p>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <ng-container *ngIf="vessel2vesselActivityRoute.hasTurbineTransfers;">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Location</th>
+              <th>Start time</th>
+              <th>End time</th>
+              <th>Duration [mns]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container
+              *ngFor="let object of (vessel2vesselActivityRoute.ctvActivity.turbineVisits | groupBy:'fieldname')">
+              <tr>
+                <th colspan="5">{{object.key}}</th>
+              </tr>
+              <ng-container *ngFor="let turbineVisit of object.value">
+                <tr>
+                  <td></td>
+                  <td>{{turbineVisit.location}}</td>
+                  <td>{{getMatlabDateToCustomJSTime(turbineVisit.startTime, 'HH:mm')}}</td>
+                  <td>{{getMatlabDateToCustomJSTime(turbineVisit.stopTime, 'HH:mm')}}</td>
+                  <td>{{GetMatlabDurationToMinutes(turbineVisit.durationMinutes)}}</td>
+                </tr>
+              </ng-container>
+            </ng-container>
+          </tbody>
+        </ng-container>
+      </table>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div id="routeMap">
+      <!-- Drawing popup map for CTV transfers-->
+      <agm-map [latitude]="vessel2vesselActivityRoute.mapLat" *ngIf="vessel2vesselActivityRoute.mapAvailable; else noMapAvailable"
+          [longitude]="vessel2vesselActivityRoute.mapLon" [zoom]="vessel2vesselActivityRoute.mapZoomLevel"
+          [mapTypeId]="'roadmap'" [streetViewControl]=false (mapReady)="build_v2v_map($event)">
+      </agm-map>
+    </div>
+  </div>
+</ng-template>
+<ng-template #noMapAvailable>
+  No map available!
+</ng-template>

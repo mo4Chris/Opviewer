@@ -17,7 +17,7 @@ export class FormComponent implements OnInit {
     errData;
 
     ngOnInit() {
-        this.newService.getLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err)
+        this.newService.getLatestBoatLocation().subscribe(data => this.Locdata = data, err => this.errData = err);
     }
-    
+
 }
