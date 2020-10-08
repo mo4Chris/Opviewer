@@ -4,7 +4,7 @@
       <app-sov-dpr-input-readonly [vesselNonAvailability]="vesselNonAvailability" [weatherDowntime]="weatherDowntime"
         [standby]="standBy" [hoc]="hoc" [toolbox]="toolbox" [tokenInfo]="tokenInfo" [accessDayType]="accessDayType"
         [dprApprovalCount]="dprApprovalCount" (dprApproval)="emitDprApproval($event)" [liquids]="liquidsObject"
-        [catering]="catering" [dp]="dp" [remarks]="remarks" [vesselObject]="vesselObject"
+        [catering]="catering" [dp]="dp" [remarks]="dprInput.remarks" [vesselObject]="vesselObject"
         ></app-sov-dpr-input-readonly>
     </div>
 
@@ -12,7 +12,7 @@
       <app-sov-dpr-input-vesselmaster [vesselNonAvailability]="vesselNonAvailability" [accessDayType]="accessDayType"
         [weatherDowntime]="weatherDowntime" [standby]="standBy" [hoc]="hoc" [dprApprovalCount]="dprApprovalCount"
         (dprApproval)="emitDprApproval($event)" [toolbox]="toolbox" [liquids]="liquidsObject" [catering]="catering"
-        [dp]="dp" [tokenInfo]="tokenInfo" [remarks]="remarks"
+        [dp]="dp" [tokenInfo]="tokenInfo" [(remarks)]="dprInput.remarks"
         [vesselObject]="vesselObject"></app-sov-dpr-input-vesselmaster>
     </div>
   </div>
