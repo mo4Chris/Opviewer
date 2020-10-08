@@ -48,6 +48,7 @@ describe('SovDprInputComponent', () => {
 
     fixture = TestBed.createComponent(SovDprInputComponent);
     component = fixture.componentInstance;
+    component.dprInput = {remarks: ''};
     fixture.detectChanges();
   });
 

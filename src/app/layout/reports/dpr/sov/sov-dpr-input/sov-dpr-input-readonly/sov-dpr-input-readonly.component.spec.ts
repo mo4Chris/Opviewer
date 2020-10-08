@@ -83,6 +83,7 @@ function setInputs(component: SovDprInputReadonlyComponent) {
     project: 0,
     marine: 0,
     marineContractors: 0,
+    extraMealsMarineContractors: 0,
     packedLunches: 0,
     extraMeals: 0,
     Array: [],
