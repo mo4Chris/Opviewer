@@ -13,7 +13,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
-describe('SovDprInputComponent', () => {
+fdescribe('SovDprInputComponent', () => {
   let component: SovDprInputComponent;
   let fixture: ComponentFixture<SovDprInputComponent>;
   let saveSpy: jasmine.Spy;
