@@ -12,6 +12,7 @@ import { UtilizationGraphComponent } from './models/longterm_utilization/utiliza
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { LongtermProcessingService } from '../models/longterm-processing-service.service';
+import { promise } from 'protractor';
 
 @Component({
     selector: 'app-longterm-sov',
@@ -114,7 +115,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         if (data.platform) {
             platInfo.x = vessels;
             platInfo.y = data.platform.groups.map(_group => _group.date.length);
-            turbInfo.label = data.platform.groups.map(_group => _group.month.dateString);
+            platInfo.label = data.platform.groups.map(_group => _group.month.dateString);
         }
         return [turbInfo, platInfo];
     }
@@ -125,12 +126,14 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         if (rawScatterData.turbine) {
             groupedData = this.groupDataByBin(rawScatterData.turbine, { param: 'Hs', val: hsBins });
         }
+        
         if (rawScatterData.platform) {
-            const groupedPlatforms = this.groupDataByBin(rawScatterData.turbine, { param: 'Hs', val: hsBins });
+            const groupedPlatforms = this.groupDataByBin(rawScatterData.platform, { param: 'Hs', val: hsBins });
             if (groupedData) {
                 groupedData.data.forEach((elt, _i) => {
-                    elt.concat(groupedPlatforms.data[_i]);
+                    groupedData.data[_i] = elt.concat(groupedPlatforms.data[_i]);
                 });
+
             } else {
                 groupedData = groupedPlatforms;
             }
@@ -142,7 +145,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
                 return <number>prev;
             }
         }, 0);
-        return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length), key: '# transfers:' }];
+        return [{ x: groupedData.labels.slice(0, largestDataBin + 1), y: groupedData.data.map(x => x.length), key: '# transfers:' }];
     }
 
     groupDataByBin(data: RawScatterData, binData: { param: string, val: number[] }): { data: number[][], labels: string[] } {
