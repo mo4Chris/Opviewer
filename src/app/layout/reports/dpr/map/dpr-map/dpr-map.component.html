@@ -1,0 +1,25 @@
+<div class="divContainer" id='routeMap'>
+  <div *ngIf="!hidden; else no_map_available">
+    <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
+      <b>Warning!</b> no route found for the selected day and vessel.
+    </div>
+    <div *ngIf="!parkFound" class="alert alert-warning" role="alert">
+      <b>Warning!</b> no parks found for the selected day and vessel.
+    </div>
+    <div *ngIf="parkFound && !hasTransfers"
+      class="alert alert-primary" role="alert">
+      <b>Info,</b> parks were found but have not been visited by vessel.
+    </div>
+    <agm-map id='googleMap' #gm [scrollwheel]='null' [scaleControl]="true" [latitude]="mapProperties.avgLatitude"
+      [longitude]="mapProperties.avgLongitude" [zoom]="mapProperties.zoomLevel" mapTypeId="roadmap"
+      [streetViewControl]="streetViewControl" gestureHandling="cooperative" (mapReady)="onGmapReady($event)"
+      [styles]="mapStyle">
+    </agm-map>
+  </div>
+</div>
+
+<ng-template #no_map_available>
+  <div class="divContainer">
+    <h3>There is no map available for the selected day and vessel.</h3>
+  </div>
+</ng-template>

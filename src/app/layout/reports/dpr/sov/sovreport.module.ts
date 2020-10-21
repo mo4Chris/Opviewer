@@ -23,6 +23,8 @@ import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
+import { DprMapComponent } from '../map/dpr-map/dpr-map.component';
+import { env } from 'process';
 
 
 @NgModule({
@@ -34,7 +36,7 @@ import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.com
     FormsModule,
     SharedPipesModule,
     AgmCoreModule.forRoot({
-        apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
+        apiKey: env.GOOGLE_API_KEY
     }),
     PlotlyModule,
     SupportModelModule
@@ -56,6 +58,7 @@ import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.com
     SovHseDprInputReadonlyComponent,
     SovHseDprInputVesselmasterComponent,
     SovDcTransfersComponent,
+    DprMapComponent,
   ],
   exports: [SovreportComponent]
 })

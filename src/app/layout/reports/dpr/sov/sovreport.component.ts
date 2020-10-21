@@ -75,6 +75,10 @@ export class SovreportComponent implements OnInit, OnChanges {
   backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
   v2vPaxCargoTotals: V2vPaxTotalModel;
 
+
+  // Map data
+  vesselTrace = {time: [], lon: [], lat: []};
+
   constructor(
     private commonService: CommonService,
     private datetimeService: DatetimeService,
@@ -271,8 +275,9 @@ export class SovreportComponent implements OnInit, OnChanges {
     );
   }
 
-  notifyParent() {
+  setMapData() {
     const boatlocationData = [this.sovModel.sovInfo];
+    this.vesselTrace = boatlocationData[0];
     if (
       '' + this.sovModel.sovInfo.lat !== '_NaN_' &&
       '' + this.sovModel.sovInfo.lon !== '_NaN_'
@@ -305,6 +310,9 @@ export class SovreportComponent implements OnInit, OnChanges {
         platformLocationData: null
       });
     }
+  }
+  onMapReady(map) {
+    // TBI
   }
 
   emitHseApproval(input) {
@@ -374,7 +382,7 @@ export class SovreportComponent implements OnInit, OnChanges {
     } catch (e) {
       console.error(e);
     }
-    this.notifyParent();
+    this.setMapData();
   }
 
   parsePlatformlocations(platformLocations) {

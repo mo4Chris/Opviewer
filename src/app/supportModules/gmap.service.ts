@@ -8,6 +8,8 @@ import { isArray, isNull, isObject } from 'util';
 import { Observable } from 'rxjs';
 import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 import { V2vTransfer } from '@app/layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vTransfer';
+import { TurbinePark, OffshorePlatform } from '@app/stores/map.store';
+import { TurbineParkWithDrawData, OffshorePlatformWithData } from '@app/layout/reports/dpr/map/dpr-map/dpr-map.component';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +20,6 @@ export class GmapService {
         private lonlatService: LonlatService,
         private dateTimeService: DatetimeService
     ) {
-
     }
     static iconWindfield: mapMarkerIcon = new mapMarkerIcon(
         'assets/images/windTurbine.png',
@@ -69,16 +70,16 @@ export class GmapService {
         }
     );
     static iconVessel2VesselTransfer: mapMarkerIcon = new mapMarkerIcon(
-      'assets/images/vesselToVesselTransfer.png',
-      'Vessel to vessel transfer',
-      {
-          width: 14,
-          height: 14,
-      }
+        'assets/images/vesselToVesselTransfer.png',
+        'Vessel to vessel transfer',
+        {
+            width: 14,
+            height: 14,
+        }
     );
     static iconVesselLive: mapMarkerIcon = new mapMarkerIcon(
         'assets/images/grn-circle.png',
-         'Updated last hour'
+        'Updated last hour'
     );
     static iconVesselHours: mapMarkerIcon = new mapMarkerIcon(
         'assets/images/ylw-circle.png',
@@ -101,68 +102,68 @@ export class GmapService {
         }
     );
     static defaultMapStyle = [
-      {
-          featureType: 'administrative',
-          elementType: 'geometry',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'administrative.land_parcel',
-          elementType: 'labels',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'poi',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'poi',
-          elementType: 'labels.text',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'road',
-          elementType: 'labels.icon',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'road.local',
-          elementType: 'labels',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      },
-      {
-          featureType: 'transit',
-          stylers: [
-              {
-                  visibility: 'off'
-              }
-          ]
-      }
-  ];
+        {
+            featureType: 'administrative',
+            elementType: 'geometry',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'administrative.land_parcel',
+            elementType: 'labels',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'poi',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'poi',
+            elementType: 'labels.text',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'road',
+            elementType: 'labels.icon',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'road.local',
+            elementType: 'labels',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        },
+        {
+            featureType: 'transit',
+            stylers: [
+                {
+                    visibility: 'off'
+                }
+            ]
+        }
+    ];
 
     layersInitialized = false;
     vesselRouteTurbineLayer: MapZoomLayer;
@@ -213,6 +214,47 @@ export class GmapService {
         });
     }
 
+    addParksToMapForVessel(map: google.maps.Map, parks: TurbineParkWithDrawData[], platforms: OffshorePlatformWithData[]) {
+        // Drawing turbines
+        let outlineLayer = new MapZoomLayer(map, 5, 10);
+        this.buildLayerIfNotPresent(map);
+        parks.forEach((park, index) => {
+            if (park.isVisited) {
+                park.turbines.forEach((_turb, _i) => {
+                    if (_turb.isVisited) {
+                        this.addVesselRouteTurbine(map, GmapService.iconVisitedTurbine, _turb.lon, _turb.lat,  _turb.visits, _turb.name, 5);
+                    } else {
+                        this.addVesselRouteTurbine(map, GmapService.iconTurbine, _turb.lon, _turb.lat, null);
+                    }
+                })
+            } else {
+                this.addParkOutlineToLayer(outlineLayer, park);
+            }
+        });
+        // Drawing platforms
+        platforms.forEach(_platform => {
+            this.addPlatformToLayer(outlineLayer, _platform)
+        })
+        outlineLayer.draw();
+    }
+    
+    private addParkOutlineToLayer(layer: MapZoomLayer, park: TurbineParkWithDrawData) {
+        layer.addData(new MapZoomPolygon(
+            park.outline.lon,
+            park.outline.lat,
+            park.name,
+            park.name,
+        ));
+    }
+    private addPlatformToLayer(layer: MapZoomLayer, platform: OffshorePlatformWithData) {
+        layer.addData(new MapZoomData(
+            platform.lon,
+            platform.lat,
+            platform.isVisited ? GmapService.iconVisitedPlatform : GmapService.iconPlatform,
+            platform.name,
+        ));
+    }
+
     addVesselRouteTurbine(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
         this.buildLayerIfNotPresent(googleMap);
         let contentString = '';
@@ -220,14 +262,14 @@ export class GmapService {
             contentString =
                 '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
                 '<pre>';
-            infoArray = infoArray.filter(function(elem) {
+            infoArray = infoArray.filter(function (elem) {
                 return elem !== undefined;
             });
             infoArray.forEach(info => {
-            contentString = contentString + '<br>' +
-                'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-                'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-                'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+                contentString = contentString + '<br>' +
+                    'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
+                    'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
+                    'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
             });
             contentString = contentString + '</pre>';
         }
@@ -277,7 +319,7 @@ export class GmapService {
         }
     }
 
-    addVesselRouteToGoogleMap(googleMap: google.maps.Map, vesselRoutes) {
+    addVesselRouteToGoogleMap(googleMap: google.maps.Map, vesselRoutes: {lon: number[], lat: number[]}[]) {
         const lineSymbol = {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
@@ -326,44 +368,44 @@ export class GmapService {
         });
     }
 
-    addV2VtransfersToMap(map: google.maps.Map, v2vTransfers: V2vTransfer[], vesselRoute: {time: any[], lon: any[], lat: any[]}[]) {
-      // Adds v2v transfer locations to the map
-      if (isArray(v2vTransfers)) {
-        v2vTransfers.forEach(_transfer => {
-          const loc = this.getNearestLocation(vesselRoute[0], _transfer.stopTime / 2 + _transfer.startTime / 2);
-          if (loc) {
-            this.vesselRouteTurbineLayer.addData(new MapZoomData(
-              loc.lon,
-              loc.lat,
-              GmapService.iconVessel2VesselTransfer,
-              'V2V transfer',
-              '<strong style="font-size: 15px;">Transfer to ' + _transfer.toVesselname + '</strong><br>' +
-              'Start: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.startTime) + '<br>' +
-              'Stop: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.stopTime) + '<br>' +
-              'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(_transfer.duration) + '<br>'
-            ));
-          }
-        });
-      }
+    addV2VtransfersToMap(map: google.maps.Map, v2vTransfers: V2vTransfer[], vesselRoute: { time: number[], lon: number[], lat: number[] }) {
+        // Adds v2v transfer locations to the map
+        if (isArray(v2vTransfers)) {
+            v2vTransfers.forEach(_transfer => {
+                const loc = this.getNearestLocation(vesselRoute, _transfer.stopTime / 2 + _transfer.startTime / 2);
+                if (loc) {
+                    this.vesselRouteTurbineLayer.addData(new MapZoomData(
+                        loc.lon,
+                        loc.lat,
+                        GmapService.iconVessel2VesselTransfer,
+                        'V2V transfer',
+                        '<strong style="font-size: 15px;">Transfer to ' + _transfer.toVesselname + '</strong><br>' +
+                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.startTime) + '<br>' +
+                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.stopTime) + '<br>' +
+                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(_transfer.duration) + '<br>'
+                    ));
+                }
+            });
+        }
     }
 
-    private getNearestLocation(locs: {time: number[], lon: number[], lat: number[]}, target: number, opts = {tolerance: 1 / 24 / 4}) {
-      // Gets the lons and lat coordinates of the vessel route closest to the target time stamp, with given tolerance
-      let optimal = null;
-      let minDist = opts.tolerance;
-      if (isObject(locs) && isArray(locs.time) && isArray(locs.lon) && isArray(locs.lat)) {
-        locs.time.forEach((_t: number, _i: number) => {
-          if (Math.abs(_t - target) < minDist) {
-            minDist = Math.abs(_t - target);
-            optimal = {
-              time: _t[0] || _t,
-              lon: locs.lon[_i][0] || locs.lon[_i],
-              lat: locs.lat[_i][0] || locs.lat[_i],
-            };
-          }
-        });
-      }
-      return optimal;
+    private getNearestLocation(locs: { time: number[], lon: number[], lat: number[] }, target: number, opts = { tolerance: 1 / 24 / 4 }) {
+        // Gets the lons and lat coordinates of the vessel route closest to the target time stamp, with given tolerance
+        let optimal = null;
+        let minDist = opts.tolerance;
+        if (isObject(locs) && isArray(locs.time) && isArray(locs.lon) && isArray(locs.lat)) {
+            locs.time.forEach((_t: number, _i: number) => {
+                if (Math.abs(_t - target) < minDist) {
+                    minDist = Math.abs(_t - target);
+                    optimal = {
+                        time: _t[0] || _t,
+                        lon: locs.lon[_i][0] || locs.lon[_i],
+                        lat: locs.lat[_i][0] || locs.lat[_i],
+                    };
+                }
+            });
+        }
+        return optimal;
     }
 
     plotParkBoundaries(googleMap: google.maps.Map, parkLocations, minZoom = 8, maxZoom = 30) {

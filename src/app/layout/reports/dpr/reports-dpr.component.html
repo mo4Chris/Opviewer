@@ -36,43 +36,41 @@
     <div class="bounce3"></div>
   </div>
 </div>
-<div id="routeMap" style="width: 100%">
-  <div [hidden]="!loaded || !turbinesLoaded">
-    <div *ngIf="noPermissionForData == false; else noPermission">
-      <div class="divContainer" *ngIf="showContent == true; else other_content">
-        <div *ngIf="showMap; else no_map_available">
-          <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
-            <b>Warning!</b> no route found for the selected day and vessel.
-          </div>
-          <div *ngIf="vesselObject.vesselType == 'CTV' && !parkFound" class="alert alert-warning" role="alert">
-            <b>Warning!</b> no parks found for the selected day and vessel.
-          </div>
-          <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine"
-            class="alert alert-primary" role="alert">
-            <b>Info,</b> parks were found but have not been visited by vessel.
-          </div>
-          <agm-map id='googleMap' #gm [scrollwheel]='null' [scaleControl]="true" [latitude]="zoominfo.latitude"
-            [longitude]="zoominfo.longitude" [zoom]="zoominfo.mapZoomLvl" [mapTypeId]="'roadmap'"
-            [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'" (mapReady)="setMapReady($event)"
-            [styles]="mapStyle">
-          </agm-map>
+<div *ngIf="noPermissionForData == false; else noPermission"  [hidden]="!loaded" style="width: 100%">
+    <!-- <div id="routeMap" class="divContainer" *ngIf="showContent == true; else other_content">
+      <div *ngIf="showMap; else no_map_available">
+        <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
+          <b>Warning!</b> no route found for the selected day and vessel.
         </div>
+        <div *ngIf="vesselObject.vesselType == 'CTV' && !parkFound" class="alert alert-warning" role="alert">
+          <b>Warning!</b> no parks found for the selected day and vessel.
+        </div>
+        <div *ngIf="vesselObject.vesselType == 'CTV' && parkFound && !transferVisitedAtLeastOneTurbine"
+          class="alert alert-primary" role="alert">
+          <b>Info,</b> parks were found but have not been visited by vessel.
+        </div>
+        <agm-map id='googleMap' #gm [scrollwheel]='null' [scaleControl]="true" [latitude]="zoominfo.latitude"
+          [longitude]="zoominfo.longitude" [zoom]="zoominfo.mapZoomLvl" [mapTypeId]="'roadmap'"
+          [streetViewControl]="streetViewControl" [gestureHandling]="'cooperative'" (mapReady)="setMapReady($event)"
+          [styles]="mapStyle">
+        </agm-map>
       </div>
-      <!-- This builds the CTV / SOV subpages -->
-      <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
-        [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)"
-        (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)"
-        (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
-        (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)"
-        (parkFound)="getParkFound($event)" (platformLocationData)="getPlatformLocationData($event)">
-      </app-ctvreport>
-      <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
-        [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [mapPixelWidth]="mapPixelWidth"
-        (sailDates)="getDatesHasSailed($event)" (sovChildData)="onChildLoaded($event)" [printMode]="printMode"
-        (turbineLocationData)="getTurbineLocationData($event)" (platformLocationData)="getPlatformLocationData($event)">
-      </app-sovreport>
-    </div>
-  </div>
+    </div> -->
+    <!-- <app-dpr-map [hidden]="!showMap" (onMapReady)="setMapReady($event)">
+    </app-dpr-map> -->
+    <!-- This builds the CTV / SOV subpages -->
+    <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
+      [mapPixelWidth]="mapPixelWidth" [tokenInfo]="tokenInfo" (showContent)="getShowContent($event)"
+      (sailDates)="getDatesHasSailed($event)" (mapZoomLvl)="getMapZoomLvl($event)"
+      (boatLocationData)="getBoatLocationData($event)" (turbineLocationData)="getTurbineLocationData($event)"
+      (latitude)="getLatitude($event)" (longitude)="getLongitude($event)" (routeFound)="getRouteFound($event)"
+      (parkFound)="getParkFound($event)" (platformLocationData)="getPlatformLocationData($event)">
+    </app-ctvreport>
+    <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
+      [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [mapPixelWidth]="mapPixelWidth"
+      (sailDates)="getDatesHasSailed($event)" (sovChildData)="onChildLoaded($event)" [printMode]="printMode"
+      (turbineLocationData)="getTurbineLocationData($event)" (platformLocationData)="getPlatformLocationData($event)">
+    </app-sovreport>
 </div>
 
 <ng-template #other_content>

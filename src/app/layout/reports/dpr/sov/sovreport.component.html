@@ -1,3 +1,7 @@
+<app-dpr-map style="width: 100%;" [hidden]="!showContent" [vesselTrace]="vesselTrace" (onMapReady)="onMapReady($event)"
+  [turbineVisits]="sovModel.turbineTransfers" [platformVisits]="sovModel.platformTransfers"
+>
+</app-dpr-map>
 <div *ngIf="showContent && printMode == 0" class="plsdonotprintthisforfsake">
   <br>
   <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->

@@ -50,7 +50,6 @@ export class ReportsDprComponent implements OnInit {
 
   }
 
-  mapStyle = GmapService.defaultMapStyle;
   startDate = this.getInitialDateObject();
   maxDate = { year: moment().add(-1, 'days').year(), month: (moment().add(-1, 'days').month() + 1), day: moment().add(-1, 'days').date() };
   outsideDays = 'collapsed';
@@ -79,10 +78,8 @@ export class ReportsDprComponent implements OnInit {
     latitude: null,
     longitude: null,
   };
-  googleMap: google.maps.Map;
   printMode = 0;
 
-  streetViewControl = false;
   changedCommentObj = { newComment: '', otherComment: '' };
   alert = { type: '', message: '' };
   showMap = false;
@@ -95,7 +92,6 @@ export class ReportsDprComponent implements OnInit {
   turbinesLoaded = true; // getTurbineLocationData is not always triggered
   platformsLoaded = true;
   googleMapLoaded = false;
-  mapPixelWidth = 0;
 
   vesselTurbines: VesselTurbines = new VesselTurbines();
   platformLocations: VesselPlatforms = new VesselPlatforms();
@@ -169,7 +165,9 @@ export class ReportsDprComponent implements OnInit {
     this.resetRoutes();
     this.mapService.reset();
     this.noPermissionForData = false;
-    this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi }).subscribe(validatedValue => {
+    this.newService.validatePermissionToViewData({
+      mmsi: this.vesselObject.mmsi
+    }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
         // We overwrite the vesselObject to trigger the reload of subcomponents
         this.vesselObject = {
@@ -179,10 +177,10 @@ export class ReportsDprComponent implements OnInit {
           mmsi: validatedValue[0].mmsi,
           vesselName: validatedValue[0].nicename,
         };
-        const map = document.getElementById('routeMap');
-        if (map != null) {
-          this.mapPixelWidth = map.offsetWidth;
-        }
+        // const map = document.getElementById('routeMap');
+        // if (map != null) {
+        //   this.mapPixelWidth = map.offsetWidth;
+        // }
       } else {
         this.noPermissionForData = true;
       }
@@ -339,19 +337,19 @@ export class ReportsDprComponent implements OnInit {
 
   // Handle events and get variables from child components//////////
   setMapReady(googleMap: google.maps.Map) {
-    this.googleMap = googleMap;
-    if (this.ctvChild) {
-      this.ctvChild.onMapLoaded(googleMap);
-    } else {
+    // this.googleMap = googleMap;
+    // if (this.ctvChild) {
+    //   this.ctvChild.onMapLoaded(googleMap);
+    // } else {
 
-    }
+    // }
     this.googleMapLoaded = true;
     this.buildPageWhenLoaded();
   }
   buildGoogleMap() {
-    this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
-    this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
-    this.mapService.addV2VtransfersToMap(this.googleMap, this.v2vTransfers, this.boatLocationData);
+    // this.mapService.addVesselRouteToGoogleMap(this.googleMap, this.boatLocationData);
+    // this.mapService.addTurbinesToMapForVessel(this.googleMap, this.vesselTurbines, this.platformLocations);
+    // this.mapService.addV2VtransfersToMap(this.googleMap, this.v2vTransfers, this.boatLocationData);
   }
   getMapZoomLvl(mapZoomLvl: number): void {
     this.zoominfo.mapZoomLvl = mapZoomLvl;

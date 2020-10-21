@@ -24,13 +24,11 @@ import { SovreportModule } from './sov/sovreport.module';
 import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.component';
 import { CtvSummaryComponent } from './ctv/ctv-summary/ctv-summary.component';
 import { CtvTurbineTransferComponent } from './ctv/ctv-turbine-transfer/ctv-turbine-transfer.component';
+import { DprMapComponent } from './map/dpr-map/dpr-map.component';
 
 @NgModule({
     imports: [
         HttpClientModule,
-        AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
-        }),
         FormsModule,
         AutosizeModule,
         ReactiveFormsModule,
