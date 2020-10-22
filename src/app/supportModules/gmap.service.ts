@@ -4,12 +4,10 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
-import { isArray, isNull, isObject } from 'util';
+import { isArray, isObject } from 'util';
 import { Observable } from 'rxjs';
-import { VesselTurbines, VesselPlatforms } from '../layout/reports/dpr/models/VesselTurbines';
 import { V2vTransfer } from '@app/layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vTransfer';
-import { TurbinePark, OffshorePlatform } from '@app/stores/map.store';
-import { TurbineParkWithDrawData, OffshorePlatformWithData } from '@app/layout/reports/dpr/map/dpr-map/dpr-map.component';
+import { TurbineParkWithDrawData, OffshorePlatformWithData, TurbineWithData } from '@app/layout/reports/dpr/map/dpr-map/dpr-map.component';
 
 @Injectable({
     providedIn: 'root'
@@ -165,77 +163,25 @@ export class GmapService {
         }
     ];
 
-    layersInitialized = false;
-    vesselRouteTurbineLayer: MapZoomLayer;
-    unvisitedPlatformLayer: MapZoomLayer;
-
-    reset() {
-        if (this.layersInitialized) {
-            this.vesselRouteTurbineLayer.reset();
-            this.unvisitedPlatformLayer.reset();
-            this.layersInitialized = false; // This ensures that the correct map will be set when switching between pages
-        }
-    }
-
-    buildLayerIfNotPresent(googleMap: google.maps.Map) {
-        if (!this.layersInitialized) {
-            this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
-            this.vesselRouteTurbineLayer.draw();
-            this.unvisitedPlatformLayer = new MapZoomLayer(googleMap, 10);
-            setTimeout(() => {
-                // Platform layer is drawn only after 500 ms delay to keep map responsive
-                this.unvisitedPlatformLayer.draw();
-            }, 500);
-            this.layersInitialized = true;
-        }
-    }
-
-    addTurbinesToMapForVessel(googleMap: google.maps.Map, vesselturbines: VesselTurbines, platformLocations: VesselPlatforms) {
+    addParksToLayersForVessel(visitLayer: MapZoomLayer, otherLayer: MapZoomLayer, parks: TurbineParkWithDrawData[], platforms: OffshorePlatformWithData[]) {
         // Drawing turbines
-        this.buildLayerIfNotPresent(googleMap);
-        vesselturbines.turbineLocations.forEach((turbineParkLocation, index) => {
-            turbineParkLocation.forEach(parkLocation => {
-                if (parkLocation.shipHasSailedBy) {
-                    this.addVesselRouteTurbine(googleMap, GmapService.iconVisitedTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer), parkLocation.location, 5);
-                } else {
-                    this.addVesselRouteTurbine(googleMap, GmapService.iconTurbine, parkLocation.longitude, parkLocation.latitude, turbineParkLocation.map(docking => docking.transfer));
-                }
-            });
-        });
-        // Drawing platforms
-        platformLocations.turbineLocations.forEach(platformArray => {
-            platformArray.forEach(platform => {
-                if (platform.shipHasSailedBy) {
-                    this.addVesselRoutePlatform(googleMap, GmapService.iconVisitedPlatform, platform.longitude, platform.latitude, platformArray.map(docking => docking.transfer), platform.location, 5);
-                } else {
-                    this.unvisitedPlatformLayer.addData(new MapZoomData(platform.longitude, platform.latitude, GmapService.iconPlatform, 'Unvisited platform', platform.location, 'click'));
-                }
-            });
-        });
-    }
-
-    addParksToMapForVessel(map: google.maps.Map, parks: TurbineParkWithDrawData[], platforms: OffshorePlatformWithData[]) {
-        // Drawing turbines
-        let outlineLayer = new MapZoomLayer(map, 5, 10);
-        this.buildLayerIfNotPresent(map);
         parks.forEach((park, index) => {
             if (park.isVisited) {
                 park.turbines.forEach((_turb, _i) => {
                     if (_turb.isVisited) {
-                        this.addVesselRouteTurbine(map, GmapService.iconVisitedTurbine, _turb.lon, _turb.lat,  _turb.visits, _turb.name, 5);
+                        this.addTurbineToLayer(visitLayer, _turb, 5);
                     } else {
-                        this.addVesselRouteTurbine(map, GmapService.iconTurbine, _turb.lon, _turb.lat, null);
+                        this.addTurbineToLayer(otherLayer, _turb);
                     }
                 })
             } else {
-                this.addParkOutlineToLayer(outlineLayer, park);
+                this.addParkOutlineToLayer(otherLayer, park);
             }
         });
         // Drawing platforms
         platforms.forEach(_platform => {
-            this.addPlatformToLayer(outlineLayer, _platform)
-        })
-        outlineLayer.draw();
+            this.addPlatformToLayer(otherLayer, _platform)
+        });
     }
     
     private addParkOutlineToLayer(layer: MapZoomLayer, park: TurbineParkWithDrawData) {
@@ -246,21 +192,15 @@ export class GmapService {
             park.name,
         ));
     }
-    private addPlatformToLayer(layer: MapZoomLayer, platform: OffshorePlatformWithData) {
-        layer.addData(new MapZoomData(
-            platform.lon,
-            platform.lat,
-            platform.isVisited ? GmapService.iconVisitedPlatform : GmapService.iconPlatform,
-            platform.name,
-        ));
-    }
 
-    addVesselRouteTurbine(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
-        this.buildLayerIfNotPresent(googleMap);
+    addTurbineToLayer(layer: MapZoomLayer, turbine: TurbineWithData, zIndex = 2) {
         let contentString = '';
+        let markerIcon = turbine.isVisited ? GmapService.iconVisitedTurbine : GmapService.iconTurbine;
+        let infoArray = turbine.visits;
         if (infoArray !== undefined && infoArray !== null && infoArray.length > 0 && infoArray[0]) {
+            console.log(infoArray)
             contentString =
-                '<strong style="font-size: 15px;">' + location + ' Turbine transfers</strong>' +
+                '<strong style="font-size: 15px;">' + turbine.name + ' Turbine transfers</strong>' +
                 '<pre>';
             infoArray = infoArray.filter(function (elem) {
                 return elem !== undefined;
@@ -273,30 +213,30 @@ export class GmapService {
             });
             contentString = contentString + '</pre>';
         }
-        this.vesselRouteTurbineLayer.addData(new MapZoomData(
-            lon,
-            lat,
+        layer.addData(new MapZoomData(
+            turbine.lon,
+            turbine.lat,
             markerIcon,
             'Turbine',
             contentString
         ));
     }
 
-    addVesselRoutePlatform(googleMap: google.maps.Map, markerIcon: mapMarkerIcon, lon: number, lat: number, infoArray = null, location = null, zIndex = 2) {
-        this.buildLayerIfNotPresent(googleMap);
-        const markerPosition = { lat: lat, lng: lon };
+    private addPlatformToLayer(layer: MapZoomLayer, platform: OffshorePlatformWithData, zIndex = 2) {
+        const markerPosition = { lat: platform.lat, lng: platform.lon };
+        const markerIcon = platform.isVisited ? GmapService.iconVisitedPlatform : GmapService.iconPlatform;
         const mymarker = new google.maps.Marker({
             position: markerPosition,
             draggable: false,
             icon: markerIcon,
             zIndex: zIndex,
-            map: googleMap
+            map: layer.map
         });
-        if (infoArray.length > 0 && infoArray[0]) {
+        if (platform.isVisited) {
             let contentString =
-                '<strong style="font-size: 15px;">' + location + ' Platform transfers</strong>' +
+                '<strong style="font-size: 15px;">' + platform.name + ' Platform transfers</strong>' +
                 '<pre>';
-            infoArray.forEach(info => {
+            platform.visits.forEach(info => {
                 if (info) {
                     contentString = contentString + '<br>' +
                         'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
@@ -311,7 +251,7 @@ export class GmapService {
             });
             // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
             const openInfoWindow = (marker, window) => {
-                this.eventService.OpenAgmInfoWindow(window, [], googleMap, marker);
+                this.eventService.OpenAgmInfoWindow(window, [], layer.map, marker);
             };
             mymarker.addListener('mouseover', function () {
                 openInfoWindow(mymarker, infowindow);
@@ -319,14 +259,14 @@ export class GmapService {
         }
     }
 
-    addVesselRouteToGoogleMap(googleMap: google.maps.Map, vesselRoutes: {lon: number[], lat: number[]}[]) {
+    addVesselRouteToLayer(layer: MapZoomLayer, vesselRoutes: {lon: number[], lat: number[]}[]) {
         const lineSymbol = {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
         vesselRoutes.forEach(route => {
             return new google.maps.Polyline({
                 clickable: false,
-                map: googleMap,
+                map: layer.map,
                 path: this.lonlatService.lonlatarrayToLatLngArray(route),
                 strokeColor: '#FF0000',
                 strokeWeight: 1.5,
@@ -368,13 +308,13 @@ export class GmapService {
         });
     }
 
-    addV2VtransfersToMap(map: google.maps.Map, v2vTransfers: V2vTransfer[], vesselRoute: { time: number[], lon: number[], lat: number[] }) {
+    addV2VtransfersToLayer(layer: MapZoomLayer, v2vTransfers: V2vTransfer[], vesselRoute: { time: number[], lon: number[], lat: number[] }) {
         // Adds v2v transfer locations to the map
         if (isArray(v2vTransfers)) {
             v2vTransfers.forEach(_transfer => {
                 const loc = this.getNearestLocation(vesselRoute, _transfer.stopTime / 2 + _transfer.startTime / 2);
                 if (loc) {
-                    this.vesselRouteTurbineLayer.addData(new MapZoomData(
+                    layer.addData(new MapZoomData(
                         loc.lon,
                         loc.lat,
                         GmapService.iconVessel2VesselTransfer,

@@ -43,7 +43,6 @@ export class ReportsDprComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private mapService: GmapService,
     private permission: PermissionService,
     private hotkeys: Hotkeys,
     ) {
@@ -131,7 +130,6 @@ export class ReportsDprComponent implements OnInit {
   onChange(): void {
     this.eventService.closeLatestAgmInfoWindow();
     this.resetRoutes();
-    this.mapService.reset();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
     this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
@@ -163,7 +161,6 @@ export class ReportsDprComponent implements OnInit {
       htmlButton.disabled = false;
     }
     this.resetRoutes();
-    this.mapService.reset();
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({
       mmsi: this.vesselObject.mmsi

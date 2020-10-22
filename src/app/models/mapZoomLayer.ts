@@ -143,7 +143,9 @@ export class MapZoomData extends MapZoomChild {
     }
 
     delete() {
-        this.marker.setMap(null);
+        if (this.marker) {
+            this.marker.setMap(null);
+        }
     }
 
     getInfoWindowEnabled() {

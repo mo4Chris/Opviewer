@@ -3,6 +3,7 @@ import { GmapService } from '@app/supportModules/gmap.service';
 import { MapStore, TurbinePark, OffshorePlatform } from '@app/stores/map.store';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { LonlatService } from '@app/supportModules/lonlat.service';
+import { MapZoomLayer } from '@app/models/mapZoomLayer';
 
 @Component({
   selector: 'app-dpr-map',
@@ -38,6 +39,31 @@ export class DprMapComponent implements OnInit, OnChanges {
   private googleMap: google.maps.Map;
   private parks: TurbinePark[];
   private platforms: OffshorePlatform[];
+  private visitsLayer: MapZoomLayer;
+  private otherLayer: MapZoomLayer;
+
+  // reset() {
+  //     // This ensures that the correct map will be set when switching between pages
+  //     if (this.layersInitialized) {
+  //         this.vesselRouteTurbineLayer.reset();
+  //         this.unvisitedPlatformLayer.reset();
+  //         this.layersInitialized = false;
+  //     }
+  //     this.layersInitialized = false;
+  // }
+
+  // buildLayerIfNotPresent(googleMap: google.maps.Map) {
+  //     if (!this.layersInitialized) {
+  //         console.log('Initializing zoom layers!')
+  //         this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
+  //         this.unvisitedPlatformLayer = new MapZoomLayer(googleMap, 10);
+  //         this.layersInitialized = true;
+  //         setTimeout(() => {
+  //             // Platform layer is drawn only after 500 ms delay to keep map responsive
+  //             this.unvisitedPlatformLayer.draw();
+  //         }, 500);
+  //     }
+  // }
 
   public mapProperties = {
     avgLatitude: 0,
@@ -51,7 +77,7 @@ export class DprMapComponent implements OnInit, OnChanges {
   public hasTransfers = true;
 
   ngOnInit() {
-    this.mapService;
+    console.log('INIT dpr map')
   }
   ngOnChanges() {
     if (!this.hidden) {
@@ -82,9 +108,14 @@ export class DprMapComponent implements OnInit, OnChanges {
       );
     }
   }
+  initZoomLayers(map: google.maps.Map, ) {
+    this.visitsLayer = new MapZoomLayer(map, 8);
+    this.otherLayer = new MapZoomLayer(map, 8);
+  }
 
   // Async callbacks
   public async onGmapReady(map: google.maps.Map) {
+    this.initZoomLayers(map);
     this.triggerMapPromise(map);
   }
   private async getPlatformsNearVesselTrace() {
@@ -99,6 +130,7 @@ export class DprMapComponent implements OnInit, OnChanges {
   }
   private async getParksNearVesselTrace() {
     return this.mapStore.parks.then((parks) => {
+      console.log(parks)
       let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
       let traceCentroid = this.geoService.latlngcentroid(trace);
       const dist2center = parks.map((_park: any) => {
@@ -115,16 +147,33 @@ export class DprMapComponent implements OnInit, OnChanges {
     this.onLoaded.emit(this.googleMap);
   }
   private buildGoogleMap(map: google.maps.Map) {
-    this.mapService.addVesselRouteToGoogleMap(map, [this.vesselTrace]);
+    console.log('BUILDING GOOGLE MAP')
+    this.mapService.addVesselRouteToLayer(this.visitsLayer, [this.vesselTrace]);
     let turbines = this.parks.map(_park => this.markVisitedTurbines(_park));
     let platforms = this.platforms.map(_platform => this.markVisitedPlatform(_platform));
     // this.mapService.addTurbinesToMapForVessel(map, turbines, {turbineLocations: []});
-    this.mapService.addParksToMapForVessel(map, turbines, platforms);
-    this.mapService.addV2VtransfersToMap(this.googleMap, this.v2vs, this.vesselTrace);
+    this.mapService.addParksToLayersForVessel(this.visitsLayer, this.otherLayer, turbines, platforms);
+    this.mapService.addV2VtransfersToLayer(this.visitsLayer, this.v2vs, this.vesselTrace);
+    this.visitsLayer.draw();
+    this.otherLayer.draw();
   }
   private markVisitedTurbines(park: TurbinePark): TurbineParkWithDrawData {
-    let parkWithData = park as TurbineParkWithDrawData;
-    parkWithData.isVisited = false;
+    let turbines: TurbineWithData[] = park.turbines.map(_turb => {
+      return {
+        name: _turb.name,
+        lon: _turb.lon,
+        lat: _turb.lat,
+        isVisited: false,
+        visits: [],
+      }
+    })
+    let parkWithData: TurbineParkWithDrawData = {
+      ... {
+        isVisited: false,
+        turbines: turbines,
+      }, ...
+      park
+    };
     this.turbineVisits.forEach((visit) => {
       if (visit.fieldname === parkWithData.filename) {
         let turbine = parkWithData.turbines.find(_turb => _turb.name === visit.location)
@@ -139,7 +188,7 @@ export class DprMapComponent implements OnInit, OnChanges {
         }
       } 
     });
-    return park as TurbineParkWithDrawData;
+    return parkWithData as TurbineParkWithDrawData;
   }
   private markVisitedPlatform(platform: OffshorePlatform): OffshorePlatformWithData {
     let platformWithData = platform as OffshorePlatformWithData
@@ -161,16 +210,18 @@ interface GeoTrace {
 
 export interface TurbineParkWithDrawData extends TurbinePark {
   isVisited: boolean;
-  turbines: Array<{
-    name: string;
-    lon: number
-    lat: number;
-    isVisited?: boolean;
-    visits?: any;
-  }>,
+  turbines: Array<TurbineWithData>,
+}
+
+export interface TurbineWithData {
+  name: string;
+  lon: number
+  lat: number;
+  isVisited?: boolean;
+  visits?: any[];
 }
 
 export interface OffshorePlatformWithData extends OffshorePlatform {
   isVisited: boolean;
-  visits: boolean;
+  visits: any[];
 }
