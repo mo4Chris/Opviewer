@@ -63,7 +63,7 @@ export class MockedCommonService extends CommonService {
     }
     getDatesWithValuesFromGeneralStats(vesselObject: VesselObjectModel) {
         const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
-        return mockedObservable(T);
+        return mockedObservable({data: T});
     }
     getDatesShipHasSailedForSov(vesselObject: VesselObjectModel) {
         const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
@@ -503,7 +503,13 @@ export class MockedCommonService extends CommonService {
     getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
         return mockedObservable([]);
     }
+    getWavedataForDay(request: {date:number, site: string}) {
+        return mockedObservable([]);
+    }
     getFieldsWithWaveSourcesByCompany() {
+        return mockedObservable([]);
+    }
+    getParkLocations() {
         return mockedObservable([]);
     }
 

@@ -1342,7 +1342,11 @@ app.post("/api/getDistinctFieldnames", function(req, res) {
             logger.warn({ msg: 'Access denied - getDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: { $ne: false } }).distinct('fieldname', function(err, data) {
+        Transfermodel.find({
+            "mmsi": req.body.mmsi,
+            "date": req.body.date,
+            active: { $ne: false }
+        }).distinct('fieldname', function(err, data) {
             if (err) {
                 logger.error(err);
                 res.send(err);

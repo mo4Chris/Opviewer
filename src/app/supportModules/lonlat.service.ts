@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class LonlatService {
 
-    lonlatarrayToLatLngArray(input: { lon: any[], lat: any[] }): latlngArrayModel {
+    lonlatarrayToLatLngArray(input: { lon: any[], lat: any[], time?: any[] }): latlngArrayModel {
         const latlngArray: latlngArrayModel = [];
         let latlng;
         input.lon.forEach((lon, index) => {
@@ -23,6 +23,11 @@ export class LonlatService {
             }
             latlngArray.push(latlng);
         });
+        if (input.time) {
+            input.time.forEach((t, i) => {
+                latlngArray[i].time = t[0] || t
+            })
+        }
         return latlngArray;
     }
 
@@ -69,5 +74,5 @@ function deg2rad(deg: number) {
     return deg * (Math.PI / 180)
 }
 
-type latlngArrayModel = { lat: number, lng: number }[];
+type latlngArrayModel = { lat: number, lng: number, time?: number }[];
 

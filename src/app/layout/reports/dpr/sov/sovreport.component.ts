@@ -12,7 +12,6 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { V2vPaxTotalModel } from './sov-v2v-transfers/sov-v2v-transfers.component';
-import { DprChildData } from '../reports-dpr.component';
 import { forkJoin } from 'rxjs';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
@@ -28,14 +27,11 @@ import { V2vTransfer } from './models/Transfers/vessel2vessel/V2vTransfer';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovreportComponent implements OnInit, OnChanges {
-  @Output() turbineLocationData: EventEmitter<any> = new EventEmitter<any>();
-  @Output() platformLocationData: EventEmitter<any> = new EventEmitter<any>();
-  @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
-  @Output() sovChildData = new EventEmitter<DprChildData>();
+  @Output() loaded = new EventEmitter<boolean>()
+  @Output() sailDates = new EventEmitter<any>();
 
   @Input() tokenInfo: TokenModel;
   @Input() vesselObject: VesselObjectModel;
-  @Input() mapPixelWidth: number;
   @Input() printMode: number;
 
 
@@ -74,7 +70,6 @@ export class SovreportComponent implements OnInit, OnChanges {
   // Charts
   backgroundcolors = ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850'];
   v2vPaxCargoTotals: V2vPaxTotalModel;
-
 
   // Map data
   vesselTrace = {time: [], lon: [], lat: []};
@@ -252,12 +247,10 @@ export class SovreportComponent implements OnInit, OnChanges {
               }
               this.loadFieldFromFieldnames(sovFieldNames);
 
-              // Loading in platform content
-              this.parsePlatformlocations(platformLocations);
-
               // This should be intergrated in to the forkJoin
               this.buildPageWhenAllLoaded();
               this.showContent = true;
+              this.loaded.emit(true);
             }
           );
         } else {
@@ -270,46 +263,14 @@ export class SovreportComponent implements OnInit, OnChanges {
           this.hasGeneral = false;
           this.buildPageWhenAllLoaded();
           this.showContent = true;
+          this.loaded.emit(true);
         }
       },
     );
   }
 
   setMapData() {
-    const boatlocationData = [this.sovModel.sovInfo];
-    this.vesselTrace = boatlocationData[0];
-    if (
-      '' + this.sovModel.sovInfo.lat !== '_NaN_' &&
-      '' + this.sovModel.sovInfo.lon !== '_NaN_'
-    ) {
-      const mapProperties = this.calculationService.GetPropertiesForMap(
-        this.mapPixelWidth,
-        this.sovModel.sovInfo.lat,
-        this.sovModel.sovInfo.lon
-      );
-      this.sovChildData.emit({
-        routeFound: true,
-        boatLocationData: boatlocationData,
-        zoomInfo: {
-          latitude: mapProperties.avgLatitude,
-          longitude: mapProperties.avgLongitude,
-          mapZoomLvl: mapProperties.zoomLevel
-        },
-        platformLocationData: null,
-        v2vData: this.sovModel.vessel2vessels[0] ? this.sovModel.vessel2vessels[0].transfers : [],
-      });
-    } else {
-      this.sovChildData.emit({
-        routeFound: false,
-        boatLocationData: boatlocationData,
-        zoomInfo: {
-          latitude: null,
-          longitude: null,
-          mapZoomLvl: null
-        },
-        platformLocationData: null
-      });
-    }
+    this.vesselTrace = this.sovModel.sovInfo;
   }
   onMapReady(map) {
     // TBI
@@ -318,7 +279,6 @@ export class SovreportComponent implements OnInit, OnChanges {
   emitHseApproval(input) {
     this.hseDprApproval = input;
   }
-
   emitDprApproval(input) {
     this.dprApproval = input;
   }
@@ -353,7 +313,6 @@ export class SovreportComponent implements OnInit, OnChanges {
           vesselType: 'SOV'
         };
         this.turbineLocations = locationData.turbineLocations;
-        this.turbineLocationData.emit(locationData);
         if (this.turbineLocations[0].SiteName) {
           this.fieldName = this.turbineLocations[0].SiteName;
         }
@@ -383,19 +342,6 @@ export class SovreportComponent implements OnInit, OnChanges {
       console.error(e);
     }
     this.setMapData();
-  }
-
-  parsePlatformlocations(platformLocations) {
-    if (platformLocations.length !== 0) {
-      const transfers = this.sovModel.platformTransfers;
-      const locationData = {
-        turbineLocations: platformLocations,
-        transfers: transfers,
-        type: 'Platforms',
-        vesselType: 'SOV'
-      };
-      this.platformLocationData.emit(locationData);
-    }
   }
 
   GetAvailableRouteDatesForVessel() {

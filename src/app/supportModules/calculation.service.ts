@@ -101,25 +101,26 @@ export class CalculationService {
 
     const WORLD_DIM = { height: 256, width: 256 };
     const ZOOM_MAX = 15;
-
     const latFraction = (latRad(maxLatitude) - latRad(minLatitude)) / Math.PI;
-
     const lngDiff = maxLongitude - minLongitude;
     const lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
     // height of agm map
     let latZoom = zoom(440, WORLD_DIM.height, latFraction);
     let lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
-    if (lngZoom<0) {
+    if (lngZoom<0 || isNaN(lngZoom)) {
       lngZoom = ZOOM_MAX
       console.warn('Received infeasible lng map zoom!')
     }
-
     const zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
     const avgLatitude = (minLatitude + maxLatitude) / 2;
     const avgLongitude = (minLongitude + maxLongitude) / 2;
 
-    return { 'zoomLevel': zoomLevel, 'avgLatitude': avgLatitude, 'avgLongitude': avgLongitude };
+    return {
+      'zoomLevel': zoomLevel,
+      'avgLatitude': avgLatitude,
+      'avgLongitude': avgLongitude,
+    };
   }
 
   getNanMean(X: number[], removeNaNs = true) {

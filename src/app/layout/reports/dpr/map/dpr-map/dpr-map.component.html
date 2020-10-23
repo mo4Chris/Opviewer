@@ -3,7 +3,7 @@
     <div *ngIf="!routeFound" class="alert alert-warning" role="alert">
       <b>Warning!</b> no route found for the selected day and vessel.
     </div>
-    <div *ngIf="!parkFound" class="alert alert-warning" role="alert">
+    <div *ngIf="routeFound && !parkFound" class="alert alert-warning" role="alert">
       <b>Warning!</b> no parks found for the selected day and vessel.
     </div>
     <div *ngIf="parkFound && !hasTransfers"

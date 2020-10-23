@@ -25,6 +25,8 @@ import { SupportModelModule } from '@app/models/support-model.module';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 import { DprMapComponent } from '../map/dpr-map/dpr-map.component';
 import { env } from 'process';
+import { ReportsDprModule } from '../reports-dpr.module';
+import { DprMapModule } from '../map/dpr-map/dpr-map.module';
 
 
 @NgModule({
@@ -35,13 +37,16 @@ import { env } from 'process';
     NgbModule,
     FormsModule,
     SharedPipesModule,
+    PlotlyModule,
+    SupportModelModule,
+    DprMapModule,
     AgmCoreModule.forRoot({
         apiKey: env.GOOGLE_API_KEY
     }),
-    PlotlyModule,
-    SupportModelModule
   ],
-  providers: [CalculationService],
+  providers: [
+    CalculationService,
+  ],
   declarations: [
     SovreportComponent,
     SovSummaryComponent,
@@ -58,8 +63,9 @@ import { env } from 'process';
     SovHseDprInputReadonlyComponent,
     SovHseDprInputVesselmasterComponent,
     SovDcTransfersComponent,
-    DprMapComponent,
   ],
-  exports: [SovreportComponent]
+  exports: [
+    SovreportComponent
+  ]
 })
 export class SovreportModule { }

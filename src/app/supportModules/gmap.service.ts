@@ -198,7 +198,6 @@ export class GmapService {
         let markerIcon = turbine.isVisited ? GmapService.iconVisitedTurbine : GmapService.iconTurbine;
         let infoArray = turbine.visits;
         if (infoArray !== undefined && infoArray !== null && infoArray.length > 0 && infoArray[0]) {
-            console.log(infoArray)
             contentString =
                 '<strong style="font-size: 15px;">' + turbine.name + ' Turbine transfers</strong>' +
                 '<pre>';
@@ -310,7 +309,7 @@ export class GmapService {
 
     addV2VtransfersToLayer(layer: MapZoomLayer, v2vTransfers: V2vTransfer[], vesselRoute: { time: number[], lon: number[], lat: number[] }) {
         // Adds v2v transfer locations to the map
-        if (isArray(v2vTransfers)) {
+        if (Array.isArray(v2vTransfers)) {
             v2vTransfers.forEach(_transfer => {
                 const loc = this.getNearestLocation(vesselRoute, _transfer.stopTime / 2 + _transfer.startTime / 2);
                 if (loc) {

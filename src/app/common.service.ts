@@ -206,7 +206,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransfersForVessel(mmsi: number, date: number) {
+  getTransfersForVessel(mmsi: number, date: number): Observable<any[]> {
     return this.get('/api/getTransfersForVessel/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }

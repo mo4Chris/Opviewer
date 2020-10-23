@@ -1,6 +1,5 @@
-<app-dpr-map style="width: 100%;" [hidden]="!showContent" [vesselTrace]="vesselTrace" (onMapReady)="onMapReady($event)"
-  [turbineVisits]="sovModel.turbineTransfers" [platformVisits]="sovModel.platformTransfers"
->
+<app-dpr-map *ngIf="showContent" style="width: 100%;" [hidden]="!showContent" [vesselTrace]="vesselTrace" (onMapReady)="onMapReady($event)"
+  [turbineVisits]="sovModel.turbineTransfers" [platformVisits]="sovModel.platformTransfers" [v2vs]="sovModel.vessel2vessels">
 </app-dpr-map>
 <div *ngIf="showContent && printMode == 0" class="plsdonotprintthisforfsake">
   <br>

@@ -29,6 +29,7 @@ import { SimpleChange } from '@angular/core';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
 import { MockComponent, MockComponents } from 'ng-mocks';
+import { DprMapComponent } from '../map/dpr-map/dpr-map.component';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -60,8 +61,7 @@ describe('SovreportComponent', () => {
 
         SovHseDprInputReadonlyComponent,
         SovHseDprInputVesselmasterComponent,
-        MockComponents(SovRovOperationsComponent,),
-
+        MockComponents(SovRovOperationsComponent, DprMapComponent),
         SovWeatherchartComponent,
         WaveSpectrumComponentComponent,
         SovTurbineTransfersComponent,

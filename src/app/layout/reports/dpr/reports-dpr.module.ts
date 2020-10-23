@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { AgmCoreModule } from '@agm/core';
 import { AutosizeModule } from 'ngx-autosize';
 
 import { ReportsDprComponent } from './reports-dpr.component';
@@ -16,15 +15,12 @@ import {CommonService} from '@app/common.service';
 import { UserService } from '@app/shared/services/user.service';
 
 import { CalculationService } from '@app/supportModules/calculation.service';
-import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
-import { SovreportModule } from './sov/sovreport.module';
-import { CtvslipgraphComponent } from './ctv/models/ctvslipgraph/ctvslipgraph.component';
-import { CtvSummaryComponent } from './ctv/ctv-summary/ctv-summary.component';
-import { CtvTurbineTransferComponent } from './ctv/ctv-turbine-transfer/ctv-turbine-transfer.component';
 import { DprMapComponent } from './map/dpr-map/dpr-map.component';
+import { SovreportModule } from './sov/sovreport.module';
+import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 
 @NgModule({
     imports: [
@@ -38,10 +34,23 @@ import { DprMapComponent } from './map/dpr-map/dpr-map.component';
         PageHeaderModule,
         SharedPipesModule,
         SovreportModule,
+        CtvreportModule,
     ],
-    declarations: [CtvreportComponent, ReportsDprComponent, CtvslipgraphComponent, CtvSummaryComponent, CtvTurbineTransferComponent],
-    providers: [CommonService, CalculationService, UserService, EventService, RouterService],
-    bootstrap: [ReportsDprComponent],
-    exports: [ReportsDprComponent],
+    declarations: [
+        ReportsDprComponent,
+    ],
+    providers: [
+        CommonService,
+        CalculationService,
+        UserService,
+        EventService,
+        RouterService,
+    ],
+    bootstrap: [
+        ReportsDprComponent
+    ],
+    exports: [
+        ReportsDprComponent
+    ],
 })
 export class ReportsDprModule {}

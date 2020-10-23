@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, OnChanges, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { GmapService } from '@app/supportModules/gmap.service';
 import { MapStore, TurbinePark, OffshorePlatform } from '@app/stores/map.store';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -8,16 +8,14 @@ import { MapZoomLayer } from '@app/models/mapZoomLayer';
 @Component({
   selector: 'app-dpr-map',
   templateUrl: './dpr-map.component.html',
-  styleUrls: ['./dpr-map.component.scss']
+  styleUrls: ['./dpr-map.component.scss'],
 })
 export class DprMapComponent implements OnInit, OnChanges {
-  @Input() hidden = true;
   @Input() vesselTrace: GeoTrace;
   @Input() turbineVisits = [];
   @Input() platformVisits = [];
   @Input() v2vs = [];
-  @Input() pxWidth: number;
-
+  @Input() width: number;
   @Output() onLoaded = new EventEmitter<google.maps.Map>();
 
   constructor(
@@ -25,45 +23,17 @@ export class DprMapComponent implements OnInit, OnChanges {
     private mapStore: MapStore,
     private calcService: CalculationService,
     private geoService: LonlatService,
+    private ref: ChangeDetectorRef,
   ) {
-    this.mapIsReady = new Promise((resolve, reject) => {
-      this.triggerMapPromise = resolve;
-      setTimeout(() => {
-        reject('Reached timeout!');
-      }, 5000)
-    })
   }
 
-  private triggerMapPromise: (map: google.maps.Map) => void;
+  triggerMapPromise: (map: google.maps.Map) => void;
   private mapIsReady: Promise<google.maps.Map>;
   private googleMap: google.maps.Map;
   private parks: TurbinePark[];
   private platforms: OffshorePlatform[];
   private visitsLayer: MapZoomLayer;
   private otherLayer: MapZoomLayer;
-
-  // reset() {
-  //     // This ensures that the correct map will be set when switching between pages
-  //     if (this.layersInitialized) {
-  //         this.vesselRouteTurbineLayer.reset();
-  //         this.unvisitedPlatformLayer.reset();
-  //         this.layersInitialized = false;
-  //     }
-  //     this.layersInitialized = false;
-  // }
-
-  // buildLayerIfNotPresent(googleMap: google.maps.Map) {
-  //     if (!this.layersInitialized) {
-  //         console.log('Initializing zoom layers!')
-  //         this.vesselRouteTurbineLayer = new MapZoomLayer(googleMap, 8);
-  //         this.unvisitedPlatformLayer = new MapZoomLayer(googleMap, 10);
-  //         this.layersInitialized = true;
-  //         setTimeout(() => {
-  //             // Platform layer is drawn only after 500 ms delay to keep map responsive
-  //             this.unvisitedPlatformLayer.draw();
-  //         }, 500);
-  //     }
-  // }
 
   public mapProperties = {
     avgLatitude: 0,
@@ -72,15 +42,17 @@ export class DprMapComponent implements OnInit, OnChanges {
   }
   public mapStyle = GmapService.defaultMapStyle;
   public streetViewControl = false;
-  public parkFound = true;
-  public routeFound = true;
-  public hasTransfers = true;
+  public routeFound = false;
 
   ngOnInit() {
-    console.log('INIT dpr map')
   }
   ngOnChanges() {
-    if (!this.hidden) {
+    if (this.hasValidVesselTrace) {
+      if (!this.googleMap) {
+        this.initMapPromise();
+      }
+      this.routeFound = true;
+      this.ref.detectChanges();
       this.setMapProperties();
       Promise.all([
         this.getPlatformsNearVesselTrace(),
@@ -92,87 +64,160 @@ export class DprMapComponent implements OnInit, OnChanges {
         this.googleMap = _map;
         this.onAllReady();
       });
+    } else {
+      this.routeFound = false;
+      this.ref.detectChanges()
     }
   }
 
   // Init
+  initMapPromise() {
+    this.mapIsReady = new Promise((resolve, reject) => {
+      this.triggerMapPromise = resolve;
+      setTimeout(() => {
+        if (this.hasValidVesselTrace) {
+          reject('Error initializing google map!');
+        }
+      }, 3000)
+    })
+  }
   setMapProperties() {
     let map = document.getElementById('routeMap');
     if (map !== null) {
       // ToDo: fix the width check here
-      const mapPixelWidth = map.offsetWidth || this.pxWidth || Math.round(0.75 * window.innerWidth);
+      const mapPixelWidth = map.offsetWidth || this.width || Math.round(0.75 * window.innerWidth);
       this.mapProperties = this.calcService.GetPropertiesForMap(
         mapPixelWidth,
         this.vesselTrace.lat,
         this.vesselTrace.lon
       );
+      if (!(this.mapProperties.avgLatitude>0 && this.mapProperties.avgLatitude < 180)) {
+        console.warn('Detected bad map properties!')
+        this.routeFound = false;
+      }
     }
   }
   initZoomLayers(map: google.maps.Map, ) {
     this.visitsLayer = new MapZoomLayer(map, 8);
-    this.otherLayer = new MapZoomLayer(map, 8);
+    this.otherLayer = new MapZoomLayer(map, 10);
+  }
+
+  // Get callbacks
+  get hidden() {
+    return !this.routeFound;
+  }
+  get parkFound() {
+    return this.parks && this.parks.length > 0
+  }
+  get hasTransfers() {
+    return this.turbineVisits && this.turbineVisits.length > 0 ||
+      this.platformVisits && this.platformVisits.length > 0
+  }
+  get hasValidVesselTrace() {
+    return this.vesselTrace
+      && Array.isArray(this.vesselTrace.lat)
+      && this.vesselTrace.lat.length > 0;
   }
 
   // Async callbacks
-  public async onGmapReady(map: google.maps.Map) {
+  public onGmapReady(map: google.maps.Map) {
+    if (this.googleMap) {
+      this.googleMap.unbindAll();
+    }
     this.initZoomLayers(map);
     this.triggerMapPromise(map);
   }
-  private async getPlatformsNearVesselTrace() {
+  private getPlatformsNearVesselTrace() {
     return this.mapStore.platforms.then((platforms) => {
       let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
-      let traceCentroid = this.geoService.latlngcentroid(trace);
-      let dist2platforms = platforms.map((_platform) => {
-        return this.geoService.latlngdist({lng: _platform.lon, lat: _platform.lat}, traceCentroid);
-      });
-      return platforms.filter((_, _i) => dist2platforms[_i] < 5)
+      if (trace[0] && trace[0].time) {
+        let hrs = this.calcService.linspace(trace[0].time, trace[trace.length-1].time, 1/24-0.00001);
+        let dist2center = this.calcService.fillArray(1000, platforms.length);
+        for (let _i = 0; _i < hrs.length-1; _i++) { 
+          let s = trace.findIndex(_e => _e.time > hrs[_i]);
+          let e = trace.findIndex(_e => _e.time > hrs[_i+1]);
+          let traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e))
+          platforms.forEach((_platform: any, _j) => {
+            let d2p = this.geoService.latlngdist({lat: _platform.lat, lng: _platform.lon}, traceCentroid);
+            if (d2p>0) {
+              dist2center[_j] = Math.min(dist2center[_j], d2p)
+            }
+          });
+        }
+        return platforms.filter((_, j) => dist2center[j] < 10);
+      } else {
+        let traceCentroid = this.geoService.latlngcentroid(trace);
+        let dist2platforms = platforms.map((_platform) => {
+          return this.geoService.latlngdist({lng: _platform.lon, lat: _platform.lat}, traceCentroid);
+        });
+        return platforms.filter((_, _i) => dist2platforms[_i] < 5)
+      }
     })
   }
-  private async getParksNearVesselTrace() {
+  private getParksNearVesselTrace() {
     return this.mapStore.parks.then((parks) => {
-      console.log(parks)
       let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
-      let traceCentroid = this.geoService.latlngcentroid(trace);
-      const dist2center = parks.map((_park: any) => {
-        const centroid = _park.centroid
-        return this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid)
-      });
-      return parks.filter((_, _i) => dist2center[_i] < 20);
+      // If possible, we consider 10KM range every hour. Otherwise, we take 20KM around global centroid
+      if (trace[0] && trace[0].time) {
+        let hrs = this.calcService.linspace(trace[0].time, trace[trace.length-1].time, 1/24-0.00001);
+        let dist2center = this.calcService.fillArray(1000, parks.length);
+        for (let _i = 0; _i < hrs.length-1; _i++) { 
+          let s = trace.findIndex(_e => _e.time > hrs[_i]);
+          let e = trace.findIndex(_e => _e.time > hrs[_i+1]);
+          let traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e))
+          parks.forEach((_park: any, _j) => {
+            const centroid = _park.centroid
+            let d2p = this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid);
+            if (d2p>0) {
+              dist2center[_j] = Math.min(dist2center[_j], d2p)
+            }
+          });
+        }
+        return parks.filter((_, j) => dist2center[j] < 10);
+      } else {
+        let traceCentroid = this.geoService.latlngcentroid(trace);
+        const dist2center = parks.map((_park: any) => {
+          const centroid = _park.centroid
+          return this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid)
+        });
+        return parks.filter((_, _i) => dist2center[_i] < 20);
+      }
     });
   }
 
   // Synchronous callbacks
   private onAllReady() {
-    this.buildGoogleMap(this.googleMap);
+    this.buildGoogleMap();
     this.onLoaded.emit(this.googleMap);
+    this.ref.detectChanges()
   }
-  private buildGoogleMap(map: google.maps.Map) {
-    console.log('BUILDING GOOGLE MAP')
+  private buildGoogleMap() {
     this.mapService.addVesselRouteToLayer(this.visitsLayer, [this.vesselTrace]);
     let turbines = this.parks.map(_park => this.markVisitedTurbines(_park));
     let platforms = this.platforms.map(_platform => this.markVisitedPlatform(_platform));
     // this.mapService.addTurbinesToMapForVessel(map, turbines, {turbineLocations: []});
     this.mapService.addParksToLayersForVessel(this.visitsLayer, this.otherLayer, turbines, platforms);
-    this.mapService.addV2VtransfersToLayer(this.visitsLayer, this.v2vs, this.vesselTrace);
+    if (this.v2vs && this.v2vs[0]) {
+      this.mapService.addV2VtransfersToLayer(this.visitsLayer, this.v2vs[0].transfers, this.vesselTrace);
+    }
     this.visitsLayer.draw();
     this.otherLayer.draw();
   }
   private markVisitedTurbines(park: TurbinePark): TurbineParkWithDrawData {
+    // We need to copy the park data so we dont affect the original park array, which could bleed between pages.
     let turbines: TurbineWithData[] = park.turbines.map(_turb => {
-      return {
-        name: _turb.name,
-        lon: _turb.lon,
-        lat: _turb.lat,
+      return {..._turb, ... {
         isVisited: false,
         visits: [],
-      }
+      }}
     })
     let parkWithData: TurbineParkWithDrawData = {
-      ... {
-        isVisited: false,
-        turbines: turbines,
-      }, ...
-      park
+      filename: park.filename,
+      name: park.name,
+      outline: park.outline,
+      centroid: park.centroid,
+      isVisited: false,
+      turbines: turbines,
     };
     this.turbineVisits.forEach((visit) => {
       if (visit.fieldname === parkWithData.filename) {
@@ -191,7 +236,13 @@ export class DprMapComponent implements OnInit, OnChanges {
     return parkWithData as TurbineParkWithDrawData;
   }
   private markVisitedPlatform(platform: OffshorePlatform): OffshorePlatformWithData {
-    let platformWithData = platform as OffshorePlatformWithData
+    let platformWithData: OffshorePlatformWithData = {
+      ... platform,
+      ... {
+        isVisited: false,
+        visits: [],
+      }
+    }
     platformWithData.isVisited = false;
     this.platformVisits.forEach(visit => {
       if (visit.name === platformWithData.name) {
@@ -202,17 +253,16 @@ export class DprMapComponent implements OnInit, OnChanges {
   }
 }
 
+
 interface GeoTrace {
   time: number[];
   lon:  number[];
   lat:  number[];
 }
-
 export interface TurbineParkWithDrawData extends TurbinePark {
   isVisited: boolean;
   turbines: Array<TurbineWithData>,
 }
-
 export interface TurbineWithData {
   name: string;
   lon: number
@@ -220,7 +270,6 @@ export interface TurbineWithData {
   isVisited?: boolean;
   visits?: any[];
 }
-
 export interface OffshorePlatformWithData extends OffshorePlatform {
   isVisited: boolean;
   visits: any[];
