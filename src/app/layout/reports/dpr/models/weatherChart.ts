@@ -231,7 +231,7 @@ export class WeatherOverviewChart {
   getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
     // ToDo: properly implement the timezone check
-    console.warn('Timezone offset to be implemented')
+    // console.warn('Timezone offset to be implemented')
     return 0;
   }
   destroy() {

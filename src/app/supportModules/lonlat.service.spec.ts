@@ -21,6 +21,14 @@ describe('LonlatService', () => {
     expect(service.lonlatarrayToLatLngArray(arr1)).toEqual(out);
     expect(service.lonlatarrayToLatLngArray(arr2)).toEqual(out);
   });
+
+  it('should correctly estimate distances', () => {
+    let from = {lng: 21.0122287, lat: 52.2296756};
+    let to = {lng: 16.9251681, lat: 52.406374};
+    let d = service.latlngdist(from, to);
+    let expectedDist = 278.458;
+    expect(d).toBeCloseTo(expectedDist, 3)
+  })
 });
 
 

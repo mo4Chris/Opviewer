@@ -1,20 +1,20 @@
 import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone } from '@angular/core';
-import { routerTransition } from '../../router.animations';
+import { routerTransition } from '@app/router.animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
 
-import { UserService } from '../../shared/services/user.service';
+import { UserService } from '@app/shared/services/user.service';
 import { AdminComponent } from './components/users/admin/admin.component';
 import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
 import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
-import { UserTypeEnum } from '../../shared/enums/UserType';
-import { EventService } from '../../supportModules/event.service';
-import { DatetimeService } from '../../supportModules/datetime.service';
-import { CommonService } from '../../common.service';
-import { GmapService } from '../../supportModules/gmap.service';
-import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../../models/mapZoomLayer';
-import { RouterService } from '../../supportModules/router.service';
+import { UserTypeEnum } from '@app/shared/enums/UserType';
+import { EventService } from '@app/supportModules/event.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CommonService } from '@app/common.service';
+import { GmapService } from '@app/supportModules/gmap.service';
+import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '@app/models/mapZoomLayer';
+import { RouterService } from '@app/supportModules/router.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 
@@ -26,7 +26,8 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(public router: Router,
+    constructor(
+        public router: Router,
         private route: ActivatedRoute,
         private userService: UserService,
         private eventService: EventService,

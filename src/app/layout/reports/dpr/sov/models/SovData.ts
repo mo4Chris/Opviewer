@@ -9,6 +9,7 @@ export class SovData {
     distancekm: string;
     arrivalAtHarbour: string;
     departureFromHarbour: string;
+    time: number[];
     lon: any[];
     lat: any[];
 

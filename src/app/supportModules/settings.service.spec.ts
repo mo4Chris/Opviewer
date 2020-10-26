@@ -48,10 +48,10 @@ describe('Settings service', () => {
     // expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('01:00');
     service.Timezone = 'timezone'
     service.fixedTimeZoneLoc = 'Europe/London' // UTC
-    expect(service.getTimeOffset(0, '1 Nov 2017')).toEqual(-0); // Dont even ask
-    expect(service.getTimeOffset(0, '9 Jul 2018')).toEqual(1);
+    expect(service.getTimeOffset(0, '2017-11-01')).toEqual(-0); // Dont even ask
+    expect(service.getTimeOffset(0, '2018-07-09')).toEqual(1);
     service.fixedTimeZoneLoc = 'Europe/Amsterdam' // UTC + 1
-    expect(service.getTimeOffset(0, '1 Nov 2017')).toEqual(1);
-    expect(service.getTimeOffset(0, '9 Jul 2018')).toEqual(2);
+    expect(service.getTimeOffset(0, '2017-11-01')).toEqual(1);
+    expect(service.getTimeOffset(0, '2018-07-09')).toEqual(2);
   })
 });

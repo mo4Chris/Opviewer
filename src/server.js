@@ -6,7 +6,6 @@ var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
 var moment = require('moment');
-const { userSetter } = require('core-js/fn/symbol');
 var logger = require('pino')();
 // Gebruik logger als:
 // logger.info(message)
@@ -745,7 +744,7 @@ app.post("/api/registerUser", function(req, res) {
                         }
                     });
                 } else {
-                    logger.warn('Failed to create user ' + userSetter.username + ': already exists!');
+                    logger.warn('Failed to create user ' + userData.username + ': already exists!');
                     return res.status(401).send('User already exists');
                 }
             }
@@ -1343,7 +1342,11 @@ app.post("/api/getDistinctFieldnames", function(req, res) {
             logger.warn({ msg: 'Access denied - getDistinctFieldnames', mmsi: req.body.mmsi, date: req.body.date })
             return res.status(401).send('Access denied');
         }
-        Transfermodel.find({ "mmsi": req.body.mmsi, "date": req.body.date, active: { $ne: false } }).distinct('fieldname', function(err, data) {
+        Transfermodel.find({
+            "mmsi": req.body.mmsi,
+            "date": req.body.date,
+            active: { $ne: false }
+        }).distinct('fieldname', function(err, data) {
             if (err) {
                 logger.error(err);
                 res.send(err);

@@ -22,17 +22,18 @@ import { AdminComponent } from './components/users/admin/admin.component';
 import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
 import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
+import { env } from 'process';
 
 @NgModule({
     imports: [
         CommonModule,
         HttpClientModule,
         FormsModule,
-        NgbCarouselModule.forRoot(),
-        NgbAlertModule.forRoot(),
+        NgbCarouselModule,
+        NgbAlertModule,
         DashboardRoutingModule,
         AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
+            apiKey: env.GOOGLE_API_KEY
         }),
         AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,
