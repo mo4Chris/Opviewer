@@ -8,6 +8,7 @@ import { isArray, isObject } from 'util';
 import { Observable } from 'rxjs';
 import { V2vTransfer } from '@app/layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vTransfer';
 import { TurbineParkWithDrawData, OffshorePlatformWithData, TurbineWithData } from '@app/layout/reports/dpr/map/dpr-map/dpr-map.component';
+import { HarbourLocation } from '@app/stores/map.store';
 
 @Injectable({
     providedIn: 'root'
@@ -391,6 +392,18 @@ export class GmapService {
             });
         });
         harbourLayer.draw();
+    }
+
+    addHarboursToLayer(layer: MapZoomLayer, harbours: HarbourLocation[]) {
+        harbours.forEach(harbour => {
+            layer.addData(new MapZoomData(
+                harbour.centroid.lon,
+                harbour.centroid.lat,
+                GmapService.iconHarbour,
+                GmapService.iconHarbour.description,
+                harbour.name.split('_').join(' '),
+            ))
+        })
     }
 
     plotPlatforms(googleMap: google.maps.Map, platformLocations, minZoom = 10, maxZoom = 30) {

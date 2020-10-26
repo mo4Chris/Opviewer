@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { GmapService } from '@app/supportModules/gmap.service';
-import { MapStore, TurbinePark, OffshorePlatform } from '@app/stores/map.store';
+import { MapStore, TurbinePark, OffshorePlatform, HarbourLocation } from '@app/stores/map.store';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { LonlatService } from '@app/supportModules/lonlat.service';
 import { MapZoomLayer } from '@app/models/mapZoomLayer';
@@ -10,7 +10,7 @@ import { MapZoomLayer } from '@app/models/mapZoomLayer';
   templateUrl: './dpr-map.component.html',
   styleUrls: ['./dpr-map.component.scss'],
 })
-export class DprMapComponent implements OnInit, OnChanges {
+export class DprMapComponent implements OnChanges {
   @Input() vesselTrace: GeoTrace;
   @Input() turbineVisits = [];
   @Input() platformVisits = [];
@@ -32,6 +32,7 @@ export class DprMapComponent implements OnInit, OnChanges {
   private googleMap: google.maps.Map;
   private parks: TurbinePark[];
   private platforms: OffshorePlatform[];
+  private harbours: HarbourLocation[];
   private visitsLayer: MapZoomLayer;
   private otherLayer: MapZoomLayer;
 
@@ -44,8 +45,6 @@ export class DprMapComponent implements OnInit, OnChanges {
   public streetViewControl = false;
   public routeFound = false;
 
-  ngOnInit() {
-  }
   ngOnChanges() {
     if (this.hasValidVesselTrace) {
       if (!this.googleMap) {
@@ -58,10 +57,12 @@ export class DprMapComponent implements OnInit, OnChanges {
         this.getPlatformsNearVesselTrace(),
         this.getParksNearVesselTrace(),
         this.mapIsReady,
-      ]).then(([_platforms, _parks, _map]) => {
+        this.mapStore.harbours,
+      ]).then(([_platforms, _parks, _map, _harbours]) => {
         this.platforms = _platforms;
         this.parks = _parks;
         this.googleMap = _map;
+        this.harbours = _harbours;
         this.onAllReady();
       });
     } else {
@@ -200,6 +201,7 @@ export class DprMapComponent implements OnInit, OnChanges {
     if (this.v2vs && this.v2vs[0]) {
       this.mapService.addV2VtransfersToLayer(this.visitsLayer, this.v2vs[0].transfers, this.vesselTrace);
     }
+    this.mapService.addHarboursToLayer(this.visitsLayer, this.harbours);
     this.visitsLayer.draw();
     this.otherLayer.draw();
   }

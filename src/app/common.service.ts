@@ -6,7 +6,6 @@ import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 // import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
-import { isArray } from 'util';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
@@ -99,10 +98,10 @@ export class CommonService {
       map((response: Response) => {
         const v2vs = response.json();
         v2vs.forEach(v2v => {
-          if (!isArray(v2v.transfers)) {
+          if (!Array.isArray(v2v.transfers)) {
             v2v.transfers = [v2v.transfers];
           }
-          if (!isArray(v2v.CTVactivity)) {
+          if (!Array.isArray(v2v.CTVactivity)) {
             v2v.CTVactivity = [v2v.CTVactivity];
           }
         });

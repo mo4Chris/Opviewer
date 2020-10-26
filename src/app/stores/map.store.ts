@@ -1,5 +1,6 @@
 import { CommonService } from "@app/common.service";
 import { Injectable } from "@angular/core";
+import { CalculationService } from "@app/supportModules/calculation.service";
 
 
 @Injectable({
@@ -12,6 +13,7 @@ export class MapStore {
 
   constructor(
     private newService: CommonService,
+    private calcService: CalculationService,
   ) {
   }
 
@@ -25,7 +27,19 @@ export class MapStore {
       resolve(this.initPlatforms(raw[0]));
     })
   });
+  harbours: Promise<HarbourLocation[]> = new Promise(resolve => {
+    this.newService.getHarbourLocations().subscribe((raw) => {
+      resolve(this.initHarbours(raw));
+    });
+  })
 
+  public onAllData(): Promise<[TurbinePark[], OffshorePlatform[], HarbourLocation[]]> {
+    return Promise.all([
+      this.parks,
+      this.platforms,
+      this.harbours,
+    ])
+  }
 
   private initFields(_parks: any) {
     return <TurbinePark[]> _parks.map(_park => {
@@ -73,13 +87,21 @@ export class MapStore {
       }
     }
     return platforms
-    // this.platforms = {
-    //   name: _platforms.name[0],
-    //   lon: _platforms.lon[0],
-    //   lat: _platforms.lat[0],
-    // }
   }
 
+  private initHarbours(rawdata: {centroid: any, lon: any[][], lat: any[][], name: string}[]) {
+    let harbours  = rawdata.map(raw => {
+      return {
+        name: raw.name,
+        centroid: raw.centroid,
+        outline: {
+          lon: this.calcService.parseMatlabArray(raw.lon),
+          lat: this.calcService.parseMatlabArray(raw.lat),
+        }
+      }
+    });
+    return harbours;
+  }
 }
 
 class MockedMapStore extends MapStore{
@@ -112,4 +134,16 @@ export interface OffshorePlatform {
   name: string;
   lon: number;
   lat: number;
+}
+export interface HarbourLocation {
+  name: string,
+  centroid: {
+    lon: number,
+    lat: number,
+    radius: number,
+  },
+  outline: {
+    lon: number[],
+    lat: number[],
+  }
 }
