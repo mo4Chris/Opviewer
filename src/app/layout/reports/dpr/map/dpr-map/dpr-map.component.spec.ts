@@ -47,7 +47,6 @@ describe('DprMapComponent', () => {
       component.vesselTrace = vessel.trace;
       component.width = 1000;
       fixture.detectChanges();
-      component.ngOnInit();
     });
 
     it('should create', (done) => {
