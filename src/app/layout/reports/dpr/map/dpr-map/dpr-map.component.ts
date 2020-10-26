@@ -174,7 +174,7 @@ export class DprMapComponent implements OnChanges {
             }
           });
         }
-        return parks.filter((_, j) => dist2center[j] < 5);
+        return parks.filter((_, j) => dist2center[j] < 12);
       } else {
         let traceCentroid = this.geoService.latlngcentroid(trace);
         const dist2center = parks.map((_park: any) => {
