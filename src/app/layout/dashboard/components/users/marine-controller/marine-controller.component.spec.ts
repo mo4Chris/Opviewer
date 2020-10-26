@@ -18,7 +18,6 @@ describe('Dashboard MarineController Component', () => {
     TestBed.configureTestingModule({
       declarations: [ MarineControllerComponent ],
       imports: [
-        AgmCoreModule.forRoot(),
         HttpModule,
         RouterTestingModule,
         NgbModule,

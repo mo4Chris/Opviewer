@@ -26,7 +26,8 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
     animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit {
-    constructor(public router: Router,
+    constructor(
+        public router: Router,
         private route: ActivatedRoute,
         private userService: UserService,
         private eventService: EventService,

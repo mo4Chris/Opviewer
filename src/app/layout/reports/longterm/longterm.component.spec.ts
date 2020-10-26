@@ -5,14 +5,11 @@ import { MockedCommonServiceProvider } from "@app/supportModules/mocked.common.s
 import { NgMultiSelectDropDownModule } from "ng-multiselect-dropdown";
 import { NgbModule, NgbDatepickerModule, NgbDate } from "@ng-bootstrap/ng-bootstrap";
 import { FormsModule } from "@angular/forms";
-import { AgmCoreModule } from "@agm/core";
-import { LongtermModule } from "./longterm.module";
 import { LongtermCTVComponent } from "./ctv/longtermCTV.component";
-import { MockComponent, MockComponents } from 'ng-mocks';
+import { MockComponents } from 'ng-mocks';
 import { LongtermSOVComponent } from "./sov/longtermSOV.component";
 import { RouterTestingModule } from "@angular/router/testing";
 import { UserTestService, MockedUserServiceProvider } from "@app/shared/services/test.user.service";
-import { PermissionService } from "@app/shared/permissions/permission.service";
 import { CtvslipgraphComponent } from "../dpr/ctv/models/ctvslipgraph/ctvslipgraph.component";
 import { VesselinfoComponent } from "./ctv/models/vesselinfo/vesselinfo.component";
 import { DeploymentGraphComponent } from "./ctv/models/deploymentgraph/deploymentGraph.component";
@@ -34,7 +31,6 @@ describe('ReportsComponent - CTV', () => {
                 CommonModule,
                 NgbModule,
                 FormsModule,
-                AgmCoreModule,
                 NgbDatepickerModule,
                 NgMultiSelectDropDownModule,
                 RouterTestingModule,

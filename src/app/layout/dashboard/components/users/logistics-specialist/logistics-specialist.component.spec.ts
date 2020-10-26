@@ -18,8 +18,6 @@ describe('Dashboard logistic specialist', () => {
     TestBed.configureTestingModule({
       declarations: [ LogisticsSpecialistComponent ],
       imports: [
-        AgmCoreModule,
-        HttpModule,
         CommonModule,
         RouterTestingModule,
         NgbModule,

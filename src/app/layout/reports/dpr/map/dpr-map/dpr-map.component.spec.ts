@@ -5,6 +5,7 @@ import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AutosizeModule } from 'ngx-autosize';
+import { env } from 'process';
 
 import { DprMapComponent } from './dpr-map.component';
 

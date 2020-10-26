@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { AgmCoreModule } from '@agm/core';
 
 import { LongtermRoutingModule } from './longterm-routing.module';
 import { LongtermComponent } from './longterm.component';
@@ -27,9 +26,6 @@ import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/l
 @NgModule({
     imports: [
         HttpClientModule,
-        AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
-        }),
         FormsModule,
         NgbModule,
         NgMultiSelectDropDownModule,

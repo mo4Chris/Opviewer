@@ -7,11 +7,10 @@ import { PageHeaderModule } from '../../../shared';
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AgmCoreModule } from '@agm/core';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { UserService } from '../../../shared/services/user.service';
 import { mockedObservable } from '../../../models/testObservable';
-import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('FleetComponent', () => {
     let component: FleetsComponent;
@@ -21,8 +20,7 @@ describe('FleetComponent', () => {
         TestBed.configureTestingModule({
             imports: [
               FormsModule,
-              NgbModule.forRoot(),
-              AgmCoreModule.forRoot(),
+              NgbModule,
               PageHeaderModule,
               RouterTestingModule,
               HttpModule,
