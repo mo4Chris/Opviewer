@@ -70,11 +70,13 @@ export class MapStore {
   private initPlatforms(_platforms: {name: Array<any>, lon: Array<any>, lat: Array<any>}): OffshorePlatform[] {
     let platforms = [];
     if (Array.isArray(_platforms.name[0])) {
+      let lons = this.calcService.parseMatlabArray(_platforms.lon);
+      let lats = this.calcService.parseMatlabArray(_platforms.lat);
       for (let _i = 0; _i< _platforms.name[0].length; _i++) {
         platforms.push({
           name: _platforms.name[0][_i],
-          lon: _platforms.lon[0][_i],
-          lat: _platforms.lat[0][_i],
+          lon: lons[_i],
+          lat: lats[_i],
         })
       }
     } else {

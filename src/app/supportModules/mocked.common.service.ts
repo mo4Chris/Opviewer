@@ -512,6 +512,17 @@ export class MockedCommonService extends CommonService {
     getParkLocations() {
         return mockedObservable([]);
     }
+    getHarbourLocations() {
+        return mockedObservable([{
+            name: 'Test harbour',
+            centroid: {
+                lon: 50,
+                lat: 1
+            },  
+            lon: [50],
+            lat: [1]
+        }])
+    }
 
     getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {
         return mockedObservable([{

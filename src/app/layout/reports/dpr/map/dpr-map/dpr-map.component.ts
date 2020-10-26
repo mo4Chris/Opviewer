@@ -108,7 +108,7 @@ export class DprMapComponent implements OnChanges {
     return !this.routeFound;
   }
   get parkFound() {
-    return this.parks && this.parks.length > 0
+    return this.parks && this.parks.length > 0 || this.platformVisits && this.platformVisits.length>0
   }
   get hasTransfers() {
     return this.turbineVisits && this.turbineVisits.length > 0 ||
@@ -128,7 +128,7 @@ export class DprMapComponent implements OnChanges {
     this.initZoomLayers(map);
     this.triggerMapPromise(map);
   }
-  private getPlatformsNearVesselTrace() {
+  private async getPlatformsNearVesselTrace() {
     return this.mapStore.platforms.then((platforms) => {
       let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
       if (trace[0] && trace[0].time) {
@@ -138,24 +138,24 @@ export class DprMapComponent implements OnChanges {
           let s = trace.findIndex(_e => _e.time > hrs[_i]);
           let e = trace.findIndex(_e => _e.time > hrs[_i+1]);
           let traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e))
-          platforms.forEach((_platform: any, _j) => {
+          platforms.forEach((_platform, _j) => {
             let d2p = this.geoService.latlngdist({lat: _platform.lat, lng: _platform.lon}, traceCentroid);
             if (d2p>0) {
               dist2center[_j] = Math.min(dist2center[_j], d2p)
             }
           });
         }
-        return platforms.filter((_, j) => dist2center[j] < 10);
+        return platforms.filter((_, j) => dist2center[j] < 5);
       } else {
         let traceCentroid = this.geoService.latlngcentroid(trace);
         let dist2platforms = platforms.map((_platform) => {
           return this.geoService.latlngdist({lng: _platform.lon, lat: _platform.lat}, traceCentroid);
         });
-        return platforms.filter((_, _i) => dist2platforms[_i] < 5)
+        return platforms.filter((_, _i) => dist2platforms[_i] < 20)
       }
     })
   }
-  private getParksNearVesselTrace() {
+  private async getParksNearVesselTrace() {
     return this.mapStore.parks.then((parks) => {
       let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
       // If possible, we consider 10KM range every hour. Otherwise, we take 20KM around global centroid
@@ -174,7 +174,7 @@ export class DprMapComponent implements OnChanges {
             }
           });
         }
-        return parks.filter((_, j) => dist2center[j] < 10);
+        return parks.filter((_, j) => dist2center[j] < 5);
       } else {
         let traceCentroid = this.geoService.latlngcentroid(trace);
         const dist2center = parks.map((_park: any) => {
@@ -247,8 +247,13 @@ export class DprMapComponent implements OnChanges {
     }
     platformWithData.isVisited = false;
     this.platformVisits.forEach(visit => {
-      if (visit.name === platformWithData.name) {
+      if (visit.locationname === platformWithData.name) {
         platformWithData.isVisited = true;
+        if (platformWithData.visits) {
+          platformWithData.visits.push(visit);
+        } else {
+          platformWithData.visits = [visit]
+        }
       }
     })
     return platformWithData;

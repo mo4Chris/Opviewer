@@ -172,14 +172,12 @@ export class SovreportComponent implements OnInit, OnChanges {
             this.commonService.getSovDistinctFieldnames(
               this.vesselObject
             ),
-            this.commonService.getPlatformLocations(''),
           ]).subscribe(
             ([
               platformTransfers,
               turbineTransfers,
               cycleTimes,
               sovFieldNames,
-              platformLocations,
             ]) => {
               // All data is loaded beyond this point
               this.setPaxFromDefault(platformTransfers);

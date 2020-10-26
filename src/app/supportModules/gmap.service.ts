@@ -217,19 +217,19 @@ export class GmapService {
             turbine.lon,
             turbine.lat,
             markerIcon,
-            'Turbine',
+            'Offshore platform',
             contentString
         ));
     }
 
-    private addPlatformToLayer(layer: MapZoomLayer, platform: OffshorePlatformWithData, zIndex = 2) {
+    private addPlatformToLayer(layer: MapZoomLayer, platform: OffshorePlatformWithData) {
         const markerPosition = { lat: platform.lat, lng: platform.lon };
         const markerIcon = platform.isVisited ? GmapService.iconVisitedPlatform : GmapService.iconPlatform;
         const mymarker = new google.maps.Marker({
             position: markerPosition,
             draggable: false,
             icon: markerIcon,
-            zIndex: zIndex,
+            zIndex: platform.isVisited ? 2 : 1,
             map: layer.map
         });
         if (platform.isVisited) {
@@ -239,9 +239,9 @@ export class GmapService {
             platform.visits.forEach(info => {
                 if (info) {
                     contentString = contentString + '<br>' +
-                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.arrivalTimePlatform) + '<br>' +
+                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.departureTimePlatform) + '<br>' +
+                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.totalDuration) + '<br>';
                 }
             });
             contentString = contentString + '</pre>';
