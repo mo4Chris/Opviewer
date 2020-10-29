@@ -14,6 +14,12 @@
                     [vesselLabels]="vesselObject.vesselName">
                 </app-deployment-graph>
             </div>
+
+
+            <app-ctv-utilization-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
+                [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
+            </app-ctv-utilization-graph>
+
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"

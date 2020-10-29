@@ -5,14 +5,15 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
+import { map } from 'rxjs/operators';
 import { now } from 'moment';
 import { LongtermColorScheme } from '../../../models/color_scheme';
 
 
 @Component({
-  selector: 'app-utilization-graph',
+  selector: 'app-ctv-utilization-graph',
   templateUrl: './utilizationGraph.component.html',
-  styleUrls: ['../../longtermSOV.component.scss',
+  styleUrls: ['../../longtermCTV.component.scss',
     './utilizationGraph.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -40,6 +41,7 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.updateChart();
+
   }
 
   ngOnChanges() {
@@ -73,64 +75,55 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
         return { ...def, ...options };
       };
 
-      const waiting = getDset({
-        label: 'Waiting',
+      const inbound = getDset({
+        label: 'Inbound',
         backgroundColor: this.backgroundcolors[0].replace('1)', '0.7'),
       });
-      const sailing = getDset({
-        label: 'Sailing',
+      const outbound = getDset({
+        label: 'Outbound',
         backgroundColor: this.backgroundcolors[1],
       });
-      const ops = getDset({
-        label: 'Operations',
+      const inField = getDset({
+        label: 'In field',
         backgroundColor: this.backgroundcolors[2],
-      });
-      const missing = getDset({
-        label: 'No data',
-        backgroundColor: LongtermColorScheme.missingData,
       });
       matlabDates.forEach(day => {
         // Loop over days
         validIdx = breakdownDates.findIndex(date => date === day);
         if (validIdx === -1 || isInvalidData(TimeBreakdowns[validIdx])) {
-          waiting.data.push(0);
-          sailing.data.push(0);
-          ops.data.push(0);
-          missing.data.push(24);
+          inbound.data.push(0);
+          outbound.data.push(0);
+          inField.data.push(0);
         } else {
           const local = TimeBreakdowns[validIdx];
           const hours = {
-            ops: 0,
-            sailing: 0,
-            waiting: 0,
-            other: 0,
+            minutesTransitInbound: 0,
+            minutesTransitOutbound: 0,
+            minutesInField: 0
           };
           Object.keys(local).forEach(key => {
             // 'hoursWaiting', 'hoursSailing', 'hoursOfCTVops', 'hoursAtTurbine', 'hoursAtPlatform'
             switch (key) {
-              case 'hoursWaiting':
-                hours.waiting = local[key];
+              case 'minutesTransitInbound':
+                hours.minutesTransitInbound = local[key];
                 break;
-              case 'hoursSailing':
-                hours.sailing = local[key];
+              case 'minutesTransitOutbound':
+                hours.minutesTransitOutbound = local[key];
                 break;
-              case 'hoursOfCTVops': case 'hoursAtTurbine': case 'hoursAtPlatform':
-                hours.ops += local[key];
+              case 'minutesInField':
+                hours.minutesInField = local[key];
                 break;
-              default:
-                hours.other += local[key];
             }
           });
-          waiting.data.push(hours.waiting);
-          sailing.data.push(hours.sailing);
-          ops.data.push(hours.ops);
-          missing.data.push(hours.other);
+          inbound.data.push(hours.minutesTransitInbound);
+          outbound.data.push(hours.minutesTransitOutbound);
+          inField.data.push(hours.minutesInField);
         }
       });
 
       const dsets = {
         labels: dateLabels,
-        datasets: [waiting, sailing, ops, missing],
+        datasets: [inbound, outbound, inField],
       };
       if (this.Chart) {
         // Update the chart
@@ -159,46 +152,61 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
   }
 
   getChartData(cb: (data: TimeBreakdown[], matlabDates: number[]) => void) {
+    const chartData = [];
+
     this.newService.getGeneralForRange({
-      vesselType: 'SOV',
+      vesselType: 'CTV',
       mmsi: this.vesselObject.mmsi,
       startDate: this.vesselObject.dateMin,
       stopDate: this.vesselObject.dateMax,
       projection: {
         _id: 0,
-        dayNum: 1,
+        date: 1,
         mmsi: 1,
-        vesselName: 1,
-        timeBreakdown: 1,
+        minutesInField: 1,
+        DPRstats: 1,
+        vesselname: 1,
       }
-    }).subscribe((rawdata: RawGeneralModel[][]) => {
+      }).subscribe((rawdata: RawGeneralModel[][]) => {
       if (rawdata.length > 0 && rawdata[0].length > 0) {
+
         this.RawData = rawdata[0];
-        this.vesselName = this.RawData[0].vesselName;
-        this.TimeBreakdown = this.parseRawData(rawdata[0]);
+        this.vesselName = this.RawData[0].vesselname;
+
+        rawdata[0].forEach(generalData => {
+          const generalDataDay = {
+            date: generalData.date,
+            minutesInField: 0,
+            minutesTransitInbound: 0,
+            minutesTransitOutbound: 0,
+          };
+          if (generalData.minutesInField > 0) {
+            generalDataDay.minutesInField = generalData.minutesInField / 60;
+            generalDataDay.minutesTransitOutbound =  ((generalData.DPRstats.WindFarmArrivalTime - generalData.DPRstats.portDepartureTime) * 24) || 0;
+            generalDataDay.minutesTransitInbound =  ((generalData.DPRstats.portArrivalTime - generalData.DPRstats.departureWindFarmTime) * 24) || 0;
+          }
+          chartData.push(generalDataDay);
+
+          this.TimeBreakdown = chartData;
+        });
+
+
+
       } else {
         this.noData = true;
       }
       if (cb && typeof (this.RawData) === 'object') {
-        cb(this.TimeBreakdown, this.RawData.map(rawDataElt => rawDataElt.dayNum));
+        cb(this.TimeBreakdown, this.RawData.map(rawDataElt => rawDataElt.date));
       }
       this.ref.detectChanges();
     });
-  }
 
-  parseRawData(rawData: RawGeneralModel[]): TimeBreakdown[] {
-    return rawData.map(genStat => genStat.timeBreakdown);
-  }
-
-  filterNaNs(Arr: any[]) {
-    return Arr.filter(elt => {
-      return !isNaN(elt) && elt !== '_NaN_';
-    });
   }
 
   constructNewChart(
     dsets: any,
   ) {
+
     console.log(dsets);
     const calcService = this.calculationService;
     const dateService = this.dateTimeService;
@@ -317,10 +325,11 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
 }
 
 interface RawGeneralModel {
-  dayNum: number;
+  date: number;
   mmsi: number;
   vesselName: string;
-  timeBreakdown: TimeBreakdown;
+  minutesInField: number;
+  DPRstats: Object;
 }
 
 interface TimeBreakdown {
