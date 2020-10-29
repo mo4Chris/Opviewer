@@ -10,7 +10,7 @@ import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
-import { Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 
 @Injectable({
@@ -331,7 +331,8 @@ export class CommonService {
   }
 
   updateSOVv2vTurbineTransfers(ctvInfo: {
-    update: V2vCtvActivity
+    update: V2vCtvActivity;
+    missedTransfers: MissedDcTransfer[];
     mmsi: number;
     date: number;
   }) {
