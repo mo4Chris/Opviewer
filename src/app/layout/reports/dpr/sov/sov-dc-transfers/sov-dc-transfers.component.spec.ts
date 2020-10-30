@@ -8,7 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { mockedObservable } from '@app/models/testObservable';
 
-fdescribe('SovDcTransfersComponent', () => {
+describe('SovDcTransfersComponent', () => {
   let component: SovDcTransfersComponent;
   let fixture: ComponentFixture<SovDcTransfersComponent>;
 

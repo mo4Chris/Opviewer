@@ -109,14 +109,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
       this.getDatesShipHasSailed(this.vesselObject);
     }
     try {
-      this.buildPageWithCurrentInformation();
+      this.loadDprData();
     } catch (err) {
       this.loaded.emit(true)
       console.error(err)
     }
   }
 
-  buildPageWithCurrentInformation() {
+  loadDprData() {
     // At this point are loaded: tokenInfo, vesselObject
     this.newService.validatePermissionToViewData({
       mmsi: this.vesselObject.mmsi

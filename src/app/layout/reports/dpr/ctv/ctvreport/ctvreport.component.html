@@ -37,12 +37,12 @@
         <br><br>
     </div>
 
-    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
-        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="turbineTransfers.length > 0">
+        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="turbineTransfers"
           (onVideoRequest)="onVideoRequest($event)"></app-ctv-turbine-transfer>
     </div>
     <div class="row singlepage-print singlepage-print-port">
-        <div class="col-lg-7"  *ngFor="let visit of turbineVisits;let ind = index">
+        <div class="col-lg-7"  *ngFor="let visit of turbineTransfers;let ind = index">
             <app-ctvslipgraph 
                 [index]="ind" [transfer]="visit" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>
