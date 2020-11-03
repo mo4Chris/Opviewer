@@ -13,7 +13,7 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { forkJoin, Observable } from 'rxjs';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { MapStore } from '@app/stores/map.store';
+import { MapStore, TurbinePark } from '@app/stores/map.store';
 
 @Component({
   selector: 'app-ctvreport',
@@ -81,7 +81,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
   private commentsChanged: Array<any>;
   private changedCommentObj = { newComment: '', otherComment: '' };
   private dateData = { transfer: undefined, general: undefined };
-  private turbineLocationData: any;
   public multiSelectSettings = {
     idField: 'mmsi',
     textField: 'nicename',
@@ -136,13 +135,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.turbineTransfers = _transfers; // Needs to happen after match comments!
           this.enginedata = _engine;
 
-          if (_distinctFields) {
-            // ToDo: this callback can be synchronized by using the the geostore to retrieve
-            // data on all fields, and than filter based on the required field.
-            this.newService.getSpecificPark({
-              park: _distinctFields
-            }).subscribe(locData => this.onGetSpecificPark(locData));
-          }
           this.showMap = true;
           this.isLoading = false;
           this.loaded.emit(true);
@@ -213,17 +205,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
         });
     }
   }
-  private async onGetSpecificPark(parks) {
-    if (parks.length > 0) {
-      const locationData = {
-        turbineLocations: parks,
-        transfers: this.turbineTransfers,
-        type: '',
-        vesselType: 'CTV'
-      };
-      this.turbineLocationData = locationData;
-    }
-  }
   public saveComment(transfer) {
     if (transfer.comment !== 'Other') {
       transfer.commentChanged.otherComment = '';
@@ -249,23 +230,21 @@ export class CtvreportComponent implements OnInit, OnChanges {
     this.wavedataLoaded = false;
     this.wavedata = null;
     this.mapStore.parks.then(parks => {
-      // Currently broken...
       let turbnames: string[] = [];
       if (Array.isArray(this.turbineTransfers)) {
         turbnames = this.turbineTransfers.map(e => e.fieldname);
       }
       let park_coord_name = turbnames.find(e => typeof(e) === 'string');
       let park = parks.find(_park => _park.filename === park_coord_name);
-      let turbData = this.turbineLocationData;
       this.visitedPark = park ? park.name : null;
       this.newService.getWavedataForDay({
         date: this.vesselObject.date,
         site: this.visitedPark,
       }).subscribe(waves => {
-        this.wavedata = waves;
+        this.wavedata = new WavedataModel(waves);
         if (waves) {
           this.wavedataLoaded = true;
-          this.createWeatherOverviewChart(turbData);
+          this.createWeatherOverviewChart();
           this.addWaveFeaturesToMap();
         }
       });
@@ -447,10 +426,12 @@ export class CtvreportComponent implements OnInit, OnChanges {
       this.wavedata.meta.drawOnMap(this.googleMap);
     }
   }
-  private createWeatherOverviewChart(turbData) {
+  private createWeatherOverviewChart() {
     const wavedata = this.wavedata.wavedata;
     if (wavedata) {
-      const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
+      const timeStamps = wavedata.timeStamp.map(
+        matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false)
+      );
       const validLabels = this.wavedata.availableWaveParameters();
       // Parsing the main datasets
       const dsets: any[] = [];
@@ -473,13 +454,15 @@ export class CtvreportComponent implements OnInit, OnChanges {
       const transferDatas = [];
       // Adding the grey transfer boxes
       const addTransfer = (start, stop) => {
-        start = this.dateTimeService.MatlabDateToUnixEpoch(start);
-        stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
-        transferDatas.push({ x: start, y: 1 });
-        transferDatas.push({ x: stop, y: 1 });
-        transferDatas.push({ x: NaN, y: NaN });
+        if (typeof start == 'number' && start > 0) {
+          start = this.dateTimeService.MatlabDateToUnixEpoch(start);
+          stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
+          transferDatas.push({ x: start, y: 1 });
+          transferDatas.push({ x: stop, y: 1 });
+          transferDatas.push({ x: stop, y: NaN });
+        }
       };
-      turbData.transfers.forEach(visit => {
+      this.turbineTransfers.forEach(visit => {
         addTransfer(visit.startTime, visit.stopTime);
       });
       dsets.push({
@@ -492,13 +475,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
         yAxisID: 'hidden',
         lineTension: 0,
       });
-      setTimeout(() => {
-        this.weatherOverviewChart = new WeatherOverviewChart({
-          dsets: dsets,
-          timeStamps: timeStamps,
-          wavedataSourceName: wavedataSourceName
-        }, this.calculationService, this.settings);
-      }, 100);
+      this.ref.detectChanges();
+      let id = document.getElementById('weatherOverview')
+      this.weatherOverviewChart = new WeatherOverviewChart({
+        dsets: dsets,
+        timeStamps: timeStamps,
+        wavedataSourceName: wavedataSourceName,
+        utcOffset: 0,
+      }, this.calculationService, this.settings, id);
     }
   }
   private resetInputStats() {
