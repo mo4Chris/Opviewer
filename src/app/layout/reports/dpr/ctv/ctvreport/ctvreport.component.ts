@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -19,6 +19,7 @@ import { MapStore, TurbinePark } from '@app/stores/map.store';
   selector: 'app-ctvreport',
   templateUrl: './ctvreport.component.html',
   styleUrls: ['./ctvreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvreportComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
