@@ -58,7 +58,7 @@ export class LongtermComponent implements OnInit {
     idField: '_id',
   };
 
-  public fromDate = this.calendar.getPrev(this.calendar.getPrev(this.calendar.getToday(), 'd', 1), 'm', 1);
+  public fromDate = this.getLastMonthObject();
   public toDate = this.calendar.getPrev(this.calendar.getToday(), 'd', 1);
   private _fromDate = copyNgbDate(this.fromDate);
   private _toDate = copyNgbDate(this.toDate);
@@ -180,6 +180,10 @@ export class LongtermComponent implements OnInit {
   public isHovered = (date: NgbDate) => this._fromDate && !this._toDate && this.hoveredDate && date.after(this._fromDate) && date.before(this.hoveredDate);
   public isInside = (date: NgbDate) => date.after(this._fromDate) && date.before(this._toDate);
   public isRange = (date: NgbDate) => date.equals(this._fromDate) || date.equals(this._toDate) || this.isInside(date) || this.isHovered(date);
+  public onPrint() {
+    this._doPrint();
+  }
+
 
   navigateToVesselreport(vesselObject: { mmsi: number, matlabDate: number }) {
     this.routerService.routeToDPR({ mmsi: vesselObject.mmsi, date: vesselObject.matlabDate });
@@ -193,6 +197,16 @@ export class LongtermComponent implements OnInit {
     this.updateWavedataForChild();
   }
 
+  selectLastMonth() {
+    this.fromDate = this.getLastMonthObject();
+    this.toDate = this.calendar.getPrev(this.calendar.getNext(this.fromDate, 'm'), 'd');
+    this.searchTransfersByNewSpecificDate();
+  }
+  selectLastQuarter() {
+    this.fromDate = this.getLastQuarterObject();
+    this.toDate = this.calendar.getPrev(this.calendar.getNext(this.fromDate, 'm', 3), 'd');
+    this.searchTransfersByNewSpecificDate();
+  }
   switchMonthBackwards() {
     if (this.fromDate.day === 1) {
       if (this.fromDate.month === 1) {
@@ -261,6 +275,21 @@ export class LongtermComponent implements OnInit {
   monthForwardEnabled(): boolean {
     return !this.maxDate.after(this.toDate);
   }
+  getLastMonthObject() {
+    return this.calendar.getPrev(this.calendar.getPrev(this.calendar.getToday(), 'd', 1), 'm', 1);
+  }
+  getLastQuarterObject() {
+    let curr = this.calendar.getToday();
+    if (curr.month > 9 ) {
+      return new NgbDate(curr.year, 7, 1);
+    } else if (curr.month > 6 ) {
+      return new NgbDate(curr.year, 4, 1);
+    } else if (curr.month > 3 ) {
+      return new NgbDate(curr.year, 1, 1);
+    } {
+      return new NgbDate(curr.year - 1, 10, 1);
+    }
+  }
   getMatlabDateYesterday() {
     return this.dateTimeService.getMatlabDateYesterday();
   }
@@ -273,7 +302,7 @@ export class LongtermComponent implements OnInit {
   getJSDateLastMonthYMD() {
     return this.dateTimeService.getJSDateLastMonthYMD();
   }
-  MatlabDateToJSDateYMD(serial) {
+  MatlabDateToJSDateYMD(serial: number) {
     return this.dateTimeService.MatlabDateToJSDateYMD(serial);
   }
   unixEpochtoMatlabDate(epochDate) {
@@ -293,6 +322,21 @@ export class LongtermComponent implements OnInit {
     let vesselName: string;
     this.route.params.subscribe(params => vesselName = params.vesselName);
     return vesselName;
+  }
+
+  
+  private _doPrint(cb?: () => void) {
+    const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
+    for (let _i = 0; _i < containers.length; _i++) {
+      const container = <HTMLDivElement> containers[_i];
+      container.style.width = '225mm';
+    }
+    setTimeout(function() {
+      window.print();
+      if (cb) {
+        cb();
+      }
+    });
   }
 }
 

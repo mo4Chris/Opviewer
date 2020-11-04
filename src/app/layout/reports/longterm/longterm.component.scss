@@ -21,8 +21,8 @@
     width: 100%;
     z-index: 10;
 }
-.bodyContainer{
-    padding-top: 80px;
+.headerSpacer{
+    height: 80px;
 }
 
 .dateSelectorModal{
@@ -97,5 +97,11 @@
     &.totalsHelpBtn {
         color: white;
         border-color: white;
+    }
+}
+
+@media print {
+    .hideOnPrint {
+        display: none;
     }
 }
