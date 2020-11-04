@@ -13,13 +13,13 @@
     <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="onDateConfirm()">
         <div class="input-group datepicker-input">
-          <button id="lastQuarterButton" (click)="selectLastQuarter()">
+          <button id="lastQuarterButton" class="selectBtn space-right" (click)="selectLastQuarter()">
             Last quarter
           </button>
-          <button id="lastMonthButton" (click)="selectLastMonth()">
+          <button id="lastMonthButton" class="selectBtn space-right" (click)="selectLastMonth()">
             Last month
           </button>
-          <button id="prevMonthButton" (click)="switchMonthBackwards()">
+          <button id="prevMonthButton" class="selectBtn" (click)="switchMonthBackwards()">
             <i class="fa fa-caret-left"></i>
           </button>
           <div class="form-group">
@@ -27,7 +27,7 @@
               Date selector
             </button>
           </div>
-          <button id="nextMonthButton" class='div-right-20' (click)="switchMonthForward()"
+          <button id="nextMonthButton" class="div-right-20 selectBtn space-right" (click)="switchMonthForward()"
             [disabled]="monthForwardEnabled()">
             <i class="fa fa-caret-right"></i>
           </button>
@@ -46,7 +46,7 @@
               [settings]="fieldSelectSettings">
             </ng-multiselect-dropdown>
           </div>
-          <button id="printButton" (click)="onPrint()">
+          <button id="printButton" class="selectBtn space-right" (click)="onPrint()">
             Print LTM
           </button>
         </div>
