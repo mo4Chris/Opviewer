@@ -19,13 +19,13 @@
 .selectBtn{
     font-size: 1.25rem;
     background-color: transparent;
-    color: #427ded;
-    border-color: #427ded;
+    color: #007bff;
+    border-color: #007bff;
     border-width:  1px;
     &:active, &:hover {
-        background-color: #427ded;
+        background-color:#007bff ;
         color: white;
-        box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
+        // box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
     }
 
     &:focus {
