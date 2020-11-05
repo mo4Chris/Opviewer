@@ -12,6 +12,7 @@ import { VesselModel } from '@app/models/vesselModel';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
+// tslint:disable-next-line:import-blacklist
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -22,6 +23,8 @@ import { forkJoin } from 'rxjs';
 })
 
 export class LongtermComponent implements OnInit {
+  [x: string]: any;
+  component: any;
   constructor(
     private newService: CommonService,
     private route: ActivatedRoute,
@@ -104,7 +107,7 @@ export class LongtermComponent implements OnInit {
           } else {
             this.noPermissionForData = true;
           }
-        })
+        });
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
