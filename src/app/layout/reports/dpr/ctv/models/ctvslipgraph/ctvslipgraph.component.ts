@@ -41,7 +41,7 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
   ngOnChanges() {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     const localOffset = this.settings.localTimeZoneOffset;
-    this.utcOffset = this.settings.getTimeOffset(this.vesselUtcOffset) - localOffset || 0;
+    this.utcOffset = Math.round(this.settings.getTimeOffset(this.vesselUtcOffset) - localOffset || 0);
     // This is an ugly ass hack needed only because the graphs show in local timezone...
     if (this.transfer !== undefined) {
       this.createSlipgraph();
@@ -80,7 +80,7 @@ export class CtvslipgraphComponent implements AfterViewInit, OnChanges {
             xAxes: [{
               scaleLabel: {
                 display: true,
-                labelString: this.utcOffset>=0 ? 'Time (UTC +' + this.utcOffset + ')' :  'Time (UTC ' + this.utcOffset + ')'
+                labelString: this.utcOffset>=0 ? 'Time (UTC+' + this.utcOffset + ')' :  'Time (UTC ' + this.utcOffset + ')'
               },
               type: 'time'
             }],

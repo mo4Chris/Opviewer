@@ -142,8 +142,10 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
 
     updateHsLimit() {
         const htmlField = <HTMLInputElement> document.getElementById('wavelimit-input');
-        this.MaxAllowedHsMeter = +htmlField.value / 100;
-        this.updateChart();
+        if (+htmlField.value > 0) {
+            this.MaxAllowedHsMeter = +htmlField.value / 100;
+            this.updateChart();
+        }
     }
 
     updateChart() {
@@ -175,7 +177,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
                 // Looping over vessels
-                if (this.RawData[_i] && this.RawData[_i][0]) {
+                if (sailingHours) {
                     const dset = {
                         label: this.vesselLabels[_i] || 'N/a',
                         backgroundColor: [],
