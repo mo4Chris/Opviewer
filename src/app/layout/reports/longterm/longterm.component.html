@@ -58,14 +58,16 @@
   </div>
   <hr class="hideOnPrint">
   <div *ngIf="noPermissionForData == false; else noPermission">
-    <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
-      [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
-      (navigateToVesselreport)="navigateToVesselreport($event)">
-    </app-longterm-ctv>
-    <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="childLoaded($event)"
-      [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"
-      (navigateToVesselreport)="navigateToVesselreport($event)">
-    </app-longterm-sov>
+    <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
+      <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
+        [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
+        (navigateToVesselreport)="navigateToVesselreport($event)">
+      </app-longterm-ctv>
+      <app-longterm-sov *ngIf="vesselType == 'SOV' || vesselType == 'OSV'" (showContent)="childLoaded($event)"
+        [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate"
+        (navigateToVesselreport)="navigateToVesselreport($event)">
+      </app-longterm-sov>
+    </div>
   </div>
 
 </div>
@@ -92,6 +94,11 @@
 <ng-template #noPermission>
   <div class="divContainer">
     <h3>You are not allowed to view the vessel you requested</h3>
+  </div>
+</ng-template>
+<ng-template #noVessel>
+  <div class="divContainer">
+    <h3>No vessel has been selected</h3>
   </div>
 </ng-template>
 <ng-template #t let-date="date" let-focused="focused">

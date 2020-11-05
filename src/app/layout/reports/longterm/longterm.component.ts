@@ -77,6 +77,12 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
+    this.route.params.subscribe(params => {
+      if (Object.keys(params).length === 0 || params.mmsi === undefined || params.vesselName === undefined) {
+        this.routerService.route(['reports']);
+      }
+    });
+
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         this.noPermissionForData = false;
