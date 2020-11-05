@@ -504,7 +504,7 @@ export class MockedCommonService extends CommonService {
         return mockedObservable([]);
     }
     getWavedataForDay(request: {date:number, site: string}) {
-        return mockedObservable([]);
+        return mockedObservable(null);
     }
     getFieldsWithWaveSourcesByCompany() {
         return mockedObservable([]);
