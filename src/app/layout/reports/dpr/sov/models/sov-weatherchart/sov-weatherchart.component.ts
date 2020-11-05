@@ -175,14 +175,14 @@ export class SovWeatherchartComponent implements OnChanges {
         this.weatherOverviewChart = new WeatherOverviewChart(
           {
             dsets: dsets,
-            timeStamps: <any>timeStamps,
+            timeStamps: timeStamps,
             wavedataSourceName: chartTitle,
             utcOffset: this.utcOffset,
           },
           this.calcService,
           this.settings
         );
-      }, 300);
+      }, 100);
     }
   }
 

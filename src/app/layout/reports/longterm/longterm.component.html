@@ -39,7 +39,7 @@
               [settings]="multiSelectSettings">
             </ng-multiselect-dropdown>
             <!-- Wavedata is currently disabled for SOV -->
-            <ng-multiselect-dropdown *ngIf="false && fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"
+            <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"
               (onOpen)="openVesselModal($event)" id="selectField" class="multiSelectDiv"
               (onSelect)="selectField($event)" (onDeSelect)="deselectField($event)"
               [placeholder]="'Select field to add wavedata'" [data]="fieldsWithWavedata"
