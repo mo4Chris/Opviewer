@@ -10,7 +10,7 @@ import { MockComponents } from 'ng-mocks';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import {ActivatedRoute} from '@angular/router';
-import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CtvslipgraphComponent } from '../dpr/ctv/models/ctvslipgraph/ctvslipgraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';

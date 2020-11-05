@@ -23,8 +23,6 @@ import { forkJoin } from 'rxjs';
 })
 
 export class LongtermComponent implements OnInit {
-  [x: string]: any;
-  component: any;
   constructor(
     private newService: CommonService,
     private route: ActivatedRoute,
