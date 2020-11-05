@@ -346,13 +346,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.general = dpr;
         }
         if (_general.inputStats) {
+          let clean = (a: Array<any>) => a.filter(x => x !== null)
           this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
           this.generalInputStats.observations = _general.inputStats.observations;
           this.generalInputStats.landedGarbage = _general.inputStats.landedGarbage;
           this.generalInputStats.landedOil = _general.inputStats.landedOil;
-          this.generalInputStats.toolboxConducted = _general.inputStats.toolboxConducted;
           this.generalInputStats.incidents = _general.inputStats.incidents;
-          this.generalInputStats.drillsConducted = _general.inputStats.drillsConducted || [];
+          this.generalInputStats.toolboxConducted = clean(_general.inputStats.toolboxConducted) || [];
+          this.generalInputStats.drillsConducted = clean(_general.inputStats.drillsConducted) || [];
           this.generalInputStats.passengers = _general.inputStats.passengers;
           this.generalInputStats.customInput = _general.inputStats.customInput;
         }
@@ -489,10 +490,10 @@ export class CtvreportComponent implements OnInit, OnChanges {
     this.generalInputStats.fuelConsumption = 0;
     this.generalInputStats.landedGarbage = 0;
     this.generalInputStats.landedOil = 0;
-    this.generalInputStats.toolboxConducted = [null];
+    this.generalInputStats.toolboxConducted = [];
     this.generalInputStats.observations = false;
     this.generalInputStats.incidents = false;
-    this.generalInputStats.drillsConducted = [null];
+    this.generalInputStats.drillsConducted = [];
     this.generalInputStats.passengers = false;
     this.generalInputStats.customInput = '-';
   }
