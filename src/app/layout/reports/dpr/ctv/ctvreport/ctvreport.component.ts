@@ -333,11 +333,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
           lon: _general.lon,
           lat: _general.lat
         }
-        if (_general.utcOffset) {
-          // General stats utc offset is in days
-          this.vesselUtcOffset = _general.utcOffset;
-          this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
-        }
+        this.vesselUtcOffset = 24 * _general.utcOffset || 0;
+        this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
           const dpr = <any>_general.DPRstats;
