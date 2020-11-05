@@ -3,7 +3,7 @@
     <h3>There is not data available for the selected day and vessel.</h3>
   </div>
 </div>
-<div class="row">
+<div class="row page-break-before">
   <div class="divContainer" *ngIf="this.vesselObject.mmsi.length > 0; else noVesselSelected">
     <div class="graphContainer" *ngIf="permission.sovSiemensMonthlyKpis">
       <app-siemens-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin] =""

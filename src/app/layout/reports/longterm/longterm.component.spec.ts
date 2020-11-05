@@ -18,6 +18,7 @@ import { LongtermBarGraphComponent } from "./models/longterm-bar-graph/longterm-
 import { LongtermTrendGraphComponent } from "./models/longterm-trend-graph/longterm-trend-graph.component";
 import { SiemensKpiOverviewComponent } from "./sov/models/siemens-kpi-overview/siemens-kpi-overview.component";
 import { UtilizationGraphComponent } from "./sov/models/longterm_utilization/utilizationGraph.component";
+import { LongtermPrintHeaderComponent } from "./models/longterm-print-header/longterm-print-header.component";
 
 
 
@@ -39,6 +40,7 @@ describe('ReportsComponent - CTV', () => {
                 LongtermComponent,
                 LongtermCTVComponent,
                 LongtermSOVComponent,
+                LongtermPrintHeaderComponent,
                 MockComponents(
                     CtvslipgraphComponent,
                     VesselinfoComponent,

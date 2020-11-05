@@ -16,6 +16,14 @@ describe('LongtermPrintHeaderComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LongtermPrintHeaderComponent);
     component = fixture.componentInstance;
+    component.vesselObject = {
+      mmsi: [],
+      vesselName: [],
+      dateMin: 738080,
+      dateMax: 738081,
+      dateNormalMin: '2020-10-16',
+      dateNormalMax: '2020-10-17',
+    }
     fixture.detectChanges();
   });
 
