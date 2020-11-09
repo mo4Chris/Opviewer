@@ -40,6 +40,7 @@ describe('ReportsComponent - CTV', () => {
                 LongtermComponent,
                 LongtermCTVComponent,
                 LongtermSOVComponent,
+                LongtermPrintHeaderComponent,
                 MockComponents(
                     CtvslipgraphComponent,
                     VesselinfoComponent,
