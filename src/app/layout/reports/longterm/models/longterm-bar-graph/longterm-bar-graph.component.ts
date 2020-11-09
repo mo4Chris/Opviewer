@@ -1,15 +1,11 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
 import { LongtermVesselObjectModel } from '../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
-import { SettingsService } from '@app/supportModules/settings.service';
-import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
 import { LongtermProcessingService, LongtermScatterValueArray } from '../longterm-processing-service.service';
-import { now } from 'moment';
 
 @Component({
   selector: 'app-longterm-bar-graph',

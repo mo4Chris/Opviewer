@@ -604,6 +604,11 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getEngineStatsForRange(request: StatsRangeRequest): Observable<any> {
+    return this.post('/api/getEnginesForVesselByRange', request).pipe(
+      map((response: Response) => response.json()));
+  }
+
   getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
     return this.get('/api/getFieldsWithWaveSourcesByCompany').pipe(
     map((response: Response) => response.json()));

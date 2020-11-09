@@ -2708,6 +2708,9 @@ app.post("/api/getTransitsForVesselByRange", function(req, res) {
 
 app.post("/api/getTransitsForVesselByRangeForSOV", function(req, res) {
     aggregateStatsOverModel(SovTransitsmodel, req, res);
+
+app.post("/api/getEnginesForVesselByRange", function(req, res) {
+    aggregateStatsOverModel(engineDatamodel, req, res, { date: 'date' });
 });
 
 app.post("/api/getPortcallsByRange", function(req, res) {
@@ -3876,7 +3879,6 @@ function aggregateStatsOverModel(model, req, res, opts) {
             { "$group": groupObj }
         ]).exec(function(err, data) {
             if (err) {
-                logger.error('Error getting data from model: ' + model)
                 logger.error(err)
                 res.send(err);
             } else {
