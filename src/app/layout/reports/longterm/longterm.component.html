@@ -1,15 +1,25 @@
-<h1 class="headerContainer">
-  <h2 class="text-muted">Longterm performance:<small>
-      {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
-    </small></h2>
-  <hr>
-</h1>
+<div class="hideOnPrint">
+  <h1 class="headerContainer">
+    <h2 class="text-muted">Longterm performance:<small>
+        {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
+      </small></h2>
+    <hr>
+  </h1>
+  <div class="headerSpacer"></div>
+</div>
+<app-longterm-print-header [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-header>
 <div class="bodyContainer">
-  <div class="col-lg-12">
+  <div class="col-lg-12 hideOnPrint">
     <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="onDateConfirm()">
         <div class="input-group datepicker-input">
-          <button id="prevMonthButton" (click)="switchMonthBackwards()">
+          <button id="lastQuarterButton" class="selectBtn space-right" (click)="selectLastQuarter()">
+            Last quarter
+          </button>
+          <button id="lastMonthButton" class="selectBtn space-right" (click)="selectLastMonth()">
+            Last month
+          </button>
+          <button id="prevMonthButton" class="selectBtn" (click)="switchMonthBackwards()">
             <i class="fa fa-caret-left"></i>
           </button>
           <div class="form-group">
@@ -17,7 +27,7 @@
               Date selector
             </button>
           </div>
-          <button id="nextMonthButton" class='div-right-20' (click)="switchMonthForward()"
+          <button id="nextMonthButton" class="div-right-20 selectBtn space-right" (click)="switchMonthForward()"
             [disabled]="monthForwardEnabled()">
             <i class="fa fa-caret-right"></i>
           </button>
@@ -36,6 +46,9 @@
               [settings]="fieldSelectSettings">
             </ng-multiselect-dropdown>
           </div>
+          <button id="printButton" class="selectBtn space-right" (click)="onPrint()">
+            Print LTM
+          </button>
         </div>
         <button type="button" class="btn btn-outline-secondary helpBtn longtermModule" [autoClose]="true"
           [ngbPopover]="formHelp" placement="bottom" popoverClass="helpPopup" container="body">?
@@ -43,7 +56,7 @@
       </div>
     </form>
   </div>
-  <hr>
+  <hr class="hideOnPrint">
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"

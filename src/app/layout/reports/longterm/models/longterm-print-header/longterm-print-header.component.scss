@@ -1,0 +1,19 @@
+.headerContainer {
+  position: fixed;
+  top: 10px;
+  width: 100%;
+}
+
+.space-left {
+  margin-left: 10px;
+}
+
+@media screen {
+  #onlyOnPrintContainer {
+    display: none;
+  }
+}
+
+@page {
+  orientation: landscape;
+}

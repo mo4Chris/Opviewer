@@ -23,6 +23,7 @@ import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
+import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
 
 @NgModule({
     imports: [
@@ -46,7 +47,8 @@ import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-ove
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
         LongtermTrendGraphComponent,
-        EngineOverviewComponent
+        EngineOverviewComponent,
+        LongtermPrintHeaderComponent,
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

@@ -31,7 +31,6 @@ export class CalculationService {
     if (!number) {
       return 'N/a';
     }
-
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
@@ -133,6 +132,7 @@ export class CalculationService {
   }
 
   getNanStd(X: number[], removeNaNs = true) {
+    // Returns rms(X - mean(X))
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
@@ -177,7 +177,7 @@ export class CalculationService {
   }
 
   linspace(start: number, stop: number, step: number = 1) {
-    const linspace = start <= stop ? new Array(Math.round((stop - start) / step)) : [];
+    const linspace = start <= stop ? new Array(Math.floor((stop - start) / step) + 1) : [];
     let curr = start;
     for (let _i = 0; _i < linspace.length; _i++) {
       linspace[_i] = curr;
@@ -220,7 +220,7 @@ export class CalculationService {
     }
   }
 
-  switchUnits(vals: number[], from: string, to: string): number[] {
+  switchUnits(vals: number | number[], from: string, to: string) {
     if (from === to) {
       return vals;
     }
@@ -235,13 +235,15 @@ export class CalculationService {
         return this.switchDirectionUnits(vals, from, to);
       case 'kg': case 'ton':
         return this.switchWeightUnits(vals, from, to);
+      case 'liter': case 'm3':
+        return this.switchVolumeUnits(vals, from, to);
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;
     }
   }
 
-  switchDistanceUnits(vals: number[], from: string, to: string): number[] {
+  switchDistanceUnits(vals: number | number[], from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm':
@@ -260,10 +262,14 @@ export class CalculationService {
       }
     };
     const Q = getFactor(from) / getFactor(to);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
-  switchSpeedUnits(vals: number[], from: string, to: string): number[] {
+  switchSpeedUnits(vals: number | number[], from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm/s':
@@ -284,16 +290,20 @@ export class CalculationService {
       }
     };
     const Q = getFactor(to) / getFactor(from);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
-  switchDurationUnits(vals: number[], from: string, to: string): number[] {
+  switchDurationUnits(vals: number|number[], from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
         case 'second': case 'sec': case 's':
           return 1 / 60;
-        case 'minute': case 'mns': case 'min':
+        case 'minute': case 'mns': case 'min': case 'minutes':
           return 1;
         case 'hour':
           return 60;
@@ -307,10 +317,14 @@ export class CalculationService {
       }
     };
     const Q = getFactor(from) / getFactor(to);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
-  switchDirectionUnits(vals: number[], from: string, to: string): number[] {
+  switchDirectionUnits(vals: number | number[], from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -324,10 +338,14 @@ export class CalculationService {
       }
     };
     const Q = getFactor(to) / getFactor(from);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
-  switchVolumeUnits(vals: number[], from: string, to: string): number[] {
+  switchVolumeUnits(vals: number |  number[], from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -342,11 +360,15 @@ export class CalculationService {
           return 1;
       }
     };
-    const Q = getFactor(to) / getFactor(from);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
-  switchWeightUnits(vals: number[], from: string, to: string): number[] {
+  switchWeightUnits(vals: number | number[], from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -361,8 +383,12 @@ export class CalculationService {
           return 1;
       }
     };
-    const Q = getFactor(to) / getFactor(from);
-    return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
   }
 
   interp1(x: number[], y: number[], xnew: number[]) {
@@ -371,7 +397,7 @@ export class CalculationService {
     let _x = {pl: 0, il: 0, ph: 0, ih: 0};
     for (let i = 0; i < xnew.length; i++) {
       _x = getBounds(x, xnew[i], _x.il);
-      ynew[i] = _x.pl * y[_x.il] + _x.ph * y[_x.ph];
+      ynew[i] = _x.pl * y[_x.il] + _x.ph * y[_x.ih];
     }
     return ynew;
   }
