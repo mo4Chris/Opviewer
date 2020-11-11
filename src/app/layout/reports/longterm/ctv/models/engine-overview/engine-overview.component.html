@@ -1,0 +1,52 @@
+<div class="row">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3">
+      <div class="card-header">
+        Engine performance
+      </div>
+      
+      <div class="card-body table-responsive">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Month</th>
+              <th><div [ngbTooltip]="helpSailingDays">Sailing days</div></th>
+              <th><div [ngbTooltip]="helpAvgDepart">Fuel/hr departure</div></th>
+              <th><div [ngbTooltip]="helpAvgReturn">Fuel/hr return</div></th>
+              <th><div [ngbTooltip]="helpAvgFuel">Average fuel usage</div></th>
+              <th>Total CO2</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let engine of engines; let _j = index" class="sep-row">
+            <tr>
+              <th colspan=14> {{vesselNames[_j]}} </th>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Jan</td>
+              <td>{{engine.numDays}}</td>
+              <td>{{roundNumber(engine.avgFuelDepart, 10, ' L/Hr')}}</td>
+              <td>{{roundNumber(engine.avgFuelReturn, 10, ' L/Hr')}}</td>
+              <td>{{roundNumber(engine.totalFuel, 10, 'm3')}}</td>
+              <td>{{roundNumber(engine.totalCO2, 10, ' tons')}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #helpAvgFuel>
+  Average fuel used per sailing day.
+</ng-template>
+<ng-template #helpAvgDepart>
+  Average fuel usage per hour during transits from the harbour to the field.
+</ng-template>
+<ng-template #helpAvgReturn>
+  Average fuel usage per hour during transits from the field back to the harbour.
+</ng-template>
+<ng-template #helpSailingDays>
+  Number of days with non-zero fuel usage.
+</ng-template>

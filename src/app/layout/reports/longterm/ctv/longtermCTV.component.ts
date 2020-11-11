@@ -94,6 +94,14 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         {
             x: 'date', y: 'fuelUsedTotalM3', graph: 'scatter', xLabel: 'Time', yLabel: 'Daily fuel usage [L]', dataType: 'engine', info:
             'Total fuel usage per day.'
+        },
+        {
+            x: 'date', y: 'fuelPerHourDepart', graph: 'scatter', xLabel: 'Time', yLabel: 'Fuel per hour [L/hr]', dataType: 'engine', info:
+            'Average fuel usage per hour during departure. An increase in fuel usage could indicate issues with the maintainance of the vessel.'
+        },
+        {
+            x: 'date', y: 'fuelPerHourReturn', graph: 'scatter', xLabel: 'Time', yLabel: 'Fuel per hour [L/hr]', dataType: 'engine', info:
+            'Average fuel usage per hour during departure. An increase in fuel usage could indicate issues with the maintainance of the vessel.'
         }
     ];
 

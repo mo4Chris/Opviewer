@@ -22,6 +22,7 @@ import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/s
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 
 @NgModule({
     imports: [
@@ -44,7 +45,8 @@ import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/l
         SiemensKpiOverviewComponent,
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
-        LongtermTrendGraphComponent
+        LongtermTrendGraphComponent,
+        EngineOverviewComponent
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

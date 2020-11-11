@@ -8,6 +8,7 @@
         <div *ngIf="!allGraphsEmpty; else noData">
             <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
+            <app-engine-overview [mmsi]="vesselObject.mmsi"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
                     [toDate]="toDate" [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"

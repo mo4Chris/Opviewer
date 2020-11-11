@@ -2708,6 +2708,7 @@ app.post("/api/getTransitsForVesselByRange", function(req, res) {
 
 app.post("/api/getTransitsForVesselByRangeForSOV", function(req, res) {
     aggregateStatsOverModel(SovTransitsmodel, req, res);
+});
 
 app.post("/api/getEnginesForVesselByRange", function(req, res) {
     aggregateStatsOverModel(engineDatamodel, req, res, { date: 'date' });
