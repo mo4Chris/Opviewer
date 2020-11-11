@@ -61,7 +61,7 @@ export class LongtermBarGraphComponent implements OnChanges {
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {
-        return _parsed[0].x.length > 0;
+        return _parsed[0].x.some((_x, _i) => _x && _parsed[0].y[_i] > 0);
       });
       if (this.hasData) {
         const dsets = parsedData.map((_data: any[], i: number) => {

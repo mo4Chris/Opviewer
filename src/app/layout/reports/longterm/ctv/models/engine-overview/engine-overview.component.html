@@ -1,4 +1,4 @@
-<div class="row">
+<div *ngIf="hasData" class="row">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
@@ -18,13 +18,13 @@
               <th>Total CO2</th>
             </tr>
           </thead>
-          <tbody *ngFor="let engine of engines; let _j = index" class="sep-row">
+          <tbody *ngFor="let _engines of engines; let _j = index" class="sep-row">
             <tr>
               <th colspan=14> {{vesselNames[_j]}} </th>
             </tr>
-            <tr>
+            <tr *ngFor="let engine of _engines;">
               <td></td>
-              <td>Jan</td>
+              <td>{{engine.month}}</td>
               <td>{{engine.numDays}}</td>
               <td>{{roundNumber(engine.avgFuelDepart, 10, ' L/Hr')}}</td>
               <td>{{roundNumber(engine.avgFuelReturn, 10, ' L/Hr')}}</td>

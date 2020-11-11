@@ -338,7 +338,7 @@ var SovVessel2vesselTransfers = new Schema({
     mmsi: { type: Number },
     transfers: { type: Object },
     CTVactivity: { type: Object },
-    missedTransfers: {type: Object},
+    missedTransfers: { type: Object },
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
@@ -1974,7 +1974,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
                     } else {
                         v2v.CTVactivity.push(info);
                     }
-                    update = { 
+                    update = {
                         CTVactivity: v2v.CTVactivity,
                         missedTransfers: missed
                     }
