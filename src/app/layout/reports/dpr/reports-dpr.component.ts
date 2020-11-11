@@ -15,6 +15,7 @@ import { TokenModel } from '@app/models/tokenModel';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -24,9 +25,9 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 })
 export class ReportsDprComponent implements OnInit {
   constructor(
-    public router: Router,
-    private newService: CommonService,
     private route: ActivatedRoute,
+    public routeService: RouterService,
+    private newService: CommonService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
     private userService: UserService,
@@ -84,7 +85,7 @@ export class ReportsDprComponent implements OnInit {
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        this.router.navigate(['login']);
+        this.routeService.routeToLogin();
       }
     });
   }
