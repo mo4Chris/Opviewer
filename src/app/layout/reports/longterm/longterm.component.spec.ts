@@ -20,7 +20,6 @@ import { LongtermPrintHeaderComponent } from './models/longterm-print-header/lon
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
-import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
 import { mockedObservable } from '@app/models/testObservable';
 
 describe('LongtermComponent', () => {

@@ -83,6 +83,7 @@ export class MockedCommonService extends CommonService {
             minutesFloating: 6.123,
             minutesInField: 74.3,
             distancekm: 124.3,
+            sailedDistance: '12km',
             DPRstats: {
                 portDepartureTime: date + 0.48241266,
                 WindFarmArrivalTime: date + 0.49341266,
