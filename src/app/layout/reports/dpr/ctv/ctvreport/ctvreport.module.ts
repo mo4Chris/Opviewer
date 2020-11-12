@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CommonService } from '../../../../../common.service';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MapStore } from '@app/stores/map.store';
 import { CtvreportComponent } from './ctvreport.component';
@@ -13,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AutosizeModule } from 'ngx-autosize';
 import { SharedPipesModule } from '@app/shared';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { CommonService } from '@app/common.service';
 
 @NgModule({
   imports: [
