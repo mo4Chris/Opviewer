@@ -78,11 +78,11 @@ describe('CtvSummaryComponent', () => {
     fixture.detectChanges();
   });
 
-  fit('should create', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  fit('should save changes', () => {
+  it('should save changes', () => {
     let spy = spyOn(MockedCommonService.prototype, 'saveCTVGeneralStats').and.returnValue(mockedObservable({
       data: 'Yay'
     }));
