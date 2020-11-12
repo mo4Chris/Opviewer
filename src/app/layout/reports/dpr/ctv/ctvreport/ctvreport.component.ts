@@ -81,7 +81,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   // Technical details
   private commentsChanged: Array<any>;
   private changedCommentObj = { newComment: '', otherComment: '' };
-  private dateData = { transfer: undefined, general: undefined };
+  private dateData = { mmsi: undefined, transfer: undefined, general: undefined };
   public multiSelectSettings = {
     idField: 'mmsi',
     textField: 'nicename',
@@ -105,7 +105,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
     if (this.weatherOverviewChart) {
       this.weatherOverviewChart.destroy();
     }
-    if (!this.dateData || !this.dateData.general) {
+    if (!this.dateData || !this.dateData.general || this.dateData.mmsi !== this.vesselObject.mmsi) {
       this.getDatesShipHasSailed(this.vesselObject);
     }
     try {
@@ -310,10 +310,12 @@ export class CtvreportComponent implements OnInit, OnChanges {
     );
   }
   private getDatesShipHasSailed(date: VesselObjectModel) {
+    let mmsi = this.vesselObject.mmsi;
     forkJoin(
       this.newService.getDatesWithValues(date),
       this.newService.getDatesWithValuesFromGeneralStats(date)
     ).subscribe(([transfers, genData]) => {
+      this.dateData.mmsi = mmsi;
       this.dateData.transfer = transfers;
       this.dateData.general = genData.data;
       this.pushSailingDates();
