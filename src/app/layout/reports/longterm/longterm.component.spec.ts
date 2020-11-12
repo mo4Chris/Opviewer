@@ -20,10 +20,10 @@ import { LongtermPrintHeaderComponent } from './models/longterm-print-header/lon
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/from';
+import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
+import { mockedObservable } from '@app/models/testObservable';
 
-describe('ReportsComponent - CTV', () => {
+describe('LongtermComponent', () => {
     let component: LongtermComponent;
     let fixture: ComponentFixture<LongtermComponent>;
 
@@ -59,7 +59,7 @@ describe('ReportsComponent - CTV', () => {
                 {
                     provide: ActivatedRoute,
                     useValue: {
-                      params: Observable.from([{mmsi: 123456789, vesselName: 'Test vessel'}]),
+                      params: mockedObservable({mmsi: 123456789, vesselName: 'Test vessel'}),
                     },
                 }
             ],
