@@ -58,8 +58,8 @@ export class CtvSummaryComponent {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
   }
 
-  switchVolumeUnit(value: number[] | number, oldUnit: string, newUnit: string) {
-    return this.calcService.switchVolumeUnits(value, oldUnit, newUnit);
+  switchUnitAndMakeString(value: string | number, oldUnit: string, newUnit: string) {
+    return this.calcService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
 
   getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {

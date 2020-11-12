@@ -86,19 +86,19 @@
         </tr>
         <tr>
             <td>Fuel consumed transit to park</td>
-            <td>{{roundNumber(switchVolumeUnit(engine.fuelUsedDepartM3, 'm3', 'liter'), 10, ' ltr')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedDepartM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td>Fuel consumed transit from park</td>
-            <td>{{roundNumber(switchVolumeUnit(engine.fuelUsedReturnM3, 'm3', 'liter'), 10, ' ltr')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedReturnM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td><div [ngbTooltip]="helpFuelUsedDockings">Fuel consumed dockings</div></td>
-            <td>{{roundNumber(switchVolumeUnit(engine.fuelUsedTransferM3, 'm3', 'liter'), 10, ' ltr')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedTransferM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td><div [ngbTooltip]="helpFuelUsedOther">Fuel consumed other</div></td>
-            <td>{{roundNumber(switchVolumeUnit(engine.fuelOther, 'm3', 'liter'), 10, ' ltr')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelOther, 'm3', 'liter')}}</td>
         </tr>  
         <tr>
             <td>Total CO2 emission</td>
