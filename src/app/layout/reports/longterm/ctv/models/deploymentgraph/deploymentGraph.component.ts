@@ -26,7 +26,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
     ) {
     }
 
-    @Input() vesselObject: LongtermVesselObjectModel
+    @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
@@ -326,7 +326,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
                             const curr_date: Date = data.labels[tooltipItem.index];
-                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a'
+                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a';
                             return [
                                 data.datasets[tooltipItem.datasetIndex].label,
                                 curr_date_string

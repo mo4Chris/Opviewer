@@ -286,7 +286,7 @@ export class LongtermComponent implements OnInit {
     return this.calendar.getPrev(this.calendar.getPrev(this.calendar.getToday(), 'd', 1), 'm', 1);
   }
   getLastQuarterObject() {
-    let curr = this.calendar.getToday();
+    const curr = this.calendar.getToday();
     if (curr.month > 9 ) {
       return new NgbDate(curr.year, 7, 1);
     } else if (curr.month > 6 ) {
@@ -331,7 +331,7 @@ export class LongtermComponent implements OnInit {
     return vesselName;
   }
 
-  
+
   private _doPrint(cb?: () => void) {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
