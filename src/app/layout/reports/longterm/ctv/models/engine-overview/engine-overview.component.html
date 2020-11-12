@@ -14,8 +14,9 @@
               <th><div [ngbTooltip]="helpSailingDays">Sailing days</div></th>
               <th><div [ngbTooltip]="helpAvgDepart">Fuel/hr departure</div></th>
               <th><div [ngbTooltip]="helpAvgReturn">Fuel/hr return</div></th>
-              <th><div [ngbTooltip]="helpAvgFuel">Average fuel usage</div></th>
-              <th>Total CO2</th>
+              <th><div [ngbTooltip]="helpAvgFuel">Daily fuel usage</div></th>
+              <th><div [ngbTooltip]="helpTotalFuel">Total fuel usage</div></th>
+              <th><div [ngbTooltip]="helpTotalCo2">Total CO2</div></th>
             </tr>
           </thead>
           <tbody *ngFor="let _engines of engines; let _j = index" class="sep-row">
@@ -28,8 +29,9 @@
               <td>{{engine.numDays}}</td>
               <td>{{roundNumber(engine.avgFuelDepart, 10, ' L/Hr')}}</td>
               <td>{{roundNumber(engine.avgFuelReturn, 10, ' L/Hr')}}</td>
-              <td>{{roundNumber(engine.totalFuel, 10, 'm3')}}</td>
-              <td>{{roundNumber(engine.totalCO2, 10, ' tons')}}</td>
+              <td>{{roundNumber(engine.avgFuel, 100, 'm3')}}</td>
+              <td>{{roundNumber(engine.totalFuel, 100, 'm3')}}</td>
+              <td>{{roundNumber(engine.totalCO2, 10, ' tns')}}</td>
             </tr>
           </tbody>
         </table>
@@ -49,4 +51,10 @@
 </ng-template>
 <ng-template #helpSailingDays>
   Number of days with non-zero fuel usage.
+</ng-template>
+<ng-template #helpTotalFuel>
+  Total amount of fuel used during the month.
+</ng-template>
+<ng-template #helpTotalCo2>
+  Total amount of CO2 released during the month.
 </ng-template>

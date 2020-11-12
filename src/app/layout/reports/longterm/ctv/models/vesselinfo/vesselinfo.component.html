@@ -1,26 +1,36 @@
-<table class="table table-hover table-striped">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Name</th>
-      <th>mmsi</th>
-      <th>Length</th>
-      <th>Tonnage</th>
-      <th>Operator</th>
-      <th>Propulsion type</th>
-    </tr>
-  </thead>
+<div class='row'>
+  <div class='col-xl-12 col-lg-24 singlepage-print-port'>
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Vessel statistics
+      </div>
+      <div class='card-body table-responsive'>
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>mmsi</th>
+              <th>Length</th>
+              <th>Tonnage</th>
+              <th>Operator</th>
+              <th>Propulsion type</th>
+            </tr>
+          </thead>
 
-  <tbody>
-    <tr *ngFor="let vessel of vessels; let _i = index">
-      <td>{{_i + 1}}</td>
-      <td>{{vessel.Name}}</td>
-      <td>{{vessel.mmsi}}</td>
-      <td>{{vessel.Length}}</td>
-      <td>{{vessel.Displacement}}</td>
-      <td>{{vessel.Operator}}</td>
-      <td>{{vessel.PropType}}</td>
-    </tr>
-  </tbody>
-
-</table>
+          <tbody>
+            <tr *ngFor="let vessel of vessels; let _i = index">
+              <td>{{_i + 1}}</td>
+              <td>{{vessel.Name}}</td>
+              <td>{{vessel.mmsi}}</td>
+              <td>{{vessel.Length}}</td>
+              <td>{{vessel.Displacement}}</td>
+              <td>{{vessel.Operator}}</td>
+              <td>{{vessel.PropType}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
