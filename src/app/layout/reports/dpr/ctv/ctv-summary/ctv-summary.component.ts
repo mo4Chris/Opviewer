@@ -58,7 +58,7 @@ export class CtvSummaryComponent {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
   }
 
-  switchVolumeUnit(value: number[], oldUnit: string, newUnit: string) {
+  switchVolumeUnit(value: number[] | number, oldUnit: string, newUnit: string) {
     return this.calcService.switchVolumeUnits(value, oldUnit, newUnit);
   }
 

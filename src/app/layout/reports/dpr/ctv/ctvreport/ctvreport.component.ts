@@ -286,10 +286,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
     );
   }
 
-  // private getTransitTimes(){
-  //   this.newService.getTrans
-  // }
-
   // Data loading pipelines
   private getTransfersForVessel() {
     return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
