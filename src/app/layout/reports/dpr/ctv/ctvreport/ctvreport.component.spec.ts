@@ -7,16 +7,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { PageHeaderModule, SharedPipesModule } from '@app/shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { VesselObjectModel, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { VesselObjectModel, MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { CtvSummaryComponent } from '../ctv-summary/ctv-summary.component';
 import { CtvTurbineTransferComponent } from '../ctv-turbine-transfer/ctv-turbine-transfer.component';
 import { CtvslipgraphComponent } from '../models/ctvslipgraph/ctvslipgraph.component';
 import { AlertService } from '@app/supportModules/alert.service';
+import { MockComponents } from 'ng-mocks';
+import { DprMapComponent } from '../../map/dpr-map/dpr-map.component';
 
 
 describe('CtvReportComponent', () => {
   let component: CtvreportComponent;
   let fixture: ComponentFixture<CtvreportComponent>;
+  let consoleSpy: jasmine.Spy;
 
   const tokenInfo = {
     admin: UserTestService.getMockedAccessToken({
@@ -41,7 +44,6 @@ describe('CtvReportComponent', () => {
       vesselName: 'TEST CTV'
     };
   };
-  const mapPixelWidth = 400;
   // const mapPromise: Promise<google.maps.Map> = new Promise(() => null);
 
   beforeEach(async(() => {
@@ -57,24 +59,24 @@ describe('CtvReportComponent', () => {
       ],
       declarations: [
         CtvreportComponent,
-        CtvSummaryComponent,
-        CtvTurbineTransferComponent,
-        CtvslipgraphComponent,
+        MockComponents(
+          CtvSummaryComponent,
+          CtvTurbineTransferComponent,
+          CtvslipgraphComponent,
+          DprMapComponent
+        ),
       ],
       providers: [
         MockedCommonServiceProvider
       ]
     }).compileComponents();
+    consoleSpy = spyOn(console, 'error').and.callThrough();
   }));
 
   beforeEach(async(() => {
-
-
     fixture = TestBed.createComponent(CtvreportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    component.mapPixelWidth = mapPixelWidth;
-    // component.mapPromise = mapPromise;
   }));
 
   it('Should create as admin', async(() => {
@@ -82,14 +84,11 @@ describe('CtvReportComponent', () => {
     component.vesselObject = vesselObject(component.tokenInfo);
 
     expect(component).toBeTruthy();
-
-    component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.noPermissionForData).toBe(false);
-      expect(component.transferData).toBeDefined(); // Might fail under timeouts
-      expect(component.transferData.length).toEqual(1);
-    });
+    component.ngOnChanges();
+    expect(component).toBeTruthy();
+    expect(component.noPermissionForData).toBe(false);
+    expect(component.turbineTransfers).toBeDefined(); // Might fail under timeouts
+    expect(component.turbineTransfers.length).toEqual(1);
   }));
 
   it('should create as vessel master', async(() => {
@@ -98,12 +97,10 @@ describe('CtvReportComponent', () => {
 
     expect(component).toBeTruthy();
 
-    component.buildPageWithCurrentInformation();
+    component.ngOnChanges();
     setTimeout(() => {
       expect(component).toBeTruthy();
       expect(component.noPermissionForData).toBe(false);
-      expect(component.transferData).toBeDefined(); // Might fail under timeouts
-      expect(component.transferData.length).toEqual(1);
     });
   }));
 
@@ -112,29 +109,21 @@ describe('CtvReportComponent', () => {
     component.vesselObject = vesselObject(component.tokenInfo);
 
     expect(component).toBeTruthy();
-
-    component.buildPageWithCurrentInformation();
+    component.ngOnChanges();
     setTimeout(() => {
       expect(component).toBeTruthy();
       expect(component.noPermissionForData).toBe(false);
-      expect(component.transferData).toBeDefined(); // Might fail under timeouts
-      expect(component.transferData.length).toEqual(1);
     });
   }));
 
   it('should create as logistic specialist', async(() => {
     component.tokenInfo = tokenInfo.logisticSpecialist;
     component.vesselObject = vesselObject(component.tokenInfo);
-
     expect(component).toBeTruthy();
 
-    component.buildPageWithCurrentInformation();
-    setTimeout(() => {
-      expect(component).toBeTruthy();
-      expect(component.noPermissionForData).toBe(false);
-      expect(component.transferData).toBeDefined(); // Might fail under timeouts
-      expect(component.transferData.length).toEqual(1);
-    });
+    component.ngOnChanges();
+    expect(component).toBeTruthy();
+    expect(component.noPermissionForData).toBe(false);
   }));
 
   it('Should save comments', () => {
@@ -149,9 +138,18 @@ describe('CtvReportComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('Should make requests', (done) => {
+  it('Should make video requests', () => {
+    let saveVideoSpy = spyOn(MockedCommonService.prototype, 'saveVideoRequest').and.callFake(() => {
+      return {
+        pipe: () => {
+          return {
+            subscribe: () => {}
+          }
+        },
+      }
+    })
+    fixture.detectChanges();
     component.tokenInfo = tokenInfo.admin;
-    component.transferData = [];
     const transfer = {
       videoAvailable: true,
       video_requested: {
@@ -163,8 +161,9 @@ describe('CtvReportComponent', () => {
       currentBudget: 50,
     };
     expect(component).toBeTruthy();
-    component.setRequest(transfer);
-    done();
+    component.onVideoRequest(transfer);
+    expect(component).toBeTruthy();
+    expect(saveVideoSpy).toHaveBeenCalled();
   });
 
   it('Should check the video budget', () => {

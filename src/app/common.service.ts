@@ -6,12 +6,11 @@ import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 // import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
-import { isArray } from 'util';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
-import { Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
+import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 
 @Injectable({
@@ -99,10 +98,10 @@ export class CommonService {
       map((response: Response) => {
         const v2vs = response.json();
         v2vs.forEach(v2v => {
-          if (!isArray(v2v.transfers)) {
+          if (!Array.isArray(v2v.transfers)) {
             v2v.transfers = [v2v.transfers];
           }
-          if (!isArray(v2v.CTVactivity)) {
+          if (!Array.isArray(v2v.CTVactivity)) {
             v2v.CTVactivity = [v2v.CTVactivity];
           }
         });
@@ -206,7 +205,7 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
-  getTransfersForVessel(mmsi: number, date: number) {
+  getTransfersForVessel(mmsi: number, date: number): Observable<any[]> {
     return this.get('/api/getTransfersForVessel/' + mmsi + '/' + date).pipe(
       map((response: Response) => response.json()));
   }
@@ -332,7 +331,8 @@ export class CommonService {
   }
 
   updateSOVv2vTurbineTransfers(ctvInfo: {
-    update: V2vCtvActivity
+    update: V2vCtvActivity;
+    missedTransfers: MissedDcTransfer[];
     mmsi: number;
     date: number;
   }) {

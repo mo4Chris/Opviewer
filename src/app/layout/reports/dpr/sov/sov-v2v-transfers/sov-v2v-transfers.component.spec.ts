@@ -22,8 +22,8 @@ describe('SovV2vTransfersComponent', () => {
         CommonModule,
         FormsModule,
         NgMultiSelectDropDownModule,
+        AgmCoreModule,
         SharedPipesModule,
-        AgmCoreModule.forRoot()
       ],
       declarations: [ SovV2vTransfersComponent ],
       providers: [

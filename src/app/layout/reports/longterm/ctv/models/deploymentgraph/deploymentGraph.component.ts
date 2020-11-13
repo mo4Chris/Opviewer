@@ -26,7 +26,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
     ) {
     }
 
-    @Input() vesselObject: LongtermVesselObjectModel
+    @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
@@ -142,8 +142,10 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
 
     updateHsLimit() {
         const htmlField = <HTMLInputElement> document.getElementById('wavelimit-input');
-        this.MaxAllowedHsMeter = +htmlField.value / 100;
-        this.updateChart();
+        if (+htmlField.value > 0) {
+            this.MaxAllowedHsMeter = +htmlField.value / 100;
+            this.updateChart();
+        }
     }
 
     updateChart() {
@@ -175,7 +177,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
                 // Looping over vessels
-                if (this.RawData[_i] && this.RawData[_i][0]) {
+                if (sailingHours) {
                     const dset = {
                         label: this.vesselLabels[_i] || 'N/a',
                         backgroundColor: [],
@@ -324,7 +326,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
                             const curr_date: Date = data.labels[tooltipItem.index];
-                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a'
+                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a';
                             return [
                                 data.datasets[tooltipItem.datasetIndex].label,
                                 curr_date_string

@@ -3,13 +3,11 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetRequestComponent } from './fleet-request.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { AgmCoreModule } from '@agm/core';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '../../../shared';
 import { RouterTestingModule } from '@angular/router/testing';
-import { FleetLogRoutingModule } from '../fleet-log/fleet-log-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonService } from '../../../common.service';
 import { UserTestService } from '../../../shared/services/test.user.service';
@@ -23,8 +21,8 @@ describe('FleetRequestComponent', () => {
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [NgbModule.forRoot(),
-                AgmCoreModule.forRoot(),
+            imports: [
+                NgbModule,
                 HttpModule,
                 HttpClientModule,
                 FormsModule,

@@ -9,18 +9,26 @@ import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('CtvSummaryComponent', () => {
   let component: CtvSummaryComponent;
   let fixture: ComponentFixture<CtvSummaryComponent>;
   const mocker = new MockedCommonService();
   let general: CTVGeneralStatsModel;
-  mocker.getGeneral({
-    mmsi: 123456789,
-    date: 737700,
-    vesselName: 'Test CTV',
-    vesselType: 'CTV',
-  }).subscribe(_gen => general = _gen);
+
+
+  beforeAll((done) => {
+    mocker.getGeneral({
+      mmsi: 123456789,
+      date: 737700,
+      vesselName: 'Test CTV',
+      vesselType: 'CTV',
+    }).subscribe(_gen => {
+      general = _gen.data[0];
+      done()
+    });
+  })
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -73,4 +81,12 @@ describe('CtvSummaryComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should save changes', () => {
+    let spy = spyOn(MockedCommonService.prototype, 'saveCTVGeneralStats').and.returnValue(mockedObservable({
+      data: 'Yay'
+    }));
+    component.saveGeneralStats();
+    expect(spy).toHaveBeenCalled();
+  })
 });

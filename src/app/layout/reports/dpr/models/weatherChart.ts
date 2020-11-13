@@ -31,6 +31,7 @@ export class WeatherOverviewChart {
     args: WeatherChartArguments,
     private calcService: CalculationService,
     private settings: SettingsService,
+    private id?: HTMLElement
   ) {
     args = { ... { wavedataSourceName: 'Source: unknown' }, ...args };
     // Support function for chart legend padding
@@ -76,7 +77,7 @@ export class WeatherOverviewChart {
     });
     const timezoneOffset = this.getTimezoneOffset(dsets);
     // Actual chart creation
-    this.Chart = new Chart('weatherOverview', {
+    this.Chart = new Chart(this.id || 'weatherOverview', {
       type: 'line',
       data: {
         datasets: dsets,
@@ -231,7 +232,7 @@ export class WeatherOverviewChart {
   getTimezoneOffset(dsets: any[]): number {
     // Returns the offset in minutes
     // ToDo: properly implement the timezone check
-    console.warn('Timezone offset to be implemented')
+    // console.warn('Timezone offset to be implemented')
     return 0;
   }
   destroy() {
@@ -316,7 +317,7 @@ export class WeatherOverviewChart {
 
 interface WeatherChartArguments {
   dsets: any[];
-  timeStamps: Moment[];
+  timeStamps: string[]; // This must be string because moment crashes when using moment-timezone
   wavedataSourceName?: string;
   utcOffset?: number;
 }

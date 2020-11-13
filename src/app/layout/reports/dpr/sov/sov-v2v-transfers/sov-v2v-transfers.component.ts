@@ -6,7 +6,6 @@ import { Vessel2VesselActivity, TurbineLocsFromMongo } from '../models/vessel2ve
 import { MapZoomLayer } from '@app/models/mapZoomLayer';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Vessel2vesselModel } from '../models/Transfers/vessel2vessel/Vessel2vessel';
-import { TurbineLocation } from '../../models/TurbineLocation';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { map, catchError } from 'rxjs/operators';
@@ -28,7 +27,6 @@ export class SovV2vTransfersComponent implements OnChanges {
   }]; // Always array of length 1!
   @Input() sovInfo = {};
   @Input() turbineLocations: TurbineLocsFromMongo[] = [];
-
   @Input() vesselObject: VesselObjectModel;
   @Output() v2vPaxTotals = new EventEmitter<V2vPaxTotalModel>();
 

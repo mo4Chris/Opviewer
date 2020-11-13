@@ -18,12 +18,12 @@ import { now } from 'moment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermTrendGraphComponent implements OnChanges {
-  @Input() data: ComprisonArrayElt
+  @Input() data: ComprisonArrayElt;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselLabels: string[] = ['Placeholder A', 'Placeholder B', 'Placeholder C'];
-  @Input() bins = [0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.25,3.5,3.75,4];
+  @Input() bins = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4];
   @Input() outlierThreshold = 5;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
   @Input() hideFromTrend: (elt: number) => boolean;
@@ -61,8 +61,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
       reqFields: [this.data.x, this.data.y],
       x: this.data.x,
       y: this.data.y,
-    }
-    
+    };
+
     this.parser.load(query, this.data.dataType, this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
@@ -70,15 +70,15 @@ export class LongtermTrendGraphComponent implements OnChanges {
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {
-        return _parsed.trend.length > 1 || _parsed.outliers.length > 0
-      })
+        return _parsed.trend.length > 1 || _parsed.outliers.length > 0;
+      });
       if (this.hasData) {
-        let dsets = [];
+        const dsets = [];
         parsedData.forEach((vesseldata, i) => {
-          dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3, pointRadius: 3, pointStyle: 'fill', pointHoverRadius: 6, hitRadius: 10}))
-          dsets.push(this.parser.createChartlyLine(vesseldata.ub, i, {label: this.vesselLabels[i], fill: '+1'})) // Fills area until lower bound
-          dsets.push(this.parser.createChartlyLine(vesseldata.lb, i, {label: this.vesselLabels[i]}))
-          dsets.push(this.parser.createChartlyScatter(vesseldata.outliers, i, {label: this.vesselLabels[i]}))
+          dsets.push(this.parser.createChartlyLine(vesseldata.trend, i, {label: this.vesselLabels[i], borderWidth: 3, pointRadius: 3, pointStyle: 'fill', pointHoverRadius: 6, hitRadius: 10}));
+          dsets.push(this.parser.createChartlyLine(vesseldata.ub, i, {label: this.vesselLabels[i], fill: '+1'})); // Fills area until lower bound
+          dsets.push(this.parser.createChartlyLine(vesseldata.lb, i, {label: this.vesselLabels[i]}));
+          dsets.push(this.parser.createChartlyScatter(vesseldata.outliers, i, {label: this.vesselLabels[i]}));
         });
         this.createChart({
           axisType: this.parser.getAxisType(dsets),
@@ -87,13 +87,13 @@ export class LongtermTrendGraphComponent implements OnChanges {
         });
       }
       this.ref.detectChanges();
-    })
+    });
   }
 
   parseRawData(rawScatterData: RawScatterData[]) {
     const navToDpr = (info: {mmsi: number, matlabDate: number}) => {
       this.navigateToVesselreport.emit(info);
-    }
+    };
     this.reduceLabels(rawScatterData.map(_data => _data._id));
     return rawScatterData.map((data) => {
       let vesselDataSets: ScatterDataElt[] = [];
@@ -127,7 +127,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
               y: yVals[i],
               date: dates[i],
               callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
-            }
+            };
           }));
         } else {
           const mean = this.calcService.getNanMean(yVals as number[]);
@@ -145,7 +145,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
                     y: yVals[i],
                     callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
                     date: dates[i],
-                  })
+                  });
                 }
               });
             }
@@ -161,10 +161,10 @@ export class LongtermTrendGraphComponent implements OnChanges {
                 y: yVal,
                 callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
                 date: dates[i],
-              })
+              });
             }
           });
-          
+
           vesselDataSets = vesselDataSets.concat(outliers);
           const upperLimit = this.calcService.getNanMax(yVals);
           const lowerLimit = this.calcService.getNanMin(yVals);
@@ -188,7 +188,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
         lb: line_lb,
         ub: line_ub,
         outliers: vesselDataSets,
-      }
+      };
     });
   }
 
@@ -213,8 +213,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
             callbacks: {
               beforeLabel: function (tooltipItem, data) {
                 const elt = data.datasets[tooltipItem.datasetIndex];
-                const date = elt.data[tooltipItem.index].date
-                return date? [
+                const date = elt.data[tooltipItem.index].date;
+                return date ? [
                   elt.label,
                   dateService.MatlabDateToJSDate(date)
                 ] : elt.label;
@@ -318,7 +318,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
   reset() {
     this.chart.destroy();
   }
-  
+
   reduceLabels(received_mmsi: number[]): void {
     this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }

@@ -3,9 +3,20 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
 
 import { AgmCoreModule } from '@agm/core';
-
-import { CommonService } from '../../common.service';
 import { HttpModule } from '@angular/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
+import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
+import { AdminComponent } from './components/users/admin/admin.component';
+import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
+import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
+import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
+import { MockComponents } from 'ng-mocks';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -14,10 +25,23 @@ describe('DashboardComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
+        CommonModule,
+        HttpModule,
         AgmCoreModule.forRoot(),
-        HttpModule],
-      declarations: [ DashboardComponent ],
-      providers: [ CommonService ]
+        AgmJsMarkerClustererModule,
+        AgmSnazzyInfoWindowModule,
+        NgbModule,
+        RouterTestingModule,
+        BrowserAnimationsModule,
+      ],
+      declarations: [
+        DashboardComponent,
+        MockComponents(AdminComponent, LogisticsSpecialistComponent, MarineControllerComponent, VesselMasterComponent),
+      ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider
+      ]
     })
     .compileComponents();
   }));
@@ -28,7 +52,7 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
   });
 
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

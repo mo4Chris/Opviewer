@@ -1,13 +1,15 @@
-<div *ngIf="transferData?.length > 0">
+<app-dpr-map *ngIf="hasData" style="width: 100%;" [vesselTrace]="vesselTrace" (onLoaded)="onMapReady($event)"
+  [turbineVisits]="turbineTransfers">
+</app-dpr-map>
+<div *ngIf="!isLoading || hasData">
     <br><br>
-    <div class="divContainer singlepage-print" *ngIf="transferData?.length > 0">
-        <h3 *ngIf="noTransits">There is no transit data available</h3>
-        <app-ctv-summary *ngIf="!noTransits" [general]="general" [generalInputStats]="generalInputStats"
+    <div class="divContainer singlepage-print">
+        <h3 *ngIf="!hasData">There is no data available</h3>
+        <app-ctv-summary *ngIf="turbineTransfers.length>0" [general]="general" [generalInputStats]="generalInputStats"
             [engine]="enginedata" [tokenInfo]="tokenInfo" [visitedPark]="visitedPark"></app-ctv-summary>
     </div>
     <br><br>
-
-    <div *ngIf="parkFound && wavedata" class="row" class="weatherMap">
+    <div *ngIf="wavedataLoaded" class="row" class="weatherMap">
         <div class="col-xl-12 col-lg-24">
             <div class="card mb-3">
                 <div class="card-header" >
@@ -23,9 +25,9 @@
                     <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
                         [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
                         
-                    <button class="minimizer" (click)="minimizeWaveGraph()">
+                    <!-- ToDo: better styling <button class="minimizer" (click)="minimizeWaveGraph()">
                         <i class="fa fa-window-minimize"></i>
-                    </button>
+                    </button> -->
                 </div>
                 <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
                     <canvas id="weatherOverview"></canvas>
@@ -35,17 +37,18 @@
         <br><br>
     </div>
 
-    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
-        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
-          (onVideoRequest)="setRequest($event)"></app-ctv-turbine-transfer>
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="turbineTransfers.length > 0">
+        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="turbineTransfers"
+          (onVideoRequest)="onVideoRequest($event)"></app-ctv-turbine-transfer>
     </div>
     <div class="row singlepage-print singlepage-print-port">
-        <div class="col-lg-7"  *ngFor="let transfer_Data of transferData;let ind = index">
-            <app-ctvslipgraph *ngIf="transfer_Data.slipGraph && transfer_Data.slipGraph.slipX.length>0"
-                [index]="ind" [transfer]="transfer_Data" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
+        <div class="col-lg-7"  *ngFor="let visit of turbineTransfers;let ind = index">
+            <app-ctvslipgraph 
+                [index]="ind" [transfer]="visit" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>
     </div>
     <div class="videoRequestLoading" *ngIf="videoRequestLoading">
+        Video requests loading!
         <div class="spinner">
             <div class="bounce1"></div>
             <div class="bounce2"></div>
@@ -57,8 +60,7 @@
 <ng-template #helpVideoRequests>
     Videos can be requested for recent transfers by anyone authorized to do so (If you see this button this is the case). 
     After a request is made, the video will be downloaded as soon as the vessel is back in the harbour. This usually takes
-    up to 2 days. After the download is completed, a download link will be send to the account that made the request. Be
-    aware that the link is only valid for 7 days!
+    up to 2 days. After the download is completed, you will be sent the video by a member of the BMO team.
     <br><br>
     If a video of interest is not available, this usually means the video has been deleted (we have limited storage space).
     This will not happen until at least a month has passed. We cannot recover deleted videos. To get access to a video which

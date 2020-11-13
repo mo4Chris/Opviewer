@@ -63,7 +63,7 @@ export class MockedCommonService extends CommonService {
     }
     getDatesWithValuesFromGeneralStats(vesselObject: VesselObjectModel) {
         const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
-        return mockedObservable(T);
+        return mockedObservable({data: T});
     }
     getDatesShipHasSailedForSov(vesselObject: VesselObjectModel) {
         const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
@@ -83,6 +83,7 @@ export class MockedCommonService extends CommonService {
             minutesFloating: 6.123,
             minutesInField: 74.3,
             distancekm: 124.3,
+            sailedDistance: '12km',
             DPRstats: {
                 portDepartureTime: date + 0.48241266,
                 WindFarmArrivalTime: date + 0.49341266,
@@ -503,8 +504,25 @@ export class MockedCommonService extends CommonService {
     getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
         return mockedObservable([]);
     }
+    getWavedataForDay(request: {date:number, site: string}) {
+        return mockedObservable(null);
+    }
     getFieldsWithWaveSourcesByCompany() {
         return mockedObservable([]);
+    }
+    getParkLocations() {
+        return mockedObservable([]);
+    }
+    getHarbourLocations() {
+        return mockedObservable([{
+            name: 'Test harbour',
+            centroid: {
+                lon: 50,
+                lat: 1
+            },  
+            lon: [50],
+            lat: [1]
+        }])
     }
 
     getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {

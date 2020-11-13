@@ -38,7 +38,7 @@ export interface CTVGeneralStatsModel {
     AvgSpeedInbound: any;
     AvgSpeedOutboundUnrestricted: any;
     AvgSpeedInboundUnrestricted: any;
-    AverageDockedTime:any;
+    AverageDockedTime: any;
     videoRequestPermission: any;
     WBVtechs: any;
     WBVcrew: any;

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { AgmCoreModule } from '@agm/core';
 
 import { LongtermRoutingModule } from './longterm-routing.module';
 import { LongtermComponent } from './longterm.component';
@@ -23,13 +22,11 @@ import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/s
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
 
 @NgModule({
     imports: [
         HttpClientModule,
-        AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDOfUHc9qh2V3X51XdoYS7vqEG8SZdpHRw'
-        }),
         FormsModule,
         NgbModule,
         NgMultiSelectDropDownModule,
@@ -48,7 +45,8 @@ import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/l
         SiemensKpiOverviewComponent,
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
-        LongtermTrendGraphComponent
+        LongtermTrendGraphComponent,
+        LongtermPrintHeaderComponent
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

@@ -3,7 +3,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetavailabilityComponent, TurbineWarrentyModel } from './fleetavailability.component';
 import { FormsModule } from '@angular/forms';
-import { AgmCoreModule } from '@agm/core';
 import { PageHeaderModule } from '../../../shared';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { UserService } from '../../../shared/services/user.service';
@@ -38,8 +37,7 @@ describe('FleetAvailabilityComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
-        NgbModule.forRoot(),
-        AgmCoreModule.forRoot(),
+        NgbModule,
         PageHeaderModule,
         RouterTestingModule,
         HttpModule,

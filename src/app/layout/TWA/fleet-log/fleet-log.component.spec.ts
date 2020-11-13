@@ -2,8 +2,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetLogComponent } from './fleet-log.component';
-import { CommonService } from '../../../common.service';
-import { AgmCoreModule } from '@agm/core';
 import { HttpModule } from '@angular/http';
 import { PageHeaderModule } from '../../../shared';
 import { HttpClientModule } from '@angular/common/http';
@@ -14,7 +12,6 @@ import { UserService } from '../../../shared/services/user.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserTestService } from '../../../shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
-import { mockedObservable } from '@app/models/testObservable';
 
 describe('FleetLogComponent', () => {
   let component: FleetLogComponent;
@@ -22,8 +19,8 @@ describe('FleetLogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [NgbModule.forRoot(),
-        AgmCoreModule.forRoot(),
+      imports: [
+        NgbModule,
         HttpModule,
         HttpClientModule,
         FormsModule,

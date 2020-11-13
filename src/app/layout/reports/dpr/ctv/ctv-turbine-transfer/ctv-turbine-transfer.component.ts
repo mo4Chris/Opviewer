@@ -36,9 +36,13 @@ export class CtvTurbineTransferComponent {
     private calcService: CalculationService,
     private dateService: DatetimeService,
     private permission: PermissionService,
-    ) {
-        this.videoRequestPermission = this.permission.ctvVideoRequest; 
-    }
+  ) {
+    this.videoRequestPermission = this.permission.ctvVideoRequest; 
+  }
+
+  get waveAvailable(): boolean {
+    return this.transfers && this.transfers.length > 0 && this.transfers.some(t => {return +t.Hs > 0})
+  }
 
   saveComment(transferData) {
     if (transferData.comment !== 'Other') {
