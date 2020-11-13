@@ -6,11 +6,11 @@ import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportMo
 import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('SovDcTransfersComponent', () => {
   let component: SovDcTransfersComponent;
   let fixture: ComponentFixture<SovDcTransfersComponent>;
-  const mocked = new MockedCommonService();
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -44,6 +44,10 @@ describe('SovDcTransfersComponent', () => {
       vesselType: 'OSV',
       vesselName: 'Test SOV'
     };
+    component.dcInfo = {
+      mmsi: 123456789,
+      nicename: 'TEST DAUGHTERCRAFT',
+    }
     fixture.detectChanges();
   });
 
@@ -51,20 +55,19 @@ describe('SovDcTransfersComponent', () => {
     component.vessel2vessels = [];
     fixture.detectChanges();
     expect(component).toBeTruthy();
+    component.ngOnChanges();
+    expect(component.missedTransfers.length).toBe(0);
+    expect(component.transfers.length).toBe(0);
   });
 
-  it('should create read only', () => {
-    expect(component).toBeTruthy();
-
-    component.ngOnChanges();
-    expect(component).toBeTruthy();
-
+  it('should be disabled if no DC is present', () => {
+    component.dcInfo = null;
     setV2V(component);
     component.ngOnChanges();
-    expect(component).toBeTruthy();
-  });
+    expect(component.transfers.length).toBe(0);
+  })
 
-  it('should create with write rights', () => {
+  it('should add transfers', () => {
     component.readonly = false;
     component.ngOnChanges();
     expect(component).toBeTruthy();
@@ -72,12 +75,31 @@ describe('SovDcTransfersComponent', () => {
     setV2V(component);
     component.ngOnChanges();
     expect(component).toBeTruthy();
+    expect(component.transfers.length).toBeGreaterThan(0);
   });
+
+  it('should allow for adding new transfers', () => {
+    let saveSpy = spyOn(MockedCommonService.prototype, 'updateSOVv2vTurbineTransfers')
+      .and.returnValue(mockedObservable('TEST'))
+
+    component.addMissedTransferToArray();
+    expect(component.missedTransfers.length).toBe(1);
+    expect(saveSpy).not.toHaveBeenCalled();
+
+    component.saveTransfers();
+    expect(saveSpy).toHaveBeenCalled();
+  })
 });
 
 function setV2V(component: SovDcTransfersComponent) {
   component.vessel2vessels[0].CTVactivity = [{
-    turbineVisits: [],
+    turbineVisits: [{
+      startTime: 1,
+      stopTime: 2,
+      location: 'test',
+      durationMinutes: 10,
+      fieldname: 'fake farm'
+    }],
     map: null,
     mmsi: 123456789,
     date: 737700

@@ -72,7 +72,13 @@
         </tr> -->
         <tr>
             <td><div [ngbTooltip]="helpTripEfficiency">Efficiency of the trip</div></td>
-            <td>{{roundNumber(engine.fuelPerHour, 1000, 'L/hr')}}</td>
+            <td>
+              {{
+                roundNumber(
+                  ( (engine.fuelUsedTotalM3 * 1000) / +general.sailedDistance.replace('km','')
+                   ),10, ' L/km')
+              }}
+            </td>
         </tr>
         <tr *ngIf="false">
             <td><div [ngbTooltip]="helpFuelProfiles">Vessel fuel profiles</div></td>
@@ -80,23 +86,23 @@
         </tr>
         <tr>
             <td>Fuel consumed transit to park</td>
-            <td>{{roundNumber(engine.fuelUsedDepartM3, 1000, 'm3')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedDepartM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td>Fuel consumed transit from park</td>
-            <td>{{roundNumber(engine.fuelUsedReturnM3, 1000, 'm3')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedReturnM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td><div [ngbTooltip]="helpFuelUsedDockings">Fuel consumed dockings</div></td>
-            <td>{{roundNumber(engine.fuelUsedTransferM3, 1000, 'm3')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelUsedTransferM3, 'm3', 'liter')}}</td>
         </tr>
         <tr>
             <td><div [ngbTooltip]="helpFuelUsedOther">Fuel consumed other</div></td>
-            <td>{{roundNumber(engine.fuelOther, 1000, 'm3')}}</td>
+            <td>{{switchUnitAndMakeString(engine.fuelOther, 'm3', 'liter')}}</td>
         </tr>  
         <tr>
             <td>Total CO2 emission</td>
-            <td>{{roundNumber(engine.co2TotalKg, 10, 'kg')}}</td>
+            <td>{{roundNumber(engine.co2TotalKg, 10, ' kg')}}</td>
         </tr>
     </table>
 </div>
@@ -195,9 +201,9 @@
         </td>
       </tr>
       <tr>
-        <td>Tool box talks conducted</td>
+        <td>Toolbox talks conducted</td>
         <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
-          <ng-multiselect-dropdown class="d-inline-block msdd" [placeholder]="'Select tool box talks'"
+          <ng-multiselect-dropdown class="d-inline-block msdd" [placeholder]="'Select toolbox talks'"
             [data]="toolboxOptions" [(ngModel)]="generalInputStats.toolboxConducted" [settings]="multiSelectSettings">
           </ng-multiselect-dropdown>
         </td>
@@ -239,11 +245,11 @@
 </div>
 
 <ng-template #helpFuelEco>
-  Fuel used per hour
+  Fuel used per km
 </ng-template>
 
 <ng-template #helpTripEfficiency>
-  Fuel used per km sailed
+  Fuel used per hour sailed
 </ng-template>
 
 <ng-template #helpFuelUsedDockings>

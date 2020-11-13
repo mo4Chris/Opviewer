@@ -1,7 +1,5 @@
 import { Router } from '@angular/router';
-import { isArray } from 'util';
 import { Injectable } from '@angular/core';
-import { CommonService } from '@app/common.service';
 
 
 @Injectable({
@@ -14,7 +12,7 @@ export class RouterService {
 
     route(destination: Array<string | object> | string) {
         // ToDo: validate route and throw error if the address if invalid
-        if (!isArray(destination)) {
+        if (!Array.isArray(destination)) {
             destination = [destination];
         }
         this._router.navigate(<Array<any>> destination);

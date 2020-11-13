@@ -1,4 +1,4 @@
-<app-dpr-map *ngIf="hasData" style="width: 100%;" [vesselTrace]="vesselTrace" (onMapReady)="onMapReady($event)"
+<app-dpr-map *ngIf="hasData" style="width: 100%;" [vesselTrace]="vesselTrace" (onLoaded)="onMapReady($event)"
   [turbineVisits]="turbineTransfers">
 </app-dpr-map>
 <div *ngIf="!isLoading || hasData">
@@ -25,9 +25,9 @@
                     <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true" 
                         [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
                         
-                    <button class="minimizer" (click)="minimizeWaveGraph()">
+                    <!-- ToDo: better styling <button class="minimizer" (click)="minimizeWaveGraph()">
                         <i class="fa fa-window-minimize"></i>
-                    </button>
+                    </button> -->
                 </div>
                 <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
                     <canvas id="weatherOverview"></canvas>
@@ -37,12 +37,12 @@
         <br><br>
     </div>
 
-    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="transferData?.length > 0">
-        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="transferData"
+    <div class="divContainer singlepage-print singlepage-print-port" *ngIf="turbineTransfers.length > 0">
+        <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="turbineTransfers"
           (onVideoRequest)="onVideoRequest($event)"></app-ctv-turbine-transfer>
     </div>
     <div class="row singlepage-print singlepage-print-port">
-        <div class="col-lg-7"  *ngFor="let visit of turbineVisits;let ind = index">
+        <div class="col-lg-7"  *ngFor="let visit of turbineTransfers;let ind = index">
             <app-ctvslipgraph 
                 [index]="ind" [transfer]="visit" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
         </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -13,12 +13,13 @@ import { SettingsService } from '@app/supportModules/settings.service';
 import { forkJoin, Observable } from 'rxjs';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { MapStore } from '@app/stores/map.store';
+import { MapStore, TurbinePark } from '@app/stores/map.store';
 
 @Component({
   selector: 'app-ctvreport',
   templateUrl: './ctvreport.component.html',
   styleUrls: ['./ctvreport.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvreportComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
@@ -80,8 +81,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   // Technical details
   private commentsChanged: Array<any>;
   private changedCommentObj = { newComment: '', otherComment: '' };
-  private dateData = { transfer: undefined, general: undefined };
-  private turbineLocationData: any;
+  private dateData = { mmsi: undefined, transfer: undefined, general: undefined };
   public multiSelectSettings = {
     idField: 'mmsi',
     textField: 'nicename',
@@ -105,18 +105,18 @@ export class CtvreportComponent implements OnInit, OnChanges {
     if (this.weatherOverviewChart) {
       this.weatherOverviewChart.destroy();
     }
-    if (!this.dateData || !this.dateData.general) {
+    if (!this.dateData || !this.dateData.general || this.dateData.mmsi !== this.vesselObject.mmsi) {
       this.getDatesShipHasSailed(this.vesselObject);
     }
     try {
-      this.buildPageWithCurrentInformation();
+      this.loadDprData();
     } catch (err) {
       this.loaded.emit(true)
       console.error(err)
     }
   }
 
-  buildPageWithCurrentInformation() {
+  loadDprData() {
     // At this point are loaded: tokenInfo, vesselObject
     this.newService.validatePermissionToViewData({
       mmsi: this.vesselObject.mmsi
@@ -136,13 +136,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.turbineTransfers = _transfers; // Needs to happen after match comments!
           this.enginedata = _engine;
 
-          if (_distinctFields) {
-            // ToDo: this callback can be synchronized by using the the geostore to retrieve
-            // data on all fields, and than filter based on the required field.
-            this.newService.getSpecificPark({
-              park: _distinctFields
-            }).subscribe(locData => this.onGetSpecificPark(locData));
-          }
           this.showMap = true;
           this.isLoading = false;
           this.loaded.emit(true);
@@ -213,17 +206,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
         });
     }
   }
-  private async onGetSpecificPark(parks) {
-    if (parks.length > 0) {
-      const locationData = {
-        turbineLocations: parks,
-        transfers: this.turbineTransfers,
-        type: '',
-        vesselType: 'CTV'
-      };
-      this.turbineLocationData = locationData;
-    }
-  }
   public saveComment(transfer) {
     if (transfer.comment !== 'Other') {
       transfer.commentChanged.otherComment = '';
@@ -249,23 +231,21 @@ export class CtvreportComponent implements OnInit, OnChanges {
     this.wavedataLoaded = false;
     this.wavedata = null;
     this.mapStore.parks.then(parks => {
-      // Currently broken...
       let turbnames: string[] = [];
       if (Array.isArray(this.turbineTransfers)) {
         turbnames = this.turbineTransfers.map(e => e.fieldname);
       }
       let park_coord_name = turbnames.find(e => typeof(e) === 'string');
       let park = parks.find(_park => _park.filename === park_coord_name);
-      let turbData = this.turbineLocationData;
       this.visitedPark = park ? park.name : null;
       this.newService.getWavedataForDay({
         date: this.vesselObject.date,
         site: this.visitedPark,
       }).subscribe(waves => {
-        this.wavedata = waves;
+        this.wavedata = new WavedataModel(waves);
         if (waves) {
           this.wavedataLoaded = true;
-          this.createWeatherOverviewChart(turbData);
+          this.createWeatherOverviewChart();
           this.addWaveFeaturesToMap();
         }
       });
@@ -306,7 +286,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
     );
   }
 
-
   // Data loading pipelines
   private getTransfersForVessel() {
     return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
@@ -331,10 +310,12 @@ export class CtvreportComponent implements OnInit, OnChanges {
     );
   }
   private getDatesShipHasSailed(date: VesselObjectModel) {
+    let mmsi = this.vesselObject.mmsi;
     forkJoin(
       this.newService.getDatesWithValues(date),
       this.newService.getDatesWithValuesFromGeneralStats(date)
     ).subscribe(([transfers, genData]) => {
+      this.dateData.mmsi = mmsi;
       this.dateData.transfer = transfers;
       this.dateData.general = genData.data;
       this.pushSailingDates();
@@ -353,11 +334,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
           lon: _general.lon,
           lat: _general.lat
         }
-        if (_general.utcOffset) {
-          // General stats utc offset is in days
-          this.vesselUtcOffset = _general.utcOffset;
-          this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
-        }
+        this.vesselUtcOffset = 24 * _general.utcOffset || 0;
+        this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
           this.noTransits = false;
           const dpr = <any>_general.DPRstats;
@@ -369,13 +347,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.general = dpr;
         }
         if (_general.inputStats) {
+          let clean = (a: Array<any>) => a.filter(x => x !== null)
           this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
           this.generalInputStats.observations = _general.inputStats.observations;
           this.generalInputStats.landedGarbage = _general.inputStats.landedGarbage;
           this.generalInputStats.landedOil = _general.inputStats.landedOil;
-          this.generalInputStats.toolboxConducted = _general.inputStats.toolboxConducted;
           this.generalInputStats.incidents = _general.inputStats.incidents;
-          this.generalInputStats.drillsConducted = _general.inputStats.drillsConducted || [];
+          this.generalInputStats.toolboxConducted = clean(_general.inputStats.toolboxConducted) || [];
+          this.generalInputStats.drillsConducted = clean(_general.inputStats.drillsConducted) || [];
           this.generalInputStats.passengers = _general.inputStats.passengers;
           this.generalInputStats.customInput = _general.inputStats.customInput;
         }
@@ -447,10 +426,12 @@ export class CtvreportComponent implements OnInit, OnChanges {
       this.wavedata.meta.drawOnMap(this.googleMap);
     }
   }
-  private createWeatherOverviewChart(turbData) {
+  private createWeatherOverviewChart() {
     const wavedata = this.wavedata.wavedata;
     if (wavedata) {
-      const timeStamps = wavedata.timeStamp.map(matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime));
+      const timeStamps = wavedata.timeStamp.map(
+        matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false)
+      );
       const validLabels = this.wavedata.availableWaveParameters();
       // Parsing the main datasets
       const dsets: any[] = [];
@@ -473,13 +454,15 @@ export class CtvreportComponent implements OnInit, OnChanges {
       const transferDatas = [];
       // Adding the grey transfer boxes
       const addTransfer = (start, stop) => {
-        start = this.dateTimeService.MatlabDateToUnixEpoch(start);
-        stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
-        transferDatas.push({ x: start, y: 1 });
-        transferDatas.push({ x: stop, y: 1 });
-        transferDatas.push({ x: NaN, y: NaN });
+        if (typeof start == 'number' && start > 0) {
+          start = this.dateTimeService.MatlabDateToUnixEpoch(start);
+          stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
+          transferDatas.push({ x: start, y: 1 });
+          transferDatas.push({ x: stop, y: 1 });
+          transferDatas.push({ x: stop, y: NaN });
+        }
       };
-      turbData.transfers.forEach(visit => {
+      this.turbineTransfers.forEach(visit => {
         addTransfer(visit.startTime, visit.stopTime);
       });
       dsets.push({
@@ -492,13 +475,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
         yAxisID: 'hidden',
         lineTension: 0,
       });
-      setTimeout(() => {
-        this.weatherOverviewChart = new WeatherOverviewChart({
-          dsets: dsets,
-          timeStamps: timeStamps,
-          wavedataSourceName: wavedataSourceName
-        }, this.calculationService, this.settings);
-      }, 100);
+      this.ref.detectChanges();
+      let id = document.getElementById('weatherOverview')
+      this.weatherOverviewChart = new WeatherOverviewChart({
+        dsets: dsets,
+        timeStamps: timeStamps,
+        wavedataSourceName: wavedataSourceName,
+        utcOffset: 0,
+      }, this.calculationService, this.settings, id);
     }
   }
   private resetInputStats() {
@@ -507,10 +491,10 @@ export class CtvreportComponent implements OnInit, OnChanges {
     this.generalInputStats.fuelConsumption = 0;
     this.generalInputStats.landedGarbage = 0;
     this.generalInputStats.landedOil = 0;
-    this.generalInputStats.toolboxConducted = [null];
+    this.generalInputStats.toolboxConducted = [];
     this.generalInputStats.observations = false;
     this.generalInputStats.incidents = false;
-    this.generalInputStats.drillsConducted = [null];
+    this.generalInputStats.drillsConducted = [];
     this.generalInputStats.passengers = false;
     this.generalInputStats.customInput = '-';
   }

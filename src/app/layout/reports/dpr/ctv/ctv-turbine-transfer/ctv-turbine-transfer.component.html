@@ -3,12 +3,13 @@
   <thead>
     <tr>
       <th>#</th>
+      <th>Location</th>
       <th>Start time</th>
       <th>Stop time</th>
       <th>Duration</th>
       <th>Max impact</th>
       <th>Score</th>
-      <th>Location</th>
+      <th *ngIf="waveAvailable">Hs</th>
       <th>Pax in / out</th>
       <th>Cargo in / out</th>
       <th>Comment</th>
@@ -25,12 +26,13 @@
   <tbody>
     <tr *ngFor="let transfer_Data of transfers;let ind = index" ng-form="myForm">
       <td>{{ind + 1}}</td>
+      <td>{{transfer_Data.location}}</td>
       <td>{{getMatlabDateToJSTime(transfer_Data.startTime)}}</td>
       <td>{{getMatlabDateToJSTime(transfer_Data.stopTime)}}</td>
       <td>{{getMatlabDateToJSTimeDifference(transfer_Data.stopTime, transfer_Data.startTime)}}</td>
       <td>{{roundNumber((transfer_Data.impactForceNmax / 1000), 1, 'KN')}} </td>
       <td>{{roundNumber(transfer_Data.score, 10)}}</td>
-      <td>{{transfer_Data.location}}</td>
+      <td *ngIf="waveAvailable">{{roundNumber(transfer_Data.Hs, 10)}}</td>
       <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'">
         <input type="number" min="0" [value]="transfer_Data.paxUp" class="form-control-sm col-sm-5 form-number"
           [(ngModel)]="transfer_Data.paxUp" (change)="transfer_Data.formChanged=true"> incoming <br>

@@ -8,9 +8,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
-import { WavedataModel, WaveSourceModel } from '@app/models/wavedataModel';
-import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
-import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
+import { WavedataModel } from '@app/models/wavedataModel';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { LongtermProcessingService } from '../models/longterm-processing-service.service';
@@ -201,17 +199,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     }
 
     // Wavedata shenanigans
-    loadWavedata() {
-        this.newService.getWavedataForRange({
-            startDate: this.dateTimeService.objectToMatlabDate(this.fromDate),
-            stopDate: this.dateTimeService.objectToMatlabDate(this.toDate),
-            source: this.fieldname,
-        }).subscribe(wavedata => {
-            this.wavedataArray = wavedata;
-            this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
-            this.wavedataAvailabe = true;
-        });
-    }
     updateActiveField(source_id: string) {
         // Called whenever longterm.components selects / deselects field
         this.fieldname = source_id;
@@ -222,6 +209,17 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         } else {
             this.loadWavedata();
         }
+    }
+    loadWavedata() {
+        this.newService.getWavedataForRange({
+            startDate: this.dateTimeService.objectToMatlabDate(this.fromDate),
+            stopDate: this.dateTimeService.objectToMatlabDate(this.toDate),
+            source: this.fieldname,
+        }).subscribe(wavedata => {
+            this.wavedataArray = wavedata;
+            this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
+            this.wavedataAvailabe = true;
+        });
     }
 
     // Utility

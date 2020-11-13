@@ -70,3 +70,15 @@
     width: 98%;
     position: relative;
 }
+
+@media print {
+    .graphContainer {
+        width: 98%;
+        page-break-before: always;
+        page-break-inside: avoid;
+        margin-top: 150px;
+    }
+    .page-break-before{
+        page-break-before: always;
+    }
+}

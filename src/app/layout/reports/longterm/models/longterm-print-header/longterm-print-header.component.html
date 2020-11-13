@@ -1,0 +1,17 @@
+<h2 id="onlyOnPrintContainer">
+  <div class="headerContainer ">
+      Performance overview: {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
+      <hr>
+  </div>
+  <br>
+  Vessel(s):
+  <div class="space-left" *ngFor="let name of vesselObject.vesselName">
+    - {{name}}
+  </div>
+
+  <div *ngIf="fieldname">
+    <br>
+    Wavedata source: {{fieldname}}
+  </div>
+  <br><br>
+</h2>

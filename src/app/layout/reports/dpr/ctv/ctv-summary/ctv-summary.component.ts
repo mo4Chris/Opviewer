@@ -35,7 +35,8 @@ export class CtvSummaryComponent {
     private dateService: DatetimeService,
     private calcService: CalculationService,
     public permission: PermissionService,
-  ) { }
+  ) {
+  }
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function
@@ -55,6 +56,10 @@ export class CtvSummaryComponent {
 
   roundNumber(number, decimal = 10, addString = '') {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
+  }
+
+  switchUnitAndMakeString(value: string | number, oldUnit: string, newUnit: string) {
+    return this.calcService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
 
   getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {

@@ -1,27 +1,28 @@
-import { LongtermComponent } from "./longterm.component";
-import { ComponentFixture, async, TestBed } from "@angular/core/testing";
-import { CommonModule } from "@angular/common";
-import { MockedCommonServiceProvider } from "@app/supportModules/mocked.common.service";
-import { NgMultiSelectDropDownModule } from "ng-multiselect-dropdown";
-import { NgbModule, NgbDatepickerModule, NgbDate } from "@ng-bootstrap/ng-bootstrap";
-import { FormsModule } from "@angular/forms";
-import { LongtermCTVComponent } from "./ctv/longtermCTV.component";
+import { LongtermComponent } from './longterm.component';
+import { ComponentFixture, async, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbModule, NgbDatepickerModule, NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { MockComponents } from 'ng-mocks';
-import { LongtermSOVComponent } from "./sov/longtermSOV.component";
-import { RouterTestingModule } from "@angular/router/testing";
-import { UserTestService, MockedUserServiceProvider } from "@app/shared/services/test.user.service";
-import { CtvslipgraphComponent } from "../dpr/ctv/models/ctvslipgraph/ctvslipgraph.component";
-import { VesselinfoComponent } from "./ctv/models/vesselinfo/vesselinfo.component";
-import { DeploymentGraphComponent } from "./ctv/models/deploymentgraph/deploymentGraph.component";
-import { LongtermScatterGraphComponent } from "./models/longterm-scatter-graph/longterm-scatter-graph.component";
-import { LongtermBarGraphComponent } from "./models/longterm-bar-graph/longterm-bar-graph.component";
-import { LongtermTrendGraphComponent } from "./models/longterm-trend-graph/longterm-trend-graph.component";
-import { SiemensKpiOverviewComponent } from "./sov/models/siemens-kpi-overview/siemens-kpi-overview.component";
-import { UtilizationGraphComponent } from "./sov/models/longterm_utilization/utilizationGraph.component";
+import { LongtermSOVComponent } from './sov/longtermSOV.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import {ActivatedRoute} from '@angular/router';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { CtvslipgraphComponent } from '../dpr/ctv/models/ctvslipgraph/ctvslipgraph.component';
+import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
+import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymentGraph.component';
+import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
+import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
+import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
+import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
+import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
+import { mockedObservable } from '@app/models/testObservable';
 
-
-
-describe('ReportsComponent - CTV', () => {
+describe('LongtermComponent', () => {
     let component: LongtermComponent;
     let fixture: ComponentFixture<LongtermComponent>;
 
@@ -39,6 +40,7 @@ describe('ReportsComponent - CTV', () => {
                 LongtermComponent,
                 LongtermCTVComponent,
                 LongtermSOVComponent,
+                LongtermPrintHeaderComponent,
                 MockComponents(
                     CtvslipgraphComponent,
                     VesselinfoComponent,
@@ -52,7 +54,13 @@ describe('ReportsComponent - CTV', () => {
             ],
             providers: [
                 MockedCommonServiceProvider,
-                MockedUserServiceProvider
+                MockedUserServiceProvider,
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                      params: mockedObservable({mmsi: 123456789, vesselName: 'Test vessel'}),
+                    },
+                }
             ],
         });
 
@@ -65,7 +73,7 @@ describe('ReportsComponent - CTV', () => {
             dateNormalMax: 'Max date',
             mmsi: [123456789],
             vesselName: ['Test vessel']
-        }
+        };
         component.fromDate = new NgbDate(2020, 6, 1);
         component.toDate = new NgbDate(2020, 7, 10);
         component.dropdownValues = [{
@@ -74,7 +82,7 @@ describe('ReportsComponent - CTV', () => {
         }];
 
         fixture.detectChanges();
-    }))
+    }));
 
     it('should create', () => {
         expect(component).toBeTruthy();
@@ -99,9 +107,9 @@ describe('ReportsComponent - CTV', () => {
         fixture.detectChanges();
         expect(component.fromDate).toEqual(new NgbDate(2020, 6, 1));
         expect(component.toDate).toEqual(new NgbDate(2020, 7, 1));
-        
-        expect(childChangeDetector).toHaveBeenCalledTimes(3)
-    })
+
+        expect(childChangeDetector).toHaveBeenCalledTimes(3);
+    });
 
     it('Should update on changed names', () => {
         const childChangeDetector = spyOn(LongtermCTVComponent.prototype, 'ngOnChanges').and.callThrough();
@@ -111,7 +119,7 @@ describe('ReportsComponent - CTV', () => {
         fixture.detectChanges();
         expect(component).toBeTruthy();
 
-        expect(childChangeDetector).toHaveBeenCalledTimes(1)
-    })
+        expect(childChangeDetector).toHaveBeenCalledTimes(1);
+    });
 
 });

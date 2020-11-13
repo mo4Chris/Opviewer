@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { Vessel2vesselModel } from '../models/Transfers/vessel2vessel/Vessel2vessel';
-import { isArray, isObject, isNumber } from 'util';
+import { Vessel2vesselModel, MissedDcTransfer } from '../models/Transfers/vessel2vessel/Vessel2vessel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
+import { isObject, isNumber } from 'util';
 
 @Component({
   selector: 'app-sov-dc-transfers',
@@ -36,7 +36,7 @@ export class SovDcTransfersComponent implements OnChanges {
 
   map = [];
   transfers = [];
-  missedTransfers = [];
+  missedTransfers: MissedDcTransfer[] = [];
   hasChanges = false;
   vesselName = '';
 
@@ -45,23 +45,20 @@ export class SovDcTransfersComponent implements OnChanges {
     this.missedTransfers = [];
     this.hasChanges = false;
     if (this.dcInfo && this.dcInfo.mmsi) {
-      this.vessel2vessels.forEach(v2vs => {
-        v2vs.CTVactivity.forEach(_activity => {
+      this.vessel2vessels.forEach(v2v => {
+        v2v.CTVactivity.forEach(_activity => {
           if (_activity.mmsi === this.dcInfo.mmsi) {
             this.map = _activity.map
-            if (isArray(_activity.turbineVisits)) {
+            if (Array.isArray(_activity.turbineVisits)) {
               this.transfers = _activity.turbineVisits;
             } else if (isObject(_activity.turbineVisits) && isNumber(_activity.turbineVisits['startTime'])) {
               this.transfers = [_activity.turbineVisits];
             }
-            if (isArray(_activity.missedVisits)) {
-              this.missedTransfers = _activity.missedVisits;
-            } else {
-              // We need to link our empty array to the one in the v2v object
-              _activity.missedVisits = this.missedTransfers;
-            }
           }
         });
+        if (v2v.missedTransfers) {
+          this.missedTransfers = v2v.missedTransfers;
+        }
       });
     }
   }
@@ -100,9 +97,9 @@ export class SovDcTransfersComponent implements OnChanges {
         mmsi: this.dcInfo.mmsi || 0,
         date: this.vesselObject.date,
         turbineVisits: this.transfers,
-        missedVisits: this.missedTransfers,
         map: this.map,
-      }
+      },
+      missedTransfers: this.missedTransfers,
     }).pipe(
       map(
         (res) => {

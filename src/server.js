@@ -334,10 +334,11 @@ var SovTransits = new Schema({
 var SovTransitsmodel = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
 
 var SovVessel2vesselTransfers = new Schema({
-    transfers: { type: Object },
-    CTVactivity: { type: Object },
     date: { type: Number },
     mmsi: { type: Number },
+    transfers: { type: Object },
+    CTVactivity: { type: Object },
+    missedTransfers: {type: Object},
 });
 var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
 
@@ -1945,10 +1946,16 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
     // Updates transfer info turbine transfers by DC craft.
     validatePermissionToViewData(req, res, function(validated) {
         if (validated.length < 1) {
-            logger.warn({ msg: 'Access denied - updateSOVv2vTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date })
+            logger.warn({
+                msg: 'Access denied - updateSOVv2vTurbineTransfers',
+                mmsi: req.body.mmsi,
+                date: req.body.date
+            })
             return res.status(401).send('Access denied');
         } else {
             let info = req.body.update;
+            let missed = req.body.missedTransfers || [];
+            logger.info('Updating v2v transfers for mmsi: ' + req.body.mmsi + ', date: ' + req.body.date)
             SovVessel2vesselTransfersmodel.findOne({
                 mmsi: req.body.mmsi,
                 date: req.body.date,
@@ -1967,13 +1974,15 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
                     } else {
                         v2v.CTVactivity.push(info);
                     }
+                    update = { 
+                        CTVactivity: v2v.CTVactivity,
+                        missedTransfers: missed
+                    }
                     SovVessel2vesselTransfersmodel.findOneAndUpdate({
                         mmsi: req.body.mmsi,
                         date: req.body.date,
                         active: { $ne: false }
-                    }, {
-                        CTVactivity: v2v.CTVactivity
-                    }, (err, data) => {
+                    }, update, (err, data) => {
                         if (err) {
                             logger.error(err);
                             res.send(err);
@@ -1987,6 +1996,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
                         date: req.body.date,
                         CTVactivity: [info],
                         transfers: [],
+                        missedTransfers: missed
                     }).save((err, data) => {
                         if (err) {
                             logger.error(err);
