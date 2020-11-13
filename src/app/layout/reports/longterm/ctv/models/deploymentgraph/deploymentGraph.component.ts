@@ -27,7 +27,6 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
     }
 
     @Input() vesselObject: LongtermVesselObjectModel;
-    @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Input() wavedata: LongtermParsedWavedata;

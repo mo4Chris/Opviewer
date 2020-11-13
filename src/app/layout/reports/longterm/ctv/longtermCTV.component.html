@@ -9,14 +9,14 @@
             <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
-                <app-deployment-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
-                    [toDate]="toDate" [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"
+                <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"
+                    [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"
                     [vesselLabels]="vesselObject.vesselName">
                 </app-deployment-graph>
             </div>
 
 
-            <app-ctv-utilization-graph [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [fromDate]="fromDate"
+            <app-ctv-utilization-graph [vesselObject]="vesselObject" [fromDate]="fromDate"
                 [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
             </app-ctv-utilization-graph>
 

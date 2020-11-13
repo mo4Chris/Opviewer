@@ -9,3 +9,15 @@ table tr td{
     padding-right: 0.45rem;
 }
 
+.graph-container{
+    height: 200px;
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+app-longterm-util-sub-graph{
+    width: 100%;
+}
