@@ -15,7 +15,7 @@ import { CommonService } from './common.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 import { AgmCoreModule } from '@agm/core';
-import { env } from 'process';
+import { environment } from 'environments/environment';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 // AoT requires an exported function for factories
@@ -40,7 +40,7 @@ export function createTranslateLoader(http: HttpClient) {
             }
         }),
         AgmCoreModule.forRoot({
-            apiKey: env.GOOGLE_API_KEY
+            apiKey: environment.GOOGLE_API_KEY
         }),
         AppRoutingModule,
         PlotlyModule,
