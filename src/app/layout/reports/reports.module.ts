@@ -12,13 +12,12 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { TablesModule } from './tables/tables.module';
-import { env } from 'process';
-// import { TablesModule } from './tables/tables.module';
+import { environment } from 'environments/environment';
 
 @NgModule({
     imports: [
         AgmCoreModule.forRoot({
-            apiKey: env.GOOGLE_API_KEY
+            apiKey: environment.GOOGLE_API_KEY
         }),
         CommonModule,
         FormsModule,
