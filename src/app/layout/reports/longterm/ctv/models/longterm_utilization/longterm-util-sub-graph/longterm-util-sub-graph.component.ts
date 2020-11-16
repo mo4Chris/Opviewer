@@ -123,7 +123,7 @@ export class LongtermUtilSubGraphComponent implements OnChanges {
             },
             ticks: {
               min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMin),
-              max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMax),
+              max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMax + 1),
               maxTicksLimit: 21,
             },
             gridLines: {
