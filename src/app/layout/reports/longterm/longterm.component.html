@@ -13,21 +13,21 @@
     <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="onDateConfirm()">
         <div class="input-group datepicker-input">
-          <button id="lastQuarterButton" class="selectBtn space-right" (click)="selectLastQuarter()">
+          <button id="lastQuarterButton" class="selectBtn btn btn-outline-primary space-right" (click)="selectLastQuarter()">
             Last quarter
           </button>
-          <button id="lastMonthButton" class="selectBtn space-right" (click)="selectLastMonth()">
+          <button id="lastMonthButton" class="selectBtn btn btn-outline-primary space-right" (click)="selectLastMonth()">
             Last month
           </button>
-          <button id="prevMonthButton" class="selectBtn" (click)="switchMonthBackwards()">
+          <button id="prevMonthButton" class="selectBtn btn btn-outline-primary btn-sm btn-left" (click)="switchMonthBackwards()">
             <i class="fa fa-caret-left"></i>
           </button>
           <div class="form-group">
-            <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">
+            <button class="btn btn-outline-primary btn-middle dateSelectorModal" (click)="openModal(content)">
               Date selector
             </button>
           </div>
-          <button id="nextMonthButton" class="div-right-20 selectBtn space-right" (click)="switchMonthForward()"
+          <button id="nextMonthButton" class="div-right-20 selectBtn space-right btn-right btn-outline-primary btn-sm" (click)="switchMonthForward()"
             [disabled]="monthForwardEnabled()">
             <i class="fa fa-caret-right"></i>
           </button>
@@ -46,7 +46,7 @@
               [settings]="fieldSelectSettings">
             </ng-multiselect-dropdown>
           </div>
-          <button id="printButton" class="selectBtn space-right" (click)="onPrint()">
+          <button id="printButton" class="selectBtn btn btn-outline-primary space-right" (click)="onPrint()">
             Print LTM
           </button>
         </div>
@@ -59,6 +59,7 @@
   <hr class="hideOnPrint">
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
+      
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
         (navigateToVesselreport)="navigateToVesselreport($event)">
