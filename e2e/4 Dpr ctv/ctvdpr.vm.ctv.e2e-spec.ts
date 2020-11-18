@@ -151,20 +151,20 @@ describe('CTV dpr', () => {
 
             let target = await page.getElementInDockingRowByTitle(dockingRow, '#');
             expect(target.getText()).toBe('1');
-            let target1 = await page.getElementInDockingRowByTitle(dockingRow, 'Location');
-            expect(target1.getText()).toMatch(/\w+/, 'Location should be formatted');
-            let target2 = await page.getElementInDockingRowByTitle(dockingRow, 'Start time');
-            expect(target2.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
-            let target3 = await page.getElementInDockingRowByTitle(dockingRow, 'Stop time');
-            expect(target3.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
-            let target4 = await page.getElementInDockingRowByTitle(dockingRow, 'Duration');
-            expect(target4.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
-            let target5 = await page.getElementInDockingRowByTitle(dockingRow, 'Max impact');
-            expect(target5.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
-            let target6 = await page.getElementInDockingRowByTitle(dockingRow, 'Score');
-            expect(target6.getText()).toMatch(/\d/, 'Score should be formatted');
-            let target7 = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
-            expect(target7.getText()).toMatch(/\w+/, 'Detector should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Location');
+            expect(target.getText()).toMatch(/\w+/, 'Location should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Start time');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Stop time');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Duration');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Max impact');
+            expect(target.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Score');
+            expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
+            expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
             return done();
         });
 

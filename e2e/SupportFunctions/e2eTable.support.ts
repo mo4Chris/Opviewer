@@ -20,7 +20,6 @@ export class E2eTableHandler {
         let match = t.match(key);
         return match ? match.length > 0 : false
       });
-      console.log('Matched ' + key + ' to column ' + index)
       if (index >= 0) {
         combined.fulfill(this.getRowElementByIndex(row, index));
       } else {
