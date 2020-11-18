@@ -35,7 +35,6 @@ export class EngineOverviewComponent implements OnChanges {
         let index = this.vesselObject.mmsi.findIndex(mmsi => mmsi == e._id);
         return this.vesselObject.vesselName[index];
       })
-
       this.engines = engines.map(eng_vessel => {
         const grouped = this.dateService.groupDataByMonth(eng_vessel);
         return grouped.map((e: any) => {
