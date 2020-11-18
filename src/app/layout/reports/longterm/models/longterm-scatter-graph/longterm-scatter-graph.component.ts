@@ -250,6 +250,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
           ticks: {
             min: this.parser.parseScatterDate(this.vesselObject.dateMin),
             max: this.parser.parseScatterDate(this.vesselObject.dateMax + 1),
+            maxTicksLimit: 21,
           }
         }];
       case 'label':

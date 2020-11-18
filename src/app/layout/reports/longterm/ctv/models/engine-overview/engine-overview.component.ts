@@ -28,10 +28,14 @@ export class EngineOverviewComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    this.vesselNames = this.vesselObject.vesselName;
+    this.vesselNames = [];
 
     this.loadEngineData().subscribe(engines => {
-      // this.vesselNames = engines.map(e => e.label[0]).filter(x => x !== undefined);
+      this.vesselNames = engines.map(e => {
+        let index = this.vesselObject.mmsi.findIndex(mmsi => mmsi == e._id);
+        return this.vesselObject.vesselName[index];
+      })
+
       this.engines = engines.map(eng_vessel => {
         const grouped = this.dateService.groupDataByMonth(eng_vessel);
         return grouped.map((e: any) => {

@@ -40,7 +40,6 @@ export class LongtermBarGraphComponent implements OnChanges {
   graphlabel = '';
 
   ngOnChanges() {
-    console.log(this.data.yLabel);
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     if (this.chart) {
       this.reset();
