@@ -2,8 +2,10 @@ import { browser, element, by, ElementFinder } from 'protractor';
 import { env } from 'process';
 import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
 import { E2ePageObject } from '../SupportFunctions/e2epage.support';
+import { E2eTableHandler } from '../SupportFunctions/e2eTable.support';
 
 const dropdownHandler = new E2eDropdownHandler();
+const tableHandler = new E2eTableHandler();
 export class CtvDprPage extends E2ePageObject {
     navigateTo() {
         browser.get('/reports/dpr;mmsi=123456789;date=737700');
@@ -77,7 +79,12 @@ export class CtvDprPage extends E2ePageObject {
     }
 
     getEltInDockingRow(row: ElementFinder, index: number) {
-        return row.all(by.tagName('td')).get(index);
+        return tableHandler.getRowElementByIndex(row, index);
+    }
+
+    getElementInDockingRowByTitle(row: ElementFinder, title: string) {
+        let table = element(by.xpath('//app-ctv-turbine-transfer/table/'));
+        return tableHandler.getElementInRowByTitle(table, row, title);
     }
 
     getPaxInputFromDockingRow(row: ElementFinder) {

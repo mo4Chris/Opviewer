@@ -50,7 +50,7 @@ export abstract class E2ePageObject {
     validateNoConsoleLogs() {
       browser.manage().logs().get('browser').then(logs => {
         const errorLogs = logs.filter(log => {
-          const tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
+          const tf = log.level.name === 'OFF' || log.level.name === 'SEVERE' && log.message.match('maps\.googleapis').length === 0;
           if (tf) {console.log(log); }
           return tf;
         });
