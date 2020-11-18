@@ -83,27 +83,28 @@ export class CtvDprPage extends E2ePageObject {
     }
 
     getElementInDockingRowByTitle(row: ElementFinder, title: string) {
-        let table = element(by.xpath('//app-ctv-turbine-transfer/table/'));
+        let table = element(by.xpath('//app-ctv-turbine-transfer/table'));
+        expect(table.isPresent()).toBeTruthy('CTV turbine table must be present');
         return tableHandler.getElementInRowByTitle(table, row, title);
     }
 
     getPaxInputFromDockingRow(row: ElementFinder) {
-        const paxIndex = 7;
+        const paxIndex = 8;
         return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).first());
     }
 
     getPaxOutputFromDockingRow(row: ElementFinder) {
-        const paxIndex = 7;
+        const paxIndex = 8;
         return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).last());
     }
 
     getCargoInputFromDockingRow(row: ElementFinder) {
-        const cargoIndex = 8;
+        const cargoIndex = 9;
         return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).first());
     }
 
     getCargoOutputFromDockingRow(row: ElementFinder) {
-        const cargoIndex = 8;
+        const cargoIndex = 9;
         return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).last());
     }
 

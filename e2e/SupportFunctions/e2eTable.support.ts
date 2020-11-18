@@ -1,25 +1,52 @@
-import { by, element, ElementFinder, promise } from "protractor";
+import { by, element, ElementArrayFinder, ElementFinder, promise } from "protractor";
+import { protractor } from "protractor/built/ptor";
 import { map } from "rxjs/operators";
 
 
 export class E2eTableHandler {
-  getRowElementByIndex(row: ElementFinder, index: number) {
+  getRowElementByIndex(row: ElementFinder, index: number): ElementFinder {
     return row.all(by.tagName('td')).get(index);
   }
 
-  getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): ElementFinder {
+  getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string) {
     const headers = table.all(by.xpath('thead/tr/th'));
-    expect(headers.isPresent()).toBe(true, 'Table must have headers')
+    expect(headers.count()).toBeGreaterThan(0, 'Table must have headers')
+    
     let titles = headers.getText()  as unknown as promise.Promise<string[]>;
-    let out: ElementFinder;
-    headers.count().then(c => console.log('#headers = ' + c))
-    console.log("HEADERS:")
+    
+    let combined: promise.Deferred<ElementFinder> = protractor.promise.defer();
     titles.then(texts => {
-      console.log(texts)
-      texts.forEach(t=> console.log(t))
-      let index = texts.findIndex(t => t.match(key).length > 0);
-      out = this.getRowElementByIndex(row, index);
+      let index = texts.findIndex(t => {
+        let match = t.match(key);
+        return match ? match.length > 0 : false
+      });
+      console.log('Matched ' + key + ' to column ' + index)
+      if (index >= 0) {
+        combined.fulfill(this.getRowElementByIndex(row, index));
+      } else {
+        combined.reject('No cell found matching header "' + key + '"')
+      }
     });
-    return out;
+    return combined.promise;
   }
+
+  getRowCount(table: ElementFinder) {
+    return table.all(by.css('tr')).count();
+  }
+  getHeaderCount(table: ElementFinder) {
+    return table.all(by.css('th')).count();
+  }
+}
+
+function log(elt: ElementFinder | ElementArrayFinder) {
+  console.log('Registered async log event')
+  elt.getText().then(t => {
+    if (Array.isArray(t)) {
+      console.log('Logging array:')
+      console.log(t);
+    } else {
+      console.log('Logging item')
+      console.log(t);
+    }
+  })
 }

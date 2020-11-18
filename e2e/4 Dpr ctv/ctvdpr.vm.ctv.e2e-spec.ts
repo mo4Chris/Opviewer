@@ -145,20 +145,30 @@ describe('CTV dpr', () => {
             expect(dockings.count()).toBeGreaterThan(0);
         });
 
-        fit('should set normal values for docking table', () => {
+        it('should set normal values for docking table', async (done) => {
             expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
             expect(page.getEltInDockingRow(dockingRow, 0).getText()).toBe('1');
-            expect(page.getElementInDockingRowByTitle(dockingRow, '0').getText()).toBe('1');
-            expect(page.getEltInDockingRow(dockingRow, 1).getText()).toMatch(/\w+/, 'Location should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 2).getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 3).getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 4).getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 5).getText()).toMatch(/\d+/, 'Impact should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 6).getText()).toMatch(/\d.\d/, 'Score should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 10).getText()).toMatch(/\w+/, 'Detector should be formatted');
+
+            let target = await page.getElementInDockingRowByTitle(dockingRow, '#');
+            expect(target.getText()).toBe('1');
+            let target1 = await page.getElementInDockingRowByTitle(dockingRow, 'Location');
+            expect(target1.getText()).toMatch(/\w+/, 'Location should be formatted');
+            let target2 = await page.getElementInDockingRowByTitle(dockingRow, 'Start time');
+            expect(target2.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
+            let target3 = await page.getElementInDockingRowByTitle(dockingRow, 'Stop time');
+            expect(target3.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
+            let target4 = await page.getElementInDockingRowByTitle(dockingRow, 'Duration');
+            expect(target4.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
+            let target5 = await page.getElementInDockingRowByTitle(dockingRow, 'Max impact');
+            expect(target5.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
+            let target6 = await page.getElementInDockingRowByTitle(dockingRow, 'Score');
+            expect(target6.getText()).toMatch(/\d/, 'Score should be formatted');
+            let target7 = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
+            expect(target7.getText()).toMatch(/\w+/, 'Detector should be formatted');
+            return done();
         });
 
-        fit('and allow users to input pax in / out', () => {
+        it('and allow users to input pax in / out', () => {
             // Init pax in/out
             expect(saveBtn.isEnabled()).toBe(false, 'Save button should only enable on input change');
             let paxInInput = page.getPaxInputFromDockingRow(dockingRow);
