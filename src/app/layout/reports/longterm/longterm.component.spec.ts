@@ -21,6 +21,7 @@ import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longt
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { mockedObservable } from '@app/models/testObservable';
+import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 
 describe('LongtermComponent', () => {
     let component: LongtermComponent;
@@ -50,6 +51,7 @@ describe('LongtermComponent', () => {
                     LongtermTrendGraphComponent,
                     SiemensKpiOverviewComponent,
                     UtilizationGraphComponent,
+                    EngineOverviewComponent,
                 ),
             ],
             providers: [
