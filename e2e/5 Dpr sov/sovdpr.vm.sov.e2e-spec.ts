@@ -41,7 +41,7 @@ describe('Sov dpr', () => {
         // Check if route is drawn
         // Check if turbines are drawn
         // Check if zoom is ok
-        fit('have a working print all button', () => {
+        it('have a working print all button', () => {
             const printButton = page.getPrintFullButton();
             expect(printButton.isPresent()).toBe(true);
             const result = page.clickPrintButton(printButton);
