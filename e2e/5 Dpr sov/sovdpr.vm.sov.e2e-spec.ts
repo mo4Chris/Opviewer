@@ -29,34 +29,35 @@ describe('Sov dpr', () => {
         })
     })
 
-    describe('always', () => {
+    describe('should always', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateTo();
         });
 
-        it('should load a map', () => {
+        it('load a map', () => {
             expect(page.getMap().isPresent()).toBe(true);
         });
         // Check if route is drawn
         // Check if turbines are drawn
         // Check if zoom is ok
-        it('should have working print all button', () => {
+        fit('have a working print all button', () => {
             const printButton = page.getPrintFullButton();
+            expect(printButton.isPresent()).toBe(true);
             const result = page.clickPrintButton(printButton);
             expect(result).toBe(true);
         });
-        it('Should not redirect', () => {
+        it('not redirect', () => {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi');
         });
-        it('Should have all date buttons', () => {
+        it('have a valid date switch interface', () => {
             expect(page.getPrevDayButton().isPresent()).toBe(true);
             expect(page.getNextDayButton().isPresent()).toBe(true);
             expect(page.getDatePickerbtn().isPresent()).toBe(true);
             expect(page.getCurrentDateField().isPresent()).toBe(true);
             expect(page.getDatePickerString()).toMatch(/\d{4}-\d{2}-\d{2}/);
         });
-        it('should switch dates via buttons', () => {
+        it('switch dates via buttons', () => {
             const prevDayBtn = page.getPrevDayButton();
             const nextDayBtn = page.getNextDayButton();
             const oriDate    = page.getDatePickerString();

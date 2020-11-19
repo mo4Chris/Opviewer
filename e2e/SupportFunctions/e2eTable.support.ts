@@ -1,6 +1,5 @@
 import { by, element, ElementArrayFinder, ElementFinder, promise } from "protractor";
 import { protractor } from "protractor/built/ptor";
-import { map } from "rxjs/operators";
 
 
 export class E2eTableHandler {
@@ -8,7 +7,7 @@ export class E2eTableHandler {
     return row.all(by.tagName('td')).get(index);
   }
 
-  getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string) {
+  getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): promise.Promise<ElementFinder> {
     const headers = table.all(by.xpath('thead/tr/th'));
     expect(headers.count()).toBeGreaterThan(0, 'Table must have headers')
     

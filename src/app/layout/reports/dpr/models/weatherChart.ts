@@ -182,9 +182,8 @@ export class WeatherOverviewChart {
             display: false,
             ticks: {
               type: 'linear',
-              maxTicksLimit: 7,
               min: 0,
-              suggestedMax: 1
+              max: 1
             },
           }]
         },
