@@ -14,6 +14,7 @@ import { CtvslipgraphComponent } from '../models/ctvslipgraph/ctvslipgraph.compo
 import { AlertService } from '@app/supportModules/alert.service';
 import { MockComponents } from 'ng-mocks';
 import { DprMapComponent } from '../../map/dpr-map/dpr-map.component';
+import { execPath } from 'process';
 
 
 describe('CtvReportComponent', () => {
@@ -216,4 +217,13 @@ describe('CtvReportComponent', () => {
       active: false,
     });
   });
+
+  it('should properly removeNansFromArray', () => {
+    expect(component.removeNansFromArray(null)).toEqual([])
+    expect(component.removeNansFromArray(undefined)).toEqual([])
+    expect(component.removeNansFromArray([])).toEqual([])
+    expect(component.removeNansFromArray('data')).toEqual(['data'])
+    expect(component.removeNansFromArray(['data'])).toEqual(['data'])
+    expect(component.removeNansFromArray(['data', null, 'data2'])).toEqual(['data', 'data2'])
+  })
 });
