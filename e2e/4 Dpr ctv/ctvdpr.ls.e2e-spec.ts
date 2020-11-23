@@ -175,19 +175,19 @@ describe('CTV dpr', () => {
     });
 
 
-    describe('Should create slip graphs', () => {
+    describe('should create slip graphs', () => {
         beforeEach(() => {
             page = new CtvDprPage();
             page.navigateTo();
         });
 
-        it('Should have loaded slip graphs', () => {
+        it('and loaded slip graphs', () => {
             expect(page.getSlipGraphs().count()).toBeGreaterThan(0);
             const slip = page.getSlipGraph(0);
             expect(slip.isDisplayed()).toBe(true);
         });
 
-        it('Should have formatted slip graphs', () => {
+        it('and have formatted slip graphs', () => {
             const slips = page.getSlipGraphs();
             slips.each(_slip => {
                 expect(_slip.isDisplayed()).toBe(true);

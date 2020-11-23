@@ -42,6 +42,15 @@ export class CtvLtmPage extends E2ePageObject {
     });
   }
 
+  getWaveDropdown() {
+    return element(by.name('selectField'));
+  }
+  selectWaveSourceByIndex(index = 1) {
+    let btn = this.getWaveDropdown();
+    expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!')
+    this.dropdown.setValueByIndex(btn, index);
+  }
+
   getGraphContainers() {
     return element.all(by.className('graphContainer'));
   }
