@@ -28,7 +28,7 @@ describe('CTV dpr', () => {
         it('Should display no data message', () => {
             const noDataMsg = element(by.tagName('h3'));
             expect(noDataMsg.isDisplayed()).toBe(true);
-            expect(noDataMsg.getText()).toMatch('There is no map available for the selected day and vessel.');
+            expect(noDataMsg.getText()).toMatch('There is no');
         });
     });
 
@@ -87,7 +87,7 @@ describe('CTV dpr', () => {
 
     });
 
-    describe('Should generate dockings', () => {
+    describe('should generate dockings', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
@@ -98,24 +98,33 @@ describe('CTV dpr', () => {
             saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('Should have multiple dockings', () => {
+        it('and have multiple dockings', () => {
             const dockings = page.getAllDockings();
             expect(dockings.count()).toBeGreaterThan(0);
         });
 
-        it('Should set normal values for docking table', () => {
+        it('and set normal values for docking table', async (done) => {
             expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
-            expect(page.getEltInDockingRow(dockingRow, 0).getText()).toBe('1');
-            expect(page.getEltInDockingRow(dockingRow, 1).getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 2).getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 3).getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 4).getText()).toMatch(/\d+/, 'Impact should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 5).getText()).toMatch(/\d.\d/, 'Score should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 6).getText()).toMatch(/\w+/, 'Location should be formatted');
-            expect(page.getEltInDockingRow(dockingRow, 10).getText()).toMatch(/\w+/, 'Detector should be formatted');
+            let target = await page.getElementInDockingRowByTitle(dockingRow, '#');
+            expect(target.getText()).toBe('1');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Location');
+            expect(target.getText()).toMatch(/\w+/, 'Location should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Start time');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Stop time');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Duration');
+            expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Max impact');
+            expect(target.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Score');
+            expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
+            target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
+            expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
+            return done();
         });
 
-        it('Should save other comments', () => {
+        it('and save other comments', () => {
             const commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
             dropdownHandler.setValue(commentBtn, 'Other');
             let otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
@@ -136,7 +145,7 @@ describe('CTV dpr', () => {
     });
 
 
-    describe('Should be able to manage video requests', () => {
+    describe('should be able to manage video requests', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
@@ -147,26 +156,22 @@ describe('CTV dpr', () => {
             saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('Should request video from docking', () => {
+        it('should request video from docking', async (done) => {
             let videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
-            expect(videoRequestBtn.getText()).toBe('Not requested');
-
+            expect(await videoRequestBtn.getText()).toBe('Not requested');
             videoRequestBtn.click();
-            expect(videoRequestBtn.getText()).toBe('Requested');
+            expect(await videoRequestBtn.getText()).toBe('Requested');
 
             page.navigateTo();
-
             videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
-            expect(videoRequestBtn.getText()).toBe('Requested');
-
+            expect(await videoRequestBtn.getText()).toBe('Requested');
             videoRequestBtn.click();
-            expect(videoRequestBtn.getText()).toBe('Not requested');
+            expect(await videoRequestBtn.getText()).toBe('Not requested');
 
             page.navigateTo();
-
-            expect(videoRequestBtn.getText()).toBe('Not requested');
-
-        });
+            expect(await videoRequestBtn.getText()).toBe('Not requested');
+            done();
+        }, 60000);
     });
 
 
