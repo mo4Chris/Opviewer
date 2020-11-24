@@ -137,14 +137,14 @@ export class ReportsDprComponent implements OnInit {
     if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
       this.printMode = printtype;
       setTimeout(() => {
-        this._doPrint(() => {this.printMode = 0; });
+        this._doPrint(true);
       }, 2000);
     } else {
       this._doPrint();
     }
   }
 
-  private _doPrint(cb?: () => void) {
+  private _doPrint(resetPrint?: boolean) {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
@@ -152,8 +152,8 @@ export class ReportsDprComponent implements OnInit {
     }
     setTimeout(function() {
       window.print();
-      if (cb) {
-        cb();
+      if (resetPrint) {
+        this.printMode = 0;
       }
     });
   }

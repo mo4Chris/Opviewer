@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CommonService } from '../../../../../common.service';
-import { TokenModel } from '../../../../../models/tokenModel';
-import { VesselModel } from '../../../../../models/vesselModel';
-import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
-import { AisMarkerModel } from '../../../dashboard.component';
-import { RouterService } from '../../../../../supportModules/router.service';
+import { CommonService } from '@app/common.service';
+import { TokenModel } from '@app/models/tokenModel';
+import { VesselModel } from '@app/models/vesselModel';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { RouterService } from '@app/supportModules/router.service';
+import { AisMarkerModel } from '../../dashboard.component';
 
 @Component({
   selector: 'app-logistics-specialist',

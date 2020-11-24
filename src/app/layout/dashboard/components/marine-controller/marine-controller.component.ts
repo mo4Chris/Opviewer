@@ -1,12 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CommonService } from '../../../../../common.service';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
-import { TokenModel } from '../../../../../models/tokenModel';
+import { CommonService } from '@app/common.service';
+import { TokenModel } from '@app/models/tokenModel';
+import { VesselModel } from '@app/models/vesselModel';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { RouterService } from '@app/supportModules/router.service';
 import { UnassignedTransferModel } from '../vessel-master/vessel-master.component';
-import { VesselModel } from '../../../../../models/vesselModel';
-import { Router } from '@angular/router';
-import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { RouterService } from '../../../../../supportModules/router.service';
 
 @Component({
   selector: 'app-marine-controller',

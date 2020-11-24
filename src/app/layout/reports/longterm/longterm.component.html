@@ -34,7 +34,7 @@
           <div class="form-group">
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
               class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
-              (onSelectAll)="onSelectVessel()" (onDeSelectAll)="onSelectVessel()" 
+              (onSelectAll)="onSelectVessel($event)" (onDeSelectAll)="onSelectVessel($event)" 
               [placeholder]="'Select vessel'" [data]="Vessels" [(ngModel)]="dropdownValues"
               [settings]="multiSelectSettings">
             </ng-multiselect-dropdown>

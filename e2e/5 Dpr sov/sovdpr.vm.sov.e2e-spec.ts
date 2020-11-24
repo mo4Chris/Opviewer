@@ -29,34 +29,35 @@ describe('Sov dpr', () => {
         })
     })
 
-    describe('always', () => {
+    describe('should always', () => {
         beforeEach(() => {
             page = new SovDprPage();
             page.navigateTo();
         });
 
-        it('should load a map', () => {
+        it('load a map', () => {
             expect(page.getMap().isPresent()).toBe(true);
         });
         // Check if route is drawn
         // Check if turbines are drawn
         // Check if zoom is ok
-        it('should have working print all button', () => {
+        it('have a working print all button', () => {
             const printButton = page.getPrintFullButton();
+            expect(printButton.isPresent()).toBe(true);
             const result = page.clickPrintButton(printButton);
             expect(result).toBe(true);
         });
-        it('Should not redirect', () => {
+        it('not redirect', () => {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi');
         });
-        it('Should have all date buttons', () => {
+        it('have a valid date switch interface', () => {
             expect(page.getPrevDayButton().isPresent()).toBe(true);
             expect(page.getNextDayButton().isPresent()).toBe(true);
             expect(page.getDatePickerbtn().isPresent()).toBe(true);
             expect(page.getCurrentDateField().isPresent()).toBe(true);
             expect(page.getDatePickerString()).toMatch(/\d{4}-\d{2}-\d{2}/);
         });
-        it('should switch dates via buttons', () => {
+        it('switch dates via buttons', () => {
             const prevDayBtn = page.getPrevDayButton();
             const nextDayBtn = page.getNextDayButton();
             const oriDate    = page.getDatePickerString();
@@ -343,8 +344,9 @@ describe('Sov dpr', () => {
             expect(io.dprInput.isDisplayed()).toBe(true)
             expect(io.hseInput.isDisplayed()).toBe(true)
         })
-        it('should correctly enter the first table', () => {
+        it('should correctly enter the first table', (done) => {
             const io = page.dprinput;
+            const selectHelper = new E2eSelectHandler();
             const clearArray = (elt: {rows: ElementArrayFinder, addline: ElementFinder}) => {
                 elt.rows.each(e =>  io.removeLine(elt.addline));
             };
@@ -371,9 +373,11 @@ describe('Sov dpr', () => {
             const standbyTimes = io.setRandomTime(standby.rows.first());
             const techTimes = io.setRandomTime(techdt.rows.first());
             const weatherTimes = io.setRandomTime(weatherdt.rows.first());
-            const selectHelper = new E2eSelectHandler();
             const selectedAccessType = selectHelper.setNewOption(accessDayType);
+            io.dprInput.click(); // Required to trigger change detection on closing the window
+            browser.waitForAngular();
             io.saveDprTableByIndex(0);
+            browser.waitForAngular();
 
             page.navigateToEmpty('DPR input');
             expect(standby.rows.count()).toBe(1);
@@ -383,7 +387,8 @@ describe('Sov dpr', () => {
             io.checkRowTimes(techdt.rows.first(), techTimes);
             io.checkRowTimes(weatherdt.rows.first(), weatherTimes);
             expect(selectHelper.getValue(accessDayType)).toBe(selectedAccessType);
-        });
+            done();
+        }, 60000);
         it('should have a functioning reports & toolbox talks table', () => {
             const io = page.dprinput;
             io.getSocCards().each(() => io.rmSocCard());
