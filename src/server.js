@@ -3741,7 +3741,6 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
             }
         )
     } else {
-        console.log(token)
         waveSourceModel.find({
                 clients: { $in: [token.userCompany] },
             }, {

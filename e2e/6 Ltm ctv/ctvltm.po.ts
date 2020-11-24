@@ -1,7 +1,5 @@
 import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 import { browser, element, by, ElementFinder } from 'protractor';
-import { env } from 'process';
-import { E2eDatePicker } from '../SupportFunctions/e2eDatepicker.support';
 
 
 export class CtvLtmPage extends E2ePageObject {
@@ -37,18 +35,25 @@ export class CtvLtmPage extends E2ePageObject {
     return list.all(by.xpath('.//ul/li'));
   }
   getSelectedVessels() {
-    this.getVesselList().filter((elt, cnt) => {
-      return true;
-    });
+    return this.getVesselDropdown().all(by.xpath('.//span[a]'));
+  }
+  getActiveVesselCount() {
+    return this.getSelectedVessels().count();
+  }
+
+  getVesselInfoTable() {
+    return element(by.xpath('//app-vesselinfo/table'));
   }
 
   getWaveDropdown() {
-    return element(by.name('selectField'));
+    return element(by.xpath('//ng-multiselect-dropdown[@name="selectField"]/div'));
   }
   selectWaveSourceByIndex(index = 1) {
     let btn = this.getWaveDropdown();
     expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!')
-    this.dropdown.setValueByIndex(btn, index);
+    btn.click();
+    btn.all(by.xpath('.//ul/li')).get(index).click();
+    btn.click();
   }
 
   getGraphContainers() {

@@ -1,7 +1,6 @@
 import { browser, element, by, ElementFinder } from 'protractor';
 import { E2eDropdownHandler } from './e2eDropdown.support';
 import { E2eRandomTools } from './e2eRandom.support';
-import { protractor } from 'protractor/built/ptor';
 
 // Abstract class from which to extend the e2e test classes
 export abstract class E2ePageObject {
@@ -11,6 +10,9 @@ export abstract class E2ePageObject {
 
   getUrl() {
     return browser.getCurrentUrl();
+  }
+  getCardByTitle(key: string) {
+    return element(by.xpath('//div[contains(concat(" ",normalize-space(@class)," "),"card") and div[@class="card-header" and contains(text(),\'' + key + '\')]]'));
   }
   getCellByKey(key: string) {
     return element(by.xpath('//tr/td[contains(text(),\'' + key + '\')]'));

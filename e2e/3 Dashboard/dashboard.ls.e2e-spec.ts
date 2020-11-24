@@ -32,9 +32,9 @@ describe('LS: Dashboard', () => {
   })
 
   describe('should load ls feature', () => {
-    it('table', () => {
+    it('active vessels table', () => {
       // At given date, all transfers are assigned
-      expect(element(by.className('table')).isPresent()).toBe(true)
+      expect(page.getCardByTitle('Active vessels').isPresent()).toBe(true)
     })
   })
 })
