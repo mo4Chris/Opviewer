@@ -1,3 +1,5 @@
+@import '../../../reports.component.scss';
+
 .col-lg-3{
     margin-top: auto;
     margin-bottom: auto;
@@ -5,4 +7,8 @@
 .col-lg-8{
     position: relative;
     height: 400px;
+}
+
+.graphExplanation {
+    border: 1px #222 solid;
 }

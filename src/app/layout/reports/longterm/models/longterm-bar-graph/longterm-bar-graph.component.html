@@ -2,7 +2,12 @@
   <div class="col-lg-8">
       <canvas #canvas id="canvas"></canvas>
   </div>
-  <div class="col-lg-3">
+  <div class="col-lg-3 hideOnPrint">
       {{info}}
   </div>
+  
+    <div class="card mb-3 printOnly">
+      <div class="card-header">{{data.yLabel}} explanation</div>
+      <div class="card-body">{{info}}</div>
+    </div>
 </div>

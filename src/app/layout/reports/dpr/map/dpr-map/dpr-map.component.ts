@@ -59,7 +59,9 @@ export class DprMapComponent implements OnChanges {
   get hasValidVesselTrace() {
     return this.vesselTrace
       && Array.isArray(this.vesselTrace.lat)
-      && this.vesselTrace.lat.length > 0;
+      && this.vesselTrace.lat.length > 0
+      && this.vesselTrace.lat.length === this.vesselTrace.lon.length
+      && this.vesselTrace.lat.length === this.vesselTrace.time.length
   }
 
   ngOnChanges() {

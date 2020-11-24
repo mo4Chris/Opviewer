@@ -13,7 +13,8 @@
     display: none;
   }
 }
-
-@page {
-  orientation: landscape;
+@media print{
+  @page {
+    orientation: landscape;
+  }
 }

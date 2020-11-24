@@ -20,6 +20,7 @@
               <th>Cargo lift on / off</th>
               <th>Peak gust wind</th>
               <th>Hs [m]</th>
+              <th>Hmax [m]</th>
             </tr>
           </thead>
           <tbody>
@@ -41,10 +42,11 @@
                   <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoIn"
                     (ngModelChange)="updatePaxCargoTotal()"> lift on <br>
                   <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" [(ngModel)]="turbineTransfer.cargoOut"
-                    (ngModelChange)="updatePaxCargoTotal()"> lift off outgoing
+                    (ngModelChange)="updatePaxCargoTotal()"> lift off
                 </td>
                 <td>{{turbineTransfer.peakWindGust}}</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
+                <td>{{GetDecimalValueForNumber(turbineTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
@@ -58,7 +60,7 @@
                 <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray(); updatePaxCargoTotal()"
                   type="button">add missed transfer</button>
               </td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-sm btn-danger"
                   (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">remove last
                   transfer</button>
@@ -112,7 +114,7 @@
                 <button class="btn btn-sm btn-success" (click)="addHelicopterTransferToArray(); updatePaxCargoTotal()"
                   type="button">add helicopter transfer</button>
               </td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-sm btn-danger"
                   (click)="removeLastFromHelicopterTransferArray(); updatePaxCargoTotal()" type="button">remove last
                   transfer</button>
@@ -142,12 +144,10 @@
               <td>
                 <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoIn"
                   (ngModelChange)="updatePaxCargoTotal()">
-                kg
-                incoming <br>
+                lift on <br>
                 <input type="number" min="0" class="form-control-sm col-sm-5" [(ngModel)]="transfer.cargoOut"
                   (ngModelChange)="updatePaxCargoTotal()">
-                kg
-                outgoing
+                lift off
               </td>
               <td colspan="2"></td>
             </tr>
@@ -177,7 +177,7 @@
                 {{totalCargoOut}} lift off
               </td>
               <td></td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveAllTurbineTransfers()"
                   type="button">Save all transfers</button>
               </td>
@@ -211,6 +211,7 @@
               <th>Cargo in / out</th>
               <th>Peak gust wind</th>
               <th>Hs [m]</th>
+              <th>Hmax [m]</th>
             </tr>
           </thead>
           <tbody>
@@ -232,6 +233,7 @@
                 </td>
                 <td>{{turbineTransfer.peakWindGust}}</td>
                 <td>{{GetDecimalValueForNumber(turbineTransfer.Hs)}}</td>
+                <td>{{GetDecimalValueForNumber(turbineTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
@@ -240,7 +242,7 @@
                 Start time transfer
               </th>
               <th>Stop time transfer</th>
-              <td colspan="6"></td>
+              <td colspan="7"></td>
             </tr>
             <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td>{{transfer.location}}</td>
@@ -264,7 +266,7 @@
                 Start time transfer
               </th>
               <th>Stop time transfer</th>
-              <td colspan="6"></td>
+              <td colspan="7"></td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th>AYAY</th>

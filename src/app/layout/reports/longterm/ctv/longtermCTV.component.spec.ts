@@ -20,6 +20,8 @@ import { MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
+import { MockComponents } from 'ng-mocks';
+import { EngineOverviewComponent } from './models/engine-overview/engine-overview.component';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
@@ -27,7 +29,8 @@ describe('Longterm_CTV', () => {
 
   const userBoats = [{
     mmsi: 235113651,
-    nicename: 'Seacat Mischief'
+    nicename: 'Seacat Mischief',
+    rawName: 'Seacat_Mischief',
   }];
 
   beforeEach(async(() => {
@@ -50,6 +53,9 @@ describe('Longterm_CTV', () => {
         LongtermBarGraphComponent,
         LongtermScatterGraphComponent,
         LongtermTrendGraphComponent,
+        MockComponents(
+          EngineOverviewComponent
+        )
       ],
       providers: [
         {provide: CommonService, useClass: MockedCommonService},
@@ -68,6 +74,7 @@ describe('Longterm_CTV', () => {
       dateMax: 737851, // 1 mar 2020
       dateNormalMin: 'Test date 1',
       dateNormalMax: 'Test date 2',
+      vesselName: [userBoats[0].rawName]
     };
     component.fromDate = new NgbDate(2020,1,1);
     component.toDate = new NgbDate(2020,3,1);

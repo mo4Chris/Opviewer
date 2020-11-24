@@ -125,8 +125,19 @@
     }
 }
 
+.printOnly {
+    display: none;
+}
+
 @media print {
+    @page {size: landscape}
+    
     .hideOnPrint {
         display: none;
+    }
+
+    .printOnly{
+        display: block;
+        font-size: 14px;
     }
 }
