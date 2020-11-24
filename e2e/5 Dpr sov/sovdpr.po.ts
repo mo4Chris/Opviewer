@@ -306,10 +306,7 @@ class SovDprInputTab {
     saveDprTableByIndex(index: number = 0) {
         let table = this.getDprInputTable(index);
         expect(table.isPresent()).toBe(true, 'Cannot find dpr table');
-        let saveBtn = table.element(by.buttonText('Save'))
-        expect(saveBtn.isPresent()).toBe(true, 'Cannot find save button');
-        saveBtn.click();
-        browser.waitForAngular();
+        this.saveTable(table)
     }
     checkRowTimes(row: ElementFinder, t: {start: string, stop: string}) {
         const inputs = row.all(by.xpath('./td/select'));

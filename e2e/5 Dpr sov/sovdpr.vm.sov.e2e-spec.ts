@@ -344,8 +344,9 @@ describe('Sov dpr', () => {
             expect(io.dprInput.isDisplayed()).toBe(true)
             expect(io.hseInput.isDisplayed()).toBe(true)
         })
-        it('should correctly enter the first table', () => {
+        it('should correctly enter the first table', (done) => {
             const io = page.dprinput;
+            const selectHelper = new E2eSelectHandler();
             const clearArray = (elt: {rows: ElementArrayFinder, addline: ElementFinder}) => {
                 elt.rows.each(e =>  io.removeLine(elt.addline));
             };
@@ -372,9 +373,11 @@ describe('Sov dpr', () => {
             const standbyTimes = io.setRandomTime(standby.rows.first());
             const techTimes = io.setRandomTime(techdt.rows.first());
             const weatherTimes = io.setRandomTime(weatherdt.rows.first());
-            const selectHelper = new E2eSelectHandler();
             const selectedAccessType = selectHelper.setNewOption(accessDayType);
+            io.dprInput.click(); // Required to trigger change detection on closing the window
+            browser.waitForAngular();
             io.saveDprTableByIndex(0);
+            browser.waitForAngular();
 
             page.navigateToEmpty('DPR input');
             expect(standby.rows.count()).toBe(1);
@@ -384,7 +387,8 @@ describe('Sov dpr', () => {
             io.checkRowTimes(techdt.rows.first(), techTimes);
             io.checkRowTimes(weatherdt.rows.first(), weatherTimes);
             expect(selectHelper.getValue(accessDayType)).toBe(selectedAccessType);
-        });
+            done();
+        }, 60000);
         it('should have a functioning reports & toolbox talks table', () => {
             const io = page.dprinput;
             io.getSocCards().each(() => io.rmSocCard());

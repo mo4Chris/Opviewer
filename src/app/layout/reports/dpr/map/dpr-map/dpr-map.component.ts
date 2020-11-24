@@ -45,6 +45,23 @@ export class DprMapComponent implements OnChanges {
   public streetViewControl = false;
   public routeFound = false;
 
+  // Get callbacks
+  get hidden() {
+    return !this.routeFound;
+  }
+  get parkFound() {
+    return this.parks && this.parks.length > 0 || this.platformVisits && this.platformVisits.length>0
+  }
+  get hasTransfers() {
+    return this.turbineVisits && this.turbineVisits.length > 0 ||
+      this.platformVisits && this.platformVisits.length > 0
+  }
+  get hasValidVesselTrace() {
+    return this.vesselTrace
+      && Array.isArray(this.vesselTrace.lat)
+      && this.vesselTrace.lat.length > 0;
+  }
+
   ngOnChanges() {
     if (this.hasValidVesselTrace) {
       if (!this.googleMap) {
@@ -101,23 +118,6 @@ export class DprMapComponent implements OnChanges {
   initZoomLayers(map: google.maps.Map, ) {
     this.visitsLayer = new MapZoomLayer(map, 8);
     this.otherLayer = new MapZoomLayer(map, 10);
-  }
-
-  // Get callbacks
-  get hidden() {
-    return !this.routeFound;
-  }
-  get parkFound() {
-    return this.parks && this.parks.length > 0 || this.platformVisits && this.platformVisits.length>0
-  }
-  get hasTransfers() {
-    return this.turbineVisits && this.turbineVisits.length > 0 ||
-      this.platformVisits && this.platformVisits.length > 0
-  }
-  get hasValidVesselTrace() {
-    return this.vesselTrace
-      && Array.isArray(this.vesselTrace.lat)
-      && this.vesselTrace.lat.length > 0;
   }
 
   // Async callbacks

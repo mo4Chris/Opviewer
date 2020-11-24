@@ -15,17 +15,17 @@ describe('CTV dpr', () => {
       page.validateNoConsoleLogs();
     });
 
-    describe('Should not fail without data', () => {
+    describe('should not fail without data', () => {
         beforeEach(() => {
             page = new CtvDprPage();
             page.navigateToEmpty();
         });
 
-        it('Should not redirect', () => {
+        it('and should not redirect', () => {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi');
         });
 
-        it('Should display no data message', () => {
+        it('and should display no data message', () => {
             const noDataMsg = element(by.tagName('h3'));
             expect(noDataMsg.isDisplayed()).toBe(true);
             expect(noDataMsg.getText()).toMatch('There is no');
