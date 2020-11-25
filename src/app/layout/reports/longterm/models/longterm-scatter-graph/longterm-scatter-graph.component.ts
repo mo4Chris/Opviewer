@@ -25,6 +25,10 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
   @Input() wavedata: LongtermParsedWavedata;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
+  @Input() filters: DataFilter[] = [{
+    name: 'Test filter',
+    filter: (x, y) => x < y,
+  }];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
@@ -124,8 +128,28 @@ export class LongtermScatterGraphComponent implements OnChanges {
         };
         scatterData.push({ x: x, y: y, callback: navToDPRByDate });
       });
-      return scatterData;
+      let _x = scatterData.map(d => d.x) as number[];
+      let _y = scatterData.map(d => d.y) as number[];
+      let keep = this.applyFilters(_x, _y,data._id)
+      return scatterData.filter((_, i) => keep[i]);
     });
+  }
+
+  applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
+    console.log('APPYING CALLBACK')
+    let keep: boolean[] = xVals.map(_ => true);
+    this.filters.forEach(filter => {
+      if (filter.active == undefined || filter.active) {
+        filter.active = true;
+        xVals.forEach((x, i) => {
+          if (keep[i]) {
+            let y = yVals[i];
+            keep[i] = filter.filter(x, y);
+          }
+        })
+      }
+    });
+    return keep;
   }
 
   createChart(args: ScatterArguments) {
@@ -293,6 +317,12 @@ export class LongtermScatterGraphComponent implements OnChanges {
   reduceLabels(received_mmsi: number[]): void {
     this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }
+
+  onFilterToggle(filter: DataFilter) {
+    console.log(filter)
+    filter.active = !filter.active;
+    this.ngOnChanges();
+  }
 }
 
 interface ScatterArguments {
@@ -307,4 +337,11 @@ interface ScatterDataElt {
   y: number | Date;
   key?: string;
   callback?: Function;
+}
+
+interface DataFilter {
+  name: string;
+  optional?: boolean;
+  active?: boolean;
+  filter: (x: number, y: number, mmsi?: number) => boolean;
 }
