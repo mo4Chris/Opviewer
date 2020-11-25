@@ -82,7 +82,7 @@
     "@types/googlemaps": "^3.39.10",
     "@types/jasmine": "^2.8.17",
     "@types/jasminewd2": "^2.0.8",
-    "@types/node": "^10.17.27",
+    "@types/node": "10.17.31",
     "@types/plotly.js": "^1.50.16",
     "codelyzer": "~4.5.0",
     "jasmine-core": "~3.3.0",
