@@ -11,17 +11,12 @@ import { FormsModule } from '@angular/forms';
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
-import {
-    TimelineComponent,
-    NotificationComponent,
-    ChatComponent
-} from './components';
 import { StatModule } from '../../shared';
 import { UserService } from '../../shared/services/user.service';
-import { AdminComponent } from './components/users/admin/admin.component';
-import { LogisticsSpecialistComponent } from './components/users/logistics-specialist/logistics-specialist.component';
-import { MarineControllerComponent } from './components/users/marine-controller/marine-controller.component';
-import { VesselMasterComponent } from './components/users/vessel-master/vessel-master.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { LogisticsSpecialistComponent } from './components/logistics-specialist/logistics-specialist.component';
+import { MarineControllerComponent } from './components/marine-controller/marine-controller.component';
+import { VesselMasterComponent } from './components/vessel-master/vessel-master.component';
 import { environment } from 'environments/environment';
 
 @NgModule({
@@ -42,9 +37,6 @@ import { environment } from 'environments/environment';
     ],
     declarations: [
         DashboardComponent,
-        TimelineComponent,
-        NotificationComponent,
-        ChatComponent,
         AdminComponent,
         LogisticsSpecialistComponent,
         MarineControllerComponent,

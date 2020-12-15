@@ -103,7 +103,7 @@
   <br>
   <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
   </app-sov-summary>
-  <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+  <app-sov-weatherchart [sovModel]="sovModel" [vesselUtcOffset]="vesselUtcOffset"></app-sov-weatherchart>
 
   <div *ngIf="permission.sovCommercialRead" class="pagebreak">
     <ng-container *ngIf="sovModel.vessel2vessels.length>0">
@@ -154,7 +154,7 @@
   <br>
   <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName">
   </app-sov-summary>
-  <app-sov-weatherchart [sovModel]="sovModel"></app-sov-weatherchart>
+  <app-sov-weatherchart [sovModel]="sovModel" [vesselUtcOffset]="vesselUtcOffset"></app-sov-weatherchart>
 
   <div *ngIf="permission.sovCommercialRead" class="pagebreak">
     <ng-container *ngIf="sovModel.vessel2vessels.length>0">

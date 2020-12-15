@@ -89,12 +89,11 @@ export class LongtermComponent implements OnInit {
       if (userIsActive === true) {
         this.noPermissionForData = false;
         Chart.pluginService.register(ChartAnnotation);
-        forkJoin(
+        forkJoin([
           this.newService.getFieldsWithWaveSourcesByCompany(),
           (this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }])),
           this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
-        ).subscribe(([fields, vessels, validatedValue]) => {
-          this.vesselType = validatedValue[0].operationsClass;
+        ]).subscribe(([fields, vessels, validatedValue]) => {
           if (validatedValue.length === 1) {
             this.vesselType = validatedValue[0].operationsClass;
             this.fieldsWithWavedata = fields;
@@ -115,11 +114,18 @@ export class LongtermComponent implements OnInit {
     });
   }
 
-  onSelectVessel() {
-    this.vesselObject = {... this.vesselObject, ... {
-      mmsi: this.dropdownValues.map(x => x.mmsi),
-      vesselName: this.dropdownValues.map(x => x.nicename),
-    }};
+  onSelectVessel(selection?: Array<{mmsi: number, nicename: string, isDisabled: any}>) {
+    if (selection) {
+      this.vesselObject = {... this.vesselObject, ... {
+        mmsi: selection.map(x => x.mmsi),
+        vesselName: selection.map(x => x.nicename),
+      }};
+    } else {
+      this.vesselObject = {... this.vesselObject, ... {
+        mmsi: this.dropdownValues.map(x => x.mmsi),
+        vesselName: this.dropdownValues.map(x => x.nicename),
+      }};
+    }
     this.buildPageWithCurrentInformation();
   }
 

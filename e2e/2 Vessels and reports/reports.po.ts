@@ -5,7 +5,6 @@ const EC = ExpectedConditions;
 
 export class ReportsPage {
 
-  getActi;
   navigateTo() {
     return browser.get('/reports');
   }

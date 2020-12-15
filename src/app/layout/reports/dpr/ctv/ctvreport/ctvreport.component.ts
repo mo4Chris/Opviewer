@@ -347,14 +347,13 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.general = dpr;
         }
         if (_general.inputStats) {
-          let clean = (a: Array<any>) => a.filter(x => x !== null)
           this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
           this.generalInputStats.observations = _general.inputStats.observations;
           this.generalInputStats.landedGarbage = _general.inputStats.landedGarbage;
           this.generalInputStats.landedOil = _general.inputStats.landedOil;
           this.generalInputStats.incidents = _general.inputStats.incidents;
-          this.generalInputStats.toolboxConducted = clean(_general.inputStats.toolboxConducted) || [];
-          this.generalInputStats.drillsConducted = clean(_general.inputStats.drillsConducted) || [];
+          this.generalInputStats.toolboxConducted = this.removeNansFromArray(_general.inputStats.toolboxConducted) || [];
+          this.generalInputStats.drillsConducted = this.removeNansFromArray(_general.inputStats.drillsConducted) || [];
           this.generalInputStats.passengers = _general.inputStats.passengers;
           this.generalInputStats.customInput = _general.inputStats.customInput;
         }
@@ -550,6 +549,16 @@ export class CtvreportComponent implements OnInit, OnChanges {
     }
     return vid;
   }
+
+  removeNansFromArray(data: number | string | Array<number | string>) {
+    if (Array.isArray(data)) {
+      return data.filter(elt => elt && elt !== null);
+    } else if (data) {
+      return [data]
+    } else {
+      return [];
+    }
+  }
   private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
     return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
@@ -563,6 +572,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
     return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
   }
 }
+
 
 interface VideoRequestModel {
   text: string;

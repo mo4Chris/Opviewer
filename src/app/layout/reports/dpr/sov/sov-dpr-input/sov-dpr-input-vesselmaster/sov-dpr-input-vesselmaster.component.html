@@ -184,7 +184,7 @@
             </select>
           </td>
         </tr>
-        <tr *ngIf="weatherDowntimeChanged == true">
+        <tr *ngIf="weatherDowntimeChanged">
           <td colspan="4">
             <button class="btn btn-lg btn-primary" style="float:right"
               (click)="saveWeatherDowntimeStats();" type="button">Save</button>

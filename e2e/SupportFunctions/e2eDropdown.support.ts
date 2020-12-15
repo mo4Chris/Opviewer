@@ -75,6 +75,7 @@ export class E2eSelectHandler {
         this._getOptions(elt).get(idx).click();
     }
     setNewOption(elt: ElementFinder) {
+        this.open(elt);
         const opt = this.AsyncSetNewOption(elt);
         browser.wait(opt, 2000).catch(() => {
             console.error('Failed to select new option - reached 2s timeout');
@@ -91,17 +92,15 @@ export class E2eSelectHandler {
         return elt.all(by.tagName('option'));
     }
     private async AsyncSetNewOption(elt: ElementFinder) {
-        this.open(elt);
-        const nonSelectedOptions = elt.$$('option')
+        const nonSelectedOptions: ElementFinder[] = await elt.$$('option')
             .filter(e => e.getAttribute('value').then(v => v !== 'undefined'));
             // .filter(o => o.isSelected().then(tf => !tf)); // This breaks the function...
-        return await nonSelectedOptions.count().then(async c => {
-            const rnd = Math.floor( c * Math.random());
-            // let newOpt = log(nonSelectedOptions.get(rnd));
-            const newOpt = nonSelectedOptions.get(rnd);
-            await newOpt.click();
-            return newOpt.getText();
-        });
+        let len = nonSelectedOptions.length;
+        const rnd = Math.floor( len * Math.random());
+        // let newOpt = log(nonSelectedOptions.get(rnd));
+        const newOpt = nonSelectedOptions[rnd];
+        newOpt.click();
+        return newOpt.getText();
     }
 }
 

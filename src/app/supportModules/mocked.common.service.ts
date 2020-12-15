@@ -249,6 +249,19 @@ export class MockedCommonService extends CommonService {
         co2TotalKg: 5,
       }]);
     }
+    getEngineStatsForRange(request: StatsRangeRequest) {
+        return mockedObservable(request.mmsi.map(_mmsi => {
+            let data = {
+                _id: _mmsi,
+                vesselname: ['TEST'],
+                date: [request.dateMin],
+            }
+            request.reqFields.forEach(f => {
+                data[f] = [1];
+            });
+            return data;
+        }));
+    }
 
     getUserByUsername(username: any) {
         return mockedObservable([
