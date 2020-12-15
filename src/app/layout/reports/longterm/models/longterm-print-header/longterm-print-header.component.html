@@ -1,17 +1,20 @@
-<h2 id="onlyOnPrintContainer">
-  <div class="headerContainer ">
-      Performance overview: {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
-      <hr>
-  </div>
-  <br>
-  Vessel(s):
-  <div class="space-left" *ngFor="let name of vesselObject.vesselName">
-    - {{name}}
+<div class="printOnly frontpage">
+  <div class="frontpageHeader printOnly">
+    <img class="logoImage" src="../../../../assets/images/BMO_Logo.png" />
   </div>
 
-  <div *ngIf="fieldname">
-    <br>
-    Wavedata source: {{fieldname}}
+  <div class="frontpageContent printOnly">
+    <br><br>
+    <div class="frontpageContentArea">
+      <h1><b>Periodic performance overview</b></h1>
+      <h3>Time period: {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}</h3>
+      <h3>Client: {{userCompany}} </h3>
+      <h3>Vessel(s): {{vesselObject.vesselName}} </h3>
+      <h3 *ngIf="selectedField">Wavedata source: {{selectedField}}</h3>
+    </div>
   </div>
-  <br><br>
-</h2>
+  <div class="frontpageFooter printOnly">
+    Created using the BMO dataviewer via https://bmodataviewer.com<br>
+    File created on: {{currentDateTime}}
+  </div>
+</div>

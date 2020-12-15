@@ -1,5 +1,27 @@
 @import '../../../../reports.component.scss';
+@import '../../../longterm.component.scss';
 
 .sep-row {
     border-top: 2px solid darkgray;
+}
+
+@media print {
+    .printtable {
+        transform-origin: top left;
+        //transform: scaleX(.78);
+        height: 95%;
+        font-size: 8pt;
+    }
+
+    .table-responsive { overflow-x: visible !important; }
+
+    .th {
+        font-size: 10pt !important;
+    }
+
+    .cardPrint {
+        margin-top: -2cm
+    }
+
+    table {page-break-inside: avoid;}
 }

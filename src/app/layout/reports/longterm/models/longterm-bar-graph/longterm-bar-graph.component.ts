@@ -37,7 +37,6 @@ export class LongtermBarGraphComponent implements OnChanges {
   chart: Chart;
   axisType: any;
   @Input() callback: (data: RawScatterData) => {x: number[], y: number[]}[] = (data) => [];
-  graphlabel = '';
 
   ngOnChanges() {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');

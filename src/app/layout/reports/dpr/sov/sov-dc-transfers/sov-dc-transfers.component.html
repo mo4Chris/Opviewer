@@ -108,9 +108,7 @@
 <div class="row single-block-print" *ngIf="readonly && dcInfo">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
-      <div class="card-header">
-        Turbine transfers for daughtercraft: {{dcInfo.nicename}}
-      </div>
+      
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">
           <thead>
@@ -149,20 +147,20 @@
                 Start time transfer
               </th>
               <th>Stop time transfer</th>
-              <td colspan="6"></td>
+              <th>Pax in / out</th>
+              <th>Cargo in / out</th>
             </tr>
             <tr *ngFor="let transfer of missedTransfers">
               <td>{{transfer.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
-              <td colspan="4"></td>
               <td>
                 {{transfer.paxIn || 0}} incoming <br>
                 {{transfer.paxOut || 0}} outgoing
               </td>
               <td>
-                {{transfer.cargoIn || 0}} kg incoming <br>
-                {{transfer.cargoOut || 0}} kg outgoing
+                {{transfer.cargoIn || 0}} lift on <br>
+                {{transfer.cargoOut || 0}} lift off
               </td>
             </tr>
           </tbody>

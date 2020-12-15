@@ -20,6 +20,11 @@
       box-shadow: none !important;
     }
 
+    @page :first {
+      margin-left: 0cm;
+      margin-top: 0cm;
+    }
+
     a,
     a:visited {
       text-decoration: underline;
@@ -79,6 +84,7 @@
     h3 {
       page-break-after: avoid;
     }
+
 
     // Bootstrap specific changes start
 
