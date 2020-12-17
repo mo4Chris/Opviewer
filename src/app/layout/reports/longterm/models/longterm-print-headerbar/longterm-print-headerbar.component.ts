@@ -18,4 +18,3 @@ export class LongtermPrintHeaderbarComponent implements OnChanges {
   }
 
 }
- 
