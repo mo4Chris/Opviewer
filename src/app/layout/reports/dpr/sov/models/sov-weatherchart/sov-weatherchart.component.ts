@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, NgZone, } from '@angular/core';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
@@ -19,7 +19,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 export class SovWeatherchartComponent implements OnChanges {
   @Input() sovModel: SovModel;
   @Input() vesselUtcOffset: number; // UTC offset vessel
-  @Input() printmode = false;
 
   weatherOverviewChart: WeatherOverviewChart;
   weatherOverviewChartCalculated = false;
@@ -28,7 +27,8 @@ export class SovWeatherchartComponent implements OnChanges {
   constructor(
     private datetimeService: DatetimeService,
     private settings: SettingsService,
-    private calcService: CalculationService
+    private calcService: CalculationService,
+    private ngZone: NgZone,
   ) { }
 
   ngOnChanges() {
@@ -36,12 +36,9 @@ export class SovWeatherchartComponent implements OnChanges {
   }
 
   testValidWeatherField(weatherField: number[]) {
-    return (
-      isArray(weatherField) &&
-      weatherField.reduce(
-        (curr: boolean, val: any) => curr || typeof val === 'number',
-        false
-      )
+    return Array.isArray(weatherField) &&  weatherField.reduce(
+      (curr: boolean, val: any) => curr || typeof val === 'number',
+      false
     );
   }
 
@@ -68,7 +65,7 @@ export class SovWeatherchartComponent implements OnChanges {
       // For each wave parameter
       waveParams.forEach(param => {
         const data = weather[param];
-        if ( isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])  ) {
+        if ( Array.isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])  ) {
           const label = param
             .replace('waveHs', 'Hs')
             .replace('waveTp', 'Tp');

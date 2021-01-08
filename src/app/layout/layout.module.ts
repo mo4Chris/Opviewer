@@ -11,7 +11,6 @@ import { HeaderComponent } from './components/header/header.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonService } from '../common.service';
 import { HttpClientModule } from '@angular/common/http';
-import { ReportsComponent } from './reports/reports.component';
 import { AlertComponent } from './components/alert/alert.component';
 
 @NgModule({

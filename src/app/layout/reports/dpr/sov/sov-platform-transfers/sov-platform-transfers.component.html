@@ -22,6 +22,7 @@
               <th>Cargo lift on / off</th>
               <th helpPeakGust>Peak gust wind</th>
               <th>Hs</th>
+              <th>Hmax</th>
             </tr>
           </thead>
           <tbody>
@@ -57,7 +58,8 @@
                     (ngModelChange)="updatePaxCargoTotal()"> lift off
                 </td>
                 <td>{{platformTransfer.peakWindGust}}</td>
-                <td>{{platformTransfer.Hs}}</td>
+                <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                <td>{{GetDecimalValueForNumber(platformTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
@@ -71,7 +73,7 @@
                 <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray(); updatePaxCargoTotal()"
                   type="button">add missed transfer</button>
               </td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-sm btn-danger"
                   (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">remove last
                   transfer</button>
@@ -126,7 +128,7 @@
                   add helicopter transfer
                 </button>
               </td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-sm btn-danger" type="button"
                   (click)="removeLastFromHelicopterTransferArray(); updatePaxCargoTotal()">
                   remove last transfer
@@ -193,7 +195,7 @@
                 {{totalCargoOut}} lift off
               </td>
               <td></td>
-              <td>
+              <td colspan="2">
                 <button class="btn btn-lg btn-primary submitBtnDate" (click)="saveAllPlatformTransfers()"
                   type="button">Save all transfers</button>
               </td>
@@ -226,6 +228,7 @@
               <th>Cargo lift on / off</th>
               <th [ngbTooltip]="helpPeakGust">Peak gust wind</th>
               <th>Hs</th>
+              <th>Hmax</th>
             </tr>
           </thead>
           <tbody>
@@ -257,7 +260,8 @@
                   {{platformTransfer.cargoOut || 0}} lift off
                 </td>
                 <td>{{platformTransfer.peakWindGust}}</td>
-                <td>{{platformTransfer.Hs}}</td>
+                <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                <td>{{GetDecimalValueForNumber(platformTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
@@ -319,7 +323,7 @@
                 {{v2vPaxCargoTotals.cargoIn}} lift on <br>
                 {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
-              <td colspan="2"></td>
+              <td colspan="3"></td>
             </tr>
             <tr class="tableTotal">
               <th>Total</th>

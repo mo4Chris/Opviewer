@@ -1,0 +1,12 @@
+@import '../../../../reports.component.scss';
+@import '../../../longterm.component.scss';
+
+.printmargin{
+    margin-top: 0;
+}
+
+@media print {
+    .printmargin{
+        margin-top: 15mm ;
+    }
+}

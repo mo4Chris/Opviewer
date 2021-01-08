@@ -18,7 +18,7 @@ import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWav
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LongtermScatterGraphComponent implements OnChanges {
-  @Input() data: ComprisonArrayElt
+  @Input() data: ComprisonArrayElt;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
   @Input() vesselObject: LongtermVesselObjectModel;
@@ -58,8 +58,8 @@ export class LongtermScatterGraphComponent implements OnChanges {
       reqFields: [this.data.x, this.data.y],
       x: this.data.x,
       y: this.data.y,
-    }
-    
+    };
+
     this.parser.load(query, this.data.dataType,  this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
@@ -81,7 +81,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
         }
       }
       this.ref.detectChanges();
-    })
+    });
   }
 
   addWavedata() {

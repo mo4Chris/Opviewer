@@ -91,6 +91,18 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold'),
             filterCB: (elt) => elt === 1
         },
+        {
+            x: 'date', y: 'fuelUsedTotalM3', graph: 'scatter', xLabel: 'Time', yLabel: 'Daily fuel usage [L]', dataType: 'engine', info:
+            'Total fuel usage per day.'
+        },
+        {
+            x: 'date', y: 'fuelPerHourDepart', graph: 'scatter', xLabel: 'Time', yLabel: 'Fuel per hour [L/hr]', dataType: 'engine', info:
+            'Average fuel usage per hour during departure. An increase in fuel usage could indicate issues with the maintainance of the vessel.'
+        },
+        {
+            x: 'date', y: 'fuelPerHourReturn', graph: 'scatter', xLabel: 'Time', yLabel: 'Fuel per hour [L/hr]', dataType: 'engine', info:
+            'Average fuel usage per hour during departure. An increase in fuel usage could indicate issues with the maintainance of the vessel.'
+        }
     ];
 
     wavedataArray: WavedataModel[];
@@ -141,7 +153,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 return prev;
             }
         });
-        return [{ x: groupedData.labels.slice(0, largestDataBin), y: groupedData.data.map(x => x.length) }];
+        return [{ x: groupedData.labels.slice(0, largestDataBin + 1), y: groupedData.data.map(x => x.length) }];
     }
 
     groupDataByMonth(data: { date: number[], score?: number[], [prop: string]: any }) {

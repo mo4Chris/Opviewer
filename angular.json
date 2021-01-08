@@ -123,7 +123,7 @@
           },
           "configurations": {
             "admin" : {
-              "protractorConfig": "e2e/conf.admin.js",
+              "protractorConfig": "e2e/conf.admin.js"
             },
             "ls" : {
               "protractorConfig": "e2e/conf.ls.js"
@@ -137,7 +137,7 @@
             "vm-sov" : {
               "protractorConfig": "e2e/conf.vm.sov.js"
             }          
-          },
+          }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",

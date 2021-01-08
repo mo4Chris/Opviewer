@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CommonService } from '../../../../../common.service';
 import * as moment from 'moment-timezone';
-import { AisMarkerModel } from '../../../dashboard.component';
-import { DatetimeService } from '../../../../../supportModules/datetime.service';
-import { CalculationService } from '../../../../../supportModules/calculation.service';
-import { TokenModel } from '../../../../../models/tokenModel';
-import { VesselModel } from '../../../../../models/vesselModel';
+import { CommonService } from '@app/common.service';
+import { AisMarkerModel } from '../../dashboard.component';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { TokenModel } from '@app/models/tokenModel';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { VesselModel } from '@app/models/vesselModel';
 
 @Component({
   selector: 'app-admin',

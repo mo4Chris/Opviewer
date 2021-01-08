@@ -175,7 +175,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                 xAxisID: 'x-axis-time',
                 yAxisID: 'Hs',
                 borderColor: 'rgba(0, 51, 204, 0.8)',
-                backgroundColor: 'rgba(0, 51, 204, 0.4)',
+                backgroundColor: 'rgba(0, 51, 204, 0.8)',
             });
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
@@ -369,12 +369,11 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                         beginAtZero: false,
                         time: {
                             unit: 'day',
-                            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
-                            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
                         },
                         ticks: {
                             min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
                             max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+                            maxTicksLimit: 21,
                         }
                     }],
                     yAxes: [{

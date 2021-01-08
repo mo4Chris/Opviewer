@@ -1,13 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpModule } from '@angular/http';
+import { RouterTestingModule } from '@angular/router/testing';
+import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { MarineControllerComponent } from './marine-controller.component';
-import { AgmCoreModule } from '@agm/core';
-import { HttpModule } from '@angular/http';
-import { CommonService } from '../../../../../common.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MockedCommonServiceProvider } from '../../../../../supportModules/mocked.common.service';
-import { UserTestService } from '../../../../../shared/services/test.user.service';
 
 describe('Dashboard MarineController Component', () => {
   let component: MarineControllerComponent;
@@ -19,11 +17,11 @@ describe('Dashboard MarineController Component', () => {
       declarations: [ MarineControllerComponent ],
       imports: [
         HttpModule,
-        RouterTestingModule,
         NgbModule,
+        RouterTestingModule,
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
       ]
     })
     .compileComponents();

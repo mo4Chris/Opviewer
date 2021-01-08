@@ -1,13 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { LogisticsSpecialistComponent } from './logistics-specialist.component';
-import { AgmCoreModule } from '@agm/core';
-import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MockedCommonServiceProvider, MockedCommonService } from '../../../../../supportModules/mocked.common.service';
-import { UserTestService } from '../../../../../shared/services/test.user.service';
 import { CommonModule } from '@angular/common';
+import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('Dashboard logistic specialist', () => {
   let component: LogisticsSpecialistComponent;

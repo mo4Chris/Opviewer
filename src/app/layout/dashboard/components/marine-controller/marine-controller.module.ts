@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CommonService } from '../../../../../common.service';
+import { CommonService } from '@app/common.service';
 
 @NgModule({
   imports: [
@@ -9,4 +9,4 @@ import { CommonService } from '../../../../../common.service';
   providers: [CommonService],
   declarations: []
 })
-export class AdminModule { }
+export class MarineControllerModule { }

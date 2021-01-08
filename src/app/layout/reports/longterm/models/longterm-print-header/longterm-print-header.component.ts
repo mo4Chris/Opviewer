@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { LongtermVesselObjectModel } from '../../longterm.component';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-longterm-print-header',
@@ -7,9 +8,12 @@ import { LongtermVesselObjectModel } from '../../longterm.component';
   styleUrls: ['./longterm-print-header.component.scss'],
 })
 export class LongtermPrintHeaderComponent implements OnChanges {
-  @Input() vesselObject: LongtermVesselObjectModel
-  @Input() vesselType: string = 'test';
-  @Input() fieldname: string = 'test field';
+  @Input() vesselObject: LongtermVesselObjectModel;
+  @Input() vesselType: String = 'test';
+  @Input() fieldname: String = 'test field';
+  @Input() userCompany: String = '';
+
+  currentDateTime = moment(new Date()).format('YYYY-MM-DD');
 
   constructor() { }
 

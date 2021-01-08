@@ -233,7 +233,7 @@ export class CalculationService {
         return this.switchDurationUnits(vals, from, to);
       case 'rad': case 'deg':
         return this.switchDirectionUnits(vals, from, to);
-      case 'kg': case 'ton':
+      case 'kg': case 'ton': case 'tons':
         return this.switchWeightUnits(vals, from, to);
       case 'liter': case 'm3':
         return this.switchVolumeUnits(vals, from, to);
@@ -376,7 +376,7 @@ export class CalculationService {
           return 1;
         case 'gram':
           return 0.001;
-        case 'ton':
+        case 'ton': case 'tons':
           return 1000;
         default:
           console.error('Invalid unit "' + type + '"!');

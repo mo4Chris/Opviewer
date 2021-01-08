@@ -8,6 +8,7 @@
         <div *ngIf="!allGraphsEmpty; else noData">
             <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
+            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"
                     [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"
@@ -38,7 +39,7 @@
                         <div class="col-lg-8">
                             <canvas id="canvas{{ind}}"></canvas>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-3 graphExplanation">
                             {{transfer_Data.info}}
                         </div>
                     </div>
