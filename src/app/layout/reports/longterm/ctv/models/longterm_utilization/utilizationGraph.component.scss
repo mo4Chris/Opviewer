@@ -10,7 +10,7 @@ table tr td{
 }
 
 .graph-container{
-    height: 200px;
+    height: 250px;
     position: relative;
     width: 100%;
     min-height: 1px;
@@ -20,6 +20,18 @@ table tr td{
 
 app-longterm-util-sub-graph{
     width: 100%;
+}
+
+.chartTitle {
+    font-family: 'Helvetica';
+    font-size: 20px;
+    color : #666;
+    font-weight: bold;
+    text-align: center;
+}
+
+.chartVesselName{
+    font-size: 17px;
 }
 
 .auto-height{

@@ -1,3 +1,5 @@
+<div class="chartTitle" [hidden]="!dset.isFirst"> Vessel utilization chart</div>
+<div class="chartTitle chartVesselName"> {{dset.datasets[0].stack}}</div>
 <div class="graph-container" [hidden]="!hasData">
   <canvas #myCanvas></canvas>
 </div>
