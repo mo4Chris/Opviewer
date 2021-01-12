@@ -24,6 +24,7 @@ import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longt
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
+import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
 
 @NgModule({
     imports: [
@@ -49,6 +50,7 @@ import { LongtermPrintHeaderComponent } from './models/longterm-print-header/lon
         LongtermTrendGraphComponent,
         EngineOverviewComponent,
         LongtermPrintHeaderComponent,
+        LongtermPrintHeaderbarComponent,
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

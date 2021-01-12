@@ -1,22 +1,15 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { HttpModule } from '@angular/http';
-import { RouterModule } from '@angular/router';
 import { PageHeaderModule } from '@app/shared';
-import { CommonService } from '@app/common.service';
 import { LongtermCTVComponent } from './longtermCTV.component';
-import { LongtermComponent, LongtermVesselObjectModel } from '../longterm.component';
-import { UserService } from '@app/shared/services/user.service';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { LongtermVesselObjectModel } from '../longterm.component';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './models/deploymentgraph/deploymentGraph.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { RouterTestingModule } from '@angular/router/testing';
 import { VesselinfoComponent } from './models/vesselinfo/vesselinfo.component';
-import { MockedCommonService } from '@app/supportModules/mocked.common.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
@@ -40,11 +33,8 @@ describe('Longterm_CTV', () => {
         NgbModule,
         ReactiveFormsModule,
         PageHeaderModule,
-        HttpModule,
-        HttpClientModule,
         CommonModule,
         NgMultiSelectDropDownModule,
-        RouterTestingModule
       ],
       declarations: [
         LongtermCTVComponent,
@@ -58,8 +48,8 @@ describe('Longterm_CTV', () => {
         )
       ],
       providers: [
-        {provide: CommonService, useClass: MockedCommonService},
-        UserService
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider
       ]
     })
     .compileComponents();

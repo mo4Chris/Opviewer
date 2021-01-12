@@ -11,3 +11,14 @@ table tr td{
     padding-right: 0.45rem;
 }
 
+@media print {
+
+    .graphClass {
+        margin-top: -2cm;
+    }
+
+    .cardClass {
+        margin-top: 2cm;
+    }
+}
+

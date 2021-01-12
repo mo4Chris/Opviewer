@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
+import { routerTransition } from '@app/router.animations';
 import { ActivatedRoute } from '@angular/router';
-import { CommonService } from '../../../common.service';
-import { UserService } from '../../../shared/services/user.service';
+import { CommonService } from '@app/common.service';
 import { Router } from '@angular/router';
-import { DatetimeService } from '../../../supportModules/datetime.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as moment from 'moment-timezone';
-import { StringMutationService } from '../../../shared/services/stringMutation.service';
-import { UserModel } from '../../../models/userModel';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
+import { UserModel } from '@app/models/userModel';
+import { UserService } from '@app/shared/services/user.service';
 
 @Component({
     selector: 'app-fleet-log',

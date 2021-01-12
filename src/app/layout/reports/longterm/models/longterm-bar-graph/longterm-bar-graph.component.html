@@ -1,13 +1,17 @@
 <div class="row" [hidden]="!hasData">
   <div class="col-lg-8">
-      <canvas #canvas id="canvas"></canvas>
+      <canvas #canvas id="canvas">
+        {{graphlabel}}
+      </canvas>
   </div>
   <div class="col-lg-3 hideOnPrint">
-      {{info}}
+    {{info}}
   </div>
-  
-    <div class="card mb-3 printOnly">
-      <div class="card-header">{{data.yLabel}} explanation</div>
+
+  <div class="col-print-11 printOnly">
+    <div class="card mb-3">
+      <div class="card-header">Additional information</div>
       <div class="card-body">{{info}}</div>
     </div>
+  </div>
 </div>

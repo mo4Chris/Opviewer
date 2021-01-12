@@ -125,10 +125,13 @@
     }
 }
 
+.row {
+    margin-right: 0px !important;
+}
+
 .printOnly {
     display: none;
 }
-
 @media print {
     @page {size: landscape}
     
@@ -139,5 +142,49 @@
     .printOnly{
         display: block;
         font-size: 14px;
+    }
+
+    .frontpage {
+        width: 100%;
+        height: 100%;
+        page-break-after: always;
+    }
+    
+    .frontpageHeader {
+        -webkit-print-color-adjust: exact !important;
+        margin-top: -3.85cm;
+        margin-left: -0.37cm;
+        height: 7cm;
+        text-align: center;
+        padding-top: 0.2cm;
+    }
+
+    .logoImage {
+        height: 8cm;
+        margin-top: 0.25cm;
+        float: right;
+    }
+
+    .frontpageContent {
+        -webkit-print-color-adjust: exact !important;
+        margin-left: -0.37cm;
+        margin-right: 2cm;
+        height: 11.85cm;
+    }
+
+    .frontpageContentArea {
+        background-color: #c6d9f1;
+        width: 70%;
+        margin-left: -0.37cm;
+        padding-left: 1.5cm;
+        padding-top: 0.5cm;
+        height: 7cm;
+    }
+
+    .frontpageFooter {
+        -webkit-print-color-adjust: exact !important;
+        height: 2cm;
+        color: lightslategrey;
+        padding-left: 1cm;
     }
 }

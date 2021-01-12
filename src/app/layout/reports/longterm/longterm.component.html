@@ -7,7 +7,7 @@
   </h1>
   <div class="headerSpacer"></div>
 </div>
-<app-longterm-print-header [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-header>
+<app-longterm-print-header [vesselObject]="vesselObject" [vesselType]="vesselType" [userCompany]="tokenInfo.userCompany" [fieldname]="selectedField"></app-longterm-print-header>
 <div class="bodyContainer">
   <div class="col-lg-12 hideOnPrint">
     <form class="form-inline mb-3">
@@ -59,6 +59,8 @@
   <hr class="hideOnPrint">
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
+
+      <app-longterm-print-headerbar [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
       
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"

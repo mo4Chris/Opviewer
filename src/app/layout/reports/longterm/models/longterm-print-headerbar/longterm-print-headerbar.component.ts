@@ -3,17 +3,14 @@ import { LongtermVesselObjectModel } from '../../longterm.component';
 import * as moment from 'moment-timezone';
 
 @Component({
-  selector: 'app-longterm-print-header',
-  templateUrl: './longterm-print-header.component.html',
-  styleUrls: ['./longterm-print-header.component.scss'],
+  selector: 'app-longterm-print-headerbar',
+  templateUrl: './longterm-print-headerbar.component.html',
+  styleUrls: ['./longterm-print-headerbar.component.scss'],
 })
-export class LongtermPrintHeaderComponent implements OnChanges {
+export class LongtermPrintHeaderbarComponent implements OnChanges {
   @Input() vesselObject: LongtermVesselObjectModel;
   @Input() vesselType: String = 'test';
   @Input() fieldname: String = 'test field';
-  @Input() userCompany: String = '';
-
-  currentDateTime = moment(new Date()).format('YYYY-MM-DD');
 
   constructor() { }
 

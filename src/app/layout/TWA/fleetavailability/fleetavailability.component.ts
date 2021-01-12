@@ -8,13 +8,13 @@ import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { map, catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
 import * as moment from 'moment-timezone';
-import { UserService } from '../../../shared/services/user.service';
-import { DialogService } from '../../../dialog.service';
-import { DatetimeService } from '../../../supportModules/datetime.service';
-import { CalculationService } from '../../../supportModules/calculation.service';
-import { StringMutationService } from '../../../shared/services/stringMutation.service';
+import { UserService } from '@app/shared/services/user.service';
+import { DialogService } from '@app/dialog.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
-import { UserModel } from '../../../models/userModel';
+import { UserModel } from '@app/models/userModel';
 import { isArray } from 'util';
 
 
