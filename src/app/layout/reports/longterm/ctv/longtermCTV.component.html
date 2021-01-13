@@ -6,7 +6,7 @@
 <div class="row">
     <div class="divContainer" >
         <div *ngIf="!allGraphsEmpty; else noData">
-            <app-vesselinfo [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
+            <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
             <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
@@ -16,10 +16,12 @@
                 </app-deployment-graph>
             </div>
 
-
-            <app-ctv-utilization-graph [vesselObject]="vesselObject" [fromDate]="fromDate"
+            <div class="deploymentChart">
+                <app-ctv-utilization-graph [vesselObject]="vesselObject" [fromDate]="fromDate"
                 [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
-            </app-ctv-utilization-graph>
+                </app-ctv-utilization-graph>
+            </div>
+            
 
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">

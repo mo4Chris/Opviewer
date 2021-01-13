@@ -60,8 +60,8 @@
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
 
-      <app-longterm-print-headerbar [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
-      
+      <app-longterm-print-headerbar class="headerBarStyling" [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
+       
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
         (navigateToVesselreport)="navigateToVesselreport($event)">

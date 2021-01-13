@@ -195,7 +195,6 @@ export class CtvUtilizationGraphComponent implements OnChanges {
     const dsets = {
       labels: dateLabels,
       isFirst: index == 0,
-      isLast: index == this.dsets.length - 1,
       datasets: [outbound, inField, inbound],
     };
     this.dsets[index] = dsets;

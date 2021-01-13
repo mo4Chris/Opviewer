@@ -16,11 +16,10 @@ export class LongtermUtilSubGraphComponent implements OnChanges {
   @Input() dset: {
     labels: string[],
     isFirst: boolean,
-    isLast: boolean,
     datasets: number[][],
   };
 
-  @ViewChild('myCanvas') canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
   
   public hasData = false;
 
@@ -50,12 +49,6 @@ export class LongtermUtilSubGraphComponent implements OnChanges {
       type: 'bar',
       data: this.dset,
       options: {
-        title: {
-          display: this.dset.isFirst,
-          text: 'Vessel utilization chart',
-          fontSize: 20,
-          position: 'top'
-        },
         tooltips: {
           filter: function (tooltipItem, data) {
             return data.datasets[tooltipItem.datasetIndex].xAxisID === 'x-axis-0';
@@ -116,7 +109,7 @@ export class LongtermUtilSubGraphComponent implements OnChanges {
           }, {
             id: 'x-axis-time',
             type: 'time',
-            display: this.dset.isLast,
+            display: true,
             beginAtZero: false,
             time: {
               unit: 'day'
@@ -138,6 +131,7 @@ export class LongtermUtilSubGraphComponent implements OnChanges {
             },
             ticks: {
               min: 0,
+              max: 24,
               stepSize: 4,
             }
           }],

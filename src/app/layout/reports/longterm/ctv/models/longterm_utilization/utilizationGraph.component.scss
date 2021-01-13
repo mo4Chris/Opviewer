@@ -1,3 +1,6 @@
+@import '../../../../reports.component.scss';
+
+
 .custom-table{
     margin-top: 10px;
     margin-bottom: 15px;
@@ -11,12 +14,12 @@ table tr td{
 
 .graph-container{
     height: 250px;
-    position: relative;
-    width: 100%;
-    min-height: 1px;
-    padding-right: 15px;
-    padding-left: 15px;
 }
+
+.col-lg-8{
+    height:350px;
+}
+
 
 app-longterm-util-sub-graph{
     width: 100%;
@@ -36,4 +39,21 @@ app-longterm-util-sub-graph{
 
 .auto-height{
     height: auto;
+}
+
+.utilityGraphStyling {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+@media print {
+    .divBreak {
+        position: relative;
+        page-break-before: always; 
+        margin-top: 20mm;
+    }
+    canvas {
+        width: 270mm !important;
+        height: 225px;
+    }
 }
