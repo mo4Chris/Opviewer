@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { DatetimeService } from './datetime.service';
 import * as moment from 'moment-timezone';
-import { MockedSettingsService } from './mocked.settings.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 import { SettingsService } from './settings.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('DatetimeService', () => {
   let service: DatetimeService;
@@ -14,6 +14,7 @@ describe('DatetimeService', () => {
     TestBed.configureTestingModule({
       providers: [
         MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ],
     });
     service = TestBed.get(DatetimeService);

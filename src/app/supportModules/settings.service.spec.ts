@@ -2,12 +2,16 @@ import { TestBed } from '@angular/core/testing';
 import { SettingsService } from './settings.service';
 import { CalculationService } from './calculation.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('Settings service', () => {
   let service: SettingsService;
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [MockedCommonServiceProvider],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ],
     });
     service = TestBed.get(SettingsService);
   });

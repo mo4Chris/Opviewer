@@ -1,11 +1,11 @@
 import { AgmCoreModule } from '@agm/core';
 import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AutosizeModule } from 'ngx-autosize';
-import { env } from 'process';
 
 import { DprMapComponent } from './dpr-map.component';
 
@@ -32,7 +32,11 @@ describe('DprMapComponent', () => {
         NgbModule
       ],
       declarations: [ DprMapComponent ],
-      providers: [MockedCommonServiceProvider, MockedMapStoreProvider]
+      providers: [
+        MockedCommonServiceProvider,
+        MockedMapStoreProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
     consoleSpy = spyOn(console, 'error').and.callThrough()

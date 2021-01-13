@@ -26,7 +26,6 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         private settings: SettingsService,
         private parser: LongtermProcessingService,
     ) {
-        console.log(this.settings)
     }
     @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;

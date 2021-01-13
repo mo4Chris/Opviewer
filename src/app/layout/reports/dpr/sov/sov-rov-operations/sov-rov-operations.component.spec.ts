@@ -6,7 +6,7 @@ import { FormsModule } from "@angular/forms";
 import { NgMultiSelectDropDownModule } from "ng-multiselect-dropdown";
 import { SharedPipesModule } from "@app/shared";
 import { MockedCommonServiceProvider } from "@app/supportModules/mocked.common.service";
-import { UserTestService } from "@app/shared/services/test.user.service";
+import { MockedUserServiceProvider, UserTestService } from "@app/shared/services/test.user.service";
 
 
 
@@ -27,7 +27,8 @@ describe('Sov Rov transfer component', () => {
         ],
         declarations: [ SovRovOperationsComponent ],
         providers: [
-            MockedCommonServiceProvider
+          MockedCommonServiceProvider,
+          MockedUserServiceProvider,
         ]
       })
       .compileComponents();

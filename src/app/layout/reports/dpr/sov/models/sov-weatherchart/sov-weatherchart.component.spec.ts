@@ -1,11 +1,10 @@
 import { async, ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
-
 import { SovWeatherchartComponent } from './sov-weatherchart.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { SovModel } from '../SovModel';
-import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovWeatherchartComponent', () => {
   let component: SovWeatherchartComponent;
@@ -22,7 +21,8 @@ describe('SovWeatherchartComponent', () => {
         SovWeatherchartComponent
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();

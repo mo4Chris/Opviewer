@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDcTransfersComponent } from './sov-dc-transfers.component';
 import { CommonModule } from '@angular/common';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { mockedObservable } from '@app/models/testObservable';
@@ -21,7 +21,8 @@ describe('SovDcTransfersComponent', () => {
         FormsModule,
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();

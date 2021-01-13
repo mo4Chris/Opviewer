@@ -27,9 +27,12 @@ describe('UserSettingsComponent', () => {
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
         SharedPipesModule,
-        HttpModule],
+      ],
       declarations: [ UserSettingsComponent ],
-      providers: [ MockedCommonServiceProvider, MockedUserServiceProvider],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
 
@@ -43,9 +46,3 @@ describe('UserSettingsComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-class MockedSettingsService extends SettingsService {
-  constructor () {
-    super(null);
-  }
-}

@@ -26,7 +26,7 @@ export class SettingsService {
 
     constructor (
         private newService: CommonService,
-        private permission: PermissionService,
+        public permission: PermissionService,
     ) {
         this.loadSettings();
     }

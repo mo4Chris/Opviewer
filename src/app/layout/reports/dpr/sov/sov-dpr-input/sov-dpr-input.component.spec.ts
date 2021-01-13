@@ -34,7 +34,6 @@ describe('SovDprInputComponent', () => {
       ],
       providers: [
         MockedCommonServiceProvider,
-        DatetimeService,
         MockedUserServiceProvider
       ]
     })
