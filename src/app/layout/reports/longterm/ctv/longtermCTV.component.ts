@@ -7,7 +7,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { TokenModel } from '@app/models/tokenModel';
-import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
+import { ComprisonArrayElt, LongtermDataFilter, RawScatterData } from '../models/scatterInterface';
 import { WavedataModel } from '@app/models/wavedataModel';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { SettingsService } from '@app/supportModules/settings.service';
@@ -26,6 +26,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         private settings: SettingsService,
         private parser: LongtermProcessingService,
     ) {
+        console.log(this.settings)
     }
     @Input() vesselObject: LongtermVesselObjectModel;
     @Input() tokenInfo: TokenModel;
@@ -35,6 +36,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
+    RemoveFailedTransfers: LongtermDataFilter = {name: 'FailedTransferFilter', filter: (bin, hs) => hs !== 1, active: this.settings.LongtermFilterFailedTransfers}
     comparisonArray: ComprisonArrayElt[] = [
         {
             x: 'date', y: 'score', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
@@ -89,7 +91,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
                 'Transfers without valid transfer scores have been omitted, and transfers rated 1 are drawn as outliers but are not used for computing mean and spread.',
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold'),
-            filterCB: (elt) => elt === 1
+            filters: [this.RemoveFailedTransfers]
         },
         {
             x: 'date', y: 'fuelUsedTotalM3', graph: 'scatter', xLabel: 'Time', yLabel: 'Daily fuel usage [L]', dataType: 'engine', info:

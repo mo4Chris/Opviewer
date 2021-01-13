@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonService } from '../../common.service';
-import { isNumber } from 'util';
-import { UserService } from '../../shared/services/user.service';
-import { SettingsService } from '../../supportModules/settings.service';
-import { AlertService } from '../../supportModules/alert.service';
+import { SettingsService } from '@app/supportModules/settings.service';
+import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { UserService } from '@app/shared/services/user.service';
 
 @Component({
   selector: 'app-user-settings',

@@ -2,6 +2,7 @@ import { Injectable, NgModule } from '@angular/core';
 import { isNumber } from 'util';
 import * as moment from 'moment-timezone';
 import { CommonService } from '../common.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,6 +12,7 @@ export class SettingsService {
     unit_distance: distanceOptions = 'NM';
     unit_speed: speedOptions = 'knots';
     unit_weight: weightOptions = 'ton';
+    LongtermFilterFailedTransfers = false;
 
     // Some session settings - these are not saved across sessions
     weatherChart = {
@@ -23,7 +25,8 @@ export class SettingsService {
     };
 
     constructor (
-        private newService: CommonService
+        private newService: CommonService,
+        private permission: PermissionService,
     ) {
         this.loadSettings();
     }
@@ -72,6 +75,7 @@ export class SettingsService {
         weight: ['ton', 'kg'],
         speed: ['km/h', 'mph', 'knots', 'm/s'],
         distance: ['km', 'mile', 'NM'],
+        logical: [{name: "Enable", value: 1}, {name: "Disable", value: 0}]
     };
     localTimeZoneOffset: number = moment().utcOffset() / 60; // Offset in hours
     fixedTimeZoneOffset = 0;
@@ -126,11 +130,12 @@ export class SettingsService {
     saveSettings() {
         this.newService.saveUserSettings({
             Timezone: this.Timezone,
-            fixedTimeZoneOffset: +this.fixedTimeZoneOffset,
+            fixedTimeZoneOffset: this.fixedTimeZoneOffset,
             fixedTimeZoneLoc: this.fixedTimeZoneLoc,
             unit_distance: this.unit_distance,
             unit_speed: this.unit_speed,
             unit_weight: this.unit_weight,
+            LongtermFilterFailedTransfers: this.LongtermFilterFailedTransfers
         });
     }
 }

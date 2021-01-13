@@ -1,15 +1,12 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
 import { LongtermVesselObjectModel } from '../../longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
-import { SettingsService } from '@app/supportModules/settings.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
-import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
 import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWavedata } from '../longterm-processing-service.service';
+import {LongtermDataFilter} from '../scatterInterface'
 
 @Component({
   selector: 'app-longterm-scatter-graph',
@@ -25,7 +22,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
   @Input() wavedata: LongtermParsedWavedata;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
-  @Input() filters: DataFilter[] = [{
+  @Input() filters: LongtermDataFilter[] = [{
     name: 'Test filter',
     filter: (x, y) => x < y,
   }];
@@ -39,6 +36,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   hasData: boolean;
   info: string;
   chart: Chart;
+  scatterData: ScatterDataElt[];
   axisType: any;
 
   constructor(
@@ -52,6 +50,9 @@ export class LongtermScatterGraphComponent implements OnChanges {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     if (this.chart) {
       this.reset();
+    }
+    if (this.filters == undefined) {
+      this.filters = [];
     }
 
     this.info = this.data.info || 'N/a';
@@ -73,6 +74,11 @@ export class LongtermScatterGraphComponent implements OnChanges {
       const dsets = parsedData.map((_data, _i) =>
         this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
       );
+      if (dsets && dsets.length>0) {
+        this.scatterData = dsets[0].data;
+      } else {
+        this.scatterData = [];
+      }
       this.hasData = dsets.some(_dset => _dset.data.length > 0);
       if (this.hasData) {
         this.createChart({
@@ -130,21 +136,21 @@ export class LongtermScatterGraphComponent implements OnChanges {
       });
       let _x = scatterData.map(d => d.x) as number[];
       let _y = scatterData.map(d => d.y) as number[];
-      let keep = this.applyFilters(_x, _y,data._id)
+      let keep = this.applyFilters(_x, _y, data._id)
       return scatterData.filter((_, i) => keep[i]);
     });
   }
 
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
-    console.log('APPYING CALLBACK')
     let keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
-      if (filter.active == undefined || filter.active) {
+      console.log(`Applying filter "${filter.name}"`)
+      if (filter.active || filter.active == undefined) {
         filter.active = true;
         xVals.forEach((x, i) => {
           if (keep[i]) {
             let y = yVals[i];
-            keep[i] = filter.filter(x, y);
+            keep[i] = filter.filter(x, y, mmsi);
           }
         })
       }
@@ -317,12 +323,6 @@ export class LongtermScatterGraphComponent implements OnChanges {
   reduceLabels(received_mmsi: number[]): void {
     this.vesselLabels = this.parser.reduceLabels(this.vesselObject, received_mmsi);
   }
-
-  onFilterToggle(filter: DataFilter) {
-    console.log(filter)
-    filter.active = !filter.active;
-    this.ngOnChanges();
-  }
 }
 
 interface ScatterArguments {
@@ -339,9 +339,3 @@ interface ScatterDataElt {
   callback?: Function;
 }
 
-interface DataFilter {
-  name: string;
-  optional?: boolean;
-  active?: boolean;
-  filter: (x: number, y: number, mmsi?: number) => boolean;
-}

@@ -5,12 +5,6 @@
         {{graphlabel}}
       </canvas>
     </div>
-    <tr *ngIf="!hasData" class="hideOnPrint">
-      <div class="filter custom-control custom-switch" *ngFor="let filter of filters">
-        <input type="checkbox" (click)="onFilterToggle(filter)" class="custom-control-input" id="customSwitches" [checked]="filter.active !== false">
-        <label class="custom-control-label" for="customSwitches">{{filter.name}}: {{filter.active}}</label>
-      </div>
-    </tr>
   </div>
   <div class="col-lg-3 hideOnPrint">
     {{info}}
