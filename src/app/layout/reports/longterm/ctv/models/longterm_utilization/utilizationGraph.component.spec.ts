@@ -3,7 +3,7 @@ import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportMo
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CtvUtilizationGraphComponent } from './utilizationGraph.component';
-import { LongtermUtilSubGraphComponent } from './longterm-util-sub-graph/longterm-util-sub-graph.component';
+import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 
 fdescribe('CTV utilization graph', () => {
@@ -15,7 +15,7 @@ fdescribe('CTV utilization graph', () => {
       imports: [],
       declarations: [
         CtvUtilizationGraphComponent,
-        LongtermUtilSubGraphComponent,
+        CtvLongtermUtilSubGraphComponent,
       ],
       providers: [
         MockedCommonServiceProvider,

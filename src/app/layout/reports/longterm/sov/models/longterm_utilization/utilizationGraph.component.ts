@@ -199,7 +199,6 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
   constructNewChart(
     dsets: any,
   ) {
-    console.log(dsets);
     const calcService = this.calculationService;
     const dateService = this.dateTimeService;
     this.Chart = new Chart('utilizationGraph', {

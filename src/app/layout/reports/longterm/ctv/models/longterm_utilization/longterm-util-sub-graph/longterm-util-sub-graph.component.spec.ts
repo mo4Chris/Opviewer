@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LongtermUtilSubGraphComponent } from './longterm-util-sub-graph.component';
+import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph.component';
 
-describe('LongtermUtilSubGraphComponent', () => {
-  let component: LongtermUtilSubGraphComponent;
-  let fixture: ComponentFixture<LongtermUtilSubGraphComponent>;
+fdescribe('CtvLongtermUtilSubGraphComponent', () => {
+  let component: CtvLongtermUtilSubGraphComponent;
+  let fixture: ComponentFixture<CtvLongtermUtilSubGraphComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LongtermUtilSubGraphComponent ]
+      declarations: [ CtvLongtermUtilSubGraphComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LongtermUtilSubGraphComponent);
+    fixture = TestBed.createComponent(CtvLongtermUtilSubGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -10,7 +10,7 @@ import { now } from 'moment-timezone';
   styleUrls: ['../utilizationGraph.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LongtermUtilSubGraphComponent implements OnChanges {
+export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   @Input() dateMin: number;
   @Input() dateMax: number;
   @Input() dset: {
