@@ -97,7 +97,8 @@ jobs:
         run: npm install --production
         
       - name: Add config file
-        run: echo "ToDo: add relevant config files"
+        run: |
+          echo ToDo: add relevant config files
         
       - name: Run unit tests for vm ctv
         run: npm run build-prod
@@ -110,7 +111,8 @@ jobs:
     needs: [lint, test] # Only run this if the other 2 jobs have run with no error
     steps:
       - name: Add configuration files
-        run: echo TODO
+        run: |
+          echo TODO
       # Not sure how to proceed from here  
   
   
