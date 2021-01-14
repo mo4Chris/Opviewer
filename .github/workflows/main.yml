@@ -1,0 +1,116 @@
+# This is a basic workflow to help you get started with Actions
+name: Dataviewer
+
+env:
+  NODE_VERSION: 10.12.0
+  ANGULAR_VERSION: 8.3.4
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the Development branch
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup node
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{NODE_VERSION}}
+          architecture: x64
+          
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        
+      - name: setup angular
+        run: npm i -g ng@${{ANGULAR_VERSION}}
+        
+      - name: Performing ng lint
+        run: ng lint
+  test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup node
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{NODE_VERSION}}
+          architecture: x64
+          
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        
+      - name: setup angular
+        run: npm i -g ng@${{ANGULAR_VERSION}}
+        
+      - name: install node packages
+        run: npm install --production
+        
+      - name: Run crypto patch
+        run: node patch.js
+        
+      - name: Run unit tests
+        run: ng test --no-watch --browsers ChromeHeadless --code-coverage=true
+  e2e:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup node
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{NODE_VERSION}}
+          architecture: x64
+          
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        
+      - name: setup angular
+        run: npm i -g ng@${{ANGULAR_VERSION}}
+        
+      - name: install node packages
+        run: npm install --production
+        
+      - name: Run unit tests for vm ctv
+        run: ng e2e --configuration vm-ctv
+        
+  build-prod:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Sepup node
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{NODE_VERSION}}
+          architecture: x64
+          
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        
+      - name: setup angular
+        run: npm i -g ng@${{ANGULAR_VERSION}}
+        
+      - name: install node packages
+        run: npm install --production
+        
+      - name: Add config file
+        
+      - name: Run unit tests for vm ctv
+        run: npm run build-prod
+        # Ideally, we should use the build artefacts produced here in the deploy stage
+  
+
+  Deploy: # We deploy the api code to azure functions but only if the earlier 2 tests are run without any errors.
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' # check if the push is on master branch, not for any other branch
+    needs: [lint, test] # Only run this if the other 2 jobs have run with no error
+    steps:
+      - name: Add configuration files
+      # Not sure how to proceed from here  
+  
+  
+  
+  
