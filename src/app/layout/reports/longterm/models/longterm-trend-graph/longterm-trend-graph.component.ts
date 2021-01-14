@@ -1,13 +1,13 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
-import { LongtermVesselObjectModel } from '../../longterm.component';
+import { LongtermVesselObjectModel } from '@longterm/longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { catchError, map } from 'rxjs/operators';
 import { LongtermProcessingService, LongtermScatterValueArray } from '../longterm-processing-service.service';
-import {LongtermDataFilter} from '../scatterInterface'
+import { LongtermDataFilter } from '../scatterInterface';
 
 @Component({
   selector: 'app-longterm-trend-graph',
@@ -174,17 +174,17 @@ export class LongtermTrendGraphComponent implements OnChanges {
       };
     });
   }
-  
+
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
-    let keep: boolean[] = xVals.map(_ => true);
+    const keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
       if (filter.active || filter.active == undefined) {
         xVals.forEach((x, i) => {
           if (keep[i]) {
-            let y = yVals[i];
+            const y = yVals[i];
             keep[i] = filter.filter(x, y, mmsi);
           }
-        })
+        });
       }
     });
     return keep;

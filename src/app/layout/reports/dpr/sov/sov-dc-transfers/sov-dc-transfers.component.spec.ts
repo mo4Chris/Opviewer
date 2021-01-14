@@ -48,7 +48,7 @@ describe('SovDcTransfersComponent', () => {
     component.dcInfo = {
       mmsi: 123456789,
       nicename: 'TEST DAUGHTERCRAFT',
-    }
+    };
     fixture.detectChanges();
   });
 
@@ -66,7 +66,7 @@ describe('SovDcTransfersComponent', () => {
     setV2V(component);
     component.ngOnChanges();
     expect(component.transfers.length).toBe(0);
-  })
+  });
 
   it('should add transfers', () => {
     component.readonly = false;
@@ -80,8 +80,8 @@ describe('SovDcTransfersComponent', () => {
   });
 
   it('should allow for adding new transfers', () => {
-    let saveSpy = spyOn(MockedCommonService.prototype, 'updateSOVv2vTurbineTransfers')
-      .and.returnValue(mockedObservable('TEST'))
+    const saveSpy = spyOn(MockedCommonService.prototype, 'updateSOVv2vTurbineTransfers')
+      .and.returnValue(mockedObservable('TEST'));
 
     component.addMissedTransferToArray();
     expect(component.missedTransfers.length).toBe(1);
@@ -89,7 +89,7 @@ describe('SovDcTransfersComponent', () => {
 
     component.saveTransfers();
     expect(saveSpy).toHaveBeenCalled();
-  })
+  });
 });
 
 function setV2V(component: SovDcTransfersComponent) {

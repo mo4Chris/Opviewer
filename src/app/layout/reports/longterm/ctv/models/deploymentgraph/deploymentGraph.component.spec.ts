@@ -28,7 +28,7 @@ describe('DeploymentGraphComponent', () => {
   }));
 
   beforeEach(() => {
-    dataSpy = spyOn(DeploymentGraphComponent.prototype, 'getChartData').and.callFake((cb) => cb([[0,1,2,4]]))
+    dataSpy = spyOn(DeploymentGraphComponent.prototype, 'getChartData').and.callFake((cb) => cb([[0, 1, 2, 4]]));
     fixture = TestBed.createComponent(DeploymentGraphComponent);
     component = fixture.componentInstance;
     component.vesselObject = <LongtermVesselObjectModel> {
@@ -41,7 +41,7 @@ describe('DeploymentGraphComponent', () => {
     };
     component.vesselLabels = [userBoats[0].nicename];
 
-    let N = 12 * 24 * (component.vesselObject.dateMax - component.vesselObject.dateMin + 1);
+    const N = 12 * 24 * (component.vesselObject.dateMax - component.vesselObject.dateMin + 1);
     component.wavedata = {
       timeStamp: linspace(component.vesselObject.dateMin, component.vesselObject.dateMax, N),
       'Hs': linspace(1, 2, N),
@@ -49,7 +49,7 @@ describe('DeploymentGraphComponent', () => {
       'waveDir': linspace(1, 2, N),
       'wind': linspace(1, 2, N),
       'windDir': linspace(1, 2, N),
-    }
+    };
     component.tokenInfo = UserTestService.getMockedAccessToken({userBoats: userBoats});
     fixture.detectChanges();
   });
@@ -61,10 +61,10 @@ describe('DeploymentGraphComponent', () => {
 });
 
 
-function linspace(s,e,n) {
-  let y = new Array(n);
-  for (let i = 0; i<n; i++) {
-    y[i] = s + (e - s) * i / (n-1);
+function linspace(s, e, n) {
+  const y = new Array(n);
+  for (let i = 0; i < n; i++) {
+    y[i] = s + (e - s) * i / (n - 1);
   }
   return y;
 }

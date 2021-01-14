@@ -16,7 +16,7 @@ import { LongtermComponent, LongtermVesselObjectModel } from '../../longterm.com
     </div>`
 })
 class LongtermTrendTestComponent {
-  data: ComprisonArrayElt
+  data: ComprisonArrayElt;
   fromDate: NgbDate;
   toDate: NgbDate;
   vesselObject: LongtermVesselObjectModel;
@@ -78,10 +78,10 @@ describe('LongtermTrendGraphComponent', () => {
 
   it('should support filters', () => {
     testComponent.filters.push({
-      name: 'test callback', 
+      name: 'test callback',
       filter: (x, y, mmsi) => x < y
-    })
-    fixture.detectChanges()
+    });
+    fixture.detectChanges();
     expect(component).toBeTruthy();
-  })
+  });
 });

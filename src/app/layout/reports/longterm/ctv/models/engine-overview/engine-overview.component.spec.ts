@@ -9,11 +9,11 @@ import { EngineOverviewComponent } from './engine-overview.component';
 describe('EngineOverviewComponent', () => {
   let component: EngineOverviewComponent;
   let fixture: ComponentFixture<EngineOverviewComponent>;
-  
+
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports:[
+      imports: [
         NgbModule,
       ],
       declarations: [
@@ -45,13 +45,13 @@ describe('EngineOverviewComponent', () => {
       dateNormalMax: '',
       vesselName: ['TEST CTV'],
       mmsi: [123456789],
-    }
+    };
     expect(component.hasData).toBe(false);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.engines.length).toBeGreaterThan(0);
     expect(component.hasData).toBe(true);
-  })
+  });
 });
 
 // function makeRequest(mmsi?: number): StatsRangeRequest {

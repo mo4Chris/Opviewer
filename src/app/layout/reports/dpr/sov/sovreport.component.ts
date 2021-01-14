@@ -27,7 +27,7 @@ import { V2vTransfer } from './models/Transfers/vessel2vessel/V2vTransfer';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SovreportComponent implements OnInit, OnChanges {
-  @Output() loaded = new EventEmitter<boolean>()
+  @Output() loaded = new EventEmitter<boolean>();
   @Output() sailDates = new EventEmitter<any>();
 
   @Input() tokenInfo: TokenModel;

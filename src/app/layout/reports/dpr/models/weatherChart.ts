@@ -55,7 +55,7 @@ export class WeatherOverviewChart {
         y: y_mean
       };
     };
-    if (args.utcOffset){
+    if (args.utcOffset) {
       this.timeLabel = 'Time (UTC +' + args.utcOffset + ')';
     } else {
       this.timeLabel = 'Time';
@@ -212,13 +212,13 @@ export class WeatherOverviewChart {
         },
         legend: {
           onClick: (mouseEvent: MouseEvent, legendItem) => {
-            var index = legendItem.datasetIndex;
-            let ci = this.Chart;
-            var meta = ci.getDatasetMeta(index);
+            const index = legendItem.datasetIndex;
+            const ci = this.Chart;
+            const meta = ci.getDatasetMeta(index);
             // See controller.isDatasetVisible comment
             meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
             // Store which graphs are enabled
-            let key = ci.data.datasets[index].label;
+            const key = ci.data.datasets[index].label;
             this.settings.weatherChart[key] = meta.hidden;
             // We hid a dataset ... rerender the chart
             ci.update();
@@ -304,8 +304,8 @@ export class WeatherOverviewChart {
     if (label === undefined) {
       return true;
     } else {
-      let current = this.settings.weatherChart[label];
-      if (current === undefined ){
+      const current = this.settings.weatherChart[label];
+      if (current === undefined ) {
         return true;
       } else {
         return current;

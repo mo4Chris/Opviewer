@@ -66,8 +66,8 @@ describe('Longterm_CTV', () => {
       dateNormalMax: 'Test date 2',
       vesselName: [userBoats[0].rawName]
     };
-    component.fromDate = new NgbDate(2020,1,1);
-    component.toDate = new NgbDate(2020,3,1);
+    component.fromDate = new NgbDate(2020, 1, 1);
+    component.toDate = new NgbDate(2020, 3, 1);
     const testToken: any = UserTestService.getMockedAccessToken({
       'userPermission': 'admin',
       'userBoats': userBoats
@@ -79,7 +79,7 @@ describe('Longterm_CTV', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  })
+  });
 
   it('Should run ngOnChanges', () => {
     component.ngOnChanges();

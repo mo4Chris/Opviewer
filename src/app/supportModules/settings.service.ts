@@ -75,7 +75,7 @@ export class SettingsService {
         weight: ['ton', 'kg'],
         speed: ['km/h', 'mph', 'knots', 'm/s'],
         distance: ['km', 'mile', 'NM'],
-        logical: [{name: "Enable", value: 1}, {name: "Disable", value: 0}]
+        logical: [{name: 'Enable', value: 1}, {name: 'Disable', value: 0}]
     };
     localTimeZoneOffset: number = moment().utcOffset() / 60; // Offset in hours
     fixedTimeZoneOffset = 0;
@@ -100,9 +100,9 @@ export class SettingsService {
                   return +this.fixedTimeZoneOffset;
                 case 'timezone':
                     // ToDo: implement timezone coding?
-                    const T = moment.tz(date, this.fixedTimeZoneLoc)
+                    const T = moment.tz(date, this.fixedTimeZoneLoc);
                     // @ts-ignore
-                    const timezoneOffset = T._offset/60;
+                    const timezoneOffset = T._offset / 60;
                     return timezoneOffset;
                 default:
                     console.error('Invalid timezone setting!');

@@ -13,7 +13,7 @@ describe('DprMapComponent', () => {
   let component: DprMapComponent;
   let fixture: ComponentFixture<DprMapComponent>;
   let consoleSpy: jasmine.Spy;
-  let vessel = {
+  const vessel = {
     trace: {
       time: linspace(738000, 738001, 100),
       lon: linspace(50, 51, 100),
@@ -22,7 +22,7 @@ describe('DprMapComponent', () => {
     turbineTransfers: [],
     platformTransfers: [],
     v2vs: [],
-  }
+  };
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -39,7 +39,7 @@ describe('DprMapComponent', () => {
       ]
     })
     .compileComponents();
-    consoleSpy = spyOn(console, 'error').and.callThrough()
+    consoleSpy = spyOn(console, 'error').and.callThrough();
   }));
 
   describe('as ctv', () => {
@@ -64,15 +64,15 @@ describe('DprMapComponent', () => {
       component.onLoaded.subscribe((map) => {
         expect(consoleSpy).toHaveBeenCalledTimes(0);
         done();
-      })
+      });
     });
   });
 });
 
-function linspace(s,e,n) {
-  let y = new Array(n);
-  for (let i = 0; i<n; i++) {
-    y[i] = s + (e - s) * i / (n-1);
+function linspace(s, e, n) {
+  const y = new Array(n);
+  for (let i = 0; i < n; i++) {
+    y[i] = s + (e - s) * i / (n - 1);
   }
   return y;
 }

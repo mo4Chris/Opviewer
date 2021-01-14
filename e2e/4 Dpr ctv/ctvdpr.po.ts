@@ -83,7 +83,7 @@ export class CtvDprPage extends E2ePageObject {
     }
 
     getElementInDockingRowByTitle(row: ElementFinder, title: string) {
-        let table = element(by.xpath('//app-ctv-turbine-transfer/table'));
+        const table = element(by.xpath('//app-ctv-turbine-transfer/table'));
         expect(table.isPresent()).toBeTruthy('CTV turbine table must be present');
         return tableHandler.getElementInRowByTitle(table, row, title);
     }

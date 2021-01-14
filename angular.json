@@ -119,7 +119,7 @@
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "./protractor.conf.js"
+            "protractorConfig": ".e2e/conf.vm.ctv.js"
           },
           "configurations": {
             "admin" : {
@@ -142,7 +142,7 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": "e2e/config.e2e.json",
+            "tsConfig": "e2e/tsconfig.json",
             "exclude": [
               "**/node_modules/**"
             ]

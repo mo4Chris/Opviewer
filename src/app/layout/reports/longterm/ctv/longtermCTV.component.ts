@@ -35,7 +35,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
-    RemoveFailedTransfers: LongtermDataFilter = {name: 'FailedTransferFilter', filter: (bin, hs) => hs !== 1, active: this.settings.LongtermFilterFailedTransfers}
+    RemoveFailedTransfers: LongtermDataFilter = {name: 'FailedTransferFilter', filter: (bin, hs) => hs !== 1, active: this.settings.LongtermFilterFailedTransfers};
     comparisonArray: ComprisonArrayElt[] = [
         {
             x: 'date', y: 'score', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:

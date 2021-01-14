@@ -16,7 +16,7 @@ import { LongtermComponent, LongtermVesselObjectModel } from '../../longterm.com
     </div>`
 })
 class LongtermScatterGraphTestComponent {
-  data: ComprisonArrayElt
+  data: ComprisonArrayElt;
   fromDate: NgbDate;
   toDate: NgbDate;
   vesselObject: LongtermVesselObjectModel;
@@ -79,11 +79,11 @@ describe('LongtermScatterGraphComponent', () => {
 
   it('should support filters', () => {
     testComponent.filters.push({
-      name: 'test callback', 
+      name: 'test callback',
       filter: (x, y, mmsi) => x < y
-    })
-    fixture.detectChanges()
+    });
+    fixture.detectChanges();
     expect(testComponent).toBeTruthy();
     expect(component).toBeTruthy();
-  })
+  });
 });

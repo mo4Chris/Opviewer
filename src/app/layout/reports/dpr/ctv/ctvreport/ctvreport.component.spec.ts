@@ -141,15 +141,15 @@ describe('CtvReportComponent', () => {
   });
 
   it('Should make video requests', () => {
-    let saveVideoSpy = spyOn(MockedCommonService.prototype, 'saveVideoRequest').and.callFake(() => {
+    const saveVideoSpy = spyOn(MockedCommonService.prototype, 'saveVideoRequest').and.callFake(() => {
       return {
         pipe: () => {
           return {
             subscribe: () => {}
-          }
+          };
         },
-      }
-    })
+      };
+    });
     fixture.detectChanges();
     component.tokenInfo = tokenInfo.admin;
     const transfer = {
@@ -220,11 +220,11 @@ describe('CtvReportComponent', () => {
   });
 
   it('should properly removeNansFromArray', () => {
-    expect(component.removeNansFromArray(null)).toEqual([])
-    expect(component.removeNansFromArray(undefined)).toEqual([])
-    expect(component.removeNansFromArray([])).toEqual([])
-    expect(component.removeNansFromArray('data')).toEqual(['data'])
-    expect(component.removeNansFromArray(['data'])).toEqual(['data'])
-    expect(component.removeNansFromArray(['data', null, 'data2'])).toEqual(['data', 'data2'])
-  })
+    expect(component.removeNansFromArray(null)).toEqual([]);
+    expect(component.removeNansFromArray(undefined)).toEqual([]);
+    expect(component.removeNansFromArray([])).toEqual([]);
+    expect(component.removeNansFromArray('data')).toEqual(['data']);
+    expect(component.removeNansFromArray(['data'])).toEqual(['data']);
+    expect(component.removeNansFromArray(['data', null, 'data2'])).toEqual(['data', 'data2']);
+  });
 });

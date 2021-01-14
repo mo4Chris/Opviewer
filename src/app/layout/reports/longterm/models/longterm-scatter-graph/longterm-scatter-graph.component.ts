@@ -1,12 +1,12 @@
 import { Component, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
-import { LongtermVesselObjectModel } from '../../longterm.component';
+import { LongtermVesselObjectModel } from '@longterm/longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { catchError, map } from 'rxjs/operators';
 import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWavedata } from '../longterm-processing-service.service';
-import {LongtermDataFilter} from '../scatterInterface'
+import {LongtermDataFilter} from '../scatterInterface';
 
 @Component({
   selector: 'app-longterm-scatter-graph',
@@ -74,7 +74,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
       const dsets = parsedData.map((_data, _i) =>
         this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
       );
-      if (dsets && dsets.length>0) {
+      if (dsets && dsets.length > 0) {
         this.scatterData = dsets[0].data;
       } else {
         this.scatterData = [];
@@ -134,25 +134,25 @@ export class LongtermScatterGraphComponent implements OnChanges {
         };
         scatterData.push({ x: x, y: y, callback: navToDPRByDate });
       });
-      let _x = scatterData.map(d => d.x) as number[];
-      let _y = scatterData.map(d => d.y) as number[];
-      let keep = this.applyFilters(_x, _y, data._id)
+      const _x = scatterData.map(d => d.x) as number[];
+      const _y = scatterData.map(d => d.y) as number[];
+      const keep = this.applyFilters(_x, _y, data._id);
       return scatterData.filter((_, i) => keep[i]);
     });
   }
 
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
-    let keep: boolean[] = xVals.map(_ => true);
+    const keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
-      console.log(`Applying filter "${filter.name}"`)
+      console.log(`Applying filter "${filter.name}"`);
       if (filter.active || filter.active == undefined) {
         filter.active = true;
         xVals.forEach((x, i) => {
           if (keep[i]) {
-            let y = yVals[i];
+            const y = yVals[i];
             keep[i] = filter.filter(x, y, mmsi);
           }
-        })
+        });
       }
     });
     return keep;
