@@ -9,6 +9,7 @@ import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 import { Headers } from '@angular/http';
+import { getValueInRange } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 
 const emptyMatlabObject = {
@@ -509,10 +510,92 @@ export class MockedCommonService extends CommonService {
         });
     }
     getTransfersForVesselByRange(request: StatsRangeRequest) {
-        return mockedObservable([]);
+        const getTransfer = (mmsi, date) => {return {
+            vesselname: 'BMO Apollo 12',
+            mmsi: mmsi,
+            startTime: date + 0.3,
+            stopTime: date + 0.31,
+            duration: 14.4,
+            location: 'T01',
+            fieldname: 'Non_Existing_Windpark_turbine_coordinates',
+            Hs: Math.random(),
+            score: 4 + 6*Math.random(),
+            thrustPerc: '_NaN_',
+            comment: 'Transfer OK',
+            impactForceN: [2200, 2300, 6100, 18836],
+            impactForceNmax: 10000 * Math.random(),
+            detector: 'docking',
+            date: date,
+            videoAvailable: false,
+        }}
+        let dates = linspace(request.dateMin, request.dateMax)
+        let transfers = []
+        request.mmsi.forEach(mmsi => {
+            let vesselTransfers = {
+                _id: mmsi,
+                date: dates,
+                labels: [],
+            }
+            request.reqFields.forEach(f => vesselTransfers[f] = [])
+            dates.forEach(date => {
+                let transfer = getTransfer(mmsi, date);
+                vesselTransfers.labels.push(transfer.vesselname)
+                request.reqFields.forEach(FieldName => {
+                    vesselTransfers[FieldName].push(transfer[FieldName])
+                })
+            })
+            transfers.push(vesselTransfers)
+        })
+        return mockedObservable(transfers);
     }
     getTransitsForVesselByRange(request: StatsRangeRequest) {
-        return mockedObservable([]);
+        const getTransfer = (mmsi, date) => {
+            let DurMinutes = 10 + 40 * Math.random()
+            let MSI = 20 * Math.random();
+            let Speed = 30 + 10 * Math.random()
+            return {
+                "mmsi": mmsi,
+                "vesselname": "Test_vessel",
+                "startTime": date + 0.279,
+                "combinedId": 21,
+                "from":"Harbour",
+                "fromName":"Lwf",
+                "to":"Field",
+                "toName":"IE",
+                "date":{"$numberInt":"737302"},
+                "MSI": MSI,
+                "A8": MSI / 10,
+                "aw": MSI / 5,
+                "speedInTransitKMH": 1.05 * Speed,
+                "speedInTransitAvgKMH": Speed,
+                "speedInTransitAvgUnrestrictedKMH":"_NaN_",
+                "distancekm": Speed * DurMinutes / 60,
+                "transitTimeMinutes": DurMinutes,
+                times: [],
+                lon: [],
+                lat: [],
+                "avHeading": 27,
+                "MSI60": MSI * Math.sqrt(DurMinutes / 60)
+        }}
+        let dates = linspace(request.dateMin, request.dateMax)
+        let transfers = []
+        request.mmsi.forEach(mmsi => {
+            let vesselTransits = {
+                _id: mmsi,
+                date: dates,
+                labels: [],
+            }
+            request.reqFields.forEach(f => vesselTransits[f] = [])
+            dates.forEach(date => {
+                let transfer = getTransfer(mmsi, date);
+                vesselTransits.labels.push(transfer.vesselname)
+                request.reqFields.forEach(FieldName => {
+                    vesselTransits[FieldName].push(transfer[FieldName])
+                })
+            })
+            transfers.push(vesselTransits)
+        })
+        return mockedObservable(transfers);
     }
     getWavedataForRange(request: {startDate:any, stopDate: any, source: string}) {
         return mockedObservable([]);

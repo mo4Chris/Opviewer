@@ -179,8 +179,6 @@ export class LongtermTrendGraphComponent implements OnChanges {
     let keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
       if (filter.active || filter.active == undefined) {
-        console.log(`Applying filter "${filter.name}"`)
-        filter.active = true;
         xVals.forEach((x, i) => {
           if (keep[i]) {
             let y = yVals[i];
