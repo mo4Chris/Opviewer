@@ -1,7 +1,7 @@
 <div class="row divBreak" [hidden]="!hasData">
   <div class="col-lg-8">
-    <div class="chartTitle" [hidden]="!dset.isFirst"> Vessel utilization chart</div>
-    <div class="chartTitle chartVesselName"> {{dset.datasets[0].stack}}</div>
+    <div class="chartTitle" > Vessel utilization chart</div>
+    <div class="chartTitle chartVesselName"> {{vesselname}}</div>
     <div class="graph-container">
       <canvas #canvas></canvas>
     </div>

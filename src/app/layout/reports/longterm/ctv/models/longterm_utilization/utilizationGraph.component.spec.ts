@@ -1,12 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { LongtermVesselObjectModel } from '../../../longterm.component';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CtvUtilizationGraphComponent } from './utilizationGraph.component';
 import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 
-fdescribe('CTV utilization graph', () => {
+describe('CTV utilization graph', () => {
   let component: CtvUtilizationGraphComponent;
   let fixture: ComponentFixture<CtvUtilizationGraphComponent>;
 

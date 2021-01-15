@@ -16,7 +16,9 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   @Input() dset: {
     labels: string[],
     isFirst: boolean,
-    datasets: number[][],
+    datasets: {
+      stack: string
+    }[],
   };
 
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
@@ -24,6 +26,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   public hasData = false;
 
   chart: Chart;
+  vesselname;
   
   constructor(
     private calculationService: CalculationService,
@@ -31,7 +34,12 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   ) { }
 
   ngOnChanges() {
-    if (this.dset) {
+    if (this.dset && (this.dset !== null || this.dset.datasets.length == 0)) {
+      
+      if (this.dset.datasets[0].stack && this.dset.datasets[0].stack !== ''){
+        this.vesselname = this.dset.datasets[0].stack;
+      }
+
       this.hasData = true;
       this.constructNewChart();
     } else {
