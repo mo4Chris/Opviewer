@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, destroyPlatform, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as Chart from 'chart.js';
@@ -24,6 +24,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
   
   public hasData = false;
+  public isFirstGraph = false;
 
   chart: Chart;
   vesselname;
@@ -35,7 +36,8 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
 
   ngOnChanges() {
     if (this.dset && (this.dset !== null || this.dset.datasets.length == 0)) {
-      
+
+      this.isFirstGraph = this.dset.isFirst;
       if (this.dset.datasets[0].stack && this.dset.datasets[0].stack !== ''){
         this.vesselname = this.dset.datasets[0].stack;
       }
