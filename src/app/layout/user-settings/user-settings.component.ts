@@ -11,7 +11,7 @@ import { UserService } from '@app/shared/services/user.service';
 })
 export class UserSettingsComponent implements OnInit {
   public token = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  settingsOptions: object;
+  public settingsOptions: any;
 
   constructor(
     private userService: UserService,

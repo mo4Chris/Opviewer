@@ -29,7 +29,6 @@ import { environment } from 'environments/environment';
 
 @NgModule({
   imports: [
-    Ng2Charts,
     CommonModule,
     AutosizeModule,
     NgbModule,

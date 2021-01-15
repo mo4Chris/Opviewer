@@ -34,7 +34,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
   private context: CanvasRenderingContext2D;
 
   hasData: boolean;
-  info: string;
+  public info: string;
   chart: Chart;
   scatterData: ScatterDataElt[];
   axisType: any;
