@@ -74,11 +74,6 @@ export class LongtermScatterGraphComponent implements OnChanges {
       const dsets = parsedData.map((_data, _i) =>
         this.parser.createChartlyScatter(_data, _i, {label: this.vesselLabels[_i]})
       );
-      if (dsets && dsets.length > 0) {
-        this.scatterData = dsets[0].data;
-      } else {
-        this.scatterData = [];
-      }
       this.hasData = dsets.some(_dset => _dset.data.length > 0);
       if (this.hasData) {
         this.createChart({
