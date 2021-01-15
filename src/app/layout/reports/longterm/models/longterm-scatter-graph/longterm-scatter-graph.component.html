@@ -1,8 +1,9 @@
 <div class="row" [hidden]="!hasData">
   <div class="col-lg-8">
+    <div class="canvas-container">
       <canvas #canvas id="canvas">
-        {{graphlabel}}
       </canvas>
+    </div>
   </div>
   <div class="col-lg-3 hideOnPrint">
     {{info}}

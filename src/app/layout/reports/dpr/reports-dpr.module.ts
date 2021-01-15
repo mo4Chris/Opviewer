@@ -18,7 +18,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterService } from '@app/supportModules/router.service';
-import { DprMapComponent } from './map/dpr-map/dpr-map.component';
 import { SovreportModule } from './sov/sovreport.module';
 import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 

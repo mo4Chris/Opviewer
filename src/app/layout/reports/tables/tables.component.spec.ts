@@ -19,11 +19,11 @@ describe('TablesComponent', () => {
         FormsModule,
         PageHeaderModule,
         ReportsModule,
-        HttpModule,
         RouterTestingModule,
         BrowserAnimationsModule],
       declarations: [ TablesComponent ],
-      providers: [CommonService]
+      providers: [
+      ]
     })
     .compileComponents();
   }));

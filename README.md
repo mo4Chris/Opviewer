@@ -1,5 +1,5 @@
-##Start api server in SRC folder
-node server.js
+##Start api server
+node src/server.js
 
 ##Start Angular
 ng serve
@@ -12,6 +12,9 @@ ng serve --host 0.0.0.0
 
 ##Fix crypto bug
 node patch.js
+
+## Build production version
+npm run build-prod
 
 ##.Htaccess code (In case of deletion)
 Order Deny,Allow

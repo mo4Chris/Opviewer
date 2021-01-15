@@ -26,9 +26,9 @@ describe('CtvSummaryComponent', () => {
       vesselType: 'CTV',
     }).subscribe(_gen => {
       general = _gen.data[0];
-      done()
+      done();
     });
-  })
+  });
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -83,10 +83,10 @@ describe('CtvSummaryComponent', () => {
   });
 
   it('should save changes', () => {
-    let spy = spyOn(MockedCommonService.prototype, 'saveCTVGeneralStats').and.returnValue(mockedObservable({
+    const spy = spyOn(MockedCommonService.prototype, 'saveCTVGeneralStats').and.returnValue(mockedObservable({
       data: 'Yay'
     }));
     component.saveGeneralStats();
     expect(spy).toHaveBeenCalled();
-  })
+  });
 });

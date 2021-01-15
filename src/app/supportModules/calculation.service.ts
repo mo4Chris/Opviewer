@@ -105,11 +105,11 @@ export class CalculationService {
     const lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
     // height of agm map
-    let latZoom = zoom(440, WORLD_DIM.height, latFraction);
+    const latZoom = zoom(440, WORLD_DIM.height, latFraction);
     let lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
-    if (lngZoom<0 || isNaN(lngZoom)) {
-      lngZoom = ZOOM_MAX
-      console.warn('Received infeasible lng map zoom!')
+    if (lngZoom < 0 || isNaN(lngZoom)) {
+      lngZoom = ZOOM_MAX;
+      console.warn('Received infeasible lng map zoom!');
     }
     const zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
     const avgLatitude = (minLatitude + maxLatitude) / 2;

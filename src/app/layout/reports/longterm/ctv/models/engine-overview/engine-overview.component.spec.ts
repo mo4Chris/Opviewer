@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { StatsRangeRequest } from '@app/common.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,11 +9,11 @@ import { EngineOverviewComponent } from './engine-overview.component';
 describe('EngineOverviewComponent', () => {
   let component: EngineOverviewComponent;
   let fixture: ComponentFixture<EngineOverviewComponent>;
-  
+
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports:[
+      imports: [
         NgbModule,
       ],
       declarations: [
@@ -20,6 +21,7 @@ describe('EngineOverviewComponent', () => {
       ],
       providers: [
         MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();
@@ -43,13 +45,13 @@ describe('EngineOverviewComponent', () => {
       dateNormalMax: '',
       vesselName: ['TEST CTV'],
       mmsi: [123456789],
-    }
+    };
     expect(component.hasData).toBe(false);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.engines.length).toBeGreaterThan(0);
     expect(component.hasData).toBe(true);
-  })
+  });
 });
 
 // function makeRequest(mmsi?: number): StatsRangeRequest {

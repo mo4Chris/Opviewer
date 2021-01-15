@@ -57,7 +57,7 @@ export class SovWeatherchartComponent implements OnChanges {
           .toISOString(false);
       });
       const dsets = [];
-      let chartTitle = weather.wavesource === '_NaN_' ? '' : 'Source: ' + weather.wavesource
+      const chartTitle = weather.wavesource === '_NaN_' ? '' : 'Source: ' + weather.wavesource;
       // Loading each of the weather sources if they exist and are not NaN
       const waveParams = Object.keys(weather).filter(
         key => key !== 'time' && key !== 'wavesource'
@@ -69,7 +69,7 @@ export class SovWeatherchartComponent implements OnChanges {
           const label = param
             .replace('waveHs', 'Hs')
             .replace('waveTp', 'Tp');
-          let ax = this.getAxis(label);
+          const ax = this.getAxis(label);
           dsets.push({
             data: data.map((dataElt, i) => {
               if (typeof dataElt === 'number' && dataElt >= 0) {
@@ -110,7 +110,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Platform transfers',
         backgroundColor: 'rgba(0, 0, 100, 0.1)',
-      })
+      });
 
       // Turbine operations
       dockingData = new Array();
@@ -128,8 +128,8 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Turbine transfers',
         backgroundColor: 'rgba(0, 100, 0, 0.1)',
-      })
-      
+      });
+
       // V2v transfers
       dockingData = new Array();
       this.sovModel.vessel2vessels.forEach(vessel => {
@@ -148,7 +148,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'V2v transfers',
         backgroundColor: 'rgba(128, 0, 0, 0.1)',
-      })
+      });
 
       // Transit
       dockingData = new Array();
@@ -166,7 +166,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Transit',
         backgroundColor: 'rgba(255, 255, 0, 0.1)',
-      })
+      });
 
       setTimeout(() => {
         this.weatherOverviewChart = new WeatherOverviewChart(
@@ -220,7 +220,7 @@ export class SovWeatherchartComponent implements OnChanges {
     return {
       unit: unit,
       axisID: axisID,
-    }
+    };
   }
 
   private addOperationsInfo(dsets: Array<any>, ops: Array<any>, config: any) {

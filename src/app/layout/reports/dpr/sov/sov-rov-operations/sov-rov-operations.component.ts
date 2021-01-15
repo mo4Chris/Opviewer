@@ -40,7 +40,7 @@ export class SovRovOperationsComponent implements OnChanges {
   }
 
   saveTransfers() {
-    if(this.rovOperations.length > 0) {
+    if (this.rovOperations.length > 0) {
       this.rovOperations.forEach(_rovOperations => {
         _rovOperations.location = _rovOperations.location || '';
         _rovOperations.rovDeployed = _rovOperations.rovDeployed || {hours: '00', minutes: '00'};

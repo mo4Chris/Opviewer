@@ -83,7 +83,7 @@ export class LongtermProcessingService {
             case 'engine':
               loadable = this.newService.getEngineStatsForRange(queryElt).pipe(map(elt => {
                 return elt;
-              }))
+              }));
             break;
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!');
