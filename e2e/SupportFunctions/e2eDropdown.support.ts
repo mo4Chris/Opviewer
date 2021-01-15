@@ -95,7 +95,7 @@ export class E2eSelectHandler {
         const nonSelectedOptions: ElementFinder[] = await elt.$$('option')
             .filter(e => e.getAttribute('value').then(v => v !== 'undefined'));
             // .filter(o => o.isSelected().then(tf => !tf)); // This breaks the function...
-        let len = nonSelectedOptions.length;
+        const len = nonSelectedOptions.length;
         const rnd = Math.floor( len * Math.random());
         // let newOpt = log(nonSelectedOptions.get(rnd));
         const newOpt = nonSelectedOptions[rnd];

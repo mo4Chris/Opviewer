@@ -19,30 +19,28 @@
               <td>{{getTokenExpiredDate()}}</td>
             </tr>
             <tr>
-              <td>Time display</td>
+              <td><div [ngbTooltip]="helpTimeDisplay" placement="bottom">Time display</div></td>
               <td>
-                <div [ngbTooltip]="helpTimeDisplay" placement="bottom">
-                  <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting()">
-                    <option *ngFor="let option of settings.options.time" class="dropdown-item">
-                      {{option}}
-                    </option>
-                  </select>
-                  <select *ngIf="settings.Timezone=='custom'" class="form-control selectType margin-up" type="number"
-                    [(ngModel)]="settings.fixedTimeZoneOffset" (change)="changeSetting()">
-                    <option *ngFor="let option of settings.options.customTimeZone" class="dropdown-item"
-                      [value]="option.value">
-                      {{option.name}}
-                    </option>
-                  </select>
-                  <select *ngIf="settings.Timezone=='timezone'" class="form-control selectType margin-up" type="number"
-                    [(ngModel)]="settings.fixedTimeZoneLoc" (change)="changeSetting()">
+                <select class="form-control selectType" [(ngModel)]="settings.Timezone" (change)="changeSetting()">
+                  <option *ngFor="let option of settingsOptions.time" class="dropdown-item">
                     {{option}}
-                    <option *ngFor="let option of settings.options.customTimeZoneLocations" class="dropdown-item"
-                      [value]="option.value">
-                      {{option.name}}
-                    </option>
-                  </select>
-                </div>
+                  </option>
+                </select>
+                <select *ngIf="settings.Timezone=='custom'" class="form-control selectType margin-up" type="number"
+                  [(ngModel)]="settings.fixedTimeZoneOffset" (change)="changeSetting()">
+                  <option *ngFor="let option of settingsOptions.customTimeZone" class="dropdown-item"
+                    [ngValue]="option.value">
+                    {{option.name}}
+                  </option>
+                </select>
+                <select *ngIf="settings.Timezone=='timezone'" class="form-control selectType margin-up" type="number"
+                  [(ngModel)]="settings.fixedTimeZoneLoc" (change)="changeSetting()">
+                  {{option}}
+                  <option *ngFor="let option of settingsOptions.customTimeZoneLocations" class="dropdown-item"
+                    [ngValue]="option.value">
+                    {{option.name}}
+                  </option>
+                </select>
               </td>
             </tr>
           </table>
@@ -86,6 +84,29 @@
         </div>
       </div>
     </div>
+    <div class="col-xl-6 col-lg-12" *ngIf="permission.longterm">
+      <div class="card mb-3">
+        <div class="card-header">Longterm</div>
+        <div class="card-body table-responsive">
+          <table class="table table-responsive table-bordered tableSummary">
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td><div [ngbTooltip]="helpLongtermFilterFailedTransfers">Omit transfers with score 1</div></td>
+                <td>
+                  <select class="form-control selectType" [(ngModel)]="settings.LongtermFilterFailedTransfers"
+                    (change)="changeSetting()">
+                    <option *ngFor="let option of settingsOptions.logical" class="dropdown-item" [ngValue]="option.value">
+                      {{option.name}}
+                    </option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
   <div>
     <button class="btn btn-outline-primary" (click)="saveSettings()">
@@ -101,5 +122,8 @@
   'OWN' adjusts all times to the timezone of the system you are using to access the dataviewer
   'CUSTOM' lets you set your own time offset
   'Timezone' lets you select a timezone, which checks for daylights savings difference
-
+</ng-template>
+<ng-template #helpLongtermFilterFailedTransfers class="helpContent">
+  Toggles the inclusion of transfers with score "1" in the long term reports section.
+  This is desired if these low score skew the trend graphics.
 </ng-template>

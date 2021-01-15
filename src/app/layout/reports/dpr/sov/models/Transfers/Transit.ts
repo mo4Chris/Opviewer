@@ -5,11 +5,11 @@ export interface Transit {
     toName: string;
     day: string;
     timeString: string;
-    dayNum: number
+    dayNum: number;
     vesselname: string;
-    mmsi: number
+    mmsi: number;
     combineId: number;
-    speedInTransitAvg: number
+    speedInTransitAvg: number;
     speedInTransitAvgUnrestricted: string;
     distancekm: string;
     transitTimeMinutes: number;

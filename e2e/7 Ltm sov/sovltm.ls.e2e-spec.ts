@@ -54,12 +54,12 @@ describe('Sov longterm module', () => {
   });
 
   it('should allow adding vessels', () => {
-    
-  })
+
+  });
 
   it('should not fail without any selected vessels', () => {
-    
-  })
+
+  });
 });
 
 const sleep = () => {

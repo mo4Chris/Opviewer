@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDcTransfersComponent } from './sov-dc-transfers.component';
 import { CommonModule } from '@angular/common';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { mockedObservable } from '@app/models/testObservable';
@@ -21,7 +21,8 @@ describe('SovDcTransfersComponent', () => {
         FormsModule,
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();
@@ -47,7 +48,7 @@ describe('SovDcTransfersComponent', () => {
     component.dcInfo = {
       mmsi: 123456789,
       nicename: 'TEST DAUGHTERCRAFT',
-    }
+    };
     fixture.detectChanges();
   });
 
@@ -65,7 +66,7 @@ describe('SovDcTransfersComponent', () => {
     setV2V(component);
     component.ngOnChanges();
     expect(component.transfers.length).toBe(0);
-  })
+  });
 
   it('should add transfers', () => {
     component.readonly = false;
@@ -79,8 +80,8 @@ describe('SovDcTransfersComponent', () => {
   });
 
   it('should allow for adding new transfers', () => {
-    let saveSpy = spyOn(MockedCommonService.prototype, 'updateSOVv2vTurbineTransfers')
-      .and.returnValue(mockedObservable('TEST'))
+    const saveSpy = spyOn(MockedCommonService.prototype, 'updateSOVv2vTurbineTransfers')
+      .and.returnValue(mockedObservable('TEST'));
 
     component.addMissedTransferToArray();
     expect(component.missedTransfers.length).toBe(1);
@@ -88,7 +89,7 @@ describe('SovDcTransfersComponent', () => {
 
     component.saveTransfers();
     expect(saveSpy).toHaveBeenCalled();
-  })
+  });
 });
 
 function setV2V(component: SovDcTransfersComponent) {

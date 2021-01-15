@@ -1,8 +1,14 @@
 <div class="hideOnPrint">
   <h1 class="headerContainer">
-    <h2 class="text-muted">Longterm performance:<small>
+    <h2 class="text-muted">
+      Longterm performance:
+      <small>
         {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
-      </small></h2>
+      </small>
+      <a class="settings-icon hideOnPrint" [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']" [ngbTooltip]="helpSettings" placement="bottom">
+        <i class="fa fa-fw fa-cog"></i>
+      </a>
+    </h2>
     <hr>
   </h1>
   <div class="headerSpacer"></div>
@@ -119,3 +125,4 @@
   to the relevant DPR. Graphs without any data are automatically hidden, and drawn graphs only show the vessels with
   valid data.
 </ng-template>
+<ng-template #helpSettings>Certain graph settings can be edited in the settings page</ng-template>

@@ -13,7 +13,7 @@ export class E2eRandomTools {
 
     getRandomString(length = 10) {
         let string = '';
-        let letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; // Include numbers if you want
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; // Include numbers if you want
         for (let i = 0; i < length; i++) {
             string += letters.charAt(Math.floor(Math.random() * letters.length));
         }

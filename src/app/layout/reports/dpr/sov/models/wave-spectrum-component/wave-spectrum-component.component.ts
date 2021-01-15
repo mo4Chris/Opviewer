@@ -190,7 +190,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         this.loaded = true;
         this.ref.detectChanges();
       } else {
-        console.error('Received invalid wave spectrum!')
+        console.error('Received invalid wave spectrum!');
       }
     });
   }
@@ -247,7 +247,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
           zsmooth: 'fast',
           connectgaps: false,
         // Ongoing plotly issue: Cannot have scatter plots as well as contours or heatmaps in the same animation
-        // }, 
+        // },
         // {
         //   type: 'scatter',
         //   mode: 'lines',

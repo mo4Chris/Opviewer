@@ -15,11 +15,11 @@ export class Vessel2vesselModel {
 }
 
 export interface MissedDcTransfer {
-    location: string,
-    from: {hour: string, minutes: string},
-    to: {hour: string, minutes: string},
-    paxIn: number,
-    paxOut: number,
-    cargoIn: number,
-    cargoOut: number,
+    location: string;
+    from: {hour: string, minutes: string};
+    to: {hour: string, minutes: string};
+    paxIn: number;
+    paxOut: number;
+    cargoIn: number;
+    cargoOut: number;
 }

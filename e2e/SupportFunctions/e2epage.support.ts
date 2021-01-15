@@ -55,7 +55,7 @@ export abstract class E2ePageObject {
         const errorLogs = logs.filter(log => {
           let tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
           if (tf) {
-            let match = log.message.match('maps\.googleapis');
+            const match = log.message.match('maps\.googleapis');
             if (match && match.length > 0) {
               tf = false;
             } else {
@@ -66,7 +66,7 @@ export abstract class E2ePageObject {
         });
         expect(errorLogs.length).toBe(0, 'Console errors were detected!');
       } else {
-        throw(new Error('Failed to get logs from browser'))
+        throw(new Error('Failed to get logs from browser'));
       }
     });
   }

@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { DatetimeService } from './datetime.service';
 import * as moment from 'moment-timezone';
-import { MockedSettingsService } from './mocked.settings.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 import { SettingsService } from './settings.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('DatetimeService', () => {
   let service: DatetimeService;
@@ -14,6 +14,7 @@ describe('DatetimeService', () => {
     TestBed.configureTestingModule({
       providers: [
         MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ],
     });
     service = TestBed.get(DatetimeService);
@@ -42,31 +43,31 @@ describe('DatetimeService', () => {
     // 737000 = 1 Nov 2017
     // 737250 = 9 Jul 2018
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('00:00');
-    expect(service.MatlabDateToJSTime(737000)).toEqual('00:00:00')
+    expect(service.MatlabDateToJSTime(737000)).toEqual('00:00:00');
     settings.Timezone = 'custom'; // Doesnt care about DST
     settings.fixedTimeZoneOffset = 3;
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('03:00');
-    expect(service.MatlabDateToJSTime(737000)).toEqual('03:00:00')
+    expect(service.MatlabDateToJSTime(737000)).toEqual('03:00:00');
     settings.fixedTimeZoneOffset = -3;
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('21:00');
-    expect(service.MatlabDateToJSTime(737000)).toEqual('21:00:00')
-    settings.Timezone = 'vessel'
+    expect(service.MatlabDateToJSTime(737000)).toEqual('21:00:00');
+    settings.Timezone = 'vessel';
     service.vesselOffsetHours = 2; // Should include DST
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('02:00');
-    expect(service.MatlabDateToJSTime(737000)).toEqual('02:00:00')
+    expect(service.MatlabDateToJSTime(737000)).toEqual('02:00:00');
     // Cant really test the timezones here
     // settings.Timezone = 'own'
     // expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('01:00');
-    settings.Timezone = 'timezone'
-    settings.fixedTimeZoneLoc = 'Europe/London' // UTC
+    settings.Timezone = 'timezone';
+    settings.fixedTimeZoneLoc = 'Europe/London'; // UTC
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('00:00'); // WITHOUT DST
-    expect(service.MatlabDateToJSTime(737000)).toEqual('00:00:00 GMT')
+    expect(service.MatlabDateToJSTime(737000)).toEqual('00:00:00 GMT');
     expect(service.MatlabDateToCustomJSTime(737250, 'HH:mm')).toEqual('01:00'); // WITH DST
-    expect(service.MatlabDateToJSTime(737250)).toEqual('01:00:00 BST')
-    settings.fixedTimeZoneLoc = 'Europe/Amsterdam' // UTC + 1
+    expect(service.MatlabDateToJSTime(737250)).toEqual('01:00:00 BST');
+    settings.fixedTimeZoneLoc = 'Europe/Amsterdam'; // UTC + 1
     expect(service.MatlabDateToCustomJSTime(737000, 'HH:mm')).toEqual('01:00'); // WITHOUT DST
-    expect(service.MatlabDateToJSTime(737000)).toEqual('01:00:00 CET')
+    expect(service.MatlabDateToJSTime(737000)).toEqual('01:00:00 CET');
     expect(service.MatlabDateToCustomJSTime(737250, 'HH:mm')).toEqual('02:00'); // WITH DST
-    expect(service.MatlabDateToJSTime(737250)).toEqual('02:00:00 CEST')
-  })
+    expect(service.MatlabDateToJSTime(737250)).toEqual('02:00:00 CEST');
+  });
 });
