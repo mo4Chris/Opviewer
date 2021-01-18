@@ -2,9 +2,7 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { environment } from '../environments/environment';
-// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
-// import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
@@ -17,8 +15,10 @@ import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel
   providedIn: 'root',
 })
 export class CommonService {
-
-  constructor(private http: Http) { }
+  constructor(
+    private http: Http
+  ) {
+  }
 
   get(url: string) {
     const headers = new Headers();
@@ -621,6 +621,11 @@ export class CommonService {
   loadUserSettings(): Observable<object> {
     return this.get('/api/loadUserSettings').pipe(
       map((response: Response) => response.json().settings));
+  }
+
+  getForecastConnectionTest() {
+    return this.get('/api/mo4light/connectionTest').pipe(
+      map((response: Response) => response.json()));
   }
 
 }

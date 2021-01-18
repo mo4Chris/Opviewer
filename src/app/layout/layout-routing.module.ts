@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LayoutComponent } from './layout.component';
-import { ReportsModule } from './reports/reports.module';
 
 const routes: Routes = [
     {
@@ -10,7 +9,8 @@ const routes: Routes = [
         children: [
             { path: '', redirectTo: 'dashboard' },
             { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
-            { path: 'reports', loadChildren: './reports/reports.module#ReportsModule'},
+            { path: 'forecast', loadChildren: './forecast/forecast.module#ForecastModule' },
+            { path: 'reports', loadChildren: './reports/reports.module#ReportsModule' },
             { path: 'campaigns', loadChildren: './TWA/fleets/fleets.module#FleetsModule' },
             { path: 'fleet-log', loadChildren: './TWA/fleet-log/fleet-log.module#FleetLogModule' },
             { path: 'campaign-request', loadChildren: './TWA/fleet-request/fleet-request.module#FleetRequestModule' },
