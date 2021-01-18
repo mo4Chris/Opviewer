@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { UserSettingsComponent } from './user-settings.component';
-import { CommonService } from '../../common.service';
+import { CommonService } from '@app/common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { PageHeaderModule, SharedPipesModule } from '../../shared';
+import { PageHeaderModule, SharedPipesModule } from '@app/shared';
 import { UserSettingsRoutingModule } from './user-setting-routing.module';
 
 @NgModule({

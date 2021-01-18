@@ -22,10 +22,10 @@ export class CtvslipgraphComponent implements OnChanges {
   private context: CanvasRenderingContext2D;
   private utcOffset: number;
   private color = {
-    isTransfer: "rgba(0, 150, 0, 0.4)",
-    noTransfer: "rgba(255, 0, 0, 0.4)",
-    white: "rgba(0,0, 0, 0)",
-  }
+    isTransfer: 'rgba(0, 150, 0, 0.4)',
+    noTransfer: 'rgba(255, 0, 0, 0.4)',
+    white: 'rgba(0,0, 0, 0)',
+  };
 
   public hidden = false;
 
@@ -81,7 +81,7 @@ export class CtvslipgraphComponent implements OnChanges {
             xAxes: [{
               scaleLabel: {
                 display: true,
-                labelString: this.utcOffset>=0 ? 'Time (UTC+' + this.utcOffset + ')' :  'Time (UTC ' + this.utcOffset + ')'
+                labelString: this.utcOffset >= 0 ? 'Time (UTC+' + this.utcOffset + ')' :  'Time (UTC ' + this.utcOffset + ')'
               },
               type: 'time'
             }],
@@ -111,23 +111,23 @@ export class CtvslipgraphComponent implements OnChanges {
             ]
           }
         }
-      }
+      };
       if (line.data.datasets[0].data.length > 0) {
         if (this.context !== undefined) {
           this.chart = new Chart(this.context, line);
         } else {
-          console.log(this.canvas)
-          console.log(this.canvas.nativeElement)
-          console.log(this.canvas.nativeElement.getContext('2d'))
-          console.log(this.context)
-          console.log(line)
-          console.error('Could not get 2d context!')
+          console.log(this.canvas);
+          console.log(this.canvas.nativeElement);
+          console.log(this.canvas.nativeElement.getContext('2d'));
+          console.log(this.context);
+          console.log(line);
+          console.error('Could not get 2d context!');
         }
       }
     } else {
       this.hidden = true;
       this.ref.detectChanges();
-    };
+    }
   }
 
   parseSlipData() {
@@ -139,8 +139,8 @@ export class CtvslipgraphComponent implements OnChanges {
         backgroundColor: prev ? this.color.isTransfer : this.color.noTransfer,
         borderColor: this.color.white,
         pointHoverRadius: 0
-      })
-    }
+      });
+    };
 
     // Creating x/y points for the slip graph
     this.slipGraph.slipX.forEach((_t, i) => {
@@ -148,7 +148,7 @@ export class CtvslipgraphComponent implements OnChanges {
       prev = i > 0 ? curr : this.slipGraph.transferPossible[0] > 0;
       curr = this.slipGraph.transferPossible[i] > 0;
       y = this.slipGraph.slipY[i];
-      // We create overlapping data points here so the graphs 
+      // We create overlapping data points here so the graphs
       if (curr === prev) {
         temp.push({
           x: t,
@@ -165,7 +165,7 @@ export class CtvslipgraphComponent implements OnChanges {
           y: y,
         }];
       }
-    })
+    });
     addDataset(temp);
     return datas;
   }
@@ -173,7 +173,7 @@ export class CtvslipgraphComponent implements OnChanges {
   roundNumber(number, decimal = 10, addString = '') {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
   }
-  
+
   makeTimeString(matlabTime: number): string {
     return this.dateService
           .MatlabDateToUnixEpoch(matlabTime + this.utcOffset / 24)
@@ -193,6 +193,6 @@ interface slipGraphData {
   slipX: number[];
   slipY: number[];
   transferPossible: number[];
-  yLimits: number[]
+  yLimits: number[];
   slipLimit: number;
 }

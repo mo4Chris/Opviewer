@@ -9,7 +9,7 @@ export interface ComprisonArrayElt {
     info?: string;
     annotation?: () => {};
     barCallback?: (data: RawScatterData | SOVRawScatterData) => {x: any, y: any}[];
-    filterCB?: (elt: number) => boolean;
+    filters?: LongtermDataFilter[];
 }
 
 export interface RawScatterData {
@@ -25,4 +25,10 @@ export interface SOVRawScatterData {
     label: string[];
     turbine: null | RawScatterData;
     platform: null | RawScatterData;
+}
+
+export interface LongtermDataFilter {
+    name: string;
+    active?: boolean;
+    filter: (x: number, y: number, mmsi?: number) => boolean;
 }

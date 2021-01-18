@@ -3,7 +3,7 @@ import { LogisticsSpecialistComponent } from './logistics-specialist.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('Dashboard logistic specialist', () => {
@@ -19,7 +19,10 @@ describe('Dashboard logistic specialist', () => {
         RouterTestingModule,
         NgbModule,
       ],
-      providers: [MockedCommonServiceProvider]
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
 

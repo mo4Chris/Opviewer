@@ -13,7 +13,7 @@ describe('Ctv longterm module', () => {
 
   describe('LTM for marine controllers', () => {
     it('should not redirect', () => {
-      expect(page.getUrl()).toMatch('/reports/longterm')
-    })
-  })
+      expect(page.getUrl()).toMatch('/reports/longterm');
+    });
+  });
 });

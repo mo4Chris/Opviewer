@@ -32,9 +32,9 @@ export class EngineOverviewComponent implements OnChanges {
 
     this.loadEngineData().subscribe(engines => {
       this.vesselNames = engines.map(e => {
-        let index = this.vesselObject.mmsi.findIndex(mmsi => mmsi == e._id);
+        const index = this.vesselObject.mmsi.findIndex(mmsi => mmsi == e._id);
         return this.vesselObject.vesselName[index];
-      })
+      });
       this.engines = engines.map(eng_vessel => {
         const grouped = this.dateService.groupDataByMonth(eng_vessel);
         return grouped.map((e: any) => {
@@ -65,14 +65,14 @@ export class EngineOverviewComponent implements OnChanges {
     return this.calcService.roundNumber(num, dec, str);
   }
   getPositiveCount(y: number[]) {
-    return y.reduce((total, x) => x > 0 ? total + 1 : total, 0)
+    return y.reduce((total, x) => x > 0 ? total + 1 : total, 0);
   }
   getPositiveMean(x: Array<number>) {
-    let y = x.filter(_x => _x>0);
+    const y = x.filter(_x => _x > 0);
     return this.calcService.getNanMean(y);
   }
   getNanSum(y: Array<number>) {
-    return y.reduce((total, x) => x>0 ? total + x : total, 0);
+    return y.reduce((total, x) => x > 0 ? total + x : total, 0);
   }
 }
- 
+

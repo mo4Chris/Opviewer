@@ -1,5 +1,5 @@
 export interface CycleTime {
-    
+
     startTime: string;
     durationMinutes: number;
     fieldname: string;

@@ -1,12 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { VesselMasterComponent } from './vessel-master.component';
-import { AgmCoreModule } from '@agm/core';
-import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 
 describe('VesselMasterComponent', () => {
   let component: VesselMasterComponent;
@@ -20,7 +17,10 @@ describe('VesselMasterComponent', () => {
         RouterTestingModule,
         NgbModule,
       ],
-      providers: [MockedCommonServiceProvider]
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
 

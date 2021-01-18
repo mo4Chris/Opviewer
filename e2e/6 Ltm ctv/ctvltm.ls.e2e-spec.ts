@@ -42,26 +42,26 @@ describe('Ctv longterm module', () => {
   });
 
   it('should allow adding vessels', () => {
-    let info = page.getVesselInfoTable();
+    const info = page.getVesselInfoTable();
     expect(info.all(by.css('tbody>tr')).count()).toEqual(1);
-    let btn = page.getVesselDropdown();
+    const btn = page.getVesselDropdown();
     btn.click();
-    let list = page.getVesselList();
-    list.first().$("div").click(); // Selects all vessels
+    const list = page.getVesselList();
+    list.first().$('div').click(); // Selects all vessels
     browser.waitForAngular();
     expect(page.getActiveVesselCount()).toBeGreaterThan(1, 'No more active vessels');
     expect(info.all(by.css('tbody>tr')).count()).toBeGreaterThan(1, 'Select all button not working properly');
-  })
+  });
 
   it('should not fail without any selected vessels', () => {
-    let active = page.getSelectedVessels();
+    const active = page.getSelectedVessels();
     expect(active.count()).toEqual(1, 'Should have 1 selected vessel');
     active.each(e => {
       return e.$('a').click();
-    })
+    });
     browser.waitForAngular();
     expect(active.count()).toEqual(0, 'Should have no selected vessels');
-  })
+  });
 
   it('should initialize correctly when data is present', () => {
     page.setDateRange({year: 2020, month: 1, day: 1}, {year: 2020, month: 2, day: 1});
@@ -72,12 +72,12 @@ describe('Ctv longterm module', () => {
   it('should load wave data', () => {
     page.selectWaveSourceByIndex(1);
     expect(page).toBeTruthy();
-    let vesselActivityChart = element(by.id('deploymentGraph'));
+    const vesselActivityChart = element(by.id('deploymentGraph'));
     expect(vesselActivityChart.isPresent()).toBe(true);
-  })
+  });
 });
 
 const sleep = () => {
   browser.sleep(5000);
 };
- 
+

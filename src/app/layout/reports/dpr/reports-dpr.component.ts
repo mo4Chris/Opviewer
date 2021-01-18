@@ -200,12 +200,12 @@ export class ReportsDprComponent implements OnInit {
     return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
   }
   initMaxDate() {
-    let curr = moment().add(-1, 'days');
+    const curr = moment().add(-1, 'days');
     return {
       year: curr.year(),
       month: curr.month() + 1,
       day: curr.date()
-    }
+    };
   }
   getInitialDateNormal() {
     const paramDate = this.getDateFromParameter();

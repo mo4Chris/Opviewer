@@ -2,7 +2,7 @@ var {Client, Pool} = require('pg')
 
 const pool = new Client()
 
-function defaultPgLoader(table, fields = '*') {
+function defaultPgLoader(table, fields = '*', filter=null) {
   let PgQuery = '';
   if (fields == '*') {
     PgQuery = `SELECT * from ${table}`;
@@ -23,7 +23,6 @@ function defaultPgLoader(table, fields = '*') {
         } else if (typeof fields == 'string') {
           res.send(data.rows.map(user => user[fields]));
         } else {
-          console.log(data)
           out = {};
           fields.forEach(key => {
             out[key] = data.rows.map(elt => elt[key])
@@ -59,7 +58,24 @@ module.exports = function(app, logger) {
     defaultPgLoader('vessels', 'type')
   );
 
+  app.get('/api/mo4light/getProjectList', 
+    defaultPgLoader('vessels', ['name', 'id', 'consumer_id'])
+  );
+
+  app.get('/api/mo4light/getProjectById/:id', (req, res) => {
+    const id = req.params.id.split(",").filter(function(el) { return el != null && el != '' });
+    let PgQuery = `SELECT * from projects where id=${id}`
+    pool.query(PgQuery).then((data, err) => {
+      if (err) {
+        logger.error(err);
+        res.send(err);
+      } else {
+        //
+      }
+    })
+  });
+
   app.get('/api/mo4light/connectionTest', 
-    defaultPgLoader('clients', ['name', 'id'])
+    defaultPgLoader('projects', '*')
   )
 };

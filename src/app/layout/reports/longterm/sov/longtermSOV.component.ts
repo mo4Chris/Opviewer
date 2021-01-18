@@ -51,7 +51,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         {
             x: 'Hs', y: 'duration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Turbine transfer duration [mns]', dataType: 'turbine',
             info: `Turbine transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
-            outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
+            outliers are drawn separately. Transfers without valid transfer scores are not shown.`,
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
         {
@@ -64,7 +64,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         {
             x: 'Hs', y: 'visitDuration', graph: 'areaScatter', xLabel: 'Hs [m]', yLabel: 'Platform transfer duration [mns]', dataType: 'platform',
             info: `Platform transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and
-            outliers are drawn separately. Transfers without valid transfer scores have been omitted.`,
+            outliers are drawn separately. Transfers without valid transfer scores are not shown.`,
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold')
         },
     ];
@@ -123,7 +123,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         if (rawScatterData.turbine) {
             groupedData = this.groupDataByBin(rawScatterData.turbine, { param: 'Hs', val: hsBins });
         }
-        
+
         if (rawScatterData.platform) {
             const groupedPlatforms = this.groupDataByBin(rawScatterData.platform, { param: 'Hs', val: hsBins });
             if (groupedData) {
