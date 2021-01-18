@@ -65,6 +65,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
   });
 
   it('should create without data', () => {
+    expect(component.hasData).toBe(false);
     expect(component).toBeTruthy();
   });
 
