@@ -35,7 +35,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   ) { }
 
   ngOnChanges() {
-    if (this.dset && (this.dset !== null || this.dset.datasets.length == 0)) {
+    if (this.dset && (this.dset !== null || this.dset.datasets.length > 0)) {
 
       this.isFirstGraph = this.dset.isFirst;
       if (this.dset.datasets[0].stack && this.dset.datasets[0].stack !== ''){
