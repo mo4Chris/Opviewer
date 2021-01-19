@@ -1,6 +1,4 @@
-import { NG_ANIMATING_SELECTOR } from '@angular/animations/browser/src/util';
 import { TestBed } from '@angular/core/testing';
-
 import { CalculationService } from './calculation.service';
 
 describe('CalculationService', () => {
@@ -60,7 +58,7 @@ describe('CalculationService', () => {
     });
   });
 
-  fit('should format and round numbers', () => {
+  it('should format and round numbers', () => {
     expect(service.roundNumber(12, 10)).toEqual('12')
     expect(service.roundNumber(1.2, 10)).toEqual('1.2')
     expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels')
