@@ -628,6 +628,25 @@ export class CommonService {
       map((response: Response) => response.json()));
   }
 
+  getForecastProjectList() {
+    return this.get('/api/mo4light/getProjectList').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getForecastVesselList() {
+    return this.get('/api/mo4light/getVesselList').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getForecastUserList() {
+    return this.get('/api/mo4light/getUsers').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getForecastClientList() {
+    return this.get('/api/mo4light/getClients').pipe(
+      map((response: Response) => response.json()));
+  }
 }
 
 export interface StatsRangeRequest {

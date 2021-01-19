@@ -3587,7 +3587,6 @@ app.post("/api/getHasSailedDatesCTV", function(req, res) {
   });
 });
 
-
 app.post("/api/getVesselsToAddToFleet", function(req, res) {
   let token = verifyToken(req, res);
   if (token.userPermission !== 'admin') {

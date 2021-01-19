@@ -1,14 +1,18 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 import { Mo4testComponent } from './mo4test.component';
 
-describe('Mo4testComponent', () => {
+fdescribe('Mo4testComponent', () => {
   let component: Mo4testComponent;
   let fixture: ComponentFixture<Mo4testComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ Mo4testComponent ]
+      declarations: [ Mo4testComponent ],
+      providers: [
+        MockedCommonServiceProvider
+      ]
     })
     .compileComponents();
   }));

@@ -1,3 +1,12 @@
+<div class="form-inline no-print">
+  <div class="form-group row">
+    <select class="form-control form-control-lg boatSelectDropdown" name="selectVessel" [(ngModel)]="selectedVesselId"
+      (change)="onChange()" required [disabled]="false">
+      <option class="dropdown-item" *ngFor="let vessel of vessels" [ngValue]="vessel.id">{{vessel.type}}</option>
+    </select>
+  </div>
+</div>
+
 <p>
   mo4test works!
 </p>
