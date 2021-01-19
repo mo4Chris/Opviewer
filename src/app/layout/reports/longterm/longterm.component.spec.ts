@@ -23,8 +23,6 @@ import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/s
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { mockedObservable } from '@app/models/testObservable';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
-import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
-import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 
 describe('LongtermComponent', () => {
     let component: LongtermComponent;
@@ -56,8 +54,6 @@ describe('LongtermComponent', () => {
                     SiemensKpiOverviewComponent,
                     UtilizationGraphComponent,
                     EngineOverviewComponent,
-                    CtvUtilizationGraphComponent,
-                    CtvLongtermUtilSubGraphComponent,
                 ),
             ],
             providers: [

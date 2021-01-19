@@ -50,7 +50,7 @@ export class CtvUtilizationGraphComponent implements OnChanges {
     this.getChartData((outputs) => {
       this.dsets = new Array(outputs.length);
       outputs.forEach((out, index) => {
-        this.buildGraphCallback(out.data, out.matlabDates, index, out.vesselname);
+        this.buildGraphCallback(out.data, out.matlabDates, index, out.vesselname)
       });
     });
   }
@@ -83,11 +83,11 @@ export class CtvUtilizationGraphComponent implements OnChanges {
         vesselname: 1,
       }
     }).subscribe((rawdatas: RawGeneralModel[][]) => {
-      const outs: {data: TimeBreakdown[], matlabDates: number[], vesselname: string}[] = [];
+      let outs: {data: TimeBreakdown[], matlabDates: number[], vesselname: string}[] = [];
       if (rawdatas.length > 0 && rawdatas[0].length > 0) {
         rawdatas.map(rawdata => {
           const chartData = [];
-          const matlabDates = rawdata.map(e => e.date);
+          let matlabDates = rawdata.map(e => e.date);
           rawdata.forEach(generalData => {
             const generalDataDay = {
               date: generalData.date,
@@ -106,7 +106,7 @@ export class CtvUtilizationGraphComponent implements OnChanges {
             data: chartData,
             vesselname: this.matchVesselnameByMmsi(rawdata[0].mmsi),
             matlabDates: matlabDates,
-          });
+          })
         });
       } else {
         this.noData = true;
@@ -125,7 +125,7 @@ export class CtvUtilizationGraphComponent implements OnChanges {
     const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
     const dateLabels = matlabDates.map((daynum: number) => {
       return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
-    });
+    }); 
     let validIdx: number;
     const getDset = (options: object) => {
       const def = {
@@ -194,14 +194,14 @@ export class CtvUtilizationGraphComponent implements OnChanges {
 
     const dsets = {
       labels: dateLabels,
-      isFirst: index === 0,
+      isFirst: index == 0,
       datasets: [outbound, inField, inbound],
     };
     this.dsets[index] = dsets;
   }
 
   private matchVesselnameByMmsi(mmsi: number) {
-    const index = this.vesselObject.mmsi.findIndex(x => x === mmsi);
+    let index = this.vesselObject.mmsi.findIndex(x => x==mmsi);
     return this.vesselObject.vesselName[index];
   }
 }

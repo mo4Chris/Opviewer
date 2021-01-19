@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { CtvUtilizationGraphComponent } from '../utilizationGraph.component';
+
 import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph.component';
 
 describe('CtvLongtermUtilSubGraphComponent', () => {
@@ -13,7 +13,6 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
       imports: [],
       declarations: [
         CtvLongtermUtilSubGraphComponent,
-        CtvUtilizationGraphComponent,
       ],
       providers: [
         MockedCommonServiceProvider,

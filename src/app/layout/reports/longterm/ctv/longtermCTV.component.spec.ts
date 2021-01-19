@@ -13,8 +13,6 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
-import { CtvUtilizationGraphComponent } from './models/longterm_utilization/utilizationGraph.component';
-import { CtvLongtermUtilSubGraphComponent } from './models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { MockComponents } from 'ng-mocks';
 import { EngineOverviewComponent } from './models/engine-overview/engine-overview.component';
 
@@ -45,8 +43,6 @@ describe('Longterm_CTV', () => {
         LongtermBarGraphComponent,
         LongtermScatterGraphComponent,
         LongtermTrendGraphComponent,
-        CtvUtilizationGraphComponent,
-        CtvLongtermUtilSubGraphComponent,
         MockComponents(
           EngineOverviewComponent
         )
