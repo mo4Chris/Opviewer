@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-
+import { CtvUtilizationGraphComponent } from '../utilizationGraph.component';
 import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph.component';
 
 describe('CtvLongtermUtilSubGraphComponent', () => {
@@ -13,6 +13,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
       imports: [],
       declarations: [
         CtvLongtermUtilSubGraphComponent,
+        CtvUtilizationGraphComponent,
       ],
       providers: [
         MockedCommonServiceProvider,
@@ -22,13 +23,13 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
     .compileComponents();
   }));
 
-  
+
   beforeEach(() => {
     fixture = TestBed.createComponent(CtvLongtermUtilSubGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  
+
 
   it('should create first vessel', () => {
 
@@ -40,7 +41,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
         'Wed Dec 02 2020 01:00:00 GMT+0100 (Central European Standard Time)'
       ],
       isFirst: true,
-      datasets :[{
+      datasets : [{
         stack: ''
       }]
     };
@@ -57,7 +58,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
         'Wed Dec 02 2020 01:00:00 GMT+0100 (Central European Standard Time)'
       ],
       isFirst: false,
-      datasets :[{
+      datasets : [{
         stack: ''
       }]
     };

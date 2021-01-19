@@ -22,13 +22,13 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   };
 
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
-  
+
   public hasData = false;
   public isFirstGraph = false;
 
   chart: Chart;
   vesselname;
-  
+
   constructor(
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
@@ -38,7 +38,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
     if (this.dset && (this.dset !== null || this.dset.datasets.length > 0)) {
 
       this.isFirstGraph = this.dset.isFirst;
-      if (this.dset.datasets[0].stack && this.dset.datasets[0].stack !== ''){
+      if (this.dset.datasets[0].stack && this.dset.datasets[0].stack !== '') {
         this.vesselname = this.dset.datasets[0].stack;
       }
 
@@ -50,9 +50,8 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
   }
 
 
-  
-  private constructNewChart()
-   {
+
+  private constructNewChart() {
     const calcService = this.calculationService;
     const dateService = this.dateTimeService;
     this.chart = new Chart(this.canvas.nativeElement, {
