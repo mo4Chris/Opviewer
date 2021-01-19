@@ -660,6 +660,19 @@ export class MockedCommonService extends CommonService {
     saveHseDprSigningClient(obj: any) {
       return mockedObservable('Great Success');
     }
+
+    getForecastProjectList() {
+        return mockedObservable([])
+    }
+    getForecastClientList() {
+        return mockedObservable([])
+    }
+    getForecastUserList() {
+        return mockedObservable([])
+    }
+    getForecastVesselList() {
+        return mockedObservable([])
+    }
 }
 
 // Replace the CommonService propvider with this provider to completely mock the common service!
