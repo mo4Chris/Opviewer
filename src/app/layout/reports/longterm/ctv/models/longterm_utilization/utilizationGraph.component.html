@@ -1,0 +1,13 @@
+<div class="row" *ngIf="!noData; else noUtilGraph">
+        <ng-container *ngFor="let dset of dsets" >
+                <div class="graphContainer">
+                  <app-longterm-util-sub-graph [dateMin]="vesselObject.dateMin" [dateMax]="vesselObject.dateMax"
+                  [dset]="dset" ></app-longterm-util-sub-graph>
+                </div>
+        </ng-container>
+</div>
+
+
+<ng-template #noUtilGraph>
+  <div class="row">Utilization graph is not available!</div>
+</ng-template>

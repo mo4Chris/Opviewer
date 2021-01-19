@@ -1,0 +1,23 @@
+<div class="row divBreak" [hidden]="!hasData">
+  <div class="col-lg-8">
+    <div class="chartTitle" [hidden]="!isFirstGraph"> Vessel utilization chart</div>
+    <div class="chartTitle chartVesselName"> {{vesselname}}</div>
+    <div class="graph-container">
+      <canvas #canvas></canvas>
+    </div>
+  </div>
+  <div class="col-lg-3 hideOnPrint">
+    Breakdown of the activities by this vessel for each day in the selected period.
+    The lenght of each bar indicates the number of hours spend on a particular activity.
+  </div>
+
+  <div class="col-print-11 printOnly">
+    <div class="card mb-3">
+      <div class="card-header">Additional information</div>
+      <div class="card-body">
+        Breakdown of the activities by this vessel for each day in the selected period.
+        The lenght of each bar indicates the number of hours spend on a particular activity.
+      </div>
+    </div>
+  </div>
+</div>

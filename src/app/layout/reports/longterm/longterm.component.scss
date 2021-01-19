@@ -144,6 +144,10 @@
         display: none;
     }
 
+    .headerBarStyling {
+        margin-top: 0;
+    }
+
     .printOnly{
         display: block;
         font-size: 14px;
@@ -168,6 +172,10 @@
         height: 8cm;
         margin-top: 0.25cm;
         float: right;
+    }
+
+    .divContainer {
+        margin-top: 15mm;
     }
 
     .frontpageContent {

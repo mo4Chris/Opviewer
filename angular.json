@@ -119,7 +119,7 @@
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": ".e2e/conf.vm.ctv.js"
+            "protractorConfig": "./e2e/conf.vm.ctv.js"
           },
           "configurations": {
             "admin" : {

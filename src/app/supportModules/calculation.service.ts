@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { text } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +27,7 @@ export class CalculationService {
         return number + addString;
       }
     }
-    if (!number) {
+    if (typeof(number) !== 'number' || isNaN(number)) {
       return 'N/a';
     }
     return (Math.round(number * decimal) / decimal) + addString;

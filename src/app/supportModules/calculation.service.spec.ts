@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { CalculationService } from './calculation.service';
 
 describe('CalculationService', () => {
@@ -59,5 +58,17 @@ describe('CalculationService', () => {
     });
   });
 
+  it('should format and round numbers', () => {
+    expect(service.roundNumber(12, 10)).toEqual('12')
+    expect(service.roundNumber(1.2, 10)).toEqual('1.2')
+    expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels')
+    expect(service.roundNumber({}, 10)).toEqual('N/a')
+    expect(service.roundNumber([], 10)).toEqual('N/a')
+    expect(service.roundNumber(NaN, 10, 'berries')).toEqual('N/a')
+    expect(service.roundNumber(1.12, 10, 'm3')).toEqual('1.1 m\u00B3')
+    expect(service.roundNumber('_NaN_', 10, 'm3')).toEqual('N/a')
+    expect(service.roundNumber('10', 10)).toEqual('10')
+    expect(service.roundNumber('10', 10, '%')).toEqual('10%')
+  })
 });
 
