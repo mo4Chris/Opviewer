@@ -38,9 +38,9 @@ describe('CTV utilization graph', () => {
       vesselName: [],
       dateNormalMin: '',
       dateNormalMax: '',
-    }
-    component.fromDate = new NgbDate(2019,1,1);
-    component.toDate = new NgbDate(2019,2,1);
+    };
+    component.fromDate = new NgbDate(2019, 1, 1);
+    component.toDate = new NgbDate(2019, 2, 1);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.noData).toBe(true);
@@ -55,9 +55,9 @@ describe('CTV utilization graph', () => {
       vesselName: ['Test CTV'],
       dateNormalMin: '',
       dateNormalMax: '',
-    }
-    component.fromDate = new NgbDate(2019,1,1);
-    component.toDate = new NgbDate(2019,2,1);
+    };
+    component.fromDate = new NgbDate(2019, 1, 1);
+    component.toDate = new NgbDate(2019, 2, 1);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.noData).toBe(true);

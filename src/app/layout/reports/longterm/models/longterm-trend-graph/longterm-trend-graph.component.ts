@@ -50,7 +50,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
     if (this.chart) {
       this.reset();
     }
-    if (this.filters == undefined) {
+    if (this.filters === undefined) {
       this.filters = [];
     }
 
@@ -178,7 +178,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
     const keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
-      if (filter.active || filter.active == undefined) {
+      if (filter.active || filter.active === undefined) {
         xVals.forEach((x, i) => {
           if (keep[i]) {
             const y = yVals[i];
