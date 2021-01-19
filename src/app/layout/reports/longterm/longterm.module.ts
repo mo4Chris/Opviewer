@@ -24,6 +24,8 @@ import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longt
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
+import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
+import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
 
 @NgModule({
@@ -42,14 +44,16 @@ import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerb
         LongtermSOVComponent,
         DeploymentGraphComponent,
         UtilizationGraphComponent,
+        CtvUtilizationGraphComponent,
+        CtvLongtermUtilSubGraphComponent,
         VesselinfoComponent,
         LongtermComponent,
         SiemensKpiOverviewComponent,
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
         LongtermTrendGraphComponent,
-        EngineOverviewComponent,
         LongtermPrintHeaderComponent,
+        EngineOverviewComponent,
         LongtermPrintHeaderbarComponent,
     ],
     providers: [CommonService, UserService],

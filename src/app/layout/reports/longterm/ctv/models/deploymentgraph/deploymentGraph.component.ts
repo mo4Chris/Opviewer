@@ -27,7 +27,6 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
     }
 
     @Input() vesselObject: LongtermVesselObjectModel;
-    @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Input() wavedata: LongtermParsedWavedata;
@@ -163,7 +162,10 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                 label: 'Hs',
                 type: 'line',
                 data: this.wavedata.Hs.map((elt, _idx) => {
-                    return {x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]), y: elt};
+                    return {
+                        x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]),
+                        y: elt
+                    };
                 }),
                 showLine: true,
                 pointRadius: 0,

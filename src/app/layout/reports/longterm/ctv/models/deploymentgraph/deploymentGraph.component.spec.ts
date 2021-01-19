@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
-import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './deploymentGraph.component';
 
 describe('DeploymentGraphComponent', () => {
@@ -50,7 +50,6 @@ describe('DeploymentGraphComponent', () => {
       'wind': linspace(1, 2, N),
       'windDir': linspace(1, 2, N),
     };
-    component.tokenInfo = UserTestService.getMockedAccessToken({userBoats: userBoats});
     fixture.detectChanges();
   });
 
