@@ -7,6 +7,14 @@
   </div>
 </div>
 
-<p>
-  mo4test works!
-</p>
+<div *ngIf="true || showConten" class="row plsdonotprintthisforfsake">
+  <div class="col-lg-3">
+    <app-forecast-ops-picker></app-forecast-ops-picker>
+    <app-forecast-limits-picker [(limits)]="limits">
+    </app-forecast-limits-picker>
+  </div>
+  <div class="col-lg-8">
+    <app-forecast-workability-plot></app-forecast-workability-plot>
+    <app-forecast-workability-surface></app-forecast-workability-surface>
+  </div>
+</div>

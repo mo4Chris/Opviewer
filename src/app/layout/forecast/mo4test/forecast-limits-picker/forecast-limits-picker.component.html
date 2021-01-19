@@ -1,0 +1,11 @@
+<p>
+  forecast-limits-picker works!
+</p>
+
+<div *ngFor="let limit of limitsCopy">
+  {{limit.name}}
+</div>
+
+<button id="confirm-" (click)="onConfirm()" (disabled)="true" class="btn btn-lg btn-primary submitBtnDate">
+  Update limits
+</button>
