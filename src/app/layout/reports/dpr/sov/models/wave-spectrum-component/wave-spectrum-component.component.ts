@@ -1,13 +1,10 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ApplicationRef, ChangeDetectorRef } from '@angular/core';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
-import { container } from '@angular/core/src/render3';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { isArray } from 'util';
-import { routerTransition } from '@app/router.animations';
 
 @Component({
   selector: 'app-wave-spectrum-component',
@@ -184,7 +181,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     // Setting the source name
     this.loaded = false;
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
-      if (isArray(spectrums) && spectrums.length > 0) {
+      if (Array.isArray(spectrums) && spectrums.length > 0) {
         this.waveSpectrum = spectrums[0];
         this.parseSpectrum();
         this.loaded = true;

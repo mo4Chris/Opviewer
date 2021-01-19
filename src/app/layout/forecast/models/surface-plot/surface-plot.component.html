@@ -1,3 +1,9 @@
-<p>
-  surface-plot works!
-</p>
+<div [hidden]="!loaded">
+  <plotly-plot divId="surface-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
+    (initialized)="onPlotlyInit($event)">
+  </plotly-plot>
+</div>
+
+<div [hidden]="loaded">
+  <app-ng-loading></app-ng-loading>
+</div>

@@ -10,6 +10,9 @@ import { SurfacePlotComponent } from './models/surface-plot/surface-plot.compone
 import { ForecastWorkabilityPlotComponent } from './models/forecast-workability-plot/forecast-workability-plot.component';
 import { ForecastWorkabilitySurfaceComponent } from './mo4test/forecast-workability-surface/forecast-workability-surface.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { PlotlyModule } from 'angular-plotly.js';
+import { SupportModelModule } from '@app/models/support-model.module';
+
 
 @NgModule({
   imports: [
@@ -17,6 +20,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     ForecastRoutingModule,
     NgbModule,
+    PlotlyModule,
+    SupportModelModule,
   ],
   providers: [
     CommonService
