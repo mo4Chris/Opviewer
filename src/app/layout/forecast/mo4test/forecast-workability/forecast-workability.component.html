@@ -1,0 +1,4 @@
+Gotta do the work
+<app-forecast-workability-plot></app-forecast-workability-plot>
+<app-surface-plot *ngIf="workability" xLabel="" yLabel="Heading [deg]" title="Workability"
+  [xData]="time" [yData]="workabilityHeadings" [zData]="workability"></app-surface-plot>

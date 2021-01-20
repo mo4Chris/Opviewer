@@ -9,8 +9,8 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 })
 export class SurfacePlotComponent implements OnChanges {
   @Input() xLabel: string;
-  @Input() yLabels: string;
-  @Input() xData: (number | Date)[];
+  @Input() yLabel: string;
+  @Input() xData: (number | string | Date)[];
   @Input() yData: number[];
   @Input() zData: number[][];
   @Input() title: string = 'Workability plot'
@@ -19,7 +19,7 @@ export class SurfacePlotComponent implements OnChanges {
   constructor(
     private calcService: CalculationService,
   ) {
-    this.initTestData();
+    // this.initTestData();
   }
 
   public loaded = false;
@@ -28,7 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
     // General settings for the graph
     title: 'Test graph',
     height: 500,
-    width: 600,
+    width: 700,
     style: { margin: 'auto' },
     center: true,
     xaxis: {
@@ -42,7 +42,7 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'yLabel',
       showgrid: false,
       zeroline: false,
-    }
+    },
   };
 
   ngOnChanges() {
@@ -52,7 +52,13 @@ export class SurfacePlotComponent implements OnChanges {
       y: this.yData,
       z: this.zData,
       type: 'contour',
+      // contours: {
+      //   coloring: 'heatmap',
+      //   showlabels: true,
+      // }
     }];
+    this.PlotLayout.xaxis.title = this.xLabel;
+    this.PlotLayout.yaxis.title = this.yLabel;
     this.PlotLayout.title = this.title;
     console.log('Surface-plot onchanges')
     console.log(this.parsedData[0])
@@ -66,9 +72,9 @@ export class SurfacePlotComponent implements OnChanges {
   validateInput() {
     const xLen = this.xData.length;
     const yLen = this.yData.length;
-    assert(this.zData.length == yLen);
-    this.zData.forEach(z => {
-      assert(z.length == xLen)
+    assert(this.zData.length == yLen, 'Length of yData should match zData.length');
+    this.zData.forEach((z, i) => {
+      assert(z.length == xLen, `Length of xData should match zData[${i}].length`);
     })
   }
 

@@ -28,9 +28,16 @@ module.exports = function(app, logger) {
     defaultPgLoader('projects', ['name', 'id', 'consumer_id'])
   );
 
+  app.get('/api/mo4light/getResponseForProject/:project_id', (req, res) => {
+      const id = req.params.project_id;
+      cb = defaultPgLoader('responses', '*', `project_id=${id}`);
+      return cb(req, res);
+    }
+  )
+
   app.get('/api/mo4light/getProjectById/:id', (req, res) => {
-    const id = req.params.id.split(",").filter(function(el) { return el != null && el != '' });
-    let PgQuery = `SELECT * from projects where id=${id}`
+    let PgQuery = `SELECT * from projects where id=${id}`;
+    const id = req.params.id;
     pool.query(PgQuery).then((data, err) => {
       if (err) {
         logger.error(err);
@@ -55,6 +62,9 @@ module.exports = function(app, logger) {
     } else {
       const fieldList = fields.join(', ');
       PgQuery = `SELECT ${fieldList} from ${table}`;
+    }
+    if (filter) {
+      PgQuery = `${PgQuery} where ${filter}`
     }
     return function(req, res) {
       pool.query(PgQuery).then((data, err) => {

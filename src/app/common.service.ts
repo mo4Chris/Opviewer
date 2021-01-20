@@ -10,6 +10,7 @@ import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
+import { ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -645,6 +646,11 @@ export class CommonService {
 
   getForecastClientList() {
     return this.get('/api/mo4light/getClients').pipe(
+      map((response: Response) => response.json()));
+  }
+
+  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject[]> {
+    return this.get('/api/mo4light/getResponseForProject/' + project_id).pipe(
       map((response: Response) => response.json()));
   }
 }
