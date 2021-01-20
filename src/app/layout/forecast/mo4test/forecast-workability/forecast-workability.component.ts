@@ -28,10 +28,8 @@ export class ForecastWorkabilityComponent implements OnChanges {
   ngOnChanges() {
     // WooHoo
     if (this.response) {
-      console.log("Forecast workability changed")
       const POI = this.response.response.Points_Of_Interest.P1;
       const response = POI.Response;
-      console.log(POI)
       this.time = POI.Time.map(matlabtime => this.dateService.MatlabDateToUnixEpochViaDate(matlabtime));
       this.workabilityHeadings = POI.Heading;
       const limiters = this.limits.map(limit => {
@@ -42,7 +40,6 @@ export class ForecastWorkabilityComponent implements OnChanges {
           this.responseService.combineWorkabilities(limiters)
         )
       , 100);
-      console.log(this)
     }
   }
 

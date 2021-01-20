@@ -8,7 +8,7 @@ export class MatrixService {
 
   constructor() { }
 
-  transpose(matrix:Matrix): Matrix {
+  transpose(matrix: Matrix): Matrix {
     return matrix[0].map((_, colIndex) => 
       matrix.map(row => row[colIndex])
     );
@@ -35,5 +35,16 @@ export class MatrixService {
       }
     }
     return matrix
+  }
+
+  elementwiseMax(A: Matrix, B: Matrix) {
+    let numX = A.length, numY = A[0].length;
+    let output = this.matrix(numX, numY, 0);
+    for (let x=0; x<numX; x++) {
+      for (let y=0; y<numY; y++) {
+        output[x][y] = Math.max(A[x][y], B[x][y])
+      }
+    }
+    return output;
   }
 }

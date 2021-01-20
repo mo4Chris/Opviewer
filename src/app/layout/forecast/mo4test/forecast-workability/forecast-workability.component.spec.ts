@@ -48,7 +48,7 @@ fdescribe('ForecastWorkabilityComponent', () => {
         Points_Of_Interest: {
           P1: {
             Coordinates: {X: {Data: 0, String_Value: ''}, Y: {Data: 0, String_Value: ''}, Z: {Data: 0, String_Value: ''}},
-            Heading: [],
+            Heading: [0, 90, 180, 270],
             Time: [],
             Response: {
               Acc: [],
@@ -61,6 +61,8 @@ fdescribe('ForecastWorkabilityComponent', () => {
     }
     component.heading = 90;
     component.limits = [];
+    component.ngOnChanges();
     expect(component).toBeTruthy();
+    expect(component.workabilityHeadings).toEqual([0, 90, 180, 270]);
   });
 });

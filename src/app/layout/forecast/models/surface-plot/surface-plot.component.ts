@@ -13,6 +13,7 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() xData: (number | string | Date)[];
   @Input() yData: number[];
   @Input() zData: number[][];
+  @Input() zMax?: number;
   @Input() title: string = 'Workability plot'
   @Input() useInterpolation = true;
 
@@ -52,10 +53,13 @@ export class SurfacePlotComponent implements OnChanges {
       y: this.yData,
       z: this.zData,
       type: 'contour',
-      // contours: {
-      //   coloring: 'heatmap',
-      //   showlabels: true,
-      // }
+      zmin: 0,
+      zmid: 80,
+      zmax: this.zMax,
+      colorbar: {
+        tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10) : undefined,
+        ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10).map(e => `${e}%`) : undefined,
+      }
     }];
     this.PlotLayout.xaxis.title = this.xLabel;
     this.PlotLayout.yaxis.title = this.yLabel;

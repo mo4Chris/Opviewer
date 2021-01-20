@@ -25,19 +25,15 @@ export class ForecastReponseService {
 
   combineWorkabilities(datas: number[][][]) {
     if (!Array.isArray(datas) || datas.length < 1) {
-      return [];
+      return [[[]]];
     }
     const numX = datas[0].length;
     const numY = datas[0][0].length;
     let output = this.matService.zeros(numX, numY);
     for (let i=0; i<datas.length; i++) {
-      let data = datas[i]
-      for (let x=0; x<numX; x++) {
-        for (let y=0; y<numY; y++) {
-          output[x][y] = Math.max(output[x][y], data[x][y])
-        }
-      }
+      output = this.matService.elementwiseMax(output, datas[i])
     }
+    console.log(output)
     return output;
   }
 }
