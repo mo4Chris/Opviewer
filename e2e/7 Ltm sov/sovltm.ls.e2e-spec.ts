@@ -22,6 +22,7 @@ describe('Sov longterm module', () => {
     expect(page.dp.isOpen()).toBe(false);
     expect(page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-\d{2}/);
   });
+
   it('should switch dates via buttons', () => {
     page.switchLastMonth();
     expect(page.getNanCount()).toBe(0);
@@ -42,6 +43,7 @@ describe('Sov longterm module', () => {
     dp.cancelBtn.click();
     expect(page.getDateString()).toBe(oldDateString);
   });
+
   it('should initialize correctly when data is present', () => {
     page.setDateRange({year: 2020, month: 1, day: 1}, {year: 2020, month: 2, day: 1});
     expect(page.getNanCount()).toBe(0, 'Can be no nans!');
@@ -49,6 +51,14 @@ describe('Sov longterm module', () => {
     expect(page.getUtilizationGraph().isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
     expect(page.getUtilizationGraph().element(by.tagName('canvas')).isDisplayed()).toBe(true, 'Utilization graph should load with data present!');
     expect(page.getGraphContainers().count()).toBeGreaterThan(3);
+  });
+
+  it('should allow adding vessels', () => {
+
+  });
+
+  it('should not fail without any selected vessels', () => {
+
   });
 });
 

@@ -1,0 +1,17 @@
+@import '../../../reports.component.scss';
+@import '../../longterm.component.scss';
+
+.space-left {
+  margin-left: 10px;
+}
+
+.printheader {
+  display: block;
+}
+
+@media screen {
+  #onlyOnPrintContainer {
+    display: none;
+  }
+}
+

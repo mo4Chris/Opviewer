@@ -62,8 +62,8 @@ export class SovDprPage extends E2ePageObject {
     }
 
     getContainerByTitle(name: string) {
-        let headerDiv = element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
-        return headerDiv.element(by.xpath('../..'))
+        const headerDiv = element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'));
+        return headerDiv.element(by.xpath('../..'));
     }
     getTabEnabledByName(name: string) {
         return this.getTabByName(name).isEnabled();
@@ -83,7 +83,7 @@ export class SovDprPage extends E2ePageObject {
     }
     async tabIsEnabled(tab: ElementFinder) {
         return tab.getAttribute('ariaDisabled').then(c => {
-            return c === 'false'
+            return c === 'false';
         });
     }
     clickTabByName(name: string) {
@@ -161,38 +161,38 @@ class SovDprTransferTab {
     }
 
     setPaxCargo(row: ElementFinder, input: {paxIn: number, paxOut: number, cargoIn: number, cargoOut: number}) {
-        let inputs = row.all(by.tagName('input'));
+        const inputs = row.all(by.tagName('input'));
         inputs.get(-4).clear();
         inputs.get(-3).clear();
         inputs.get(-2).clear();
         inputs.get(-1).clear();
-        inputs.get(-4).sendKeys(input.paxIn)
-        inputs.get(-3).sendKeys(input.paxOut)
-        inputs.get(-2).sendKeys(input.cargoIn)
-        inputs.get(-1).sendKeys(input.cargoOut)
+        inputs.get(-4).sendKeys(input.paxIn);
+        inputs.get(-3).sendKeys(input.paxOut);
+        inputs.get(-2).sendKeys(input.cargoIn);
+        inputs.get(-1).sendKeys(input.cargoOut);
     }
     getPaxCargo(row: ElementFinder) {
-        let inputs = row.all(by.tagName('input'));
-        let parse = (index: number) => {
+        const inputs = row.all(by.tagName('input'));
+        const parse = (index: number) => {
             return inputs.get(index)
                 .getAttribute('value')
                 .then(v => parseInt(v));
-        }
+        };
         return  {
             paxIn: parse(-4),
             paxOut: parse(-3),
             cargoIn: parse(-2),
             cargoOut: parse(-1),
-        }
+        };
     }
     getRndpaxCargo() {
-        let rng = new E2eRandomTools();
+        const rng = new E2eRandomTools();
         return {
             paxIn: rng.getRandomInt(0, 20),
             paxOut: rng.getRandomInt(0, 20),
             cargoIn: rng.getRandomInt(0, 20),
             cargoOut: rng.getRandomInt(0, 20),
-        }
+        };
     }
     getHeader(table: ElementFinder) {
         return table.all(by.xpath('.//thead/tr'));
@@ -223,8 +223,8 @@ class SovDprInputTab {
     public hseInput = this.getContainerByTitle('Additional HSE inputs');
 
     private getContainerByTitle(name: string) {
-        let headerDiv = element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'))
-        return headerDiv.element(by.xpath('../..'))
+        const headerDiv = element(by.xpath('//div[contains(@class,"card-header") and contains(text(),"' + name + '")]'));
+        return headerDiv.element(by.xpath('../..'));
     }
     private initTimeOpts() {
         const quarterHours = ['00', '15', '30', '45'];
@@ -304,12 +304,9 @@ class SovDprInputTab {
         return element(by.id('accessDayType')).element(by.xpath('./td'));
     }
     saveDprTableByIndex(index: number = 0) {
-        let table = this.getDprInputTable(index);
+        const table = this.getDprInputTable(index);
         expect(table.isPresent()).toBe(true, 'Cannot find dpr table');
-        let saveBtn = table.element(by.buttonText('Save'))
-        expect(saveBtn.isPresent()).toBe(true, 'Cannot find save button');
-        saveBtn.click();
-        browser.waitForAngular();
+        this.saveTable(table);
     }
     checkRowTimes(row: ElementFinder, t: {start: string, stop: string}) {
         const inputs = row.all(by.xpath('./td/select'));

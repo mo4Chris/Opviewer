@@ -1,6 +1,9 @@
 import { Component, OnInit, ɵConsole, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { TokenModel } from '@app/models/tokenModel';
 import { VesselModel } from '@app/models/vesselModel';
+import { PermissionService } from '@app/shared/permissions/permission.service';
+import { UserService } from '@app/shared/services/user.service';
 
 @Component({
   selector: 'app-vesselinfo',
@@ -16,15 +19,29 @@ export class VesselinfoComponent implements OnChanges, OnInit {
 
   constructor(
     private newService: CommonService,
+    private permission: PermissionService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
-    this.newService.getVessel().subscribe(_vessels => {
-      this.vesselStore = _vessels;
-      if (this.mmsi) {
-        this.loadInfos();
-      }
-    });
+    if (this.permission.admin) {
+      this.newService.getVessel().subscribe(_vessels => {
+        this.vesselStore = _vessels;
+        if (this.mmsi) {
+          this.loadInfos();
+        }
+      });
+    } else {
+      const token = TokenModel.load(this.userService);
+      this.newService.getVesselsForCompany([{
+        client: token.userCompany
+      }]).subscribe(_vessels => {
+        this.vesselStore = _vessels;
+        if (this.mmsi) {
+          this.loadInfos();
+        }
+      });
+    }
   }
 
   ngOnChanges() {

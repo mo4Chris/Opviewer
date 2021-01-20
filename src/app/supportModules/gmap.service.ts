@@ -174,17 +174,17 @@ export class GmapService {
                     } else {
                         this.addTurbineToLayer(otherLayer, _turb);
                     }
-                })
+                });
             } else {
                 this.addParkOutlineToLayer(otherLayer, park);
             }
         });
         // Drawing platforms
         platforms.forEach(_platform => {
-            this.addPlatformToLayer(otherLayer, _platform)
+            this.addPlatformToLayer(otherLayer, _platform);
         });
     }
-    
+
     private addParkOutlineToLayer(layer: MapZoomLayer, park: TurbineParkWithDrawData) {
         layer.addData(new MapZoomPolygon(
             park.outline.lon,
@@ -196,7 +196,7 @@ export class GmapService {
 
     addTurbineToLayer(layer: MapZoomLayer, turbine: TurbineWithData, zIndex = 2) {
         let contentString = '';
-        let markerIcon = turbine.isVisited ? GmapService.iconVisitedTurbine : GmapService.iconTurbine;
+        const markerIcon = turbine.isVisited ? GmapService.iconVisitedTurbine : GmapService.iconTurbine;
         let infoArray = turbine.visits;
         if (infoArray !== undefined && infoArray !== null && infoArray.length > 0 && infoArray[0]) {
             contentString =
@@ -402,8 +402,8 @@ export class GmapService {
                 GmapService.iconHarbour,
                 GmapService.iconHarbour.description,
                 harbour.name.split('_').join(' '),
-            ))
-        })
+            ));
+        });
     }
 
     plotPlatforms(googleMap: google.maps.Map, platformLocations, minZoom = 10, maxZoom = 30) {

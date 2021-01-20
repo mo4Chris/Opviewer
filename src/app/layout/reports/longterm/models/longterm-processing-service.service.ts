@@ -80,6 +80,11 @@ export class LongtermProcessingService {
               return _transits;
             }));
             break;
+            case 'engine':
+              loadable = this.newService.getEngineStatsForRange(queryElt).pipe(map(elt => {
+                return elt;
+              }));
+            break;
           default:
             throw Error('Unsupported CTV data pipeline <' + dataType + '>!');
         }
@@ -128,6 +133,10 @@ export class LongtermProcessingService {
         return elt;
       case 'date':
         return elt;
+      case 'fuelUsedTotalM3': case 'fuelUsedReturnM3': case 'fuelUsedDepartM3': case 'fuelUsedTransferM3':
+        return 1000 * elt;
+      case 'fuelPerHourTotal': case 'fuelPerHourReturn': case 'fuelPerHourDepart': case 'fuelPerHourTransfer':
+        return 1000 * elt;
       case 'speed': case 'speedInTransitAvgKMH': case 'speedInTransitKMH':
         return this.calculationService.switchSpeedUnits([elt], 'km/h', this.settings.unit_speed)[0];
       default:

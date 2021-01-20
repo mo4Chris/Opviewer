@@ -13,7 +13,7 @@ export class PageHeaderComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-        if(this.title){
+        if (this.title) {
             this.title = this.heading + ' ' + this.title;
         } else {
             this.title = this.heading;

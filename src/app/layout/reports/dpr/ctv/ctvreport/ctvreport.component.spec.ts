@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvreportComponent } from './ctvreport.component';
-import { UserTestService } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -14,6 +14,7 @@ import { CtvslipgraphComponent } from '../models/ctvslipgraph/ctvslipgraph.compo
 import { AlertService } from '@app/supportModules/alert.service';
 import { MockComponents } from 'ng-mocks';
 import { DprMapComponent } from '../../map/dpr-map/dpr-map.component';
+import { execPath } from 'process';
 
 
 describe('CtvReportComponent', () => {
@@ -67,7 +68,8 @@ describe('CtvReportComponent', () => {
         ),
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     }).compileComponents();
     consoleSpy = spyOn(console, 'error').and.callThrough();
@@ -139,15 +141,15 @@ describe('CtvReportComponent', () => {
   });
 
   it('Should make video requests', () => {
-    let saveVideoSpy = spyOn(MockedCommonService.prototype, 'saveVideoRequest').and.callFake(() => {
+    const saveVideoSpy = spyOn(MockedCommonService.prototype, 'saveVideoRequest').and.callFake(() => {
       return {
         pipe: () => {
           return {
             subscribe: () => {}
-          }
+          };
         },
-      }
-    })
+      };
+    });
     fixture.detectChanges();
     component.tokenInfo = tokenInfo.admin;
     const transfer = {
@@ -215,5 +217,14 @@ describe('CtvReportComponent', () => {
       status: 'denied',
       active: false,
     });
+  });
+
+  it('should properly removeNansFromArray', () => {
+    expect(component.removeNansFromArray(null)).toEqual([]);
+    expect(component.removeNansFromArray(undefined)).toEqual([]);
+    expect(component.removeNansFromArray([])).toEqual([]);
+    expect(component.removeNansFromArray('data')).toEqual(['data']);
+    expect(component.removeNansFromArray(['data'])).toEqual(['data']);
+    expect(component.removeNansFromArray(['data', null, 'data2'])).toEqual(['data', 'data2']);
   });
 });

@@ -1,40 +1,46 @@
 <div class="hideOnPrint">
   <h1 class="headerContainer">
-    <h2 class="text-muted">Longterm performance:<small>
+    <h2 class="text-muted">
+      Longterm performance:
+      <small>
         {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
-      </small></h2>
+      </small>
+      <a class="settings-icon hideOnPrint" [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']" [ngbTooltip]="helpSettings" placement="bottom">
+        <i class="fa fa-fw fa-cog"></i>
+      </a>
+    </h2>
     <hr>
   </h1>
   <div class="headerSpacer"></div>
 </div>
-<app-longterm-print-header [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-header>
+<app-longterm-print-header [vesselObject]="vesselObject" [vesselType]="vesselType" [userCompany]="tokenInfo.userCompany" [fieldname]="selectedField"></app-longterm-print-header>
 <div class="bodyContainer">
   <div class="col-lg-12 hideOnPrint">
     <form class="form-inline mb-3">
       <div class="form-group" (keyup.enter)="onDateConfirm()">
         <div class="input-group datepicker-input">
-          <button id="lastQuarterButton" class="selectBtn space-right" (click)="selectLastQuarter()">
+          <button id="lastQuarterButton" class="selectBtn btn btn-outline-primary space-right" (click)="selectLastQuarter()">
             Last quarter
           </button>
-          <button id="lastMonthButton" class="selectBtn space-right" (click)="selectLastMonth()">
+          <button id="lastMonthButton" class="selectBtn btn btn-outline-primary space-right" (click)="selectLastMonth()">
             Last month
           </button>
-          <button id="prevMonthButton" class="selectBtn" (click)="switchMonthBackwards()">
+          <button id="prevMonthButton" class="selectBtn btn btn-outline-primary btn-sm btn-left" (click)="switchMonthBackwards()">
             <i class="fa fa-caret-left"></i>
           </button>
           <div class="form-group">
-            <button class="btn btn-outline-primary btn-lg dateSelectorModal" (click)="openModal(content)">
+            <button class="btn btn-outline-primary btn-middle dateSelectorModal" (click)="openModal(content)">
               Date selector
             </button>
           </div>
-          <button id="nextMonthButton" class="div-right-20 selectBtn space-right" (click)="switchMonthForward()"
+          <button id="nextMonthButton" class="div-right-20 selectBtn space-right btn-right btn-outline-primary btn-sm" (click)="switchMonthForward()"
             [disabled]="monthForwardEnabled()">
             <i class="fa fa-caret-right"></i>
           </button>
           <div class="form-group">
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
               class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
-              (onSelectAll)="onSelectVessel()" (onDeSelectAll)="onSelectVessel()" 
+              (onSelectAll)="onSelectVessel($event)" (onDeSelectAll)="onSelectVessel($event)" 
               [placeholder]="'Select vessel'" [data]="Vessels" [(ngModel)]="dropdownValues"
               [settings]="multiSelectSettings">
             </ng-multiselect-dropdown>
@@ -46,7 +52,7 @@
               [settings]="fieldSelectSettings">
             </ng-multiselect-dropdown>
           </div>
-          <button id="printButton" class="selectBtn space-right" (click)="onPrint()">
+          <button id="printButton" class="selectBtn btn btn-outline-primary space-right" (click)="onPrint()">
             Print LTM
           </button>
         </div>
@@ -59,6 +65,9 @@
   <hr class="hideOnPrint">
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
+
+      <app-longterm-print-headerbar class="headerBarStyling" [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
+       
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
         (navigateToVesselreport)="navigateToVesselreport($event)">
@@ -116,3 +125,4 @@
   to the relevant DPR. Graphs without any data are automatically hidden, and drawn graphs only show the vessels with
   valid data.
 </ng-template>
+<ng-template #helpSettings>Certain graph settings can be edited in the settings page</ng-template>

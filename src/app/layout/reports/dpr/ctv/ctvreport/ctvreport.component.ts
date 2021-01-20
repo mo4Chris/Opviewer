@@ -111,8 +111,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
     try {
       this.loadDprData();
     } catch (err) {
-      this.loaded.emit(true)
-      console.error(err)
+      this.loaded.emit(true);
+      console.error(err);
     }
   }
 
@@ -143,7 +143,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.ref.detectChanges();
         });
       } else {
-        console.error('Failed to load data: no permission')
+        console.error('Failed to load data: no permission');
         this.noPermissionForData = true;
         this.isLoading = false;
         this.loaded.emit(true);
@@ -235,8 +235,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
       if (Array.isArray(this.turbineTransfers)) {
         turbnames = this.turbineTransfers.map(e => e.fieldname);
       }
-      let park_coord_name = turbnames.find(e => typeof(e) === 'string');
-      let park = parks.find(_park => _park.filename === park_coord_name);
+      const park_coord_name = turbnames.find(e => typeof(e) === 'string');
+      const park = parks.find(_park => _park.filename === park_coord_name);
       this.visitedPark = park ? park.name : null;
       this.newService.getWavedataForDay({
         date: this.vesselObject.date,
@@ -310,7 +310,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
     );
   }
   private getDatesShipHasSailed(date: VesselObjectModel) {
-    let mmsi = this.vesselObject.mmsi;
+    const mmsi = this.vesselObject.mmsi;
     forkJoin(
       this.newService.getDatesWithValues(date),
       this.newService.getDatesWithValuesFromGeneralStats(date)
@@ -333,7 +333,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
           time: _general.time,
           lon: _general.lon,
           lat: _general.lat
-        }
+        };
         this.vesselUtcOffset = 24 * _general.utcOffset || 0;
         this.dateTimeService.vesselOffsetHours = this.vesselUtcOffset;
         if (_general.DPRstats && typeof (_general.DPRstats) === 'object') {
@@ -347,14 +347,13 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.general = dpr;
         }
         if (_general.inputStats) {
-          let clean = (a: Array<any>) => a.filter(x => x !== null)
           this.generalInputStats.fuelConsumption = _general.inputStats.fuelConsumption;
           this.generalInputStats.observations = _general.inputStats.observations;
           this.generalInputStats.landedGarbage = _general.inputStats.landedGarbage;
           this.generalInputStats.landedOil = _general.inputStats.landedOil;
           this.generalInputStats.incidents = _general.inputStats.incidents;
-          this.generalInputStats.toolboxConducted = clean(_general.inputStats.toolboxConducted) || [];
-          this.generalInputStats.drillsConducted = clean(_general.inputStats.drillsConducted) || [];
+          this.generalInputStats.toolboxConducted = this.removeNansFromArray(_general.inputStats.toolboxConducted) || [];
+          this.generalInputStats.drillsConducted = this.removeNansFromArray(_general.inputStats.drillsConducted) || [];
           this.generalInputStats.passengers = _general.inputStats.passengers;
           this.generalInputStats.customInput = _general.inputStats.customInput;
         }
@@ -393,12 +392,12 @@ export class CtvreportComponent implements OnInit, OnChanges {
       };
       this.sailDates.emit(sailInfo);
     } else {
-      console.error('Failed to retrieve sailing dates!')
+      console.error('Failed to retrieve sailing dates!');
       this.sailDates.emit({
         transfer: [],
         transit: [],
         other: [],
-      })
+      });
     }
   }
   private matchCommentsWithTransfers(_transfers) {
@@ -476,7 +475,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
         lineTension: 0,
       });
       this.ref.detectChanges();
-      let id = document.getElementById('weatherOverview')
+      const id = document.getElementById('weatherOverview');
       this.weatherOverviewChart = new WeatherOverviewChart({
         dsets: dsets,
         timeStamps: timeStamps,
@@ -550,6 +549,16 @@ export class CtvreportComponent implements OnInit, OnChanges {
     }
     return vid;
   }
+
+  removeNansFromArray(data: number | string | Array<number | string>) {
+    if (Array.isArray(data)) {
+      return data.filter(elt => elt && elt !== null);
+    } else if (data) {
+      return [data];
+    } else {
+      return [];
+    }
+  }
   private switchUnit(value: number | string, oldUnit: string, newUnit: string) {
     return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
@@ -563,6 +572,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
     return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
   }
 }
+
 
 interface VideoRequestModel {
   text: string;

@@ -14,7 +14,7 @@ export class mapMarkerIcon {
     url: string;
     description: string;
     scaledSize: object;
-    path
+    path;
 
     constructor(url: string, description: string, scaledSize = {width: 40, height: 40}) {
         this.url = url;

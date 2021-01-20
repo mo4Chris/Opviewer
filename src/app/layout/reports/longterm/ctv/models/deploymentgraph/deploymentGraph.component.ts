@@ -27,7 +27,6 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
     }
 
     @Input() vesselObject: LongtermVesselObjectModel;
-    @Input() tokenInfo: TokenModel;
     @Input() fromDate: NgbDate;
     @Input() toDate: NgbDate;
     @Input() wavedata: LongtermParsedWavedata;
@@ -163,16 +162,20 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                 label: 'Hs',
                 type: 'line',
                 data: this.wavedata.Hs.map((elt, _idx) => {
-                    return {x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]), y: elt};
+                    return {
+                        x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]),
+                        y: elt
+                    };
                 }),
                 showLine: true,
                 pointRadius: 0,
                 pointHitRadius: 0,
+                borderWidth: 2,
                 fill: false,
                 xAxisID: 'x-axis-time',
                 yAxisID: 'Hs',
-                borderColor: 'rgb(0, 51, 204)',
-                backgroundColor: 'rgb(0, 51, 204)',
+                borderColor: 'rgba(0, 51, 204, 0.8)',
+                backgroundColor: 'rgba(0, 51, 204, 0.8)',
             });
             // This beauty detects the presence of good / bad weather
             sailingHoursPerDay.forEach((sailingHours, _i) => {
@@ -366,12 +369,11 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                         beginAtZero: false,
                         time: {
                             unit: 'day',
-                            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
-                            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
                         },
                         ticks: {
                             min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
                             max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+                            maxTicksLimit: 21,
                         }
                     }],
                     yAxes: [{

@@ -17,10 +17,14 @@ import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymen
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermPrintHeaderComponent } from './models/longterm-print-header/longterm-print-header.component';
+import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { mockedObservable } from '@app/models/testObservable';
+import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
+import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
+import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 
 describe('LongtermComponent', () => {
     let component: LongtermComponent;
@@ -41,6 +45,7 @@ describe('LongtermComponent', () => {
                 LongtermCTVComponent,
                 LongtermSOVComponent,
                 LongtermPrintHeaderComponent,
+                LongtermPrintHeaderbarComponent,
                 MockComponents(
                     CtvslipgraphComponent,
                     VesselinfoComponent,
@@ -50,6 +55,9 @@ describe('LongtermComponent', () => {
                     LongtermTrendGraphComponent,
                     SiemensKpiOverviewComponent,
                     UtilizationGraphComponent,
+                    EngineOverviewComponent,
+                    CtvUtilizationGraphComponent,
+                    CtvLongtermUtilSubGraphComponent,
                 ),
             ],
             providers: [

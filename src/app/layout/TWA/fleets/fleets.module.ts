@@ -16,7 +16,7 @@ import {CommonService} from '../../../common.service';
         CommonModule,
         HttpClientModule,
         FormsModule,
-        NgbModule.forRoot(),
+        NgbModule,
         FleetsRoutingModule,
         PageHeaderModule
     ],

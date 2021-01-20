@@ -1,7 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SovV2vTransfersComponent } from './sov-v2v-transfers.component';
-import { CommonService } from '@app/common.service';
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -9,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { SharedPipesModule } from '@app/shared';
 import { AgmCoreModule } from '@agm/core';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovV2vTransfersComponent', () => {
   let component: SovV2vTransfersComponent;
@@ -27,7 +26,8 @@ describe('SovV2vTransfersComponent', () => {
       ],
       declarations: [ SovV2vTransfersComponent ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, NgZone, } from '@angular/core';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
@@ -19,7 +19,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 export class SovWeatherchartComponent implements OnChanges {
   @Input() sovModel: SovModel;
   @Input() vesselUtcOffset: number; // UTC offset vessel
-  @Input() printmode = false;
 
   weatherOverviewChart: WeatherOverviewChart;
   weatherOverviewChartCalculated = false;
@@ -28,7 +27,8 @@ export class SovWeatherchartComponent implements OnChanges {
   constructor(
     private datetimeService: DatetimeService,
     private settings: SettingsService,
-    private calcService: CalculationService
+    private calcService: CalculationService,
+    private ngZone: NgZone,
   ) { }
 
   ngOnChanges() {
@@ -36,12 +36,9 @@ export class SovWeatherchartComponent implements OnChanges {
   }
 
   testValidWeatherField(weatherField: number[]) {
-    return (
-      isArray(weatherField) &&
-      weatherField.reduce(
-        (curr: boolean, val: any) => curr || typeof val === 'number',
-        false
-      )
+    return Array.isArray(weatherField) &&  weatherField.reduce(
+      (curr: boolean, val: any) => curr || typeof val === 'number',
+      false
     );
   }
 
@@ -60,7 +57,7 @@ export class SovWeatherchartComponent implements OnChanges {
           .toISOString(false);
       });
       const dsets = [];
-      let chartTitle = weather.wavesource === '_NaN_' ? '' : 'Source: ' + weather.wavesource
+      const chartTitle = weather.wavesource === '_NaN_' ? '' : 'Source: ' + weather.wavesource;
       // Loading each of the weather sources if they exist and are not NaN
       const waveParams = Object.keys(weather).filter(
         key => key !== 'time' && key !== 'wavesource'
@@ -68,11 +65,11 @@ export class SovWeatherchartComponent implements OnChanges {
       // For each wave parameter
       waveParams.forEach(param => {
         const data = weather[param];
-        if ( isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])  ) {
+        if ( Array.isArray(data) && data.some((elt, _i) => elt && elt !== '_NaN_' && data[_i + 1])  ) {
           const label = param
             .replace('waveHs', 'Hs')
             .replace('waveTp', 'Tp');
-          let ax = this.getAxis(label);
+          const ax = this.getAxis(label);
           dsets.push({
             data: data.map((dataElt, i) => {
               if (typeof dataElt === 'number' && dataElt >= 0) {
@@ -113,7 +110,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Platform transfers',
         backgroundColor: 'rgba(0, 0, 100, 0.1)',
-      })
+      });
 
       // Turbine operations
       dockingData = new Array();
@@ -131,8 +128,8 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Turbine transfers',
         backgroundColor: 'rgba(0, 100, 0, 0.1)',
-      })
-      
+      });
+
       // V2v transfers
       dockingData = new Array();
       this.sovModel.vessel2vessels.forEach(vessel => {
@@ -151,7 +148,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'V2v transfers',
         backgroundColor: 'rgba(128, 0, 0, 0.1)',
-      })
+      });
 
       // Transit
       dockingData = new Array();
@@ -169,7 +166,7 @@ export class SovWeatherchartComponent implements OnChanges {
       this.addOperationsInfo(dsets, dockingData, {
         label: 'Transit',
         backgroundColor: 'rgba(255, 255, 0, 0.1)',
-      })
+      });
 
       setTimeout(() => {
         this.weatherOverviewChart = new WeatherOverviewChart(
@@ -223,7 +220,7 @@ export class SovWeatherchartComponent implements OnChanges {
     return {
       unit: unit,
       axisID: axisID,
-    }
+    };
   }
 
   private addOperationsInfo(dsets: Array<any>, ops: Array<any>, config: any) {

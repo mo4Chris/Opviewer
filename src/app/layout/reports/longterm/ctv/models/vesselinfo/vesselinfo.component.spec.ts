@@ -17,7 +17,7 @@ describe('VesselinfoComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
-      ],
+      ]
     })
     .compileComponents();
   }));

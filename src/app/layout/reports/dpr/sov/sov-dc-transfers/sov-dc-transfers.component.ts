@@ -48,7 +48,7 @@ export class SovDcTransfersComponent implements OnChanges {
       this.vessel2vessels.forEach(v2v => {
         v2v.CTVactivity.forEach(_activity => {
           if (_activity.mmsi === this.dcInfo.mmsi) {
-            this.map = _activity.map
+            this.map = _activity.map;
             if (Array.isArray(_activity.turbineVisits)) {
               this.transfers = _activity.turbineVisits;
             } else if (isObject(_activity.turbineVisits) && isNumber(_activity.turbineVisits['startTime'])) {

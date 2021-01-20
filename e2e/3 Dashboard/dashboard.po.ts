@@ -1,9 +1,9 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
-import { env } from 'process';
+import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 
-var EC = ExpectedConditions;
+let EC = ExpectedConditions;
 
-export class DashboardPage {
+export class DashboardPage extends E2ePageObject {
     navigateTo() {
         return browser.get('/dashboard');
     }
@@ -16,7 +16,7 @@ export class DashboardPage {
     checkDashboardMapExists() {
         return element(by.id('mapLegendID')).isPresent();
     }
-    
+
     pageRedirectsDashboard() {
         return browser.wait(EC.urlContains('/dashboard'), 2000);
     }

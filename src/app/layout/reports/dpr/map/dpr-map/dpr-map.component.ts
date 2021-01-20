@@ -40,10 +40,29 @@ export class DprMapComponent implements OnChanges {
     avgLatitude: 0,
     avgLongitude: 0,
     zoomLevel: 5,
-  }
+  };
   public mapStyle = GmapService.defaultMapStyle;
   public streetViewControl = false;
   public routeFound = false;
+
+  // Get callbacks
+  get hidden() {
+    return !this.routeFound;
+  }
+  get parkFound() {
+    return this.parks && this.parks.length > 0 || this.platformVisits && this.platformVisits.length > 0;
+  }
+  get hasTransfers() {
+    return this.turbineVisits && this.turbineVisits.length > 0 ||
+      this.platformVisits && this.platformVisits.length > 0;
+  }
+  get hasValidVesselTrace() {
+    return this.vesselTrace
+      && Array.isArray(this.vesselTrace.lat)
+      && this.vesselTrace.lat.length > 0
+      && this.vesselTrace.lat.length === this.vesselTrace.lon.length
+      && this.vesselTrace.lat.length === this.vesselTrace.time.length;
+  }
 
   ngOnChanges() {
     if (this.hasValidVesselTrace) {
@@ -67,7 +86,7 @@ export class DprMapComponent implements OnChanges {
       });
     } else {
       this.routeFound = false;
-      this.ref.detectChanges()
+      this.ref.detectChanges();
     }
   }
 
@@ -79,11 +98,11 @@ export class DprMapComponent implements OnChanges {
         if (this.hasValidVesselTrace) {
           reject('Error initializing google map!');
         }
-      }, 3000)
-    })
+      }, 3000);
+    });
   }
   setMapProperties() {
-    let map = document.getElementById('routeMap');
+    const map = document.getElementById('routeMap');
     if (map !== null) {
       // ToDo: fix the width check here
       const mapPixelWidth = map.offsetWidth || this.width || Math.round(0.75 * window.innerWidth);
@@ -92,8 +111,8 @@ export class DprMapComponent implements OnChanges {
         this.vesselTrace.lat,
         this.vesselTrace.lon
       );
-      if (!(this.mapProperties.avgLatitude>0 && this.mapProperties.avgLatitude < 180)) {
-        console.warn('Detected bad map properties!')
+      if (!(this.mapProperties.avgLatitude > 0 && this.mapProperties.avgLatitude < 180)) {
+        console.warn('Detected bad map properties!');
         this.routeFound = false;
       }
     }
@@ -101,23 +120,6 @@ export class DprMapComponent implements OnChanges {
   initZoomLayers(map: google.maps.Map, ) {
     this.visitsLayer = new MapZoomLayer(map, 8);
     this.otherLayer = new MapZoomLayer(map, 10);
-  }
-
-  // Get callbacks
-  get hidden() {
-    return !this.routeFound;
-  }
-  get parkFound() {
-    return this.parks && this.parks.length > 0 || this.platformVisits && this.platformVisits.length>0
-  }
-  get hasTransfers() {
-    return this.turbineVisits && this.turbineVisits.length > 0 ||
-      this.platformVisits && this.platformVisits.length > 0
-  }
-  get hasValidVesselTrace() {
-    return this.vesselTrace
-      && Array.isArray(this.vesselTrace.lat)
-      && this.vesselTrace.lat.length > 0;
   }
 
   // Async callbacks
@@ -130,56 +132,56 @@ export class DprMapComponent implements OnChanges {
   }
   private async getPlatformsNearVesselTrace() {
     return this.mapStore.platforms.then((platforms) => {
-      let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
+      const trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace);
       if (trace[0] && trace[0].time) {
-        let hrs = this.calcService.linspace(trace[0].time, trace[trace.length-1].time, 1/24-0.00001);
-        let dist2center = this.calcService.fillArray(1000, platforms.length);
-        for (let _i = 0; _i < hrs.length-1; _i++) { 
-          let s = trace.findIndex(_e => _e.time > hrs[_i]);
-          let e = trace.findIndex(_e => _e.time > hrs[_i+1]);
-          let traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e))
+        const hrs = this.calcService.linspace(trace[0].time, trace[trace.length - 1].time, 1 / 24 - 0.00001);
+        const dist2center = this.calcService.fillArray(1000, platforms.length);
+        for (let _i = 0; _i < hrs.length - 1; _i++) {
+          const s = trace.findIndex(_e => _e.time > hrs[_i]);
+          const e = trace.findIndex(_e => _e.time > hrs[_i + 1]);
+          const traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e));
           platforms.forEach((_platform, _j) => {
-            let d2p = this.geoService.latlngdist({lat: _platform.lat, lng: _platform.lon}, traceCentroid);
-            if (d2p>0) {
-              dist2center[_j] = Math.min(dist2center[_j], d2p)
+            const d2p = this.geoService.latlngdist({lat: _platform.lat, lng: _platform.lon}, traceCentroid);
+            if (d2p > 0) {
+              dist2center[_j] = Math.min(dist2center[_j], d2p);
             }
           });
         }
         return platforms.filter((_, j) => dist2center[j] < 5);
       } else {
-        let traceCentroid = this.geoService.latlngcentroid(trace);
-        let dist2platforms = platforms.map((_platform) => {
+        const traceCentroid = this.geoService.latlngcentroid(trace);
+        const dist2platforms = platforms.map((_platform) => {
           return this.geoService.latlngdist({lng: _platform.lon, lat: _platform.lat}, traceCentroid);
         });
-        return platforms.filter((_, _i) => dist2platforms[_i] < 20)
+        return platforms.filter((_, _i) => dist2platforms[_i] < 20);
       }
-    })
+    });
   }
   private async getParksNearVesselTrace() {
     return this.mapStore.parks.then((parks) => {
-      let trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace)
+      const trace = this.geoService.lonlatarrayToLatLngArray(this.vesselTrace);
       // If possible, we consider 10KM range every hour. Otherwise, we take 20KM around global centroid
       if (trace[0] && trace[0].time) {
-        let hrs = this.calcService.linspace(trace[0].time, trace[trace.length-1].time, 1/24-0.00001);
-        let dist2center = this.calcService.fillArray(1000, parks.length);
-        for (let _i = 0; _i < hrs.length-1; _i++) { 
-          let s = trace.findIndex(_e => _e.time > hrs[_i]);
-          let e = trace.findIndex(_e => _e.time > hrs[_i+1]);
-          let traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e))
+        const hrs = this.calcService.linspace(trace[0].time, trace[trace.length - 1].time, 1 / 24 - 0.00001);
+        const dist2center = this.calcService.fillArray(1000, parks.length);
+        for (let _i = 0; _i < hrs.length - 1; _i++) {
+          const s = trace.findIndex(_e => _e.time > hrs[_i]);
+          const e = trace.findIndex(_e => _e.time > hrs[_i + 1]);
+          const traceCentroid = this.geoService.latlngcentroid(trace.slice(s, e));
           parks.forEach((_park: any, _j) => {
-            const centroid = _park.centroid
-            let d2p = this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid);
-            if (d2p>0) {
-              dist2center[_j] = Math.min(dist2center[_j], d2p)
+            const centroid = _park.centroid;
+            const d2p = this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid);
+            if (d2p > 0) {
+              dist2center[_j] = Math.min(dist2center[_j], d2p);
             }
           });
         }
         return parks.filter((_, j) => dist2center[j] < 12);
       } else {
-        let traceCentroid = this.geoService.latlngcentroid(trace);
+        const traceCentroid = this.geoService.latlngcentroid(trace);
         const dist2center = parks.map((_park: any) => {
-          const centroid = _park.centroid
-          return this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid)
+          const centroid = _park.centroid;
+          return this.geoService.latlngdist({lat: centroid.lat, lng: centroid.lon}, traceCentroid);
         });
         return parks.filter((_, _i) => dist2center[_i] < 20);
       }
@@ -190,12 +192,12 @@ export class DprMapComponent implements OnChanges {
   private onAllReady() {
     this.buildGoogleMap();
     this.onLoaded.emit(this.googleMap);
-    this.ref.detectChanges()
+    this.ref.detectChanges();
   }
   private buildGoogleMap() {
     this.mapService.addVesselRouteToLayer(this.visitsLayer, [this.vesselTrace]);
-    let turbines = this.parks.map(_park => this.markVisitedTurbines(_park));
-    let platforms = this.platforms.map(_platform => this.markVisitedPlatform(_platform));
+    const turbines = this.parks.map(_park => this.markVisitedTurbines(_park));
+    const platforms = this.platforms.map(_platform => this.markVisitedPlatform(_platform));
     // this.mapService.addTurbinesToMapForVessel(map, turbines, {turbineLocations: []});
     this.mapService.addParksToLayersForVessel(this.visitsLayer, this.otherLayer, turbines, platforms);
     if (this.v2vs && this.v2vs[0]) {
@@ -207,13 +209,13 @@ export class DprMapComponent implements OnChanges {
   }
   private markVisitedTurbines(park: TurbinePark): TurbineParkWithDrawData {
     // We need to copy the park data so we dont affect the original park array, which could bleed between pages.
-    let turbines: TurbineWithData[] = park.turbines.map(_turb => {
+    const turbines: TurbineWithData[] = park.turbines.map(_turb => {
       return {..._turb, ... {
         isVisited: false,
         visits: [],
-      }}
-    })
-    let parkWithData: TurbineParkWithDrawData = {
+      }};
+    });
+    const parkWithData: TurbineParkWithDrawData = {
       filename: park.filename,
       name: park.name,
       outline: park.outline,
@@ -223,28 +225,28 @@ export class DprMapComponent implements OnChanges {
     };
     this.turbineVisits.forEach((visit) => {
       if (visit.fieldname === parkWithData.filename) {
-        let turbine = parkWithData.turbines.find(_turb => _turb.name === visit.location)
+        const turbine = parkWithData.turbines.find(_turb => _turb.name === visit.location);
         if (turbine) {
           parkWithData.isVisited = true;
           turbine.isVisited = true;
           if (turbine.visits) {
             turbine.visits.push(visit);
           } else {
-            turbine.visits = [visit]
+            turbine.visits = [visit];
           }
         }
-      } 
+      }
     });
     return parkWithData as TurbineParkWithDrawData;
   }
   private markVisitedPlatform(platform: OffshorePlatform): OffshorePlatformWithData {
-    let platformWithData: OffshorePlatformWithData = {
+    const platformWithData: OffshorePlatformWithData = {
       ... platform,
       ... {
         isVisited: false,
         visits: [],
       }
-    }
+    };
     platformWithData.isVisited = false;
     this.platformVisits.forEach(visit => {
       if (visit.locationname === platformWithData.name) {
@@ -252,10 +254,10 @@ export class DprMapComponent implements OnChanges {
         if (platformWithData.visits) {
           platformWithData.visits.push(visit);
         } else {
-          platformWithData.visits = [visit]
+          platformWithData.visits = [visit];
         }
       }
-    })
+    });
     return platformWithData;
   }
 }
@@ -268,11 +270,11 @@ interface GeoTrace {
 }
 export interface TurbineParkWithDrawData extends TurbinePark {
   isVisited: boolean;
-  turbines: Array<TurbineWithData>,
+  turbines: Array<TurbineWithData>;
 }
 export interface TurbineWithData {
   name: string;
-  lon: number
+  lon: number;
   lat: number;
   isVisited?: boolean;
   visits?: any[];

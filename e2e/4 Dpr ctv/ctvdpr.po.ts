@@ -2,8 +2,10 @@ import { browser, element, by, ElementFinder } from 'protractor';
 import { env } from 'process';
 import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
 import { E2ePageObject } from '../SupportFunctions/e2epage.support';
+import { E2eTableHandler } from '../SupportFunctions/e2eTable.support';
 
 const dropdownHandler = new E2eDropdownHandler();
+const tableHandler = new E2eTableHandler();
 export class CtvDprPage extends E2ePageObject {
     navigateTo() {
         browser.get('/reports/dpr;mmsi=123456789;date=737700');
@@ -77,26 +79,32 @@ export class CtvDprPage extends E2ePageObject {
     }
 
     getEltInDockingRow(row: ElementFinder, index: number) {
-        return row.all(by.tagName('td')).get(index);
+        return tableHandler.getRowElementByIndex(row, index);
+    }
+
+    getElementInDockingRowByTitle(row: ElementFinder, title: string) {
+        const table = element(by.xpath('//app-ctv-turbine-transfer/table'));
+        expect(table.isPresent()).toBeTruthy('CTV turbine table must be present');
+        return tableHandler.getElementInRowByTitle(table, row, title);
     }
 
     getPaxInputFromDockingRow(row: ElementFinder) {
-        const paxIndex = 7;
+        const paxIndex = 8;
         return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).first());
     }
 
     getPaxOutputFromDockingRow(row: ElementFinder) {
-        const paxIndex = 7;
+        const paxIndex = 8;
         return this.addGetValue(this.getEltInDockingRow(row, paxIndex).all(by.tagName('input')).last());
     }
 
     getCargoInputFromDockingRow(row: ElementFinder) {
-        const cargoIndex = 8;
+        const cargoIndex = 9;
         return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).first());
     }
 
     getCargoOutputFromDockingRow(row: ElementFinder) {
-        const cargoIndex = 8;
+        const cargoIndex = 9;
         return this.addGetValue(this.getEltInDockingRow(row, cargoIndex).all(by.tagName('input')).last());
     }
 

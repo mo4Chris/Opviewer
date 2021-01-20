@@ -184,7 +184,7 @@
             </select>
           </td>
         </tr>
-        <tr *ngIf="weatherDowntimeChanged == true">
+        <tr *ngIf="weatherDowntimeChanged">
           <td colspan="4">
             <button class="btn btn-lg btn-primary" style="float:right"
               (click)="saveWeatherDowntimeStats();" type="button">Save</button>
@@ -386,19 +386,19 @@
         <tr>
           <td></td>
           <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
+          <td><input (change)="cateringChanged = true; updatePoB();" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.project" [(value)]="catering.project"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
+          <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marine" [(value)]="catering.marine"></td>
         </tr>
         <tr>
           <td></td>
           <td>Marine contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
+          <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number" min="0" max="100"
               [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
         </tr>
         <tr>

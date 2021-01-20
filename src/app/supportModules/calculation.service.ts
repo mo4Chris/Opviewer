@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { text } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +27,7 @@ export class CalculationService {
         return number + addString;
       }
     }
-    if (!number) {
+    if (typeof(number) !== 'number' || isNaN(number)) {
       return 'N/a';
     }
     return (Math.round(number * decimal) / decimal) + addString;
@@ -105,11 +104,11 @@ export class CalculationService {
     const lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
     // height of agm map
-    let latZoom = zoom(440, WORLD_DIM.height, latFraction);
+    const latZoom = zoom(440, WORLD_DIM.height, latFraction);
     let lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
-    if (lngZoom<0 || isNaN(lngZoom)) {
-      lngZoom = ZOOM_MAX
-      console.warn('Received infeasible lng map zoom!')
+    if (lngZoom < 0 || isNaN(lngZoom)) {
+      lngZoom = ZOOM_MAX;
+      console.warn('Received infeasible lng map zoom!');
     }
     const zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
     const avgLatitude = (minLatitude + maxLatitude) / 2;
@@ -233,7 +232,7 @@ export class CalculationService {
         return this.switchDurationUnits(vals, from, to);
       case 'rad': case 'deg':
         return this.switchDirectionUnits(vals, from, to);
-      case 'kg': case 'ton':
+      case 'kg': case 'ton': case 'tons':
         return this.switchWeightUnits(vals, from, to);
       case 'liter': case 'm3':
         return this.switchVolumeUnits(vals, from, to);
@@ -376,7 +375,7 @@ export class CalculationService {
           return 1;
         case 'gram':
           return 0.001;
-        case 'ton':
+        case 'ton': case 'tons':
           return 1000;
         default:
           console.error('Invalid unit "' + type + '"!');

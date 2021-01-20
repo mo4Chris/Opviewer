@@ -75,12 +75,15 @@
     height: 100%;
 }
 
-
 @media print {
     .graphContainer {
         width: 98%;
         page-break-before: always;
         page-break-inside: avoid;
-        margin-top: 150px;
+        margin-top: 20mm;
+    }
+
+    .divContainer {
+        margin-top: 15mm;
     }
 }

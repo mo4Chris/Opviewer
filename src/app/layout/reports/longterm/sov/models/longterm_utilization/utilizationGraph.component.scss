@@ -1,3 +1,5 @@
+@import '../../../../reports.component.scss';
+
 .custom-table{
     margin-top: 10px;
     margin-bottom: 15px;
@@ -7,5 +9,16 @@ table tr td{
     padding-top: 0.25rem;
     padding-left: 0.45rem;
     padding-right: 0.45rem;
+}
+
+@media print {
+    
+    #utilizationGraph {
+        width:270mm !important;
+    }
+
+    .singlepage-print-port {
+        page-break-before: always;
+    }
 }
 
