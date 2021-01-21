@@ -38,9 +38,25 @@ export class ForecastWorkabilityComponent implements OnChanges {
       this.workability = this.matService.scale(
         this.matService.transpose(
           this.responseService.combineWorkabilities(limiters)
-        )
-      , 100);
+        ),
+        100
+      );
+      let headingIdx = this.getHeadingIdx(POI.Heading);
+      // this.workabilityAlongSelectedHeading = this.workability.map(row => row[headingIdx]);
+      this.workabilityAlongSelectedHeading = this.workability[headingIdx]
     }
   }
 
+  getHeadingIdx(headings: number[]) {
+    let d = 360;
+    let hIdx = null;
+    headings.forEach((h, i) => {
+      let dist = Math.abs(h - this.heading);
+      if (dist < d) {
+        hIdx = i;
+        d = dist;
+      }
+    })
+    return hIdx;
+  }
 }

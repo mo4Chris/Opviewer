@@ -4,7 +4,7 @@ import { Dof6, Dof6Array } from './forecast-response.model'
 
 
 const DOF_INDICES = {'surge': 0, 'sway': 1, 'heave': 2, 'roll': 3, 'pitch': 4, 'yaw': 5}
-
+type Matrix = number[][];
 @Injectable({
   providedIn: 'root'
 })
@@ -12,9 +12,10 @@ export class ForecastReponseService {
 
   constructor(
     private matService: MatrixService,
-  ) { }
+  ) {
+  }
 
-  computeLimit(response: Dof6Array, limiter: Dof6, limitValue: number): number[][] {
+  computeLimit(response: Dof6Array, limiter: Dof6, limitValue: number): Matrix {
     const dofIndex = DOF_INDICES[limiter];
     return response.map(row => {
       return row.map(elt => {
@@ -23,9 +24,9 @@ export class ForecastReponseService {
     })
   }
 
-  combineWorkabilities(datas: number[][][]) {
+  combineWorkabilities(datas: Matrix[]): Matrix {
     if (!Array.isArray(datas) || datas.length < 1) {
-      return [[[]]];
+      return [[]];
     }
     const numX = datas[0].length;
     const numY = datas[0][0].length;
@@ -33,7 +34,6 @@ export class ForecastReponseService {
     for (let i=0; i<datas.length; i++) {
       output = this.matService.elementwiseMax(output, datas[i])
     }
-    console.log(output)
     return output;
   }
 }

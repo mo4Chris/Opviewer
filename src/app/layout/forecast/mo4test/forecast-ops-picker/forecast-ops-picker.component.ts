@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./forecast-ops-picker.component.scss']
 })
 export class ForecastOpsPickerComponent implements OnInit {
+  @Input() operations = ['Op1', 'Op2'];
 
   constructor() { }
 

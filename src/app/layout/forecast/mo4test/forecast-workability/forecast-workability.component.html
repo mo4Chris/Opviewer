@@ -1,5 +1,7 @@
-Gotta do the work
-<app-forecast-workability-plot></app-forecast-workability-plot>
+<app-forecast-workability-plot [time]="time" [workabilityAlongHeading]="workabilityAlongSelectedHeading"
+  [startTime]="startTime" [stopTime]="stopTime"
+></app-forecast-workability-plot>
+<hr>
 <div class="row">
   <app-surface-plot *ngIf="workability" xLabel="" yLabel="Heading [deg]" title="Workability"
     [xData]="time" [yData]="workabilityHeadings" [zData]="workability" zMax="200"></app-surface-plot>

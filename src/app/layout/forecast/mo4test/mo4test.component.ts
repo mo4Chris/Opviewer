@@ -21,6 +21,7 @@ export class Mo4testComponent implements OnInit {
   public vessels: string[] = [];
   public response: ForecastResponseObject;
   public limits: ForecastLimits[] = [{type: 'Disp', dof: 'heave', value: 1.2}]
+  public selectedHeading = 90;
 
   constructor(
     private newService: CommonService,

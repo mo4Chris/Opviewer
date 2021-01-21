@@ -1,6 +1,9 @@
 <div *ngIf="true || showContent" class="row plsdonotprintthisforfsake">
   <div class="col-lg-3">
     <app-forecast-ops-picker></app-forecast-ops-picker>
+    <hr>
+    <app-heading-picker [heading]="selectedHeading"></app-heading-picker>
+    <hr>
     <app-forecast-limits-picker [(limits)]="limits">
     </app-forecast-limits-picker>
   </div>

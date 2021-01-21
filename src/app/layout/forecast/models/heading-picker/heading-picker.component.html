@@ -1,0 +1,10 @@
+<div *ngIf="data" class="row">
+  <plotly-plot [data]="data" className="plotly-canvas" [layout]='PlotLayout'
+    (initialized)="onPlotlyInit($event)">
+  </plotly-plot>
+</div>
+Selected heading: {{heading}}
+
+<button id="confirm-" (click)="onConfirm()" (disabled)="true" class="btn btn-lg btn-primary submitBtnDate">
+  Update heading
+</button>

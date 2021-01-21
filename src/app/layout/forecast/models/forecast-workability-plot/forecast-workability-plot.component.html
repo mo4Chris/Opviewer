@@ -1,3 +1,6 @@
-<p>
-  forecast-workability-plot works!
-</p>
+<div [hidden]="!loaded">
+  <h4>Workability along heading - Maximum: {{MaxWorkability}}</h4>
+  <plotly-plot divId="line-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
+    (initialized)="onPlotlyInit($event)">
+  </plotly-plot>
+</div>
