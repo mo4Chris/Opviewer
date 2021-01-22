@@ -1,4 +1,5 @@
 import { EventEmitter, Component, Input, OnChanges, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
@@ -38,35 +39,40 @@ export class HeadingPickerComponent implements OnChanges {
       }
     }
   };
+  loaded = false;
 
-  constructor() {
+  constructor(
+  ) {
   }
 
   ngOnChanges() {
+    this.updatePolarPlot();
+  }
+
+  updatePolarPlot() {
     console.log('Building polar plot!')
     this.data = [{
       type: 'scatterpolar',
       mode: 'lines',
       name: 'Heading',
-      r: [1, 0.4, 0.4, 1],
-      theta: [this.heading, this.heading-10, this.heading+10, this.heading],
+      r: [1, 0.7, 0.7, 0.7, 0.7, 1],
+      theta: [this.heading, this.heading-15, (this.heading-165) % 360, (this.heading+165) % 360, this.heading+15, this.heading],
       fill: "toself",
       fillcolor: 'black',
       line: {
         color: 'black'
       }
     }];
-    console.log(this.data)
-    // PlotlyJS.newPlot('myDiv', this.data, this.PlotLayout)
   }
 
-  onPlotlyInit(plotlyObj) {
-    console.log('PLotly header is initialized')
-    console.log(plotlyObj)
+  onPlotlyInit() {
+    this.loaded = true;
   }
 
   onConfirm() {
+    this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.headingChanges.emit(this.heading)
+    this.updatePolarPlot();
   }
 
 }

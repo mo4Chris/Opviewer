@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Dof6 } from '../../models/forecast-response.model';
 
 
 @Component({
@@ -10,9 +11,11 @@ export class ForecastLimitsPickerComponent implements OnChanges {
   @Input() limits: ForecastLimit[] = [];
   // Angular magic: this represents the outgoing element corresponding to our 2-way binding of limits
   @Output() limitsChange = new EventEmitter<ForecastLimit[]>(); 
-  constructor() { }
+  constructor() {
+    console.log(this)
+  }
 
-  limitsCopy = [];
+  limitsCopy: ForecastLimit[] = [];
 
   ngOnChanges() {
     console.log('Change detected!')
@@ -23,13 +26,25 @@ export class ForecastLimitsPickerComponent implements OnChanges {
     }
   }
 
-  onConfirm() {
+  public onConfirm() {
     console.log('Updating limits!')
     this.limitsChange.emit(this.limits)
   }
+  public onAddLine() {
+    this.limitsCopy.push({
+      type: null,
+      dof: null,
+      value: null,
+    })
+  }
+  public onRemoveLine() {
+    this.limitsCopy.pop();
+  }
 }
 
+type ForecastType = 'Disp' | 'Vel' | 'Acc'
 export interface ForecastLimit {
-  name: string;
-  value: number;
+  type: ForecastType,
+  dof: Dof6,
+  value: number
 }

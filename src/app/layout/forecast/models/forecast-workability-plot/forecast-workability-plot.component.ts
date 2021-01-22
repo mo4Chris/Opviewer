@@ -1,10 +1,11 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
   selector: 'app-forecast-workability-plot',
   templateUrl: './forecast-workability-plot.component.html',
-  styleUrls: ['./forecast-workability-plot.component.scss']
+  styleUrls: ['./forecast-workability-plot.component.scss'],
 })
 export class ForecastWorkabilityPlotComponent implements OnChanges {
   @Input() workabilityAlongHeading: number[];
@@ -13,12 +14,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   @Input() stopTime: Date;
 
   public MaxWorkability = '';
-  public PlotLayout = {};
   public parsedData;
   public loaded = false;
 
   constructor(
     private calcService: CalculationService,
+    private ref: ChangeDetectorRef,
   ) { }
 
   public get hasData() {

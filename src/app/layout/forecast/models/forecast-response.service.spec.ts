@@ -24,4 +24,11 @@ describe('ForecastReponseService', () => {
     expect(service.computeLimit(resp, 'pitch', 6)).toEqual([[5/6]]);
     expect(service.computeLimit(resp, 'yaw', 6)).toEqual([[1]]);
   })
+
+  it('should combine Workabilities', ()=> {
+    expect(service.combineWorkabilities([])).toEqual([[]])
+    expect(service.combineWorkabilities([[]])).toEqual([[]])
+    expect(service.combineWorkabilities([[[]]])).toEqual([[]])
+    expect(service.combineWorkabilities([[[1, 3, 1]], [[2, 2, 2]], [[1, 0, 5]]])).toEqual([[2, 3, 5]])
+  })
 });

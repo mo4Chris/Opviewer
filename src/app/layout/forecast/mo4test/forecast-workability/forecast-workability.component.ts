@@ -3,7 +3,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { ForecastResponseObject } from '../../models/forecast-response.model';
 import { ForecastReponseService } from '../../models/forecast-response.service';
-import { ForecastLimits } from '../mo4test.component';
+import { ForecastLimit } from '../forecast-limits-picker/forecast-limits-picker.component';
 
 @Component({
   selector: 'app-forecast-workability',
@@ -13,7 +13,7 @@ import { ForecastLimits } from '../mo4test.component';
 export class ForecastWorkabilityComponent implements OnChanges {
   @Input() response: ForecastResponseObject;
   @Input() heading: number = 0;
-  @Input() limits: ForecastLimits[]
+  @Input() limits: ForecastLimit[]
   public workability: number[][];
   public workabilityAlongSelectedHeading: number[];
   public time: Date[];

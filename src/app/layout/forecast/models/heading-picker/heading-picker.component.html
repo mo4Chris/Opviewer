@@ -1,10 +1,14 @@
+<ng-content></ng-content>
 <div *ngIf="data" class="row">
   <plotly-plot [data]="data" className="plotly-canvas" [layout]='PlotLayout'
     (initialized)="onPlotlyInit($event)">
   </plotly-plot>
 </div>
-Selected heading: {{heading}}
-
-<button id="confirm-" (click)="onConfirm()" (disabled)="true" class="btn btn-lg btn-primary submitBtnDate">
-  Update heading
-</button>
+Selected heading:
+<div class=flex-container>
+  <input class="form-control" type="number" min="0" max="360" 
+    step="45" (change)="changed=true;" [(ngModel)]="heading">
+  <button id="confirm-" (click)="onConfirm()" (disabled)="true" class="btn btn-sm btn-primary submitBtnDate">
+    Update heading
+  </button>
+</div>

@@ -25,7 +25,7 @@ export class ForecastReponseService {
   }
 
   combineWorkabilities(datas: Matrix[]): Matrix {
-    if (!Array.isArray(datas) || datas.length < 1) {
+    if (!Array.isArray(datas) || !Array.isArray(datas[0]) || !Array.isArray(datas[0][0])) {
       return [[]];
     }
     const numX = datas[0].length;

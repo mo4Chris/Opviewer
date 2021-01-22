@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -7,6 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ForecastOpsPickerComponent implements OnInit {
   @Input() operations = ['Op1', 'Op2'];
+  @Output() operationsChanged = new EventEmitter();
 
   constructor() { }
 

@@ -28,10 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
   public PlotLayout = {
     // General settings for the graph
     title: 'Test graph',
-    height: 500,
-    width: 700,
-    style: { margin: 'auto' },
-    center: true,
+    width: "100%",
     xaxis: {
       visible: true,
       title: 'xLabel',
@@ -47,51 +44,37 @@ export class SurfacePlotComponent implements OnChanges {
   };
 
   ngOnChanges() {
-    this.validateInput();
-    this.parsedData = [{
-      x: this.xData,
-      y: this.yData,
-      z: this.zData,
-      type: 'contour',
-      zmin: 0,
-      zmid: 80,
-      zmax: this.zMax,
-      colorbar: {
-        tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10) : undefined,
-        ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10).map(e => `${e}%`) : undefined,
-      }
-    }];
-    this.PlotLayout.xaxis.title = this.xLabel;
-    this.PlotLayout.yaxis.title = this.yLabel;
-    this.PlotLayout.title = this.title;
-    console.log('Surface-plot onchanges')
-    console.log(this.parsedData[0])
+    if (this.xData && this.xData.length >0 && this.yData.length > 0) {
+      this.validateInput()
+      this.parsedData = [{
+        x: this.xData,
+        y: this.yData,
+        z: this.zData,
+        type: 'contour',
+        zmin: 0,
+        zmid: 80,
+        zmax: this.zMax,
+        colorbar: {
+          tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10) : undefined,
+          ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10).map(e => `${e}%`) : undefined,
+        }
+      }];
+      this.PlotLayout.xaxis.title = this.xLabel;
+      this.PlotLayout.yaxis.title = this.yLabel;
+      this.PlotLayout.title = this.title;
+    }
   }
 
   public onPlotlyInit(event) {
-    console.log('Plotly is initialized')
     this.loaded = true;
   }
 
   validateInput() {
     const xLen = this.xData.length;
     const yLen = this.yData.length;
-    assert(this.zData.length == yLen, 'Length of yData should match zData.length');
+    assert(this.zData.length == yLen, `Length of yData should match zData.length, ${this.zData.length}/${yLen}`);
     this.zData.forEach((z, i) => {
-      assert(z.length == xLen, `Length of xData should match zData[${i}].length`);
-    })
-  }
-
-  initTestData() {
-    // Should be removed prior to any PR
-    this.zData = [];
-    this.xData = this.calcService.linspace(5, 20);
-    this.yData = this.calcService.linspace(0, 18, 2)
-    this.yData.forEach(y => {
-      let temp = this.xData.map(x => {
-        return <number> x+y;
-      })
-      this.zData.push(temp)
+      assert(z.length == xLen, `Length of xData should match zData[${i}].length, ${z.length}/${xLen}`);
     })
   }
 }

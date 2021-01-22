@@ -1,4 +1,4 @@
-<div [hidden]="!loaded">
+<div class="row" [hidden]="!loaded">
   <plotly-plot divId="surface-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
     (initialized)="onPlotlyInit($event)">
   </plotly-plot>

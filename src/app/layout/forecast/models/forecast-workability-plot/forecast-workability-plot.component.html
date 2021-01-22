@@ -1,6 +1,9 @@
-<div [hidden]="!loaded">
+<div *ngIf="!loaded">
+  Graph is loading...
+</div>
+<div [hidden]="!hasData" class="row">
   <h4>Workability along heading - Maximum: {{MaxWorkability}}</h4>
   <plotly-plot divId="line-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
-    (initialized)="onPlotlyInit($event)">
+    (initialized)="onPlotlyInit($event)" [useResizeHandler]="true">
   </plotly-plot>
 </div>

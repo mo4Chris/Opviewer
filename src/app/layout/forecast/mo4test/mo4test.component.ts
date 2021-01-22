@@ -3,13 +3,8 @@ import { _def } from '@angular/core/src/view/provider';
 import { CommonService } from '@app/common.service';
 import { forkJoin } from 'rxjs';
 import { Dof6, ForecastResponseObject } from '../models/forecast-response.model';
+import { ForecastLimit } from './forecast-limits-picker/forecast-limits-picker.component';
 
-type ForecastType = 'Disp' | 'Vel' | 'Acc'
-export interface ForecastLimits {
-  type: ForecastType,
-  dof: Dof6,
-  value: number
-}
 
 @Component({
   selector: 'app-mo4test',
@@ -20,8 +15,8 @@ export class Mo4testComponent implements OnInit {
   selectedVesselId = 1;
   public vessels: string[] = [];
   public response: ForecastResponseObject;
-  public limits: ForecastLimits[] = [{type: 'Disp', dof: 'heave', value: 1.2}]
-  public selectedHeading = 90;
+  public limits: ForecastLimit[] = [{type: 'Disp', dof: 'heave', value: 1.2}]
+  public selectedHeading = 112;
 
   constructor(
     private newService: CommonService,
