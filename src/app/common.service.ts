@@ -653,6 +653,11 @@ export class CommonService {
     return this.get('/api/mo4light/getResponseForProject/' + project_id).pipe(
       map((response: Response) => response.json()));
   }
+  
+  getForecastProjectsForClient(client_id: number) {
+    return this.get('/api/mo4light/getProjectsForClient/' + client_id).pipe(
+      map((response: Response) => response.json()));
+  }
 }
 
 export interface StatsRangeRequest {

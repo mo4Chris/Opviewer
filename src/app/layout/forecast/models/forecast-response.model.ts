@@ -1,4 +1,17 @@
-
+export interface ForecastOperation {
+  id: number;
+  name: string;
+  client_id: number;
+  latitude: number;
+  longitude: number;
+  water_depth: number;
+  maximum_duration: number;
+  vessel_id: string;
+  activation_start_data: number;
+  activation_end_data: number;
+  client_preferences: ForecastResponsePreference,
+  consumer_id: number;
+}
 
 export interface ForecastResponseObject {
   consumer_id: number
@@ -23,6 +36,27 @@ interface ForecastResponse {
   }
 }
 
+interface ForecastResponsePreference {
+  "Points_Of_Interest": {
+    "P1": {
+      "Coordinates": {
+        "X": { "Data": number, "String_Value": string },
+        "Y": { "Data": number, "String_Value": string },
+        "Z": { "Data": number, "String_Value": string }
+      },
+      "Max_Type": string,
+      "Degrees_Of_Freedom": {
+        "Roll": { "Disp": boolean, "Vel": boolean, "Acc": boolean },
+        "Pitch": { "Disp": boolean, "Vel": boolean, "Acc": boolean },
+        "Yaw": { "Disp": boolean, "Vel": boolean, "Acc": boolean },
+        "Surge": { "Disp": boolean, "Vel": boolean, "Acc": boolean },
+        "Sway": { "Disp": boolean, "Vel": boolean, "Acc": boolean },
+        "Heave": { "Disp": boolean, "Vel": boolean, "Acc": boolean }
+      }
+    }
+  }
+}
+
 interface ForecastVesselLocation {
   X: { // From aft of vessel towards the bow
     Data: number;
@@ -37,6 +71,12 @@ interface ForecastVesselLocation {
     String_Value: string;
   }
 }
+export interface ForecastLimit {
+  type: DofType,
+  dof: Dof6,
+  value: number
+}
 
 export type Dof6Array = number[][][]; // Time x Heading x Dof6
-export type Dof6 = 'surge' | 'sway' | 'heave' | 'roll' | 'pitch' | 'yaw';
+export type Dof6 = 'Surge' | 'Sway' | 'Heave' | 'Roll' | 'Pitch' | 'Yaw';
+export type DofType = 'Disp' | 'Vel' | 'Acc'

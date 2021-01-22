@@ -1,11 +1,7 @@
-Pick your operation
-<div *ngFor="let op of operations" class="">
-  - {{op}}
+<h5>Select operation</h5>
+<div class="flex-container">
+  Selected operation:
+  <select [(ngModel)]="selectedOperation" (change)="onChange()">
+    <option [value]="op" *ngFor="let op of operations">{{op.name}}</option>
+  </select>
 </div>
-
-<!-- <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
-  <option value="No work planned">No work planned</option>
-  <option value="EHS issues">EHS issues</option>
-  <option value="Delay Siemens">Delay charterer</option>
-  <option value="Delay vessel">Delay vessel</option>
-</select></td> -->

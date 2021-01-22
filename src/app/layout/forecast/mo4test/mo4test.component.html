@@ -1,6 +1,7 @@
-<div *ngIf="true || showContent" class="row plsdonotprintthisforfsake">
+<div *ngIf="showContent; else loading" class="row plsdonotprintthisforfsake">
   <div class="col-lg-5">
-    <app-forecast-ops-picker></app-forecast-ops-picker>
+    <app-forecast-ops-picker [operations]="operations" [(selectedOperation)]="selectedOperation">
+    </app-forecast-ops-picker>
     <hr>
     <app-heading-picker [(heading)]="selectedHeading">
       <h5>Heading picker</h5>
@@ -10,6 +11,10 @@
     </app-forecast-limits-picker>
   </div>
   <div class="col-lg-6">
-    <app-forecast-workability [response]="response" [limits]="limits" [heading]="90"></app-forecast-workability>
+    <app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading"></app-forecast-workability>
   </div>
 </div>
+
+<ng-template>
+  Loading...
+</ng-template>

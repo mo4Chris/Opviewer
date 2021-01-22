@@ -29,7 +29,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    console.log(this)
     if (this.hasData) {
       this.computeMaxWorkability();
       this.computeGraphData();

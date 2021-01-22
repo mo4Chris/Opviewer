@@ -1,9 +1,8 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
-import { ForecastResponseObject } from '../../models/forecast-response.model';
+import { ForecastLimit, ForecastResponseObject } from '../../models/forecast-response.model';
 import { ForecastReponseService } from '../../models/forecast-response.service';
-import { ForecastLimit } from '../forecast-limits-picker/forecast-limits-picker.component';
 
 @Component({
   selector: 'app-forecast-workability',

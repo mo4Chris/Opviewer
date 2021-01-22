@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ForecastLimitsPickerComponent } from './forecast-limits-picker.component';
 
@@ -13,6 +14,7 @@ describe('ForecastLimitsPickerComponent', () => {
       declarations: [ ForecastLimitsPickerComponent ],
       imports:[
         CommonModule,
+        NgbModule,
         FormsModule,
       ]
     })

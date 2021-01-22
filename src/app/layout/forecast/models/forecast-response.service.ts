@@ -3,7 +3,7 @@ import { MatrixService } from '@app/supportModules/matrix.service';
 import { Dof6, Dof6Array } from './forecast-response.model'
 
 
-const DOF_INDICES = {'surge': 0, 'sway': 1, 'heave': 2, 'roll': 3, 'pitch': 4, 'yaw': 5}
+const DOF_INDICES = {'Surge': 0, 'Sway': 1, 'Heave': 2, 'Roll': 3, 'Pitch': 4, 'Yaw': 5}
 type Matrix = number[][];
 @Injectable({
   providedIn: 'root'

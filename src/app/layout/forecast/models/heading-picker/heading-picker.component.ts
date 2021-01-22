@@ -10,7 +10,7 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 })
 export class HeadingPickerComponent implements OnChanges {
   @Input() heading = 0;
-  @Output() headingChanges: EventEmitter<number> = new EventEmitter();
+  @Output() headingChange: EventEmitter<number> = new EventEmitter();
 
   
   public data: PlotlyJS.Data[];
@@ -50,7 +50,6 @@ export class HeadingPickerComponent implements OnChanges {
   }
 
   updatePolarPlot() {
-    console.log('Building polar plot!')
     this.data = [{
       type: 'scatterpolar',
       mode: 'lines',
@@ -71,7 +70,7 @@ export class HeadingPickerComponent implements OnChanges {
 
   onConfirm() {
     this.heading = Math.max(Math.min(this.heading, 360), 0);
-    this.headingChanges.emit(this.heading)
+    this.headingChange.emit(this.heading)
     this.updatePolarPlot();
   }
 

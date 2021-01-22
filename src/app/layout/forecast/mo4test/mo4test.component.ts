@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { _def } from '@angular/core/src/view/provider';
 import { CommonService } from '@app/common.service';
 import { forkJoin } from 'rxjs';
-import { Dof6, ForecastResponseObject } from '../models/forecast-response.model';
-import { ForecastLimit } from './forecast-limits-picker/forecast-limits-picker.component';
+import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 
 
 @Component({
@@ -11,25 +10,30 @@ import { ForecastLimit } from './forecast-limits-picker/forecast-limits-picker.c
   templateUrl: './mo4test.component.html',
   styleUrls: ['./mo4test.component.scss']
 })
-export class Mo4testComponent implements OnInit {
+export class Mo4testComponent implements OnInit, OnChanges {
+  client_id = 2; // This should be made dynamic
+  
   selectedVesselId = 1;
+  private users;
+  private clients;
+  public showContent = false;
   public vessels: string[] = [];
+  public operations: ForecastOperation[] = [];
   public response: ForecastResponseObject;
-  public limits: ForecastLimit[] = [{type: 'Disp', dof: 'heave', value: 1.2}]
+  public limits: ForecastLimit[] = [{type: 'Disp', dof: 'Heave', value: 1.2}]
   public selectedHeading = 112;
+  public selectedOperation: ForecastOperation = null;
 
   constructor(
     private newService: CommonService,
   ) {
-    console.log('INIT MO4 LIGHT TEST COMPONENT')
   }
 
   ngOnInit() {
-    // this.newService.getForecastConnectionTest().subscribe(test => {
-    //   console.log(test)
-      
-    // })
     this.loadData()
+  }
+
+  ngOnChanges() {
   }
 
   loadData() {
@@ -39,19 +43,35 @@ export class Mo4testComponent implements OnInit {
       this.newService.getForecastProjectList(),
       this.newService.getForecastVesselList(),
       this.newService.getForecastWorkabilityForProject(3),
+      this.newService.getForecastProjectsForClient(this.client_id),
     ).subscribe(([users, clients, projects, vessels, responses]) => {
-      console.log(users)
-      console.log(clients)
-      console.log(projects)
-      console.log(vessels)
-      console.log(responses[0])
+      this.users = users;
+      this.clients = clients;
       this.vessels = vessels;
       this.response = responses[0];
+      this.operations = projects;
+      this.showContent = true;
     })
   }
 
-
   onChange() {
     console.log('Callback on change :)')
+  }
+
+  setLimitsFromOpsPreference(op: ForecastOperation) {
+    this.limits = [];
+    let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
+    for (let dof in Object.keys(dofPreference)) {
+      for (let type in Object.keys(dofPreference[dof])) {
+        let tf = dofPreference[dof][type];
+        if (tf) {
+          this.limits.push({
+            dof: dof as Dof6,
+            type: type as DofType,
+            value: 1,
+          })
+        }
+      }
+    }
   }
 }

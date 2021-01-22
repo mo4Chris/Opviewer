@@ -18,16 +18,16 @@
       </td>
       <td>
         <select [(ngModel)]="limit.dof">
-          <option value="surge">Surge</option>
-          <option value="sway">Sway</option>
-          <option value="heave">Heave</option>
-          <option value="roll">Roll</option>
-          <option value="pitch">Pitch</option>
-          <option value="yaw">Yaw</option>
+          <option value="Surge">Surge</option>
+          <option value="Sway">Sway</option>
+          <option value="Heave">Heave</option>
+          <option value="Roll">Roll</option>
+          <option value="Pitch">Pitch</option>
+          <option value="Yaw">Yaw</option>
         </select>
       </td>
       <td>
-        <input type="double" [(ngModel)]="limit.value">
+        <input type="number" step=0.1 [(ngModel)]="limit.value">
       </td>
     </tr>
     <tr>

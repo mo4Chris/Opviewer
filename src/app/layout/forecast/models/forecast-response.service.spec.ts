@@ -17,12 +17,12 @@ describe('ForecastReponseService', () => {
 
   it('should compute limits', () => {
     const resp: Dof6Array = [[[0, 1, 2, 4, 5, 6]]];
-    expect(service.computeLimit(resp, 'surge', 3)).toEqual([[0]]);
-    expect(service.computeLimit(resp, 'sway', 6)).toEqual([[1/6]]);
-    expect(service.computeLimit(resp, 'heave', 6)).toEqual([[1/3]]);
-    expect(service.computeLimit(resp, 'roll', 6)).toEqual([[2/3]]);
-    expect(service.computeLimit(resp, 'pitch', 6)).toEqual([[5/6]]);
-    expect(service.computeLimit(resp, 'yaw', 6)).toEqual([[1]]);
+    expect(service.computeLimit(resp, 'Surge', 3)).toEqual([[0]]);
+    expect(service.computeLimit(resp, 'Sway', 6)).toEqual([[1/6]]);
+    expect(service.computeLimit(resp, 'Heave', 6)).toEqual([[1/3]]);
+    expect(service.computeLimit(resp, 'Roll', 6)).toEqual([[2/3]]);
+    expect(service.computeLimit(resp, 'Pitch', 6)).toEqual([[5/6]]);
+    expect(service.computeLimit(resp, 'Yaw', 6)).toEqual([[1]]);
   })
 
   it('should combine Workabilities', ()=> {
