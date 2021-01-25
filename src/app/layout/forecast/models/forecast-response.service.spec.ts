@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ForecastReponseService } from './forecast-response.service';
+import { ForecastResponseService } from './forecast-response.service';
 import { Dof6Array } from './forecast-response.model';
 
-describe('ForecastReponseService', () => {
-  let service: ForecastReponseService;
+describe('ForecastResponseService', () => {
+  let service: ForecastResponseService;
   
   beforeEach(() => {
     TestBed.configureTestingModule({})
-    service = TestBed.get(ForecastReponseService);
+    service = TestBed.get(ForecastResponseService);
   });
 
   it('should be created', () => {

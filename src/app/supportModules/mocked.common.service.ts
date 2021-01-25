@@ -9,7 +9,7 @@ import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 import { Headers } from '@angular/http';
-import { ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
 
 
 const emptyMatlabObject = {
@@ -663,8 +663,17 @@ export class MockedCommonService extends CommonService {
 
 
   // Mo4-light
-  getForecastProjectList() {
-    return mockedObservable([])
+  getForecastProjectList(): Observable<ForecastOperation[]> {
+    return mockedObservable([{
+      id: 0,
+      name: 'a',
+      client_id: 1,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 'fakeID',
+    }])
   }
   getForecastClientList() {
     return mockedObservable([])
@@ -698,6 +707,18 @@ export class MockedCommonService extends CommonService {
       }
     }
     return mockedObservable([responseObj])
+  }
+  getForecastProjectsForClient(client_id: number) {
+    return mockedObservable([{
+      id: 0,
+      name: 'a',
+      client_id: client_id,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 'fakeID',
+    }])
   }
 }
 

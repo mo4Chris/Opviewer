@@ -30,4 +30,37 @@ describe('ForecastLimitsPickerComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should emit on change', async(() => {
+    let emitter = spyOn(component.limitsChange, 'emit');
+    component.limits = [{
+      dof: 'Heave',
+      type: 'Acc',
+      value: 1.5,
+    }];
+    fixture.detectChanges();
+    component.ngOnChanges();
+    expect(component.limitsCopy).toBeTruthy();
+
+    let select = fixture.nativeElement.querySelector('.btn-primary');
+    select.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+    expect(emitter).toHaveBeenCalled();
+  }))
+
+  it('should render relevant data', () => {
+    component.limitsCopy = [{
+      dof: 'Heave',
+      type: 'Acc',
+      value: 1.5,
+    }, {
+      dof: 'Pitch',
+      type: 'Disp',
+      value: 1.9,
+    }];
+    fixture.detectChanges()
+    let opt = fixture.nativeElement.querySelector('option');
+    expect(opt).toBeTruthy();
+    expect(opt.value).toBeTruthy(); // We get [object object] here, not sure how to access the actual element
+  })
 });
