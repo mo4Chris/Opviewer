@@ -53,7 +53,7 @@ export class SovSummaryComponent implements OnChanges {
   ngOnChanges() {
     this.hasSummaryData = this.sovModel.sovInfo.mmsi > 0;
     this.CalculateDailySummary();
-    this.summary = this.calculationService.ReplaceEmptyColumnValues(this.summary);
+    this.summary = this.calculationService.replaceEmptyFields(this.summary);
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
     this.setApprovalStatus();
@@ -112,7 +112,7 @@ export class SovSummaryComponent implements OnChanges {
   // ToDo: Common used by platform and turbine
   private GetDailySummary(model: SummaryModel, transfers: any[]) {
     const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
-    model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
+    model.maxSignificantWaveHeightdDuringOperations = this.calculationService.getDecimalValueForNumber(maxHs, ' m');
     const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
     model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
 

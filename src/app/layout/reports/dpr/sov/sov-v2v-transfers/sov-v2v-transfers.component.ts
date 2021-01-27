@@ -61,7 +61,7 @@ export class SovV2vTransfersComponent implements OnChanges {
   }
 
   GetDecimalValueForNumber(value, endpoint = null) {
-      return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+      return this.calculationService.getDecimalValueForNumber(value, endpoint);
   }
 
   GetMatlabDurationToMinutes(serial) {

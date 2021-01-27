@@ -62,13 +62,41 @@ describe('CalculationService', () => {
     expect(service.roundNumber(12, 10)).toEqual('12')
     expect(service.roundNumber(1.2, 10)).toEqual('1.2')
     expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels')
-    expect(service.roundNumber({}, 10)).toEqual('N/a')
-    expect(service.roundNumber([], 10)).toEqual('N/a')
+    expect(service.roundNumber(<any> {}, 10)).toEqual('N/a')
+    expect(service.roundNumber(<any> [], 10)).toEqual('N/a')
     expect(service.roundNumber(NaN, 10, 'berries')).toEqual('N/a')
     expect(service.roundNumber(1.12, 10, 'm3')).toEqual('1.1 m\u00B3')
     expect(service.roundNumber('_NaN_', 10, 'm3')).toEqual('N/a')
     expect(service.roundNumber('10', 10)).toEqual('10')
     expect(service.roundNumber('10', 10, '%')).toEqual('10%')
+  })
+
+  it('should properly get maxima', () => {
+    let m1 = service.GetMaxValueInMultipleDimensionArray(<any> 1);
+    let m2 = service.GetMaxValueInMultipleDimensionArray([1, 4, 2]);
+    let m3 = service.GetMaxValueInMultipleDimensionArray([[1, 4, 2]]);
+    let m4 = service.GetMaxValueInMultipleDimensionArray([[{}]]);
+    let m5 = service.GetMaxValueInMultipleDimensionArray([1, NaN]);
+    expect(m1).toBe(1);
+    expect(m2).toBe(4);
+    expect(m3).toBe(4);
+    expect(m4).toBeFalsy();
+    expect(m5).toBe(1);
+  })
+
+  it('should properly get minima', () => {
+    let m1 = service.GetMinValueInMultipleDimensionArray(<any> 1);
+    let m2 = service.GetMinValueInMultipleDimensionArray([1, -4, 2]);
+    let m3 = service.GetMinValueInMultipleDimensionArray([[1, -4, 2]]);
+    let m4 = service.GetMinValueInMultipleDimensionArray([[{}]]);
+    let m5 = service.GetMinValueInMultipleDimensionArray([1, NaN]);
+    let m6 = service.GetMinValueInMultipleDimensionArray([NaN, NaN]);
+    expect(m1).toBe(1);
+    expect(m2).toBe(-4);
+    expect(m3).toBe(-4);
+    expect(m4).toBeFalsy();
+    expect(m5).toBe(1);
+    expect(isNaN(m6)).toBe(true);
   })
 });
 

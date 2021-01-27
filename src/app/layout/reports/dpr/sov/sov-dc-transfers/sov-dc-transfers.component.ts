@@ -122,7 +122,7 @@ export class SovDcTransfersComponent implements OnChanges {
   }
 
   GetDecimalValueForNumber(num, endpoint) {
-    return this.calcService.GetDecimalValueForNumber(num, endpoint);
+    return this.calcService.getDecimalValueForNumber(num, endpoint);
   }
   GetMatlabDateToJSTime(serial) {
       return this.datetimeService.matlabDatenumToTimeString(serial);

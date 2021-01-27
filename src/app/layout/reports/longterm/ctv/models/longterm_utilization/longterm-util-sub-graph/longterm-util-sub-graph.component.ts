@@ -75,7 +75,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
               const info = [];
               data.datasets.forEach((dset, _i) => {
                 if (dset.data[tooltipItem.index] > 0) {
-                  info.push(dset.label + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
+                  info.push(dset.label + ': ' + calcService.getDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
                 }
               });
               return info;

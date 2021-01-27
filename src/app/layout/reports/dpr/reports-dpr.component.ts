@@ -224,14 +224,10 @@ export class ReportsDprComponent implements OnInit {
   getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
     this.sailDates = sailDates;
   }
-
-  objectToInt(objectvalue) {
-    return this.calculationService.objectToInt(objectvalue);
-  }
-  getMatlabDateToCustomJSTime(serial, format) {
+  getMatlabDateToCustomJSTime(serial: number, format: string) {
     return this.dateTimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
   GetDecimalValueForNumber(value: any, endpoint: string): string {
-    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+    return this.calculationService.getDecimalValueForNumber(value, endpoint);
   }
 }
