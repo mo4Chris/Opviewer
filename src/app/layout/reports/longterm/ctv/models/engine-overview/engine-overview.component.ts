@@ -36,7 +36,7 @@ export class EngineOverviewComponent implements OnChanges {
         return this.vesselObject.vesselName[index];
       });
       this.engines = engines.map(eng_vessel => {
-        const grouped = this.dateService.groupDataByMonth(eng_vessel);
+        const grouped = this.dateService.groupMatlabDatenumsByMonth(eng_vessel);
         return grouped.map((e: any) => {
           return {
             month: e.month.dateString,

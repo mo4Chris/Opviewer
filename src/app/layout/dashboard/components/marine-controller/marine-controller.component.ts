@@ -118,7 +118,7 @@ export class MarineControllerComponent implements OnInit {
                   turbine: transfers.location[_i],
                   vessel: transfers.label[_i],
                   date: transfers.date[_i],
-                  datestr: this.dateService.MatlabDateToJSDateYMD(transfers.date[_i]),
+                  datestr: this.dateService.matlabDatenumToYmdString(transfers.date[_i]),
                 });
               }
             });

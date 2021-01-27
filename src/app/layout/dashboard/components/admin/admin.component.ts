@@ -70,7 +70,7 @@ export class AdminComponent implements OnInit {
   getLatestTwaUpdate() {
     this.newService.getLatestTwaUpdate().subscribe(lastUpdate => {
       if (lastUpdate > 0) {
-        const latestMatlabUpdate = this.dateService.daysSinceMatlabDate(lastUpdate);
+        const latestMatlabUpdate = this.dateService.getDaysSinceMatlabDatenum(lastUpdate);
         if (lastUpdate < 2) {
           this.last_TWA_Update = this.calcService.roundNumber(latestMatlabUpdate * 24, 10, ' hour(s)');
         } else {
@@ -101,7 +101,7 @@ export class AdminComponent implements OnInit {
               matlabDate: genInfo.date,
               name: genInfo.vesselname.split('_').join(' '),
               client: vesselInfo.client[0],
-              lastActive: this.dateService.MatlabDateToJSDateYMD(genInfo.date),
+              lastActive: this.dateService.matlabDatenumToYmdString(genInfo.date),
               lastActiveDays: this.calcService.roundNumber(this.currentMatlabDate - genInfo.date, 1),
               type: vesselInfo.operationsClass,
             });

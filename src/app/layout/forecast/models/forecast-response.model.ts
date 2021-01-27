@@ -7,8 +7,8 @@ export interface ForecastOperation {
   water_depth: number;
   maximum_duration: number;
   vessel_id: string;
-  activation_start_data: number;
-  activation_end_data: number;
+  activation_start_date: string;
+  activation_end_date: string;
   client_preferences: ForecastResponsePreference,
   consumer_id: number;
 }

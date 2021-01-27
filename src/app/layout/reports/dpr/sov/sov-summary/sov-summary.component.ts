@@ -82,7 +82,7 @@ export class SovSummaryComponent implements OnChanges {
       totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
     });
     _summary.NrOfVesselTransfers = v2vTransfersTotal;
-    _summary.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
+    _summary.AvgTimeVesselDocking = this.datetimeService.matlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
     _summary.NrOfDaughterCraftLaunches = 0;
     _summary.NrOfHelicopterVisits = 0;
@@ -90,18 +90,18 @@ export class SovSummaryComponent implements OnChanges {
     if (this.sovModel.sovType === SovType.Platform && this.sovModel.platformTransfers.length > 0) {
       const transfers = this.sovModel.platformTransfers;
       const avgTimeInWaitingZone = this.calculationService.getNanMean(transfers.map(x => x.timeInWaitingZone));
-      _summary.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
+      _summary.AvgTimeInWaitingZone = this.datetimeService.matlabDurationToMinutes(avgTimeInWaitingZone);
       const avgTimeInExclusionZone = this.calculationService.getNanMean(transfers.map(x => x.visitDuration));
-      _summary.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
+      _summary.AvgTimeInExclusionZone = this.datetimeService.matlabDurationToMinutes(avgTimeInExclusionZone);
       const avgTimeDocking = this.calculationService.getNanMean(transfers.map(x => parseFloat(<any>x.totalDuration)));
-      _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+      _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
       const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(transfers.map(x => x.approachTime));
-      _summary.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
+      _summary.AvgTimeTravelingToPlatforms = this.datetimeService.matlabDurationToMinutes(avgTimeTravelingToPlatforms);
       _summary = this.GetDailySummary(_summary, transfers);
     } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
       const turbineTransfers = this.sovModel.turbineTransfers;
       const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => +x.duration));
-      _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+      _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
       _summary = this.GetDailySummary(_summary, turbineTransfers);
     } else {
       _summary = this.GetDailySummary(_summary, []);
@@ -118,8 +118,8 @@ export class SovSummaryComponent implements OnChanges {
 
     const info = this.sovModel.sovInfo;
     model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
-    model.departureFromHarbour = this.datetimeService.MatlabDateToJSTime(<any>info.departureFromHarbour);
-    model.arrivalAtHarbour = this.datetimeService.MatlabDateToJSTime(<any>info.arrivalAtHarbour);
+    model.departureFromHarbour = this.datetimeService.matlabDatenumToTimeString(<any>info.departureFromHarbour);
+    model.arrivalAtHarbour = this.datetimeService.matlabDatenumToTimeString(<any>info.arrivalAtHarbour);
     return model;
   }
 

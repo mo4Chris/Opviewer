@@ -51,7 +51,7 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
     this.getChartData((TimeBreakdowns: TimeBreakdown[], breakdownDates: number[]) => {
       const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
       const dateLabels = matlabDates.map((daynum: number) => {
-        return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
+        return this.dateTimeService.matlabDatenumToDate(daynum);
       }); // Can only have one vessel
       let validIdx: number;
       const getDset = (options: object) => {
@@ -220,7 +220,7 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
               const date: Date = data.labels[tooltipItem.index];
               return [
                 data.datasets[tooltipItem.datasetIndex].stack,
-                dateService.jsDateToDMYString(date),
+                dateService.dateToDateString(date),
               ];
             },
             label: () => { }, // Disable to default color cb
@@ -277,8 +277,8 @@ export class UtilizationGraphComponent implements OnInit, OnChanges {
               unit: 'day'
             },
             ticks: {
-              min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
-              max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+              min: this.dateTimeService.matlabDatenumToDate(this.vesselObject.dateMin),
+              max: this.dateTimeService.matlabDatenumToDate(this.vesselObject.dateMax),
             }
           }],
           yAxes: [{
