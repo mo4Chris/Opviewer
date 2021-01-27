@@ -92,7 +92,7 @@ describe('DatetimeService', () => {
     expect(service.matlabDatenumToYMD(737800)).toEqual({ year: 2020, month: 1, day: 10 })
   })
 
-  fit('should correctly get current matlab date', () => {
+  it('should correctly get current matlab date', () => {
     let matDate = service.getCurrentMatlabDatenum();
     let currDate = new Date();
     expect(service.matlabDatenumToDate(matDate).toUTCString()).toEqual(currDate.toUTCString())

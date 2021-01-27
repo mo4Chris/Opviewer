@@ -7,11 +7,7 @@ export class CalculationService {
 
   constructor() { }
 
-  objectToInt(objectvalue): number {
-    return parseFloat(objectvalue);
-  }
-
-  roundNumber(number, decimal = 10, addString: string = '') {
+  roundNumber(number: string | String | number, decimal = 10, addString: string = '') {
     if (addString) {
       switch (addString) {
         case 'm2': case ' m2':
@@ -33,7 +29,7 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any, endpoint: string = null): string {
+  getDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
       if (type === 'number' && !isNaN(value)) {
           value = Math.round(value * 10) / 10;
@@ -58,7 +54,7 @@ export class CalculationService {
     return value;
   }
 
-  ReplaceEmptyColumnValues(resetObject: any) {
+  replaceEmptyFields(resetObject: any) {
     const keys = Object.keys(resetObject);
     keys.forEach(key => {
         if (typeof(resetObject[key]) === typeof('')) {
@@ -68,18 +64,26 @@ export class CalculationService {
     return resetObject;
   }
 
-  GetMaxValueInMultipleDimensionArray(array) {
-    if (array._ArrayType_ || array.length === 0) {
+  GetMaxValueInMultipleDimensionArray(array: any[]) {
+    if (typeof array == 'number') {
+      return array;
+    } else if (!Array.isArray(array) || array.length === 0) {
       return NaN;
     }
-    return Math.max(...array.map(e => Array.isArray(e) ? this.GetMaxValueInMultipleDimensionArray(e) : e));
+    const copy = array.map(e => Array.isArray(e) ? this.GetMaxValueInMultipleDimensionArray(e) : e)
+      .filter(e => !isNaN(e))
+    return copy.length>0 ? Math.max(...copy) : NaN;
   }
 
-  GetMinValueInMultipleDimensionArray(array) {
-    if (array._ArrayType_ || array.length === 0) {
+  GetMinValueInMultipleDimensionArray(array: any[]) {
+    if (typeof array == 'number') {
+      return array;
+    } else if (!Array.isArray(array) || array.length === 0) {
       return NaN;
     }
-    return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
+    const copy = array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e)
+      .filter(e => !isNaN(e))
+    return copy.length>0 ? Math.min(...copy) : NaN;
   }
 
   GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
@@ -213,7 +217,7 @@ export class CalculationService {
   switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
     const newValues = this.switchUnits([+value], oldUnit, newUnit);
     if (newValues && newValues[0] && !isNaN(newValues[0])) {
-      return this.GetDecimalValueForNumber(newValues[0], ' ' + newUnit);
+      return this.getDecimalValueForNumber(newValues[0], ' ' + newUnit);
     } else {
       return 'N/a';
     }

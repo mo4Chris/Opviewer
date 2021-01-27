@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment-timezone';
 import { SettingsService } from './settings.service';
-import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +15,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   vesselOffsetHours = this.setting.localTimeZoneOffset; // Default to the local timezone, offset in hours
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
-  matlabDurationToMinutes(serial, roundMinutes = true) {
+  matlabDurationToMinutes(serial: string | number, roundMinutes = true) {
     if (serial !== 'N/a') {
       serial = +serial;
     }
     let dur: moment.Duration;
     if (roundMinutes) {
-      dur = moment.duration(serial + 0.5, 'minutes');
+      dur = moment.duration(<number> serial + 0.5, 'minutes');
     } else {
       dur = moment.duration(serial, 'minutes');
     }
@@ -378,7 +377,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   groupMatlabDatenumsByMonth(data: {date: number[]}): {month: any}[] {
     // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
     const groups = this.groupMatlabDatenums(data.date || []);
-    const props = Object.keys(data).filter(prop => isArray(data[prop]));
+    const props = Object.keys(data).filter(prop => Array.isArray(data[prop]));
     return groups.map(group => {
       const datas = {month: group};
       props.forEach(prop => {

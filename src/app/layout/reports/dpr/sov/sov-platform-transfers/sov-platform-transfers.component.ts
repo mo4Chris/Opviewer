@@ -171,7 +171,7 @@ export class SovPlatformTransfersComponent implements OnChanges {
 
   // Data formatting
   GetDecimalValueForNumber(num, endpoint) {
-    return this.calcService.GetDecimalValueForNumber(num, endpoint);
+    return this.calcService.getDecimalValueForNumber(num, endpoint);
   }
   getDecimalTimeToFormattedTime(time) {
     return this.datetimeService.formatMatlabDuration(time);

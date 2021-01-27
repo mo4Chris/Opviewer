@@ -163,7 +163,7 @@ export class SovTurbineTransfersComponent implements OnChanges {
 
   // Data formatting
   GetDecimalValueForNumber(num, endpoint) {
-    return this.calcService.GetDecimalValueForNumber(num, endpoint);
+    return this.calcService.getDecimalValueForNumber(num, endpoint);
   }
   GetMatlabDateToJSTime(serial) {
       return this.datetimeService.matlabDatenumToTimeString(serial);
