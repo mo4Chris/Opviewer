@@ -214,7 +214,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
                 const date = elt.data[tooltipItem.index].date;
                 return date ? [
                   elt.label,
-                  dateService.MatlabDateToJSDate(date)
+                  dateService.matlabDatenumToDmyString(date)
                 ] : elt.label;
               },
               label: function (tooltipItem, data) {

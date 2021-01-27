@@ -218,7 +218,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
-      const timeString = this.dateService.MatlabDateToCustomJSTime(this.waveSpectrum.time[_i], 'HH:mm');
+      const timeString = this.dateService.matlabDatenumToFormattedTimeString(this.waveSpectrum.time[_i], 'HH:mm');
       const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
         data: [{

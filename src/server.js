@@ -12,7 +12,10 @@ var mo4lightServer = require('./server/mo4light.server.js')
 
 
 mongo.set('useFindAndModify', false);
-var db = mongo.connect(process.env.DB_CONN, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, response) {
+var db = mongo.connect(process.env.DB_CONN, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}, function(err, response) {
   if (err) {
     logger.fatal(err);
   } else {

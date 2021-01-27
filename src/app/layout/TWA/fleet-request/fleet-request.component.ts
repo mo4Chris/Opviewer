@@ -106,8 +106,8 @@ export class FleetRequestComponent implements OnInit {
                 return;
             }
         }
-        this.request.jsTime.startDate = this.dateTimeService.convertObjectToMoment(this.request.startDate.year, this.request.startDate.month, this.request.startDate.day).valueOf();
-        this.request.jsTime.stopDate = this.dateTimeService.convertObjectToMoment(this.request.stopDate.year, this.request.stopDate.month, this.request.stopDate.day).valueOf();
+        this.request.jsTime.startDate = this.dateTimeService.moment(this.request.startDate.year, this.request.startDate.month, this.request.startDate.day).valueOf();
+        this.request.jsTime.stopDate = this.dateTimeService.moment(this.request.stopDate.year, this.request.stopDate.month, this.request.stopDate.day).valueOf();
         this.request.requestTime = moment().valueOf();
         this.newService.saveFleetRequest(this.request).pipe(
             map(

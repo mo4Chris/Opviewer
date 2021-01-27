@@ -96,7 +96,7 @@ export class ReportsDprComponent implements OnInit {
     this.eventService.closeLatestAgmInfoWindow();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
+    this.vesselObject.dateNormal = this.dateTimeService.matlabDatenumToYmdString(dateAsMatlab);
 
     this.buildPageWithCurrentInformation();
   }
@@ -122,7 +122,7 @@ export class ReportsDprComponent implements OnInit {
         // We overwrite the vesselObject to trigger the reload of subcomponents
         this.vesselObject = {
           date: this.vesselObject.date,
-          dateNormal: this.dateTimeService.MatlabDateToJSDateYMD(this.vesselObject.date),
+          dateNormal: this.dateTimeService.matlabDatenumToYmdString(this.vesselObject.date),
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
           vesselName: validatedValue[0].nicename,
@@ -169,7 +169,7 @@ export class ReportsDprComponent implements OnInit {
     return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
   }
   getMatlabDateToJSDate(serial) {
-    return this.dateTimeService.MatlabDateToJSDate(serial);
+    return this.dateTimeService.matlabDatenumToDmyString(serial);
   }
   getMMSIFromParameter() {
     let mmsi: number;
@@ -194,10 +194,10 @@ export class ReportsDprComponent implements OnInit {
     datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     datepickerValueAsMomentDate.format();
     const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
-    return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
+    return this.dateTimeService.unixEpochtoMatlabDatenum(momentDateAsIso);
   }
   getInitialDateObject() {
-    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
+    return this.dateTimeService.matlabDatenumToYMD(this.getInitialDate());
   }
   initMaxDate() {
     const curr = moment().add(-1, 'days');
@@ -210,15 +210,15 @@ export class ReportsDprComponent implements OnInit {
   getInitialDateNormal() {
     const paramDate = this.getDateFromParameter();
     if (isNaN(paramDate)) {
-      return this.dateTimeService.getJSDateYesterdayYMD();
+      return this.dateTimeService.getYmdStringYesterday();
     } else {
       return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
     }
   }
   changeDay(changedDayCount: number) {
-    const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
+    const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
-    this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
+    this.datePickerValue = this.dateTimeService.momentToYMD(newDate, true);
     this.onChange();
   }
   getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
@@ -229,7 +229,7 @@ export class ReportsDprComponent implements OnInit {
     return this.calculationService.objectToInt(objectvalue);
   }
   getMatlabDateToCustomJSTime(serial, format) {
-    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
+    return this.dateTimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
   GetDecimalValueForNumber(value: any, endpoint: string): string {
     return this.calculationService.GetDecimalValueForNumber(value, endpoint);

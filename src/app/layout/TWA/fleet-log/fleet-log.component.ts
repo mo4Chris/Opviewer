@@ -101,11 +101,11 @@ export class FleetLogComponent implements OnInit {
     }
 
     getMatlabDateToJSDate(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial);
+        return this.dateTimeService.matlabDatenumToDmyString(serial);
     }
 
     MatLabDateToMoment(serial) {
-        return this.dateTimeService.MatlabDateToUnixEpoch(serial);
+        return this.dateTimeService.matlabDatenumToMoment(serial);
     }
 
     changeToNicename(name) {

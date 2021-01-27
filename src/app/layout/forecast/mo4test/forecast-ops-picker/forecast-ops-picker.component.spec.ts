@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
@@ -18,6 +20,10 @@ describe('ForecastOpsPickerComponent', () => {
         NgbModule,
         CommonModule,
         FormsModule
+      ],
+      providers: [
+        MockedUserServiceProvider,
+        MockedCommonServiceProvider
       ]
     })
     .compileComponents();
@@ -44,8 +50,8 @@ describe('ForecastOpsPickerComponent', () => {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: "string",
-      activation_start_data: 6,
-      activation_end_data: 7,
+      activation_start_date: '',
+      activation_end_date: '',
       client_preferences: null,
       consumer_id: 8,
     }];
@@ -69,8 +75,8 @@ describe('ForecastOpsPickerComponent', () => {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: "string",
-      activation_start_data: 6,
-      activation_end_data: 7,
+      activation_start_date: '6',
+      activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
     }];

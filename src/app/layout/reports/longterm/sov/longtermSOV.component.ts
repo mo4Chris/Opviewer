@@ -185,7 +185,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
             } else {
                 monthLabels.push(DatetimeService.shortMonths[dateObj.month - 1]);
             }
-            matlabStartDate = this.dateTimeService.objectToMatlabDate(dateObj);
+            matlabStartDate = this.dateTimeService.ngbDateToMatlabDatenum(dateObj);
             // Getting the next month. Note: for NgbDates we have 1 januari means date.month === 1
             if (dateObj.month > 11) {
                 dateObj.year += 1;
@@ -193,7 +193,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
             } else {
                 dateObj.month += 1;
             }
-            matlabStopDate = this.dateTimeService.objectToMatlabDate(dateObj) - 1;
+            matlabStopDate = this.dateTimeService.ngbDateToMatlabDatenum(dateObj) - 1;
             // Actually sorting the data
             const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate);
             dataPerMonth.push(
@@ -208,21 +208,21 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         return this.dateTimeService.getMatlabDateYesterday();
     }
     getMatlabDateLastMonth() {
-        return this.dateTimeService.getMatlabDateLastMonth();
+        return this.dateTimeService.getMatlabDatenumLastMonth();
     }
     getJSDateYesterdayYMD() {
-        return this.dateTimeService.getJSDateYesterdayYMD();
+        return this.dateTimeService.getYmdStringYesterday();
     }
     getJSDateLastMonthYMD() {
-        return this.dateTimeService.getJSDateLastMonthYMD();
+        return this.dateTimeService.getYmdStringLastMonth();
     }
     MatlabDateToJSDateYMD(serial) {
-        return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+        return this.dateTimeService.matlabDatenumToYmdString(serial);
     }
     unixEpochtoMatlabDate(epochDate) {
-        return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+        return this.dateTimeService.unixEpochtoMatlabDatenum(epochDate);
     }
     MatlabDateToUnixEpochViaDate(serial) {
-        return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+        return this.dateTimeService.matlabDatenumToDate(serial);
     }
 }

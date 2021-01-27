@@ -176,13 +176,13 @@ export class CtvslipgraphComponent implements OnChanges {
 
   makeTimeString(matlabTime: number): string {
     return this.dateService
-          .MatlabDateToUnixEpoch(matlabTime + this.utcOffset / 24)
+          .matlabDatenumToMoment(matlabTime + this.utcOffset / 24)
           .toISOString();
   }
 
   addTransfer(transferData: any[], startNum: number, stopNum: number) {
-    const start = this.dateService.MatlabDateToUnixEpoch(startNum);
-    const stop = this.dateService.MatlabDateToUnixEpoch(stopNum);
+    const start = this.dateService.matlabDatenumToMoment(startNum);
+    const stop = this.dateService.matlabDatenumToMoment(stopNum);
     transferData.push({ x: start, y: 1 });
     transferData.push({ x: stop, y: 1 });
     transferData.push({ x: NaN, y: NaN });
