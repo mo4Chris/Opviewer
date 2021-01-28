@@ -16,6 +16,7 @@ import { HeadingPickerComponent } from './models/heading-picker/heading-picker.c
 import { ForecastProjectComponent } from './forecast-project/forecast-project.component';
 import { AgmCoreModule } from '@agm/core';
 import { ForecastNewProjectComponent } from './forecast-new-project/forecast-new-project.component';
+import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { ForecastNewProjectComponent } from './forecast-new-project/forecast-new
     PlotlyModule,
     SupportModelModule,
     AgmCoreModule,
+    NgxUploaderDirectiveModule
   ],
   providers: [
     CommonService
