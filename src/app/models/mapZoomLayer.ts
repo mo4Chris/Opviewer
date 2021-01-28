@@ -198,7 +198,7 @@ export class MapZoomData extends MapZoomChild {
                 disableAutoPan: true,
             });
             const openInfoWindowCB = () => {
-                eventService.OpenAgmInfoWindow(this.infoWindow, [], map, this.marker);
+                eventService.openAgmInfoWindow(this.infoWindow, [], map, this.marker);
             };
             this.marker.addListener(this.popupMode, function () {
                 openInfoWindowCB();
@@ -331,7 +331,7 @@ export class MapZoomPolygon extends MapZoomChild {
                 disableAutoPan: true,
             });
             const openInfoWindowCB = () => {
-                layer.eventService.OpenAgmInfoWindow(this.infoWindow, [], this.polyline.getMap(), this.polyline);
+                layer.eventService.openAgmInfoWindow(this.infoWindow, [], this.polyline.getMap(), this.polyline);
             };
             this.polyline.addListener(this.popupMode, function () {
                 openInfoWindowCB();

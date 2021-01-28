@@ -550,6 +550,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   setDefaultActiveTab(): void {
+    // ToDo: this should really be a setting
     switch (this.tokenInfo.userPermission) {
       case 'admin':
         this.activeTab = 'summary';

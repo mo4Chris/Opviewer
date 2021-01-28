@@ -273,6 +273,12 @@ export class MockedCommonService extends CommonService {
     return mockedObservable(true);
   }
 
+  getCompanies() {
+    return mockedObservable([
+      'test company 1'
+    ])
+  }
+
   getSovDprInput(vessel: VesselObjectModel) {
     // ToDo
     return mockedObservable([{

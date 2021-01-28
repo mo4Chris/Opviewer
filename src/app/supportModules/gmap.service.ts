@@ -251,7 +251,7 @@ export class GmapService {
             });
             // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
             const openInfoWindow = (marker, window) => {
-                this.eventService.OpenAgmInfoWindow(window, [], layer.map, marker);
+                this.eventService.openAgmInfoWindow(window, [], layer.map, marker);
             };
             mymarker.addListener('mouseover', function () {
                 openInfoWindow(mymarker, infowindow);

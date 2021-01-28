@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit {
 
     onMouseOver(infoWindow, gm) {
         this.infoWindowOld = infoWindow;
-        this.eventService.OpenAgmInfoWindow(infoWindow, gm);
+        this.eventService.openAgmInfoWindow(infoWindow, gm);
     }
     ///////////////////////////////
 
