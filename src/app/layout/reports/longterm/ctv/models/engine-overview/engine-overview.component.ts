@@ -69,7 +69,7 @@ export class EngineOverviewComponent implements OnChanges {
   }
   getPositiveMean(x: Array<number>) {
     const y = x.filter(_x => _x > 0);
-    return this.calcService.getNanMean(y);
+    return this.calcService.nanMean(y);
   }
   getNanSum(y: Array<number>) {
     return y.reduce((total, x) => x > 0 ? total + x : total, 0);

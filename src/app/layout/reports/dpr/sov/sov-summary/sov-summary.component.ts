@@ -89,18 +89,18 @@ export class SovSummaryComponent implements OnChanges {
 
     if (this.sovModel.sovType === SovType.Platform && this.sovModel.platformTransfers.length > 0) {
       const transfers = this.sovModel.platformTransfers;
-      const avgTimeInWaitingZone = this.calculationService.getNanMean(transfers.map(x => x.timeInWaitingZone));
+      const avgTimeInWaitingZone = this.calculationService.nanMean(transfers.map(x => x.timeInWaitingZone));
       _summary.AvgTimeInWaitingZone = this.datetimeService.matlabDurationToMinutes(avgTimeInWaitingZone);
-      const avgTimeInExclusionZone = this.calculationService.getNanMean(transfers.map(x => x.visitDuration));
+      const avgTimeInExclusionZone = this.calculationService.nanMean(transfers.map(x => x.visitDuration));
       _summary.AvgTimeInExclusionZone = this.datetimeService.matlabDurationToMinutes(avgTimeInExclusionZone);
-      const avgTimeDocking = this.calculationService.getNanMean(transfers.map(x => parseFloat(<any>x.totalDuration)));
+      const avgTimeDocking = this.calculationService.nanMean(transfers.map(x => parseFloat(<any>x.totalDuration)));
       _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
-      const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(transfers.map(x => x.approachTime));
+      const avgTimeTravelingToPlatforms = this.calculationService.nanMean(transfers.map(x => x.approachTime));
       _summary.AvgTimeTravelingToPlatforms = this.datetimeService.matlabDurationToMinutes(avgTimeTravelingToPlatforms);
       _summary = this.GetDailySummary(_summary, transfers);
     } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
       const turbineTransfers = this.sovModel.turbineTransfers;
-      const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => +x.duration));
+      const avgTimeDocking = this.calculationService.nanMean(turbineTransfers.map(x => +x.duration));
       _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
       _summary = this.GetDailySummary(_summary, turbineTransfers);
     } else {
@@ -111,9 +111,9 @@ export class SovSummaryComponent implements OnChanges {
 
   // ToDo: Common used by platform and turbine
   private GetDailySummary(model: SummaryModel, transfers: any[]) {
-    const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
+    const maxHs = this.calculationService.nanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
     model.maxSignificantWaveHeightdDuringOperations = this.calculationService.getDecimalValueForNumber(maxHs, ' m');
-    const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
+    const maxWindspeed = this.calculationService.nanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
     model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
 
     const info = this.sovModel.sovInfo;

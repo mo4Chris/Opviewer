@@ -12,11 +12,11 @@ describe('CalculationService', () => {
     expect(service).toBeTruthy();
   });
   it('should get correct nan filters', () => {
-    expect(service.getNanMax([-2, NaN, 1, 0])).toEqual(1, 'NanMax');
-    expect(service.getNanMax([NaN])).toEqual(NaN, 'nanMax');
-    expect(service.getNanMin([3, NaN, 1])).toEqual(1, 'nanMin');
-    expect(service.getNanMean([3, NaN, 1])).toEqual(2, 'nanMean');
-    expect(service.getNanStd([2, NaN, 4])).toEqual(1, 'nanStd');
+    expect(service.nanMax([-2, NaN, 1, 0])).toEqual(1, 'NanMax');
+    expect(service.nanMax([NaN])).toEqual(NaN, 'nanMax');
+    expect(service.nanMin([3, NaN, 1])).toEqual(1, 'nanMin');
+    expect(service.nanMean([3, NaN, 1])).toEqual(2, 'nanMean');
+    expect(service.nanStd([2, NaN, 4])).toEqual(1, 'nanStd');
   });
   it('should create correct linspaces', () => {
     expect(service.linspace(1, 5)).toEqual([1, 2, 3, 4, 5]);
@@ -72,11 +72,11 @@ describe('CalculationService', () => {
   })
 
   it('should properly get maxima', () => {
-    let m1 = service.GetMaxValueInMultipleDimensionArray(<any> 1);
-    let m2 = service.GetMaxValueInMultipleDimensionArray([1, 4, 2]);
-    let m3 = service.GetMaxValueInMultipleDimensionArray([[1, 4, 2]]);
-    let m4 = service.GetMaxValueInMultipleDimensionArray([[{}]]);
-    let m5 = service.GetMaxValueInMultipleDimensionArray([1, NaN]);
+    let m1 = service.maxInNdArray(<any> 1);
+    let m2 = service.maxInNdArray([1, 4, 2]);
+    let m3 = service.maxInNdArray([[1, 4, 2]]);
+    let m4 = service.maxInNdArray([[{}]]);
+    let m5 = service.maxInNdArray([1, NaN]);
     expect(m1).toBe(1);
     expect(m2).toBe(4);
     expect(m3).toBe(4);
@@ -85,12 +85,12 @@ describe('CalculationService', () => {
   })
 
   it('should properly get minima', () => {
-    let m1 = service.GetMinValueInMultipleDimensionArray(<any> 1);
-    let m2 = service.GetMinValueInMultipleDimensionArray([1, -4, 2]);
-    let m3 = service.GetMinValueInMultipleDimensionArray([[1, -4, 2]]);
-    let m4 = service.GetMinValueInMultipleDimensionArray([[{}]]);
-    let m5 = service.GetMinValueInMultipleDimensionArray([1, NaN]);
-    let m6 = service.GetMinValueInMultipleDimensionArray([NaN, NaN]);
+    let m1 = service.minInNdArray(<any> 1);
+    let m2 = service.minInNdArray([1, -4, 2]);
+    let m3 = service.minInNdArray([[1, -4, 2]]);
+    let m4 = service.minInNdArray([[{}]]);
+    let m5 = service.minInNdArray([1, NaN]);
+    let m6 = service.minInNdArray([NaN, NaN]);
     expect(m1).toBe(1);
     expect(m2).toBe(-4);
     expect(m3).toBe(-4);

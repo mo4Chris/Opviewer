@@ -19,8 +19,8 @@
                     </div>
                     <ngb-alert *ngIf="alert.active" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
                 </div>
-                <a class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
-                <a class="btn rounded-btn" [routerLink]="['/dashboard']">Cancel</a>
+                <a id="register" class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
+                <a id="cancel" class="btn rounded-btn" [routerLink]="['/dashboard']">Cancel</a>
             </form>
         </div>
     </div>

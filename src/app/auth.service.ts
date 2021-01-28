@@ -11,7 +11,10 @@ export class AuthService {
     private _loginurl = environment.DB_IP + '/api/login/';
     private _registerurl = environment.DB_IP + '/api/registerUser/';
 
-    constructor(private http: Http, private httpClient: HttpClient) { }
+    constructor(
+        private http: Http,
+        private httpClient: HttpClient
+    ) { }
 
     loginUser(user) {
         return this.httpClient.post<any>(this._loginurl, user);

@@ -73,7 +73,7 @@ export class LogisticsSpecialistComponent implements OnInit {
           lons.push(field.centroid.lon);
         });
 
-        const props = this.calcService.GetPropertiesForMap(400, lats, lons);
+        const props = this.calcService.calcPropertiesForMap(400, lats, lons);
         this.zoominfo.emit({
           zoomlvl: Math.min(props.zoomLevel, 8.5),
           latitude: props.avgLatitude,
