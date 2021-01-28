@@ -41,6 +41,13 @@ export class SurfacePlotComponent implements OnChanges {
       showgrid: false,
       zeroline: false,
     },
+    margin: {
+      l: 40,
+      r: 20,
+      b: 0,
+      t: 0,
+      pad: 4
+    },
   };
 
   ngOnChanges() {

@@ -9,7 +9,7 @@ import { ForecastOperation } from '../../models/forecast-response.model';
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() operations: ForecastOperation[] = [];
   @Input() selectedOperation: ForecastOperation;
-  @Output() selectedOperationChanged = new EventEmitter();
+  @Output() selectedOperationChange: EventEmitter<ForecastOperation> = new EventEmitter();
 
   constructor() {
   }
@@ -19,11 +19,10 @@ export class ForecastOpsPickerComponent implements OnChanges {
     if (!this.selectedOperation || (this.selectedOperation.id in opsIds)) {
       this.selectedOperation = this.operations ? this.operations[0] : null;
     }
-    this.selectedOperationChanged.emit(this.selectedOperation);
   }
 
   onChange() {
-    this.selectedOperationChanged.emit(this.selectedOperation);
+    this.selectedOperationChange.emit(this.selectedOperation);
   }
 
 }

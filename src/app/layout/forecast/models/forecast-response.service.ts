@@ -8,7 +8,7 @@ type Matrix = number[][];
 @Injectable({
   providedIn: 'root'
 })
-export class ForecastReponseService {
+export class ForecastResponseService {
 
   constructor(
     private matService: MatrixService,

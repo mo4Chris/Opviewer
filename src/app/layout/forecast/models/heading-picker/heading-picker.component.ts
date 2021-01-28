@@ -39,6 +39,9 @@ export class HeadingPickerComponent implements OnChanges {
       }
     }
   };
+  public options = {
+    staticPlot: true
+  }
   loaded = false;
 
   constructor(

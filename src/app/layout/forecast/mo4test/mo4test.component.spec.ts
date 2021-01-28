@@ -37,10 +37,15 @@ describe('Mo4testComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(Mo4testComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.showContent).toBe(false);
+    
+    let loadSpy = spyOn(component, 'loadData').and.callThrough();
+    fixture.detectChanges();
+    expect(loadSpy).toHaveBeenCalled();
+    expect(component.showContent).toBe(true);
   });
 });
