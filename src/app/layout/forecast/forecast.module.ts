@@ -14,6 +14,7 @@ import { SupportModelModule } from '@app/models/support-model.module';
 import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/forecast-workability.component';
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
 import { ForecastProjectComponent } from './forecast-project/forecast-project.component';
+import { AgmCoreModule } from '@agm/core';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { ForecastProjectComponent } from './forecast-project/forecast-project.co
     NgbModule,
     PlotlyModule,
     SupportModelModule,
+    AgmCoreModule,
   ],
   providers: [
     CommonService

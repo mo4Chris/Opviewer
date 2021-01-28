@@ -37,6 +37,7 @@ export class Mo4testComponent implements OnInit, OnChanges {
   }
 
   loadData() {
+    console.log('Start loading...')
     forkJoin(
       this.newService.getForecastUserList(),
       this.newService.getForecastClientList(),

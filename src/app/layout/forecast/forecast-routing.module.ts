@@ -5,6 +5,7 @@ import { ForecastProjectComponent } from './forecast-project/forecast-project.co
 
 const routes: Routes = [
     { path: '', component: Mo4testComponent },
+    { path: 'new', component: ForecastProjectComponent },
     { path: 'project', component: ForecastProjectComponent },
     { path: '**', component: Mo4testComponent },
 ];

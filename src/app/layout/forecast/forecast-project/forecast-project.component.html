@@ -1,1 +1,138 @@
 
+<h2>Selected project id: {{project_id}}</h2>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Project description
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td>Project</td>
+              <td>{{project.name}}</td>
+            </tr>
+            <tr>
+              <td>Client</td>
+              <td>{{project.client_id}}</td>
+            </tr>
+            <tr>
+              <td>Latitude</td>
+              <td>{{project.latitude}}</td>
+            </tr>
+            <tr>
+              <td>Longitude</td>
+              <td>{{project.longitude}}</td>
+            </tr>
+            <tr>
+              <td>Water depth</td>
+              <td><input [(ngModel)]="project.water_depth"  type="number"></td>
+            </tr>
+            <tr>
+              <td>Water depth</td>
+              <td>{{project.water_depth}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <agm-map id='googleMap' #gm [scaleControl]="true" [latitude]="project.latitude"
+      [longitude]="project.longitude" [zoom]="8" mapTypeId="roadmap" [scrollwheel]="null"
+      [streetViewControl]="false" gestureHandling="cooperative" (mapReady)="onMapReady($event)"
+    ></agm-map>
+    <div>
+      Here a quick graphic to display the selected vessel and POI
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Vessel properties
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Vessel type</th>
+              <th>Here be select</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr>
+              <td>Length</td>
+              <td><input [(ngModel)]="vessel.Length" type="number" step="0.5">m</td>
+            </tr>
+            <tr>
+              <td>Width</td>
+              <td><input [(ngModel)]="vessel.Breadth" type="number" step="0.5">m</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpDraft">Draft</div></td>
+              <td><input [(ngModel)]="vessel.Draft" type="number" step="0.5">m</td>
+            </tr>
+            <tr>
+              <td>GM (?)</td>
+              <td><input [(ngModel)]="vessel.GM" type="number" step="0.5">m</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Point of interest
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Vessel type</th>
+              <th>Here be select</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr>
+              <td><div [ngbTooltip]="helpX">X</div></td>
+              <td><input [(ngModel)]="POI.X" type="number" step="0.5"> m</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpY">Y</div></td>
+              <td><input [(ngModel)]="POI.Y" type="number" step="0.5"> m</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpZ">Z</div></td>
+              <td><input [(ngModel)]="POI.Z" type="number" step="0.25"> m</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+  </div>
+</div>
+
+
+<ng-template #helpBreadth>
+  ?
+</ng-template>
+<ng-template #helpDraft>
+  ?
+</ng-template>
+<ng-template #helpGM>
+  ?
+</ng-template>
+<ng-template #helpLongitude>
+  ?
+</ng-template>
+<ng-template #helpX>
+  Distance from the aft/rear of the vessel to the point of interest. This can never be nagative or greater than the vessel length.
+</ng-template>
+<ng-template #helpY>
+  Distance from the roll axis to the point of interest. Locations on port side are negative.
+</ng-template>
+<ng-template #helpZ>
+  Distance from the keel to the point of interest.
+</ng-template>
