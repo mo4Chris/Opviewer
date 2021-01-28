@@ -38,14 +38,14 @@ export class Mo4testComponent implements OnInit, OnChanges {
 
   loadData() {
     console.log('Start loading...')
-    forkJoin(
+    forkJoin([
       this.newService.getForecastUserList(),
       this.newService.getForecastClientList(),
       this.newService.getForecastProjectList(),
       this.newService.getForecastVesselList(),
       this.newService.getForecastWorkabilityForProject(3),
       this.newService.getForecastProjectsForClient(this.client_id),
-    ).subscribe(([users, clients, projects, vessels, responses]) => {
+    ]).subscribe(([users, clients, projects, vessels, responses]) => {
       this.users = users;
       this.clients = clients;
       this.vessels = vessels;

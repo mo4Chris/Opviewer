@@ -1,7 +1,11 @@
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
@@ -10,7 +14,7 @@ import { ForecastOperation } from '../models/forecast-response.model';
   styleUrls: ['./forecast-project.component.scss']
 })
 export class ForecastProjectComponent implements OnInit {
-
+  public client_id = 3;
   public project_id: number;
   public project: ForecastOperation = {
     id: 3,
@@ -27,10 +31,10 @@ export class ForecastProjectComponent implements OnInit {
     consumer_id: 10,
   }
   public vessel = {
-    Length: 1,
-    Breadth: 2,
-    Draft: 3,
-    GM: 4,
+    Length: 70,
+    Breadth: 12.4,
+    Draft: 3.01,
+    GM: 4.56789,
   }
   public POI = {
     X: 0,
@@ -42,19 +46,33 @@ export class ForecastProjectComponent implements OnInit {
     private route: ActivatedRoute,
     private routeService: RouterService,
     private alert: AlertService,
+    private newService: CommonService,
+    private calcService: CalculationService,
   ) { }
 
   ngOnInit() {
-    this.initParameter()
+    this.initParameter().subscribe(() => {
+      // this.loadData();
+    });
   }
 
-  initParameter() {
-    this.route.params.subscribe(params => {
-      this.project_id = parseFloat(params.project_id)
-      if (isNaN(this.project_id)) {
-        this.routeService.routeToNotFound();
-      }
-    });
+  loadData() {
+    forkJoin([
+      this.newService.getForecastProjectById(this.client_id)
+    ]).subscribe(([project]) => {
+      this.project = project;
+    })
+  }
+
+  initParameter(): Observable<void> {
+    return this.route.params.pipe(
+      map(params => {
+        this.project_id = parseFloat(params.project_id)
+        if (isNaN(this.project_id)) {
+          this.routeService.routeToNotFound();
+        }
+      })
+    );
   }
 
   onMapReady(map: google.maps.Map) {
@@ -64,12 +82,15 @@ export class ForecastProjectComponent implements OnInit {
         lng: this.project.longitude,
       },
       draggable: false,
-      // icon: this.markerIcon,
       map: map,
       zIndex: 2,
       label: 'POI',
       title: 'Point of interest'
     });
+  }
+
+  roundNumber(num: number, dec = 10000, addString?: string) {
+    return this.calcService.roundNumber(num, dec, addString)
   }
 
   onConfirm() {

@@ -10,7 +10,8 @@ import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
-import { ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
+import { mockedObservable } from './models/testObservable';
 
 @Injectable({
   providedIn: 'root',
@@ -657,6 +658,11 @@ export class CommonService {
   getForecastProjectsForClient(client_id: number) {
     return this.get('/api/mo4light/getProjectsForClient/' + client_id).pipe(
       map((response: Response) => response.json()));
+  }
+
+  getForecastProjectById(id: number): Observable<ForecastOperation> {
+    console.warn('To be implemented!')
+    return mockedObservable(null)
   }
 }
 

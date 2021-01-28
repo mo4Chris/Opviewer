@@ -15,7 +15,7 @@ import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/for
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
 import { ForecastProjectComponent } from './forecast-project/forecast-project.component';
 import { AgmCoreModule } from '@agm/core';
-
+import { ForecastNewProjectComponent } from './forecast-new-project/forecast-new-project.component';
 
 @NgModule({
   imports: [
@@ -41,7 +41,8 @@ import { AgmCoreModule } from '@agm/core';
     ForecastWorkabilityPlotComponent,
     ForecastWorkabilityComponent,
     HeadingPickerComponent,
-    ForecastProjectComponent
+    ForecastProjectComponent,
+    ForecastNewProjectComponent
   ],
   bootstrap: [
     Mo4testComponent

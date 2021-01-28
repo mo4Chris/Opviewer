@@ -20,19 +20,15 @@
             </tr>
             <tr>
               <td>Latitude</td>
-              <td>{{project.latitude}}</td>
+              <td>{{roundNumber(project.latitude)}}</td>
             </tr>
             <tr>
               <td>Longitude</td>
-              <td>{{project.longitude}}</td>
+              <td>{{roundNumber(project.longitude)}}</td>
             </tr>
             <tr>
               <td>Water depth</td>
               <td><input [(ngModel)]="project.water_depth"  type="number"></td>
-            </tr>
-            <tr>
-              <td>Water depth</td>
-              <td>{{project.water_depth}}</td>
             </tr>
           </tbody>
         </table>
@@ -61,20 +57,20 @@
           </thead>
           <tbody class='sep-row'>
             <tr>
-              <td>Length</td>
-              <td><input [(ngModel)]="vessel.Length" type="number" step="0.5">m</td>
+              <td><div [ngbTooltip]="helpLength">Length</div></td>
+              <td>{{roundNumber(vessel.Length, 10, ' m')}}</td>
             </tr>
             <tr>
-              <td>Width</td>
-              <td><input [(ngModel)]="vessel.Breadth" type="number" step="0.5">m</td>
+              <td><div [ngbTooltip]="helpBreadth">Breadth</div></td>
+              <td>{{roundNumber(vessel.Breadth, 10, ' m')}}</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpDraft">Draft</div></td>
-              <td><input [(ngModel)]="vessel.Draft" type="number" step="0.5">m</td>
+              <td>{{roundNumber(vessel.Draft, 10, ' m')}}</td>
             </tr>
             <tr>
-              <td>GM (?)</td>
-              <td><input [(ngModel)]="vessel.GM" type="number" step="0.5">m</td>
+              <td><div [ngbTooltip]="helpGM">GM</div></td>
+              <td>{{roundNumber(vessel.GM, 10, ' m')}}</td>
             </tr>
           </tbody>
         </table>
@@ -115,14 +111,18 @@
 </div>
 
 
+<ng-template #helpLength>
+  Length of the vessel
+</ng-template>
 <ng-template #helpBreadth>
-  ?
+  Breadth/width of the vessel
 </ng-template>
 <ng-template #helpDraft>
-  ?
+  Distance between waterline and keel
 </ng-template>
 <ng-template #helpGM>
-  ?
+  Metacentric height, which is the distance between the center of gravity and the vessels metacentere. 
+  A larger height indicates greater stability.
 </ng-template>
 <ng-template #helpLongitude>
   ?
