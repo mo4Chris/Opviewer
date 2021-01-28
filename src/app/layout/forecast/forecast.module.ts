@@ -13,6 +13,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/forecast-workability.component';
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
+import { ForecastProjectComponent } from './forecast-project/forecast-project.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { HeadingPickerComponent } from './models/heading-picker/heading-picker.c
     SurfacePlotComponent,
     ForecastWorkabilityPlotComponent,
     ForecastWorkabilityComponent,
-    HeadingPickerComponent
+    HeadingPickerComponent,
+    ForecastProjectComponent
   ],
   bootstrap: [
     Mo4testComponent
