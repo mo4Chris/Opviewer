@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { ForecastLimit, ForecastResponseObject } from '../../models/forecast-response.model';
-import { ForecastReponseService } from '../../models/forecast-response.service';
+import { ForecastResponseService } from '../../models/forecast-response.service';
 
 @Component({
   selector: 'app-forecast-workability',
@@ -19,13 +19,12 @@ export class ForecastWorkabilityComponent implements OnChanges {
   public workabilityHeadings: number[];
 
   constructor(
-    private responseService: ForecastReponseService,
+    private responseService: ForecastResponseService,
     private dateService: DatetimeService,
     private matService: MatrixService,
   ) { }
 
   ngOnChanges() {
-    // WooHoo
     if (this.response) {
       const POI = this.response.response.Points_Of_Interest.P1;
       const response = POI.Response;

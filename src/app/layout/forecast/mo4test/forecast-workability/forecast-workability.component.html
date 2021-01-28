@@ -2,7 +2,7 @@
   [startTime]="startTime" [stopTime]="stopTime"
 ></app-forecast-workability-plot>
 <hr>
-<div class="row">
+<div class="my-flex">
   <app-surface-plot *ngIf="workability" xLabel="" yLabel="Heading [deg]" title="Workability"
     [xData]="time" [yData]="workabilityHeadings" [zData]="workability" zMax="200"></app-surface-plot>
   Some additional text can go here. Zmax is currently set to 200%.

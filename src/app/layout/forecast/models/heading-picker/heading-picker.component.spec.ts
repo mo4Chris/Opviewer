@@ -42,12 +42,29 @@ describe('HeadingPickerComponent', () => {
   it('should create with data', () => {
     component.heading = 100;
     component.ngOnChanges()
+    fixture.detectChanges();
     expect(component).toBeTruthy();
+    let canvas = fixture.nativeElement.querySelector('plotly-plot');
+    expect(canvas).toBeTruthy(); // Note: ploty itself is mocked!
   });
 
   it('should trigger plot redraw on confirm', () => {
     let spy = spyOn(component, 'updatePolarPlot')
-    component.onConfirm()
+    let select = fixture.nativeElement.querySelector('button');
+    select.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
     expect(spy).toHaveBeenCalled();
   })
+
+  it('should emit on change', async(() => {
+    let emitter = spyOn(component.headingChange, 'emit');
+    component.heading = 234;
+    fixture.detectChanges();
+    component.ngOnChanges();
+
+    let select = fixture.nativeElement.querySelector('button');
+    select.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+    expect(emitter).toHaveBeenCalled();
+  }))
 });

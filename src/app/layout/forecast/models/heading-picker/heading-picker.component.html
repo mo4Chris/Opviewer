@@ -1,6 +1,6 @@
 <ng-content></ng-content>
 <div *ngIf="data" class="row">
-  <plotly-plot [data]="data" className="plotly-canvas" [layout]='PlotLayout'
+  <plotly-plot [data]="data" className="plotly-canvas" [layout]='PlotLayout' [config]="options"
     (initialized)="onPlotlyInit($event)">
   </plotly-plot>
 </div>

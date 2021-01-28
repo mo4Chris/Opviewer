@@ -17,7 +17,6 @@ export class ForecastLimitsPickerComponent implements OnChanges {
   limitsCopy: ForecastLimit[] = [];
 
   ngOnChanges() {
-    console.log('Change detected!')
     if (this.limits) {
       this.limitsCopy = this.limits.map(l => l);
     } else {
@@ -26,8 +25,7 @@ export class ForecastLimitsPickerComponent implements OnChanges {
   }
 
   public onConfirm() {
-    console.log('Updating limits!')
-    this.limitsChange.emit(this.limits)
+    this.limitsChange.emit(this.limitsCopy)
   }
   public onAddLine() {
     this.limitsCopy.push({

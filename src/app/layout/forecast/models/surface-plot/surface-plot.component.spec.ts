@@ -29,11 +29,7 @@ describe('SurfacePlotComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should create w/out data', () => {
+  it('should create w/out data', async () => {
     component.xData   = [];
     component.yData   = [];
     component.zData   = [];
@@ -41,6 +37,7 @@ describe('SurfacePlotComponent', () => {
     component.yLabel  = 'test_label_y'
     component.title   = 'Test title'
     component.ngOnChanges();
+    await fixture.whenStable()
     expect(component).toBeTruthy();
     expect(component.parsedData).not.toBeTruthy();
     component.zData = [[]]
@@ -49,7 +46,7 @@ describe('SurfacePlotComponent', () => {
     expect(component.parsedData).not.toBeTruthy();
   })
 
-  it('should create with data', () => {
+  it('should create with data', async () => {
     component.xData   = calc.linspace(737000, 737001, 1/10).map(t => datenumToDate(t));
     component.yData   = calc.linspace(0, 40, 10);
     component.zData   = calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200+e, 20));
@@ -57,17 +54,31 @@ describe('SurfacePlotComponent', () => {
     component.yLabel  = 'test_label_y'
     component.title   = 'Test title'
     component.ngOnChanges();
-    component.onPlotlyInit(null); // Cant wait for the async callback :(
-    fixture.detectChanges();
+    await fixture.whenStable()
     const layout = component.PlotLayout;
     expect(component).toBeTruthy();
     expect(component.loaded).toBe(true);
     expect(component.parsedData).toBeTruthy();
     expect(component.parsedData.length).toEqual(1);
     expect(component.parsedData.length).toEqual(1);
-    expect(layout.xaxis.title).toBe(component.xLabel)
-    expect(layout.yaxis.title).toBe(component.yLabel)
-    expect(layout.yaxis.title).toBe(component.yLabel)
+    expect(layout.xaxis.title['text']).toBe(component.xLabel)
+    expect(layout.yaxis.title['text']).toBe(component.yLabel)
+    expect(layout.yaxis.title['text']).toBe(component.yLabel)
+  })
+
+  it('should render a graph', async () => {
+    component.xData   = calc.linspace(737000, 737001, 1/10).map(t => datenumToDate(t));
+    component.yData   = calc.linspace(0, 40, 10);
+    component.zData   = calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200+e, 20));
+    component.xLabel  = 'test_label_x'
+    component.yLabel  = 'test_label_y'
+    component.title   = 'Test title'
+
+    component.ngOnChanges();
+    await fixture.whenStable()
+    let el = fixture.nativeElement;
+    let svg = el.querySelector('svg');
+    expect(svg).toBeTruthy();
   })
 });
 

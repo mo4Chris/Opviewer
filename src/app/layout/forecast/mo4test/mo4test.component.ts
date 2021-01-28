@@ -45,7 +45,7 @@ export class Mo4testComponent implements OnInit, OnChanges {
       this.newService.getForecastVesselList(),
       this.newService.getForecastWorkabilityForProject(3),
       this.newService.getForecastProjectsForClient(this.client_id),
-    ]).subscribe(([users, clients, projects, vessels, responses]) => {
+    ).subscribe(([users, clients, projects, vessels, responses, client_projects]) => {
       this.users = users;
       this.clients = clients;
       this.vessels = vessels;
@@ -53,10 +53,6 @@ export class Mo4testComponent implements OnInit, OnChanges {
       this.operations = projects;
       this.showContent = true;
     })
-  }
-
-  onChange() {
-    console.log('Callback on change :)')
   }
 
   setLimitsFromOpsPreference(op: ForecastOperation) {
