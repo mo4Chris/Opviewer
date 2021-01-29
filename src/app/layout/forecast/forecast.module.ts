@@ -18,6 +18,7 @@ import { AgmCoreModule } from '@agm/core';
 import { ForecastNewVesselComponent } from './forecast-new-vessel/forecast-new-vessel.component';
 import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 import { FileUploadComponent } from './models/file-upload/file-upload.component';
+import { VesselLocationIndicatorComponent } from './models/vessel-location-indicator/vessel-location-indicator.component';
 
 @NgModule({
   imports: [
@@ -46,7 +47,8 @@ import { FileUploadComponent } from './models/file-upload/file-upload.component'
     HeadingPickerComponent,
     ForecastVesselComponent,
     ForecastNewVesselComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    VesselLocationIndicatorComponent
   ],
   bootstrap: [
     Mo4testComponent

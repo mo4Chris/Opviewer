@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -14,11 +14,19 @@ import { ForecastOperation } from '../models/forecast-response.model';
   styleUrls: ['./forecast-project.component.scss']
 })
 export class ForecastVesselComponent implements OnInit {
-  public client_id = 3;
-  public project_id: number;
+  @Input() project_id: number;
+  @Input() vessels: ForecastVesselRequest[] = [{
+    Name: 'Big bad vessel',
+    Length: 70,
+    Breadth: 12.4,
+    Draft: 3.01,
+    GM: 4.56789,
+  }]
+  public client_id = 3; // ToDo: this needs to be loaded in somehow
+  public new = false;
   public project: ForecastOperation = {
     id: 3,
-    name: 'TEST',
+    name: 'New project name',
     client_id: 1,
     latitude: 3+1/7,
     longitude: 4+1/11,
@@ -30,16 +38,11 @@ export class ForecastVesselComponent implements OnInit {
     client_preferences: null, 
     consumer_id: 10,
   }
-  public vessel = {
-    Length: 70,
-    Breadth: 12.4,
-    Draft: 3.01,
-    GM: 4.56789,
-  }
+  public SelectedVessel: ForecastVesselRequest = <any> 0;
   public POI = {
-    X: 0,
-    Y: 0,
-    Z: 0,
+    X: undefined,
+    Y: undefined,
+    Z: undefined,
   }
 
   constructor(
@@ -50,20 +53,16 @@ export class ForecastVesselComponent implements OnInit {
     private calcService: CalculationService,
   ) { }
 
+  public get projectReady() {
+    return Boolean(this.SelectedVessel);
+  }
+
+
   ngOnInit() {
     this.initParameter().subscribe(() => {
       // this.loadData();
     });
   }
-
-  loadData() {
-    forkJoin([
-      this.newService.getForecastProjectById(this.client_id)
-    ]).subscribe(([project]) => {
-      this.project = project;
-    })
-  }
-
   initParameter(): Observable<void> {
     return this.route.params.pipe(
       map(params => {
@@ -74,6 +73,14 @@ export class ForecastVesselComponent implements OnInit {
       })
     );
   }
+  loadData() {
+    forkJoin([
+      this.newService.getForecastProjectById(this.client_id)
+    ]).subscribe(([project]) => {
+      this.project = project;
+    })
+  }
+
 
   onMapReady(map: google.maps.Map) {
     new google.maps.Marker({
@@ -105,7 +112,7 @@ export class ForecastVesselComponent implements OnInit {
       })
       return false;
     }
-    if (this.POI.X > this.vessel.Length) {
+    if (this.POI.X > this.SelectedVessel.Length) {
       this.alert.sendAlert({
         text: 'POI ahead of vessel',
         type: 'warning',
@@ -128,4 +135,12 @@ export class ForecastVesselComponent implements OnInit {
     }
     return true;
   }
+}
+
+export interface ForecastVesselRequest {
+  Name: string;
+  Length: number;
+  Breadth: number;
+  Draft: number;
+  GM: number;
 }

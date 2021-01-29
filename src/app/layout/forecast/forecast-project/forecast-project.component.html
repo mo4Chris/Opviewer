@@ -12,19 +12,19 @@
           <tbody class='sep-row'>
             <tr>
               <td>Project</td>
-              <td>{{project.name}}</td>
+              <td><input [(ngModel)]="project.name"></td>
             </tr>
             <tr>
               <td>Client</td>
-              <td>{{project.client_id}}</td>
+              <td>{{project.client_id}} (Name?)</td>
             </tr>
             <tr>
               <td>Latitude</td>
-              <td>{{roundNumber(project.latitude)}}</td>
+              <td><input [(ngModel)]="project.water_depth"  type="number" step=0.0001></td>
             </tr>
             <tr>
               <td>Longitude</td>
-              <td>{{roundNumber(project.longitude)}}</td>
+              <td><input [(ngModel)]="project.water_depth"  type="number" step=0.0001></td>
             </tr>
             <tr>
               <td>Water depth</td>
@@ -38,9 +38,7 @@
       [longitude]="project.longitude" [zoom]="8" mapTypeId="roadmap" [scrollwheel]="null"
       [streetViewControl]="false" gestureHandling="cooperative" (mapReady)="onMapReady($event)"
     ></agm-map>
-    <div>
-      Here a quick graphic to display the selected vessel and POI
-    </div>
+    <app-vessel-location-indicator></app-vessel-location-indicator>
   </div>
   <div class="col-md-6">
     <div class='card mb-3'>
@@ -52,25 +50,30 @@
           <thead>
             <tr>
               <th>Vessel type</th>
-              <th>Here be select</th>
+              <th>
+                <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select">
+                  <option disabled selected [value]="0">Please select a vessel</option>
+                  <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.Name}}</option>
+                </select>
+              </th>
             </tr>
           </thead>
           <tbody class='sep-row'>
             <tr>
               <td><div [ngbTooltip]="helpLength">Length</div></td>
-              <td>{{roundNumber(vessel.Length, 10, ' m')}}</td>
+              <td>{{roundNumber(SelectedVessel?.Length, 10, ' m')}}</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpBreadth">Breadth</div></td>
-              <td>{{roundNumber(vessel.Breadth, 10, ' m')}}</td>
+              <td>{{roundNumber(SelectedVessel?.Breadth, 10, ' m')}}</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpDraft">Draft</div></td>
-              <td>{{roundNumber(vessel.Draft, 10, ' m')}}</td>
+              <td>{{roundNumber(SelectedVessel?.Draft, 10, ' m')}}</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpGM">GM</div></td>
-              <td>{{roundNumber(vessel.GM, 10, ' m')}}</td>
+              <td>{{roundNumber(SelectedVessel?.GM, 10, ' m')}}</td>
             </tr>
           </tbody>
         </table>
@@ -92,15 +95,15 @@
           <tbody class='sep-row'>
             <tr>
               <td><div [ngbTooltip]="helpX">X</div></td>
-              <td><input [(ngModel)]="POI.X" type="number" step="0.5"> m</td>
+              <td><input [(ngModel)]="POI.X" type="number" step="0.5" placeholder="Distance from aft"> m</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpY">Y</div></td>
-              <td><input [(ngModel)]="POI.Y" type="number" step="0.5"> m</td>
+              <td><input [(ngModel)]="POI.Y" type="number" step="0.5" placeholder="Sideways distance"> m</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpZ">Z</div></td>
-              <td><input [(ngModel)]="POI.Z" type="number" step="0.25"> m</td>
+              <td><input [(ngModel)]="POI.Z" type="number" step="0.25" placeholder="Height from keel"> m</td>
             </tr>
           </tbody>
         </table>
