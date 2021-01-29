@@ -34,13 +34,15 @@ export class HeadingPickerComponent implements OnChanges {
         tickfont: {
           size: 8
         },
-        dtick: 45,
+        tickmode: "array",
+        tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
+        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         direction: "clockwise"
       }
     }
   };
   public options = {
-    staticPlot: true
+    
   }
   loaded = false;
 

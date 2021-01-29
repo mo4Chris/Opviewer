@@ -28,7 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
   public PlotLayout = {
     // General settings for the graph
     title: 'Test graph',
-    width: "100%",
+    responsive: true,
     xaxis: {
       visible: true,
       title: 'xLabel',
@@ -40,14 +40,7 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'yLabel',
       showgrid: false,
       zeroline: false,
-    },
-    margin: {
-      l: 40,
-      r: 20,
-      b: 0,
-      t: 0,
-      pad: 4
-    },
+    }
   };
 
   ngOnChanges() {
