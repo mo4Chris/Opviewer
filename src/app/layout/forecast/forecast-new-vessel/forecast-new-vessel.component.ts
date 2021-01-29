@@ -5,33 +5,29 @@ import { RouterService } from '@app/supportModules/router.service';
 import { ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
-  selector: 'app-forecast-new-project',
-  templateUrl: './forecast-new-project.component.html',
-  styleUrls: ['./forecast-new-project.component.scss']
+  selector: 'app-forecast-new-vessel',
+  templateUrl: './forecast-new-vessel.component.html',
+  styleUrls: ['./forecast-new-vessel.component.scss']
 })
-export class ForecastNewProjectComponent implements OnInit {
-  public project: ForecastOperation = {
-    id: 3,
-    name: 'TEST',
-    client_id: 1,
-    latitude: 3+1/7,
-    longitude: 4+1/11,
-    water_depth: 20,
-    maximum_duration: 30,
-    vessel_id: "6",
-    activation_start_data: null,
-    activation_end_data: null, 
-    client_preferences: null, 
-    consumer_id: 10,
+export class ForecastNewVesselComponent implements OnInit {
+  public vessel = {
+    name: '',
+    draftAP: null,
+    draftFP: null,
   }
+  private vesselPlanReady = false;
+
   constructor(
     private permission: PermissionService,
     private routerService: RouterService,
     private calcService: CalculationService,
   ) { }
 
-  public uploadOptions = {
-    
+  public get requestReady() {
+    return (this.vessel.name.length > 0)
+    && isNumber(this.vessel.draftAP)
+    && isNumber(this.vessel.draftFP)
+    && this.vesselPlanReady
   }
 
   ngOnInit() {
@@ -45,13 +41,11 @@ export class ForecastNewProjectComponent implements OnInit {
     return this.calcService.roundNumber(num, dec, addString)
   }
 
-  // File upload events
-  onUploadOutput(event) {
-    console.log('onUploadOutput')
-    console.log(event);
+  onFileUploadComplete() {
+    this.vesselPlanReady = true;
   }
-  startUpload(event) {
-    console.log('startUpload')
-    console.log(event);
-  }
+}
+
+function isNumber(x: any) {
+  return typeof(x) == 'number';
 }

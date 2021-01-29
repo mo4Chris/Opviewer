@@ -13,7 +13,7 @@ import { ForecastOperation } from '../models/forecast-response.model';
   templateUrl: './forecast-project.component.html',
   styleUrls: ['./forecast-project.component.scss']
 })
-export class ForecastProjectComponent implements OnInit {
+export class ForecastVesselComponent implements OnInit {
   public client_id = 3;
   public project_id: number;
   public project: ForecastOperation = {
@@ -25,8 +25,8 @@ export class ForecastProjectComponent implements OnInit {
     water_depth: 20,
     maximum_duration: 30,
     vessel_id: "6",
-    activation_start_data: null,
-    activation_end_data: null, 
+    activation_start_date: null,
+    activation_end_date: null, 
     client_preferences: null, 
     consumer_id: 10,
   }

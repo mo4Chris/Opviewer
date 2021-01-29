@@ -13,10 +13,11 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/forecast-workability.component';
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
-import { ForecastProjectComponent } from './forecast-project/forecast-project.component';
+import { ForecastVesselComponent } from './forecast-project/forecast-project.component';
 import { AgmCoreModule } from '@agm/core';
-import { ForecastNewProjectComponent } from './forecast-new-project/forecast-new-project.component';
+import { ForecastNewVesselComponent } from './forecast-new-vessel/forecast-new-vessel.component';
 import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
+import { FileUploadComponent } from './models/file-upload/file-upload.component';
 
 @NgModule({
   imports: [
@@ -43,8 +44,9 @@ import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
     ForecastWorkabilityPlotComponent,
     ForecastWorkabilityComponent,
     HeadingPickerComponent,
-    ForecastProjectComponent,
-    ForecastNewProjectComponent
+    ForecastVesselComponent,
+    ForecastNewVesselComponent,
+    FileUploadComponent
   ],
   bootstrap: [
     Mo4testComponent

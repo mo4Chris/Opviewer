@@ -44,8 +44,8 @@ describe('ForecastOpsPickerComponent', () => {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: "string",
-      activation_start_data: 6,
-      activation_end_data: 7,
+      activation_start_date: "6",
+      activation_end_date: "7",
       client_preferences: null,
       consumer_id: 8,
     }];
@@ -69,8 +69,8 @@ describe('ForecastOpsPickerComponent', () => {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: "string",
-      activation_start_data: 6,
-      activation_end_data: 7,
+      activation_start_date: "6",
+      activation_end_date: "7",
       client_preferences: null,
       consumer_id: 8,
     }];

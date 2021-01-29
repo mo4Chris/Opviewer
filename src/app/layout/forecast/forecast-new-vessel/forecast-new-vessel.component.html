@@ -1,0 +1,167 @@
+<h3>New vessel request </h3>
+
+<div class="row">
+  <div class="col-md-6 col-lg-8 col-xl-9">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Project description
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td>Vessel name</td>
+              <td><input [(ngModel)]="vessel.name" placeholder="Vessel name"></td>
+            </tr>
+            <tr>
+              <td>Draft AP</td>
+              <td><input [(ngModel)]="vessel.draftAP"  type="number" placeholder="-"></td>
+            </tr>
+            <tr>
+              <td>Draft FP</td>
+              <td><input [(ngModel)]="vessel.draftFP"  type="number" placeholder="-"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Vessel 3D plans
+        <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
+          [ngbPopover]="help3dPlans" placement="bottom" popoverClass="helpPopup">?
+        </button>
+      </div>
+      <div class='card-body table-responsive'>
+        <app-file-upload (fileUploadComplete)="onFileUploadComplete()">
+          Drag 3D line plans here
+        </app-file-upload>
+      </div>
+    </div>
+
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Center of gravity
+        <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
+          [ngbPopover]="helpCOG" placement="bottom" popoverClass="helpPopup">?
+        </button>
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td>LCG</td>
+              <td><input [(ngModel)]="vessel.LCG" type="number" placeholder='auto'></td>
+            </tr>
+            <tr>
+              <td>TCG</td>
+              <td><input [(ngModel)]="vessel.TCG"  type="number" placeholder='auto'></td>
+            </tr>
+            <tr>
+              <td>VCG</td>
+              <td><input [(ngModel)]="vessel.VCG"  type="number" placeholder='auto'></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Advanced options
+        <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
+          [ngbPopover]="helpAdvancedOpts" placement="bottom" popoverClass="helpPopup">?
+        </button>
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td>GM corrected</td>
+              <td><input [(ngModel)]="vessel.GMcorrection" type="number" placeholder='auto'>m</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpKxx">kxx</div></td>
+              <td><input [(ngModel)]="vessel.Kxx"  type="number" placeholder='auto'>m</td>
+            </tr>
+            <tr>
+              <td>kyy</td>
+              <td><input [(ngModel)]="vessel.Kyy"  type="number" placeholder='auto'>m</td>
+            </tr>
+            <tr>
+              <td>kzz</td>
+              <td><input [(ngModel)]="vessel.Kzz"  type="number" placeholder='auto'>m</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button class="btn btn-primary" click="sendRequest()" [disabled]="!requestReady">Request</button>
+  </div>
+
+  <div class="col-md-6 col-lg-4 col-xl-3">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Explanation
+      </div>
+      <div class='card-body table-responsive'>
+        This page allow the user to request a new vessel for use in project forecasts.
+        Upon receiving your request, we can generate the required internal model. When
+        this is complete, the vessel will become available for selection in the project
+        overview.
+        <br><br>
+        <!-- <b>Location:</b> The location for the requested operation. Longitude en latitude must <br>
+        entered as fractional coordinates, i.e. 1.12345.
+        <br><br> -->
+        <b></b>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<ng-template #helpLength>
+  Length of the vessel
+</ng-template>
+<ng-template #helpBreadth>
+  Breadth/width of the vessel
+</ng-template>
+<ng-template #helpDraft>
+  Distance between waterline and keel
+</ng-template>
+<ng-template #helpGM>
+  Metacentric height, which is the distance between the center of gravity and the vessels metacentere. 
+  A larger height indicates greater stability.
+</ng-template>
+<ng-template #helpLongitude>
+  ?
+</ng-template>
+<ng-template #helpX>
+  Distance from the aft/rear of the vessel to the point of interest. This can never be nagative or greater than the vessel length.
+</ng-template>
+<ng-template #helpY>
+  Distance from the roll axis to the point of interest. Locations on port side are negative.
+</ng-template>
+<ng-template #helpZ>
+  Distance from the keel to the point of interest.
+</ng-template>
+<ng-template #help3dPlans>
+  3D hull plans.
+</ng-template>
+<ng-template #helpCOG>
+  Center of gravity
+</ng-template>
+
+<ng-template #helpAdvancedOpts>
+  Advanced options which are not required for, but may improve the quality of the forecasts generated.
+  When unsure, please leave the fields empty.
+</ng-template>
+<ng-template #helpKxx>
+  Aft-bow component
+</ng-template>
+<ng-template #helpKyy>
+  Port-startboard component
+</ng-template>
+<ng-template #helpKzz>
+  Vertical component
+</ng-template>
