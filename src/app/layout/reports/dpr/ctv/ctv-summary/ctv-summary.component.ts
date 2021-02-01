@@ -51,7 +51,7 @@ export class CtvSummaryComponent {
   }
 
   getMatlabDateToJSTime(serial) {
-    return this.dateService.MatlabDateToJSTime(serial);
+    return this.dateService.matlabDatenumToTimeString(serial);
   }
 
   roundNumber(number, decimal = 10, addString = '') {
@@ -63,7 +63,7 @@ export class CtvSummaryComponent {
   }
 
   getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    return this.dateService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
+    return this.dateService.getMatlabDatenumDifferenceString(serialEnd, serialBegin);
   }
 }
 

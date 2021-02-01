@@ -28,7 +28,7 @@ export class ForecastWorkabilityComponent implements OnChanges {
     if (this.response) {
       const POI = this.response.response.Points_Of_Interest.P1;
       const response = POI.Response;
-      this.time = POI.Time.map(matlabtime => this.dateService.MatlabDateToUnixEpochViaDate(matlabtime));
+      this.time = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
       this.workabilityHeadings = POI.Heading;
       const limiters = this.limits.map(limit => {
         return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value)

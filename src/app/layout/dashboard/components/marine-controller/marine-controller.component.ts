@@ -61,7 +61,7 @@ export class MarineControllerComponent implements OnInit {
     const cb = () => {
       if (activeFields.length > 0) {
         // Do smart stuff
-        const props = this.calcService.GetPropertiesForMap(400,
+        const props = this.calcService.calcPropertiesForMap(400,
           activeFields.map(field => field.centroid.lat),
           activeFields.map( field => field.centroid.lon)
           );
@@ -118,7 +118,7 @@ export class MarineControllerComponent implements OnInit {
                   turbine: transfers.location[_i],
                   vessel: transfers.label[_i],
                   date: transfers.date[_i],
-                  datestr: this.dateService.MatlabDateToJSDateYMD(transfers.date[_i]),
+                  datestr: this.dateService.matlabDatenumToYmdString(transfers.date[_i]),
                 });
               }
             });

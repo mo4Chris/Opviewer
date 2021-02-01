@@ -60,11 +60,11 @@ export class FleetsComponent implements OnInit {
     }
 
     MatlabDateToJSDate(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial);
+        return this.dateTimeService.matlabDatenumToDmyString(serial);
     }
 
     MatlabDateToUnixEpoch(serial) {
-        return this.dateTimeService.MatlabDateToUnixEpoch(serial);
+        return this.dateTimeService.matlabDatenumToMoment(serial);
     }
 
     redirectFleetAvailability(campaignName, windfield, startDate) {

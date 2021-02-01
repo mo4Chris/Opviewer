@@ -32,7 +32,6 @@ describe('ReportsComponent', () => {
         AgmCoreModule,
         SharedPipesModule,
         RouterTestingModule,
-
         ReportsRoutingModule,
         ReportsDprModule,
         LongtermModule,

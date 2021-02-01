@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment-timezone';
 import { SettingsService } from './settings.service';
-import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +15,13 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   vesselOffsetHours = this.setting.localTimeZoneOffset; // Default to the local timezone, offset in hours
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
-  MatlabDurationToMinutes(serial, roundMinutes = true) {
+  matlabDurationToMinutes(serial: string | number, roundMinutes = true) {
     if (serial !== 'N/a') {
       serial = +serial;
     }
     let dur: moment.Duration;
     if (roundMinutes) {
-      dur = moment.duration(serial + 0.5, 'minutes');
+      dur = moment.duration(<number> serial + 0.5, 'minutes');
     } else {
       dur = moment.duration(serial, 'minutes');
     }
@@ -37,29 +36,29 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return format;
   }
 
-  MinutesToHours(Minutes: number) {
+  minutesToHours(Minutes: number) {
     const hours = (Minutes / 60).toFixed(1);
     return hours;
   }
 
-  MatlabDateToUnixEpoch(serial: number): moment.Moment {
+  matlabDatenumToMoment(serial: number): moment.Moment {
     const time_info = moment.tz((serial - 719529) * 864e5, 'Etc/UTC');
     return time_info;
   }
 
-  MatlabDateToUnixEpochViaDate(serial: number): Date {
+  matlabDatenumToDate(serial: number): Date {
     // Creates a Date object. Input is assumed ms since 1970 UTC
     const time_info = new Date((serial - 719529) * 864e5);
     return time_info;
   }
 
-  MatlabDateToJSDateYMD(serial: number): string {
-    const datevar = this.MatlabDateToUnixEpoch(serial).format('YYYY-MM-DD');
+  matlabDatenumToYmdString(serial: number): string {
+    const datevar = this.matlabDatenumToMoment(serial).format('YYYY-MM-DD');
 
     return datevar;
   }
 
-  JSDateYMDToObjectDate(YMDDate: string) {
+  ymdStringToYMD(YMDDate: string) {
     const YMDarray = YMDDate.split('-');
     const ObjectDate = { year: YMDarray[0], month: YMDarray[1], day: YMDarray[2] };
     return ObjectDate;
@@ -70,8 +69,8 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     _moment.utcOffset(60 * +this.setting.getTimeOffset(this.vesselOffsetHours, _moment));
   }
 
-  MatlabDateToJSTime(serial: number): string {
-    const serialMoment = this.MatlabDateToUnixEpoch(serial);
+  matlabDatenumToTimeString(serial: number): string {
+    const serialMoment = this.matlabDatenumToMoment(serial);
     if (serialMoment.isValid()) {
       let time_info;
       if (this.setting.Timezone === 'timezone') {
@@ -86,17 +85,18 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  MatlabDateToObject(serial: number) {
-    return this.convertMomentToObject(this.MatlabDateToUnixEpoch(serial));
+  matlabDatenumToYMD(serial: number) {
+    return this.momentToYMD(this.matlabDatenumToMoment(serial), true);
   }
 
-  MatlabDateToCustomJSTime(serial: string | number, format: string) {
+  matlabDatenumToFormattedTimeString(serial: string | number, format: string) {
+    // ToDo: merge this with matlabDatenumToTimeString
     if (typeof(serial) === 'string') {
       serial = +serial;
     }
     if (!isNaN(serial)) {
       let time_info: string;
-      const serialMoment = this.MatlabDateToUnixEpoch(serial);
+      const serialMoment = this.matlabDatenumToMoment(serial);
       this.applyTimeOffsetToMoment(serialMoment);
       if (serialMoment.isValid()) {
         time_info = serialMoment.format(format);
@@ -107,6 +107,16 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     } else {
       return 'N/a';
     }
+  }
+
+  matlabDatenumToDmyString(serial: number) {
+    const dateInt = this.matlabDatenumToMoment(serial);
+    return dateInt.format('DD-MM-YYYY');
+  }
+
+  matlabDatenumToDayString(serial: number) {
+    const dateInt = this.matlabDatenumToMoment(serial);
+    return dateInt.format('DD');
   }
 
   createTimesQuarterHour() {
@@ -125,7 +135,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return times;
   }
 
-  createHoursTimes() {
+  createTimesHours() {
       const allHours = [];
       for (let i = 0; i < 25; i++) {
         let time = i + '';
@@ -137,7 +147,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
       return allHours;
   }
 
-  createFiveMinutesTimes() {
+  createTimeFiveMinutes() {
     const all5Minutes = [];
         for (let i = 0; i < 60; i += 5) {
           let time = i + '';
@@ -149,19 +159,19 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return all5Minutes;
   }
 
-  unixEpochtoMatlabDate(epochDate: number) {
+  unixEpochtoMatlabDatenum(epochDate: number) {
     return (epochDate / 864e2) + 719529;
   }
 
-  MatlabDateToJSTimeDifference(serialEnd: number, serialBegin: number) {
-    const serialEndMoment = this.MatlabDateToUnixEpoch(serialEnd).startOf('second');
-    const serialBeginMoment = this.MatlabDateToUnixEpoch(serialBegin).startOf('second');
+  getMatlabDatenumDifferenceString(serialEnd: number, serialBegin: number) {
+    const serialEndMoment = this.matlabDatenumToMoment(serialEnd).startOf('second');
+    const serialBeginMoment = this.matlabDatenumToMoment(serialBegin).startOf('second');
     const difference = serialEndMoment.diff(serialBeginMoment);
     return moment(difference).subtract(1, 'hours').format('HH:mm:ss');
   }
 
-  DecimalTimeToFormattedTime(dateInput) {
-    return moment(0).utc().add(dateInput, 'minutes').format('HH:mm:ss');
+  formatMatlabDuration(duration: number) {
+    return moment(0).utc().add(duration, 'minutes').format('HH:mm:ss');
   }
 
   getMatlabDateYesterday() {
@@ -169,21 +179,21 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     matlabValueYesterday.utcOffset(0).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
     const momentDateAsIso = moment(matlabValueYesterday).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    const dateAsMatlab = this.unixEpochtoMatlabDatenum(momentDateAsIso);
     return dateAsMatlab;
   }
 
-  getJSDateYesterdayYMD() {
+  getYmdStringYesterday() {
     const JSValueYesterday = moment().add(-1, 'days').utcOffset(0).format('YYYY-MM-DD');
     return JSValueYesterday;
   }
 
   dateHasSailed(date: NgbDateStruct, dateData: any): boolean {
+    // Todo: this is not a general function => should not be in this service
     for (let i = 0; i < dateData.length; i++) {
       const day: number = dateData[i].day;
       const month: number = dateData[i].month;
       const year: number = dateData[i].year;
-      // tslint:disable-next-line:triple-equals
       if (day == date.day && month == date.month && year == date.year) {
         return true;
       }
@@ -195,44 +205,44 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return dateObj;
   }
 
-  jsDateToMDHMString(date: Date) {
+  dateToDayTimeString(date: Date) {
     const offsetHours = this.setting.getTimeOffset(this.vesselOffsetHours);
     date = this.dateAddHours(date, offsetHours);
-    let hours: number | string = date.getUTCHours();
-    let mins: number | string  = date.getUTCMinutes();
-    if (hours < 10) {hours = '0' + hours; }
-    if (mins < 10) {mins = '0' + mins; }
-    return DatetimeService.shortMonths[date.getUTCMonth()] + ' ' + date.getUTCDate() + ', ' + hours + ':' + mins;
+    let hours = date.getUTCHours().toString().padStart(2, '0');
+    let mins  = date.getUTCMinutes().toString().padStart(2, '0');
+    let month = DatetimeService.shortMonths[date.getUTCMonth()];
+    return `${month} ${date.getUTCDate()}, ${hours}:${mins}`;
   }
 
-  jsDateToDMYString(date: Date) {
-    return date.getUTCDate() + ' ' + DatetimeService.shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear();
+  dateToDateString(date: Date) {
+    let month = DatetimeService.shortMonths[date.getUTCMonth()];
+    return `${date.getUTCDate()} ${month} ${date.getUTCFullYear()}`;
   }
 
-  dateStringToEpoch(datestring: string) {
+  dateStringToUnixEpoch(datestring: string) {
     const dateMoment = moment(datestring);
     return dateMoment.unix();
   }
 
-  getMatlabDateLastMonth() {
+  getMatlabDatenumLastMonth() {
     const matlabValueYesterday = moment().add(-1, 'months');
     matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
     const momentDateAsIso = moment(matlabValueYesterday).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    const dateAsMatlab = this.unixEpochtoMatlabDatenum(momentDateAsIso);
     return dateAsMatlab;
   }
 
-  getMatlabDateMonthsAgo(diffMonths: number) {
+  getMatlabDatenumMonthsAgo(diffMonths: number) {
     const matlabValueYesterday = moment().add(diffMonths, 'months');
     matlabValueYesterday.utcOffset(0).set({ date: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
     matlabValueYesterday.format();
     const momentDateAsIso = moment(matlabValueYesterday).unix();
-    const dateAsMatlab = this.unixEpochtoMatlabDate(momentDateAsIso);
+    const dateAsMatlab = this.unixEpochtoMatlabDatenum(momentDateAsIso);
     return dateAsMatlab;
   }
 
-  getJSDateLastMonthYMD() {
+  getYmdStringLastMonth() {
     const JSValueYesterday = moment().add(-1, 'months').utcOffset(0).set({
       date: 1,
       hour: 0,
@@ -243,51 +253,36 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return JSValueYesterday;
   }
 
-  MatlabDateToJSDate(serial: number) {
-    const dateInt = this.MatlabDateToUnixEpoch(serial);
-    return dateInt.format('DD-MM-YYYY');
-  }
-
-  MatlabDateToJSMonthDate(serial: number) {
-    const dateInt = this.MatlabDateToUnixEpoch(serial);
-    return dateInt.format('DD');
-  }
-
-  convertObjectToMoment(year: string | number, month: string |number, day: string | number) {
-    return moment(year + '-' + month + '-' + day, 'YYYY-MM-DD');
+  moment(year: string | number, month: string |number, day: string | number) {
+    return moment({year: year as number, month: month as number, date: day as number});
   }
 
   stringTimeDifference(datestring: string, datestringEnd: string) {
     const dateMoment = moment(datestring, 'HH:mm');
     let dateMomentEnd;
-
     if (datestringEnd === '24:00') {
       dateMomentEnd = moment('00:00', 'HH:mm');
     } else {
       dateMomentEnd = moment(datestringEnd, 'HH:mm');
     }
-
     const timeDifference = moment(dateMomentEnd.diff(dateMoment)).utcOffset(0).format('HH:mm');
     return timeDifference;
   }
 
-  objectTimeDifference(dateobj: {to: string, from: string, total: string}) {
+  objectTimeDifference(dateobj: {from: string, to: string, total: string}) {
     const dateMoment = moment(dateobj.from, 'HH:mm');
     let dateMomentEnd;
-
     if (dateobj.to === '24:00') {
       dateMomentEnd = moment('00:00', 'HH:mm');
     } else {
       dateMomentEnd = moment(dateobj.to, 'HH:mm');
     }
-
     dateobj.total = moment(dateMomentEnd.diff(dateMoment)).utcOffset(0).format('HH:mm');
     return dateobj;
   }
 
-  arrayTotalTime(dateArray: {to: string, from: string, total: string}[]) {
+  arrayTotalTime(dateArray: {from: string, to: string, total: string}[]) {
     let dateMoment = moment('00:00', 'HH:mm');
-
     for (let j = 0; j < dateArray.length; j++) {
       const tempStore = moment(dateArray[j].total, 'HH:mm').toObject();
       dateMoment = dateMoment.add({hours: tempStore.hours, minutes: tempStore.minutes});
@@ -295,15 +290,16 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return dateMoment.format('HH:mm');
   }
 
-  convertMomentToObject(date: moment.Moment, addMonth = true) {
+  momentToYMD(date: moment.Moment, addMonth = true) {
     const obj = { year: date.year(), month: date.month(), day: date.date() };
     if (addMonth) {
+      // moment months start at 0, YMD at 1
       obj.month++;
     }
     return obj;
   }
 
-  valueToDate(serial: number) {
+  unixEpochToDmyString(serial: number) {
     if (serial) {
       return moment(serial).format('DD-MM-YYYY');
     } else {
@@ -311,7 +307,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  objectToMatlabDate(dateObj: NgbDate) {
+  ngbDateToMatlabDatenum(dateObj: NgbDate) {
     // Moment.utc can handles year/month/day object, but requires months to start at 0
     const _dateObj = {
       year: dateObj.year,
@@ -319,10 +315,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
       day: dateObj.day,
     };
     const unixTime =  moment.utc(_dateObj).unix();
-    return this.unixEpochtoMatlabDate(unixTime);
+    return this.unixEpochtoMatlabDatenum(unixTime);
   }
 
-  hoursSinceMoment(dateString: string) {
+  hoursSinceTimeString(dateString: string) {
     if (dateString) {
       const dur = moment().diff(moment.parseZone(dateString + '+00:00'));
       return moment.duration(dur).asHours();
@@ -331,20 +327,20 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  currentMatlabDate(): number {
+  getCurrentMatlabDatenum(): number {
     const curr = <number> moment().valueOf();
     return (curr / 864e5) + 719529;
   }
 
-  daysSinceMatlabDate(serial: number) {
-    return this.currentMatlabDate() - serial;
+  getDaysSinceMatlabDatenum(serial: number) {
+    return this.getCurrentMatlabDatenum() - serial;
   }
 
-  groupMatlabDates(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
-    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
-    const dates = matlab_dates.map(dnum => this.MatlabDateToObject(dnum));
-    const minDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
-    const maxDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
+  groupMatlabDatenums(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
+    if (!Array.isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
+    const dates = matlab_dates.map(dnum => this.matlabDatenumToYMD(dnum));
+    const minDate = this.matlabDatenumToYMD(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
+    const maxDate = this.matlabDatenumToYMD(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
     switch (groupBy) {
       case 'month':
         const numMonths = 12 * (maxDate.year - minDate.year) + maxDate.month - minDate.month + 1;
@@ -378,10 +374,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  groupDataByMonth(data: {date: number[]}): {month: any}[] {
+  groupMatlabDatenumsByMonth(data: {date: number[]}): {month: any}[] {
     // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
-    const groups = this.groupMatlabDates(data.date || []);
-    const props = Object.keys(data).filter(prop => isArray(data[prop]));
+    const groups = this.groupMatlabDatenums(data.date || []);
+    const props = Object.keys(data).filter(prop => Array.isArray(data[prop]));
     return groups.map(group => {
       const datas = {month: group};
       props.forEach(prop => {

@@ -121,8 +121,8 @@ export class SovDprInputVesselmasterComponent implements OnInit, OnChanges {
   }
 
   createSeperateTimes() {
-    this.allHours = this.datetimeService.createHoursTimes();
-    this.all5Minutes = this.datetimeService.createFiveMinutesTimes();
+    this.allHours = this.datetimeService.createTimesHours();
+    this.all5Minutes = this.datetimeService.createTimeFiveMinutes();
   }
 
   // Various save functions

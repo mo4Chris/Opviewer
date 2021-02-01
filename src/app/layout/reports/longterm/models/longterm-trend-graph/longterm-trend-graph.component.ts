@@ -134,8 +134,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
             };
           }));
         } else {
-          const mean = this.calcService.getNanMean(yVals as number[]);
-          const std = this.calcService.getNanStd(yVals as number[]);
+          const mean = this.calcService.nanMean(yVals as number[]);
+          const std = this.calcService.nanStd(yVals as number[]);
           const outliers: ScatterDataElt[] = [];
           yVals.forEach((yVal, i) => {
             if (yVal <  mean - 2 * std || yVal > mean + 2 * std) {
@@ -149,8 +149,8 @@ export class LongtermTrendGraphComponent implements OnChanges {
           });
 
           vesselDataSets = vesselDataSets.concat(outliers);
-          const upperLimit = this.calcService.getNanMax(yVals);
-          const lowerLimit = this.calcService.getNanMin(yVals);
+          const upperLimit = this.calcService.nanMax(yVals);
+          const lowerLimit = this.calcService.nanMin(yVals);
           line.push({
             x: lb / 2 + ub / 2,
             y: mean
@@ -214,7 +214,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
                 const date = elt.data[tooltipItem.index].date;
                 return date ? [
                   elt.label,
-                  dateService.MatlabDateToJSDate(date)
+                  dateService.matlabDatenumToDmyString(date)
                 ] : elt.label;
               },
               label: function (tooltipItem, data) {

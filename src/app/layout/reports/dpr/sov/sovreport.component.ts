@@ -365,8 +365,8 @@ export class SovreportComponent implements OnInit, OnChanges {
       let formattedDate;
       let hasTransfers: boolean;
       this.dateData.general.forEach(generalDataInstance => {
-        formattedDate = this.datetimeService.JSDateYMDToObjectDate(
-          this.datetimeService.MatlabDateToJSDateYMD(
+        formattedDate = this.datetimeService.ymdStringToYMD(
+          this.datetimeService.matlabDatenumToYmdString(
             generalDataInstance.dayNum
           )
         );
@@ -404,17 +404,17 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   GetMatlabDurationToMinutes(serial) {
-    return this.datetimeService.MatlabDurationToMinutes(serial);
+    return this.datetimeService.matlabDurationToMinutes(serial);
   }
 
   // Properly change undefined values to N/a
   // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
   CheckForNullValues() {
     let naCountGangway = 0;
-    this.sovModel.sovInfo = this.calculationService.ReplaceEmptyColumnValues(
+    this.sovModel.sovInfo = this.calculationService.replaceEmptyFields(
       this.sovModel.sovInfo
     );
-    this.sovModel.sovInfo.distancekm = this.calculationService.GetDecimalValueForNumber(
+    this.sovModel.sovInfo.distancekm = this.calculationService.getDecimalValueForNumber(
       this.sovModel.sovInfo.distancekm
     );
     if (this.sovModel.sovType === SovType.Turbine) {
@@ -423,26 +423,26 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
-        transfer = this.calculationService.ReplaceEmptyColumnValues(
+        transfer = this.calculationService.replaceEmptyFields(
           transfer
         );
         transfer.duration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.duration
           )
         );
         transfer.gangwayDeployedDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayDeployedDuration
           )
         );
         transfer.gangwayReadyDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayReadyDuration
           )
         );
         transfer.gangwayUtilisation = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayUtilisation
           )
         );
@@ -471,22 +471,22 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
-        transfer = this.calculationService.ReplaceEmptyColumnValues(
+        transfer = this.calculationService.replaceEmptyFields(
           transfer
         );
 
         transfer.totalDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.totalDuration
           )
         );
         transfer.gangwayDeployedDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayDeployedDuration
           )
         );
         transfer.gangwayReadyDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayReadyDuration
           )
         );
@@ -515,22 +515,22 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
     if (this.sovModel.transits.length > 0) {
       this.sovModel.transits.forEach(transit => {
-        transit = this.calculationService.ReplaceEmptyColumnValues(
+        transit = this.calculationService.replaceEmptyFields(
           transit
         );
       });
     }
     if (this.sovModel.vessel2vessels.length > 0) {
       this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-        vessel2vessel.CTVactivity = this.calculationService.ReplaceEmptyColumnValues(
+        vessel2vessel.CTVactivity = this.calculationService.replaceEmptyFields(
           vessel2vessel.CTVactivity
         );
         vessel2vessel.transfers.forEach(transfer => {
-          transfer = this.calculationService.ReplaceEmptyColumnValues(
+          transfer = this.calculationService.replaceEmptyFields(
             transfer
           );
           transfer.duration = <any>(
-            this.calculationService.GetDecimalValueForNumber(
+            this.calculationService.getDecimalValueForNumber(
               transfer.duration
             )
           );
@@ -550,6 +550,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   setDefaultActiveTab(): void {
+    // ToDo: this should really be a setting
     switch (this.tokenInfo.userPermission) {
       case 'admin':
         this.activeTab = 'summary';
@@ -568,20 +569,16 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
   }
 
-  objectToInt(objectvalue): number {
-    return this.calculationService.objectToInt(objectvalue);
-  }
-
   GetMatlabDateToJSTime(serial) {
-    return this.datetimeService.MatlabDateToJSTime(serial);
+    return this.datetimeService.matlabDatenumToTimeString(serial);
   }
 
   getMatlabDateToCustomJSTime(serial, format) {
-    return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
+    return this.datetimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
 
   GetDecimalValueForNumber(value, endpoint = null) {
-    return this.calculationService.GetDecimalValueForNumber(
+    return this.calculationService.getDecimalValueForNumber(
       value,
       endpoint
     );
