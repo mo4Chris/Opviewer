@@ -1,9 +1,14 @@
-<app-forecast-workability-plot [time]="time" [workabilityAlongHeading]="workabilityAlongSelectedHeading"
-  [startTime]="startTime" [stopTime]="stopTime"
-></app-forecast-workability-plot>
-<hr>
-<div class="my-flex">
-  <app-surface-plot *ngIf="workability" xLabel="" yLabel="Heading [deg]" title="Workability"
-    [xData]="time" [yData]="workabilityHeadings" [zData]="workability" zMax="200"></app-surface-plot>
-  Some additional text can go here. Zmax is currently set to 200%.
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-5">
+    <app-forecast-workability-plot [time]="time" [workabilityAlongHeading]="workabilityAlongSelectedHeading"
+    [startTime]="startTime" [stopTime]="stopTime"></app-forecast-workability-plot>
+  </div>
+  
+  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-5">
+    
+      <app-surface-plot *ngIf="workability" xLabel="time" yLabel="Heading [deg]" title="Workability"
+        [xData]="time" [yData]="workabilityHeadings" [zData]="workability" zMax="200"></app-surface-plot>
+      Some additional text can go here. Zmax is currently set to 200%.
+    </div>
+  
 </div>

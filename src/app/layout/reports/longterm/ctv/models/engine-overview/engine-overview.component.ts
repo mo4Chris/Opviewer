@@ -36,7 +36,7 @@ export class EngineOverviewComponent implements OnChanges {
         return this.vesselObject.vesselName[index];
       });
       this.engines = engines.map(eng_vessel => {
-        const grouped = this.dateService.groupDataByMonth(eng_vessel);
+        const grouped = this.dateService.groupMatlabDatenumsByMonth(eng_vessel);
         return grouped.map((e: any) => {
           return {
             month: e.month.dateString,
@@ -69,7 +69,7 @@ export class EngineOverviewComponent implements OnChanges {
   }
   getPositiveMean(x: Array<number>) {
     const y = x.filter(_x => _x > 0);
-    return this.calcService.getNanMean(y);
+    return this.calcService.nanMean(y);
   }
   getNanSum(y: Array<number>) {
     return y.reduce((total, x) => x > 0 ? total + x : total, 0);

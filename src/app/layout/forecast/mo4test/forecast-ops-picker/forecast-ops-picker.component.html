@@ -1,7 +1,27 @@
 <h5>Select operation</h5>
 <div class="flex-container">
   Selected operation:
-  <select [(ngModel)]="selectedOperation" (change)="onChange()">
-    <option [value]="op" *ngFor="let op of operations">{{op.name}}</option>
+  <select [(ngModel)]="selectedOperation" (change)="onChange()" class="input">
+    <option [ngValue]="op" *ngFor="let op of operations">{{op.name}}</option>
   </select>
 </div>
+<table *ngIf="hasSelectedOperation" width=100%>
+  <tbody>
+    <tr>
+      <td>Longitude</td>
+      <td>{{selectedOperation.longitude}}</td>
+    </tr>
+    <tr>
+      <td>Latitude</td>
+      <td>{{selectedOperation.latitude}}</td>
+    </tr>
+    <tr>
+      <td>Start</td>
+      <td>{{startTime}}</td>
+    </tr>
+    <tr>
+      <td>Stop</td>
+      <td>{{stopTime}}</td>
+    </tr>
+  </tbody>
+</table>

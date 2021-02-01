@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, SimpleChange } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import * as Plotly from 'plotly.js/dist/plotly.js';
 
 @Component({
   selector: 'app-vessel-location-indicator',
@@ -19,7 +19,7 @@ export class VesselLocationIndicatorComponent implements OnInit {
   @Input() Z: number = 3;
 
   public loaded = false;
-  public plotData: PlotlyJS.Data[];
+  public plotData: Plotly.Data[];
   public plotLayout = {
     // General settings for the graph
     title: 'Test graph',

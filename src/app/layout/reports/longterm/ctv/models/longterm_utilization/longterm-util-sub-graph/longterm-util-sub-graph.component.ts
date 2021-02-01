@@ -67,7 +67,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
               const date: Date = data.labels[tooltipItem.index];
               return [
                 data.datasets[tooltipItem.datasetIndex].stack,
-                dateService.jsDateToDMYString(date),
+                dateService.dateToDateString(date),
               ];
             },
             label: () => { }, // Disable to default color cb
@@ -75,7 +75,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
               const info = [];
               data.datasets.forEach((dset, _i) => {
                 if (dset.data[tooltipItem.index] > 0) {
-                  info.push(dset.label + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
+                  info.push(dset.label + ': ' + calcService.getDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
                 }
               });
               return info;
@@ -124,8 +124,8 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
               unit: 'day'
             },
             ticks: {
-              min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMin),
-              max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMax + 1),
+              min: this.dateTimeService.matlabDatenumToDate(this.dateMin),
+              max: this.dateTimeService.matlabDatenumToDate(this.dateMax + 1),
               maxTicksLimit: 21,
             },
             gridLines: {

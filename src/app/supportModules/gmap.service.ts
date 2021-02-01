@@ -207,9 +207,9 @@ export class GmapService {
             });
             infoArray.forEach(info => {
                 contentString = contentString + '<br>' +
-                    'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.startTime) + '<br>' +
-                    'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.stopTime) + '<br>' +
-                    'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.duration) + '<br>';
+                    'Start: ' + this.dateTimeService.matlabDatenumToTimeString(info.startTime) + '<br>' +
+                    'Stop: ' + this.dateTimeService.matlabDatenumToTimeString(info.stopTime) + '<br>' +
+                    'Duration: ' + this.dateTimeService.matlabDurationToMinutes(info.duration) + '<br>';
             });
             contentString = contentString + '</pre>';
         }
@@ -239,9 +239,9 @@ export class GmapService {
             platform.visits.forEach(info => {
                 if (info) {
                     contentString = contentString + '<br>' +
-                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(info.arrivalTimePlatform) + '<br>' +
-                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(info.departureTimePlatform) + '<br>' +
-                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(info.totalDuration) + '<br>';
+                        'Start: ' + this.dateTimeService.matlabDatenumToTimeString(info.arrivalTimePlatform) + '<br>' +
+                        'Stop: ' + this.dateTimeService.matlabDatenumToTimeString(info.departureTimePlatform) + '<br>' +
+                        'Duration: ' + this.dateTimeService.matlabDurationToMinutes(info.totalDuration) + '<br>';
                 }
             });
             contentString = contentString + '</pre>';
@@ -251,7 +251,7 @@ export class GmapService {
             });
             // Need to define local function here since we cant use callbacks to other functions from this class in the listener callback
             const openInfoWindow = (marker, window) => {
-                this.eventService.OpenAgmInfoWindow(window, [], layer.map, marker);
+                this.eventService.openAgmInfoWindow(window, [], layer.map, marker);
             };
             mymarker.addListener('mouseover', function () {
                 openInfoWindow(mymarker, infowindow);
@@ -320,9 +320,9 @@ export class GmapService {
                         GmapService.iconVessel2VesselTransfer,
                         'V2V transfer',
                         '<strong style="font-size: 15px;">Transfer to ' + _transfer.toVesselname + '</strong><br>' +
-                        'Start: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.startTime) + '<br>' +
-                        'Stop: ' + this.dateTimeService.MatlabDateToJSTime(_transfer.stopTime) + '<br>' +
-                        'Duration: ' + this.dateTimeService.MatlabDurationToMinutes(_transfer.duration) + '<br>'
+                        'Start: ' + this.dateTimeService.matlabDatenumToTimeString(_transfer.startTime) + '<br>' +
+                        'Stop: ' + this.dateTimeService.matlabDatenumToTimeString(_transfer.stopTime) + '<br>' +
+                        'Duration: ' + this.dateTimeService.matlabDurationToMinutes(_transfer.duration) + '<br>'
                     ));
                 }
             });

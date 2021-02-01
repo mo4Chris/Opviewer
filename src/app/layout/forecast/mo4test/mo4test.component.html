@@ -1,19 +1,25 @@
-<div *ngIf="showContent; else loading" class="row plsdonotprintthisforfsake">
-  <div class="col-lg-5">
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-12">
     <app-forecast-ops-picker [operations]="operations" [(selectedOperation)]="selectedOperation">
     </app-forecast-ops-picker>
     <hr>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-5">
     <app-heading-picker [(heading)]="selectedHeading">
-      <h5>Heading picker</h5>
     </app-heading-picker>
-    <hr>
+  </div>
+  <div class="col-sm-12 col-md-12 col-lg-5">
     <app-forecast-limits-picker [(limits)]="limits">
     </app-forecast-limits-picker>
   </div>
-  <div class="col-lg-6">
-    <app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading"></app-forecast-workability>
-  </div>
 </div>
+
+<div class="div-spacing"></div>
+
+<app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading"></app-forecast-workability>
 
 <ng-template #loading>
   <app-ng-loading></app-ng-loading>

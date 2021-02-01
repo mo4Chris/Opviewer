@@ -1,18 +1,20 @@
+import { AgmInfoWindow } from '@agm/core';
 import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
-  previous;
+  Previous: AgmInfoWindow;
 
-  constructor() { }
+  constructor() {
+  }
 
-  OpenAgmInfoWindow(infoWindow, gm, map = null, marker = null) {
-    if (this.previous) {
+  openAgmInfoWindow(infoWindow: AgmInfoWindow | any, gm: AgmMapHtmlReference | any, map: google.maps.Map = null, marker: google.maps.Marker = null) {
+    if (this.Previous) {
       this.closeLatestAgmInfoWindow();
     }
-    this.previous = infoWindow;
+    this.Previous = infoWindow;
     gm.lastOpen = infoWindow;
     if (map) {
       infoWindow.open(map, marker);
@@ -21,7 +23,7 @@ export class EventService {
     }
   }
 
-  CloseAgmInfoWindow(infoWindow) {
+  closeAgmInfoWindow(infoWindow) {
     if (infoWindow !== undefined) {
       infoWindow.close();
       infoWindow = undefined;
@@ -29,9 +31,13 @@ export class EventService {
   }
 
   closeLatestAgmInfoWindow() {
-    if (this.previous !== undefined) {
-      this.previous.close();
-      this.previous = undefined;
+    if (this.Previous !== undefined) {
+      this.Previous.close();
+      this.Previous = undefined;
     }
   }
+}
+
+interface AgmMapHtmlReference {
+  lastOpen: AgmInfoWindow;
 }

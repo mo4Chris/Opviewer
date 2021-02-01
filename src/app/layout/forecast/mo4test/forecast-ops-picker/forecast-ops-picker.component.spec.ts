@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
@@ -18,6 +20,10 @@ describe('ForecastOpsPickerComponent', () => {
         NgbModule,
         CommonModule,
         FormsModule
+      ],
+      providers: [
+        MockedUserServiceProvider,
+        MockedCommonServiceProvider
       ]
     })
     .compileComponents();

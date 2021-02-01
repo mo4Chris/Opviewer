@@ -28,7 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
   public PlotLayout = {
     // General settings for the graph
     title: 'Test graph',
-    width: "100%",
+    responsive: true,
     xaxis: {
       visible: true,
       title: 'xLabel',
@@ -40,14 +40,7 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'yLabel',
       showgrid: false,
       zeroline: false,
-    },
-    margin: {
-      l: 40,
-      r: 20,
-      b: 0,
-      t: 0,
-      pad: 4
-    },
+    }
   };
 
   ngOnChanges() {
@@ -61,6 +54,7 @@ export class SurfacePlotComponent implements OnChanges {
         zmin: 0,
         zmid: 80,
         zmax: this.zMax,
+        colorscale: [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']],
         colorbar: {
           tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10) : undefined,
           ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10).map(e => `${e}%`) : undefined,
