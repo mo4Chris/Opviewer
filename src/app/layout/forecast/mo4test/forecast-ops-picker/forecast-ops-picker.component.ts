@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { DatetimeService } from '@app/supportModules/datetime.service';
 import { ForecastOperation } from '../../models/forecast-response.model';
 
 @Component({
@@ -17,7 +16,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public stopTime: string;
 
   constructor(
-    private dateService: DatetimeService
   ) {
   }
 
@@ -39,7 +37,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   onChange() {
-    console.log(this.selectedOperation)
     this.selectedOperationChange.emit(this.selectedOperation);
     this.onNewSelectedOperation();
   }
