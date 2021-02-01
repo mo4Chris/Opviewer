@@ -16,21 +16,19 @@ export class FileUploadComponent {
   @Input() uploadOnDrop = false;
   @Output() fileUploadComplete = new EventEmitter<string>();
 
-
-  title = 'ngx-uploader-directive';
-  options: IUploadOptions = {
+  public options: IUploadOptions = {
     requestConcurrency: 1,
     maxFilesToAddInSingleRequest: 10,
     maxFileUploads: 5,
     maxFileSize: 10e6,
     logs: true
   };
-  public filename;
+  public filename: string;
   public files = new Array<ISelectedFile>();
-  uploadInput = new EventEmitter<IUploadInput>();
-  dragOver: boolean;
-  uploadUrl = 'http://localhost:8080/uploadFile';
-  formData = [];
+  public uploadInput = new EventEmitter<IUploadInput>();
+  private dragOver: boolean;
+  private uploadUrl = 'http://localhost:8080/uploadFile';
+  private formData = [];
 
   /**
    * Default Constructor

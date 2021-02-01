@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
-import { CommonService } from '../../../common.service';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
 import * as Chart from 'chart.js';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';

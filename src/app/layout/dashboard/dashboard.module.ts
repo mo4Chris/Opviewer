@@ -4,15 +4,12 @@ import { NgbCarouselModule, NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-b
 import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
 import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
-
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
-
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
-import { StatModule } from '../../shared';
-import { UserService } from '../../shared/services/user.service';
+import { StatModule } from '@app/shared';
+import { UserService } from '@app/shared/services/user.service';
 import { AdminComponent } from './components/admin/admin.component';
 import { LogisticsSpecialistComponent } from './components/logistics-specialist/logistics-specialist.component';
 import { MarineControllerComponent } from './components/marine-controller/marine-controller.component';
