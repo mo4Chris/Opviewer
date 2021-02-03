@@ -37,7 +37,6 @@ export class CtvSummaryComponent implements OnChanges {
     private calcService: CalculationService,
     public permission: PermissionService,
   ) {
-    console.log(this)
   }
 
   ngOnChanges() {
