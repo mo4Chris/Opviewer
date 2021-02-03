@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { TokenModel } from '@app/models/tokenModel';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -15,9 +15,8 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
     './ctv-summary.component.scss',
     '../ctvreport/ctvreport.component.scss',
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CtvSummaryComponent {
+export class CtvSummaryComponent implements OnChanges {
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
@@ -29,6 +28,8 @@ export class CtvSummaryComponent {
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
 
+  public tripEfficiency = 'N/a';
+
   constructor(
     private alert: AlertService,
     private newService: CommonService,
@@ -36,6 +37,15 @@ export class CtvSummaryComponent {
     private calcService: CalculationService,
     public permission: PermissionService,
   ) {
+    console.log(this)
+  }
+
+  ngOnChanges() {
+    if (this.engine && this.general && this.general.sailedDistance) {
+      this.tripEfficiency = this.roundNumber(
+        (this.engine.fuelUsedTotalM3 * 1000)/ (+this.general.sailedDistance.replace('km',''))
+        ,10, ' L/km')
+      }
   }
 
   saveGeneralStats() {
