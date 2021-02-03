@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment-timezone';
 import { SettingsService } from './settings.service';
-import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -71,9 +70,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   MatlabDateToJSTime(serial: number): string {
+    if (!serial) { return 'N/a' }
     const serialMoment = this.MatlabDateToUnixEpoch(serial);
     if (serialMoment.isValid()) {
-      let time_info;
+      let time_info: string;
       if (this.setting.Timezone === 'timezone') {
         time_info = moment.tz(serialMoment, this.setting.fixedTimeZoneLoc).format('HH:mm:ss z');
       } else {
@@ -341,7 +341,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   groupMatlabDates(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
-    if (!isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
+    if (!Array.isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
     const dates = matlab_dates.map(dnum => this.MatlabDateToObject(dnum));
     const minDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.min(curr, prev)));
     const maxDate = this.MatlabDateToObject(matlab_dates.reduce((curr, prev) => Math.max(curr, prev)));
@@ -381,7 +381,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   groupDataByMonth(data: {date: number[]}): {month: any}[] {
     // Assumes data to be of form {date: [], prop1: [], prop2: [], ...}
     const groups = this.groupMatlabDates(data.date || []);
-    const props = Object.keys(data).filter(prop => isArray(data[prop]));
+    const props = Object.keys(data).filter(prop => Array.isArray(data[prop]));
     return groups.map(group => {
       const datas = {month: group};
       props.forEach(prop => {
