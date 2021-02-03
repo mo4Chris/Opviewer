@@ -1,15 +1,15 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockComponents } from 'ng-mocks';
 import { HeadingPickerComponent } from '../models/heading-picker/heading-picker.component';
 import { ForecastLimitsPickerComponent } from './forecast-limits-picker/forecast-limits-picker.component';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastWorkabilityComponent } from './forecast-workability/forecast-workability.component';
-
 import { Mo4testComponent } from './mo4test.component';
 
-describe('Mo4testComponent', () => {
+fdescribe('Mo4testComponent', () => {
   let component: Mo4testComponent;
   let fixture: ComponentFixture<Mo4testComponent>;
 
@@ -17,6 +17,7 @@ describe('Mo4testComponent', () => {
     TestBed.configureTestingModule({
       imports:[
         FormsModule,
+        SupportModelModule,
       ],
       declarations: [
         Mo4testComponent,

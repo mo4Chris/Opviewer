@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ISelectedFile, IUploadProgress, NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
-
+import { testEmptyTooltips } from '../../forecast-new-vessel/forecast-new-vessel.component.spec';
 import { FileUploadComponent } from './file-upload.component';
 
 describe('FileUploadComponent', () => {
@@ -42,6 +42,8 @@ describe('FileUploadComponent', () => {
     component.onUploadOutput({type: 'done', files: [MockedFile], progress: MockedProgress})
     expect(emitSpy).toHaveBeenCalled();
   });
+
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
 
   function locate(locator: string) {
     return fixture.nativeElement.querySelector(locator);

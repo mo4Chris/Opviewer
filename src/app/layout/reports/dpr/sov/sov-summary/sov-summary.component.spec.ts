@@ -1,14 +1,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SovSummaryComponent } from './sov-summary.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../models/SovModel';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
-import { HttpModule } from '@angular/http';
 import { SummaryModel } from '../models/Summary';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { testBrokenHelpButtons, testEmptyTooltips } from '@app/layout/forecast/forecast-new-vessel/forecast-new-vessel.component.spec';
 
 describe('SovSummaryComponent', () => {
   let component: SovSummaryComponent;
@@ -26,8 +24,7 @@ describe('SovSummaryComponent', () => {
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
   }));
 
   beforeEach(async(() => {
@@ -58,4 +55,8 @@ describe('SovSummaryComponent', () => {
     expect(component).toBeTruthy();
     done();
   });
+
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
+
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
 });

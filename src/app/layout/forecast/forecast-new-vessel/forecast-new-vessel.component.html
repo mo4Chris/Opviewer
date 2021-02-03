@@ -4,22 +4,22 @@
   <div class="col-md-6 col-lg-8 col-xl-9">
     <div class='card mb-3'>
       <div class='card-header'>
-        Project description
+        Basics
       </div>
       <div class='card-body table-responsive'>
         <table class='table table-hover table-striped'>
           <tbody class='sep-row'>
             <tr>
               <td>Vessel name</td>
-              <td><input [(ngModel)]="vessel.name" placeholder="required"></td>
+              <td><input [(ngModel)]="vesselName" placeholder="required"></td>
             </tr>
             <tr>
-              <td>Draft AP</td>
-              <td><input [(ngModel)]="vessel.draftAP"  type="number" placeholder="required"></td>
+              <td><div [ngbTooltip]="helpDraftFP">Draft FP</div></td>
+              <td><input [(ngModel)]="draftFP"  type="number" placeholder="required"></td>
             </tr>
             <tr>
-              <td>Draft FP</td>
-              <td><input [(ngModel)]="vessel.draftFP"  type="number" placeholder="required"></td>
+              <td><div [ngbTooltip]="helpDraftAP">Draft AP</div></td>
+              <td><input [(ngModel)]="draftAP"  type="number" placeholder="required"></td>
             </tr>
           </tbody>
         </table>
@@ -50,16 +50,16 @@
         <table class='table table-hover table-striped'>
           <tbody class='sep-row'>
             <tr>
-              <td>LCG</td>
-              <td><input [(ngModel)]="vessel.LCG" type="number" placeholder='auto'></td>
+              <td><div [ngbTooltip]="helpLcg">LCG</div></td>
+              <td><input [(ngModel)]="LCG" type="number" placeholder='auto'> m</td>
             </tr>
             <tr>
-              <td>TCG</td>
-              <td><input [(ngModel)]="vessel.TCG"  type="number" placeholder='auto'></td>
+              <td><div [ngbTooltip]="helpTcg">TCG</div></td>
+              <td><input [(ngModel)]="TCG"  type="number" placeholder='auto'> m</td>
             </tr>
             <tr>
-              <td>VCG</td>
-              <td><input [(ngModel)]="vessel.VCG"  type="number" placeholder='auto'></td>
+              <td><div [ngbTooltip]="helpVcg">VCG</div></td>
+              <td><input [(ngModel)]="VCG"  type="number" placeholder='auto'> m</td>
             </tr>
           </tbody>
         </table>
@@ -78,19 +78,19 @@
           <tbody class='sep-row'>
             <tr>
               <td>GM corrected</td>
-              <td><input [(ngModel)]="vessel.GMcorrection" type="number" placeholder='auto'>m</td>
+              <td><input [(ngModel)]="GMcorrection" type="number" placeholder='auto'>m</td>
             </tr>
             <tr>
-              <td><div [ngbTooltip]="helpKxx">kxx</div></td>
-              <td><input [(ngModel)]="vessel.Kxx"  type="number" placeholder='auto'>m</td>
+              <td><div [ngbTooltip]="helpKxx">Kxx</div></td>
+              <td><input [(ngModel)]="Kxx"  type="number" placeholder='auto'>m</td>
             </tr>
             <tr>
-              <td>kyy</td>
-              <td><input [(ngModel)]="vessel.Kyy"  type="number" placeholder='auto'>m</td>
+              <td><div [ngbTooltip]="helpKyy">Kyy</div></td>
+              <td><input [(ngModel)]="Kyy"  type="number" placeholder='auto'>m</td>
             </tr>
             <tr>
-              <td>kzz</td>
-              <td><input [(ngModel)]="vessel.Kzz"  type="number" placeholder='auto'>m</td>
+              <td><div [ngbTooltip]="helpKzz">Kzz</div></td>
+              <td><input [(ngModel)]="Kzz"  type="number" placeholder='auto'>m</td>
             </tr>
           </tbody>
         </table>
@@ -114,6 +114,9 @@
         entered as fractional coordinates, i.e. 1.12345.
         <br><br> -->
         <b></b>
+        The mandatory paramaters as well as the 3d hull lines are required to compute 
+        the response ampitude operators (RAO) used in the hydrodynamic calculations used 
+        to create the workablity forecast.
       </div>
     </div>
   </div>
@@ -126,35 +129,40 @@
 <ng-template #helpBreadth>
   Breadth/width of the vessel
 </ng-template>
-<ng-template #helpDraft>
-  Distance between waterline and keel
+<ng-template #helpDraftFP>
+  Distance between waterline and keel on bow.
+</ng-template>
+<ng-template #helpDraftAP>
+  Distance between waterline and keel on the aft/rear end of the vessel.
 </ng-template>
 <ng-template #helpGM>
   Metacentric height, which is the distance between the center of gravity and the vessels metacentere. 
   A larger height indicates greater stability.
 </ng-template>
-<ng-template #helpLongitude>
-  ?
-</ng-template>
-<ng-template #helpX>
-  Distance from the aft/rear of the vessel to the point of interest. This can never be nagative or greater than the vessel length.
-</ng-template>
-<ng-template #helpY>
-  Distance from the roll axis to the point of interest. Locations on port side are negative.
-</ng-template>
-<ng-template #helpZ>
-  Distance from the keel to the point of interest.
-</ng-template>
+
 <ng-template #help3dPlans>
-  3D hull plans.
+  3D hull plans. Supported formats are:
+  <ng-container *ngFor="let fmt of supportedFormats">
+    <div style="margin-left: 5px;"> .{{fmt}}</div>
+  </ng-container>
 </ng-template>
+
 <ng-template #helpCOG>
   Center of gravity
 </ng-template>
+<ng-template #helpLcg>
+  Longitudinal center of gravity. This is x-coordinate of the center of gravity.
+</ng-template>
+<ng-template #helpTcg>
+  Transverse  center of gravity. This is y-coordinate of the center of gravity.
+</ng-template>
+<ng-template #helpVcg>
+  Vertical center of gravity. This is z-coordinate of the center of gravity.
+</ng-template>
 
 <ng-template #helpAdvancedOpts>
-  Advanced options which are not required for, but may improve the quality of the forecasts generated.
-  When unsure, please leave the fields empty.
+  Options for finetuning the vessel model. They are optional, as they can be estimated from the hull shape.
+  When unsure, please leave these fields empty.
 </ng-template>
 <ng-template #helpKxx>
   Aft-bow component

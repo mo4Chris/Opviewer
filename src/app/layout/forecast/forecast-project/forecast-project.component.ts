@@ -1,8 +1,10 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -22,28 +24,30 @@ export class ForecastVesselComponent implements OnInit {
     Draft: 3.01,
     GM: 4.56789,
   }]
-  public client_id = 3; // ToDo: this needs to be loaded in somehow
-  public new = false;
-  public project: ForecastOperation = {
+  @Input() project: ForecastOperation = {
     id: 3,
     name: 'New project name',
     client_id: 1,
-    latitude: 3+1/7,
-    longitude: 4+1/11,
+    latitude: 3.123456,
+    longitude: 4.998765,
     water_depth: 20,
     maximum_duration: 30,
     vessel_id: "6",
-    activation_start_date: null,
-    activation_end_date: null, 
+    activation_start_date: '2021-01-18T10:20:31.902Z',
+    activation_end_date: '2021-03-18T10:20:31.902Z',
     client_preferences: null, 
     consumer_id: 10,
   }
+  public client_id = 3; // ToDo: this needs to be loaded in somehow
+  public new = false;
   public SelectedVessel: ForecastVesselRequest = <any> 0;
   public POI = {
     X: undefined,
     Y: undefined,
     Z: undefined,
   }
+  public contractStartDateString = 'N/a';
+  public contractEndDateString = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -51,6 +55,8 @@ export class ForecastVesselComponent implements OnInit {
     private alert: AlertService,
     private newService: CommonService,
     private calcService: CalculationService,
+    private dateService: DatetimeService,
+    public permission: PermissionService,
   ) { }
 
   public get projectReady() {
@@ -62,6 +68,8 @@ export class ForecastVesselComponent implements OnInit {
     this.initParameter().subscribe(() => {
       // this.loadData();
     });
+    this.contractStartDateString = this.dateService.isoStringToDmyString(this.project.activation_start_date);
+    this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
   }
   initParameter(): Observable<void> {
     return this.route.params.pipe(
@@ -73,7 +81,7 @@ export class ForecastVesselComponent implements OnInit {
       })
     );
   }
-  loadData() {
+  private loadData() {
     forkJoin([
       this.newService.getForecastProjectById(this.client_id)
     ]).subscribe(([project]) => {
@@ -82,7 +90,7 @@ export class ForecastVesselComponent implements OnInit {
   }
 
 
-  onMapReady(map: google.maps.Map) {
+  public onMapReady(map: google.maps.Map) {
     new google.maps.Marker({
       position: {
         lat: this.project.latitude,
@@ -95,13 +103,14 @@ export class ForecastVesselComponent implements OnInit {
       title: 'Point of interest'
     });
   }
-
-  roundNumber(num: number, dec = 10000, addString?: string) {
-    return this.calcService.roundNumber(num, dec, addString)
+  public onRequestNewVessel() {
+  }
+  public onConfirm() {
+    // ToDo: send the values back to the database
   }
 
-  onConfirm() {
-    // ToDo: send the values back to the database
+  public roundNumber(num: number, dec = 10000, addString?: string) {
+    return this.calcService.roundNumber(num, dec, addString)
   }
 
   verifyPointOfInterest() {

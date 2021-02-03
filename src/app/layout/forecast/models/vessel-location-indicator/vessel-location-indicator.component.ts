@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, SimpleChange } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as Plotly from 'plotly.js/dist/plotly.js';
+import * as Plotly from 'plotly.js'
 
 @Component({
   selector: 'app-vessel-location-indicator',
@@ -20,28 +20,18 @@ export class VesselLocationIndicatorComponent implements OnInit {
 
   public loaded = false;
   public plotData: Plotly.Data[];
-  public plotLayout = {
+  public plotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     title: 'Test graph',
     xaxis: {
-      visible: true,
-      title: 'xLabel',
-      showgrid: false,
-      zeroline: false,
+      visible: false,
     },
     yaxis: {
-      visible: true,
-      title: 'yLabel',
-      showgrid: false,
-      zeroline: false,
+      visible: false,
     },
-    // margin: {
-    //   l: 40,
-    //   r: 20,
-    //   b: 0,
-    //   t: 0,
-    //   pad: 4
-    // },
+    scene: {
+      aspectmode: "data"
+    }
   };
   private VesselTrace: Plotly.Data;
 
@@ -76,11 +66,17 @@ export class VesselLocationIndicatorComponent implements OnInit {
 
   calcVesselTrace() {
     this.VesselTrace = {
-      x: [0, 10, 14, 10, 0, 0],
-      y: [5, 5, 0, -5, -5, 5],
-      z: [0, 0, 0, 0, 0, 0],
-      mode: 'lines',
-      type: 'scatter3d',
+      x: [0, 10, 14, 10,  0, 0, 0, 10, 14, 10,  0, 0],
+      y: [5,  5,  0, -5, -5, 5, 5,  5,  0, -5, -5, 5],
+      z: [1,  1,  1,  1,  1, 1, 2,  2,  2,  2,  2, 2],
+      // x: [0, 0, 1, 1, 0, 0, 1, 1],
+      // y: [0, 1, 1, 0, 0, 1, 1, 0],
+      // z: [0, 0, 0, 0, 1, 1, 1, 1],
+      // x: [0, 1, 2, 0, 0],
+      // y: [0, 0, 1, 2, 0],
+      // z: [0, 2, 0, 1, 0],
+      opacity: 0.5,
+      type: 'mesh3d',
       name: 'Vessel outline'
     }
   }

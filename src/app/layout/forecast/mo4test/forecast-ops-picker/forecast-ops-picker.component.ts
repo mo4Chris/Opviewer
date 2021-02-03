@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import { ForecastOperation } from '../../models/forecast-response.model';
 
 @Component({
@@ -16,6 +17,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public stopTime: string;
 
   constructor(
+    private dateService: DatetimeService,
   ) {
   }
 
@@ -27,6 +29,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
     let opsIds = this.operations ? this.operations.map(op => op.id) : [];
     if (!this.selectedOperation || (this.selectedOperation.id in opsIds)) {
       this.selectedOperation = this.operations ? this.operations[0] : null;
+    }
+    if (this.selectedOperation) {
       this.onNewSelectedOperation();
     }
   }
@@ -41,13 +45,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.onNewSelectedOperation();
   }
 
-  private formatTime(timeString: string) {
-    let re = /(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2})/
-    let result = re.exec(timeString)
-    if (result) {
-      return `${result[3]}-${result[2]}-${result[1]} ${result[4]}`
-    } else {
-      return 'N/a'
-    }
+  formatTime(t: string) {
+    return this.dateService.isoStringToDmyString(t);
   }
 }

@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { testBrokenHelpButtons, testEmptyTooltips } from '@app/layout/forecast/forecast-new-vessel/forecast-new-vessel.component.spec';
 
 describe('SovPlatformTransfersComponent', () => {
   let component: SovPlatformTransfersComponent;
@@ -71,4 +72,8 @@ describe('SovPlatformTransfersComponent', () => {
     expect(saveSpy).toHaveBeenCalledTimes(2 + component.platformTransfers.length);
     done();
   });
+
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
+
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
 });

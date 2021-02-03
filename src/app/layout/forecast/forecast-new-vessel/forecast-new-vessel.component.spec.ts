@@ -2,11 +2,9 @@ import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MockComponents } from 'ng-mocks';
 import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 import { FileUploadComponent } from '../models/file-upload/file-upload.component';
 import { ForecastNewVesselComponent } from './forecast-new-vessel.component';
@@ -45,4 +43,47 @@ fdescribe('ForecastNewVesselComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
+
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
 });
+
+
+export function testBrokenHelpButtons(getFixture: () => ComponentFixture<any>) {
+  return async () => {
+    let fixture = getFixture();
+    await fixture.whenStable();
+    let elt: HTMLElement = fixture.nativeElement;
+    let helpbtns: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button[popoverClass="helpPopup"]');
+    helpbtns.forEach(helper => {
+      helper.click();
+      let window = elt.querySelector('ngb-popover-window');
+      expect(window).toBeTruthy(helper.parentElement.textContent)
+      if (window) {
+        expect(window.textContent.length).toBeGreaterThan(0, helper.parentElement.textContent)
+      }
+      helper.click(); // Close the window
+    })
+  }
+}
+
+export function testEmptyTooltips(getFixture: () => ComponentFixture<any>) {
+  // ToDo: get all elements with a broken reference
+  return async () => {
+    let fixture = getFixture();
+    await fixture.whenStable();
+    let elt: HTMLElement = fixture.nativeElement;
+    let hoverDivs: NodeListOf<HTMLDivElement> = elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
+    hoverDivs.forEach(helper => {
+      helper.dispatchEvent(new MouseEvent('mouseenter'))
+      let window = elt.querySelector('ngb-tooltip-window div.tooltip-inner')
+      expect(window).toBeTruthy(helper.textContent)
+      if (window) {
+        expect(window.textContent.length).toBeGreaterThan(0, helper.textContent)
+      }
+      helper.dispatchEvent(new MouseEvent('mouseleave'))
+    })
+  }
+}
+

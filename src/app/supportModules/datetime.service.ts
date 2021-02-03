@@ -386,4 +386,14 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
       return datas;
     });
   }
+
+  
+  isoStringToMoment(timeString: string): moment.Moment {
+    return moment(timeString);
+  }
+
+  isoStringToDmyString(timeString: string): string {
+    console.log(timeString)
+    return this.isoStringToMoment(timeString).format('DD MMM YYYY')
+  }
 }
