@@ -5,6 +5,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -49,6 +50,10 @@ export class ForecastVesselComponent implements OnInit {
   public contractStartDateString = 'N/a';
   public contractEndDateString = '';
 
+  public Marker: google.maps.Marker;
+  public Longitude: string;
+  public Lattitude: string;
+
   constructor(
     private route: ActivatedRoute,
     private routeService: RouterService,
@@ -57,6 +62,7 @@ export class ForecastVesselComponent implements OnInit {
     private calcService: CalculationService,
     private dateService: DatetimeService,
     public permission: PermissionService,
+    public gps: GpsService,
   ) { }
 
   public get projectReady() {
@@ -70,6 +76,8 @@ export class ForecastVesselComponent implements OnInit {
     });
     this.contractStartDateString = this.dateService.isoStringToDmyString(this.project.activation_start_date);
     this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
+    this.Longitude = this.gps.lonToDms(this.project.longitude);
+    this.Lattitude = this.gps.latToDms(this.project.latitude);
   }
   initParameter(): Observable<void> {
     return this.route.params.pipe(
@@ -91,7 +99,7 @@ export class ForecastVesselComponent implements OnInit {
 
 
   public onMapReady(map: google.maps.Map) {
-    new google.maps.Marker({
+    this.Marker = new google.maps.Marker({
       position: {
         lat: this.project.latitude,
         lng: this.project.longitude,
@@ -107,6 +115,20 @@ export class ForecastVesselComponent implements OnInit {
   }
   public onConfirm() {
     // ToDo: send the values back to the database
+  }
+  public onUpdateLon() {
+    this.Longitude = this.gps.lonToDms(this.project.longitude);
+    this.updateMarker();
+  }
+  public onUpdateLat() {
+    this.Lattitude = this.gps.latToDms(this.project.latitude);
+    this.updateMarker();
+  }
+  private updateMarker() {
+    this.Marker.setPosition({
+      lat: this.project.latitude,
+      lng: this.project.longitude,
+    })
   }
 
   public roundNumber(num: number, dec = 10000, addString?: string) {

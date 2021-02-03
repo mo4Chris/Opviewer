@@ -12,28 +12,38 @@
           <tbody class='sep-row'>
             <tr>
               <td>Name</td>
-              <td *ngIf="permission.createProject"><input [(ngModel)]="project.name"></td>
-              <td *ngIf="!permission.createProject">{{project.name}}</td>
+              <td colspan="2" *ngIf="permission.createProject"><input [(ngModel)]="project.name"></td>
+              <td colspan="2" *ngIf="!permission.createProject">{{project.name}}</td>
             </tr>
             <tr>
               <td>Client</td>
-              <td>{{project.client_id || 'N/a'}}</td>
+              <td colspan="2">{{project.client_id || 'N/a'}}</td>
             </tr>
             <tr>
               <td>Span</td>
-              <td>{{contractStartDateString}} - {{contractEndDateString}}</td>
+              <td colspan="2">{{contractStartDateString}} - {{contractEndDateString}}</td>
             </tr>
             <tr>
               <td>Latitude</td>
-              <td><input [(ngModel)]="project.latitude"  type="number" step=0.00001 maxlength="6"></td>
+              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+                [(ngModel)]="project.latitude"  type="number" step=0.00001 maxlength="6"
+                (change)="onUpdateLat()"></td>
+              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+                [ngModel]="Lattitude"  readonly></td>
             </tr>
             <tr>
               <td>Longitude</td>
-              <td><input [(ngModel)]="project.longitude"  type="number" step=0.00001></td>
+              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+                [(ngModel)]="project.longitude"  type="number" step=0.00001
+                (change)="onUpdateLon()"
+                ></td>
+              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched ng-disabled"
+                [ngModel]="Longitude"  readonly></td>
             </tr>
             <tr>
               <td>Water depth</td>
-              <td><input [(ngModel)]="project.water_depth"  type="number"> m</td>
+              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+                [(ngModel)]="project.water_depth"  type="number"> m</td>
             </tr>
           </tbody>
         </table>
@@ -45,7 +55,8 @@
       [streetViewControl]="false" gestureHandling="cooperative" (mapReady)="onMapReady($event)"
     ></agm-map>
 
-    <app-vessel-location-indicator [Z]="5">
+    <app-vessel-location-indicator [X]="POI.X" [Y]="POI.Y" [Z]="POI.Z" [Height]="SelectedVessel?.Draft"
+      [Width]="SelectedVessel?.Breadth" [Length]="SelectedVessel?.Length">
     </app-vessel-location-indicator>
   </div>
   <div class="col-md-6">

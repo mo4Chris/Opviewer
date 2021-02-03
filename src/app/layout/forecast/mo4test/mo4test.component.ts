@@ -1,6 +1,7 @@
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { _def } from '@angular/core/src/view/provider';
 import { CommonService } from '@app/common.service';
+import { GpsService } from '@app/supportModules/gps.service';
 import { forkJoin } from 'rxjs';
 import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 
@@ -34,7 +35,6 @@ export class Mo4testComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    console.log(this)
   }
 
   loadData() {

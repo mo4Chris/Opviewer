@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockComponents } from 'ng-mocks';
 import { HeadingPickerComponent } from '../models/heading-picker/heading-picker.component';
@@ -29,7 +30,8 @@ fdescribe('Mo4testComponent', () => {
         )
       ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();

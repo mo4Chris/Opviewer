@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { GpsService } from '@app/supportModules/gps.service';
 import { ForecastOperation } from '../../models/forecast-response.model';
 
 @Component({
@@ -34,12 +35,10 @@ export class ForecastOpsPickerComponent implements OnChanges {
       this.onNewSelectedOperation();
     }
   }
-
   onNewSelectedOperation() {
     this.startTime = this.formatTime(this.selectedOperation.activation_start_date)
     this.stopTime = this.formatTime(this.selectedOperation.activation_end_date)
   }
-
   onChange() {
     this.selectedOperationChange.emit(this.selectedOperation);
     this.onNewSelectedOperation();

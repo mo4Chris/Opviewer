@@ -1,5 +1,4 @@
 import { Injectable, NgModule } from '@angular/core';
-import { isNumber } from 'util';
 import * as moment from 'moment-timezone';
 import { CommonService } from '../common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
@@ -12,6 +11,7 @@ export class SettingsService {
     unit_distance: distanceOptions = 'NM';
     unit_speed: speedOptions = 'knots';
     unit_weight: weightOptions = 'ton';
+    unit_latlng: GpsOptions = 'DMS';
     LongtermFilterFailedTransfers = false;
 
     // Some session settings - these are not saved across sessions
@@ -86,7 +86,7 @@ export class SettingsService {
         // Returns the time offset in hours according to the chosen timezone settings
         // If a local offset is selected, the vesselOffset is used.
         const timezone = this.Timezone;
-        if (isNumber(timezone)) {
+        if (typeof timezone == 'number') {
             return <number> timezone;
         } else {
             switch (timezone) {
@@ -144,6 +144,6 @@ type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'custom' | 'timezone'
 type speedOptions = 'km/h' | 'mph' | 'knots' | 'm/s';
 type distanceOptions = 'km' | 'mile' | 'NM';
 type weightOptions = 'ton' | 'kg';
-
+type GpsOptions = 'DMS' | 'fractional'
 
 
