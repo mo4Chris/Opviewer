@@ -70,9 +70,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   matlabDatenumToTimeString(serial: number): string {
+    if (!serial) { return 'N/a' }
     const serialMoment = this.matlabDatenumToMoment(serial);
     if (serialMoment.isValid()) {
-      let time_info;
+      let time_info: string;
       if (this.setting.Timezone === 'timezone') {
         time_info = moment.tz(serialMoment, this.setting.fixedTimeZoneLoc).format('HH:mm:ss z');
       } else {

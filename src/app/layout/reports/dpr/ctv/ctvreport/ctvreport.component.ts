@@ -14,16 +14,17 @@ import { forkJoin, Observable } from 'rxjs';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { MapStore, TurbinePark } from '@app/stores/map.store';
+import { TokenModel } from '@app/models/tokenModel';
 
 @Component({
   selector: 'app-ctvreport',
   templateUrl: './ctvreport.component.html',
   styleUrls: ['./ctvreport.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CtvreportComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
-  @Input() tokenInfo;
+  @Input() tokenInfo: TokenModel;
   @Output() sailDates: EventEmitter<any> = new EventEmitter<any>();
   @Output() loaded: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -122,7 +123,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
       mmsi: this.vesselObject.mmsi
     }).subscribe(validatedValue => {
       if (validatedValue.length === 1) {
-        forkJoin(
+        forkJoin([
           this.getTransfersForVessel(),
           this.getCommentsForVessel(this.vesselObject),
           this.getVideoRequests(this.vesselObject),
@@ -130,7 +131,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.getEngineStats(),
           this.getGeneralStats(),
           this.newService.getDistinctFieldnames(this.vesselObject)
-        ).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine, _general, _distinctFields]) => {
+        ]).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine, _general, _distinctFields]) => {
           this.videoBudget = _videoBudget[0] || { maxBudget: -1, currentBudget: -1 };
           this.matchCommentsWithTransfers(_transfers); // Requires video budget
           this.turbineTransfers = _transfers; // Needs to happen after match comments!

@@ -39,6 +39,9 @@ describe('DatetimeService', () => {
   it('Should correctly handle timezones and offsets', () => {
     expect(settings).toBeTruthy();
     settings.Timezone = 'utc';
+    
+    expect(service.MatlabDateToJSTime(null)).toBe('N/a')
+    expect(service.MatlabDateToJSTime(undefined)).toBe('N/a')
     // DST = 29 MAR - 25 OCT
     // 737000 = 1 Nov 2017
     // 737250 = 9 Jul 2018

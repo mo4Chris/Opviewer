@@ -1,22 +1,22 @@
-##Start api server
+## Start api server
 node src/server.js
 
-##Start Angular
+## Start Angular
 ng serve
 
-##Start SonarCloud for code quality
+## Start SonarCloud for code quality
 sonar-scanner.bat -Dsonar.projectKey=BMO-Opviewer -Dsonar.organization=tcwchris-bitbucket -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=e40222d243771c14c187869fe353c5f910913f25
 
-##Start api server on remote server
+## Start api server on remote server
 ng serve --host 0.0.0.0
 
-##Fix crypto bug
+## Fix crypto bug
 node patch.js
 
 ## Build production version
 npm run build-prod
 
-##.Htaccess code (In case of deletion)
+## .Htaccess code (In case of deletion)
 Order Deny,Allow
 Deny from all
 Allow from (insert IP's of whitelisted users)
