@@ -19,6 +19,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   constructor(
     private dateService: DatetimeService,
+    public gps: GpsService,
   ) {
   }
 

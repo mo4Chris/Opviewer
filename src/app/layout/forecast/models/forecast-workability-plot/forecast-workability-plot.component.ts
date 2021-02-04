@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import * as Plotly from 'plotly.js'
 
 @Component({
   selector: 'app-forecast-workability-plot',
@@ -14,8 +14,13 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   @Input() stopTime: Date;
 
   public MaxWorkability = '';
-  public parsedData;
+  public parsedData: Plotly.Data[];
   public loaded = false;
+  public PlotLayout: Partial<Plotly.Layout> = {
+    yaxis: {
+      range: [0, 200]
+    }
+  }
 
   constructor(
     private calcService: CalculationService,
@@ -45,16 +50,51 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   }
 
   computeGraphData() {
+    const yLimit = 100;
+    let limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
     this.parsedData = [{
       x: this.time,
-      y: this.workabilityAlongHeading,
-      type: "line",
-      min: 0,
-      max: 200,
+      // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
+      y: limits.green,
+      type: 'scatter', // This is a line
+      name: 'Workability',
+      showlegend: false,
+      line: {
+        color: 'green',
+      },
+      fill: 'tozeroy',
+    }, {
+      x: this.time,
+      // y: this.workabilityAlongHeading.map(y => (y >= yLimit) ? y : NaN),
+      y: limits.red,
+      type: 'scatter', // This is a line
+      name: 'Workability',
+      showlegend: false,
+      line: {
+        color: 'red',
+      },
+      fill: 'tozeroy',
     }]
   }
 
   onPlotlyInit() {
     this.loaded = true;
+  }
+
+  getStartAndEndPoints(datas: number[], limit: number) {
+    const valid = datas.map(e => e <= limit);
+    let greens = valid;
+    let reds = valid.map(v => !v);
+    for (let i = valid.length - 1; i>0; i--) {
+      if (greens[i] && reds[i-1]){
+        reds[i] = true;
+      } else if (reds[i] && greens[i-1]){
+        greens[i] = true;
+      }
+    }
+    return {
+      green: datas.map((d,i) => greens[i] ? d : null),
+      red: datas.map((d,i) => reds[i] ? d : null),
+    };
   }
 }
