@@ -282,8 +282,7 @@ export class CommonService {
     mmsi: number;
     date: number;
   }) {
-    return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo).pipe(
-      map((response) => response));
+    return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo);
   }
 
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
