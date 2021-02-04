@@ -27,6 +27,7 @@ export class CtvSummaryComponent implements OnChanges {
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
+  fuelConsumedValue = '0';
 
   public tripEfficiency = 'N/a';
 
@@ -45,6 +46,7 @@ export class CtvSummaryComponent implements OnChanges {
         (this.engine.fuelUsedTotalM3 * 1000)/ (+this.general.sailedDistance.replace('km',''))
         ,10, ' L/km')
       }
+    this.getValueForFuelConsumed();
   }
 
   saveGeneralStats() {
@@ -57,6 +59,14 @@ export class CtvSummaryComponent implements OnChanges {
         this.alert.sendAlert({text: error, type: 'danger'});
         throw error;
       })).subscribe();
+  }
+
+  getValueForFuelConsumed() {
+    if (this.engine.fuelUsedTotalM3 && this.engine.fuelUsedTotalM3 > 0) {
+      this.fuelConsumedValue = this.roundNumber(this.engine.fuelUsedTotalM3, 10, 'm3');
+    } else if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
+      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, 'm3'); 
+    }
   }
 
   getMatlabDateToJSTime(serial) {
