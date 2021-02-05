@@ -10,7 +10,7 @@ import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-p
 import { ForecastWorkabilityComponent } from './forecast-workability/forecast-workability.component';
 import { Mo4testComponent } from './mo4test.component';
 
-fdescribe('Mo4testComponent', () => {
+describe('Mo4testComponent', () => {
   let component: Mo4testComponent;
   let fixture: ComponentFixture<Mo4testComponent>;
 

@@ -9,7 +9,7 @@ import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 import { FileUploadComponent } from '../models/file-upload/file-upload.component';
 import { ForecastNewVesselComponent } from './forecast-new-vessel.component';
 
-fdescribe('ForecastNewVesselComponent', () => {
+describe('ForecastNewVesselComponent', () => {
   let component: ForecastNewVesselComponent;
   let fixture: ComponentFixture<ForecastNewVesselComponent>;
 

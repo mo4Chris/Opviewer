@@ -17,7 +17,7 @@ module.exports = function(app, logger) {
   );
 
   app.get('/api/mo4light/getUsers',
-    defaultPgLoader('users', 'username')
+    defaultPgLoader('users')
   );
 
   app.get('/api/mo4light/getVesselList', 

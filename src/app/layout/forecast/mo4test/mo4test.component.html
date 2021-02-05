@@ -1,70 +1,73 @@
-<div class="row">
-  <div class="col-sm-12 col-md-12 col-lg-6">
-    <div class='card mb-3'>
-      <div class='card-header'>
-        Operation overview
+<div *ngIf="showContent; else loading">
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <div class='card mb-3'>
+        <div class='card-header'>
+          Operation overview
+        </div>
+        <div class='card-body table-responsive'>
+          <app-forecast-ops-picker [operations]="operations" [(selectedOperation)]="selectedOperation">
+          </app-forecast-ops-picker>
+        </div>
       </div>
-      <div class='card-body table-responsive'>
-        <app-forecast-ops-picker [operations]="operations" [(selectedOperation)]="selectedOperation">
-        </app-forecast-ops-picker>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-6" style="height: 100%">
+      <div class='card mb-3'>
+        <div class='card-header'>
+          Operation time
+        </div>
+        <div class='card-body table-responsive'>
+          <table class='table table-hover table-striped'>
+            <tbody class='sep-row'>
+              <tr>
+                <td>Start time</td>
+                <td>
+                  <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="start date">
+                </td>
+              </tr>
+              <tr>
+                <td>Start time</td>
+                <td>
+                  <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="start time">
+                </td>
+              </tr>
+              <tr>
+                <td>Operational duration</td>
+                <td>
+                  <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="op duration">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-sm-12 col-md-12 col-lg-6" style="height: 100%">
-    <div class='card mb-3'>
-      <div class='card-header'>
-        Operation time
-      </div>
-      <div class='card-body table-responsive'>
-        <table class='table table-hover table-striped'>
-          <tbody class='sep-row'>
-            <tr>
-              <td>Start time</td>
-              <td>
-                <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="start date">
-              </td>
-            </tr>
-            <tr>
-              <td>Start time</td>
-              <td>
-                <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="start time">
-              </td>
-            </tr>
-            <tr>
-              <td>Operational duration</td>
-              <td>
-                <input class="form-control-sm col-sm-8 ng-pristine ng-valid ng-touched" placeholder="op duration">
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <div class='card mb-3'>
+        <div class='card-header'>
+          Heading
+        </div>
+        <div class='card-body table-responsive'>
+          <app-heading-picker [(heading)]="selectedHeading">
+          </app-heading-picker>
+        </div>
       </div>
     </div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <app-forecast-limits-picker [(limits)]="limits">
+      </app-forecast-limits-picker>
+    </div>
   </div>
+
+  <div class="div-spacing"></div>
+
+  <app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading">
+  </app-forecast-workability>
 </div>
 
-<div class="row">
-  <div class="col-sm-12 col-md-12 col-lg-6">
-    <div class='card mb-3'>
-      <div class='card-header'>
-        Heading
-      </div>
-      <div class='card-body table-responsive'>
-        <app-heading-picker [(heading)]="selectedHeading">
-        </app-heading-picker>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-12 col-md-12 col-lg-6">
-    <app-forecast-limits-picker [(limits)]="limits">
-    </app-forecast-limits-picker>
-  </div>
-</div>
-
-<div class="div-spacing"></div>
-
-<app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading">
-</app-forecast-workability>
 
 <ng-template #loading>
   <app-ng-loading></app-ng-loading>

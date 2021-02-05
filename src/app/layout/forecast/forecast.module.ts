@@ -19,6 +19,7 @@ import { ForecastNewVesselComponent } from './forecast-new-vessel/forecast-new-v
 import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 import { FileUploadComponent } from './models/file-upload/file-upload.component';
 import { VesselLocationIndicatorComponent } from './models/vessel-location-indicator/vessel-location-indicator.component';
+import { ForecastDashboardComponent } from './forecast-dashboard/forecast-dashboard.component';
 
 @NgModule({
   imports: [
@@ -48,7 +49,8 @@ import { VesselLocationIndicatorComponent } from './models/vessel-location-indic
     ForecastVesselComponent,
     ForecastNewVesselComponent,
     FileUploadComponent,
-    VesselLocationIndicatorComponent
+    VesselLocationIndicatorComponent,
+    ForecastDashboardComponent
   ],
   bootstrap: [
     Mo4testComponent

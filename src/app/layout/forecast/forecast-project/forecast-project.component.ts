@@ -112,6 +112,7 @@ export class ForecastVesselComponent implements OnInit {
     });
   }
   public onRequestNewVessel() {
+    this.routeService.routeToForecastNewVesselRequest();
   }
   public onConfirm() {
     // ToDo: send the values back to the database

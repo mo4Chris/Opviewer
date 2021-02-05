@@ -4,7 +4,7 @@ import { MockedUserServiceProvider } from '@app/shared/services/test.user.servic
 import { GpsService } from './gps.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 
-fdescribe('GpsService', () => {
+describe('GpsService', () => {
   let service: GpsService;
   beforeEach(() => {
     TestBed.configureTestingModule({

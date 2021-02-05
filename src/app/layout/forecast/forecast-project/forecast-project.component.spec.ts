@@ -13,7 +13,7 @@ import { mockedObservable } from '@app/models/testObservable';
 import { AlertService } from '@app/supportModules/alert.service';
 import { testBrokenHelpButtons, testEmptyTooltips } from '../forecast-new-vessel/forecast-new-vessel.component.spec';
 
-fdescribe('ForecastProjectComponent', () => {
+describe('ForecastProjectComponent', () => {
   let component: ForecastVesselComponent;
   let fixture: ComponentFixture<ForecastVesselComponent>;
 
