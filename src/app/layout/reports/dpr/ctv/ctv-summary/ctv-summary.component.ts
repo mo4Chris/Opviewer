@@ -27,8 +27,8 @@ export class CtvSummaryComponent implements OnChanges {
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
-  fuelConsumedValue = '0';
-
+  
+  public fuelConsumedValue = '0 m³';
   public tripEfficiency = 'N/a';
 
   constructor(
@@ -62,11 +62,11 @@ export class CtvSummaryComponent implements OnChanges {
   }
 
   getValueForFuelConsumed() {
-    if (this.engine.fuelUsedTotalM3 && this.engine.fuelUsedTotalM3 > 0) {
-      this.fuelConsumedValue = this.roundNumber(this.engine.fuelUsedTotalM3, 10, 'm3');
-    } else if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
+    if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
       this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, 'm3'); 
-    }
+    } else if (this.engine.fuelUsedTotalM3) {
+      this.fuelConsumedValue = this.roundNumber(this.engine.fuelUsedTotalM3, 10, 'm3');
+    } 
   }
 
   getMatlabDateToJSTime(serial) {
