@@ -106,8 +106,6 @@ export class SovDprInputComponent implements OnInit, OnChanges {
     return this.datetimeService.objectTimeDifference(object);
   }
   setDPRInputFields() {
-
-    console.log(this.dprInput.liquids);
     if (this.dprInput) {
       this.dprInput.accessDayType = this.dprInput.accessDayType || {status: undefined};
       this.hoc.Array = this.dprInput.hoc;
