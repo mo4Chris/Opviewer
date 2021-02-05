@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
-import { TokenModel } from './models/tokenModel';
+import { UserType } from './shared/enums/UserType';
 
 const httpOptions = {
     headers: new HttpHeaders({
@@ -20,23 +20,29 @@ export class AuthService {
 
     constructor(private httpClient: HttpClient) { }
 
-    loginUser(user): Observable<TokenModel> {
-        return this.httpClient.post<TokenModel>(this._loginurl, user, httpOptions);
+    loginUser(user): Observable<{token: string}> {
+        return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions);
     }
 
     getToken() {
         return localStorage.getItem('token');
     }
 
-    registerUser(user): Observable<Object> {
-        return this.httpClient.post(this._registerurl, user, httpOptions);
+    registerUser(user): Observable<{ data: string, status: number }> {
+        return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
     }
 
-    getUserByToken(token): Observable<Object>  {
-        return this.httpClient.post(this._getUserByTokenUrl, token, httpOptions);
+    getUserByToken(token): Observable<UserObject>  {
+        return this.httpClient.post<UserObject>(this._getUserByTokenUrl, token, httpOptions);
     }
 
-    setUserPassword(passwords): Observable<Object>  {
-        return this.httpClient.post(this._setPasswordUrl, passwords, httpOptions);
+    setUserPassword(passwords): Observable<{token: string}>  {
+        return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, httpOptions);
     }
 }
+
+export interface UserObject {
+        username: string;
+        userCompany: string;
+        permissions: UserType;
+  }
