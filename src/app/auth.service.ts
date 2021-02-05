@@ -28,15 +28,15 @@ export class AuthService {
         return localStorage.getItem('token');
     }
 
-    registerUser(user) {
+    registerUser(user): Observable<Object> {
         return this.httpClient.post(this._registerurl, user, httpOptions);
     }
 
-    getUserByToken(token) {
+    getUserByToken(token): Observable<Object>  {
         return this.httpClient.post(this._getUserByTokenUrl, token, httpOptions);
     }
 
-    setUserPassword(passwords) {
+    setUserPassword(passwords): Observable<Object>  {
         return this.httpClient.post(this._setPasswordUrl, passwords, httpOptions);
     }
 }
