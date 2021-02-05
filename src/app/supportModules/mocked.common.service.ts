@@ -41,8 +41,7 @@ export class MockedCommonService extends CommonService {
          return Response;
     }
 
-    createAuthorizationHeader(headers: Headers) {
-    }
+    
 
     validatePermissionToViewData(opts: {
         mmsi?: number,
