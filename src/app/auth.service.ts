@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
+import { TokenModel } from './models/tokenModel';
 
 const httpOptions = {
     headers: new HttpHeaders({
@@ -19,23 +20,23 @@ export class AuthService {
 
     constructor(private httpClient: HttpClient) { }
 
-    loginUser(user): Observable<any> {
-        return this.httpClient.post<any>(this._loginurl, user, httpOptions);
+    loginUser(user): Observable<TokenModel> {
+        return this.httpClient.post<TokenModel>(this._loginurl, user, httpOptions);
     }
 
     getToken() {
         return localStorage.getItem('token');
     }
 
-    registerUser(user): Observable<any> {
+    registerUser(user) {
         return this.httpClient.post(this._registerurl, user, httpOptions);
     }
 
-    getUserByToken(token): Observable<any> {
+    getUserByToken(token) {
         return this.httpClient.post(this._getUserByTokenUrl, token, httpOptions);
     }
 
-    setUserPassword(passwords): Observable<any> {
+    setUserPassword(passwords) {
         return this.httpClient.post(this._setPasswordUrl, passwords, httpOptions);
     }
 }
