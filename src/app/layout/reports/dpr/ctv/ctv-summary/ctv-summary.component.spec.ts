@@ -217,6 +217,4 @@ describe('CtvSummaryComponent', () => {
       expect(compiled.querySelector('#CtvSummaryWarning').textContent).toContain('There has been an error retrieving the CTV summary statistics');
     })
   })
-
-
 });
