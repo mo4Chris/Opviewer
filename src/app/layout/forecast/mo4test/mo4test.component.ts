@@ -31,8 +31,8 @@ export class Mo4testComponent implements OnInit, OnChanges {
   public date = null;
   public minForecastDate: YMD;
   public maxForecastDate: YMD;
-  public startDate: number;
-  public stopDate: number;
+  public startTime: number;
+  public stopTime: number;
   public formattedDuration: string = 'N/a';
 
   constructor(
@@ -103,9 +103,9 @@ export class Mo4testComponent implements OnInit, OnChanges {
     ) {
       const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
       console.log('Emitting time change', matlabDate)
-      this.startDate = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
-      this.stopDate = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
-      const duration = this.stopDate - this.startDate;
+      this.startTime = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
+      this.stopTime = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
+      const duration = this.stopTime - this.startTime;
       this.formattedDuration = this.dateService.formatMatlabDuration(duration)
     }
   }

@@ -35,6 +35,10 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
 
   ngOnChanges() {
     if (this.hasData) {
+
+      // this.time = this.time.slice(160, 170)
+      // this.workabilityAlongHeading = this.workabilityAlongHeading.slice(160, 170);
+
       this.computeMaxWorkability();
       this.computeGraphData();
     } else {
@@ -52,29 +56,62 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   computeGraphData() {
     const yLimit = 100;
     let limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
+    let areas = createPlotyAreaLines(this.time, this.workabilityAlongHeading, this.workabilityAlongHeading.map(y => y<yLimit))
+    console.log(areas)
     this.parsedData = [{
       x: this.time,
       // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
       y: limits.green,
       type: 'scatter', // This is a line
       name: 'Workability',
+      connectgaps: false,
       showlegend: false,
       line: {
         color: 'green',
       },
-      fill: 'tozeroy',
+      // fill: 'tozeroy',
     }, {
       x: this.time,
-      // y: this.workabilityAlongHeading.map(y => (y >= yLimit) ? y : NaN),
       y: limits.red,
       type: 'scatter', // This is a line
       name: 'Workability',
       showlegend: false,
+      connectgaps: false,
       line: {
         color: 'red',
       },
+      // fill: 'tozeroy',
+    },
+    {
+      x: areas.green.map(g=> g.x),
+      y: areas.green.map(g=> g.y),
+      type: 'scatter', // This is a line
+      name: 'GreenArea',
+      hoverinfo: 'none',
+      connectgaps: false,
+      showlegend: false,
+      line: {
+        color: 'green',
+      },
+      mode: 'none',
       fill: 'tozeroy',
-    }]
+    }, {
+      x: areas.red.map(g=> g.x),
+      y: areas.red.map(g=> g.y),
+      type: 'scatter', // This is a line
+      name: 'RedArea',
+      hoverinfo: 'none',
+      showlegend: false,
+      connectgaps: false,
+      line: {
+        color: 'red',
+        width: 0
+      },
+      mode: 'none',
+      fill: 'tozeroy',
+      text: '',
+    },
+  ]
   }
 
   onPlotlyInit() {
@@ -93,8 +130,85 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       }
     }
     return {
-      green: datas.map((d,i) => greens[i] ? d : null),
-      red: datas.map((d,i) => reds[i] ? d : null),
+      green: datas.map((d,i) => greens[i] ? d : NaN),
+      red: datas.map((d,i) => reds[i] ? d : NaN),
     };
+  }
+}
+
+function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[]) {
+  let prev = condition[0];
+  const greens: {x: any, y: number}[] = [];
+  const reds: {x: any, y: number}[] = [];
+  if (condition[0]) {
+    greens.push({
+      x: xVals[0],
+      y: yVals[0]
+    })
+  } else {
+    reds.push({
+      x: xVals[0],
+      y: yVals[0]
+    })
+  }
+
+  const maxLength = Math.min(xVals.length, yVals.length);
+  for (let i=1; i<maxLength; i++) {
+    let curr = condition[i];
+    console.log(xVals[i],curr, curr==prev, yVals[i])
+    if (curr == prev) {
+      if (curr) {
+        greens.push({
+          x: xVals[i],
+          y: yVals[i],
+        })
+      } else {
+        reds.push({
+          x: xVals[i],
+          y: yVals[i],
+        })
+      }
+    } else {
+      if (curr) {
+        reds.push({
+          x: xVals[i],
+          y: yVals[i],
+        })
+        reds.push({
+          x: xVals[i],
+          y: 0,
+        })
+        greens.push({
+          x: xVals[i],
+          y: 0,
+        });
+        greens.push({
+          x: xVals[i],
+          y: yVals[i],
+        });
+      } else {
+        greens.push({
+          x: xVals[i],
+          y: yVals[i],
+        })
+        greens.push({
+          x: xVals[i],
+          y: 0,
+        })
+        reds.push({
+          x: xVals[i],
+          y: 0,
+        });
+        reds.push({
+          x: xVals[i],
+          y: yVals[i],
+        });
+      }
+    }
+    prev = curr;
+  }
+  return {
+    green: greens,
+    red: reds,
   }
 }

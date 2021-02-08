@@ -13,6 +13,8 @@ export class ForecastWorkabilityComponent implements OnChanges {
   @Input() response: ForecastResponseObject;
   @Input() heading: number = 0;
   @Input() limits: ForecastLimit[]
+  @Input() startTime: number;
+  @Input() stopTime: number;
   public workability: number[][];
   public workabilityAlongSelectedHeading: number[];
   public time: Date[];
@@ -45,7 +47,7 @@ export class ForecastWorkabilityComponent implements OnChanges {
     }
   }
 
-  getHeadingIdx(headings: number[]) {
+  getHeadingIdx(headings: number[]): number {
     let d = 360;
     let hIdx = null;
     headings.forEach((h, i) => {
