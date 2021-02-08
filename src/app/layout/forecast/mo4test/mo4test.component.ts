@@ -1,7 +1,8 @@
 import { Component, OnChanges, OnInit } from '@angular/core';
-import { _def } from '@angular/core/src/view/provider';
 import { CommonService } from '@app/common.service';
-import { GpsService } from '@app/supportModules/gps.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { forkJoin } from 'rxjs';
 import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 
@@ -25,12 +26,24 @@ export class Mo4testComponent implements OnInit, OnChanges {
   public selectedHeading = 112;
   public selectedOperation: ForecastOperation = null;
 
+  public startTimeInput = {hour: null, mns: null}
+  public stopTimeInput = {hour: null, mns: null}
+  public date = null;
+  public minForecastDate: YMD;
+  public maxForecastDate: YMD;
+  public startDate: number;
+  public stopDate: number;
+  public formattedDuration: string = 'N/a';
+
   constructor(
     private newService: CommonService,
+    private dateService: DatetimeService,
+    private calcService: CalculationService,
   ) {
   }
 
   ngOnInit() {
+    console.log(this)
     this.loadData()
   }
 
@@ -52,6 +65,12 @@ export class Mo4testComponent implements OnInit, OnChanges {
       this.response = responses[0];
       this.operations = projects;
       this.showContent = true;
+      if (this.response) {
+        let responseTimes = this.response.response.Points_Of_Interest.P1.Time;
+        this.date = this.dateService.matlabDatenumToYMD(responseTimes[0]);
+        this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
+        this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
+      }
     })
   }
 
@@ -71,4 +90,35 @@ export class Mo4testComponent implements OnInit, OnChanges {
       }
     }
   }
+
+
+  onTimeChange() {
+    console.log('Testing time change')
+    console.log(this.date)
+    if ( this.date
+      && inRange(this.startTimeInput.hour, 0, 24)
+      && inRange(this.startTimeInput.mns, 0, 59)
+      && inRange(this.stopTimeInput.hour, 0, 24)
+      && inRange(this.stopTimeInput.mns, 0, 59)
+    ) {
+      const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
+      console.log('Emitting time change', matlabDate)
+      this.startDate = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
+      this.stopDate = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
+      const duration = this.stopDate - this.startDate;
+      this.formattedDuration = this.dateService.formatMatlabDuration(duration)
+    }
+  }
+}
+
+function inRange(num: number, min: number, max: number) {
+  return typeof(num) == 'number'
+    && num >= min
+    && num <= max
+}
+
+interface YMD {
+  year: number;
+  month: number;
+  day: number;
 }

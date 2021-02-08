@@ -174,7 +174,7 @@ export class SovPlatformTransfersComponent implements OnChanges {
     return this.calcService.getDecimalValueForNumber(num, endpoint);
   }
   getDecimalTimeToFormattedTime(time) {
-    return this.datetimeService.formatMatlabDuration(time);
+    return this.datetimeService.formatMinuteDuration(time);
   }
   GetMatlabDateToJSTime(serial) {
       return this.datetimeService.matlabDatenumToTimeString(serial);

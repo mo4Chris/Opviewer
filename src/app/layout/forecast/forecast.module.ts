@@ -8,7 +8,7 @@ import { ForecastOpsPickerComponent } from './mo4test/forecast-ops-picker/foreca
 import { ForecastLimitsPickerComponent } from './mo4test/forecast-limits-picker/forecast-limits-picker.component';
 import { SurfacePlotComponent } from './models/surface-plot/surface-plot.component';
 import { ForecastWorkabilityPlotComponent } from './models/forecast-workability-plot/forecast-workability-plot.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PlotlyModule } from 'angular-plotly.js';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/forecast-workability.component';
@@ -30,6 +30,7 @@ import { ForecastDashboardComponent } from './forecast-dashboard/forecast-dashbo
     PlotlyModule,
     SupportModelModule,
     AgmCoreModule,
+    NgbDatepickerModule,
     NgxUploaderDirectiveModule
   ],
   providers: [

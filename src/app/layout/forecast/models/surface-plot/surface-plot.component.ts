@@ -40,6 +40,8 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'yLabel',
       showgrid: false,
       zeroline: false,
+      tick0: 0,
+      dtick: 45,
     }
   };
 

@@ -172,7 +172,23 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   formatMatlabDuration(duration: number) {
-    return moment(0).utc().add(duration, 'minutes').format('HH:mm:ss');
+    if (typeof(duration) =='number' && duration >= 0) {
+      const totalSeconds = Math.round(duration * 24 * 60 * 60);
+      let hrs = Math.floor(totalSeconds/ 3600).toString().padStart(2, '0');
+      let mns = Math.floor((totalSeconds / 60) % 60).toString().padStart(2, '0');
+      let sec = Math.floor((totalSeconds) % 60).toString().padStart(2, '0');
+      return `${hrs}:${mns}:${sec}`;
+    } else {
+      return 'N/a'
+    }
+  }
+
+  formatMinuteDuration(diff_minutes: number) {
+    if (typeof(diff_minutes) =='number' && diff_minutes >= 0) {
+      return moment(0).utc().add(diff_minutes, 'minutes').format('HH:mm:ss');
+    } else {
+      return 'N/a'
+    }
   }
 
   getMatlabDateYesterday() {

@@ -10,7 +10,6 @@ import { ForecastOperation } from '../models/forecast-response.model';
   styleUrls: ['./forecast-dashboard.component.scss']
 })
 export class ForecastDashboardComponent implements OnInit {
-  public vessels;
   public projects: ForecastOperation[];
   public clients: Client[];
   public users: any[];
@@ -30,7 +29,6 @@ export class ForecastDashboardComponent implements OnInit {
       this.newService.getForecastProjectList(),
       this.newService.getForecastUserList(),
     ]).subscribe(([clients, projects, users]) => {
-      console.log(users)
       this.clients = clients;
       this.projects = projects;
       this.users = users;
