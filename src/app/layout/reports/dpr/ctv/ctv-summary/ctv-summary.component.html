@@ -1,7 +1,7 @@
-<div *ngIf="generalInputStats && engine; else noValidData">
+<div *ngIf="generalInputStats || engine; else noValidData">
 
 
-  <h3>General statistics
+  <h3 id="generalStatisticsHeader">General statistics
     <button class="btn btn-primary submitBtnDate"  (click)="saveGeneralStats()"type="button">Save general stats</button>
   </h3>  
   <div class="row">

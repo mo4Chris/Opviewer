@@ -213,5 +213,39 @@ describe('CtvSummaryComponent', () => {
       const compiled = fixture.debugElement.nativeElement;
       expect(compiled.querySelector('#CtvSummaryWarning').textContent).toContain('There has been an error retrieving the CTV summary statistics');
     })
+
+    it('does not crash when only dprInput data is available', () => {
+      component.generalInputStats = {
+        date: 737700,
+        customInput: 'CUSTOM INPUT',
+        drillsConducted: [],
+        fuelConsumption: 0,
+        mmsi: 12345678,
+        landedGarbage: 10,
+        landedOil: 100,
+        toolboxConducted: [],
+        observations: [],
+        incidents: [],
+        passengers: [],
+      };
+      fixture.detectChanges();
+      const compiled = fixture.debugElement.nativeElement;
+      expect(compiled.querySelector('#generalStatisticsHeader').textContent).toBeTruthy();
+    })
+
+    it('does not crash when only engine data is available', () => {
+      component.engine = {
+        fuelUsedDepartM3: 1,
+        fuelUsedReturnM3: 2,
+        fuelUsedTotalM3: 3,
+        fuelUsedTransferM3: 4,
+        co2TotalKg: 5,
+        fuelOther: 0,
+        fuelPerHour: 1,
+      };
+      fixture.detectChanges();
+      const compiled = fixture.debugElement.nativeElement;
+      expect(compiled.querySelector('#generalStatisticsHeader').textContent).toBeTruthy();
+    })
   })
 });
