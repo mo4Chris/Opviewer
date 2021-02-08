@@ -31,6 +31,8 @@ export class CtvSummaryComponent implements OnChanges {
   public fuelConsumedValue = '0 m³';
   public tripEfficiency = 'N/a';
 
+  
+
   constructor(
     private alert: AlertService,
     private newService: CommonService,

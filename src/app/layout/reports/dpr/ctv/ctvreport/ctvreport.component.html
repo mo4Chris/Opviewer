@@ -5,7 +5,7 @@
     <br><br>
     <div class="divContainer singlepage-print">
         <h3 *ngIf="!hasData">There is no data available</h3>
-        <app-ctv-summary *ngIf="turbineTransfers.length>0" [general]="general" [generalInputStats]="generalInputStats"
+        <app-ctv-summary *ngIf="turbineTransfers.length>0 " [general]="general" [generalInputStats]="generalInputStats"
             [engine]="enginedata" [tokenInfo]="tokenInfo" [visitedPark]="visitedPark"></app-ctv-summary>
     </div>
     <br><br>

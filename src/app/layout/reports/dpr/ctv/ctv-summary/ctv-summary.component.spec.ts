@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { mockedObservable } from '@app/models/testObservable';
+import { By } from "@angular/platform-browser";
 
 describe('CtvSummaryComponent', () => {
   let component: CtvSummaryComponent;
@@ -199,5 +200,23 @@ describe('CtvSummaryComponent', () => {
     })
 
   })
+
+  describe('should only show H3 no data is available for sumamry', () => {
+
+    let el:  HTMLElement;
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(CtvSummaryComponent);
+      component = fixture.componentInstance;
+      component.tokenInfo = UserTestService.getMockedAccessToken();
+    })
+
+    it('does not crash when no engine and dprInput data is available', () => {
+      fixture.detectChanges();
+      const compiled = fixture.debugElement.nativeElement;
+      expect(compiled.querySelector('#CtvSummaryWarning').textContent).toContain('There has been an error retrieving the CTV summary statistics');
+    })
+  })
+
 
 });
