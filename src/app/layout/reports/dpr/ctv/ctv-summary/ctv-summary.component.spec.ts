@@ -102,7 +102,7 @@ describe('CtvSummaryComponent', () => {
     })
   })
 
-  fdescribe('should prefer the right fuel value', () => {
+  describe('should prefer the right fuel value', () => {
     beforeAll((done) => {
       mocker.getGeneral({
         mmsi: 123456789,
