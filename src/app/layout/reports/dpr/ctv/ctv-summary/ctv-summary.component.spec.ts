@@ -102,7 +102,7 @@ describe('CtvSummaryComponent', () => {
     })
   })
 
-  describe('should prefer the right fuel value', () => {
+  fdescribe('should prefer the right fuel value', () => {
     beforeAll((done) => {
       mocker.getGeneral({
         mmsi: 123456789,
@@ -182,6 +182,16 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 0;
       component.engine.fuelUsedTotalM3 = 0;
+      component.getValueForFuelConsumed();
+      
+      expect(component.fuelConsumedValue).toBe("0 m³");
+      expect(component).toBeTruthy;
+    })
+
+    it('Value is N/a when both values are NaN ', () => {
+      fixture.detectChanges();
+      component.generalInputStats.fuelConsumption = null;
+      component.engine.fuelUsedTotalM3 = null;
       component.getValueForFuelConsumed();
       
       expect(component.fuelConsumedValue).toBe("0 m³");
