@@ -8,7 +8,6 @@ import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { mockedObservable } from '@app/models/testObservable';
-import { By } from "@angular/platform-browser";
 
 describe('CtvSummaryComponent', () => {
   let component: CtvSummaryComponent;
@@ -202,8 +201,6 @@ describe('CtvSummaryComponent', () => {
   })
 
   describe('should only show H3 no data is available for sumamry', () => {
-
-    let el:  HTMLElement;
 
     beforeEach(() => {
       fixture = TestBed.createComponent(CtvSummaryComponent);
