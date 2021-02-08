@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
+import { Moment } from 'moment-timezone';
 import * as Plotly from 'plotly.js'
 
 @Component({
@@ -10,8 +12,8 @@ import * as Plotly from 'plotly.js'
 export class ForecastWorkabilityPlotComponent implements OnChanges {
   @Input() workabilityAlongHeading: number[];
   @Input() time: Date[];
-  @Input() startTime: Date;
-  @Input() stopTime: Date;
+  @Input() startTime: number;
+  @Input() stopTime: number;
 
   public MaxWorkability = '';
   public parsedData: Plotly.Data[];
@@ -25,20 +27,17 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   constructor(
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
+    private dateService: DatetimeService,
   ) { }
 
   public get hasData() {
-    return Array.isArray(this.workabilityAlongHeading) 
-      && this.workabilityAlongHeading.some(e => e > 0) 
+    return Array.isArray(this.workabilityAlongHeading)
+      && this.workabilityAlongHeading.some(e => e > 0)
       && this.workabilityAlongHeading.length == this.time.length
   }
 
   ngOnChanges() {
     if (this.hasData) {
-
-      // this.time = this.time.slice(160, 170)
-      // this.workabilityAlongHeading = this.workabilityAlongHeading.slice(160, 170);
-
       this.computeMaxWorkability();
       this.computeGraphData();
     } else {
@@ -47,17 +46,29 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   }
 
   computeMaxWorkability() {
-    let sidx = this.time.findIndex(t => t > this.startTime);
-    let eidx = this.time.length - this.time.reverse().findIndex(t => t > this.startTime) - 1;
-    let workabilityDuringOperation = this.workabilityAlongHeading.slice(sidx, eidx)
-    this.MaxWorkability = this.calcService.roundNumber(Math.max(...workabilityDuringOperation), 1, '%');
+    console.log(this.time[0])
+    if (this.startTime && this.stopTime) {
+      let sidx = this.time.findIndex(t => t > this.parseTime(this.startTime));
+      let eidx = this.time.findIndex(t => t > this.parseTime(this.stopTime)) - 1;
+      let workabilityDuringOperation = this.workabilityAlongHeading.slice(sidx, eidx)
+      this.MaxWorkability = this.calcService.roundNumber(Math.max(...workabilityDuringOperation), 1, '%');
+    } else {
+      this.MaxWorkability = 'select a valid time frame'
+    }
+  }
+
+  private parseTime(t: number) {
+    return this.dateService.matlabDatenumToDate(t);
   }
 
   computeGraphData() {
     const yLimit = 100;
     let limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
-    let areas = createPlotyAreaLines(this.time, this.workabilityAlongHeading, this.workabilityAlongHeading.map(y => y<yLimit))
-    console.log(areas)
+    let areas = createPlotyAreaLines(
+      this.time,
+      this.workabilityAlongHeading,
+      this.workabilityAlongHeading.map(y => y < yLimit)
+    )
     this.parsedData = [{
       x: this.time,
       // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
@@ -83,8 +94,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       // fill: 'tozeroy',
     },
     {
-      x: areas.green.map(g=> g.x),
-      y: areas.green.map(g=> g.y),
+      x: areas.green.map(g => g.x),
+      y: areas.green.map(g => g.y),
       type: 'scatter', // This is a line
       name: 'GreenArea',
       hoverinfo: 'none',
@@ -96,8 +107,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       mode: 'none',
       fill: 'tozeroy',
     }, {
-      x: areas.red.map(g=> g.x),
-      y: areas.red.map(g=> g.y),
+      x: areas.red.map(g => g.x),
+      y: areas.red.map(g => g.y),
       type: 'scatter', // This is a line
       name: 'RedArea',
       hoverinfo: 'none',
@@ -110,8 +121,24 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       mode: 'none',
       fill: 'tozeroy',
       text: '',
-    },
-  ]
+    }];
+
+    if (this.startTime && this.stopTime) {
+      this.parsedData.push({
+        x: [
+          this.parseTime(this.startTime),
+          this.parseTime(this.stopTime)
+        ],
+        y: [200, 200],
+        name: 'Selected time frame',
+        mode: 'none',
+        showlegend: false,
+        line: {
+          color: 'black',
+        },
+        fill: 'tozeroy',
+      });
+    }
   }
 
   onPlotlyInit() {
@@ -122,24 +149,24 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     const valid = datas.map(e => e <= limit);
     let greens = valid;
     let reds = valid.map(v => !v);
-    for (let i = valid.length - 1; i>0; i--) {
-      if (greens[i] && reds[i-1]){
+    for (let i = valid.length - 1; i > 0; i--) {
+      if (greens[i] && reds[i - 1]) {
         reds[i] = true;
-      } else if (reds[i] && greens[i-1]){
+      } else if (reds[i] && greens[i - 1]) {
         greens[i] = true;
       }
     }
     return {
-      green: datas.map((d,i) => greens[i] ? d : NaN),
-      red: datas.map((d,i) => reds[i] ? d : NaN),
+      green: datas.map((d, i) => greens[i] ? d : NaN),
+      red: datas.map((d, i) => reds[i] ? d : NaN),
     };
   }
 }
 
 function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[]) {
   let prev = condition[0];
-  const greens: {x: any, y: number}[] = [];
-  const reds: {x: any, y: number}[] = [];
+  const greens: { x: any, y: number }[] = [];
+  const reds: { x: any, y: number }[] = [];
   if (condition[0]) {
     greens.push({
       x: xVals[0],
@@ -153,9 +180,8 @@ function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[
   }
 
   const maxLength = Math.min(xVals.length, yVals.length);
-  for (let i=1; i<maxLength; i++) {
+  for (let i = 1; i < maxLength; i++) {
     let curr = condition[i];
-    console.log(xVals[i],curr, curr==prev, yVals[i])
     if (curr == prev) {
       if (curr) {
         greens.push({
