@@ -188,7 +188,7 @@ describe('CtvSummaryComponent', () => {
       expect(component).toBeTruthy;
     })
 
-    it('Value is N/a when both values are NaN ', () => {
+    it('Value is 0 m3 when both values are NaN/Null ', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = null;
       component.engine.fuelUsedTotalM3 = null;
