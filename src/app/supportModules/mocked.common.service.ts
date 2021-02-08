@@ -8,7 +8,6 @@ import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
-import { Headers } from '@angular/http';
 import { getValueInRange } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 

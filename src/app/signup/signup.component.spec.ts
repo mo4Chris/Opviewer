@@ -7,7 +7,6 @@ import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '@app/auth.service';
-import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('SignupComponent', () => {
@@ -21,7 +20,6 @@ describe('SignupComponent', () => {
         FormsModule,
         RouterTestingModule,
         BrowserAnimationsModule,
-        HttpModule,
         HttpClientModule
       ],
       declarations: [ SignupComponent ],

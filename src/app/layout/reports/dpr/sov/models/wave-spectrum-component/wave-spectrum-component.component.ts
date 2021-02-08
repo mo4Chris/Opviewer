@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ApplicationRef, ChangeDetectorRef } from '@angular/core';
 import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
-import { container } from '@angular/core/src/render3';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';

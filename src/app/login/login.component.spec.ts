@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../auth.service';
-import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('LoginComponent', () => {
@@ -20,7 +19,6 @@ describe('LoginComponent', () => {
         FormsModule,
         RouterTestingModule,
         BrowserAnimationsModule,
-        HttpModule,
         HttpClientModule
       ],
       declarations: [ LoginComponent ],

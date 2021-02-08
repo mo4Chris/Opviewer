@@ -70,16 +70,16 @@ export class DashboardComponent implements OnInit {
     userType = UserTypeEnum;
 
     // Children and event handlers //
-    @ViewChild(AdminComponent)
+    @ViewChild(AdminComponent, { static: false })
     private adminComponent: AdminComponent;
 
-    @ViewChild(LogisticsSpecialistComponent)
+    @ViewChild(LogisticsSpecialistComponent, { static: false })
     private logisticsSpecialistComponent: LogisticsSpecialistComponent;
 
-    @ViewChild(MarineControllerComponent)
+    @ViewChild(MarineControllerComponent, { static: false })
     private marineControllerComponent: MarineControllerComponent;
 
-    @ViewChild(VesselMasterComponent)
+    @ViewChild(VesselMasterComponent, { static: false })
     private vesselMasterComponent: VesselMasterComponent;
 
     getLocationData(locationData: AisMarkerModel[]): void {

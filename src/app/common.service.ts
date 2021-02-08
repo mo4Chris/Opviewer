@@ -14,7 +14,7 @@ import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel
 const httpOptions = {
   headers: new HttpHeaders({
     'Content-Type':  'application/json',
-    Authorization: localStorage.getItem('token')
+    'Authorization': '' + localStorage.getItem('token')
   })
 };
 
@@ -31,10 +31,6 @@ export class CommonService {
 
   post(url: string, data: any): Observable<any> {
     return this.http.post(environment.DB_IP + url, data, httpOptions);
-  }
-
-  createAuthorizationHeader(headers: Headers) {
-    headers.append('authorization', localStorage.getItem('token'));
   }
 
   validatePermissionToViewData(vessel: { mmsi: number}) {

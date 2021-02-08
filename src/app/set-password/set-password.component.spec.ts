@@ -8,7 +8,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@app/auth.service';
-import { HttpModule } from '@angular/http';
 import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from 'ngx-qrcode2';
 import { mockedObservable } from '@app/models/testObservable';
@@ -27,7 +26,6 @@ describe('SetPasswordComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgxQRCodeModule,
-        HttpModule,
       ],
       declarations: [ SetPasswordComponent ],
       providers: [ CommonService, AuthService ]

@@ -77,7 +77,7 @@ export class FleetavailabilityComponent implements OnInit {
     changedUsers: ExtendedUserModel[][] = [];
     noData = false;
 
-    @ViewChild('instance') instance: NgbTypeahead;
+    @ViewChild('instance', { static: false }) instance: NgbTypeahead;
     focus$ = new Subject<string>();
     click$ = new Subject<string>();
 
