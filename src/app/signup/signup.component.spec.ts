@@ -16,7 +16,7 @@ describe('SignupComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        NgbModule.forRoot(),
+        NgbModule,
         FormsModule,
         RouterTestingModule,
         BrowserAnimationsModule,

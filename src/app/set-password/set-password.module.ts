@@ -16,7 +16,7 @@ import {CommonService} from '../common.service';
     HttpClientModule,
     CommonModule,
     SetPasswordRoutingModule,
-    NgbModule.forRoot(),
+    NgbModule,
     NgxQRCodeModule,
     FormsModule
   ],

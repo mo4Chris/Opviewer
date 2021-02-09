@@ -20,8 +20,8 @@ describe('LayoutComponent', () => {
             TestBed.configureTestingModule({
                 imports: [
                     FormsModule,
-                    NgbModule.forRoot(),
-                    NgbDropdownModule.forRoot(),
+                    NgbModule,
+                    NgbDropdownModule,
                     TranslateModule.forRoot(),
                     RouterTestingModule,
                     BrowserAnimationsModule,
