@@ -1,12 +1,11 @@
-import { EventEmitter, Component, Input, OnChanges, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { EventEmitter, Component, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
   selector: 'app-heading-picker',
   templateUrl: './heading-picker.component.html',
   styleUrls: ['./heading-picker.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeadingPickerComponent implements OnChanges {
   @Input() heading = 0;

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
-import { ForecastOperation } from '../../models/forecast-response.model';
+import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -16,6 +16,12 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public date: string;
   public startTime: string;
   public stopTime: string;
+  public startTimeInput = {hour: null, mns: null}
+  public stopTimeInput = {hour: null, mns: null}
+  public minForecastDate: any;
+  public maxForecastDate: any;
+  public limits: ForecastLimit[] = [];
+  public heading = 0;
 
   constructor(
     private dateService: DatetimeService,
@@ -47,5 +53,19 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   formatTime(t: string) {
     return this.dateService.isoStringToDmyString(t);
+  }
+
+  public onConfirm () {
+    this.heading = Math.max(Math.min(this.heading, 360), 0);
+  }
+  public onAddLimitsLine() {
+    this.limits.push({
+      type: null,
+      dof: null,
+      value: null,
+    })
+  }
+  public onRemoveLimitsLine() {
+    this.limits.pop();
   }
 }

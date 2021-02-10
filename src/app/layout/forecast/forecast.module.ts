@@ -4,7 +4,6 @@ import { CommonService } from '@app/common.service';
 import { Mo4testComponent } from './mo4test/mo4test.component';
 import { ForecastRoutingModule } from './forecast-routing.module';
 import { FormsModule } from '@angular/forms';
-import { ForecastOpsPickerComponent } from './mo4test/forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastLimitsPickerComponent } from './mo4test/forecast-limits-picker/forecast-limits-picker.component';
 import { SurfacePlotComponent } from './models/surface-plot/surface-plot.component';
 import { ForecastWorkabilityPlotComponent } from './models/forecast-workability-plot/forecast-workability-plot.component';
@@ -21,6 +20,7 @@ import { FileUploadComponent } from './models/file-upload/file-upload.component'
 import { VesselLocationIndicatorComponent } from './models/vessel-location-indicator/vessel-location-indicator.component';
 import { ForecastDashboardComponent } from './forecast-dashboard/forecast-dashboard.component';
 import { Mo4LightComponent } from './mo4-light/mo4-light.component';
+import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
 
 @NgModule({
   imports: [

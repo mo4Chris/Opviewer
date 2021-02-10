@@ -28,7 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
   public PlotLayout = {
     // General settings for the graph
     title: 'Test graph',
-    responsive: true,
+    // responsive: true,
     xaxis: {
       visible: true,
       title: 'xLabel',
@@ -44,6 +44,12 @@ export class SurfacePlotComponent implements OnChanges {
       dtick: 45,
     }
   };
+  public get hasData() {
+    return this.xData && this.yData && this.zData
+      && this.xData.length > 0
+      && this.yData.length > 0
+      && this.zData.length > 0
+  }
 
   ngOnChanges() {
     if (this.xData && this.xData.length >0 && this.yData.length > 0) {

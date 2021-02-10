@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { Moment } from 'moment-timezone';
 import * as Plotly from 'plotly.js'
 
 @Component({
@@ -35,7 +34,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   ) { }
 
   public get hasData() {
-    return Array.isArray(this.workabilityAlongHeading)
+    return Array.isArray(this.time)
+      && Array.isArray(this.workabilityAlongHeading)
       && this.workabilityAlongHeading.some(e => e > 0)
       && this.workabilityAlongHeading.length == this.time.length
   }
@@ -50,7 +50,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   }
 
   computeMaxWorkability() {
-    console.log(this.time[0])
     if (this.startTime && this.stopTime) {
       let sidx = this.time.findIndex(t => t > this.parseTime(this.startTime));
       let eidx = this.time.findIndex(t => t > this.parseTime(this.stopTime)) - 1;

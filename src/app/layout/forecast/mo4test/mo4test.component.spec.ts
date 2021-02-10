@@ -7,7 +7,7 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockComponents } from 'ng-mocks';
 import { HeadingPickerComponent } from '../models/heading-picker/heading-picker.component';
 import { ForecastLimitsPickerComponent } from './forecast-limits-picker/forecast-limits-picker.component';
-import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
+import { ForecastOpsPickerComponent } from '../forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastWorkabilityComponent } from './forecast-workability/forecast-workability.component';
 import { Mo4testComponent } from './mo4test.component';
 

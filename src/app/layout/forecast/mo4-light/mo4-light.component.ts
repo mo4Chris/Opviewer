@@ -2,9 +2,11 @@ import { Component, OnChanges, OnInit } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
 import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
+import { ForecastResponseService } from '../models/forecast-response.service';
   
 
 @Component({
@@ -20,7 +22,13 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public vessels: string[] = [];
     public operations: ForecastOperation[] = [];
     public response: ForecastResponseObject;
-    public limits: ForecastLimit[] = [{type: 'Disp', dof: 'Heave', value: 1.2}]
+
+    public ReponseTime: Date[];
+    public Workability: number[][];
+    public WorkabilityHeadings: number[];
+    public WorkabilityAlongSelectedHeading: number[];
+
+    public limits: ForecastLimit[] = [{type: 'Disp', dof: 'Heave', value: 1.2}];
     public selectedHeading = 112;
     public selectedOperation: ForecastOperation = null;
   
@@ -37,6 +45,8 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       private newService: CommonService,
       private dateService: DatetimeService,
       private routeService: RouterService,
+      private responseService: ForecastResponseService,
+      private matService: MatrixService,
     ) {
     }
   
@@ -63,6 +73,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           this.date = this.dateService.matlabDatenumToYMD(responseTimes[0]);
           this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
           this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
+          this.parseResponse();
         }
       })
     }
@@ -85,7 +96,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     routeToProject(project_id: number) {
-
+      this.routeService.routeToForecast(project_id);
     }
   
     onTimeChange() {
@@ -104,6 +115,40 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         const duration = this.stopTime - this.startTime;
         this.formattedDuration = this.dateService.formatMatlabDuration(duration)
       }
+    }
+
+    parseResponse() {
+      if (this.response) {
+        const POI = this.response.response.Points_Of_Interest.P1;
+        const response = POI.Response;
+        this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
+        this.WorkabilityHeadings = POI.Heading;
+        const limiters = this.limits.map(limit => {
+          return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value)
+        })
+        this.Workability = this.matService.scale(
+          this.matService.transpose(
+            this.responseService.combineWorkabilities(limiters)
+          ),
+          100
+        );
+        let headingIdx = this.getHeadingIdx(POI.Heading);
+        // this.workabilityAlongSelectedHeading = this.workability.map(row => row[headingIdx]);
+        this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
+      }
+    }
+  
+    getHeadingIdx(headings: number[]): number {
+      let d = 360;
+      let hIdx = null;
+      headings.forEach((h, i) => {
+        let dist = Math.abs(h - this.selectedHeading);
+        if (dist < d) {
+          hIdx = i;
+          d = dist;
+        }
+      })
+      return hIdx;
     }
   }
   
