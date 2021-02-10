@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
@@ -32,14 +31,14 @@ describe('ForecastOpsPickerComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ForecastOpsPickerComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('should emit on change', async(() => {
+  it('should emit on change', () => {
     let emitter = spyOn(component.selectedOperationChange, 'emit');
     component.operations = [{ 
       id: 0,
@@ -55,15 +54,18 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
     }];
-    fixture.detectChanges();
     component.ngOnChanges();
-    expect(component.selectedOperation).toBeTruthy();
+    fixture.detectChanges();
+    expect(component.hasSelectedOperation).toBeTruthy();
 
     let select = fixture.nativeElement.querySelector('select');
-    select.dispatchEvent(new Event('change'));
-    fixture.detectChanges();
-    expect(emitter).toHaveBeenCalled();
-  }))
+    expect(select).not.toBeNull('Select should be present')
+    if (select) {
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+      expect(emitter).toHaveBeenCalled();
+    }
+  })
 
   it('should render relevant data', () => {
     component.operations = [{ 
@@ -80,7 +82,9 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
     }];
-    fixture.detectChanges()
+    component.ngOnChanges();
+    fixture.detectChanges();
+
     let opt = fixture.nativeElement.querySelector('option');
     expect(opt).toBeTruthy();
     expect(opt.value).toBeTruthy(); // We get [object object] here, not sure how to access the actual element

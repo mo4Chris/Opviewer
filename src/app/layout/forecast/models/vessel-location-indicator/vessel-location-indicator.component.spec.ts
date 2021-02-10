@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { SupportModelModule } from '@app/models/support-model.module';
+import { PlotlyModule } from 'angular-plotly.js';
 
 import { VesselLocationIndicatorComponent } from './vessel-location-indicator.component';
 
@@ -8,7 +10,11 @@ describe('VesselLocationIndicatorComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VesselLocationIndicatorComponent ]
+      imports: [
+        PlotlyModule,
+        SupportModelModule,
+      ],
+      declarations: [ VesselLocationIndicatorComponent ],
     })
     .compileComponents();
   }));

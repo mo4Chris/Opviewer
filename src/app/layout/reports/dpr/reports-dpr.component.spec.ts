@@ -15,7 +15,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { MockComponents } from 'ng-mocks';
 
 
-fdescribe('ReportsDprComponent', () => {
+describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
   const perm = <PermissionService> PermissionService.getDefaultPermission('admin');

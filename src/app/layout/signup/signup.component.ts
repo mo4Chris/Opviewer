@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {CommonService} from '../common.service';
-import { routerTransition } from '../router.animations';
-import { AuthService } from '../auth.service';
-import { UserService } from '../shared/services/user.service';
+import { CommonService } from '@app/common.service';
+import { routerTransition } from '@app/router.animations';
+import { AuthService } from '@app/auth.service';
+import { UserService } from '@app/shared/services/user.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { UserType } from '@app/shared/enums/UserType';

@@ -24,7 +24,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   public get hasSelectedOperation() {
-    return !!this.selectedOperation
+    return Boolean(this.selectedOperation)
   }
 
   ngOnChanges() {

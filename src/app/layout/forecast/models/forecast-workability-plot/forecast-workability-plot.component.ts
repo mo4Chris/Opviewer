@@ -20,13 +20,17 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   public loaded = false;
   public PlotLayout: Partial<Plotly.Layout> = {
     yaxis: {
-      range: [0, 200]
+      range: [0, 120],
+      title: 'Workability (%)',
+      fixedrange: true,
+    },
+    xaxis: {
+      title: "Time"
     }
   }
 
   constructor(
     private calcService: CalculationService,
-    private ref: ChangeDetectorRef,
     private dateService: DatetimeService,
   ) { }
 
@@ -74,9 +78,9 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
       y: limits.green,
       type: 'scatter', // This is a line
-      name: 'Workability',
+      name: 'Workability - under limit',
       connectgaps: false,
-      showlegend: false,
+      // showlegend: false,
       line: {
         color: 'green',
       },
@@ -85,8 +89,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       x: this.time,
       y: limits.red,
       type: 'scatter', // This is a line
-      name: 'Workability',
-      showlegend: false,
+      name: 'Workability - over limit',
+      // showlegend: false,
       connectgaps: false,
       line: {
         color: 'red',
@@ -132,7 +136,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
         y: [200, 200],
         name: 'Selected time frame',
         mode: 'none',
-        showlegend: false,
+        // showlegend: false,
+        hoverinfo: 'none',
         line: {
           color: 'black',
         },

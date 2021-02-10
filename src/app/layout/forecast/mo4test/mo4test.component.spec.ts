@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockComponents } from 'ng-mocks';
 import { HeadingPickerComponent } from '../models/heading-picker/heading-picker.component';
 import { ForecastLimitsPickerComponent } from './forecast-limits-picker/forecast-limits-picker.component';
@@ -19,6 +20,7 @@ describe('Mo4testComponent', () => {
       imports:[
         FormsModule,
         SupportModelModule,
+        NgbDatepickerModule,
       ],
       declarations: [
         Mo4testComponent,

@@ -1,7 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { PlotlyModule } from 'angular-plotly.js';
-
 import { ForecastWorkabilityPlotComponent } from './forecast-workability-plot.component';
 
 describe('ForecastWorkabilityPlotComponent', () => {
@@ -17,6 +18,10 @@ describe('ForecastWorkabilityPlotComponent', () => {
       imports: [
         PlotlyModule,
       ],
+      providers: [
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider
+      ]
     })
     .compileComponents();
   }));

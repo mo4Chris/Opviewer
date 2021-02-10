@@ -5,7 +5,7 @@
         Selected operation:
       </th>
       <th>
-        <select [(ngModel)]="selectedOperation" (change)="onChange()" class="input form-control form-control-md">
+        <select #selectOperation [(ngModel)]="selectedOperation" (change)="onChange()" class="input form-control form-control-md">
           <option [ngValue]="op" *ngFor="let op of operations">{{op.name}}</option>
         </select>
       </th>
