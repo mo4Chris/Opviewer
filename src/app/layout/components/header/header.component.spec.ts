@@ -14,7 +14,7 @@ describe('HeaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, NgbModule, RouterTestingModule, HttpClientModule, TranslateModule.forRoot()],
+      imports: [FormsModule, NgbModule, RouterTestingModule, HttpClientModule, TranslateModule],
       declarations: [ HeaderComponent ],
       providers: [ CommonService ]
     })

@@ -12,7 +12,7 @@ describe('PageHeaderComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterModule,
+        RouterModule.forRoot,
         RouterTestingModule,
         BrowserAnimationsModule
       ],

@@ -22,7 +22,7 @@ describe('LayoutComponent', () => {
                     FormsModule,
                     NgbModule,
                     NgbDropdownModule,
-                    TranslateModule.forRoot(),
+                    TranslateModule,
                     RouterTestingModule,
                     BrowserAnimationsModule,
                     HttpClientModule

@@ -27,7 +27,7 @@ describe('FleetRequestComponent', () => {
                 PageHeaderModule,
                 RouterTestingModule,
                 BrowserAnimationsModule,
-                NgMultiSelectDropDownModule.forRoot(),
+                NgMultiSelectDropDownModule,
               ],
             providers: [MockedCommonServiceProvider],
             declarations: [FleetRequestComponent]

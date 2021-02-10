@@ -11,12 +11,11 @@ import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './shared';
 import { CommonService } from './common.service';
-import { PlotlyModule } from 'angular-plotly.js';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'environments/environment';
 
-PlotlyModule.plotlyjs = PlotlyJS;
+
 // AoT requires an exported function for factories
 export function createTranslateLoader(http: HttpClient) {
     // for development
@@ -28,6 +27,7 @@ export function createTranslateLoader(http: HttpClient) {
     imports: [
         CommonModule,
         BrowserModule,
+        PlotlyViaCDNModule,
         BrowserAnimationsModule,
         HttpClientModule,
         TranslateModule.forRoot({
@@ -41,7 +41,6 @@ export function createTranslateLoader(http: HttpClient) {
             apiKey: environment.GOOGLE_API_KEY
         }),
         AppRoutingModule,
-        PlotlyModule,
     ],
     declarations: [AppComponent],
     providers: [AuthGuard, AuthService, CommonService],

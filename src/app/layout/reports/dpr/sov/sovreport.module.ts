@@ -18,7 +18,7 @@ import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operatio
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
 import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
-import { PlotlyModule } from 'angular-plotly.js';
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
@@ -34,12 +34,10 @@ import { environment } from 'environments/environment';
     NgbModule,
     FormsModule,
     SharedPipesModule,
-    PlotlyModule,
+    PlotlyViaCDNModule,
     SupportModelModule,
     DprMapModule,
-    AgmCoreModule.forRoot({
-        apiKey: environment.GOOGLE_API_KEY
-    }),
+    AgmCoreModule,
   ],
   providers: [
     CalculationService,

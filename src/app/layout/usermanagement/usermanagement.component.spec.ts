@@ -26,7 +26,7 @@ describe('UsermanagementComponent', () => {
         FormsModule,
         PageHeaderModule,
         NgbModule,
-        NgMultiSelectDropDownModule.forRoot(),
+        NgMultiSelectDropDownModule,
         RouterTestingModule,
         BrowserAnimationsModule,
         HttpClientModule

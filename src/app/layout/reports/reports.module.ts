@@ -16,9 +16,7 @@ import { environment } from 'environments/environment';
 
 @NgModule({
     imports: [
-        AgmCoreModule.forRoot({
-            apiKey: environment.GOOGLE_API_KEY
-        }),
+        AgmCoreModule,
         CommonModule,
         FormsModule,
         PageHeaderModule,

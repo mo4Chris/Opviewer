@@ -9,9 +9,7 @@ import { environment } from 'environments/environment';
 @NgModule({
   imports: [
     CommonModule,
-    AgmCoreModule.forRoot({
-        apiKey: environment.GOOGLE_API_KEY
-    }),
+    AgmCoreModule,
     AutosizeModule,
     NgbModule,
   ],
