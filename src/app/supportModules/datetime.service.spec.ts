@@ -105,13 +105,13 @@ describe('DatetimeService', () => {
     expect(service.isoStringToMoment('2021-01-18T10:20:31.902Z').toString()).toEqual('Mon Jan 18 2021 11:20:31 GMT+0100')
   });
 
-  fit('should correctly format matlab duration', () => {
+  it('should correctly format matlab duration', () => {
     expect(service.formatMatlabDuration(0)).toBe('00:00:00');
     expect(service.formatMatlabDuration(1/24)).toBe('01:00:00');
     expect(service.formatMatlabDuration(1/24 + 1/24/60)).toBe('01:01:00');
   })
 
-  fit('should correctly format minute duration', () => {
+  it('should correctly format minute duration', () => {
     expect(service.formatMinuteDuration(0)).toBe('00:00:00');
     expect(service.formatMinuteDuration(1/30)).toBe('00:00:02');
     expect(service.formatMinuteDuration(61)).toBe('01:01:00');

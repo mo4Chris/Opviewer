@@ -8,7 +8,7 @@ import { RouterService } from '@app/supportModules/router.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastDashboardComponent } from './forecast-dashboard.component';
 
-fdescribe('ForecastDashboardComponent', () => {
+describe('ForecastDashboardComponent', () => {
   let component: ForecastDashboardComponent;
   let fixture: ComponentFixture<ForecastDashboardComponent>;
 

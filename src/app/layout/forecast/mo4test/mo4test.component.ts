@@ -43,7 +43,6 @@ export class Mo4testComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log(this)
     this.loadData()
   }
 

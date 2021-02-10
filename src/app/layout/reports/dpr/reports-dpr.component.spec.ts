@@ -1,23 +1,21 @@
 import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
-
 import { AgmCoreModule } from '@agm/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PageHeaderModule, SharedPipesModule } from '../../../shared';
+import { PageHeaderModule, SharedPipesModule } from '@app/shared';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
-import { MockedUserServiceProvider } from '../../../shared/services/test.user.service';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CtvreportComponent } from './ctv/ctvreport/ctvreport.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ReportsDprComponent } from './reports-dpr.component';
 import { SovreportComponent } from './sov/sovreport.component';
-import { SovreportModule } from './sov/sovreport.module';
-import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MockComponents } from 'ng-mocks';
 
-describe('ReportsDprComponent', () => {
+
+fdescribe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
   const perm = <PermissionService> PermissionService.getDefaultPermission('admin');
@@ -33,12 +31,13 @@ describe('ReportsDprComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
-        // SovreportModule, // Disabled to keep tests speedy
-        // CtvreportModule,
       ],
       declarations: [
         ReportsDprComponent,
-        CtvreportComponent,
+        MockComponents(
+          CtvreportComponent,
+          SovreportComponent,
+        )
       ],
       providers: [
         MockedCommonServiceProvider,
@@ -48,7 +47,6 @@ describe('ReportsDprComponent', () => {
           useValue: perm
         }
       ],
-      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   }));
@@ -60,12 +58,89 @@ describe('ReportsDprComponent', () => {
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;
-
+    component.permission.admin = false;
     fixture.detectChanges();
   });
 
-  it('Report dpr component should instantiate', (done) => {
+  it('Report dpr component should instantiate', () => {
     expect(component).toBeTruthy();
-    done();
   });
+
+  it('should correctly use prev day button', async () => {
+    const el: HTMLElement = fixture.nativeElement;
+    const prevDayBtn: HTMLButtonElement = el.querySelector('#prevDayButton')
+    await fixture.whenStable();
+    const oldValue = toDate(component.datePickerValue).getTime();
+    prevDayBtn.click();
+    const newValue = toDate(component.datePickerValue).getTime()
+    expect(Math.round((oldValue - newValue)/1000)/3600 ).toEqual(24)
+  })
+  it('should correctly use next day button', async () => {
+    const el: HTMLElement = fixture.nativeElement;
+    const prevDayBtn: HTMLButtonElement = el.querySelector('#nextDayButton')
+    await fixture.whenStable();
+    const oldValue = toDate(component.datePickerValue).getTime();
+    prevDayBtn.click();
+    const newValue = toDate(component.datePickerValue).getTime()
+    expect(Math.round((newValue - oldValue)/1000)/3600 ).toEqual(24)
+  })
+  it('should correctly use the date picker', async () => {
+    const el: HTMLElement = fixture.nativeElement;
+    let dpBtn: HTMLButtonElement = el.querySelector('#datePickBtn')
+    component.sailDates = {
+      transfer: [],
+      transit: [],
+      other: [],
+    }
+    component.noPermissionForData = false;
+    component.loaded = true;
+    spyOn(component, 'hasSailedTransfer').and.returnValue(true);
+    spyOn(component, 'hasSailedTransit').and.returnValue(true);
+    spyOn(component, 'hasSailedOther').and.returnValue(false);
+    spyOn(component, 'onChange')
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(getDatepickerDropdown()).not.toBeTruthy('Datepicker should start closed');
+    dpBtn.click();
+    const dropdown = getDatepickerDropdown();
+    expect(dropdown).toBeTruthy('Datepicker should open on click');
+    // ToDo: Clicking again does not appear to close the window during testing...
+    // dpBtn.click();
+    // expect(getDatepickerDropdown()).not.toBeTruthy('Datepicker should be closed when clicking again');
+  })
+  function getDatepickerDropdown(): HTMLElement {
+    return fixture.nativeElement.querySelector('ngb-datepicker');
+  }
+
+  xit('should print page using hotkey',  async () => {
+    // xit means this test is disabled
+    const printSpy = spyOn(component, 'printPage');
+    spyOn(window, 'print');
+    component.sailDates = {
+      transfer: [],
+      transit: [],
+      other: [],
+    }
+    component.noPermissionForData = false;
+    component.loaded = true;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    let el: HTMLElement = fixture.nativeElement;
+    let event = new KeyboardEvent('keydown', {
+      code: 'KeyP',
+      key: 'p',
+      ctrlKey: true,
+    })
+    document.dispatchEvent(event);
+    // ToDo: Current test will work, but ALSO triggers print window
+    fixture.detectChanges();
+    expect(printSpy).toHaveBeenCalled();
+  })
+
 });
+
+function toDate(YMD: {year: number, month: number, day: number}): Date {
+  return new Date(YMD.year, YMD.month, YMD.day)
+}

@@ -2,7 +2,13 @@
   height: 300px;
 }
 .flex-container{
-  display:flex
+  display: flex;
+}
+
+.vert-align{
+  // align-items: center;
+  display: table-cell;
+  vertical-align: middle;
 }
 
 input::-webkit-outer-spin-button,
@@ -17,5 +23,5 @@ input[type=number] {
 }
 
 .headingInput { 
-  min-width: 55px;
+  min-width: 60px;
 }

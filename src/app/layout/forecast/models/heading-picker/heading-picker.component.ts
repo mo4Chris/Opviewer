@@ -31,13 +31,13 @@ export class HeadingPickerComponent implements OnChanges {
         visible: false
       },
       angularaxis: {
-        tickfont: {
-          size: 8
-        },
         tickmode: "array",
         tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
         ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-        direction: "clockwise"
+        direction: "clockwise",
+        tickfont: {
+          size: 11
+        }
       }
     }
   };

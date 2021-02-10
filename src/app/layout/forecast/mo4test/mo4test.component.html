@@ -1,6 +1,6 @@
 <div *ngIf="showContent; else loading">
-  <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-6">
+  <div class="row center">
+    <div class="col-sm-12 col-md-12 col-lg-6 max-card">
       <div class='card mb-3'>
         <div class='card-header'>
           Operation overview
@@ -11,7 +11,7 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-12 col-md-12 col-lg-6" style="height: 100%">
+    <div class="col-sm-12 col-md-12 col-lg-6 max-card">
       <div class='card mb-3'>
         <div class='card-header'>
           Operation time
@@ -55,10 +55,8 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-6">
+    <div class="col-sm-12 col-md-12 col-lg-6 max-card">
       <div class='card mb-3'>
         <div class='card-header'>
           Heading
@@ -69,17 +67,17 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-12 col-md-12 col-lg-6">
+    <div class="col-sm-12 col-md-12 col-lg-6 max-card">
       <app-forecast-limits-picker [(limits)]="limits">
       </app-forecast-limits-picker>
     </div>
+    <!-- <div class="div-spacing"></div> -->
   </div>
-
-  <div class="div-spacing"></div>
-
-  <app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading"
-    [startTime]="startTime" [stopTime]="stopTime">
-  </app-forecast-workability>
+  <div class="row" style="display: flex;">
+    <app-forecast-workability [response]="response" [limits]="limits" [heading]="selectedHeading"
+      [startTime]="startTime" [stopTime]="stopTime">
+    </app-forecast-workability>
+  </div>
 </div>
 
 

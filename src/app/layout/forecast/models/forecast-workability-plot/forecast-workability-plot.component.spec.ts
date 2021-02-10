@@ -35,8 +35,8 @@ describe('ForecastWorkabilityPlotComponent', () => {
   it('generate a plot when data is available', async () => {
     component.workabilityAlongHeading = calc.linspace(0, 200, 20);
     component.time      = calc.linspace(737000, 737001, 1/10).map(t => datenumToDate(t));
-    component.startTime = datenumToDate(737000.05)
-    component.stopTime  = datenumToDate(737000.15)
+    component.startTime = 737000.05;
+    component.stopTime  = 737000.15;
     component.ngOnChanges();
     expect(component).toBeTruthy()
     expect(component.hasData).toBe(true);

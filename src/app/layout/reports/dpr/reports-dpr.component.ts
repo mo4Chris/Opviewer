@@ -32,7 +32,7 @@ export class ReportsDprComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private permission: PermissionService,
+    public permission: PermissionService,
     private hotkeys: Hotkeys,
     ) {
 
@@ -133,7 +133,7 @@ export class ReportsDprComponent implements OnInit {
     });
   }
 
-  printPage(printtype) {
+  printPage(printtype: number) {
     if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
       this.printMode = printtype;
       setTimeout(() => {
@@ -218,7 +218,8 @@ export class ReportsDprComponent implements OnInit {
   changeDay(changedDayCount: number) {
     const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
-    this.datePickerValue = this.dateTimeService.momentToYMD(newDate, true);
+
+    this.datePickerValue = this.dateTimeService.momentToYMD(newDate, false);
     this.onChange();
   }
   getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
