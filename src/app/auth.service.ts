@@ -7,7 +7,7 @@ import { UserType } from './shared/enums/UserType';
 const httpOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json',
-      'authorization': '' + localStorage.getItem('token')
+      'Authorization': '' + localStorage.getItem('token')
     })
   };
 
