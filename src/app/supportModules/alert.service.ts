@@ -13,10 +13,9 @@ export class AlertService {
     type: AlertTypeOptions = 'success';
     timeout = DEFAULT_TIMEOUT;
 
-    private timeoutRef = null;
+    private timeoutRef: NodeJS.Timeout = null;
 
     constructor() {
-        // this.addHTMLCode();
     }
 
     sendAlert(opts: AlertOptions = {}) {
@@ -25,28 +24,31 @@ export class AlertService {
           type: 'success',
           timeout: (opts.type == 'danger') ? DEFAULT_ERROR_TIMEOUT : this.timeout,
         };
-        opts = {...defaultOptions, ...opts};
-        if (this.timeoutRef) {
-          clearTimeout(this.timeoutRef);
-        }
+       opts = {...defaultOptions, ...opts};
         if (opts.type === 'danger' || !this.active) {
           this.changeAlert(opts);
         } else if (this.type === 'danger') {
-          // Do nothing
+          return;
         } else if (opts.type === 'warning') {
           this.changeAlert(opts);
         } else if (this.type === 'warning') {
-          // Do nothing
+          return;
         } else {
           this.changeAlert(opts);
         }
     }
 
-    private changeAlert(opts: AlertOptions) {
+    clear() {
+      if (this.timeoutRef) clearTimeout(this.timeoutRef);
+      this.active = false;
+    }
+
+    private changeAlert({text, type, timeout}: AlertOptions) { // Destructuring 
+      if (this.timeoutRef) clearTimeout(this.timeoutRef);
       this.active = true;
-      this.text = opts.text;
-      this.type = opts.type;
-      this.timeout = opts.timeout;
+      this.text = text;
+      this.type = type;
+      this.timeout = timeout;
       this.timeoutRef = setTimeout(() => {
         this.active = false;
       }, this.timeout);
