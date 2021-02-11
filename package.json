@@ -12,7 +12,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "pree2e": "webdriver-manager update",
-    "e2e": "protractor"
+    "e2e": "protractor",
+    "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points"
   },
   "private": true,
   "dependencies": {
@@ -24,6 +25,7 @@
     "@angular/compiler": "9.1.13",
     "@angular/core": "^9.1.13",
     "@angular/forms": "^9.1.13",
+    "@angular/localize": "^11.2.0",
     "@angular/platform-browser": "9.1.13",
     "@angular/platform-browser-dynamic": "9.1.13",
     "@angular/router": "^9.1.13",

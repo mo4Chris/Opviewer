@@ -6,7 +6,7 @@ import { AutosizeModule } from 'ngx-autosize';
 import { SovreportComponent } from './sovreport.component';
 import { SovSummaryComponent } from './sov-summary/sov-summary.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedPipesModule } from '@app/shared';
 import { AgmCoreModule } from '@agm/core';
 import { SovDprInputComponent } from './sov-dpr-input/sov-dpr-input.component';
@@ -33,6 +33,7 @@ import { environment } from 'environments/environment';
     AutosizeModule,
     NgbModule,
     FormsModule,
+    ReactiveFormsModule,
     SharedPipesModule,
     PlotlyViaCDNModule,
     SupportModelModule,
