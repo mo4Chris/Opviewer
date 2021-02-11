@@ -610,24 +610,38 @@ var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema,
 //#########################################################
 
 
-function unauthorized(res, cause = 'unknown') {
+function onUnauthorized(res, cause = 'unknown') {
   logger.warning(`Unauthorized request: ${cause}`)
   res.status(401).send('Unauthorized request')
 }
 
+function onError(res, err, additionalInfo = '') {
+  if (typeof(err) == 'object') {
+    err.debug = additionalInfo;
+  } else {
+    err = {
+      debug: additionalInfo,
+      msg: err,
+    }
+  }
+  logger.error(err)
+  res.status(500).send(additionalInfo);
+}
+
 function verifyToken(req, res) {
-  if (!req.headers.authorization) unauthorized(res, 'Missing headers');
+  try {
+    if (!req.headers.authorization) onUnauthorized(res, 'Missing headers');
+    
+    const token = req.headers.authorization;
+    if (token == null || token === 'null')  onUnauthorized(res, 'Token missing!');
 
-  Usermodel.findByIdAndUpdate(payload.userID, {
-    lastActive: new Date(),
-  }).exec();
-
-  const token = req.headers.authorization;
-  if (token == null || token === 'null')  unauthorized(res, 'Token missing!');
-
-  const payload = jwt.verify(token, 'secretKey');
-  if (payload == null || payload == 'null')  unauthorized(res, 'Token corrupted!');
-  return payload;
+    const payload = jwt.verify(token, 'secretKey');
+    if (payload == null || payload == 'null')  onUnauthorized(res, 'Token corrupted!');
+    Usermodel.findByIdAndUpdate(payload.userID, {lastActive: new Date()}).exec();
+    return payload;
+  } catch (err) {
+    onError(res, err, 'Failed to parse jwt token')
+  }
 }
 
 function validatePermissionToViewData(req, res, callback) {
@@ -694,7 +708,7 @@ app.get("/api/getActiveConnections", function(req, res) {
       body: 'This is not yet tracked'
     });
   } else {
-    unauthorized(res, 'Only admin may request active connections!')
+    onUnauthorized(res, 'Only admin may request active connections!')
   }
 })
 
@@ -707,10 +721,10 @@ app.post("/api/registerUser", function(req, res) {
       // Always allowed
       break;
     case 'Logistics specialist':
-      if (token.userCompany != userData.client) return unauthorized(res, 'Cannot register user for different company')
+      if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
       break;
     default:
-      return unauthorized(res, 'User not priviliged to register users!')
+      return onUnauthorized(res, 'User not priviliged to register users!')
   }
   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
     function(err, existingUser) {

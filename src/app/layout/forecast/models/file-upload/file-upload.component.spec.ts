@@ -43,6 +43,10 @@ describe('FileUploadComponent', () => {
     expect(emitSpy).toHaveBeenCalled();
   });
 
+  it('should not have logs enabled', () => {
+    expect(component.options.logs).not.toBeTruthy();
+  })
+
   it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
 
   function locate(locator: string) {
