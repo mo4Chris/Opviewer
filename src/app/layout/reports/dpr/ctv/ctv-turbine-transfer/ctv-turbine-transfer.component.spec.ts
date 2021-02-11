@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CtvTurbineTransferComponent', () => {
   let component: CtvTurbineTransferComponent;
@@ -20,6 +21,7 @@ describe('CtvTurbineTransferComponent', () => {
         FormsModule,
         CommonModule,
         NgMultiSelectDropDownModule,
+        HttpClientModule,
       ],
       providers: [
         MockedCommonServiceProvider,

@@ -16,6 +16,7 @@ import { SovreportModule } from './sov/sovreport.module';
 import { CtvreportModule } from './ctv/ctvreport/ctvreport.module';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
@@ -33,6 +34,7 @@ describe('ReportsDprComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
+        HttpClientModule
         // SovreportModule, // Disabled to keep tests speedy
         // CtvreportModule,
       ],

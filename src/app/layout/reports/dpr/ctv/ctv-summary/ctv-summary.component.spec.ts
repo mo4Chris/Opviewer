@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { mockedObservable } from '@app/models/testObservable';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CtvSummaryComponent', () => {
   let component: CtvSummaryComponent;
@@ -28,6 +29,7 @@ describe('CtvSummaryComponent', () => {
         FormsModule,
         CommonModule,
         NgMultiSelectDropDownModule,
+        HttpClientModule,
       ]
     }).compileComponents();
   }));

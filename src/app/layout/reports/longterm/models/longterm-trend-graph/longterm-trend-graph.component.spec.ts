@@ -6,6 +6,7 @@ import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Component } from '@angular/core';
 import { ComprisonArrayElt, LongtermDataFilter } from '../scatterInterface';
 import { LongtermComponent, LongtermVesselObjectModel } from '../../longterm.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   template: `
@@ -41,6 +42,9 @@ describe('LongtermTrendGraphComponent', () => {
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
       ],
+      imports: [
+        HttpClientModule
+      ]
     })
     .compileComponents();
   }));

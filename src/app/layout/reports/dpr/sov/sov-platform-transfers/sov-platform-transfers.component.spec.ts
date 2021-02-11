@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SovPlatformTransfersComponent', () => {
   let component: SovPlatformTransfersComponent;
@@ -22,7 +23,8 @@ describe('SovPlatformTransfersComponent', () => {
         CommonModule,
         FormsModule,
         NgMultiSelectDropDownModule,
-        SharedPipesModule
+        SharedPipesModule,
+        HttpClientModule
       ],
       declarations: [ SovPlatformTransfersComponent ],
       providers: [

@@ -12,6 +12,7 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SovDprInputComponent', () => {
   let component: SovDprInputComponent;
@@ -26,6 +27,7 @@ describe('SovDprInputComponent', () => {
         FormsModule,
         AutosizeModule,
         SupportModelModule,
+        HttpClientModule,
       ],
       declarations: [
         SovDprInputComponent,

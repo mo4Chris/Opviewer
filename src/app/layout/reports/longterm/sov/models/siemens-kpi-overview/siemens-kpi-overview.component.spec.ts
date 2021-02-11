@@ -4,6 +4,7 @@ import { SiemensKpiOverviewComponent } from './siemens-kpi-overview.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SiemensKpiOverviewComponent', () => {
   let component: SiemensKpiOverviewComponent;
@@ -13,6 +14,7 @@ describe('SiemensKpiOverviewComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
+        HttpClientModule
       ],
       declarations: [ SiemensKpiOverviewComponent ],
       providers: [

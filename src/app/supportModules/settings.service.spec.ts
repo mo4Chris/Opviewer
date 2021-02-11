@@ -3,11 +3,13 @@ import { SettingsService } from './settings.service';
 import { CalculationService } from './calculation.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('Settings service', () => {
   let service: SettingsService;
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientModule],
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,

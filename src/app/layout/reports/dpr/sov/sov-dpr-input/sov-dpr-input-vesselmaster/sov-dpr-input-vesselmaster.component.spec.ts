@@ -11,6 +11,7 @@ import { mockedObservable } from '@app/models/testObservable';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { RouterService } from '@app/supportModules/router.service';
 import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;
@@ -26,6 +27,7 @@ describe('SovDprInputVesselmasterComponent', () => {
         FormsModule,
         AutosizeModule,
         SupportModelModule,
+        HttpClientModule,
       ],
       declarations: [
         SovDprInputVesselmasterComponent

@@ -3,6 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CtvslipgraphComponent } from './ctvslipgraph.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CtvslipgraphComponent', () => {
   let component: CtvslipgraphComponent;
@@ -11,6 +12,7 @@ describe('CtvslipgraphComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ CtvslipgraphComponent ],
+      imports: [HttpClientModule],
       providers: [
         MockedUserServiceProvider,
         MockedCommonServiceProvider,

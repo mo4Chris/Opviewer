@@ -25,6 +25,7 @@ import { mockedObservable } from '@app/models/testObservable';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('LongtermComponent', () => {
     let component: LongtermComponent;
@@ -39,6 +40,7 @@ describe('LongtermComponent', () => {
                 NgbDatepickerModule,
                 NgMultiSelectDropDownModule,
                 RouterTestingModule,
+                HttpClientModule,
             ],
             declarations: [
                 LongtermComponent,
@@ -82,6 +84,21 @@ describe('LongtermComponent', () => {
             mmsi: [123456789],
             vesselName: ['Test vessel']
         };
+        component.multiSelectSettings = {
+            idField: 'mmsi',
+            textField: 'nicename',
+            allowSearchFilter: true,
+            selectAllText: 'Select All',
+            unSelectAllText: 'UnSelect All',
+            singleSelection: false,
+        }
+        component.fieldSelectSettings = {
+            allowSearchFilter: true,
+            singleSelection: true,
+            closeDropDownOnSelection: true,
+            textFields: 'text',
+            idField: '_id',
+          };
         component.fromDate = new NgbDate(2020, 6, 1);
         component.toDate = new NgbDate(2020, 7, 10);
         component.dropdownValues = [{

@@ -6,6 +6,7 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { FormsModule } from '@angular/forms';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SovTurbineTransfersComponent', () => {
   let component: SovTurbineTransfersComponent;
@@ -19,6 +20,7 @@ describe('SovTurbineTransfersComponent', () => {
         CommonModule,
         FormsModule,
         NgMultiSelectDropDownModule,
+        HttpClientModule,
       ],
       declarations: [ SovTurbineTransfersComponent ],
       providers: [

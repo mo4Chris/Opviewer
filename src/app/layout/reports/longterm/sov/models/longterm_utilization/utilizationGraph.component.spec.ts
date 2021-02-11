@@ -3,6 +3,7 @@ import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportMo
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { UtilizationGraphComponent } from './utilizationGraph.component';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('Sov Utilization Graph', () => {
   let component: UtilizationGraphComponent;
@@ -16,6 +17,9 @@ describe('Sov Utilization Graph', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
+      ],
+      imports: [
+        HttpClientModule
       ]
     })
     .compileComponents();

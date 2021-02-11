@@ -4,6 +4,7 @@ import { LongtermBarGraphComponent } from './longterm-bar-graph.component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('LongtermBarGraphComponent', () => {
   let component: LongtermBarGraphComponent;
@@ -15,6 +16,9 @@ describe('LongtermBarGraphComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
+      ],
+      imports: [
+        HttpClientModule
       ]
     })
     .compileComponents();

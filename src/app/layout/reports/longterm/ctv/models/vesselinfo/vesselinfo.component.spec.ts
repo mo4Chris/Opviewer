@@ -4,6 +4,7 @@ import { VesselinfoComponent } from './vesselinfo.component';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('VesselinfoComponent', () => {
   let component: VesselinfoComponent;
@@ -13,6 +14,9 @@ describe('VesselinfoComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+        HttpClientModule
+      ],
       declarations: [ VesselinfoComponent ],
       providers: [
         MockedCommonServiceProvider,

@@ -10,6 +10,7 @@ import { SupportModelModule } from '@app/models/support-model.module';
 import { RouterService } from '@app/supportModules/router.service';
 import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('SovDprInputReadonlyComponent', () => {
   let component: SovDprInputReadonlyComponent;
@@ -23,6 +24,7 @@ describe('SovDprInputReadonlyComponent', () => {
         FormsModule,
         AutosizeModule,
         SupportModelModule,
+        HttpClientModule,
       ],
       declarations: [
         SovDprInputReadonlyComponent
