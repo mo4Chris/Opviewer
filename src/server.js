@@ -9,6 +9,7 @@ var moment = require('moment');
 var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
+var fileUploadServer = require('./server/file-upload.server.js')
 
 
 mongo.set('useFindAndModify', false);
@@ -22,8 +23,6 @@ var db = mongo.connect(process.env.DB_CONN, {
     logger.info('Connected to Database');
   }
 });
-
-
 
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -61,6 +60,7 @@ let transporter = nodemailer.createTransport({
 
 // Init of submodules must be after setting app usages
 mo4lightServer(app, logger)
+fileUploadServer(app, logger)
 
 //#########################################################
 //##################   Models   ###########################
@@ -609,44 +609,41 @@ var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema,
 //#################   Functionality   #####################
 //#########################################################
 
-function verifyToken(req, res) {
-  if (!req.headers.authorization) {
-    logger.info('Unauthorized request: missing headers')
-    return res.status(401).send('Unauthorized request');
-  }
-  let token = req.headers.authorization;
-  if (token === 'null') {
-    logger.info('Unauthorized request: token null')
-    return res.status(401).send('Unauthorized request');
-  }
 
-  let payload = jwt.verify(token, 'secretKey');
+function unauthorized(res, cause = 'unknown') {
+  logger.warning(`Unauthorized request: ${cause}`)
+  res.status(401).send('Unauthorized request')
+}
+
+function verifyToken(req, res) {
+  if (!req.headers.authorization) unauthorized(res, 'Missing headers');
+
   Usermodel.findByIdAndUpdate(payload.userID, {
     lastActive: new Date(),
   }).exec();
 
-  if (payload === 'null') {
-    logger.info('Unauthorized request: no payload')
-    return res.status(401).send('Unauthorized request');
-  }
+  const token = req.headers.authorization;
+  if (token == null || token === 'null')  unauthorized(res, 'Token missing!');
+
+  const payload = jwt.verify(token, 'secretKey');
+  if (payload == null || payload == 'null')  unauthorized(res, 'Token corrupted!');
   return payload;
 }
 
 function validatePermissionToViewData(req, res, callback) {
   let token = verifyToken(req, res);
-  let filter = { mmsi: req.body.mmsi };
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
-    filter.client = token.userCompany;
-  } else if (token.userPermission === "Logistics specialist") {
-    filter.client = token.userCompany;
-  } else if (token.userPermission === "Contract manager") {
-    // TODO
-    filter.client = token.userCompany;
+  let filter;
+  switch (token.userPermission) {
+    case 'admin':
+      filter = { mmsi: req.body.mmsi };
+      break;
+    default:
+      filter = { mmsi: req.body.mmsi, client: token.userCompany };
   }
   Vesselmodel.find(filter, function(err, data) {
     if (err) {
       logger.error(err);
-      return [];
+      res.error(err)
     } else {
       callback(data);
       return data;
@@ -656,10 +653,10 @@ function validatePermissionToViewData(req, res, callback) {
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
-  body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
+  body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
   let mailOptions = {
-    from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
+    from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
     to: user, //'bar@example.com, baz@example.com' list of receivers
     bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
     subject: subject, //'Hello ✔' Subject line
@@ -669,9 +666,7 @@ function mailTo(subject, html, user) {
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
     var maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
-    if (error) {
-      return maillogger.error(error);
-    }
+    if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
 }
@@ -699,8 +694,7 @@ app.get("/api/getActiveConnections", function(req, res) {
       body: 'This is not yet tracked'
     });
   } else {
-    logger.info('Unauthorized request: non-admin may not request active connections!')
-    return res.status(401).send('Unauthorized request!');
+    unauthorized(res, 'Only admin may request active connections!')
   }
 })
 
@@ -708,51 +702,52 @@ app.post("/api/registerUser", function(req, res) {
   let userData = req.body;
   let token = verifyToken(req, res);
   logger.info('Received request to create new user: ' + userData.email);
-  if (token.userPermission !== "admin") {
-    if (token.userPermission === "Logistics specialist" && token.userCompany !== userData.client) {
-      return res.status(401).send('Access denied');
-    } else if (token.userPermission !== "Logistics specialist") {
-      return res.status(401).send('Access denied');
-    }
+  switch (token.userPermission){
+    case 'admin':
+      // Always allowed
+      break;
+    case 'Logistics specialist':
+      if (token.userCompany != userData.client) return unauthorized(res, 'Cannot register user for different company')
+      break;
+    default:
+      return unauthorized(res, 'User not priviliged to register users!')
   }
   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
     function(err, existingUser) {
       if (err) {
         logger.error(err);
-        res.send(err);
-      } else {
-        if (!existingUser) {
-          randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-          randomToken = randomToken.replace(/\//gi, '8');
-          let user = new Usermodel({
-            "username": userData.email.toLowerCase(),
-            "token": randomToken,
-            "permissions": userData.permissions,
-            "client": userData.client,
-            "secret2fa": "",
-            "active": 1,
-            "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over - @Chris wanneer gaan we dit veranderen?
-          });
-          user.save((error, registeredUser) => {
-            if (error) {
-              logger.error(error);
-              return res.status(401).send('User already exists'); // We hebben toch al eerder gechecked of user bestaat? Of is dit als een request 2 keer snel afgevuurd word oid?
-            } else {
-
-              var serveradres = process.env.IP_USER.split(",");
-              let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
-              let html = 'An account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
-                'If that doesnt work copy the link below <br>' + link;
-              mailTo('Registered user', html, user.username);
-              logger.info('Succesfully created user ' + user.username)
-              return res.send({ data: 'User created', status: 200 });
-            }
-          });
-        } else {
-          logger.warn('Failed to create user ' + userData.username + ': already exists!');
-          return res.status(401).send('User already exists');
-        }
+        return res.send(err);
+      } 
+      if (existingUser) {
+        logger.warn('Failed to create user ' + userData.username + ': already exists!');
+        return res.status(401).send('User already exists');
       }
+      randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+      randomToken = randomToken.replace(/\//gi, '8');
+      let user = new Usermodel({
+        "username": userData.email.toLowerCase(),
+        "token": randomToken,
+        "permissions": userData.permissions,
+        "client": userData.client,
+        "secret2fa": "",
+        "active": 1,
+        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over - @Chris wanneer gaan we dit veranderen?
+      });
+      user.save((error, registeredUser) => {
+        if (error) {
+          logger.error(error);
+          return res.status(401).send('User already exists'); // We hebben toch al eerder gechecked of user bestaat? Of is dit als een request 2 keer snel afgevuurd word oid?
+        } else {
+
+          var serveradres = process.env.IP_USER.split(",");
+          let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
+          let html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+            'If that doesnt work copy the link below <br>' + link;
+          mailTo('Registered user', html, user.username);
+          logger.info('Succesfully created user ' + user.username)
+          return res.send({ data: 'User created', status: 200 });
+        }
+      });
     });
 });
 

@@ -67,7 +67,7 @@ export class LongtermTrendGraphComponent implements OnChanges {
     this.parser.load(query, this.data.dataType, this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
-      console.log('error: ' + error);
+      console.error('error: ' + error);
       throw error;
     })).subscribe(parsedData => {
       this.hasData = parsedData.some(_parsed => {

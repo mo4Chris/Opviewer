@@ -102,7 +102,6 @@ module.exports = function(app, logger) {
           }
         }
       }).catch(err => {
-        console.log(`Error parsing ${PgQuery}`)
         logger.error(err);
         res.send([]);
       })

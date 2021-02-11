@@ -92,8 +92,6 @@ export class Mo4testComponent implements OnInit, OnChanges {
 
 
   onTimeChange() {
-    console.log('Testing time change')
-    console.log(this.date)
     if ( this.date
       && inRange(this.startTimeInput.hour, 0, 24)
       && inRange(this.startTimeInput.mns, 0, 59)
@@ -101,7 +99,6 @@ export class Mo4testComponent implements OnInit, OnChanges {
       && inRange(this.stopTimeInput.mns, 0, 59)
     ) {
       const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
-      console.log('Emitting time change', matlabDate)
       this.startTime = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
       this.stopTime = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
       const duration = this.stopTime - this.startTime;

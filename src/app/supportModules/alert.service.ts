@@ -1,6 +1,9 @@
 import { Injectable, Component } from '@angular/core';
 
 
+const DEFAULT_TIMEOUT = 7000;
+const DEFAULT_ERROR_TIMEOUT = 20000;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -8,7 +11,7 @@ export class AlertService {
     active = false;
     text = '';
     type: AlertTypeOptions = 'success';
-    timeout = 7000;
+    timeout = DEFAULT_TIMEOUT;
 
     private timeoutRef = null;
 
@@ -20,7 +23,7 @@ export class AlertService {
         const defaultOptions: AlertOptions = {
           text: '<No text provided>',
           type: 'success',
-          timeout: this.timeout,
+          timeout: (opts.type == 'danger') ? DEFAULT_ERROR_TIMEOUT : this.timeout,
         };
         opts = {...defaultOptions, ...opts};
         if (this.timeoutRef) {

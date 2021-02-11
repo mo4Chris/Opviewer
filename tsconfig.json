@@ -18,10 +18,11 @@
     "baseUrl": "src",
     "paths": {
       "@app/*": ["app/*"],
-      "@reports/*": ["app/layout/reports/*"],
-      "@longterm/*": ["app/layout/reports/longterm/*"],
+      "@dashboard/*": ["app/layout/dashboard/*"],
       "@dpr/*": ["app/layout/reports/dpr/*"],
-      "@dashboard/*": ["app/layout/dashboard/*"]
+      "@env/*": ["environments/*"],
+      "@longterm/*": ["app/layout/reports/longterm/*"],
+      "@reports/*": ["app/layout/reports/*"]
     }
   }
 }

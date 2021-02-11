@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AlertService } from '@app/supportModules/alert.service';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput, IUploadProgress } from 'ngx-uploader-directive';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-file-upload',
@@ -21,13 +22,14 @@ export class FileUploadComponent {
     maxFilesToAddInSingleRequest: 10,
     maxFileUploads: 5,
     maxFileSize: 10e6,
-    logs: true
+    logs: false // Enable during development only
   };
   public filename: string;
   public files = new Array<ISelectedFile>();
   public uploadInput = new EventEmitter<IUploadInput>();
+  public uploadCompleted = false;
   private dragOver: boolean;
-  private uploadUrl = 'http://localhost:8080/uploadFile';
+  private uploadUrl = environment.FIlE_UPLOAD_IP + '/api/upload/hullLines';
   private formData = [];
 
   /**
@@ -36,7 +38,6 @@ export class FileUploadComponent {
   constructor(
     private alert: AlertService
   ) {
-    // console.log(this)
   }
 
   public get hasFiles() {
@@ -49,7 +50,7 @@ export class FileUploadComponent {
  */
   onUploadOutput(output: IUploadOutput): void {
     // if (output.type != 'dragOver') {
-    //   console.log(output);
+    //   console.log(`Event: ${output.type}`);
     // }
     switch (output.type) {
       case 'dragOver':
@@ -64,14 +65,20 @@ export class FileUploadComponent {
         }
         break;
       case 'addedToQueue':
+        this.uploadCompleted = false;
         this.files = this.files.concat(output.files);
         this.filename = this.files[0].name;
         break;
       case 'start':
         // uploading start
+        this.alert.sendAlert({text: 'Uploading...', type: 'primary'})
         break;
       case 'uploading':
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
+        break;
+      case 'error':
+        console.error(output)
+        this.alert.sendAlert({text: 'Upload failed! ' + output.response.statusText, type: 'danger'});
         break;
       case 'rejected':
         this.alert.sendAlert({text: 'File too large!', type: 'warning'});
@@ -91,6 +98,7 @@ export class FileUploadComponent {
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         this.alert.sendAlert({text: 'File uploaded!', type: 'success'});
         this.fileUploadComplete.emit(output.files[0].name)
+        this.uploadCompleted = true;
         break;
     }
   }
@@ -141,6 +149,7 @@ export class FileUploadComponent {
       this.formData.push({'fileHasHeader': 'false'});
       this.formData.push({'delimiter': ','});
 
+      // ToDo: 
       const event: IUploadInput = {
         type: 'uploadAll',
         inputReferenceNumber: Math.random(),
@@ -149,7 +158,7 @@ export class FileUploadComponent {
         data: {
           foo: 'bar'
         },
-        headers: { Authorization: 'bearer ' + 'aetklsndfl' }
+        headers: { Authorization: localStorage.getItem('token')}
       };
 
       this.uploadInput.emit(event);
@@ -167,6 +176,8 @@ export class FileUploadComponent {
    * @param requestId RequestId.
    */
   cancelUpload(requestId: string): void {
+    console.log('CANCEL_UPLOAD');
+    console.log(requestId);
     this.uploadInput.emit({ type: 'cancel', inputReferenceNumber: Math.random(), requestId });
   }
 
@@ -175,6 +186,7 @@ export class FileUploadComponent {
    * @param requestId Request id
    */
   removeFile(requestId: string): void {
+    console.log('REMOVE_FILE');
     console.log(requestId);
     this.uploadInput.emit({ type: 'remove', inputReferenceNumber: Math.random(), requestId });
   }
@@ -188,7 +200,6 @@ export class FileUploadComponent {
 
   public printFileSize(file: ISelectedFile) {
     let sz = file.nativeFile.size;
-    console.log(file)
     if (sz < 1e3) {
       return '1kb'
     } else if (sz < 1e6) {
