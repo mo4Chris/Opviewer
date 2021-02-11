@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ViewChild, NgZone, } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy, NgZone, } from '@angular/core';
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';

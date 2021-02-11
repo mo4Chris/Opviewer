@@ -9,7 +9,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@app/auth.service';
 import { UserTestService } from '@app/shared/services/test.user.service';
-import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
 describe('SetPasswordComponent', () => {

@@ -37,7 +37,9 @@ import { environment } from 'environments/environment';
     PlotlyViaCDNModule,
     SupportModelModule,
     DprMapModule,
-    AgmCoreModule,
+    AgmCoreModule.forRoot({
+      apiKey: environment.GOOGLE_API_KEY
+  }),
   ],
   providers: [
     CalculationService,

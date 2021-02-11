@@ -27,7 +27,7 @@ describe('DprMapComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        AgmCoreModule,
+        AgmCoreModule.forRoot(),
         AutosizeModule,
         NgbModule
       ],

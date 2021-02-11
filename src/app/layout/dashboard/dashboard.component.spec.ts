@@ -27,7 +27,7 @@ describe('DashboardComponent', () => {
       imports: [
         CommonModule,
         HttpClientModule,
-        AgmCoreModule,
+        AgmCoreModule.forRoot(),
         AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,
         NgbModule,

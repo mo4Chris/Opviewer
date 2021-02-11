@@ -27,7 +27,9 @@ import { environment } from 'environments/environment';
         NgbCarouselModule,
         NgbAlertModule,
         DashboardRoutingModule,
-        AgmCoreModule,
+        AgmCoreModule.forRoot({
+            apiKey: environment.GOOGLE_API_KEY
+        }),
         AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,
         StatModule,
