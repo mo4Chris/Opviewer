@@ -75,6 +75,9 @@ export function testEmptyTooltips(getFixture: () => ComponentFixture<any>) {
     await fixture.whenStable();
     let elt: HTMLElement = fixture.nativeElement;
     let hoverDivs: NodeListOf<HTMLDivElement> = elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
+
+    if (hoverDivs == null || hoverDivs.length == 0) expect(true).toBe(true); // Hide warnings about no spec
+
     hoverDivs.forEach(helper => {
       helper.dispatchEvent(new MouseEvent('mouseenter'))
       let window = elt.querySelector('ngb-tooltip-window div.tooltip-inner')

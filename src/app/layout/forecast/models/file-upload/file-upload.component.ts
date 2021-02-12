@@ -3,6 +3,8 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput, IUploadProgress } from 'ngx-uploader-directive';
 import { environment } from '@env/environment';
 
+const DEBUG: boolean = false;
+
 @Component({
   selector: 'app-file-upload',
   templateUrl: './file-upload.component.html',
@@ -41,7 +43,7 @@ export class FileUploadComponent {
   }
 
   public get hasFiles() {
-    return this.files && this.files.length > 0
+    return Array.isArray(this.files) && this.files.length > 0
   }
 
   /**
@@ -49,9 +51,9 @@ export class FileUploadComponent {
  * @param output IUploadOutput Model on output.
  */
   onUploadOutput(output: IUploadOutput): void {
-    // if (output.type != 'dragOver') {
-    //   console.log(`Event: ${output.type}`);
-    // }
+    if (DEBUG==true && output.type != 'dragOver') {
+      console.log(`Event: ${output.type}`);
+    }
     switch (output.type) {
       case 'dragOver':
         this.dragOver = true;
@@ -60,9 +62,8 @@ export class FileUploadComponent {
         this.files = new Array<ISelectedFile>();
         break;
       case 'allAddedToQueue':
-        if (this.uploadOnDrop) {
-          this.startUpload();
-        }
+        this.uploadCompleted = false;
+        if (this.uploadOnDrop) this.startUpload();
         break;
       case 'addedToQueue':
         this.uploadCompleted = false;
@@ -71,6 +72,7 @@ export class FileUploadComponent {
         break;
       case 'start':
         // uploading start
+        if (this.alert.active) this.alert.clear();
         this.alert.sendAlert({text: 'Uploading...', type: 'primary'})
         break;
       case 'uploading':
@@ -78,16 +80,20 @@ export class FileUploadComponent {
         break;
       case 'error':
         console.error(output)
-        this.alert.sendAlert({text: 'Upload failed! ' + output.response.statusText, type: 'danger'});
+        this.alert.sendAlert({text: 'Upload failed!', type: 'danger'});
+        this.reset();
         break;
       case 'rejected':
         this.alert.sendAlert({text: 'File too large!', type: 'warning'});
+        this.reset();
         break;
       case 'removed':
         this.files = this.updateFiles(this.files, output.files, output.progress, 'REMOVE');
+        this.filename = null;
         break;
       case 'removedAll':
         this.files = new Array<ISelectedFile>();
+        this.filename = null;
         break;
       case 'dragOut':
       case 'drop':
@@ -116,26 +122,21 @@ export class FileUploadComponent {
     progress: IUploadProgress,
     action: 'REMOVE' | 'UPDATE'
   ) {
-    if (updatedFiles !== undefined) {
-      if (action === 'UPDATE') {
-        updatedFiles.forEach(updateFile => {
-          currentFiles.forEach(
-            (currentFile, currentFileIndex, currentFilesArray) => {
-              if (currentFile.name === updateFile.name) {
-                currentFilesArray[currentFileIndex] = updateFile;
-                if (progress !== undefined) {
-                  currentFilesArray[currentFileIndex].progress = progress;
-                }
-              }
-            }
-          );
+    if (updatedFiles == undefined) return currentFiles;
+    if (action === 'UPDATE') {
+      updatedFiles.forEach(updateFile => {
+        currentFiles.forEach((currentFile, currentFileIndex, currentFilesArray) => {
+          if (currentFile.name === updateFile.name) {
+            if (progress !== undefined) updateFile.progress = progress
+            currentFilesArray[currentFileIndex] = updateFile;
+          }
         });
-      } else if (action === 'REMOVE') {
-        if (updatedFiles.length > 0) {
-          currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
-        } else {
-          currentFiles = updatedFiles;
-        }
+      });
+    } else if (action === 'REMOVE') {
+      if (updatedFiles.length > 0) {
+        currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
+      } else {
+        currentFiles = updatedFiles;
       }
     }
     return currentFiles;
@@ -152,12 +153,8 @@ export class FileUploadComponent {
       // ToDo: 
       const event: IUploadInput = {
         type: 'uploadAll',
-        inputReferenceNumber: Math.random(),
         url: this.uploadUrl,
         method: 'POST',
-        data: {
-          foo: 'bar'
-        },
         headers: { Authorization: localStorage.getItem('token')}
       };
 
@@ -172,33 +169,18 @@ export class FileUploadComponent {
   }
 
   /**
-   * Cancel file uploads.
-   * @param requestId RequestId.
-   */
-  cancelUpload(requestId: string): void {
-    console.log('CANCEL_UPLOAD');
-    console.log(requestId);
-    this.uploadInput.emit({ type: 'cancel', inputReferenceNumber: Math.random(), requestId });
-  }
-
-  /**
-   * Remoce files.
-   * @param requestId Request id
-   */
-  removeFile(requestId: string): void {
-    console.log('REMOVE_FILE');
-    console.log(requestId);
-    this.uploadInput.emit({ type: 'remove', inputReferenceNumber: Math.random(), requestId });
-  }
-
-  /**
    * Remoce all file uploads.
    */
   removeAllFiles(): void {
-    this.uploadInput.emit({ type: 'removeAll', inputReferenceNumber: Math.random() });
+    this.uploadInput.emit({ type: 'removeAll' });
+  }
+
+  private reset() {
+    this.removeAllFiles();
   }
 
   public printFileSize(file: ISelectedFile) {
+    // ToDo: move this to some sort of service
     let sz = file.nativeFile.size;
     if (sz < 1e3) {
       return '1kb'
