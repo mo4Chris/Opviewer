@@ -12,7 +12,7 @@ import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
-fdescribe('SetPasswordComponent', () => {
+describe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;
   let fixture: ComponentFixture<SetPasswordComponent>;
   const userToken = UserTestService.getMockedAccessToken();
