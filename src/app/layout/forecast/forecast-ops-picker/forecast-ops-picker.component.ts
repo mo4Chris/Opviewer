@@ -38,7 +38,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     return Boolean(this.selectedProject)
   }
 
-  ngOnChanges(change?: SimpleChanges) {
+  ngOnChanges(change: SimpleChanges = {}) {
     const operationIds = this.projects ? this.projects.map(op => op.id) : [];
     console.log(operationIds)
     if (!this.selectedProject || (this.selectedProject.id in operationIds)) {

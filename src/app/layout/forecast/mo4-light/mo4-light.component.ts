@@ -1,10 +1,11 @@
 import { Component, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
   
@@ -14,13 +15,13 @@ import { ForecastResponseService } from '../models/forecast-response.service';
   templateUrl: './mo4-light.component.html',
   styleUrls: ['./mo4-light.component.scss']
 })
-export class Mo4LightComponent implements OnInit, OnChanges {
-    client_id = 2; // This should be made dynamic
+export class Mo4LightComponent implements OnInit {
+    private client_id: number;
+    private project_id: number;
     
-    selectedVesselId = 1;
     public showContent = false;
-    public vessels: string[] = [];
-    public operations: ForecastOperation[] = [];
+    public vessels: string[] = []; // Not used
+    public operations: ForecastOperation[] = []; // Change to projects?
     public response: ForecastResponseObject;
 
     public ReponseTime: Date[];
@@ -47,22 +48,29 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       private routeService: RouterService,
       private responseService: ForecastResponseService,
       private matService: MatrixService,
+      private route: ActivatedRoute,
     ) {
     }
   
     ngOnInit() {
-      this.loadData()
+      this.initRoute().subscribe(() => {
+        this.loadData();
+      });
     }
-  
-    ngOnChanges() {
 
+    initRoute() {
+      return this.route.params.pipe(map(params => {
+        if (!params.project_id) return this.routeService.routeToForecast();
+        this.project_id = parseInt(params.project_id);
+      }))
     }
   
     loadData() {
+      // ToDo: we should only get the project list once
       forkJoin([
         this.newService.getForecastProjectList(),
-        this.newService.getForecastVesselList(),
-        this.newService.getForecastWorkabilityForProject(3),
+        this.newService.getForecastVesselList(), // Tp
+        this.newService.getForecastWorkabilityForProject(this.project_id),
       ]).subscribe(([projects, vessels, responses]) => {
         this.vessels = vessels;
         this.response = responses[0];
@@ -79,6 +87,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     setLimitsFromOpsPreference(op: ForecastOperation) {
+      // Service?
       this.limits = [];
       let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
       for (let dof in Object.keys(dofPreference)) {
@@ -100,8 +109,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     onTimeChange() {
-      console.log('Testing time change')
-      console.log(this.date)
       if ( this.date
         && inRange(this.startTimeInput.hour, 0, 24)
         && inRange(this.startTimeInput.mns, 0, 59)
@@ -109,7 +116,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         && inRange(this.stopTimeInput.mns, 0, 59)
       ) {
         const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
-        console.log('Emitting time change', matlabDate)
         this.startTime = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
         this.stopTime = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
         const duration = this.stopTime - this.startTime;
@@ -135,6 +141,8 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         let headingIdx = this.getHeadingIdx(POI.Heading);
         // this.workabilityAlongSelectedHeading = this.workability.map(row => row[headingIdx]);
         this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
+      } else {
+        this.Workability = null
       }
     }
   

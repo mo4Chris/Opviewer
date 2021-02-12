@@ -1,10 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PlotComponent, PlotlyModule } from 'angular-plotly.js';
+import { PlotComponent } from 'angular-plotly.js';
 import { MockComponents } from 'ng-mocks';
-
 import { HeadingPickerComponent } from './heading-picker.component';
 
 describe('HeadingPickerComponent', () => {
@@ -19,11 +15,6 @@ describe('HeadingPickerComponent', () => {
           PlotComponent
         )
       ],
-      imports: [
-        CommonModule,
-        NgbModule,
-        FormsModule,
-      ]
     })
     .compileComponents();
   }));
@@ -48,23 +39,21 @@ describe('HeadingPickerComponent', () => {
     expect(canvas).toBeTruthy(); // Note: ploty itself is mocked!
   });
 
-  it('should trigger plot redraw on confirm', () => {
+  it('should trigger plot redraw on update', () => {
     let spy = spyOn(component, 'updatePolarPlot')
-    let select = fixture.nativeElement.querySelector('button');
-    select.dispatchEvent(new Event('click'));
-    fixture.detectChanges();
+    component.heading = 10;
+    component.ngOnChanges();
     expect(spy).toHaveBeenCalled();
   })
 
-  it('should emit on change', async(() => {
-    let emitter = spyOn(component.headingChange, 'emit');
-    component.heading = 234;
-    fixture.detectChanges();
-    component.ngOnChanges();
-
-    let select = fixture.nativeElement.querySelector('button');
-    select.dispatchEvent(new Event('click'));
-    fixture.detectChanges();
-    expect(emitter).toHaveBeenCalled();
-  }))
+  // it('should emit on change', async(() => {
+  //   let emitter = spyOn(component.headingChange, 'emit');
+  //   component.heading = 234;
+  //   fixture.detectChanges();
+  //   component.ngOnChanges();
+  //   let select = fixture.nativeElement.querySelector('button');
+  //   select.dispatchEvent(new Event('click'));
+  //   fixture.detectChanges();
+  //   expect(emitter).toHaveBeenCalled();
+  // }))
 });
