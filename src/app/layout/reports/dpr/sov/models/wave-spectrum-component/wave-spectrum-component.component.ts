@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ApplicationRef, ChangeDetectorRef } from '@angular/core';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
-import { PlotlyModule } from 'angular-plotly.js';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
@@ -8,7 +7,6 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { isArray } from 'util';
 import { routerTransition } from '@app/router.animations';
 
-PlotlyModule.plotlyjs = PlotlyJS;
 
 @Component({
   selector: 'app-wave-spectrum-component',
