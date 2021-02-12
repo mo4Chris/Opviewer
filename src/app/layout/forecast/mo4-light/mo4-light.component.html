@@ -1,12 +1,13 @@
 <div *ngIf="showContent; else loading">
-  <div class="row center">
+  <div class="row center font-sm">
     <div class="col-lg-12 col-xl-4">
       <div class='card mb-3'>
         <div class='card-header'>
-          Operation overview
+          Project overview
         </div>
         <div class='card-body table-responsive'>
-          <app-forecast-ops-picker [operations]="operations" [(selectedOperation)]="selectedOperation">
+          <app-forecast-ops-picker [projects]="operations" [(selectedProject)]="selectedOperation"
+            [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate">
           </app-forecast-ops-picker>
 
           <app-heading-picker class="center" [(heading)]="selectedHeading">

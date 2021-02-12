@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
@@ -9,54 +10,59 @@ import { ForecastLimit, ForecastOperation } from '../models/forecast-response.mo
   styleUrls: ['./forecast-ops-picker.component.scss']
 })
 export class ForecastOpsPickerComponent implements OnChanges {
-  @Input() operations: ForecastOperation[] = [];
-  @Input() selectedOperation: ForecastOperation;
-  @Output() selectedOperationChange: EventEmitter<ForecastOperation> = new EventEmitter();
+  @Input() projects: ForecastOperation[] = [];
+  @Input() selectedProject: ForecastOperation;
+  @Input() minForecastDate: YMD;
+  @Input() maxForecastDate: YMD;
+  @Output() selectedProjectChange: EventEmitter<ForecastOperation> = new EventEmitter();
+  @Output() operationSettings = new EventEmitter<ForecastOperationSettings>()
 
-  public date: string;
+  public date: YMD;
+  public projectStartDate: string;
+  public projectStopDate: string;
   public startTime: string;
   public stopTime: string;
   public startTimeInput = {hour: null, mns: null}
   public stopTimeInput = {hour: null, mns: null}
-  public minForecastDate: any;
-  public maxForecastDate: any;
   public limits: ForecastLimit[] = [];
   public heading = 0;
 
   constructor(
     private dateService: DatetimeService,
     public gps: GpsService,
+    public permission: PermissionService,
   ) {
   }
 
   public get hasSelectedOperation() {
-    return Boolean(this.selectedOperation)
+    return Boolean(this.selectedProject)
   }
 
-  ngOnChanges() {
-    let opsIds = this.operations ? this.operations.map(op => op.id) : [];
-    if (!this.selectedOperation || (this.selectedOperation.id in opsIds)) {
-      this.selectedOperation = this.operations ? this.operations[0] : null;
+  ngOnChanges(change?: SimpleChanges) {
+    const operationIds = this.projects ? this.projects.map(op => op.id) : [];
+    console.log(operationIds)
+    if (!this.selectedProject || (this.selectedProject.id in operationIds)) {
+      this.selectedProject = this.projects ? this.projects[0] : null;
     }
-    if (this.selectedOperation) {
-      this.onNewSelectedOperation();
-    }
+    console.log('this.selectedProject', this.selectedProject)
+    if (this.selectedProject) this.onNewSelectedOperation();
+    if (change.minForecastDate) this.date = this.minForecastDate;
   }
   onNewSelectedOperation() {
-    this.startTime = this.formatTime(this.selectedOperation.activation_start_date)
-    this.stopTime = this.formatTime(this.selectedOperation.activation_end_date)
-  }
-  onChange() {
-    this.selectedOperationChange.emit(this.selectedOperation);
-    this.onNewSelectedOperation();
+    this.projectStartDate = this.formatTime(this.selectedProject.activation_start_date)
+    this.projectStopDate = this.formatTime(this.selectedProject.activation_end_date);
   }
 
-  formatTime(t: string) {
+  private formatTime(t: string) {
     return this.dateService.isoStringToDmyString(t);
   }
 
-  public onConfirm () {
-    this.heading = Math.max(Math.min(this.heading, 360), 0);
+  public onOpsChange() {
+    this.selectedProjectChange.emit(this.selectedProject);
+    this.onNewSelectedOperation();
+  }
+  public onTimeChange() {
+
   }
   public onAddLimitsLine() {
     this.limits.push({
@@ -68,4 +74,27 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public onRemoveLimitsLine() {
     this.limits.pop();
   }
+  public onConfirm () {
+    this.heading = Math.max(Math.min(this.heading, 360), 0);
+    this.operationSettings.emit({
+      heading: this.heading,
+      startTime: +this.startTime,
+      stopTime: +this.stopTime,
+      limits: this.limits,
+    })
+  }
+}
+
+
+interface YMD {
+  year: number;
+  month: number;
+  day: number;
+}
+
+interface ForecastOperationSettings {
+  heading: number;
+  startTime: number;
+  stopTime: number;
+  limits: any;
 }

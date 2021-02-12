@@ -8,7 +8,7 @@ import { ForecastWorkabilityPlotComponent } from '../../models/forecast-workabil
 import { SurfacePlotComponent } from '../../models/surface-plot/surface-plot.component';
 import { ForecastWorkabilityComponent } from './forecast-workability.component';
 
-describe('ForecastWorkabilityComponent', () => {
+xdescribe('ForecastWorkabilityComponent', () => {
   let component: ForecastWorkabilityComponent;
   let fixture: ComponentFixture<ForecastWorkabilityComponent>;
   let calc = new CalculationService()

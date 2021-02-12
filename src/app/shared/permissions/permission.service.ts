@@ -34,6 +34,7 @@ abstract class PermissionModel {
 
   // Forecast
   forecastRead = false;
+  forecastChangeLimits = false;
 }
 
 
@@ -125,6 +126,7 @@ class AdminPermission extends PermissionModel {
   userManage = true;
 
   forecastRead = true;
+  forecastChangeLimits = true;
 }
 
 class VesselMaster extends PermissionModel {
