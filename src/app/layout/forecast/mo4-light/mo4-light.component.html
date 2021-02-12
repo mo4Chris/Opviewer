@@ -1,6 +1,6 @@
 <div *ngIf="showContent; else loading">
   <div class="row center">
-    <div class="col-md-12 col-lg-4 col-xl-3 max-card">
+    <div class="col-lg-12 col-xl-4">
       <div class='card mb-3'>
         <div class='card-header'>
           Operation overview
@@ -15,18 +15,14 @@
       </div>
     </div>
 
-    <div class="col-md-12 col-lg-5 col-xl-9" *ngIf="Workability">
-      <div style="min-width: 70px;">
-        <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-          [startTime]="startTime" [stopTime]="stopTime">
-        </app-forecast-workability-plot>
-      </div>
+    <div class="col-lg-12 col-xl-8" *ngIf="Workability">
+      <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+        [startTime]="startTime" [stopTime]="stopTime">
+      </app-forecast-workability-plot>
 
-      <div style="min-width: 70px;">
-        <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
-          [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
-        </app-surface-plot>
-      </div>
+      <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
+        [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+      </app-surface-plot>
     </div>
   </div>
 </div>
