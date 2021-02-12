@@ -8,7 +8,6 @@ import { SharedPipesModule } from '@app/shared';
 import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovHseDprInputReadonlyComponent', () => {
   let component: SovHseDprInputReadonlyComponent;
@@ -24,7 +23,6 @@ describe('SovHseDprInputReadonlyComponent', () => {
         NgbAlertModule,
         SupportModelModule,
         NgbModule,
-        HttpClientModule
       ],
       declarations: [ SovHseDprInputReadonlyComponent ],
       providers: [

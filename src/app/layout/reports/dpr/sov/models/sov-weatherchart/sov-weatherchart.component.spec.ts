@@ -5,7 +5,6 @@ import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportMo
 import { SovModel } from '../SovModel';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovWeatherchartComponent', () => {
   let component: SovWeatherchartComponent;
@@ -17,7 +16,6 @@ describe('SovWeatherchartComponent', () => {
       imports: [
         NgbModule,
         SupportModelModule,
-        HttpClientModule,
       ],
       declarations: [
         SovWeatherchartComponent

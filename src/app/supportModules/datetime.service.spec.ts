@@ -5,7 +5,6 @@ import * as moment from 'moment-timezone';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 import { SettingsService } from './settings.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('DatetimeService', () => {
   let service: DatetimeService;
@@ -16,12 +15,10 @@ describe('DatetimeService', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
-      ], imports : [
-        HttpClientModule
-      ]
+      ], imports : []
     });
-    service = TestBed.get(DatetimeService);
-    settings = TestBed.get(SettingsService);
+    service = TestBed.inject(DatetimeService);
+    settings = TestBed.inject(SettingsService);
   });
 
   it('should be created', () => {

@@ -8,7 +8,6 @@ import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportMo
 import { SharedPipesModule } from '@app/shared';
 import { AgmCoreModule } from '@agm/core';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovV2vTransfersComponent', () => {
   let component: SovV2vTransfersComponent;
@@ -24,7 +23,6 @@ describe('SovV2vTransfersComponent', () => {
         NgMultiSelectDropDownModule,
         AgmCoreModule,
         SharedPipesModule,
-        HttpClientModule,
       ],
       declarations: [ SovV2vTransfersComponent ],
       providers: [

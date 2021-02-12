@@ -8,7 +8,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('UserSettingsComponent', () => {
   let component: UserSettingsComponent;
@@ -25,7 +24,6 @@ describe('UserSettingsComponent', () => {
         BrowserAnimationsModule,
         NgMultiSelectDropDownModule,
         SharedPipesModule,
-        HttpClientModule
       ],
       declarations: [ UserSettingsComponent ],
       providers: [

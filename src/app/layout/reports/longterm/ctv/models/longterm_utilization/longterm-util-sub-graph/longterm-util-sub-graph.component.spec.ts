@@ -3,7 +3,6 @@ import { MockedUserServiceProvider } from '@app/shared/services/test.user.servic
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { CtvUtilizationGraphComponent } from '../utilizationGraph.component';
 import { CtvLongtermUtilSubGraphComponent } from './longterm-util-sub-graph.component';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('CtvLongtermUtilSubGraphComponent', () => {
   let component: CtvLongtermUtilSubGraphComponent;
@@ -11,9 +10,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientModule
-      ],
+      imports: [],
       declarations: [
         CtvLongtermUtilSubGraphComponent,
         CtvUtilizationGraphComponent,

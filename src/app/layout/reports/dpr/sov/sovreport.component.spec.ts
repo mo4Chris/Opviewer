@@ -30,7 +30,6 @@ import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.com
 import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
 import { MockComponent, MockComponents } from 'ng-mocks';
 import { DprMapComponent } from '../map/dpr-map/dpr-map.component';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovreportComponent', () => {
   let component: SovreportComponent;
@@ -52,7 +51,6 @@ describe('SovreportComponent', () => {
         AutosizeModule,
         SupportModelModule,
         PlotlyViaCDNModule,
-        HttpClientModule,
       ],
       declarations: [
         SovreportComponent,

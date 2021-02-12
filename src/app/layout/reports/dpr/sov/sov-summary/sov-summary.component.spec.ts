@@ -8,7 +8,6 @@ import { SovModel } from '../models/SovModel';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { SummaryModel } from '../models/Summary';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovSummaryComponent', () => {
   let component: SovSummaryComponent;
@@ -20,7 +19,6 @@ describe('SovSummaryComponent', () => {
       imports: [
         NgbModule,
         CommonModule,
-        HttpClientModule
       ],
       declarations: [ SovSummaryComponent ],
       providers: [

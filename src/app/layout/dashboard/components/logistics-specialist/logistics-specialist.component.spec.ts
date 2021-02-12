@@ -5,7 +5,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('Dashboard logistic specialist', () => {
   let component: LogisticsSpecialistComponent;
@@ -19,7 +18,6 @@ describe('Dashboard logistic specialist', () => {
         CommonModule,
         RouterTestingModule,
         NgbModule,
-        HttpClientModule,
       ],
       providers: [
         MockedCommonServiceProvider,

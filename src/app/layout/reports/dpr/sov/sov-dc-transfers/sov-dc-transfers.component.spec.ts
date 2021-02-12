@@ -7,7 +7,6 @@ import { MockedUserServiceProvider, UserTestService } from '@app/shared/services
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { mockedObservable } from '@app/models/testObservable';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovDcTransfersComponent', () => {
   let component: SovDcTransfersComponent;
@@ -20,7 +19,6 @@ describe('SovDcTransfersComponent', () => {
         CommonModule,
         NgbModule,
         FormsModule,
-        HttpClientModule,
       ],
       providers: [
         MockedCommonServiceProvider,

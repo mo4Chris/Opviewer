@@ -15,7 +15,6 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { MockComponents } from 'ng-mocks';
 import { DprMapComponent } from '../../map/dpr-map/dpr-map.component';
 import { execPath } from 'process';
-import { HttpClientModule } from '@angular/common/http';
 
 
 describe('CtvReportComponent', () => {
@@ -58,7 +57,6 @@ describe('CtvReportComponent', () => {
         CommonModule,
         PageHeaderModule,
         SharedPipesModule,
-        HttpClientModule,
       ],
       declarations: [
         CtvreportComponent,

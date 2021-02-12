@@ -7,7 +7,6 @@ import { SharedPipesModule } from '@app/shared';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('SovHseDprInputVesselmasterComponent', () => {
   let component: SovHseDprInputVesselmasterComponent;
@@ -21,7 +20,6 @@ describe('SovHseDprInputVesselmasterComponent', () => {
         ReactiveFormsModule,
         SharedPipesModule,
         SupportModelModule,
-        HttpClientModule,
       ],
       declarations: [ SovHseDprInputVesselmasterComponent ],
       providers: [

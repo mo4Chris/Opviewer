@@ -4,7 +4,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
-import { HttpClientModule } from '@angular/common/http';
 
 describe('VesselMasterComponent', () => {
   let component: VesselMasterComponent;
@@ -17,7 +16,6 @@ describe('VesselMasterComponent', () => {
       imports: [
         RouterTestingModule,
         NgbModule,
-        HttpClientModule,
       ],
       providers: [
         MockedCommonServiceProvider,
