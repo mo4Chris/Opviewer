@@ -87,12 +87,14 @@
       </ng-template>
     </ngb-tab>
 
-    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">
+    <!--  Currently commented out as function is not working as expected
+    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">   
       <ng-template ngbTabContent>
         <br>
         <app-wave-spectrum-component [vesselObject]="vesselObject"></app-wave-spectrum-component>
       </ng-template>
     </ngb-tab>
+    -->
 
   </ngb-tabset>
 </div>
