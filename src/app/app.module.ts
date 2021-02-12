@@ -17,6 +17,9 @@ import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'environments/environment';
 
+PlotlyViaCDNModule.plotlyVersion = 'latest';
+PlotlyViaCDNModule.plotlyBundle = 'basic';
+
 
 // AoT requires an exported function for factories
 export function createTranslateLoader(http: HttpClient) {
