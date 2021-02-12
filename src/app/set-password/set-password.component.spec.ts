@@ -12,7 +12,7 @@ import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
-describe('SetPasswordComponent', () => {
+fdescribe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;
   let fixture: ComponentFixture<SetPasswordComponent>;
   const userToken = UserTestService.getMockedAccessToken();
@@ -47,4 +47,31 @@ describe('SetPasswordComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should create link for QR code', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    fixture.detectChanges();
+    expect(component.QRCode).toBe('otpauth://totp/' + userToken.username + '?secret=' + 'test123' + '&issuer=BMO%20Dataviewer');
+  });
+
+  it('should create QRCode', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    component.initiate2fa = true;
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('#QRCodeMain')).toBeTruthy();
+  });
+
+  it('should not create QRCode', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    component.initiate2fa = false;
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('#QRCodeMain')).toBeNull();
+  });
+  
+
 });
