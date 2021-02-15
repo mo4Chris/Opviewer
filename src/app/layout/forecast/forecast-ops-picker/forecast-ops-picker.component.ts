@@ -14,8 +14,10 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Input() selectedProject: ForecastOperation;
   @Input() minForecastDate: YMD;
   @Input() maxForecastDate: YMD;
+  @Input() heading = 0;
   @Output() selectedProjectChange: EventEmitter<ForecastOperation> = new EventEmitter();
   @Output() operationSettings = new EventEmitter<ForecastOperationSettings>()
+  @Output() headingChange = new EventEmitter<number>();
 
   public date: YMD;
   public projectStartDate: string;
@@ -25,7 +27,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public startTimeInput = {hour: null, mns: null}
   public stopTimeInput = {hour: null, mns: null}
   public limits: ForecastLimit[] = [];
-  public heading = 0;
 
   constructor(
     private dateService: DatetimeService,
@@ -82,6 +83,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
       stopTime: +this.stopTime,
       limits: this.limits,
     })
+    this.headingChange.emit(this.heading);
   }
 }
 
