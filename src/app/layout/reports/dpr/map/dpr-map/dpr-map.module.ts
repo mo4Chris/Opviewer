@@ -10,8 +10,8 @@ import { environment } from 'environments/environment';
   imports: [
     CommonModule,
     AgmCoreModule.forRoot({
-        apiKey: environment.GOOGLE_API_KEY
-    }),
+      apiKey: environment.GOOGLE_API_KEY
+  }),
     AutosizeModule,
     NgbModule,
   ],

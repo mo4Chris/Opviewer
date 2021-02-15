@@ -21,7 +21,7 @@ export class CtvLongtermUtilSubGraphComponent implements OnChanges {
     }[],
   };
 
-  @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas', { static: true }) canvas: ElementRef<HTMLCanvasElement>;
 
   public hasData = false;
   public isFirstGraph = false;

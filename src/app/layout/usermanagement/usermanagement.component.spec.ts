@@ -10,7 +10,6 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CommonService } from '../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpModule } from '@angular/http';
 import { UserService } from '../../shared/services/user.service';
 import { UserTestService } from '../../shared/services/test.user.service';
 import { mockedObservable } from '../../models/testObservable';
@@ -26,11 +25,11 @@ describe('UsermanagementComponent', () => {
       imports: [
         FormsModule,
         PageHeaderModule,
-        NgbModule.forRoot(),
-        NgMultiSelectDropDownModule.forRoot(),
+        NgbModule,
+        NgMultiSelectDropDownModule,
         RouterTestingModule,
         BrowserAnimationsModule,
-        HttpModule
+        HttpClientModule
       ],
         declarations: [UserManagementComponent ],
         providers: [MockedCommonServiceProvider],

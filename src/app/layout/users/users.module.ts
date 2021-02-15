@@ -17,7 +17,7 @@ import { UserService } from '../../shared/services/user.service';
         HttpClientModule,
         FormsModule,
         UsersRoutingModule,
-        NgbModule.forRoot(),
+        NgbModule,
         PageHeaderModule],
     declarations: [UsersComponent],
     providers: [CommonService, UserService],

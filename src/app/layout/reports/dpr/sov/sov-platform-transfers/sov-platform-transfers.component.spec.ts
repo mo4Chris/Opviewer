@@ -22,7 +22,7 @@ describe('SovPlatformTransfersComponent', () => {
         CommonModule,
         FormsModule,
         NgMultiSelectDropDownModule,
-        SharedPipesModule
+        SharedPipesModule,
       ],
       declarations: [ SovPlatformTransfersComponent ],
       providers: [

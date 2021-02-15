@@ -22,7 +22,7 @@ import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse
 import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-readonly/sov-dpr-input-readonly.component';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
 import { AutosizeModule } from 'ngx-autosize';
-import { PlotlyModule } from 'angular-plotly.js';
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SimpleChange } from '@angular/core';
@@ -39,7 +39,7 @@ describe('SovreportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        AgmCoreModule.forRoot(),
+        AgmCoreModule,
         FormsModule,
         ReactiveFormsModule,
         NgbModule,
@@ -50,7 +50,7 @@ describe('SovreportComponent', () => {
         RouterTestingModule,
         AutosizeModule,
         SupportModelModule,
-        PlotlyModule,
+        PlotlyViaCDNModule,
       ],
       declarations: [
         SovreportComponent,

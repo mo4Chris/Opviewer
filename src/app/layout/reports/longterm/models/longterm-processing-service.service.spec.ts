@@ -10,12 +10,12 @@ describe('LongtermProcessingService', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider
-      ]
+      ], imports: []
     });
   }));
 
   it('should be created', () => {
-    const service: LongtermProcessingService = TestBed.get(LongtermProcessingService);
+    const service: LongtermProcessingService = TestBed.inject(LongtermProcessingService);
     expect(service).toBeTruthy();
   });
 });

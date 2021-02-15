@@ -3,7 +3,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetRequestComponent } from './fleet-request.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '../../../shared';
@@ -23,13 +22,12 @@ describe('FleetRequestComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 NgbModule,
-                HttpModule,
                 HttpClientModule,
                 FormsModule,
                 PageHeaderModule,
                 RouterTestingModule,
                 BrowserAnimationsModule,
-                NgMultiSelectDropDownModule.forRoot(),
+                NgMultiSelectDropDownModule,
               ],
             providers: [MockedCommonServiceProvider],
             declarations: [FleetRequestComponent]

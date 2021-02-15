@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { WaveSpectrumComponentComponent } from './wave-spectrum-component.component';
-import { PlotlyModule } from 'angular-plotly.js';
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
@@ -12,7 +12,7 @@ describe('WaveSpectrumComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        PlotlyModule,
+        PlotlyViaCDNModule,
         SupportModelModule,
       ],
       declarations: [ WaveSpectrumComponentComponent ],

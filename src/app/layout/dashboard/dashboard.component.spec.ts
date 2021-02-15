@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
 
 import { AgmCoreModule } from '@agm/core';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
@@ -26,7 +26,7 @@ describe('DashboardComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        HttpModule,
+        HttpClientModule,
         AgmCoreModule.forRoot(),
         AgmJsMarkerClustererModule,
         AgmSnazzyInfoWindowModule,

@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy, ApplicationRef, ChangeDetectorRef } from '@angular/core';
-import * as colormap from 'colormap';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
-import { container } from '@angular/core/src/render3';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
@@ -9,28 +7,29 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { isArray } from 'util';
 import { routerTransition } from '@app/router.animations';
 
+
 @Component({
   selector: 'app-wave-spectrum-component',
   templateUrl: './wave-spectrum-component.component.html',
   styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
-
+  
   waveSpectrum: SovWaveSpectum;
   loaded = false;
-
   data: PlotlyJS.Data[] = [];
   frames: PlotlyJS.Frame[] = [];
   animateActive = false;
-
   useInterpolation = true;
   smoothFactor = 2;
   Kmax = 2.096; // Size of outer circle
   Kmin = 0.127; // Size of inner circle
-
+ 
   plotLayout = {
+   
     // General settings for the graph
     height: 600,
     width: 600,
@@ -48,6 +47,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       showgrid: false,
       zeroline: false,
     },
+    
     // All the annotations for the plot go here (ie. the north east south west signs)
     annotations: [{
       text: 'N',
@@ -87,6 +87,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       yanchor: 'top',
       name: 'source'
     }],
+    
     // Supportings shapes (ie. outer edge to hide the interpolation) go here
     shapes: [{
       type: 'circle',
@@ -117,6 +118,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       y1: 0,
       line: { width: 1 },
     }],
+    
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
     updatemenus: [{
@@ -194,7 +196,6 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       }
     });
   }
-
 
   parseSpectrum() {
     this.plotLayout.annotations.forEach(_annot => {
@@ -328,7 +329,6 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   //     execute: true,
   //   });
   // }
-
   // stopAnimation() {
   //   PlotlyJS.animate('SOV_waveSpectrum', [], {
   //     transition: {
@@ -340,7 +340,6 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
 
   onPlotlyInit(figure: { data: any, layout: any, frames: any }) {
     PlotlyJS.addFrames('SOV_waveSpectrum', this.frames);
-
     // This would be preferably be handled via the scss, but I couldnt make it work
     const svgs = <any>document.getElementsByClassName('svg-container');
     for (let _i = 0; _i < svgs.length; _i++) {
@@ -349,15 +348,11 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   }
 }
 
-
-
 export interface SovWaveSpectum {
   mmsi: number;
   date: number;
-
   time: number[];
   heading: number[];
   spectrum: number[][][];
-
   source: string;
 }

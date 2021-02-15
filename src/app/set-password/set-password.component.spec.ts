@@ -8,9 +8,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@app/auth.service';
-import { HttpModule } from '@angular/http';
 import { UserTestService } from '@app/shared/services/test.user.service';
-import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
 describe('SetPasswordComponent', () => {
@@ -27,7 +26,6 @@ describe('SetPasswordComponent', () => {
         RouterTestingModule,
         BrowserAnimationsModule,
         NgxQRCodeModule,
-        HttpModule,
       ],
       declarations: [ SetPasswordComponent ],
       providers: [ CommonService, AuthService ]
@@ -49,4 +47,31 @@ describe('SetPasswordComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should create link for QR code', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    fixture.detectChanges();
+    expect(component.QRCode).toBe('otpauth://totp/' + userToken.username + '?secret=' + 'test123' + '&issuer=BMO%20Dataviewer');
+  });
+
+  it('should create QRCode', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    component.initiate2fa = true;
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('#QRCodeMain')).toBeTruthy();
+  });
+
+  it('should not create QRCode', () => {
+    component.QRCode = '';
+    component.createQrCode();
+    component.initiate2fa = false;
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('#QRCodeMain')).toBeNull();
+  });
+  
+
 });

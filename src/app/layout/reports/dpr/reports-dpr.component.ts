@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 

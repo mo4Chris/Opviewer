@@ -8,7 +8,7 @@ import { UserTestService } from '../../../shared/services/test.user.service';
 import { UserService } from '../../../shared/services/user.service';
 import { CommonService } from '../../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { mockedObservable } from '../../../models/testObservable';
 import { MockedCommonService, MockedCommonServiceProvider } from '../../../supportModules/mocked.common.service';
@@ -40,7 +40,7 @@ describe('FleetAvailabilityComponent', () => {
         NgbModule,
         PageHeaderModule,
         RouterTestingModule,
-        HttpModule,
+        HttpClientModule,
         RouterTestingModule,
         BrowserAnimationsModule
       ],

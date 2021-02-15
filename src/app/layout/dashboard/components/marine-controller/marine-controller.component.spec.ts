@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -16,7 +16,7 @@ describe('Dashboard MarineController Component', () => {
     TestBed.configureTestingModule({
       declarations: [ MarineControllerComponent ],
       imports: [
-        HttpModule,
+        HttpClientModule,
         NgbModule,
         RouterTestingModule,
       ],

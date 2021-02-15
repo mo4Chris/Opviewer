@@ -8,8 +8,8 @@ import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
-import { Headers } from '@angular/http';
 import { getValueInRange } from '@ng-bootstrap/ng-bootstrap/util/util';
+import { Injectable } from '@angular/core';
 
 
 const emptyMatlabObject = {
@@ -17,6 +17,12 @@ const emptyMatlabObject = {
     _ArraySize_: [0, 0],
     _ArrayData_: null,
 };
+
+@Injectable( {
+    providedIn: 'root',
+})
+    
+
 
 export class MockedCommonService extends CommonService {
     constructor() {

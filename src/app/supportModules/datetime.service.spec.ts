@@ -15,10 +15,10 @@ describe('DatetimeService', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
-      ],
+      ], imports : []
     });
-    service = TestBed.get(DatetimeService);
-    settings = TestBed.get(SettingsService);
+    service = TestBed.inject(DatetimeService);
+    settings = TestBed.inject(SettingsService);
   });
 
   it('should be created', () => {

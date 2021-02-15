@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../models/SovModel';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
-import { HttpModule } from '@angular/http';
 import { SummaryModel } from '../models/Summary';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 

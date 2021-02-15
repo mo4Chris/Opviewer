@@ -29,7 +29,7 @@ describe('DprMapComponent', () => {
         CommonModule,
         AgmCoreModule.forRoot(),
         AutosizeModule,
-        NgbModule
+        NgbModule,
       ],
       declarations: [ DprMapComponent ],
       providers: [
