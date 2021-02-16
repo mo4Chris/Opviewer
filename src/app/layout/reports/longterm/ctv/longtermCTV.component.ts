@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild, OnChanges } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';

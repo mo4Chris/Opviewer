@@ -39,8 +39,8 @@ describe('ForecastOpsPickerComponent', () => {
   });
 
   it('should emit on change', () => {
-    let emitter = spyOn(component.selectedOperationChange, 'emit');
-    component.operations = [{ 
+    let emitter = spyOn(component.selectedProjectChange, 'emit');
+    component.projects = [{ 
       id: 0,
       name: "string",
       client_id: 1,
@@ -68,7 +68,7 @@ describe('ForecastOpsPickerComponent', () => {
   })
 
   it('should render relevant data', () => {
-    component.operations = [{ 
+    component.projects = [{ 
       id: 0,
       name: "string",
       client_id: 1,

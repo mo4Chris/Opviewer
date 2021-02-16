@@ -25,6 +25,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     },
     xaxis: {
       title: "Time"
+    },
+    
+    legend: {
+      x: 1,
+      y: 1,
+      xanchor: 'right',
     }
   }
 

@@ -29,7 +29,7 @@ export class LongtermBarGraphComponent implements OnChanges {
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
-  @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('canvas', { static: true }) canvas: ElementRef;
   private context: CanvasRenderingContext2D;
 
   hasData: boolean;

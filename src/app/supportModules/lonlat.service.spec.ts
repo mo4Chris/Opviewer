@@ -6,7 +6,7 @@ describe('LonlatService', () => {
   let service: LonlatService;
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.get(LonlatService);
+    service = TestBed.inject(LonlatService);
   });
 
   it('should be created', () => {

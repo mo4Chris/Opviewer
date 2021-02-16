@@ -10,7 +10,7 @@ describe('AppComponent', () => {
         async(() => {
             TestBed.configureTestingModule({
                 declarations: [AppComponent],
-                imports: [ RouterTestingModule ]
+                imports: [ RouterTestingModule, ]
             }).compileComponents();
         })
     );

@@ -13,7 +13,7 @@ describe('Settings service', () => {
         MockedUserServiceProvider,
       ],
     });
-    service = TestBed.get(SettingsService);
+    service = TestBed.inject(SettingsService);
   });
 
   it('should be created', () => {

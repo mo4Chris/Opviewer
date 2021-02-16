@@ -9,10 +9,9 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 })
 export class HeadingPickerComponent implements OnChanges {
   @Input() heading = 0;
-  @Output() headingChange: EventEmitter<number> = new EventEmitter();
-
   
   public data: PlotlyJS.Data[];
+  public loaded = false;
   public PlotLayout = {
     // General settings for the graph
     showlegend: false,
@@ -40,14 +39,8 @@ export class HeadingPickerComponent implements OnChanges {
       }
     }
   };
-  public options = {
-    staticPlot: true
-  }
-  loaded = false;
 
-  constructor(
-  ) {
-  }
+  constructor() {}
 
   ngOnChanges() {
     this.updatePolarPlot();
@@ -70,12 +63,6 @@ export class HeadingPickerComponent implements OnChanges {
 
   onPlotlyInit() {
     this.loaded = true;
-  }
-
-  onConfirm() {
-    this.heading = Math.max(Math.min(this.heading, 360), 0);
-    this.headingChange.emit(this.heading)
-    this.updatePolarPlot();
   }
 
 }

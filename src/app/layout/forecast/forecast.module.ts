@@ -1,16 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommonService } from '@app/common.service';
-import { Mo4testComponent } from './mo4test/mo4test.component';
 import { ForecastRoutingModule } from './forecast-routing.module';
 import { FormsModule } from '@angular/forms';
-import { ForecastLimitsPickerComponent } from './mo4test/forecast-limits-picker/forecast-limits-picker.component';
 import { SurfacePlotComponent } from './models/surface-plot/surface-plot.component';
 import { ForecastWorkabilityPlotComponent } from './models/forecast-workability-plot/forecast-workability-plot.component';
 import { NgbDatepickerModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PlotlyModule } from 'angular-plotly.js';
 import { SupportModelModule } from '@app/models/support-model.module';
-import { ForecastWorkabilityComponent } from './mo4test/forecast-workability/forecast-workability.component';
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
 import { ForecastVesselComponent } from './forecast-project/forecast-project.component';
 import { AgmCoreModule } from '@agm/core';
@@ -21,6 +17,10 @@ import { VesselLocationIndicatorComponent } from './models/vessel-location-indic
 import { ForecastDashboardComponent } from './forecast-dashboard/forecast-dashboard.component';
 import { Mo4LightComponent } from './mo4-light/mo4-light.component';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyModule } from 'angular-plotly.js';
+
+PlotlyModule.plotlyjs = PlotlyJS;
 
 @NgModule({
   imports: [
@@ -37,16 +37,10 @@ import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-p
   providers: [
     CommonService
   ],
-  exports:[
-    Mo4testComponent,
-  ],
   declarations: [
-    Mo4testComponent,
     ForecastOpsPickerComponent,
-    ForecastLimitsPickerComponent,
     SurfacePlotComponent,
     ForecastWorkabilityPlotComponent,
-    ForecastWorkabilityComponent,
     HeadingPickerComponent,
     ForecastVesselComponent,
     ForecastNewVesselComponent,
@@ -56,7 +50,7 @@ import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-p
     Mo4LightComponent
   ],
   bootstrap: [
-    Mo4testComponent
+    Mo4LightComponent
   ],
 })
 export class ForecastModule {

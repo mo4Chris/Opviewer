@@ -8,7 +8,8 @@ import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
-import { Headers } from '@angular/http';
+import { getValueInRange } from '@ng-bootstrap/ng-bootstrap/util/util';
+import { Injectable } from '@angular/core';
 import { ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
 
 
@@ -17,6 +18,12 @@ const emptyMatlabObject = {
   _ArraySize_: [0, 0],
   _ArrayData_: null,
 };
+
+@Injectable({
+  providedIn: 'root',
+})
+
+
 
 export class MockedCommonService extends CommonService {
   constructor() {
@@ -30,19 +37,18 @@ export class MockedCommonService extends CommonService {
 
   // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
   get(request_url: string) {
-     console.error('Uncaught mocked GET request: ' + request_url);
-     const Response = mockedObservable({json: () => []});
-     return Response;
+    console.error('Uncaught get request: ' + request_url);
+    const Response: any = 0;
+    return Response;
   }
 
   post(request_url: string, payload = []) {
-     console.error('Uncaught mocked POST request: ' + request_url);
-     const Response = mockedObservable({json: () => []});
-     return Response;
+    console.error('Uncaught post request: ' + request_url);
+    const Response: any = 0;
+    return Response;
   }
 
-  createAuthorizationHeader(headers: Headers) {
-  }
+
 
   validatePermissionToViewData(opts: {
     mmsi?: number,
@@ -54,7 +60,7 @@ export class MockedCommonService extends CommonService {
     operationsClass?: VesselType,
   } = {}): Observable<VesselModel> {
     const defaults = this.getVesselDefault()[0];
-    return mockedObservable([{...defaults, ...opts}]);
+    return mockedObservable([{ ...defaults, ...opts }]);
   }
 
   getDatesWithValues(vesselObject: VesselObjectModel) {
@@ -64,7 +70,7 @@ export class MockedCommonService extends CommonService {
   }
   getDatesWithValuesFromGeneralStats(vesselObject: VesselObjectModel) {
     const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
-    return mockedObservable({data: T});
+    return mockedObservable({ data: T });
   }
   getDatesShipHasSailedForSov(vesselObject: VesselObjectModel) {
     const T = linspace(vesselObject.date - 12, vesselObject.date - 2, 1);
@@ -74,80 +80,85 @@ export class MockedCommonService extends CommonService {
     const T = linspace(vesselObject.date - 15, vesselObject.date - 5, 1);
     return mockedObservable(T);
   }
+  getCompanies() {
+    return mockedObservable(['MO4']);
+  }
 
   getGeneral(vesselObject: VesselObjectModel) {
     const date = vesselObject.date;
-    return mockedObservable({data: [{
-      mmsi: vesselObject.mmsi,
-      vesselname: 'BMO Apollo 12',
-      date: date,
-      minutesFloating: 6.123,
-      minutesInField: 74.3,
-      distancekm: 124.3,
-      sailedDistance: '12km',
-      DPRstats: {
-        portDepartureTime: date + 0.48241266,
-        WindFarmArrivalTime: date + 0.49341266,
-        sailedDistance: 67.19673893,
-        AvgSpeedOutbound: 18.32887451,
-        AvgSpeedOutboundUnrestricted: 20.87434116,
-        MsiOutbound: 5.070039138,
-        WBVtechs: 0.3679741968,
-        numDockings: 3,
-        departureWindFarmTime: date + 0.75326827,
-        portArrivalTime: date + 0.77225,
-        TotalFuel: 623,
-        FuelEcon: 1718,
-        AvgSpeedInbound: 19.91148152,
-        AvgSpeedInboundUnrestricted: 21.20668402,
-        MsiInbound: 15.9433976,
-        WBVcrew: 0.3693717037,
-      },
-      AIScoverageHours: '_NaN_',
-      AIScoveragePerc: '_NaN_',
-      COMcoverageHours: '_NaN_',
-      COMcoveragePerc: '_NaN_',
-      ENGINEcoverageHours: '_NaN_',
-      ENGINEcoveragePerc: '_NaN_',
-      GPScoverageHours: '_NaN_',
-      GPScoveragePerc: '_NaN_',
-      MTIcoverageHours: '_NaN_',
-      MTIcoveragePerc: '_NaN_',
-      activityLog: '',
-      arrivalAtBerth: [],
-      arrivalAtBerthNum: [],
-      arrivalAtHarbour: [],
-      arrivalAtHarbourNum: [],
-      arrivalAtJetty: [],
-      arrivalAtJettyNum: [],
-      arrivalAtLockNum: [],
-      computerTimeOffset: '_NaN_',
-      day: '_NaN_',
-      dayNum: '_NaN_',
-      departureFromBerth: [],
-      departureFromBerthNum: [],
-      departureFromHarbour: [],
-      departureFromHarbourNum: [],
-      departureFromJetty: [],
-      departureFromJettyNum: [],
-      departureFromLockNum: [],
-      fuelConsumed: 623,
-      fuelEconomy: 1718,
-      harbourEvents: [],
-      jettyEvents: [],
-      lockEvents: [],
-      time: [[date + 0.2458], [date + 0.2638], [date + 0.2888]],
-      lat: [[27.94013], [27.94468], [27.97227]],
-      lon: [[12.9398], [12.95748], [13.03988]],
-      seCoverageHours: 0,
-      seCoverageOutageHours: 0,
-      seCoverageSpanHours: 0,
-      speed: [],
-      speedRestrictedEvents: [],
-      transitTime: '_NaN_',
-      utcOffset: '_NaN_',
-      vesselName: '_NaN_',
-    }]});
+    return mockedObservable({
+      data: [{
+        mmsi: vesselObject.mmsi,
+        vesselname: 'BMO Apollo 12',
+        date: date,
+        minutesFloating: 6.123,
+        minutesInField: 74.3,
+        distancekm: 124.3,
+        sailedDistance: '12km',
+        DPRstats: {
+          portDepartureTime: date + 0.48241266,
+          WindFarmArrivalTime: date + 0.49341266,
+          sailedDistance: 67.19673893,
+          AvgSpeedOutbound: 18.32887451,
+          AvgSpeedOutboundUnrestricted: 20.87434116,
+          MsiOutbound: 5.070039138,
+          WBVtechs: 0.3679741968,
+          numDockings: 3,
+          departureWindFarmTime: date + 0.75326827,
+          portArrivalTime: date + 0.77225,
+          TotalFuel: 623,
+          FuelEcon: 1718,
+          AvgSpeedInbound: 19.91148152,
+          AvgSpeedInboundUnrestricted: 21.20668402,
+          MsiInbound: 15.9433976,
+          WBVcrew: 0.3693717037,
+        },
+        AIScoverageHours: '_NaN_',
+        AIScoveragePerc: '_NaN_',
+        COMcoverageHours: '_NaN_',
+        COMcoveragePerc: '_NaN_',
+        ENGINEcoverageHours: '_NaN_',
+        ENGINEcoveragePerc: '_NaN_',
+        GPScoverageHours: '_NaN_',
+        GPScoveragePerc: '_NaN_',
+        MTIcoverageHours: '_NaN_',
+        MTIcoveragePerc: '_NaN_',
+        activityLog: '',
+        arrivalAtBerth: [],
+        arrivalAtBerthNum: [],
+        arrivalAtHarbour: [],
+        arrivalAtHarbourNum: [],
+        arrivalAtJetty: [],
+        arrivalAtJettyNum: [],
+        arrivalAtLockNum: [],
+        computerTimeOffset: '_NaN_',
+        day: '_NaN_',
+        dayNum: '_NaN_',
+        departureFromBerth: [],
+        departureFromBerthNum: [],
+        departureFromHarbour: [],
+        departureFromHarbourNum: [],
+        departureFromJetty: [],
+        departureFromJettyNum: [],
+        departureFromLockNum: [],
+        fuelConsumed: 623,
+        fuelEconomy: 1718,
+        harbourEvents: [],
+        jettyEvents: [],
+        lockEvents: [],
+        time: [[date + 0.2458], [date + 0.2638], [date + 0.2888]],
+        lat: [[27.94013], [27.94468], [27.97227]],
+        lon: [[12.9398], [12.95748], [13.03988]],
+        seCoverageHours: 0,
+        seCoverageOutageHours: 0,
+        seCoverageSpanHours: 0,
+        speed: [],
+        speedRestrictedEvents: [],
+        transitTime: '_NaN_',
+        utcOffset: '_NaN_',
+        vesselName: '_NaN_',
+      }]
+    });
   }
   getSov(vesselObject: VesselObjectModel): Observable<[SovData]> {
     const date = vesselObject.date;
@@ -230,7 +241,7 @@ export class MockedCommonService extends CommonService {
       speednotifylimit: emptyMatlabObject,
       impactnotifylimit: emptyMatlabObject,
       operationsClass: 'CTV',
-      Site: <string><unknown> emptyMatlabObject,
+      Site: <string><unknown>emptyMatlabObject,
       onHire: true,
       videobudget: 120,
       videoResetDay: 19,
@@ -243,11 +254,11 @@ export class MockedCommonService extends CommonService {
   }
   getEnginedata(mmsi: number, date: number) {
     return mockedObservable([{
-    fuelUsedDepartM3: 1,
-    fuelUsedReturnM3: 2,
-    fuelUsedTotalM3: 3,
-    fuelUsedTransferM3: 4,
-    co2TotalKg: 5,
+      fuelUsedDepartM3: 1,
+      fuelUsedReturnM3: 2,
+      fuelUsedTotalM3: 3,
+      fuelUsedTransferM3: 4,
+      co2TotalKg: 5,
     }]);
   }
   getEngineStatsForRange(request: StatsRangeRequest) {
@@ -271,12 +282,6 @@ export class MockedCommonService extends CommonService {
   }
   checkUserActive(username: string) {
     return mockedObservable(true);
-  }
-
-  getCompanies() {
-    return mockedObservable([
-      'test company 1'
-    ])
   }
 
   getSovDprInput(vessel: VesselObjectModel) {
@@ -379,7 +384,7 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
 
-  getSpecificPark(park: {park: string[]}) {
+  getSpecificPark(park: { park: string[] }) {
     const Names = [];
     const Lons = [];
     const Lats = [];
@@ -433,60 +438,60 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
   getSovHseDprInput(vessel: VesselObjectModel) {
-    return(mockedObservable({
-    mmsi: vessel.mmsi,
-    date: vessel.date,
-    hseFields: {
-      lostTimeInjuries: { value: 0, comment: '' },
-      restrictedWorkday: { value: 0, comment: '' },
-      MedicalTreatment: { value: 0, comment: '' },
-      firstAid: { value: 0, comment: '' },
-      environmentalIncidents: { value: 0, comment: '' },
-      equipmentDamage: { value: 0, comment: '' },
-      proactiveReports: { value: 0, comment: '' },
-      nearHitMisses: { value: 0, comment: '' },
-      safetyComitteeMeeting: { value: 0, comment: '' },
-      marineDrillsAndTraining: { value: 0, comment: '' },
-      managementVisits: { value: 0, comment: '' },
-      shorePower: { value: 0, comment: '' },
-      plasticIncinerated: { value: 0, comment: '' },
-      plasticLanded: { value: 0, comment: '' },
-      foodIncinerated: { value: 0, comment: '' },
-      foodLanded: { value: 0, comment: '' },
-      foodMacerated: { value: 0, comment: '' },
-      domWasteLanded: { value: 0, comment: '' },
-      domWasteIncinerated: { value: 0, comment: '' },
-      cookingoilLanded: { value: 0, comment: '' },
-      opsWasteLanded: { value: 0, comment: '' },
-      opsWasteIncinerated: { value: 0, comment: '' },
-      remarks: ''
-    },
-    dprFields: {
-      marineCount: { value: 0, comment: '' },
-      clientCrewCount: { value: 0, comment: '' },
-      hocAmount: { value: 0, comment: '' },
-      toolboxAmount: { value: 0, comment: '' },
-      technicalBreakdownAmount: { value: 0, comment: '' },
-      fuelConsumption: { value: 0, comment: '' },
-      lubOilConsumption: { value: 0, comment: '' },
-      waterConsumption: { value: 0, comment: '' }
-    }
+    return (mockedObservable({
+      mmsi: vessel.mmsi,
+      date: vessel.date,
+      hseFields: {
+        lostTimeInjuries: { value: 0, comment: '' },
+        restrictedWorkday: { value: 0, comment: '' },
+        MedicalTreatment: { value: 0, comment: '' },
+        firstAid: { value: 0, comment: '' },
+        environmentalIncidents: { value: 0, comment: '' },
+        equipmentDamage: { value: 0, comment: '' },
+        proactiveReports: { value: 0, comment: '' },
+        nearHitMisses: { value: 0, comment: '' },
+        safetyComitteeMeeting: { value: 0, comment: '' },
+        marineDrillsAndTraining: { value: 0, comment: '' },
+        managementVisits: { value: 0, comment: '' },
+        shorePower: { value: 0, comment: '' },
+        plasticIncinerated: { value: 0, comment: '' },
+        plasticLanded: { value: 0, comment: '' },
+        foodIncinerated: { value: 0, comment: '' },
+        foodLanded: { value: 0, comment: '' },
+        foodMacerated: { value: 0, comment: '' },
+        domWasteLanded: { value: 0, comment: '' },
+        domWasteIncinerated: { value: 0, comment: '' },
+        cookingoilLanded: { value: 0, comment: '' },
+        opsWasteLanded: { value: 0, comment: '' },
+        opsWasteIncinerated: { value: 0, comment: '' },
+        remarks: ''
+      },
+      dprFields: {
+        marineCount: { value: 0, comment: '' },
+        clientCrewCount: { value: 0, comment: '' },
+        hocAmount: { value: 0, comment: '' },
+        toolboxAmount: { value: 0, comment: '' },
+        technicalBreakdownAmount: { value: 0, comment: '' },
+        fuelConsumption: { value: 0, comment: '' },
+        lubOilConsumption: { value: 0, comment: '' },
+        waterConsumption: { value: 0, comment: '' }
+      }
     }));
   }
   getSovInfo(vessel: VesselObjectModel) {
     return mockedObservable([{
-    daughtercraft_mmsi: 123456789,
-    daughtercraft_nicename: 'Boaty McDcFace'
+      daughtercraft_mmsi: 123456789,
+      daughtercraft_nicename: 'Boaty McDcFace'
     }]);
   }
 
 
   // User input save routines
   saveTransfer(transfer) {
-    return mockedObservable({data: 'saveTransfer'});
+    return mockedObservable({ data: 'saveTransfer' });
   }
   saveVideoRequest(transfer) {
-    return mockedObservable({data: 'saveVideoRequest'});
+    return mockedObservable({ data: 'saveVideoRequest' });
   }
   updateSOVv2vPaxInput(paxInput) {
     return htmlResponse.success;
@@ -504,36 +509,38 @@ export class MockedCommonService extends CommonService {
       UserTestService.getMockedAccessToken()
     ]);
   }
-  getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
+  getLatestGeneral(): Observable<{ _id: number, date: number, vesselname: string }[]> {
     return mockedObservable([]);
   }
   getGeneralForRange(request: GeneralForRangeInput) {
     return this.getGeneral({
-      mmsi: <number> request.mmsi[0] ? request.mmsi[0] : request.mmsi,
+      mmsi: <number>request.mmsi[0] ? request.mmsi[0] : request.mmsi,
       date: request.startDate,
       vesselType: request.vesselType,
       vesselName: 'Test123'
     });
   }
   getTransfersForVesselByRange(request: StatsRangeRequest) {
-    const getTransfer = (mmsi, date) => {return {
-      vesselname: 'BMO Apollo 12',
-      mmsi: mmsi,
-      startTime: date + 0.3,
-      stopTime: date + 0.31,
-      duration: 14.4,
-      location: 'T01',
-      fieldname: 'Non_Existing_Windpark_turbine_coordinates',
-      Hs: Math.random(),
-      score: 4 + 6 * Math.random(),
-      thrustPerc: '_NaN_',
-      comment: 'Transfer OK',
-      impactForceN: [2200, 2300, 6100, 18836],
-      impactForceNmax: 10000 * Math.random(),
-      detector: 'docking',
-      date: date,
-      videoAvailable: false,
-    }; };
+    const getTransfer = (mmsi, date) => {
+      return {
+        vesselname: 'BMO Apollo 12',
+        mmsi: mmsi,
+        startTime: date + 0.3,
+        stopTime: date + 0.31,
+        duration: 14.4,
+        location: 'T01',
+        fieldname: 'Non_Existing_Windpark_turbine_coordinates',
+        Hs: Math.random(),
+        score: 4 + 6 * Math.random(),
+        thrustPerc: '_NaN_',
+        comment: 'Transfer OK',
+        impactForceN: [2200, 2300, 6100, 18836],
+        impactForceNmax: 10000 * Math.random(),
+        detector: 'docking',
+        date: date,
+        videoAvailable: false,
+      };
+    };
     const dates = linspace(request.dateMin, request.dateMax);
     const transfers = [];
     request.mmsi.forEach(mmsi => {
@@ -568,7 +575,7 @@ export class MockedCommonService extends CommonService {
         'fromName': 'Lwf',
         'to': 'Field',
         'toName': 'IE',
-        'date': {'$numberInt': '737302'},
+        'date': { '$numberInt': '737302' },
         'MSI': MSI,
         'A8': MSI / 10,
         'aw': MSI / 5,
@@ -582,7 +589,8 @@ export class MockedCommonService extends CommonService {
         lat: [],
         'avHeading': 27,
         'MSI60': MSI * Math.sqrt(DurMinutes / 60)
-    }; };
+      };
+    };
     const dates = linspace(request.dateMin, request.dateMax);
     const transfers = [];
     request.mmsi.forEach(mmsi => {
@@ -603,10 +611,10 @@ export class MockedCommonService extends CommonService {
     });
     return mockedObservable(transfers);
   }
-  getWavedataForRange(request: {startDate: any, stopDate: any, source: string}) {
+  getWavedataForRange(request: { startDate: any, stopDate: any, source: string }) {
     return mockedObservable([]);
   }
-  getWavedataForDay(request: {date: number, site: string}) {
+  getWavedataForDay(request: { date: number, site: string }) {
     return mockedObservable(null);
   }
   getFieldsWithWaveSourcesByCompany() {
@@ -627,7 +635,7 @@ export class MockedCommonService extends CommonService {
     }]);
   }
 
-  getTurbineWarrantyForCompany(input: {client: string}): Observable<CampaignModel[]> {
+  getTurbineWarrantyForCompany(input: { client: string }): Observable<CampaignModel[]> {
     return mockedObservable([{
       campaignName: 'test',
       fullFleet: ['Test_BMO'],
@@ -641,32 +649,30 @@ export class MockedCommonService extends CommonService {
 
   getSovWaveSpectrumAvailable(vessel: any) {
     return mockedObservable({
-    vesselHasData: true,
-    dateHasData: true,
+      vesselHasData: true,
+      dateHasData: true,
     });
   }
-  getSovWaveSpectrum(vessel: {date: number, mmsi: number}) {
+  getSovWaveSpectrum(vessel: { date: number, mmsi: number }) {
     return mockedObservable([{
-    mmsi: vessel.mmsi,
-    date: 987654321,
-    time: [1 / 24, 2 / 24],
-    spectrum: [[
-      [1, 2, 3],
-      [0, 1, 2],
-      [0, 0, 1],
-    ], [
-      [1, 2, 3],
-      [0, 1, 2],
-      [0, 0, 1],
-    ]],
-    source: 'test',
+      mmsi: vessel.mmsi,
+      date: 987654321,
+      time: [1 / 24, 2 / 24],
+      spectrum: [[
+        [1, 2, 3],
+        [0, 1, 2],
+        [0, 0, 1],
+      ], [
+        [1, 2, 3],
+        [0, 1, 2],
+        [0, 0, 1],
+      ]],
+      source: 'test',
     }]);
   }
-
   saveHseDprSigningClient(obj: any) {
     return mockedObservable('Great Success');
   }
-
 
   // Mo4-light
   getForecastProjectList(): Observable<ForecastOperation[]> {
@@ -692,7 +698,7 @@ export class MockedCommonService extends CommonService {
   }
   getForecastWorkabilityForProject(project_id = 3) {
     const Response = {
-      Coordinates: {X: {Data: 0, String_Value: ''}, Y: {Data: 0, String_Value: ''}, Z: {Data: 0, String_Value: ''}},
+      Coordinates: { X: { Data: 0, String_Value: '' }, Y: { Data: 0, String_Value: '' }, Z: { Data: 0, String_Value: '' } },
       Time: [], // Matlab timestamps
       Heading: [], // In degrees
       Response: {

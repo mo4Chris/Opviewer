@@ -15,7 +15,8 @@ describe('LongtermBarGraphComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
-      ]
+      ],
+      imports: []
     })
     .compileComponents();
   }));

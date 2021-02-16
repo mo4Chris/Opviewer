@@ -2,11 +2,12 @@
   <thead>
     <tr>
       <th>
-        Selected operation:
+        Selected project:
       </th>
       <th colspan="2">
-        <select #selectOperation [(ngModel)]="selectedOperation" (change)="onChange()" class="input form-control form-control-md">
-          <option [ngValue]="op" *ngFor="let op of operations">{{op.name}}</option>
+        <select #selectOperation [(ngModel)]="selectedProject" (change)="onOpsChange()"
+        class="input form-control form-control-md">
+          <option [ngValue]="op" *ngFor="let op of projects">{{op.name}}</option>
         </select>
       </th>
     </tr>
@@ -14,20 +15,22 @@
   <tbody>
     <tr>
       <td>Latitude</td>
-      <td colspan="2">{{gps.formatLat(selectedOperation.latitude)}}</td>
+      <td colspan="2">{{gps.formatLat(selectedProject.latitude)}}</td>
     </tr>
     <tr>
       <td>Longitude</td>
-      <td colspan="2">{{gps.formatLng(selectedOperation?.longitude)}}</td>
+      <td colspan="2">{{gps.formatLng(selectedProject?.longitude)}}</td>
     </tr>
     <tr>
       <td>Start</td>
-      <td colspan="2">{{startTime}}</td>
+      <td colspan="2">{{projectStopDate}}</td>
     </tr>
     <tr>
       <td>Stop</td>
       <td colspan="2">{{stopTime}}</td>
     </tr>
+    
+    <tr><td colspan="3" class="empty-row"></td></tr>
 
     <tr>
       <td>Operation date</td>
@@ -72,24 +75,31 @@
       </td>
     </tr>
 
+    <tr><td colspan="3" class="empty-row"></td></tr>
+
     <tr>
-      <td><div [ngbTooltip]="helpHeading">Vessel heading</div></td>
+      <td><div [ngbTooltip]="helpHeading">Operational heading</div></td>
       <td colspan="2">
           <input class="form-control form-control-md" [(ngModel)]="heading"
             type="number" max="24" placeholder="degrees">
       </td>
     </tr>
 
+    <tr colspan="3" [ngbTooltip]="helpLimits">
+      <th>Limit type</th>
+      <th>DOF</th>
+      <th>Value</th>
+    </tr>
     <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
       <td>
-        <select [(ngModel)]="limit.type">
+        <select class="form-control" [(ngModel)]="limit.type">
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>velocity</option>
           <option value='Disp'>Displacement</option>
         </select>
       </td>
       <td>
-        <select [(ngModel)]="limit.dof">
+        <select class="form-control" [(ngModel)]="limit.dof">
           <option value="Surge">Surge</option>
           <option value="Sway">Sway</option>
           <option value="Heave">Heave</option>
@@ -99,27 +109,26 @@
         </select>
       </td>
       <td>
-        <input type="number" step=0.1 [(ngModel)]="limit.value">
+        <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value">
       </td>
     </tr>
     <tr>
-      <td>
-      </td>
-      <td colspan=2>
-        <button class="btn btn-sm btn-danger float-right"
-          (click)="onRemoveLimitsLine();"
-          type="button">remove last</button>
+      <td colspan=3 *ngIf="permission.forecastChangeLimits">
+        <button class="btn btn-sm btn-danger float-right" [disabled]="!(limits?.length)"
+          (click)="onRemoveLimitsLine();" type="button">
+          Remove last
+        </button>
         <button class="btn btn-sm btn-success float-right"
-          (click)="onAddLimitsLine();" type="button">add
-          line</button>
+          (click)="onAddLimitsLine();" type="button">
+          Add line
+        </button>
       </td>
     </tr>
     <tr>
       <td>
       </td>
       <td colspan=2>
-        <button class="btn btn-md btn-primary float-right"
-          (click)="onAddLimitsLine();" type="button">
+        <button class="btn btn-md btn-primary float-right" (click)="onConfirm();" type="button">
           Update config
         </button>
       </td>
@@ -128,5 +137,8 @@
 </table>
 
 <ng-template #helpHeading>
-  Heading of the vessel in degrees
+  Heading of the vessel in degrees during operation
+</ng-template>
+<ng-template #helpLimits>
+  Select limits to set up
 </ng-template>
