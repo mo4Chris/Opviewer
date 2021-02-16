@@ -40,7 +40,7 @@ describe('LongtermScatterGraphComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
-      ],
+      ], imports: []
     })
     .compileComponents();
   }));

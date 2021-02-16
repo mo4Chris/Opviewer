@@ -1,5 +1,5 @@
 <div [hidden]="!hasData">
-  <plotly-plot divId="surface-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
+  <plotly-plot [data]="parsedData" [layout]='PlotLayout'
     (initialized)="onPlotlyInit($event)" [useResizeHandler]="true">
   </plotly-plot>
 </div>

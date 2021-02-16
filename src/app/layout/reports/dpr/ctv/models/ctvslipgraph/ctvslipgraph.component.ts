@@ -15,7 +15,7 @@ export class CtvslipgraphComponent implements OnChanges {
   @Input() index: number;
   @Input() transfer: any;
   @Input() vesselUtcOffset: number;
-  @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('canvas', { static: true }) canvas: ElementRef;
 
   chart: Chart;
   slipGraph: slipGraphData;

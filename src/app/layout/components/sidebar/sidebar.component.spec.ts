@@ -11,7 +11,7 @@ describe('SidebarComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ TranslateModule.forRoot(), RouterTestingModule, BrowserAnimationsModule],
+      imports: [ TranslateModule, RouterTestingModule, BrowserAnimationsModule],
       declarations: [ SidebarComponent ]
     })
     .compileComponents();

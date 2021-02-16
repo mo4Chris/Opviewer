@@ -22,13 +22,12 @@ import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse
 import { SovDprInputReadonlyComponent } from './sov-dpr-input/sov-dpr-input-readonly/sov-dpr-input-readonly.component';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input/sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
 import { AutosizeModule } from 'ngx-autosize';
-import { PlotlyModule } from 'angular-plotly.js';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SimpleChange } from '@angular/core';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
-import { MockComponent, MockComponents } from 'ng-mocks';
+import { MockComponents } from 'ng-mocks';
 import { DprMapComponent } from '../map/dpr-map/dpr-map.component';
 
 describe('SovreportComponent', () => {
@@ -39,7 +38,7 @@ describe('SovreportComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        AgmCoreModule.forRoot(),
+        AgmCoreModule,
         FormsModule,
         ReactiveFormsModule,
         NgbModule,
@@ -50,7 +49,6 @@ describe('SovreportComponent', () => {
         RouterTestingModule,
         AutosizeModule,
         SupportModelModule,
-        PlotlyModule,
       ],
       declarations: [
         SovreportComponent,
@@ -61,13 +59,16 @@ describe('SovreportComponent', () => {
 
         SovHseDprInputReadonlyComponent,
         SovHseDprInputVesselmasterComponent,
-        MockComponents(SovRovOperationsComponent, DprMapComponent),
         SovWeatherchartComponent,
-        WaveSpectrumComponentComponent,
         SovTurbineTransfersComponent,
         SovPlatformTransfersComponent,
         SovV2vTransfersComponent,
         SovDcTransfersComponent,
+        MockComponents(
+          SovRovOperationsComponent,
+          DprMapComponent,
+          WaveSpectrumComponentComponent,
+        ),
       ],
       providers: [
         MockedCommonServiceProvider,

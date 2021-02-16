@@ -41,6 +41,7 @@ describe('LongtermTrendGraphComponent', () => {
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
       ],
+      imports: []
     })
     .compileComponents();
   }));

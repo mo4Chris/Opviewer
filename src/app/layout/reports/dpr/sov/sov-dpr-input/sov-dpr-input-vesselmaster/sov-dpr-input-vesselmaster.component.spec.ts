@@ -7,10 +7,9 @@ import { FormsModule } from '@angular/forms';
 import { AutosizeModule } from 'ngx-autosize';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { mockedObservable } from '@app/models/testObservable';
 import { SupportModelModule } from '@app/models/support-model.module';
-import { RouterService } from '@app/supportModules/router.service';
-import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+
 
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;

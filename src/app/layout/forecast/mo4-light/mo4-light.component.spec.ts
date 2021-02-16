@@ -15,7 +15,7 @@ import { mockedObservable } from '@app/models/testObservable';
 import { of } from 'rxjs';
 
 
-fdescribe('Mo4LightComponent', () => {
+describe('Mo4LightComponent', () => {
   let component: Mo4LightComponent;
   let fixture: ComponentFixture<Mo4LightComponent>;
 
