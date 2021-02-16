@@ -50,7 +50,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   }
 
   computeMaxWorkability() {
-    console.log(this.time[0])
     if (this.startTime && this.stopTime) {
       let sidx = this.time.findIndex(t => t > this.parseTime(this.startTime));
       let eidx = this.time.findIndex(t => t > this.parseTime(this.stopTime)) - 1;
