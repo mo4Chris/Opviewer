@@ -745,7 +745,7 @@ app.post("/api/registerUser", function(req, res) {
         "client": userData.client,
         "secret2fa": "",
         "active": 1,
-        "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over - @Chris wanneer gaan we dit veranderen?
+        "password": ''
       });
       user.save((error, registeredUser) => {
         if (error) {

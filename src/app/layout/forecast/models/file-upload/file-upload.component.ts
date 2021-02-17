@@ -31,7 +31,7 @@ export class FileUploadComponent {
   public uploadInput = new EventEmitter<IUploadInput>();
   public uploadCompleted = false;
   private dragOver: boolean;
-  private uploadUrl = environment.FIlE_UPLOAD_IP + '/api/upload/hullLines';
+  private uploadUrl = environment.FILE_UPLOAD_IP + '/api/upload/hullLines';
   private formData = [];
 
   /**
@@ -169,7 +169,7 @@ export class FileUploadComponent {
   }
 
   /**
-   * Remoce all file uploads.
+   * Remove all file uploads.
    */
   removeAllFiles(): void {
     this.uploadInput.emit({ type: 'removeAll' });

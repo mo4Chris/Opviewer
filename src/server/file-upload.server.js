@@ -9,7 +9,7 @@ module.exports = function (app, logger) {
   
   function unauthorized(res, cause = 'unknown') {
     logger.warning(`Unauthorized request: ${cause}`)
-    res.status(401).send('Unauthorized request')
+    res.status(401).send('Unauthorized request') 
   }
 
   function verifyToken(req, res) {
