@@ -116,11 +116,6 @@ export class CtvslipgraphComponent implements OnChanges {
         if (this.context !== undefined) {
           this.chart = new Chart(this.context, line);
         } else {
-          console.log(this.canvas);
-          console.log(this.canvas.nativeElement);
-          console.log(this.canvas.nativeElement.getContext('2d'));
-          console.log(this.context);
-          console.log(line);
           console.error('Could not get 2d context!');
         }
       }

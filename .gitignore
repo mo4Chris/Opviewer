@@ -54,3 +54,4 @@ src/killnode.bat
 startNodeServer.bat
 startSeleniumServer.bat
 *.bat
+uploads/

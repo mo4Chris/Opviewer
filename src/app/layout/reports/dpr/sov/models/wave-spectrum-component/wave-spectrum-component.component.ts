@@ -311,7 +311,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
 
   onError(event) {
     console.error('An error occured during SVG plot generation');
-    console.log(event);
+    console.error(event);
   }
 
   // startAnimation() {

@@ -9,6 +9,7 @@ var moment = require('moment');
 var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
+var fileUploadServer = require('./server/file-upload.server.js')
 
 
 mongo.set('useFindAndModify', false);
@@ -22,8 +23,6 @@ var db = mongo.connect(process.env.DB_CONN, {
     logger.info('Connected to Database');
   }
 });
-
-
 
 var app = express();
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -45,14 +44,14 @@ app.use(function(req, res, next) {
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Credentials', 1);
   next();
 });
 
 let transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
+  host: process.env.EMAIL_HOST, // Lint beweert dat deze property niet bestaat
   port: process.env.EMAIL_PORT,
-  secure: (process.env.EMAIL_PORT == 465),
+  secure: (+process.env.EMAIL_PORT == 465),
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -61,6 +60,7 @@ let transporter = nodemailer.createTransport({
 
 // Init of submodules must be after setting app usages
 mo4lightServer(app, logger)
+fileUploadServer(app, logger)
 
 //#########################################################
 //##################   Models   ###########################
@@ -94,7 +94,6 @@ var VesselsSchema = new Schema({
   mmsi: { type: String },
   nicename: { type: String },
   client: { type: Array },
-  mmsi: { type: Number },
   active: { type: Boolean },
   operationsClass: { type: String },
 }, { versionKey: false });
@@ -539,19 +538,19 @@ var sovHasPlatformTransfersSchema = new Schema({
   mmsi: { type: Number },
   date: { type: Number }
 })
-var sovHasPlatformTransferModel = new mongo.model('sovHasPlatformModel', sovHasPlatformTransfersSchema, 'SOV_platformTransfers');
+var sovHasPlatformTransferModel = mongo.model('sovHasPlatformModel', sovHasPlatformTransfersSchema, 'SOV_platformTransfers');
 
 var sovHasTurbineTransfersSchema = new Schema({
   mmsi: { type: Number },
   date: { type: Number }
 })
-var sovHasTurbineTransferModel = new mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
+var sovHasTurbineTransferModel = mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
 
 var sovHasV2VTransfersSchema = new Schema({
   mmsi: { type: Number },
   date: { type: Number }
 })
-var sovHasV2VModel = new mongo.model('sovHasV2VModel', sovHasV2VTransfersSchema, 'SOV_vessel2vesselTransfers');
+var sovHasV2VModel = mongo.model('sovHasV2VModel', sovHasV2VTransfersSchema, 'SOV_vessel2vesselTransfers');
 
 var upstreamSchema = new Schema({
   type: String,
@@ -605,61 +604,73 @@ var sovWaveSpectrumSchema = new Schema({
 }, { versionKey: false });
 var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema, 'SOV_waveSpectrum');
 
+
+
 //#########################################################
 //#################   Functionality   #####################
 //#########################################################
+function onUnauthorized(res, cause = 'unknown') {
+  logger.warn(`Unauthorized request: ${cause}`)
+  if (cause == 'unknown') {
+    res.status(401).send('Unauthorized request')
+  } else {
+    res.status(401).send(`Unauthorized: ${cause}`)
+  }
+}
+
+function onError(res, err, additionalInfo = 'Internal server error') {
+  if (typeof(err) == 'object') {
+    err.debug = additionalInfo;
+  } else {
+    err = {
+      debug: additionalInfo,
+      msg: err,
+      error: err,
+    }
+  }
+  logger.error(err)
+  res.status(500).send(additionalInfo);
+}
 
 function verifyToken(req, res) {
-  if (!req.headers.authorization) {
-    logger.info('Unauthorized request: missing headers')
-    return res.status(401).send('Unauthorized request');
-  }
-  let token = req.headers.authorization;
-  if (token === 'null') {
-    logger.info('Unauthorized request: token null')
-    return res.status(401).send('Unauthorized request');
-  }
+  try {
+    if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
+    
+    const token = req.headers.authorization;
+    if (token == null || token === 'null')  return onUnauthorized(res, 'Token missing!');
 
-  let payload = jwt.verify(token, 'secretKey');
-  Usermodel.findByIdAndUpdate(payload.userID, {
-    lastActive: new Date(),
-  }).exec();
-
-  if (payload === 'null') {
-    logger.info('Unauthorized request: no payload')
-    return res.status(401).send('Unauthorized request');
+    const payload = jwt.verify(token, 'secretKey');
+    if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
+    Usermodel.findByIdAndUpdate(payload.userID, {lastActive: new Date()}).exec();
+    return payload;
+  } catch (err) {
+    return onError(res, err, 'Failed to parse jwt token')
   }
-  return payload;
 }
 
 function validatePermissionToViewData(req, res, callback) {
   let token = verifyToken(req, res);
-  let filter = { mmsi: req.body.mmsi };
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist" && token.userPermission !== "Contract manager") {
-    filter.client = token.userCompany;
-  } else if (token.userPermission === "Logistics specialist") {
-    filter.client = token.userCompany;
-  } else if (token.userPermission === "Contract manager") {
-    // TODO
-    filter.client = token.userCompany;
+  let filter;
+  switch (token.userPermission) {
+    case 'admin':
+      filter = { mmsi: req.body.mmsi };
+      break;
+    default:
+      filter = { mmsi: req.body.mmsi, client: token.userCompany };
   }
   Vesselmodel.find(filter, function(err, data) {
-    if (err) {
-      logger.error(err);
-      return [];
-    } else {
-      callback(data);
-      return data;
-    }
+    if (err) return onError(res, err);
+    callback(data);
+    return data;
   });
 }
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
-  body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
+  const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
-  let mailOptions = {
-    from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
+  const mailOptions = {
+    from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
     to: user, //'bar@example.com, baz@example.com' list of receivers
     bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
     subject: subject, //'Hello ✔' Subject line
@@ -668,10 +679,8 @@ function mailTo(subject, html, user) {
 
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
-    var maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
-    if (error) {
-      return maillogger.error(error);
-    }
+    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
+    if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
 }
@@ -688,6 +697,10 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
   }, confirmFcn());
 };
 
+function getServerAddress() {
+  return process.env.IP_USER.split(",")[0];
+}
+
 //#########################################################
 //#################   Endpoints   #########################
 //#########################################################
@@ -699,8 +712,7 @@ app.get("/api/getActiveConnections", function(req, res) {
       body: 'This is not yet tracked'
     });
   } else {
-    logger.info('Unauthorized request: non-admin may not request active connections!')
-    return res.status(401).send('Unauthorized request!');
+    return onUnauthorized(res, 'Only admin may request active connections!')
   }
 })
 
@@ -708,129 +720,91 @@ app.post("/api/registerUser", function(req, res) {
   let userData = req.body;
   let token = verifyToken(req, res);
   logger.info('Received request to create new user: ' + userData.email);
-  if (token.userPermission !== "admin") {
-    if (token.userPermission === "Logistics specialist" && token.userCompany !== userData.client) {
-      return res.status(401).send('Access denied');
-    } else if (token.userPermission !== "Logistics specialist") {
-      return res.status(401).send('Access denied');
-    }
+  switch (token.userPermission){
+    case 'admin':
+      // Always allowed
+      break;
+    case 'Logistics specialist':
+      if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
+      break;
+    default:
+      return onUnauthorized(res, 'User not priviliged to register users!')
   }
   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
     function(err, existingUser) {
-      if (err) {
-        logger.error(err);
-        res.send(err);
-      } else {
-        if (!existingUser) {
-          randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-          randomToken = randomToken.replace(/\//gi, '8');
-          let user = new Usermodel({
-            "username": userData.email.toLowerCase(),
-            "token": randomToken,
-            "permissions": userData.permissions,
-            "client": userData.client,
-            "secret2fa": "",
-            "active": 1,
-            "password": bcrypt.hashSync("hanspasswordtocheck", 10) //password shouldn't be set when test phase is over - @Chris wanneer gaan we dit veranderen?
-          });
-          user.save((error, registeredUser) => {
-            if (error) {
-              logger.error(error);
-              return res.status(401).send('User already exists'); // We hebben toch al eerder gechecked of user bestaat? Of is dit als een request 2 keer snel afgevuurd word oid?
-            } else {
-
-              var serveradres = process.env.IP_USER.split(",");
-              let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + user.username;
-              let html = 'An account for the BMO dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
-                'If that doesnt work copy the link below <br>' + link;
-              mailTo('Registered user', html, user.username);
-              logger.info('Succesfully created user ' + user.username)
-              return res.send({ data: 'User created', status: 200 });
-            }
-          });
-        } else {
-          logger.warn('Failed to create user ' + userData.username + ': already exists!');
-          return res.status(401).send('User already exists');
-        }
-      }
+      if (err) return onError(res, err);
+      if (existingUser) return onUnauthorized(res, 'User already exists');
+      let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+      randomToken = randomToken.replace(/\//gi, '8');
+      let user = new Usermodel({
+        "username": userData.email.toLowerCase(),
+        "token": randomToken,
+        "permissions": userData.permissions,
+        "client": userData.client,
+        "secret2fa": "",
+        "active": 1,
+        "password": null,
+      });
+      user.save((error, registeredUser) => {
+        if (error) return onError(res, 'User already exists');
+        const serveradres = getServerAddress();
+        const link = serveradres + "/set-password;token=" + randomToken + ";user=" + user.username;
+        const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+          'If that doesnt work copy the link below <br>' + link;
+        mailTo('Registered user', html, user.username);
+        logger.info('Succesfully created user ' + user.username)
+        return res.send({
+          data: 'User created',
+          status: 200
+        });
+      });
     });
 });
 
-app.post("/api/login", function(req, res) {
+app.post("/api/login", function (req, res) {
   let userData = req.body;
   logger.info('Received login for user: ' + userData.username);
-  Usermodel.findOne({ username: userData.username.toLowerCase() },
-    function(err, user) {
-      if (err) {
-        logger.error(error)
-        res.send(err);
-      } else {
-        if (!user) {
-          logger.warn('Login request for non-existant user: ' + userData.username.toLowerCase())
-          return res.status(401).send('User does not exist');
-        } else if (user.active === 0) {
-          logger.warn('Login request for inactive user: ' + userData.username.toLowerCase())
-          return res.status(401).send('User is not active, please contact your supervisor');
-        } else {
-          /*if (!user.password) {
-            return res.status(401).send('Account needs to be activated before loggin in, check your email for the link');
-          } else*/ //Has to be implemented when user doesn't have a default password
-          if (bcrypt.compareSync(userData.password, user.password)) {
-            let filter;
-            if (user.permissions !== 'admin') {
-              filter = { client: user.client };
-            }
-            turbineWarrantymodel.find(filter, function(err, data) {
-              if (err) {
-                logger.error(err);
-                res.send(err);
-              } else {
-                const expireDate = new Date();
-                let payload = {
-                  userID: user._id,
-                  userPermission: user.permissions,
-                  userCompany: user.client,
-                  userBoats: user.boats,
-                  username: user.username,
-                  expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-                  hasCampaigns: data.length >= 1 && (user.permissions !== "Vessel master")
-                };
-                let token = jwt.sign(payload, 'secretKey');
-                if (user.active == 0) {
-                  logger.warn('Login request for inactive user: ' + userData.username.toLowerCase())
-                  return res.status(401).send('User has been deactivated');
-                }
-                if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || (user.client === 'Bibby Marine' && user.permissions == 'Vessel master')) {
-                  logger.trace('Login successful for non-2fa user: ' + userData.username.toLowerCase())
-                  return res.status(200).send({ token });
-                } else {
-                  if (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) !== null) {
-                    logger.trace('Login succesful for 2fa user: ' + userData.username.toLowerCase())
-                    return res.status(200).send({ token });
-                  } else {
-                    logger.warn('Login request failed due to bad 2fa for user: ' + userData.username.toLowerCase())
-                    return res.status(401).send('2fa is incorrect');
-                  }
-                }
-              }
-            });
-          } else {
-            logger.warn('Login request failed due to bad password for user: ' + userData.username.toLowerCase())
-            return res.status(401).send('Password is incorrect');
-          }
-        }
-      }
+  Usermodel.findOne({ username: userData.username.toLowerCase() }, function (err, user) {
+    if (err) return onError(res, err)
+    if (!user) return onUnauthorized(res, 'User does not exist');
+    if (user.active == 0) return onUnauthorized(res, 'User is not active, please contact your supervisor');
+    if (!user.password) return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
+    if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
+
+    let filter = user.permissions == 'admin' ? null : { client: user.client };
+    turbineWarrantymodel.find(filter, function (err, data) {
+      if (err) return onError(res, err)
+      const expireDate = new Date();
+      let payload = {
+        userID: user._id,
+        userPermission: user.permissions,
+        userCompany: user.client,
+        userBoats: user.boats,
+        username: user.username,
+        expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
+        hasCampaigns: data.length >= 1 && (user.permissions !== "Vessel master")
+      };
+
+      const secret2faValid = user.secret2fa && user.secret2fa.length > 0 && (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) != null)
+      const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
+
+      if (!user.active) return onUnauthorized(res, 'User has been deactivated');
+      if (!secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
+      let token = jwt.sign(payload, 'secretKey');
+      logger.trace('Login succesful for 2fa user: ' + userData.username.toLowerCase())
+      return res.status(200).send({ token });
     });
+  });
 });
 
-app.post("/api/saveVessel", function(req, res) {
+app.post("/api/saveVessel", function (req, res) {
   var vessel = new model(req.body);
   let token = verifyToken(req, res);
   if (req.body.mode === "Save") {
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") {
       return res.status(401).send('Access denied');
     }
-    vessel.save(function(err, data) {
+    vessel.save(function (err, data) {
       if (err) {
         logger.error(err)
         res.send(err);
@@ -842,17 +816,14 @@ app.post("/api/saveVessel", function(req, res) {
     if (token.userPermission !== "admin") {
       return res.status(401).send('Access denied');
     }
-    Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address },
-      function(err, data) {
-        if (err) {
-          logger.error(err)
-          res.send(err);
-        } else {
-          res.send({ data: "Record has been Updated..!!" });
-        }
-      });
-
-
+    Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
+      if (err) {
+        logger.error(err)
+        res.send(err);
+      } else {
+        res.send({ data: "Record has been Updated..!!" });
+      }
+    });
   }
 });
 
@@ -2058,7 +2029,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
   let date = req.body.date;
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
-  var serveradres = process.env.IP_USER.split(",");
+  const serveradres = getServerAddress();
   validatePermissionToViewData(req, res, function(validated) {
     let token = verifyToken(req, res);
     if (validated.length < 1) {
@@ -2087,7 +2058,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
       let _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
         ' has been signed off by the skipper. Please review the dpr and sign off if in agreement!<br><br>' +
         'Link to the relevant report:<br>' +
-        serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+        serveradres + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
         // ToDo: set proper recipient
       let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
       let recipient = [];
@@ -2154,10 +2125,10 @@ app.post("/api/declineDprClient", function(req, res) {
   let mmsi = req.body.mmsi;
   let date = req.body.date;
   let title = '';
-  let recipient = 'webmaster@bmo-offshore.com';
+  let recipient = 'webmaster@mo4.online';
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
-  var serveradres = process.env.IP_USER.split(",");
+  const serveradres = getServerAddress();
   validatePermissionToViewData(req, res, function(validated) {
     if (validated.length < 1) {
       logger.warn({ msg: 'Access denied - declineDprClient', mmsi: req.body.mmsi, date: req.body.date })
@@ -2192,7 +2163,7 @@ app.post("/api/declineDprClient", function(req, res) {
           if (err) {
             logger.error(err);
           }
-          recipient = ['webmaster@bmo-offshore.com']
+          recipient = 'webmaster@mo4.online';
           title = 'Failed to deliver: skipper not found!'
         } else {
           recipient = data.signedOff.signedOffSkipper
@@ -2203,7 +2174,7 @@ app.post("/api/declineDprClient", function(req, res) {
       const _body = 'The dpr for vessel ' + vesselname + ',' + dateString +
         ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
         'Link to the relevant report:<br>' +
-        serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+        serveradres + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
         '<br><br>Feedback from client:<br>' + req.body.feedback;
       // ToDo: set proper recipient
       setTimeout(function() {
@@ -2220,7 +2191,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
   let recipient = 'webmaster@bmo-offshore.com';
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
-  var serveradres = process.env.IP_USER.split(",");
+  const serveradres = getServerAddress();
   let token = verifyToken(req, res);
   validatePermissionToViewData(req, res, function(validated) {
     if (validated.length < 1) {
@@ -2267,7 +2238,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
       const _body = 'The HSE DPR for vessel ' + vesselname + ', ' + dateString +
         ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
         'Link to the relevant report:<br>' +
-        serveradres[0] + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+        serveradres + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
         '<br><br>Feedback from client:<br>' + req.body.feedback;
       // ToDo: set proper recipient
       setTimeout(function() {
@@ -3059,7 +3030,7 @@ app.post("/api/resetPassword", function(req, res) {
     logger.warn({ msg: 'Access denied - resetPassword' })
     return res.status(401).send('Access denied');
   }
-  randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+  let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
   randomToken = randomToken.replace(/\//gi, '8');
   Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { token: randomToken },
     function(err, data) {
@@ -3067,8 +3038,8 @@ app.post("/api/resetPassword", function(req, res) {
         logger.error(err);
         res.send(err);
       } else {
-        let serveradres = process.env.IP_USER.split(',');
-        let link = serveradres[0] + "/set-password;token=" + randomToken + ";user=" + data.username;
+        const serveradres = getServerAddress();
+        let link = serveradres + "/set-password;token=" + randomToken + ";user=" + data.username;
         let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
           'If that doesnt work copy the link below <br>' + link;
         mailTo('Password reset', html, data.username);

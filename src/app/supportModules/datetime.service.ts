@@ -410,7 +410,6 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   isoStringToDmyString(timeString: string): string {
-    console.log(timeString)
     return this.isoStringToMoment(timeString).format('DD MMM YYYY')
   }
 }

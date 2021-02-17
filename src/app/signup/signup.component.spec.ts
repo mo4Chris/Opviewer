@@ -73,8 +73,6 @@ describe('SignupComponent', () => {
       permissions: 'Vessel master',
       email: 'test@test.nl',
       client: 'test company 1',
-      username: 'test bot',
-      password: 'testMcTestBoat'
     }
     let btn = fixture.nativeElement.querySelector('#register');
     btn.dispatchEvent(new Event('click'));
