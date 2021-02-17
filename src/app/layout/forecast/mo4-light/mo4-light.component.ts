@@ -67,7 +67,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     loadData() {
-      // ToDo: we should only get the project list once
+      // ToDo: only rerout if no permission to forecasting module
       forkJoin([
         this.newService.getForecastProjectList(),
         this.newService.getForecastVesselList(), // Tp
@@ -86,6 +86,9 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           this.response = null;
           this.Workability = null;
         }
+      }, error => {
+
+        this.routeService.routeToAccessDenied();
       })
     }
   
@@ -117,6 +120,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       console.log(settings);
       this.startTime = settings.startTime;
       this.stopTime = settings.stopTime;
+      this.setWorkabilityAlongHeading();
     }
 
     parseResponse() {
@@ -134,12 +138,17 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           ),
           100
         );
-        let headingIdx = this.getHeadingIdx(POI.Heading);
-        // this.workabilityAlongSelectedHeading = this.workability.map(row => row[headingIdx]);
-        this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
+        this.setWorkabilityAlongHeading();
       } else {
         this.Workability = null
       }
+    }
+
+    setWorkabilityAlongHeading() {
+      console.log('UPDATING WORKABILITY')
+      const POI = this.response.response.Points_Of_Interest.P1;
+      let headingIdx = this.getHeadingIdx(POI.Heading);
+      this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
     }
   
     getHeadingIdx(headings: number[]): number {
