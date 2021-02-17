@@ -91,7 +91,7 @@ var userActivitySchema = new Schema({
 var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
 
 var VesselsSchema = new Schema({
-  mmsi: { type: String },
+  mmsi: { type: Number },
   nicename: { type: String },
   client: { type: Array },
   active: { type: Boolean },
