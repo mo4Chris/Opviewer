@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
-import { CommonService } from '../../../common.service';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
 import * as Chart from 'chart.js';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -118,9 +118,9 @@ export class FleetavailabilityComponent implements OnInit {
                     data.data.sailMatrix = [data.data.sailMatrix];
                 }
                 this.turbineWarrenty = data.data;
-                let date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
+                let date = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate);
                 this.startDate = this.convertMomentToObject(date);
-                date = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+                date = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.stopDate);
                 this.stopDate = this.convertMomentToObject(date);
             } else {
                 this.noData = data.err;
@@ -274,30 +274,30 @@ export class FleetavailabilityComponent implements OnInit {
 
     MatlabDateToJSDatePerMonth(serial) {
         if (this.selectedMonth === 'Last 2 weeks') {
-            return this.dateTimeService.MatlabDateToJSDate(serial);
+            return this.dateTimeService.matlabDatenumToDmyString(serial);
         } else {
-            return this.dateTimeService.MatlabDateToJSMonthDate(serial);
+            return this.dateTimeService.matlabDatenumToDayString(serial);
         }
     }
 
     MatlabDateToJSDate(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial);
+        return this.dateTimeService.matlabDatenumToDmyString(serial);
     }
 
     MatlabDateToJSTime(serial) {
-        return this.dateTimeService.MatlabDateToJSTime(serial);
+        return this.dateTimeService.matlabDatenumToTimeString(serial);
     }
 
     MatlabDateToJSDateTime(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial) + ' ' + this.dateTimeService.MatlabDateToJSTime(serial);
+        return this.dateTimeService.matlabDatenumToDmyString(serial) + ' ' + this.dateTimeService.matlabDatenumToTimeString(serial);
     }
 
     convertObjectToMoment(year, month, day) {
-        return this.dateTimeService.convertObjectToMoment(year, month, day);
+        return this.dateTimeService.moment(year, month, day);
     }
 
     convertMomentToObject(date, addMonth = true) {
-        return this.dateTimeService.convertMomentToObject(date, addMonth);
+        return this.dateTimeService.momentToYMD(date, addMonth);
     }
 
     changeToNicename(name) {
@@ -309,8 +309,8 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     getAvailableMonths() {
-        const dateStart = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate);
-        const dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+        const dateStart = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate);
+        const dateEnd = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.stopDate);
 
         let _counter = 0;
         while ((dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) && _counter++ < 200 ) {
@@ -327,7 +327,7 @@ export class FleetavailabilityComponent implements OnInit {
     }
 
     checkDateRange(Date) {
-        const date = this.dateTimeService.MatlabDateToUnixEpoch(Date);
+        const date = this.dateTimeService.matlabDatenumToMoment(Date);
         if (this.selectedMonth !== 'Last 2 weeks') {
             const stopDate = moment('01 ' + this.selectedMonth, 'DD MMM YYYY');
             if (date.month() === stopDate.month() && date.year() === stopDate.year()) {
@@ -436,7 +436,7 @@ export class FleetavailabilityComponent implements OnInit {
         // recorded weather days
         let target = this.turbineWarrenty.weatherDayTarget;
         for (let i = 0; i < this.turbineWarrenty.Dates.length; i++) {
-            const x = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[i]);
+            const x = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.Dates[i]);
             if (i === 0) {
                 x.add(9, 'hour');
             }
@@ -455,16 +455,16 @@ export class FleetavailabilityComponent implements OnInit {
         }
         this.totalWeatherDaysPerMonth.reverse();
         this.totalWeatherDaysPerMonth.push({
-            x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'),
+            x: this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'),
             y: this.turbineWarrenty.weatherDayTarget
         });
         this.totalWeatherDaysPerMonth.reverse();
 
         // forecast after recorded
-        const dateForecast = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length - 1, 'days');
-        const dateEnd = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.stopDate);
+        const dateForecast = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate).add(this.totalWeatherDaysPerMonth.length - 1, 'days');
+        const dateEnd = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.stopDate);
 
-        this.forecastAfterRecorded[0] = { x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
+        this.forecastAfterRecorded[0] = { x: this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'), y: null };
         this.forecastAfterRecorded[this.forecastAfterRecorded.length - 1].y = parseFloat(this.totalWeatherDaysPerMonth[this.totalWeatherDaysPerMonth.length - 1].y);
 
         let _counter = 0;
@@ -478,7 +478,7 @@ export class FleetavailabilityComponent implements OnInit {
 
         // forecast from start
         this.forecastFromStart[0] = {
-            x: this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.startDate).subtract(1, 'hour'),
+            x: this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.startDate).subtract(1, 'hour'),
             y: this.turbineWarrenty.weatherDayTarget
         };
         target = this.turbineWarrenty.weatherDayTarget;
@@ -744,7 +744,7 @@ export class FleetavailabilityComponent implements OnInit {
                         if (item.deleted) {
                             continue;
                         }
-                        const dat = this.dateTimeService.MatlabDateToUnixEpoch(this.turbineWarrenty.Dates[l]);
+                        const dat = this.dateTimeService.matlabDatenumToMoment(this.turbineWarrenty.Dates[l]);
                         let start;
                         if (item.dateStart.year !== 'NaN') {
                             start = this.convertObjectToMoment(item.dateStart.year, item.dateStart.month, item.dateStart.day).add(1, 'hour').valueOf();

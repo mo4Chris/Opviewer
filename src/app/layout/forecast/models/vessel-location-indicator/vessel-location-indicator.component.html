@@ -1,0 +1,8 @@
+<div *ngIf="hasData" class="row flex flex-container" [hidden]="!loaded">
+  <plotly-plot divId="surface-plot" [data]="plotData" className="plotly-canvas" [layout]='plotLayout'
+    (initialized)="onPlotlyInit($event)">
+  </plotly-plot>
+  <div [hidden]="loaded">
+    <app-ng-loading></app-ng-loading>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<table *ngIf="hasSelectedOperation" class="table table-hover table-striped">
+  <thead>
+    <tr>
+      <th>
+        Selected project:
+      </th>
+      <th colspan="2">
+        <select #selectOperation [(ngModel)]="selectedProjectId" (change)="onOpsChange()"
+        class="input form-control form-control-md">
+          <option [ngValue]="op.id" *ngFor="let op of projects">{{op.name}}</option>
+        </select>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Latitude</td>
+      <td colspan="2">{{gps.formatLat(selectedProject?.latitude)}}</td>
+    </tr>
+    <tr>
+      <td>Longitude</td>
+      <td colspan="2">{{gps.formatLng(selectedProject?.longitude)}}</td>
+    </tr>
+    <tr>
+      <td>Start</td>
+      <td colspan="2">{{projectStartDate || 'N/a'}}</td>
+    </tr>
+    <tr>
+      <td>Stop</td>
+      <td colspan="2">{{projectStopDate || 'N/a'}}</td>
+    </tr>
+    
+    <tr><td colspan="3" class="empty-row"></td></tr>
+
+    <tr>
+      <td>Operation date</td>
+      <td colspan="2">
+        <div class="flex-container">
+          <input class="form-control form-control-md" ngbDatepicker #dp="ngbDatepicker" [(ngModel)]="date"
+            [minDate]="minForecastDate" [displayMonths]='1' (change)="onTimeChange()"
+            [maxDate]="maxForecastDate" >
+          <button id="datePickBtn" class="input-group-addon date-picker ng-touched"
+            (click)="dp.toggle()" type="button">
+            <span class="fa fa-calendar"></span>
+          </button>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Start time</td>
+      <td colspan="2">
+        <div class="flex-container">
+          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.hour"
+            type="number" min="0" max="24" placeholder="HH">
+          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.mns"
+            type="number" min="0" max="59" placeholder="MM">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Stop time</td>
+      <td colspan="2">
+        <div class="flex-container">
+          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="stopTimeInput.hour"
+            type="number" max="24" placeholder="HH">
+          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="stopTimeInput.mns"
+            type="number" max="59" placeholder="MM">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Operational duration</td>
+      <td colspan="2">
+        {{formattedDuration || 'N/a'}}
+      </td>
+    </tr>
+
+    <tr><td colspan="3" class="empty-row"></td></tr>
+
+    <tr>
+      <td><div [ngbTooltip]="helpHeading">Operational heading</div></td>
+      <td colspan="2">
+          <input class="form-control form-control-md" [(ngModel)]="heading" [step]="22.5"
+            type="number" [min]="0" [max]="360" placeholder="degrees" (change)="onHeadingChange()">
+      </td>
+    </tr>
+
+    <tr colspan="3" [ngbTooltip]="helpLimits">
+      <th>Limit type</th>
+      <th>DOF</th>
+      <th>Value</th>
+    </tr>
+    <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
+      <td>
+        <select class="form-control" [(ngValue)]="limit.type">
+          <option value='Acc'>Acceleration</option>
+          <option value='Vel'>velocity</option>
+          <option value='Disp'>Displacement</option>
+        </select>
+      </td>
+      <td>
+        <select class="form-control" [(ngModel)]="limit.dof">
+          <option value="Surge">Surge</option>
+          <option value="Sway">Sway</option>
+          <option value="Heave">Heave</option>
+          <option value="Roll">Roll</option>
+          <option value="Pitch">Pitch</option>
+          <option value="Yaw">Yaw</option>
+        </select>
+      </td>
+      <td>
+        <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value">
+      </td>
+    </tr>
+    <tr>
+      <td colspan=3 *ngIf="permission.forecastChangeLimits">
+        <button class="btn btn-sm btn-danger float-right" [disabled]="!(limits?.length)"
+          (click)="onRemoveLimitsLine();" type="button">
+          Remove last
+        </button>
+        <button class="btn btn-sm btn-success float-right"
+          (click)="onAddLimitsLine();" type="button">
+          Add line
+        </button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td colspan=2>
+        <button class="btn btn-md btn-primary float-right" (click)="onConfirm();" type="button">
+          Update config
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #helpHeading>
+  Heading of the vessel in degrees during operation
+</ng-template>
+<ng-template #helpLimits>
+  Select limits to set up
+</ng-template>

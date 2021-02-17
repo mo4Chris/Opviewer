@@ -73,7 +73,7 @@ export class LogisticsSpecialistComponent implements OnInit {
           lons.push(field.centroid.lon);
         });
 
-        const props = this.calcService.GetPropertiesForMap(400, lats, lons);
+        const props = this.calcService.calcPropertiesForMap(400, lats, lons);
         this.zoominfo.emit({
           zoomlvl: Math.min(props.zoomLevel, 8.5),
           latitude: props.avgLatitude,
@@ -103,8 +103,8 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   getVesselInfo() {
-    const startDate = this.dateService.getMatlabDateLastMonth();
-    this.lastMonth = this.dateService.MatlabDateToJSDate(startDate);
+    const startDate = this.dateService.getMatlabDatenumLastMonth();
+    this.lastMonth = this.dateService.matlabDatenumToDmyString(startDate);
     const stopDate = this.dateService.getMatlabDateYesterday();
     const numDays = stopDate - startDate + 1;
     this.vesselInfos.forEach(vInfo => {
@@ -136,7 +136,7 @@ export class LogisticsSpecialistComponent implements OnInit {
         this.activeVessels.push({
           Name: vInfo.nicename,
           mmsi: vInfo.mmsi,
-          LastSailed: lastSailed > 0 ? this.dateService.MatlabDateToJSDate(lastSailed) : '-',
+          LastSailed: lastSailed > 0 ? this.dateService.matlabDatenumToDmyString(lastSailed) : '-',
           Site: typeof(vInfo.Site) === 'string' ? vInfo.Site : 'N/a',
           Type: vInfo.operationsClass,
           Budget: vInfo.videobudget > 0 ? <number> vInfo.videobudget : null,

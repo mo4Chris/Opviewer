@@ -70,7 +70,7 @@ export class CtvSummaryComponent implements OnChanges {
   }
 
   getMatlabDateToJSTime(serial) {
-    return this.dateService.MatlabDateToJSTime(serial);
+    return this.dateService.matlabDatenumToTimeString(serial);
   }
 
   roundNumber(number, decimal = 10, addString = '') {
@@ -82,7 +82,7 @@ export class CtvSummaryComponent implements OnChanges {
   }
 
   getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    return this.dateService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
+    return this.dateService.getMatlabDatenumDifferenceString(serialEnd, serialBegin);
   }
 }
 

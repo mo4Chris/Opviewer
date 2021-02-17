@@ -2,18 +2,12 @@ import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { AutosizeModule } from 'ngx-autosize';
-
 import { ReportsDprComponent } from './reports-dpr.component';
 import { PageHeaderModule, SharedPipesModule } from '@app/shared';
-
-// modules mongoDB
-
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import {CommonService} from '@app/common.service';
+import { CommonService } from '@app/common.service';
 import { UserService } from '@app/shared/services/user.service';
-
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { EventService } from '@app/supportModules/event.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';

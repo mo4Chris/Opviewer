@@ -13,12 +13,8 @@ import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './shared';
 import { CommonService } from './common.service';
-import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'environments/environment';
-
-PlotlyViaCDNModule.plotlyVersion = 'latest';
-PlotlyViaCDNModule.plotlyBundle = 'basic';
 
 
 // AoT requires an exported function for factories
@@ -32,7 +28,6 @@ export function createTranslateLoader(http: HttpClient) {
     imports: [
         CommonModule,
         BrowserModule,
-        PlotlyViaCDNModule,
         BrowserAnimationsModule,
         HttpClientModule,
         FormsModule,

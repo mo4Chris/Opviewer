@@ -86,7 +86,7 @@ export class DashboardComponent implements OnInit {
         let lastUpdatedHours: number;
         this.locationData = locationData;
         this.locationData.forEach(marker => {
-            lastUpdatedHours = this.dateTimeService.hoursSinceMoment(marker.TIMESTAMP);
+            lastUpdatedHours = this.dateTimeService.hoursSinceTimeString(marker.TIMESTAMP);
             if (lastUpdatedHours < 1) {
                 marker.markerIcon = GmapService.iconVesselLive;
             } else if (lastUpdatedHours < 6) {
@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit {
 
     onMouseOver(infoWindow, gm) {
         this.infoWindowOld = infoWindow;
-        this.eventService.OpenAgmInfoWindow(infoWindow, gm);
+        this.eventService.openAgmInfoWindow(infoWindow, gm);
     }
     ///////////////////////////////
 
@@ -112,6 +112,7 @@ export class DashboardComponent implements OnInit {
       this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
         if (userIsActive === true) {
           this.getAlert();
+          this.makeLegend();
           this.getLocations();
         } else {
           localStorage.removeItem('isLoggedin');
@@ -122,7 +123,6 @@ export class DashboardComponent implements OnInit {
     }
 
     getLocations() {
-        this.makeLegend();
         setTimeout(() => {
             switch (this.tokenInfo.userPermission) {
                 case this.userType.Admin: {
@@ -149,7 +149,6 @@ export class DashboardComponent implements OnInit {
             // should not be waited for with regards to change detection.
             setTimeout(() => {
                 this.eventService.closeLatestAgmInfoWindow();
-
                 if (this.router.url === '/dashboard') {
                     this.getLocations();
                 }

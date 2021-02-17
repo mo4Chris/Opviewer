@@ -116,11 +116,6 @@ export class CtvslipgraphComponent implements OnChanges {
         if (this.context !== undefined) {
           this.chart = new Chart(this.context, line);
         } else {
-          console.log(this.canvas);
-          console.log(this.canvas.nativeElement);
-          console.log(this.canvas.nativeElement.getContext('2d'));
-          console.log(this.context);
-          console.log(line);
           console.error('Could not get 2d context!');
         }
       }
@@ -176,13 +171,13 @@ export class CtvslipgraphComponent implements OnChanges {
 
   makeTimeString(matlabTime: number): string {
     return this.dateService
-          .MatlabDateToUnixEpoch(matlabTime + this.utcOffset / 24)
+          .matlabDatenumToMoment(matlabTime + this.utcOffset / 24)
           .toISOString();
   }
 
   addTransfer(transferData: any[], startNum: number, stopNum: number) {
-    const start = this.dateService.MatlabDateToUnixEpoch(startNum);
-    const stop = this.dateService.MatlabDateToUnixEpoch(stopNum);
+    const start = this.dateService.matlabDatenumToMoment(startNum);
+    const stop = this.dateService.matlabDatenumToMoment(stopNum);
     transferData.push({ x: start, y: 1 });
     transferData.push({ x: stop, y: 1 });
     transferData.push({ x: NaN, y: NaN });

@@ -31,6 +31,10 @@ abstract class PermissionModel {
   userCreate = false; // Create new users
   userRead = false;   // View users at company
   userManage = false; // Manage vessels, reset password (de-)activate users
+
+  // Forecast
+  forecastRead = false;
+  forecastChangeLimits = false;
 }
 
 
@@ -120,6 +124,9 @@ class AdminPermission extends PermissionModel {
   userRead = true;
   userCreate = true;
   userManage = true;
+
+  forecastRead = true;
+  forecastChangeLimits = true;
 }
 
 class VesselMaster extends PermissionModel {

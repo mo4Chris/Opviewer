@@ -1,0 +1,98 @@
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-12">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Active operations
+      </div>
+      <div class='card-body'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Client</th>
+              <th>Project overview</th>
+              <th>Edit project</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr *ngFor='let project of projects; let _index = index'>
+              <td>{{project.name}}</td>
+              <td>{{getClient(project.client_id)}}</td>
+              <td>
+                <button (click)="routeToProject(project.id)" class="btn btn-primary">
+                  Forecast
+                </button>
+              </td>
+              <td>
+                <button (click)="routeToProjectOverview(project.id)" class="btn btn-primary">
+                  Edit
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12 col-md-12 col-lg-6 col-xl-4">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Client list [Subject to change]
+      </div>
+      <div class='card-body'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>View user list</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr *ngFor='let user of users; let _index = index'>
+              <td>{{user.username}}</td>
+              <td>
+                <button (click)="onEditUsers(user)" class="btn btn-primary">
+                  View users
+                </button>
+              </td>
+            </tr>
+            <tr *ngFor='let client of clients; let _index = index'>
+              <td>{{client.name}}</td>
+              <td>
+                <button (click)="onEditUsers(user)" class="btn btn-primary">
+                  View clients
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <button class="btn btn-success">Add new</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12 col-md-12 col-lg-6 col-xl-4">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        MO4 Light
+      </div>
+      <div class='card-body'>
+        You currently have access to MO4 Light, designed to show off all the 
+        features MO4 has to offer. This product is still subject to change.
+        <br><br>
+        To add additional projects, please contact MO4 at 
+        <a href="mailto:sales@mo4.online">sales@mo4.online</a> [?]
+        <br><br>
+        A more complete forecasting package, called MO4 PRO, is coming soon.
+        This will unlock all options, and provide you with everything MO4 has to offer.
+      
+      </div>
+    </div>
+  </div>
+</div>

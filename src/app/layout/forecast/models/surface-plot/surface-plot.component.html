@@ -1,0 +1,9 @@
+<div [hidden]="!hasData">
+  <plotly-plot [data]="parsedData" [layout]='PlotLayout'
+    (initialized)="onPlotlyInit($event)" [useResizeHandler]="true">
+  </plotly-plot>
+</div>
+
+<div [hidden]="loaded">
+  <app-ng-loading></app-ng-loading>
+</div>

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AlertService } from '@app/supportModules/alert.service';
 
@@ -37,7 +36,7 @@ export class LoginComponent implements OnInit {
       err => {
         if (err instanceof HttpErrorResponse) {
           if (err.status === 401) {
-            console.log(err);
+            console.error(err);
             this.alert.sendAlert({
               text: err.error,
               type: 'danger'

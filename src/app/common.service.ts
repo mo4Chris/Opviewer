@@ -1,6 +1,6 @@
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
@@ -10,6 +10,8 @@ import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
+import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
+import { mockedObservable } from './models/testObservable';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -72,7 +74,7 @@ export class CommonService {
 
   getLatestTwaUpdate(): Observable<number> {
     return this.get('/api/getLatestTwaUpdate/').pipe(
-      map(response => {
+      map((response: any) => {
         const res = response;
         return res.lastUpdate;
       }));
@@ -80,7 +82,7 @@ export class CommonService {
 
   getVessel2vesselsForSov(mmsi: number, date: number): Observable<Vessel2vesselModel[]> {
     return this.get('/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
-      map(v2vs => {
+      map((v2vs: any[]) => {
         v2vs.forEach(v2v => {
           if (!Array.isArray(v2v.transfers)) {
             v2v.transfers = [v2v.transfers];
@@ -520,6 +522,38 @@ export class CommonService {
       }));
   }
 
+  getForecastConnectionTest() {
+    return this.get('/api/mo4light/connectionTest');
+  }
+
+  getForecastProjectList(): Observable<ForecastOperation[]> {
+    return this.get('/api/mo4light/getProjectList');
+  }
+
+  getForecastVesselList() {
+    return this.get('/api/mo4light/getVesselList');
+  }
+
+  getForecastUserList() {
+    return this.get('/api/mo4light/getUsers');
+  }
+
+  getForecastClientList() {
+    return this.get('/api/mo4light/getClients');
+  }
+
+  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject[]> {
+    return this.get('/api/mo4light/getResponseForProject/' + project_id)
+  }
+  
+  getForecastProjectsForClient(client_id: number) {
+    return this.get('/api/mo4light/getProjectsForClient/' + client_id);
+  }
+
+  getForecastProjectById(id: number): Observable<ForecastOperation> {
+    console.warn('To be implemented!')
+    return mockedObservable(null)
+  }
 }
 
 export interface StatsRangeRequest {

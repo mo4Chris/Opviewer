@@ -4,8 +4,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { isArray } from 'util';
-import { routerTransition } from '@app/router.animations';
 
 
 @Component({
@@ -186,7 +184,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     // Setting the source name
     this.loaded = false;
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
-      if (isArray(spectrums) && spectrums.length > 0) {
+      if (Array.isArray(spectrums) && spectrums.length > 0) {
         this.waveSpectrum = spectrums[0];
         this.parseSpectrum();
         this.loaded = true;
@@ -222,7 +220,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
-      const timeString = this.dateService.MatlabDateToCustomJSTime(this.waveSpectrum.time[_i], 'HH:mm');
+      const timeString = this.dateService.matlabDatenumToFormattedTimeString(this.waveSpectrum.time[_i], 'HH:mm');
       const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
         data: [{
@@ -313,7 +311,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
 
   onError(event) {
     console.error('An error occured during SVG plot generation');
-    console.log(event);
+    console.error(event);
   }
 
   // startAnimation() {

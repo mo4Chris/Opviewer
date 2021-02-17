@@ -308,22 +308,22 @@ export class LongtermComponent implements OnInit {
     return this.dateTimeService.getMatlabDateYesterday();
   }
   getMatlabDateLastMonth() {
-    return this.dateTimeService.getMatlabDateLastMonth();
+    return this.dateTimeService.getMatlabDatenumLastMonth();
   }
   getJSDateYesterdayYMD() {
-    return this.dateTimeService.getJSDateYesterdayYMD();
+    return this.dateTimeService.getYmdStringYesterday();
   }
   getJSDateLastMonthYMD() {
-    return this.dateTimeService.getJSDateLastMonthYMD();
+    return this.dateTimeService.getYmdStringLastMonth();
   }
   MatlabDateToJSDateYMD(serial: number) {
-    return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+    return this.dateTimeService.matlabDatenumToYmdString(serial);
   }
   unixEpochtoMatlabDate(epochDate) {
-    return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+    return this.dateTimeService.unixEpochtoMatlabDatenum(epochDate);
   }
   MatlabDateToUnixEpochViaDate(serial) {
-    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+    return this.dateTimeService.matlabDatenumToDate(serial);
   }
   getMMSIFromParameter() {
     let mmsi: number;

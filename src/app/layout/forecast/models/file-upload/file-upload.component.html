@@ -1,0 +1,17 @@
+<div class="drop-container" ngxFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
+  [uploadInput]="uploadInput">
+  <ng-content *ngIf="!hasFiles; else hasSelectedFile"></ng-content>
+</div>
+ 
+
+<label class="upload-button">
+  <input type="file" ngxFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+    [uploadInput]="uploadInput">
+</label>
+<button type="button" class="start-upload-btn" (click)="startUpload()" [disabled]="uploadCompleted">
+  Start Upload
+</button>
+
+<ng-template #hasSelectedFile>
+  {{files[0].name}} - {{printFileSize(files[0])}}
+</ng-template>

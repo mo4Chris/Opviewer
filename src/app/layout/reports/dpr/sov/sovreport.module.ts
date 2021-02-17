@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartsModule as Ng2Charts } from 'ng2-charts';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { AutosizeModule } from 'ngx-autosize';
 import { SovreportComponent } from './sovreport.component';
@@ -18,13 +17,16 @@ import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operatio
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
 import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
-import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { SovDcTransfersComponent } from './sov-dc-transfers/sov-dc-transfers.component';
 import { DprMapModule } from '../map/dpr-map/dpr-map.module';
 import { environment } from 'environments/environment';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyModule } from 'angular-plotly.js';
+
+PlotlyModule.plotlyjs = PlotlyJS;
 
 
 @NgModule({
@@ -35,9 +37,9 @@ import { environment } from 'environments/environment';
     FormsModule,
     ReactiveFormsModule,
     SharedPipesModule,
-    PlotlyViaCDNModule,
     SupportModelModule,
     DprMapModule,
+    PlotlyModule,
     AgmCoreModule.forRoot({
       apiKey: environment.GOOGLE_API_KEY
   }),

@@ -43,7 +43,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numPortCalls: 1,
     numMaintainanceOps: 1,
   }]];
-  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
+  currentDate = this.dateService.matlabDatenumToYMD(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
   private defaultMinDate: number;
 
@@ -53,7 +53,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
   ) {
-    this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
+    this.defaultMinDate = this.dateService.getMatlabDatenumMonthsAgo(-6);
   }
 
   ngOnChanges() {
@@ -87,11 +87,11 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           const matchedV2vs       = v2vs.find(val => val._id === _mmsi) || {};
           const matchedPortcalls  = portcalls.find(val => val._id === _mmsi) || {};
 
-          const dpr         = <FilteredDprData[]><any>this.dateService.groupDataByMonth(matchedDprs);
-          const _transfers  = this.dateService.groupDataByMonth(matchedTransfers);
-          const _platforms  = this.dateService.groupDataByMonth(matchedPlatforms);
-          const _v2vs       = this.dateService.groupDataByMonth(matchedV2vs);
-          const _portcalls  = this.dateService.groupDataByMonth(matchedPortcalls);
+          const dpr         = <FilteredDprData[]><any>this.dateService.groupMatlabDatenumsByMonth(matchedDprs);
+          const _transfers  = this.dateService.groupMatlabDatenumsByMonth(matchedTransfers);
+          const _platforms  = this.dateService.groupMatlabDatenumsByMonth(matchedPlatforms);
+          const _v2vs       = this.dateService.groupMatlabDatenumsByMonth(matchedV2vs);
+          const _portcalls  = this.dateService.groupMatlabDatenumsByMonth(matchedPortcalls);
           const _kpis       = [];
 
           dpr.forEach(_dpr => {
@@ -134,8 +134,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const s = portcalls.startTime[pcIndex];
         const e = portcalls.stopTime[pcIndex];
         const dtObj = {
-          from: s === '_NaN_' ? '00:00' : this.dateService.MatlabDateToUnixEpoch(s).format('HH:mm'),
-          to: e === '_NaN_' ? '24:00' : this.dateService.MatlabDateToUnixEpoch(e).format('HH:mm'),
+          from: s === '_NaN_' ? '00:00' : this.dateService.matlabDatenumToMoment(s).format('HH:mm'),
+          to: e === '_NaN_' ? '24:00' : this.dateService.matlabDatenumToMoment(e).format('HH:mm'),
           isPlanned: portcalls.plannedUnplannedStatus !== 'unplanned',
         };
         this.applyDowntime(ops, STATUS_PORTCALL_PLANNED, [dtObj], (x) => x.isPlanned);

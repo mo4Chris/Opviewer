@@ -68,7 +68,7 @@ export class Vessel2VesselActivity {
     }
 
     setMapProperties(htmlMap: HTMLElement) {
-        this.mapProperties = this.calculationService.GetPropertiesForMap(htmlMap.offsetWidth,
+        this.mapProperties = this.calculationService.calcPropertiesForMap(htmlMap.offsetWidth,
             this.ctvActivity.map.lat,
             this.ctvActivity.map.lon);
 
