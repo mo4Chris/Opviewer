@@ -106,11 +106,12 @@ textarea {
     border-radius: 13px;
     width: 26px;
     height: 26px;
-    color: #427ded;
-    border-color: #427ded;
+    color: white;
+    border-color: white;
+    background-color: #009fe3;
     &::active,
     &::hover {
-        background-color: #427ded;
+        background-color: white;
         color: white;
         box-shadow: 0 0 0 0.2rem rgba(66, 125, 237, 0.5);
     }

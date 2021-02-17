@@ -10,6 +10,12 @@
 // Color system
 //
 
+//MO4 Styling Colors
+
+$mo4LightBlue: #009fe3 !default;
+$mo4DarkBlue: #18073a !default;
+$mo4Grey: #b2b2b2 !default;
+
 // stylelint-disable
 $white:    #fff !default;
 $gray-100: #f8f9fa !default;
@@ -299,12 +305,12 @@ $table-cell-padding:          .75rem !default;
 $table-cell-padding-sm:       .3rem !default;
 
 $table-bg:                    transparent !default;
-$table-accent-bg:             rgba($black, .05) !default;
-$table-hover-bg:              rgba($black, .075) !default;
+$table-accent-bg:             rgba($mo4LightBlue, .1) !default;
+$table-hover-bg:              rgba($mo4DarkBlue, .075) !default;
 $table-active-bg:             $table-hover-bg !default;
 
 $table-border-width:          $border-width !default;
-$table-border-color:          $gray-300 !default;
+$table-border-color:          $mo4Grey !default;
 
 $table-head-bg:               $gray-200 !default;
 $table-head-color:            $gray-700 !default;
@@ -654,7 +660,7 @@ $card-border-width:                 $border-width !default;
 $card-border-radius:                $border-radius !default;
 $card-border-color:                 rgba($black, .125) !default;
 $card-inner-border-radius:          calc(#{$card-border-radius} - #{$card-border-width}) !default;
-$card-cap-bg:                       rgba($black, .03) !default;
+$card-cap-bg:                       rgba($mo4DarkBlue, .9) !default;
 $card-bg:                           $white !default;
 
 $card-img-overlay-padding:          1.25rem !default;
