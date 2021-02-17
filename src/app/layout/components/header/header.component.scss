@@ -1,17 +1,22 @@
-$topnav-background-color: #222;
+$topnav-background-color: #FFF;
 :host {
     .navbar {
         background-color: $topnav-background-color;
+        border-bottom: 1px solid #18073a;
         .navbar-brand {
-            color: #fff;
+            color: #18073a;
         }
         .nav-item > a {
-            color: #999;
+            color: #18073a;
             &:hover {
-                color: #fff;
+                color: #009fe3;
             }
         }
     }
+}
+
+.logoImage {
+    height:35px;
 }
 
 .alertMessage{

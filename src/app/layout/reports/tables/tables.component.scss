@@ -2,7 +2,7 @@
     -webkit-border-radius: 50px;
     border-radius: 50px;
     color: rgb(255, 255, 255) !important;
-    background: rgba(66, 125, 237, 1);
+    background: rgba(0, 159, 227, 1);
     border: 2px solid rgba(66, 125, 237, 0.919);
     font-size: 14px;
     line-height: 25px;
@@ -12,7 +12,7 @@
     &:focus,
     &:active,
     &:visited {
-        color: rgba(66, 125, 237, 1);
+        color: rgba(0, 159, 227, 1);
         border: 2px solid rgba(66, 125, 237, 1);
         outline: none;
     }
@@ -22,8 +22,7 @@ a {
     color:rgb(255,255,255);
 }
 
-.card-header {
-    padding: .4rem 1rem;
+.card-header { 
 
     .tableTitle {
         float: left;
@@ -35,6 +34,10 @@ a {
         max-width: 300px;
     }
 }
+
+// .table-striped tbody tr:nth-of-type(odd) {
+//     background-color: rgba(0, 0, 0, 0.05);
+// }
 
 .clickable {
     cursor: pointer;

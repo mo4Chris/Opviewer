@@ -1,4 +1,4 @@
-$topnav-background-color: #222;
+$topnav-background-color: #18073a;
 
 @media print {
     .sidebar {
@@ -33,18 +33,19 @@ $topnav-background-color: #222;
             background: $topnav-background-color;
             border: 0;
             border-radius: 0;
-            color: #999;
+            color: #FFF;
             text-decoration: none;
             .fa {
                 margin-right: 10px;
             }
         }
         a:hover {
-            background: darken($topnav-background-color, 5%);
+            background: darken(#009FE3, 5%);
             color: #fff;
         }
         a.router-link-active {
-            background: darken($topnav-background-color, 5%);
+            //background: darken($topnav-background-color, 5%);
+            background: #009FE3;
             color: #fff;
         }
         .header-fields {
