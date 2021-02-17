@@ -6,7 +6,7 @@
           Project overview
         </div>
         <div class='card-body table-responsive'>
-          <app-forecast-ops-picker [projects]="operations" [(selectedProject)]="selectedOperation"
+          <app-forecast-ops-picker [projects]="operations" [(selectedProjectId)]="project_id"
             [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" 
             [(heading)]="selectedHeading">
           </app-forecast-ops-picker>

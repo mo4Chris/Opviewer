@@ -11,14 +11,15 @@ import { ForecastLimit, ForecastOperation } from '../models/forecast-response.mo
 })
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
-  @Input() selectedProject: ForecastOperation;
+  @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD;
   @Input() maxForecastDate: YMD;
   @Input() heading = 0;
-  @Output() selectedProjectChange: EventEmitter<ForecastOperation> = new EventEmitter();
+  @Output() selectedProjectIdChange = new EventEmitter<number>();
   @Output() operationSettings = new EventEmitter<ForecastOperationSettings>()
   @Output() headingChange = new EventEmitter<number>();
 
+  public selectedProject: ForecastOperation;
   public date: YMD;
   public projectStartDate: string;
   public projectStopDate: string;
@@ -36,20 +37,21 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   public get hasSelectedOperation() {
-    return Boolean(this.selectedProject)
+    return this.selectedProjectId != null
   }
 
   ngOnChanges(change: SimpleChanges = {}) {
     const operationIds = this.projects ? this.projects.map(op => op.id) : [];
-    console.log(operationIds)
-    if (!this.selectedProject || (this.selectedProject.id in operationIds)) {
-      this.selectedProject = this.projects ? this.projects[0] : null;
+    if (!this.selectedProjectId || (this.selectedProjectId in operationIds)) {
+      console.log('No selected project provided')
+      // this.selectedProjectId = 0;
     }
-    console.log('this.selectedProject', this.selectedProject)
-    if (this.selectedProject) this.onNewSelectedOperation();
+    console.log('this.selectedProjectId', this.selectedProjectId)
+    if (this.selectedProjectId) this.onNewSelectedOperation();
     if (change.minForecastDate) this.date = this.minForecastDate;
   }
   onNewSelectedOperation() {
+    this.selectedProject = this.projects.find(project => project.id == this.selectedProjectId)
     this.projectStartDate = this.formatTime(this.selectedProject.activation_start_date)
     this.projectStopDate = this.formatTime(this.selectedProject.activation_end_date);
   }
@@ -59,7 +61,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   public onOpsChange() {
-    this.selectedProjectChange.emit(this.selectedProject);
+    this.selectedProjectIdChange.emit(this.selectedProjectId);
     this.onNewSelectedOperation();
   }
   public onTimeChange() {

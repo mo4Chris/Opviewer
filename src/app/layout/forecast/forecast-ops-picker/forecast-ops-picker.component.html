@@ -5,9 +5,9 @@
         Selected project:
       </th>
       <th colspan="2">
-        <select #selectOperation [(ngModel)]="selectedProject" (change)="onOpsChange()"
+        <select #selectOperation [(ngModel)]="selectedProjectId" (change)="onOpsChange()"
         class="input form-control form-control-md">
-          <option [ngValue]="op" *ngFor="let op of projects">{{op.name}}</option>
+          <option [ngValue]="op.id" *ngFor="let op of projects">{{op.name}}</option>
         </select>
       </th>
     </tr>
@@ -15,7 +15,7 @@
   <tbody>
     <tr>
       <td>Latitude</td>
-      <td colspan="2">{{gps.formatLat(selectedProject.latitude)}}</td>
+      <td colspan="2">{{gps.formatLat(selectedProject?.latitude)}}</td>
     </tr>
     <tr>
       <td>Longitude</td>
@@ -23,11 +23,11 @@
     </tr>
     <tr>
       <td>Start</td>
-      <td colspan="2">{{projectStopDate}}</td>
+      <td colspan="2">{{projectStartDate || 'N/a'}}</td>
     </tr>
     <tr>
       <td>Stop</td>
-      <td colspan="2">{{stopTime}}</td>
+      <td colspan="2">{{projectStopDate || 'N/a'}}</td>
     </tr>
     
     <tr><td colspan="3" class="empty-row"></td></tr>
