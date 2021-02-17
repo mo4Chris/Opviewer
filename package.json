@@ -64,7 +64,7 @@
     "pg": "^8.5.1",
     "pino": "6.5.0",
     "plotly.js": "1.58.4",
-    "pm2": "^4.5.4",
+    "pm2": "4.5.4",
     "rxjs": "6.6.3",
     "snazzy-info-window": "1.1.0",
     "sonarqube-scanner": "2.7.0",
