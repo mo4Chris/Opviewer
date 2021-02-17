@@ -39,7 +39,7 @@ describe('ForecastOpsPickerComponent', () => {
   });
 
   it('should emit on change', () => {
-    let emitter = spyOn(component.selectedProjectChange, 'emit');
+    let emitter = spyOn(component['routerService'], 'routeToForecast');
     component.projects = [{ 
       id: 0,
       name: "string",

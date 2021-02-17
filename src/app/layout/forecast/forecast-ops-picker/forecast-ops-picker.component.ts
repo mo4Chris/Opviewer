@@ -3,6 +3,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
@@ -16,16 +17,16 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Input() minForecastDate: YMD;
   @Input() maxForecastDate: YMD;
   @Input() heading = 0;
-  @Output() operationSettings = new EventEmitter<ForecastOperationSettings>()
-  @Output() headingChange = new EventEmitter<number>();
+  @Output() headingChange = new EventEmitter<number>()
+  @Output() onChange = new EventEmitter<ForecastOperationSettings>()
 
   public selectedProject: ForecastOperation;
   public date: YMD;
   public projectStartDate: string;
   public projectStopDate: string;
 
-  public startTime: string;
-  public stopTime: string;
+  public startTime: number;
+  public stopTime: number;
   public startTimeInput = {hour: null, mns: null}
   public stopTimeInput = {hour: null, mns: null}
   public formattedDuration: string;
@@ -44,7 +45,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     return this.selectedProjectId != null
   }
 
-  ngOnChanges(change: SimpleChanges = {}) {
+  ngOnChanges(changes: SimpleChanges = {}) {
     const operationIds = this.projects ? this.projects.map(op => op.id) : [];
     if (!this.selectedProjectId || (this.selectedProjectId in operationIds)) {
       console.log('No selected project provided')
@@ -52,7 +53,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     }
     console.log('this.selectedProjectId', this.selectedProjectId)
     if (this.selectedProjectId) this.onNewSelectedOperation();
-    if (change.minForecastDate) this.date = this.minForecastDate;
+    if (changes.minForecastDate) this.date = this.minForecastDate;
   }
   onNewSelectedOperation() {
     this.selectedProject = this.projects.find(project => project.id == this.selectedProjectId)
@@ -64,17 +65,25 @@ export class ForecastOpsPickerComponent implements OnChanges {
     return this.dateService.isoStringToDmyString(t);
   }
 
+  public onHeadingChange() {
+    this.heading = this.heading % 360;
+    this.headingChange.emit(this.heading);
+  }
   public onOpsChange() {
     this.routerService.routeToForecast(this.selectedProjectId)
   }
   public onTimeChange() {
-    if (this.date
-      && isValidNumber(this.startTimeInput.hour, 0, 24)
-      && isValidNumber(this.startTimeInput.mns, 0, 24)
-      && isValidNumber(this.stopTimeInput.hour, 0, 24)
-      && isValidNumber(this.stopTimeInput.mns, 0, 24)
+    if ( this.date
+      && inRange(this.startTimeInput.hour, 0, 24)
+      && inRange(this.startTimeInput.mns, 0, 59)
+      && inRange(this.stopTimeInput.hour, 0, 24)
+      && inRange(this.stopTimeInput.mns, 0, 59)
     ) {
-      this.formattedDuration = '';
+      const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
+      this.startTime = matlabDate + this.startTimeInput.hour/24 +this.startTimeInput.mns/24/60;
+      this.stopTime = matlabDate + this.stopTimeInput.hour/24 +this.stopTimeInput.mns/24/60;
+      const duration = this.stopTime - this.startTime;
+      this.formattedDuration = this.dateService.formatMatlabDuration(duration)
     }
   }
   public onAddLimitsLine() {
@@ -89,17 +98,15 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public onConfirm () {
     this.heading = Math.max(Math.min(this.heading, 360), 0);
-    this.operationSettings.emit({
-      heading: this.heading,
-      startTime: +this.startTime,
-      stopTime: +this.stopTime,
+    this.onChange.emit({
+      startTime: this.startTime,
+      stopTime: this.stopTime,
       limits: this.limits,
     })
-    this.headingChange.emit(this.heading);
   }
 }
 
-function isValidNumber(obj: any, min = 0, max = 100) {
+function inRange(obj: any, min = 0, max = 100) {
   return typeof(obj) == 'number' && obj>0 && obj<max;
 }
 
@@ -110,8 +117,8 @@ interface YMD {
   day: number;
 }
 
-interface ForecastOperationSettings {
-  heading: number;
+export interface ForecastOperationSettings {
+  // heading: number;
   startTime: number;
   stopTime: number;
   limits: any;

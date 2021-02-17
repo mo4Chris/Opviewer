@@ -37,7 +37,7 @@
       <td colspan="2">
         <div class="flex-container">
           <input class="form-control form-control-md" ngbDatepicker #dp="ngbDatepicker" [(ngModel)]="date"
-            [minDate]="minForecastDate" [displayMonths]='1' (ngModelChange)="onTimeChange()"
+            [minDate]="minForecastDate" [displayMonths]='1' (change)="onTimeChange()"
             [maxDate]="maxForecastDate" >
           <button id="datePickBtn" class="input-group-addon date-picker ng-touched"
             (click)="dp.toggle()" type="button">
@@ -51,9 +51,9 @@
       <td colspan="2">
         <div class="flex-container">
           <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.hour"
-            type="number" max="24" placeholder="HH">
+            type="number" min="0" max="24" placeholder="HH">
           <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.mns"
-            type="number" max="59" placeholder="MM">
+            type="number" min="0" max="59" placeholder="MM">
         </div>
       </td>
     </tr>
@@ -80,8 +80,8 @@
     <tr>
       <td><div [ngbTooltip]="helpHeading">Operational heading</div></td>
       <td colspan="2">
-          <input class="form-control form-control-md" [(ngModel)]="heading"
-            type="number" max="24" placeholder="degrees">
+          <input class="form-control form-control-md" [(ngModel)]="heading" [step]="22.5"
+            type="number" [min]="0" [max]="360" placeholder="degrees" (change)="onHeadingChange()">
       </td>
     </tr>
 
@@ -92,7 +92,7 @@
     </tr>
     <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
       <td>
-        <select class="form-control" [(ngModel)]="limit.type">
+        <select class="form-control" [(ngValue)]="limit.type">
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>velocity</option>
           <option value='Disp'>Displacement</option>

@@ -43,6 +43,7 @@ export class HeadingPickerComponent implements OnChanges {
   constructor() {}
 
   ngOnChanges() {
+    console.log('NEW HEADING')
     this.updatePolarPlot();
   }
 
