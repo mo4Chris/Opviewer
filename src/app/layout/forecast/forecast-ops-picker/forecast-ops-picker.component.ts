@@ -23,10 +23,13 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public date: YMD;
   public projectStartDate: string;
   public projectStopDate: string;
+
   public startTime: string;
   public stopTime: string;
   public startTimeInput = {hour: null, mns: null}
   public stopTimeInput = {hour: null, mns: null}
+  public formattedDuration: string;
+
   public limits: ForecastLimit[] = [];
 
   constructor(
@@ -65,7 +68,14 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.routerService.routeToForecast(this.selectedProjectId)
   }
   public onTimeChange() {
-
+    if (this.date
+      && isValidNumber(this.startTimeInput.hour, 0, 24)
+      && isValidNumber(this.startTimeInput.mns, 0, 24)
+      && isValidNumber(this.stopTimeInput.hour, 0, 24)
+      && isValidNumber(this.stopTimeInput.mns, 0, 24)
+    ) {
+      this.formattedDuration = '';
+    }
   }
   public onAddLimitsLine() {
     this.limits.push({
@@ -87,6 +97,10 @@ export class ForecastOpsPickerComponent implements OnChanges {
     })
     this.headingChange.emit(this.heading);
   }
+}
+
+function isValidNumber(obj: any, min = 0, max = 100) {
+  return typeof(obj) == 'number' && obj>0 && obj<max;
 }
 
 
