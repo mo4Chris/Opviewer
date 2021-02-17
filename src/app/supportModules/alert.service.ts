@@ -10,7 +10,7 @@ const DEFAULT_ERROR_TIMEOUT = 20000;
 export class AlertService {
     active = false;
     text = '';
-    type: AlertTypeOptions = 'success';
+    type: AlertTypeOptions;
     timeout = DEFAULT_TIMEOUT;
 
     private timeoutRef: NodeJS.Timeout = null;
@@ -40,6 +40,7 @@ export class AlertService {
 
     clear() {
       if (this.timeoutRef) clearTimeout(this.timeoutRef);
+      this.timeoutRef = null;
       this.active = false;
     }
 
@@ -49,9 +50,11 @@ export class AlertService {
       this.text = text;
       this.type = type;
       this.timeout = timeout;
-      this.timeoutRef = setTimeout(() => {
-        this.active = false;
-      }, this.timeout);
+      if (timeout) {
+        this.timeoutRef = setTimeout(() => {
+          this.active = false;
+        }, this.timeout);
+      }
     }
 }
 

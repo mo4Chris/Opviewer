@@ -58,8 +58,14 @@ export class RouterService {
     routeToLogin() {
         this.route('login');
     }
+    routeToSignup() {
+        this.route('signup');
+    }
     routeToNotFound() {
         this.route('not-found');
+    }
+    routeToAccessDenied() {
+        this.route('access-denied');
     }
     routeSecundary() {
         this.route([{
