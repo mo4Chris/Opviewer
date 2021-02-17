@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, Simple
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
+import { RouterService } from '@app/supportModules/router.service';
 import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
@@ -15,7 +16,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Input() minForecastDate: YMD;
   @Input() maxForecastDate: YMD;
   @Input() heading = 0;
-  @Output() selectedProjectIdChange = new EventEmitter<number>();
   @Output() operationSettings = new EventEmitter<ForecastOperationSettings>()
   @Output() headingChange = new EventEmitter<number>();
 
@@ -31,6 +31,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   constructor(
     private dateService: DatetimeService,
+    private routerService: RouterService,
     public gps: GpsService,
     public permission: PermissionService,
   ) {
@@ -61,8 +62,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   public onOpsChange() {
-    this.selectedProjectIdChange.emit(this.selectedProjectId);
-    this.onNewSelectedOperation();
+    this.routerService.routeToForecast(this.selectedProjectId)
   }
   public onTimeChange() {
 

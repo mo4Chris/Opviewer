@@ -82,6 +82,9 @@ export class Mo4LightComponent implements OnInit {
           this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
           this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
           this.parseResponse();
+        } else {
+          this.response = null;
+          this.Workability = null;
         }
       })
     }
