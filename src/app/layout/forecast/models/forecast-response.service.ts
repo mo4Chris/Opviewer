@@ -44,7 +44,6 @@ export class ForecastResponseService {
     let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
     const dofKeys = Object.keys(dofPreference)
     dofKeys.forEach(dof => {
-      console.log(dof, dofPreference[dof])
       for (let type in Object.keys(dofPreference[dof])) {
         if (!dofPreference[dof][type]) continue;
         limits.push(
@@ -56,7 +55,6 @@ export class ForecastResponseService {
         )
       }
     });
-    console.log(limits)
     return limits;
   }
 }

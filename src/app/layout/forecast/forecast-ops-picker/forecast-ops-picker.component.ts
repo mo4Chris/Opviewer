@@ -53,7 +53,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     public gps: GpsService,
     public permission: PermissionService,
   ) {
-    console.log(this)
   }
 
   public get hasSelectedOperation() {

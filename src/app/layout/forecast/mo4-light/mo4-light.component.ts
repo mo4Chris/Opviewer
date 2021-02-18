@@ -57,7 +57,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-      console.log("CHANGES")
     }
 
     initRoute() {
@@ -84,7 +83,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
 
           const currentOperation = this.operations.find(op => op.id == this.project_id);
-          console.log(currentOperation)
           this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
 
           this.parseResponse();
@@ -104,9 +102,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     onProjectSettingsChange(settings: ForecastOperationSettings) {
-      console.log("ON PROJECT SETTINGS CHANGE");
-      console.log(this);
-      console.log(settings);
       this.startTime = settings.startTime;
       this.stopTime = settings.stopTime;
       this.setWorkabilityAlongHeading();
