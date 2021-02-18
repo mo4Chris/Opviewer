@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
@@ -19,7 +21,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   @Input() heading = 0;
   @Output() headingChange = new EventEmitter<number>()
-  @Input() limits: ForecastLimit[] = [];
+  @Input() limits: ForecastMotionLimit[] = [];
 
   @Output() onChange = new EventEmitter<ForecastOperationSettings>()
 
@@ -47,13 +49,18 @@ export class ForecastOpsPickerComponent implements OnChanges {
   constructor(
     private dateService: DatetimeService,
     private routerService: RouterService,
+    private alert: AlertService,
     public gps: GpsService,
     public permission: PermissionService,
   ) {
+    console.log(this)
   }
 
   public get hasSelectedOperation() {
     return this.selectedProjectId != null
+  }
+  public get timeValid() {
+    return this.stopTime && this.startTime && this.stopTime>this.startTime;
   }
 
   ngOnChanges(changes: SimpleChanges = {}) {
@@ -95,17 +102,14 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public onAddLimitsLine() {
     this.limitChanged = true;
-    this.limits.push({
-      type: null,
-      dof: null,
-      value: null,
-    })
+    this.limits.push(new ForecastMotionLimit())
   }
   public onRemoveLimitsLine() {
     this.limitChanged = true;
     this.limits.pop();
   }
   public onConfirm () {
+    if (!this.timeValid) return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'})
     this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.onChange.emit({
       startTime: this.startTime,
