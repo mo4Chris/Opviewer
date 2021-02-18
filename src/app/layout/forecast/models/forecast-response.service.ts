@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatrixService } from '@app/supportModules/matrix.service';
-import { Dof6, Dof6Array } from './forecast-response.model'
+import { ForecastMotionLimit } from './forecast-limit';
+import { Dof6, Dof6Array, DofType, ForecastOperation } from './forecast-response.model'
 
 
 const DOF_INDICES = {'Surge': 0, 'Sway': 1, 'Heave': 2, 'Roll': 3, 'Pitch': 4, 'Yaw': 5}
@@ -35,5 +36,25 @@ export class ForecastResponseService {
       output = this.matService.elementwiseMax(output, datas[i])
     }
     return output;
+  }
+  
+  setLimitsFromOpsPreference(op: ForecastOperation) {
+    // Service?
+    const limits = [];
+    let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
+    const dofKeys = Object.keys(dofPreference)
+    dofKeys.forEach(dof => {
+      for (let type in Object.keys(dofPreference[dof])) {
+        if (!dofPreference[dof][type]) continue;
+        limits.push(
+          new ForecastMotionLimit({
+            dof: dof as Dof6,
+            type: type as DofType,
+            value: 1,
+          })
+        )
+      }
+    });
+    return limits;
   }
 }

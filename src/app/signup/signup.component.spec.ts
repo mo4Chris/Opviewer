@@ -79,7 +79,7 @@ describe('SignupComponent', () => {
     await fixture.whenStable()
     expect(onRegistrationSpy).toHaveBeenCalled()
     expect(authSpy).toHaveBeenCalled();
-    expect(alertSpy).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalled();
     expect(routerSpy).toHaveBeenCalled();
     done();
   })

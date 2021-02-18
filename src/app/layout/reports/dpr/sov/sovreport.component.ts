@@ -222,7 +222,7 @@ export class SovreportComponent implements OnInit, OnChanges {
               if (this.sovModel.vessel2vessels.length > 0) {
                 this.sovModel.vessel2vessels[0].CTVactivity.forEach(
                   v2v => {
-                    if (isArray(v2v.turbineVisits)) {
+                    if (Array.isArray(v2v.turbineVisits)) {
                       v2v.turbineVisits.forEach(visit => {
                         if (
                           !sovFieldNames.some(

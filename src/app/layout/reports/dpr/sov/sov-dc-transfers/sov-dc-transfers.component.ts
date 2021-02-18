@@ -51,7 +51,7 @@ export class SovDcTransfersComponent implements OnChanges {
             this.map = _activity.map;
             if (Array.isArray(_activity.turbineVisits)) {
               this.transfers = _activity.turbineVisits;
-            } else if (isObject(_activity.turbineVisits) && isNumber(_activity.turbineVisits['startTime'])) {
+            } else if (typeof(_activity.turbineVisits)=='object' && typeof(_activity.turbineVisits['startTime'])=='number') {
               this.transfers = [_activity.turbineVisits];
             }
           }
