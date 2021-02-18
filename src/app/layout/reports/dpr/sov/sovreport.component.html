@@ -1,25 +1,31 @@
 <app-dpr-map *ngIf="showContent" style="width: 100%;" [hidden]="!showContent" [vesselTrace]="vesselTrace" (onMapReady)="onMapReady($event)"
   [turbineVisits]="sovModel.turbineTransfers" [platformVisits]="sovModel.platformTransfers" [v2vs]="sovModel.vessel2vessels">
 </app-dpr-map>
+
+
 <div *ngIf="showContent && printMode == 0" class="plsdonotprintthisforfsake">
   <br>
-  <!-- ToDo: replace with Nav https://ng-bootstrap.github.io/#/components/nav/overview -->
-  <!-- ToDo: keep tabs in DOM / memory whenever the wavespectrum gets loaded, but not initially-->
   <ngb-alert #refused style="position: relative;" *ngIf="dprApproval < 0" [dismissible]="false" type="warning">
-  The DPR as signed off by the captain has been refused. Please update as soon as possible!</ngb-alert>
-  <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="true">
-    <ngb-tab title="Summary" [disabled]="!hasGeneral" [id]="'summary'">
-      <ng-template #summaryTest id="tab-summary" ngbTabContent>
+    The DPR as signed off by the captain has been refused. Please update as soon as possible!
+  </ngb-alert>
+
+
+  <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="activeTab">
+    <li [disabled]="!hasGeneral" [destroyOnHide]="false" ngbNavItem="sov-summary">
+      <a ngbNavLink>Workability</a>
+      <ng-template #summaryTest id="tab-summary" ngbNavContent>
         <br>
         <app-sov-summary [sovModel]="sovModel" [backgroundColors]="backgroundcolors" [fieldName]="fieldName"
           [dprApprovalCount]="dprApproval" [hseApprovalCount]="hseDprApproval">
         </app-sov-summary>
         <app-sov-weatherchart [sovModel]="sovModel" [vesselUtcOffset]="vesselUtcOffset"></app-sov-weatherchart>
       </ng-template>
-    </ngb-tab>
-    
-    <ngb-tab *ngIf="permission.sovCommercialRead" title="Transfers" [disabled]="!hasDprData" [id]="'commercial'">
-      <ng-template ngbTabContent>
+    </li>
+
+    <li *ngIf="permission.sovCommercialRead" [disabled]="!hasDprData" [destroyOnHide]="true" ngbNavItem="sov-commercial">
+      <a ngbNavLink>Transfers</a>
+    <!-- <ngb-tab *ngIf="permission.sovCommercialRead" title="Transfers" [disabled]="!hasDprData" [id]="'commercial'"> -->
+      <ng-template ngbNavContent>
         <app-sov-v2v-transfers *ngIf="sovModel.vessel2vessels.length>0" [vessel2vessels]="sovModel.vessel2vessels"
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
           [vesselObject]="vesselObject" [readonly]="!permission.sovCommercialWrite">
@@ -43,10 +49,12 @@
           ></app-sov-turbine-transfers>
         </ng-container>
       </ng-template>
-    </ngb-tab>
+    </li>
 
-    <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" [id]="'dpr-input-write'">
-      <ng-template ngbTabContent>
+    <li *ngIf="permission.sovCommercialRead" [destroyOnHide]="true" ngbNavItem="sov-input-write">
+      <a ngbNavLink>DPR input</a>
+    <!-- <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" [id]="'dpr-input-write'"> -->
+      <ng-template ngbNavContent>
         <br>
         <ng-container *ngIf="dprApproval <= 0">
           <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" [dprApprovalCount]="dprApproval"
@@ -69,33 +77,41 @@
           [tokenInfo]="tokenInfo" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-vesselmaster>
         </ng-container>
       </ng-template>
-    </ngb-tab>
+    </li>
 
-    <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'">
-      <ng-template ngbTabContent>
+    <li *ngIf="permission.sovDprInputRead" [destroyOnHide]="true" ngbNavItem="sov-input-read">
+      <a ngbNavLink>Commercial overview</a>
+    <!-- <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'"> -->
+      <ng-template ngbNavContent>
         <br>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
           [readonly]="true" [dprApprovalCount]="dprApproval" [dprInput]="dprInput"></app-sov-dpr-input>
       </ng-template>
-    </ngb-tab>
+    </li>
 
-    <ngb-tab title="HSE overview" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'">
-      <ng-template ngbTabContent>
+    <li *ngIf="permission.sovHseRead" [destroyOnHide]="true" ngbNavItem="dpr-hse-read">
+      <a ngbNavLink>HSE overview</a>
+    <!-- <ngb-tab title="HSE overview" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'"> -->
+      <ng-template ngbNavContent>
         <br>
         <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [hseDprApprovalCount]="hseDprApproval" [tokenInfo]="tokenInfo"
          (hseDprApproval)="emitHseApproval($event)" [vesselObject]="vesselObject"></app-sov-hse-dpr-input-readonly>
       </ng-template>
-    </ngb-tab>
+    </li>
 
     
-    <ngb-tab title='Wave spectrum' *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [id]="'waveSpectrumAvailable'">   
-      <ng-template ngbTabContent>
+    <li *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable"
+      [destroyOnHide]="false" ngbNavItem="dpr-wave-spectrum">
+      <a ngbNavLink>Wave spectrum</a>
+      <ng-template ngbNavContent>
         <br>
         <app-wave-spectrum-component [vesselObject]="vesselObject"></app-wave-spectrum-component>
       </ng-template>
-    </ngb-tab>
+    </li>
+  </ul>
 
-  </ngb-tabset>
+  
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
 </div>
 
 
