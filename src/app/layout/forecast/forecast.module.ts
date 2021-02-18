@@ -19,6 +19,7 @@ import { Mo4LightComponent } from './mo4-light/mo4-light.component';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 import { PlotlyModule } from 'angular-plotly.js';
+import { ForecastWeatherOverviewComponent } from './models/forecast-weather-overview/forecast-weather-overview.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -47,7 +48,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     FileUploadComponent,
     VesselLocationIndicatorComponent,
     ForecastDashboardComponent,
-    Mo4LightComponent
+    Mo4LightComponent,
+    ForecastWeatherOverviewComponent
   ],
   bootstrap: [
     Mo4LightComponent

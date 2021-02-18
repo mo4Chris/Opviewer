@@ -18,13 +18,26 @@
     </div>
 
     <div class="col-lg-12 col-xl-8" *ngIf="Workability">
-      <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-        [startTime]="startTime" [stopTime]="stopTime">
-      </app-forecast-workability-plot>
+      <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="true">
+        <ngb-tab title="Workability" [disabled]="false" id="workability">
+          <ng-template #workability id="tab-workability" ngbTabContent>
+            <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+              [startTime]="startTime" [stopTime]="stopTime">
+            </app-forecast-workability-plot>
 
-      <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
-        [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
-      </app-surface-plot>
+            <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
+              [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+            </app-surface-plot>
+          </ng-template>
+        </ngb-tab>
+
+        <ngb-tab title="Weather overview" [disabled]="false" id="weather">
+          <ng-template #weather id="tab-weather" ngbTabContent>
+            <app-forecast-weather-overview [time]="ReponseTime" [response]="response">
+            </app-forecast-weather-overview>
+          </ng-template>
+        </ngb-tab>
+      </ngb-tabset>
     </div>
   </div>
 </div>
