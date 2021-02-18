@@ -1,5 +1,4 @@
-import { EventEmitter, Component, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { Component, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-heading-picker',
@@ -10,9 +9,9 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 export class HeadingPickerComponent implements OnChanges {
   @Input() heading = 0;
   
-  public data: PlotlyJS.Data[];
+  public data: Plotly.Data[];
   public loaded = false;
-  public PlotLayout = {
+  public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
     height: 200,
@@ -36,14 +35,16 @@ export class HeadingPickerComponent implements OnChanges {
         tickfont: {
           size: 11
         }
-      }
+      } as any
     }
   };
+  public config = {
+    staticPlot: true
+  }
 
   constructor() {}
 
   ngOnChanges() {
-    console.log('NEW HEADING')
     this.updatePolarPlot();
   }
 

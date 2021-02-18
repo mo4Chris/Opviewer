@@ -6,9 +6,10 @@ import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Dof6, DofType, ForecastLimit, ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from '../forecast-ops-picker/forecast-ops-picker.component'
+import { ForecastMotionLimit } from '../models/forecast-limit';
 
 @Component({
   selector: 'app-mo4-light',
@@ -29,7 +30,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public WorkabilityHeadings: number[];
     public WorkabilityAlongSelectedHeading: number[];
 
-    public limits: ForecastLimit[] = [{type: 'Disp', dof: 'Heave', value: 1.2}];
+    public limits: ForecastMotionLimit[] = [];
     public selectedHeading = 112;
     public selectedOperation: ForecastOperation = null;
   
@@ -56,7 +57,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-      console.log("CHANGES")
     }
 
     initRoute() {
@@ -67,7 +67,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
   
     loadData() {
-      // ToDo: we should only get the project list once
+      // ToDo: only rerout if no permission to forecasting module
       forkJoin([
         this.newService.getForecastProjectList(),
         this.newService.getForecastVesselList(), // Tp
@@ -81,65 +81,55 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           let responseTimes = this.response.response.Points_Of_Interest.P1.Time;
           this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
           this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
+
+          const currentOperation = this.operations.find(op => op.id == this.project_id);
+          this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+
           this.parseResponse();
         } else {
           this.response = null;
           this.Workability = null;
+          this.limits = [];
         }
+      }, error => {
+        this.routeService.routeToAccessDenied();
       })
     }
   
-    setLimitsFromOpsPreference(op: ForecastOperation) {
-      // Service?
-      this.limits = [];
-      let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
-      for (let dof in Object.keys(dofPreference)) {
-        for (let type in Object.keys(dofPreference[dof])) {
-          let tf = dofPreference[dof][type];
-          if (tf) {
-            this.limits.push({
-              dof: dof as Dof6,
-              type: type as DofType,
-              value: 1,
-            })
-          }
-        }
-      }
-    }
   
     routeToProject(project_id: number) {
       this.routeService.routeToForecast(project_id);
     }
   
     onProjectSettingsChange(settings: ForecastOperationSettings) {
-      console.log("ON PROJECT SETTINGS CHANGE");
-      console.log(this);
-      console.log(settings);
       this.startTime = settings.startTime;
       this.stopTime = settings.stopTime;
+      this.setWorkabilityAlongHeading();
     }
 
     parseResponse() {
-      if (this.response) {
-        const POI = this.response.response.Points_Of_Interest.P1;
-        const response = POI.Response;
-        this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
-        this.WorkabilityHeadings = POI.Heading;
-        const limiters = this.limits.map(limit => {
-          return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value)
-        })
-        this.Workability = this.matService.scale(
-          this.matService.transpose(
-            this.responseService.combineWorkabilities(limiters)
-          ),
-          100
-        );
-        let headingIdx = this.getHeadingIdx(POI.Heading);
-        // this.workabilityAlongSelectedHeading = this.workability.map(row => row[headingIdx]);
-        this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
-      } else {
-        this.Workability = null
-      }
+      if (!this.response || this.limits.length==0) return this.Workability = null;
+      const POI = this.response.response.Points_Of_Interest.P1;
+      const response = POI.Response;
+      this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
+      this.WorkabilityHeadings = POI.Heading;
+      const limiters = this.limits.map(limit => {
+        return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value)
+      })
+      this.Workability = this.matService.scale(
+        this.matService.transpose(
+          this.responseService.combineWorkabilities(limiters)
+        ),
+        100
+      );
+      this.setWorkabilityAlongHeading();
+    }
+
+    setWorkabilityAlongHeading() {
+      console.log('UPDATING WORKABILITY')
+      const POI = this.response.response.Points_Of_Interest.P1;
+      let headingIdx = this.getHeadingIdx(POI.Heading);
+      this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
     }
   
     getHeadingIdx(headings: number[]): number {

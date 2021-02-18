@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { AlertService } from '@app/supportModules/alert.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
 
 @Component({
@@ -14,10 +16,13 @@ import { ForecastLimit, ForecastOperation } from '../models/forecast-response.mo
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
   @Input() selectedProjectId: number;
-  @Input() minForecastDate: YMD;
-  @Input() maxForecastDate: YMD;
+  @Input() minForecastDate: YMD; // From Response
+  @Input() maxForecastDate: YMD; // From Response
+
   @Input() heading = 0;
   @Output() headingChange = new EventEmitter<number>()
+  @Input() limits: ForecastMotionLimit[] = [];
+
   @Output() onChange = new EventEmitter<ForecastOperationSettings>()
 
   public selectedProject: ForecastOperation;
@@ -31,11 +36,20 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public stopTimeInput = {hour: null, mns: null}
   public formattedDuration: string;
 
-  public limits: ForecastLimit[] = [];
+  private operationTimeChanged = false;
+  private headingChanged = false;
+  private limitChanged = false;
+
+  public get settingsChanged() {
+    return this.operationTimeChanged
+      || this.headingChanged
+      || this.limitChanged
+  }
 
   constructor(
     private dateService: DatetimeService,
     private routerService: RouterService,
+    private alert: AlertService,
     public gps: GpsService,
     public permission: PermissionService,
   ) {
@@ -44,14 +58,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get hasSelectedOperation() {
     return this.selectedProjectId != null
   }
+  public get timeValid() {
+    return this.stopTime && this.startTime && this.stopTime>this.startTime;
+  }
 
   ngOnChanges(changes: SimpleChanges = {}) {
-    const operationIds = this.projects ? this.projects.map(op => op.id) : [];
-    if (!this.selectedProjectId || (this.selectedProjectId in operationIds)) {
-      console.log('No selected project provided')
-      // this.selectedProjectId = 0;
-    }
-    console.log('this.selectedProjectId', this.selectedProjectId)
     if (this.selectedProjectId) this.onNewSelectedOperation();
     if (changes.minForecastDate) this.date = this.minForecastDate;
   }
@@ -66,6 +77,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   public onHeadingChange() {
+    this.headingChanged = true;
     this.heading = this.heading % 360;
     this.headingChange.emit(this.heading);
   }
@@ -73,6 +85,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.routerService.routeToForecast(this.selectedProjectId)
   }
   public onTimeChange() {
+    this.operationTimeChanged = true;
     if ( this.date
       && inRange(this.startTimeInput.hour, 0, 24)
       && inRange(this.startTimeInput.mns, 0, 59)
@@ -87,27 +100,29 @@ export class ForecastOpsPickerComponent implements OnChanges {
     }
   }
   public onAddLimitsLine() {
-    this.limits.push({
-      type: null,
-      dof: null,
-      value: null,
-    })
+    this.limitChanged = true;
+    this.limits.push(new ForecastMotionLimit())
   }
   public onRemoveLimitsLine() {
+    this.limitChanged = true;
     this.limits.pop();
   }
   public onConfirm () {
+    if (!this.timeValid) return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'})
     this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.onChange.emit({
       startTime: this.startTime,
       stopTime: this.stopTime,
       limits: this.limits,
     })
+    this.headingChanged = false;
+    this.limitChanged = false;
+    this.operationTimeChanged = false;
   }
 }
 
 function inRange(obj: any, min = 0, max = 100) {
-  return typeof(obj) == 'number' && obj>0 && obj<max;
+  return typeof(obj) == 'number' && obj>=min && obj<=max;
 }
 
 

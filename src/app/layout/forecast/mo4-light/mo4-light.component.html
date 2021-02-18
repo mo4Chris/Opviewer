@@ -2,13 +2,17 @@
   <div class="row center font-sm">
     <div class="col-lg-12 col-xl-4">
       <div class='card mb-3'>
-        <div class='card-header'>
-          Project overview
+        <div class='card-header flex-box'>
+          <div>Project overview</div>
+          <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+            [ngbPopover]="helpProjectOverview" placement="bottom" popoverClass="helpPopup">?
+          </button>
         </div>
         <div class='card-body table-responsive'>
           <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
             [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" 
-            [(heading)]="selectedHeading" (onChange)="onProjectSettingsChange($event)">
+            [(heading)]="selectedHeading" (onChange)="onProjectSettingsChange($event)"
+            [limits]="limits">
           </app-forecast-ops-picker>
 
           <app-heading-picker class="center" [heading]="selectedHeading">
@@ -17,7 +21,7 @@
       </div>
     </div>
 
-    <div class="col-lg-12 col-xl-8" *ngIf="Workability">
+    <div class="col-lg-12 col-xl-8" *ngIf="Workability; else workabilityNotAvailable">
       <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
         [startTime]="startTime" [stopTime]="stopTime">
       </app-forecast-workability-plot>
@@ -32,4 +36,19 @@
 
 <ng-template #loading>
   <app-ng-loading></app-ng-loading>
+</ng-template>
+<ng-template #workabilityNotAvailable>
+  <div class="col-lg-12 col-xl-8 min-height">
+    <div class="not-available">
+      Workability not available!
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #helpProjectOverview>
+  Use the uppermost dropdown to navigate between projects. Then select the operation
+  date, time and heading to receive a workability forecast. All other settings can be
+  changed by navigating to the project settings page.
+  <br><br>
+  Note: a workability forecast cannot be generated unless valid limits have been specified!
 </ng-template>

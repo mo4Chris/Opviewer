@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,7 +19,8 @@ describe('ForecastOpsPickerComponent', () => {
       imports: [
         NgbModule,
         CommonModule,
-        FormsModule
+        FormsModule,
+        RouterTestingModule,
       ],
       providers: [
         MockedUserServiceProvider,
@@ -54,6 +56,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
     }];
+    component.selectedProjectId = 0;
     component.ngOnChanges();
     fixture.detectChanges();
     expect(component.hasSelectedOperation).toBeTruthy();
@@ -67,7 +70,7 @@ describe('ForecastOpsPickerComponent', () => {
     }
   })
 
-  it('should render relevant data', () => {
+  it('should render relevant data', async () => {
     component.projects = [{ 
       id: 0,
       name: "string",
@@ -82,11 +85,13 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
     }];
+    component.selectedProjectId = 0;
     component.ngOnChanges();
     fixture.detectChanges();
+    await fixture.whenStable();
 
-    let opt = fixture.nativeElement.querySelector('option');
+    let elt: HTMLElement = fixture.nativeElement;
+    let opt = elt.querySelector('#selectOperation');
     expect(opt).toBeTruthy();
-    expect(opt.value).toBeTruthy(); // We get [object object] here, not sure how to access the actual element
   })
 });

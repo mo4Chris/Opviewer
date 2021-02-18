@@ -1,24 +1,18 @@
-.div-spacing {
-  height: 50px;
-}
-
-.flex-container {
-  display: inline-flex;
-}
-
-.max-card{
-  max-width: 780px;
-}
-
-.center {
-  align-self: center;
-}
-
-.font-sm {
-  font-size: 14px;
-}
+@import '../forecast.scss';
 
 app-heading-picker {
   align-self: center;
   justify-content: center;
+}
+
+.min-height{
+  align-self: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.not-available{
+  font-size: 30px;
+  display: table;
+  margin: 0 auto;
 }

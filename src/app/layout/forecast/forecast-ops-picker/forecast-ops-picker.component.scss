@@ -16,3 +16,11 @@
   height: 0.6 rem;
   padding: 0.1 rem;
 } 
+
+.tight {
+  padding-left: 3px;
+  padding-right: 3px;
+  select{
+    padding: 3px;
+  }
+}
