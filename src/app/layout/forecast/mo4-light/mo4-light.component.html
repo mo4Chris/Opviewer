@@ -17,27 +17,33 @@
       </div>
     </div>
 
-    <div class="col-lg-12 col-xl-8" *ngIf="Workability">
-      <ngb-tabset [activeId]="activeTab" [justify]="'start'" [destroyOnHide]="true">
-        <ngb-tab title="Workability" [disabled]="false" id="workability">
-          <ng-template #workability id="tab-workability" ngbTabContent>
-            <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-              [startTime]="startTime" [stopTime]="stopTime">
-            </app-forecast-workability-plot>
+    <div class="col-lg-12 col-xl-8" >
+      <ul ngbNav #nav="ngbNav" class="nav-tabs">
+        <li [ngbNavItem]="1">
+          <a ngbNavLink>Workability</a>
+          <ng-template ngbNavContent>
+            <ng-container *ngIf="Workability">
+              <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+                [startTime]="startTime" [stopTime]="stopTime">
+              </app-forecast-workability-plot>
 
-            <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
-              [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
-            </app-surface-plot>
+              <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
+                [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+              </app-surface-plot>
+            </ng-container>
           </ng-template>
-        </ngb-tab>
-
-        <ngb-tab title="Weather overview" [disabled]="false" id="weather">
-          <ng-template #weather id="tab-weather" ngbTabContent>
+        </li>
+        
+        <li ngbNavItem title="Weather overview">
+          <a ngbNavLink>Weather overview</a>
+          <ng-template #weather id="tab-weather" ngbNavContent>
             <app-forecast-weather-overview [time]="ReponseTime" [response]="response">
             </app-forecast-weather-overview>
+            Jopie
           </ng-template>
-        </ngb-tab>
-      </ngb-tabset>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
 </div>
