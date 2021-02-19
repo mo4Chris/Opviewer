@@ -1,3 +1,16 @@
+@import '../forecast.scss';
+
 agm-map {
   height: 400px;
+}
+
+.default-margin{
+  margin: auto
+}
+
+td {
+  vertical-align: middle;
+}
+th {
+  vertical-align: middle !important;
 }

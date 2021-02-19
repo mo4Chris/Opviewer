@@ -26,7 +26,7 @@ export class ForecastVesselComponent implements OnInit {
     gm: 4.56789,
     rao: null
   }]
-  public project: ForecastOperation;
+  public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
   public SelectedVessel: ForecastVesselRequest = <any> 0;

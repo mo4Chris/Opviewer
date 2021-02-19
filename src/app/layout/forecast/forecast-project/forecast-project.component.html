@@ -1,8 +1,5 @@
-
-<h2>Selected project id: {{project_id}}</h2>
-
-<div class="row">
-  <div class="col-md-6">
+<div class="row default-margin">
+  <div class="col-md-6 max-card">
     <div class='card mb-3'>
       <div class='card-header'>
         Project description
@@ -25,25 +22,39 @@
             </tr>
             <tr>
               <td>Latitude</td>
-              <td><input *ngIf="project" class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+              <td>
+                <input class="form-control form-control-sm"
                 [(ngModel)]="project.latitude"  type="number" step=0.00001 maxlength="6"
-                (change)="onUpdateLat()" min="-90" max="90"></td>
-              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
-                [ngModel]="Lattitude"  readonly></td>
+                (change)="onUpdateLat()" min="-90" max="90">
+              </td>
+              <td>
+                <input class="form-control form-control-sm" [(ngModel)]="Lattitude"
+                  placeholder="N/a" disabled>
+              </td>
             </tr>
             <tr>
               <td>Longitude</td>
-              <td><input *ngIf="project" class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
+              <td>
+                <input class="form-control form-control-sm"
                 [(ngModel)]="project.longitude"  type="number" step=0.00001
-                (change)="onUpdateLon()" min="-180" max="180"
-                ></td>
-              <td><input class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched ng-disabled"
-                [ngModel]="Longitude"  readonly></td>
+                (change)="onUpdateLon()" min="-180" max="180">
+              </td>
+              <td>
+                <input class="form-control form-control-sm" [(ngModel)]="Longitude"
+                  placeholder="N/a" disabled>
+              </td>
             </tr>
             <tr>
               <td>Water depth</td>
-              <td><input *ngIf="project" class="form-control-sm col-sm-12 ng-pristine ng-valid ng-touched"
-                [(ngModel)]="project.water_depth"  type="number"> m</td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="project.water_depth"
+                    [min]="0" placeholder="Depth">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
               <td></td>
             </tr>
           </tbody>
@@ -60,7 +71,7 @@
       [Width]="SelectedVessel?.width" [Length]="SelectedVessel?.length">
     </app-vessel-location-indicator>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-6 max-card">
     <div class='card mb-3'>
       <div class='card-header'>
         Vessel properties
@@ -71,7 +82,8 @@
             <tr>
               <th>Vessel type</th>
               <th>
-                <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select">
+                <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select"
+                  class="form-control form-control-md" [disabled]="!projectLoaded">
                   <option disabled selected [value]="0">Please select a vessel</option>
                   <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.type}}</option>
                 </select>
@@ -107,9 +119,63 @@
       </div>
     </div>
     
-    <div class='card mb-3'>
+    <div class='card mb-3 max-card'>
       <div class='card-header'>
         Point of interest
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Axis</th>
+              <th>Offset</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr>
+              <td><div [ngbTooltip]="helpX">X</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.X"
+                    [min]="0" placeholder="Distance from aft">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpY">Y</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.Y"
+                    placeholder="Sideways distance">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpZ">Z</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.Z"
+                    [min]="0" placeholder="Height from keel">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class='card mb-3 max-card'>
+      <div class='card-header'>
+        Advanced options
       </div>
       <div class='card-body table-responsive'>
         <table class='table table-hover table-striped'>
@@ -121,21 +187,14 @@
           </thead>
           <tbody class='sep-row'>
             <tr>
-              <td><div [ngbTooltip]="helpX">X</div></td>
-              <td><input [(ngModel)]="POI.X" type="number" step="0.5" placeholder="Distance from aft"> m</td>
-            </tr>
-            <tr>
-              <td><div [ngbTooltip]="helpY">Y</div></td>
-              <td><input [(ngModel)]="POI.Y" type="number" step="0.5" placeholder="Sideways distance"> m</td>
-            </tr>
-            <tr>
-              <td><div [ngbTooltip]="helpZ">Z</div></td>
-              <td><input [(ngModel)]="POI.Z" type="number" step="0.25" placeholder="Height from keel"> m</td>
+              <td></td>
+              <td></td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
     <button class="btn btn-primary" (click)="onConfirm()">Confirm</button>
   </div>
 </div>
