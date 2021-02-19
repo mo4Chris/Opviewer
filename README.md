@@ -31,3 +31,16 @@ Color - rgb - description/usecase
 White - 255, 255, 255 - Datepicker day disabled, video request loading
 Light blue  - 198, 233, 255 - Datepicker day has transfer
 Light yellow  - 255, 255, 211 - Datepicker day has transit but no transfer
+
+## MO4 Branding colors
+Light blue RGB: 0, 159, 227 
+Light blue #009fe3
+Light blue CMYK: C: 100%, MYK: 0%
+
+Dark blue RGB: 24, 7, 58 
+Dark blue #18073a
+Dark blue CMYK: C: 100%, M: 100% Y: 0% K: 70%
+
+Gray RGB: 178, 178, 178 
+Gray #b2b2b2
+Gray CMYK: C: 0%, M: 0% Y: 0% K: 40%
