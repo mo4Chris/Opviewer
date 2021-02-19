@@ -551,8 +551,7 @@ export class CommonService {
   }
 
   getForecastProjectById(id: number): Observable<ForecastOperation> {
-    console.warn('To be implemented!')
-    return mockedObservable(null)
+    return this.get('/api/mo4light/getProjectById/' + id)
   }
 }
 

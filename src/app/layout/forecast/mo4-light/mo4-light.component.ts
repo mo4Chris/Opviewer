@@ -126,7 +126,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     setWorkabilityAlongHeading() {
-      console.log('UPDATING WORKABILITY')
       const POI = this.response.response.Points_Of_Interest.P1;
       let headingIdx = this.getHeadingIdx(POI.Heading);
       this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
