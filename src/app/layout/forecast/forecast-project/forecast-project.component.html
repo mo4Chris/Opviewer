@@ -13,15 +13,15 @@
               <td colspan="2" *ngIf="!permission.createProject">{{project?.name}}</td>
             </tr>
             <tr>
-              <td>Client</td>
-              <td colspan="2">{{project?.client_id || 'N/a'}}</td>
+              <td *ngIf="permission.admin">Client</td>
+              <td colspan="2">{{project?.client_id || 'N/a'}} (admin only)</td>
             </tr>
             <tr>
-              <td>Span</td>
+              <td><div [ngbTooltip]="helpDateSpan">Span</div></td>
               <td colspan="2">{{contractStartDateString}} - {{contractEndDateString}}</td>
             </tr>
             <tr>
-              <td>Latitude</td>
+              <td><div [ngbTooltip]="helpLat">Latitude</div></td>
               <td>
                 <input class="form-control form-control-sm"
                 [(ngModel)]="project.latitude"  type="number" step=0.00001 maxlength="6"
@@ -33,7 +33,7 @@
               </td>
             </tr>
             <tr>
-              <td>Longitude</td>
+              <td><div [ngbTooltip]="helpLon">Longitude</div></td>
               <td>
                 <input class="form-control form-control-sm"
                 [(ngModel)]="project.longitude"  type="number" step=0.00001
@@ -45,7 +45,7 @@
               </td>
             </tr>
             <tr>
-              <td>Water depth</td>
+              <td><div [ngbTooltip]="helpWaterDepth">Water depth</div></td>
               <td>
                 <div class="input-group">
                   <input class="form-control form-control-sm" type="number" [(ngModel)]="project.water_depth"
@@ -179,16 +179,9 @@
       </div>
       <div class='card-body table-responsive'>
         <table class='table table-hover table-striped'>
-          <thead>
-            <tr>
-              <th>Vessel type</th>
-              <th>Here be select</th>
-            </tr>
-          </thead>
           <tbody class='sep-row'>
             <tr>
-              <td></td>
-              <td></td>
+              <td colspan=2>Awaiting server changes</td>
             </tr>
           </tbody>
         </table>
@@ -224,10 +217,18 @@
   Distance from the keel to the point of interest.
 </ng-template>
 
+
+<ng-template #helpDateSpan>
+  Project start - project end date. Contact MO4 directly if this is not correct.
+</ng-template>
 <ng-template #helpLon>
   Fractional input for longitude in degrees.
+</ng-template>
 <ng-template #helpLat>
   Fractional input for latitude in degrees.
+</ng-template>
+<ng-template #helpWaterDepth>
+  Approximate depth at the project location
 </ng-template>
 <ng-template #helpRequestNewVessel>
   Navigates the user to a request form for adding a specific vessel type. Note: this requires 3D hull lines!

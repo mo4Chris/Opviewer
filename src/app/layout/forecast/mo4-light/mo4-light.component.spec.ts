@@ -13,6 +13,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { RouterService } from '@app/supportModules/router.service';
 import { mockedObservable } from '@app/models/testObservable';
 import { of } from 'rxjs';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ForecastResponseService } from '../models/forecast-response.service';
+import { ForecastMotionLimit } from '../models/forecast-limit';
 
 
 describe('Mo4LightComponent', () => {
@@ -32,6 +35,7 @@ describe('Mo4LightComponent', () => {
       ],
       imports: [
         CommonModule,
+        NgbModule,
         SupportModelModule,
         RouterTestingModule.withRoutes([]),
       ],
@@ -72,6 +76,9 @@ describe('Mo4LightComponent', () => {
   describe('after init', () => {
     beforeEach(() => {
       component['route'].params = mockedObservable({project_id: '3'});
+      spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
+        new ForecastMotionLimit({type: 'Disp', dof: 'Heave', value: 1.5})
+      ])
       fixture.detectChanges();
     })
 

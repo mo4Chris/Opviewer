@@ -58,28 +58,13 @@ describe('ForecastProjectComponent', () => {
     await fixture.whenStable();
     expect(component).toBeTruthy();
     let agmMap = locate('agm-map')
-    expect(agmMap).toBeTruthy();
-  });
+    expect(agmMap).not.toBeTruthy('Map should not be present');
 
-  it('should emit alerts on bad POI input', async () => {
-    let alertSpy = spyOn(AlertService.prototype, 'sendAlert').and.callThrough();
-    await fixture.whenStable();
-    expect(alertSpy).not.toHaveBeenCalled();
-    component.POI = {
-      X: 5,
-      Y: 1,
-      Z: 1,
-    };
-    component.verifyPointOfInterest();
-    expect(alertSpy).not.toHaveBeenCalled();
-    component.POI = {
-      X: -10,
-      Y: 1,
-      Z: 1,
-    };
-    component.verifyPointOfInterest();
-    expect(alertSpy).toHaveBeenCalledTimes(1);
-  })
+    component.projectLoaded = true;
+    fixture.detectChanges();
+    agmMap = locate('agm-map')
+    expect(agmMap).toBeTruthy('Map should not be present');
+  });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
 

@@ -699,12 +699,15 @@ export class MockedCommonService extends CommonService {
   getForecastWorkabilityForProject(project_id = 3) {
     const Response = {
       Coordinates: { X: { Data: 0, String_Value: '' }, Y: { Data: 0, String_Value: '' }, Z: { Data: 0, String_Value: '' } },
-      Time: [], // Matlab timestamps
-      Heading: [], // In degrees
+      Time: [737700], // Matlab timestamps
+      Heading: [0], // In degrees
       Response: {
-        Acc: [[[]]],
-        Vel: [[[]]],
-        Disp: [[[]]],
+        Acc: [[[1]]],
+        Vel: [[[1]]],
+        Disp: [[[1]]],
+      },
+      Degrees_Of_Freedom: {
+        
       }
     };
     const responseObj: ForecastResponseObject = {

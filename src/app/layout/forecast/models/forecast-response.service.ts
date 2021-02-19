@@ -38,9 +38,8 @@ export class ForecastResponseService {
     return output;
   }
   
-  setLimitsFromOpsPreference(op: ForecastOperation) {
-    // Service?
-    const limits = [];
+  setLimitsFromOpsPreference(op: ForecastOperation): ForecastMotionLimit[] {
+    const limits = new Array<ForecastMotionLimit>();
     let dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
     const dofKeys = Object.keys(dofPreference)
     dofKeys.forEach(dof => {

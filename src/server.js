@@ -58,9 +58,29 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+function mailTo(subject, html, user='user') {
+  // setup email data with unicode symbols
+  const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
+
+  const mailOptions = {
+    from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
+    to: user, //'bar@example.com, baz@example.com' list of receivers
+    bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
+    subject: subject, //'Hello ✔' Subject line
+    html: body //'<b>Hello world?</b>' html body
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, (error, info) => {
+    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
+    if (error) return maillogger.error(error);
+    maillogger.info('Message sent with id: %s', info.messageId);
+  });
+}
+
 // Init of submodules must be after setting app usages
 mo4lightServer(app, logger)
-fileUploadServer(app, logger)
+fileUploadServer(app, logger, mailTo)
 
 //#########################################################
 //##################   Models   ###########################
@@ -662,26 +682,6 @@ function validatePermissionToViewData(req, res, callback) {
     if (err) return onError(res, err);
     callback(data);
     return data;
-  });
-}
-
-function mailTo(subject, html, user) {
-  // setup email data with unicode symbols
-  const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
-
-  const mailOptions = {
-    from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
-    to: user, //'bar@example.com, baz@example.com' list of receivers
-    bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
-    subject: subject, //'Hello ✔' Subject line
-    html: body //'<b>Hello world?</b>' html body
-  };
-
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, (error, info) => {
-    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
-    if (error) return maillogger.error(error);
-    maillogger.info('Message sent with id: %s', info.messageId);
   });
 }
 
@@ -1466,12 +1466,12 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
       res.send(err);
     } else {
       if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-        for (i = 0; i < token.userBoats.length;) {
+        for (let i = 0; i < token.userBoats.length;) {
           companyMmsi.push(token.userBoats[i].mmsi);
           i++;
         }
       } else {
-        for (i = 0; i < data.length;) {
+        for (let i = 0; i < data.length;) {
           companyMmsi.push(data[i].mmsi);
           i++;
         }
@@ -2601,7 +2601,7 @@ app.post("/api/getGeneralForRange", function(req, res) {
   if (typeof(mmsi) === 'number') {
     mmsi = [mmsi];
   }
-  projection = req.body.projection;
+  let projection = req.body.projection;
   if (projection === undefined) {
     projection = null
   }
@@ -3112,7 +3112,7 @@ app.post("/api/setInactive", function(req, res) {
 });
 
 app.post("/api/sendFeedback", function(req, res) {
-  feedbacklogger = logger.child({ feedback: req.body.message, user: req.body.person, page: req.body.page })
+  const feedbacklogger = logger.child({ feedback: req.body.message, user: req.body.person, page: req.body.page })
   Usermodel.findOne({ _id: req.body.person, active: { $ne: false } }, function(err, data) {
     if (err) {
       feedbacklogger.error(err);
@@ -3588,7 +3588,7 @@ app.post("/api/saveFleetRequest", function(req, res) {
     logger.warn({... { msg: 'Access denied - saveFleetRequest' }, ...req.body })
     return res.status(401).send('Access denied');
   }
-  request = new turbineWarrantyRequestmodel();
+  const request = new turbineWarrantyRequestmodel();
   request.fullFleet = req.body.boats;
   request.activeFleet = req.body.boats;
   request.client = req.body.client;
@@ -3607,9 +3607,9 @@ app.post("/api/saveFleetRequest", function(req, res) {
       logger.error(err);
       return res.send(err);
     } else {
-      startDate = new Date(request.startDate);
-      stopDate = new Date(request.stopDate);
-      requestTime = new Date(request.requestTime);
+      const startDate = new Date(request.startDate);
+      const stopDate = new Date(request.stopDate);
+      const requestTime = new Date(request.requestTime);
       let html = 'A campaing has been requested, the data for the campaign: <br>' +
         "Campaign name: " + request.campaignName + " <br>" +
         "Windfield: " + request.windfield + " <br>" +
