@@ -100,8 +100,7 @@
     </li>
 
     
-    <li *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable"
-      [destroyOnHide]="false" ngbNavItem="dpr-wave-spectrum">
+    <li *ngIf="vesselHasWavespectrum" [disabled]="!waveSpectrumAvailable" [destroyOnHide]="false" ngbNavItem="sov-wave-spectrum">
       <a ngbNavLink>Wave spectrum</a>
       <ng-template ngbNavContent>
         <br>

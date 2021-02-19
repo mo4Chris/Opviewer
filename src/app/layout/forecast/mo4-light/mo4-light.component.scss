@@ -24,9 +24,9 @@ app-heading-picker {
   padding-left: 8px;
   padding-right: 8px;
 
-  // li > a:hover {
-  //   background-color: rgb(0, 159, 227, 0.7);
-  // }
+  li > a:hover {
+    background-color: rgb(0, 159, 227, 0.7);
+  }
   a.nav-link {
     color: white;
     background-color: rgb(0, 159, 227, 0.3);
@@ -37,3 +37,6 @@ app-heading-picker {
   }
 }
 
+td{
+  min-width: 60px;
+}
