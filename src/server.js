@@ -5,14 +5,13 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
-var moment = require('moment');
 var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 
-const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.online'
+const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] || 'bmodataviewer.com';
+const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.onlCine'
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect(process.env.DB_CONN, {
@@ -2574,7 +2573,7 @@ app.post("/api/sendFeedback", function(req, res) {
       feedbacklogger.info({ msg: 'Received feedback!' })
       let html = 'feedback has been given by: ' + data.username + ' on page ' + req.body.page + '.<br><br>' +
         'feedback message: ' + req.body.message;
-      mailTo('Feedback ' + data.client, html, 'webmaster@mo4.online');
+      mailTo('Feedback ' + data.client, html, WEBMASTER_MAIL);
       res.send({ data: 'Feedback has been sent', status: 200 });
     } else {
       return onError(res, err);
@@ -2931,7 +2930,7 @@ app.post("/api/getVesselsToAddToFleet", function(req, res) {
 app.post("/api/saveFleetRequest", function(req, res) {
   const token = req['token']
   if (token.userPermission !== 'admin' && token.userPermission !== 'Logistics specialist') return onUnauthorized(res);
-  request = new turbineWarrantyRequestmodel();
+  const request = new turbineWarrantyRequestmodel();
   request.fullFleet = req.body.boats;
   request.activeFleet = req.body.boats;
   request.client = req.body.client;
@@ -2963,7 +2962,7 @@ app.post("/api/saveFleetRequest", function(req, res) {
       "Limit Hs: " + request.limitHs + " <br>" +
       "Username: " + request.user + " <br>" +
       "Request time: " + requestTime.toISOString().slice(0, 10);
-    mailTo('Campaign requested', html, "webmaster@mo4.online");
+    mailTo('Campaign requested', html, WEBMASTER_MAIL);
     return res.send({ data: 'Request succesfully made' });
   });
 });
