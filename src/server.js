@@ -619,6 +619,7 @@ function onUnauthorized(res, cause = 'unknown') {
     res.status(401).send(`Unauthorized: ${cause}`)
   }
 }
+
 function onError(res, err, additionalInfo = 'Internal server error') {
   if (typeof(err) == 'object') {
     err.debug = additionalInfo;
@@ -632,6 +633,7 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   logger.error(err)
   res.status(500).send(additionalInfo);
 }
+
 function verifyToken(req, res) {
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
@@ -725,18 +727,19 @@ app.post("/api/login", function (req, res) {
     turbineWarrantymodel.find(filter, function (err, data) {
       if (err) return onError(res, err)
       const expireDate = new Date();
-      let payload = {
+      const payload = {
         userID: user._id,
         userPermission: user.permissions,
         userCompany: user.client,
         userBoats: user.boats,
         username: user.username,
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-        hasCampaigns: data.length >= 1 && (user.permissions !== "Vessel master")
+        hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
       };
 
       let token = jwt.sign(payload, 'secretKey');
       logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
+
       return res.status(200).send({ token });
     });
   });
@@ -925,7 +928,7 @@ app.post("/api/getSovWaveSpectrum", function(req, res) {
       active: { $ne: false }
     }, function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -966,7 +969,7 @@ app.post("/api/getCommentsForVessel", function(req, res) {
       }
     ]).exec(function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -1013,7 +1016,7 @@ app.get("/api/getSov/:mmsi/:date", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
     SovModelmodel.find({ "mmsi": mmsi, "dayNum": date, active: { $ne: false } }, function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -1029,7 +1032,7 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function(req, res) {
       active: { $ne: false }
     }, function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -1045,7 +1048,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function(req, res) {
       active: { $ne: false }
     }, function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -1097,7 +1100,7 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
       active: { $ne: false }
     }, function(err, data) {
     if (err) return onError(res, err);
-    res.send(data && data.length > 0)
+    res.send(data)
     });
   });
 });
@@ -1112,7 +1115,7 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function(req, res) {
       active: { $ne: false }
     }, function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -1394,9 +1397,9 @@ app.post("/api/getSovDprInput", function(req, res) {
       SovDprInputmodel.findOne({
         mmsi: req.body.mmsi,
         date: { $lt: req.body.date }
-      }, {
-        sort: { date: -1 }
-      }, function(err, data) {
+      }).sort({
+        date: -1
+      }).exec(function(err, data) {
         if (err) return onError(res, err);
         let dprData = {};
         if (data != null) {
@@ -2137,7 +2140,7 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
   });
 });
 
-app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function(req, res) {
+app.get("/api/getDatesShipHasSailedForSov/:mmsi", function(req, res) {
   const mmsi = parseInt(req.params.mmsi);
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -2147,7 +2150,7 @@ app.get("/api/GetDatesShipHasSailedForSov/:mmsi", function(req, res) {
       distancekm: { $not: /_NaN_/ }
     }, ['dayNum', 'distancekm'], function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -2166,7 +2169,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function(req, res) {
       startTime: 1
     }).exec(function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
@@ -2398,7 +2401,7 @@ app.post("/api/getVideoRequests", function(req, res) {
       }
     }]).exec(function(err, data) {
       if (err) return onError(res, err);
-      res.send(data && data.length > 0)
+      res.send(data)
     });
   });
 });
