@@ -11,7 +11,8 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 
-const SERVER_ADDRESS = process.env.IP_USER.split(",")[0];
+const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] ?? 'bmodataviewer.com';
+const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.online'
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect(process.env.DB_CONN, {
@@ -1090,7 +1091,6 @@ app.post("/api/updateSovRovOperations", function(req, res) {
 app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
-  req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
     engineDatamodel.find({
       mmsi: mmsi,
@@ -1106,7 +1106,6 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
 app.get("/api/getCycleTimesForSov/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = parseInt(req.params.date);
-  req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
     SovCycleTimesmodel.find({
       "mmsi": mmsi,
@@ -1122,7 +1121,6 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function(req, res) {
 app.get("/api/getPlatformTransfers/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
-  req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
     SovPlatformTransfersmodel.find({
       "mmsi": mmsi,
@@ -1142,44 +1140,36 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function(req, res) {
 app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
-  req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) {
-      logger.warn({ msg: 'Access denied - getTurbineTransfers', mmsi: req.body.mmsi, date: req.body.date })
-      return res.status(401).send('Access denied');
-    }
-
-    SovTurbineTransfersmodel.find({ "mmsi": mmsi, "date": date, active: { $ne: false } },
-      null, {
-        sort: {
-          startTime: 'asc'
-        }
-      },
-      function(err, data) {
-        if (err) return onError(res, err);
-        res.send(data);
-      });
+    SovTurbineTransfersmodel.find({
+      "mmsi": mmsi,
+      "date": date,
+      active: { $ne: false }
+    }, {
+      sort: {
+        startTime: 'asc'
+      }
+    }, function(err, data) {
+      if (err) return onError(res, err);
+      res.send(data);
+    });
   });
 });
 
 app.post("/api/getVesselsForCompany", function(req, res) {
   let companyName = req.body[0].client;
   const token = req['token']
-  if (token.userCompany !== companyName && token.userPermission !== "admin") {
-    logger.warn({ msg: 'Access denied - getVesselsForCompany', client: companyName })
-    return res.status(401).send('Access denied');
-  }
+  if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
   let filter = { client: companyName, active: { $ne: false } };
-  // if (!req.body[0].notHired) {
-  //   filter.onHire = 1;
-  // }
+  // if (!req.body[0].notHired) filter.onHire = 1;
+
   if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
     filter.mmsi = [];
     for (var i = 0; i < token.userBoats.length; i++) {
       filter.mmsi[i] = token.userBoats[i].mmsi;
     }
   }
-  Vesselmodel.find(filter, null, {
+  Vesselmodel.find(filter, {
     sort: {
       nicename: 'asc'
     }
@@ -1191,10 +1181,7 @@ app.post("/api/getVesselsForCompany", function(req, res) {
 
 app.get("/api/getCompanies", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin') {
-    logger.warn({ msg: 'Access denied - getCompanies' })
-    return res.status(401).send('Access denied');
-  }
+  if (token.userPermission !== 'admin') return onUnauthorized(res);
   Vesselmodel.find({
     active: { $ne: false }
   }).distinct('client', function(err, data) {
@@ -1208,7 +1195,6 @@ app.get("/api/getCompanies", function(req, res) {
 
 app.post("/api/getDistinctFieldnames", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res, 'no permission to view data')
     Transfermodel.find({
       "mmsi": req.body.mmsi,
       "date": req.body.date,
@@ -1228,7 +1214,6 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovTurbineTransfersmodel.find({
       "mmsi": mmsi,
       "date": date,
@@ -1382,10 +1367,6 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
 
 app.post("/api/getDatesWithValues", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) {
-      logger.warn({ msg: 'Access denied - getDatesWithValues', mmsi: req.body.mmsi })
-      return res.status(401).send('Access denied');
-    }
     Transfermodel.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
@@ -1404,11 +1385,6 @@ app.post("/api/getDatesWithValues", function(req, res) {
 
 app.post("/api/getSovDprInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) {
-      logger.warn({ msg: 'Access denied - getSovDprInput', mmsi: req.body.mmsi, date: req.body.date })
-      return res.status(401).send('Access denied');
-    }
-
     SovDprInputmodel.find({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1419,7 +1395,7 @@ app.post("/api/getSovDprInput", function(req, res) {
       SovDprInputmodel.findOne({
         mmsi: req.body.mmsi,
         date: { $lt: req.body.date }
-      }, null, {
+      }, {
         sort: { date: -1 }
       }, function(err, data) {
         if (err) return onError(res, err);
@@ -1519,7 +1495,6 @@ app.post("/api/getSovDprInput", function(req, res) {
 
 app.post("/api/getSovHseDprInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovHseDprInputmodel.find({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1587,7 +1562,6 @@ app.post("/api/getSovHseDprInput", function(req, res) {
 
 app.post("/api/updateSOVHseDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovHseDprInputmodel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1603,7 +1577,6 @@ app.post("/api/updateSOVHseDpr", function(req, res) {
 
 app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovHseDprInputmodel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1618,7 +1591,6 @@ app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
 
 app.post("/api/saveFuelStatsSovDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
       SovDprInputmodel.updateOne({
         mmsi: req.body.mmsi,
         date: req.body.date,
@@ -1633,7 +1605,6 @@ app.post("/api/saveFuelStatsSovDpr", function(req, res) {
 
 app.post("/api/saveIncidentDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovDprInputmodel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1652,7 +1623,6 @@ app.post("/api/saveIncidentDpr", function(req, res) {
 
 app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovTurbineTransfersmodel.findOneAndUpdate({
       _id: req.body._id,
       active: { $ne: false }
@@ -1673,7 +1643,6 @@ app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
 app.post("/api/updateSOVv2vPaxInput", function(req, res) {
   // Updates transfer info between SOV and other vessels
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovVessel2vesselTransfersmodel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
@@ -1691,7 +1660,6 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
 app.post("/api/getSovInfo/", function(req, res) {
   // Updates transfer info turbine transfers by DC craft.
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovInfomodel.find({
       mmsi: req.body.mmsi
     }, function(err, data) {
@@ -1704,7 +1672,6 @@ app.post("/api/getSovInfo/", function(req, res) {
 app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
   // Updates transfer info turbine transfers by DC craft.
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     let info = req.body.update;
     let missed = req.body.missedTransfers || [];
     logger.info('Updating v2v transfers for mmsi: ' + req.body.mmsi + ', date: ' + req.body.date)
@@ -1752,7 +1719,6 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
 
 app.post("/api/updateSOVPlatformPaxInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     SovPlatformTransfersmodel.findOneAndUpdate({
       _id: req.body._id,
       active: { $ne: false }
@@ -1823,7 +1789,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     }, (err, data) => {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
-        recipient = ['webmaster@bmo-offshore.com']
+        recipient = [WEBMASTER_MAIL]
         title = 'Failed to deliver: client representative not found!'
       } else {
         recipient = data.map(user => user.username);
@@ -1861,7 +1827,7 @@ app.post("/api/declineDprClient", function(req, res) {
   let mmsi = req.body.mmsi;
   let date = req.body.date;
   let title = '';
-  let recipient = 'webmaster@mo4.online';
+  let recipient = WEBMASTER_MAIL;
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -1888,7 +1854,7 @@ app.post("/api/declineDprClient", function(req, res) {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
 
-        recipient = 'webmaster@mo4.online';
+        recipient = WEBMASTER_MAIL;
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -1912,7 +1878,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
   let mmsi = req.body.mmsi;
   let date = req.body.date;
   let title = '';
-  let recipient = 'webmaster@bmo-offshore.com';
+  let recipient = WEBMASTER_MAIL;
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
   const token = req['token']
@@ -1938,7 +1904,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     }, {}, (err, data) => {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
-        recipient = ['webmaster@bmo-offshore.com']
+        recipient = [WEBMASTER_MAIL]
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -2938,7 +2904,6 @@ app.post("/api/setActiveListings", function(req, res) {
 
 app.post("/api/getHasSailedDatesCTV", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) return onUnauthorized(res);
     hasSailedModelCTV.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
@@ -3158,10 +3123,6 @@ function aggregateStatsOverModel(model, req, res, opts) {
     ...opts
   }
   validatePermissionToViewVesselData(req, res, function(validated) {
-    if (validated.length < 1) {
-      logger.warn({ msg: 'Access denied - aggregateStatsOverModel', mmsi: req.body.mmsi, dateMin: req.body.dateMin, dateMax: req.body.dateMax })
-      return res.status(401).send('Access denied');
-    }
     const projObj = {
       "vesselname": 1,
       "mmsi": 1,
