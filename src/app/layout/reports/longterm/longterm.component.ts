@@ -52,11 +52,11 @@ export class LongtermComponent implements OnInit {
     singleSelection: false,
   };
   public fieldSelectSettings = {
+    idField: '_id',
     allowSearchFilter: true,
     singleSelection: true,
     closeDropDownOnSelection: true,
     textFields: 'text',
-    idField: '_id',
   };
 
   public fromDate = this.getLastMonthObject();
@@ -69,16 +69,19 @@ export class LongtermComponent implements OnInit {
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
   Vessels: VesselModel[] = [];
-  fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
+  fieldsWithWavedata = new Array<{ _id: string, site: string, name: string, text?: string }>()
   selectedField = '';
 
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
 
+  public get hasValidWaveData() {
+    return this.fieldsWithWavedata?.length>0 && this.vesselType=='CTV';
+  }
+
   // onInit
   ngOnInit() {
-
     this.route.params.subscribe(params => {
       if (Object.keys(params).length === 0 || params.mmsi === undefined || params.vesselName === undefined) {
         this.routerService.route(['reports']);
@@ -86,31 +89,28 @@ export class LongtermComponent implements OnInit {
     });
 
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        this.noPermissionForData = false;
-        Chart.pluginService.register(ChartAnnotation);
-        forkJoin([
-          this.newService.getFieldsWithWaveSourcesByCompany(),
-          (this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }])),
-          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
-        ]).subscribe(([fields, vessels, validatedValue]) => {
-          if (validatedValue.length === 1) {
-            this.vesselType = validatedValue[0].operationsClass;
-            this.fieldsWithWavedata = fields;
-            this.fieldsWithWavedata.forEach(elt => {
-              elt.text = elt.site + ' - ' + elt.name;
-            });
-            this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
-            this.buildPageWithCurrentInformation();
-          } else {
-            this.noPermissionForData = true;
-          }
-        });
-      } else {
+      if (userIsActive != true) {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        this.routerService.routeToLogin();
+        return this.routerService.routeToLogin();
       }
+
+      this.noPermissionForData = false;
+      Chart.pluginService.register(ChartAnnotation);
+      forkJoin([
+        this.newService.getFieldsWithWaveSourcesByCompany(),
+        this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]),
+        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
+      ]).subscribe(([fields, vessels, validatedValue]) => {
+        if (validatedValue.length != 1) return this.noPermissionForData = true;
+        this.vesselType = validatedValue[0]?.operationsClass;
+        this.fieldsWithWavedata = fields;
+        this.fieldsWithWavedata.forEach(elt => {
+          elt.text = elt.site + ' - ' + elt.name;
+        });
+        this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
+        this.buildPageWithCurrentInformation();
+      });
     });
   }
 

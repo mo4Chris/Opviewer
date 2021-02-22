@@ -12,6 +12,7 @@ var fileUploadServer = require('./server/file-upload.server.js')
 
 const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] || 'bmodataviewer.com';
 const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.onlCine'
+const SECURE_METHODS = ['GET', 'POST', 'PUT']
 
 mongo.set('useFindAndModify', false);
 var db = mongo.connect(process.env.DB_CONN, {
@@ -59,9 +60,6 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-// Init of submodules must be after setting app usages
-mo4lightServer(app, logger)
-fileUploadServer(app, logger)
 
 //#########################################################
 //##################   Models   ###########################
@@ -655,17 +653,18 @@ function verifyToken(req, res) {
 
 function validatePermissionToViewVesselData(req, res, callback) {
   const token = req['token'];
+  const mmsi = req.body.mmsi ?? req.params.mmsi
   let filter;
   switch (token.userPermission) {
     case 'admin':
-      filter = { mmsi: req.body.mmsi };
+      filter = { mmsi };
       break;
     default:
-      filter = { mmsi: req.body.mmsi, client: token.userCompany };
+      filter = { mmsi, client: token.userCompany };
   }
-  Vesselmodel.find(filter, function(err, isValid) {
+  Vesselmodel.find(filter, ['_id'], function(err, isValid) {
     if (err) return onError(res, err);
-    if (!isValid || isValid.length < 1) return onUnauthorized(res);
+    if (isValid.length < 1) return onUnauthorized(res, `User not authorized for vessel ${mmsi}`);
     return callback(isValid);
   });
 }
@@ -719,9 +718,11 @@ app.post("/api/login", function (req, res) {
     if (!user.password) return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
     if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
     
-    const secret2faValid = user.secret2fa && user.secret2fa.length > 0 && (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) != null)
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const isLocalHost = ip == '::1';
+    const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) != null)
     const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
-    if (!secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
+    if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
 
     let filter = user.permissions == 'admin' ? null : { client: user.client };
     turbineWarrantymodel.find(filter, function (err, data) {
@@ -748,9 +749,8 @@ app.post("/api/login", function (req, res) {
 app.post("/api/setPassword", function(req, res) {
   let userData = req.body;
   logger.info('Request to set password for user: ' + userData.user);
-  if (userData.password !== userData.confirmPassword) {
-    return res.status(401).send('Passwords do not match');
-  }
+  if (userData.password !== userData.confirmPassword) return onUnauthorized(res, 'Passwords do not match');
+  
   Usermodel.findOneAndUpdate({
     token: req.body.passwordToken,
     active: { $ne: false }
@@ -766,12 +766,14 @@ app.post("/api/setPassword", function(req, res) {
 
 
 
-//####################################################################
-//#################  Endpoints - with login  #########################
-//####################################################################
+// ################### APPLICATION MIDDLEWARE ###################
+// #### Every method below this block requires a valid token ####
+// ##############################################################
 app.use((req, res, next) => {
   try {
-    if (!req.headers.authorization) return next();
+    const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
+    if (!isSecureMethod) return next();
+    console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;
@@ -780,6 +782,23 @@ app.use((req, res, next) => {
     return onError(res, err);
   }
 })
+
+mo4lightServer(app, logger)
+fileUploadServer(app, logger)
+
+//####################################################################
+//#################  Endpoints - with login  #########################
+//####################################################################
+
+app.get("/api/checkUserActive/:user", function(req, res) {
+  Usermodel.find({
+    username: req.params.user,
+    active: 1
+  }, function(err, data) {
+    if (err) return onError(res, err);
+    res.send(data && data.length > 0)
+  })
+});
 
 app.get("/api/getActiveConnections", function(req, res) {
   const token = req['token']
@@ -790,7 +809,7 @@ app.get("/api/getActiveConnections", function(req, res) {
 })
 
 app.post("/api/registerUser", function(req, res) {
-  let userData = req.body;
+  const userData = req.body;
   const token = req['token']
   logger.info('Received request to create new user: ' + userData.email);
   switch (token.userPermission){
@@ -990,16 +1009,6 @@ app.get("/api/getVessel", function(req, res) {
   });
 });
 
-app.get("/api/checkUserActive/:user", function(req, res) {
-  Usermodel.find({
-    username: req.params.user,
-    active: 1
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data && data.length > 0)
-  })
-});
-
 app.get("/api/getHarbourLocations", function(req, res) {
   harbourModel.find({
     active: { $ne: false }
@@ -1099,8 +1108,8 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
       date: date,
       active: { $ne: false }
     }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data)
+      if (err) return onError(res, err);
+      res.send(data)
     });
   });
 });
@@ -1128,11 +1137,9 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function(req, res) {
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
-    }, {
-      sort: {
-        arrivalTimePlatform: 'asc'
-      }
-    }, function(err, data) {
+    }).sort({
+      arrivalTimePlatform: 'asc'
+    }).exec( (err, data) => {
       if (err) return onError(res, err);
       res.send(data);
     });
@@ -1147,11 +1154,9 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
-    }, {
-      sort: {
-        startTime: 'asc'
-      }
-    }, function(err, data) {
+    }).sort({
+      startTime: 'asc'
+    }).exec( (err, data) => {
       if (err) return onError(res, err);
       res.send(data);
     });
@@ -1171,11 +1176,9 @@ app.post("/api/getVesselsForCompany", function(req, res) {
       filter.mmsi[i] = token.userBoats[i].mmsi;
     }
   }
-  Vesselmodel.find(filter, {
-    sort: {
-      nicename: 'asc'
-    }
-  }, function(err, data) {
+  Vesselmodel.find(filter).sort({
+    nicename: 'asc'
+  }).exec( function(err, data) {
     if (err) return onError(res, err);
     res.send(data);
   });
@@ -1372,14 +1375,12 @@ app.post("/api/getDatesWithValues", function(req, res) {
     Transfermodel.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
-    }).distinct('date', function(err, data) {
+    }).distinct('date', null,  (err, data) =>{
       if (err) return onError(res, err);
       let dateData = data + '';
       let arrayOfDates = [];
       arrayOfDates = dateData.split(",");
       res.send(arrayOfDates);
-    }, err => {
-      if (err) return onError(res, err);
     });
   });
 });
@@ -2132,7 +2133,7 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
             const merged = platformTransferDates.concat(turbineTransferDates).concat(v2vTransferDates);
             res.send(merged.filter((item, index) => merged.indexOf(item) === index));
           } else {
-            onError(res, 'Failed to retrieve dates with SOV transfers', 'Failed to retrieve transfers dates');
+            return onError(res, 'Failed to retrieve dates with SOV transfers', 'Failed to retrieve transfers dates');
           }
         })
       });
@@ -2329,9 +2330,15 @@ app.get("/api/getUserClientById/:id/:client", function(req, res) {
 });
 
 app.post("/api/validatePermissionToViewData", function(req, res) {
+  // This function is named HORIBLY - it returns a vessel
   validatePermissionToViewVesselData(req, res, function(data) {
-    // Seems kinda pointless now
-    res.send(data);
+    const mmsi = req.body.mmsi;
+    Vesselmodel.find({
+      mmsi: mmsi
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data);
+    })
   });
 });
 
@@ -2972,17 +2979,17 @@ app.post("/api/saveFleetRequest", function(req, res) {
 
 app.post("/api/getWavedataForDay", function(req, res) {
   const token = req['token']
-  let date = req.body.date;
-  let site = req.body.site;
+  let date = req.body.date ?? 0;
+  let site = req.body.site ?? 'NONE';
 
   wavedataModel.findOne({
-    date: date,
-    site: site,
+    date,
+    site,
     active: { $ne: false }
   }, (err, data) => {
     if (err) return onError(res, err);
-    if (data === null)  res.status(204).send('Not found');
-    
+    if (data?.source == null) return res.status(204).send({data: 'Not found'});
+
     waveSourceModel.findById(data.source, (err, meta) => {
       if (err) return onError(res, err);
       let company = token.userCompany;

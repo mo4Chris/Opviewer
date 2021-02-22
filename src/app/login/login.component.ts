@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { routerTransition } from '../router.animations';
-import { AuthService } from '../auth.service';
+import { AuthService, UserLoginData } from '../auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AlertService } from '@app/supportModules/alert.service';
 
@@ -12,7 +12,7 @@ import { AlertService } from '@app/supportModules/alert.service';
     animations: [routerTransition()]
 })
 export class LoginComponent implements OnInit {
-  loginUserData = {
+  loginUserData: UserLoginData = {
     username: '',
     password: '',
     confirm2fa: ''
@@ -53,3 +53,4 @@ export class LoginComponent implements OnInit {
     );
   }
 }
+
