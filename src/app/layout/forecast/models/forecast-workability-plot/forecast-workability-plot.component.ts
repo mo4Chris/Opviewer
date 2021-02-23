@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import * as Plotly from 'plotly.js'
+import * as Plotly from 'plotly.js';
 
 @Component({
   selector: 'app-forecast-workability-plot',
@@ -24,15 +24,15 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       fixedrange: true,
     },
     xaxis: {
-      title: "Time"
+      title: 'Time'
     },
-    
+
     legend: {
       x: 1,
       y: 1,
       xanchor: 'right',
     }
-  }
+  };
 
   constructor(
     private calcService: CalculationService,
@@ -43,7 +43,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     return Array.isArray(this.time)
       && Array.isArray(this.workabilityAlongHeading)
       && this.workabilityAlongHeading.some(e => e > 0)
-      && this.workabilityAlongHeading.length == this.time.length
+      && this.workabilityAlongHeading.length == this.time.length;
   }
 
   ngOnChanges() {
@@ -51,18 +51,18 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       this.computeMaxWorkability();
       this.computeGraphData();
     } else {
-      this.MaxWorkability = 'N/a'
+      this.MaxWorkability = 'N/a';
     }
   }
 
   computeMaxWorkability() {
     if (this.startTime && this.stopTime) {
-      let sidx = this.time.findIndex(t => t > this.parseTime(this.startTime));
-      let eidx = this.time.findIndex(t => t > this.parseTime(this.stopTime)) - 1;
-      let workabilityDuringOperation = this.workabilityAlongHeading.slice(sidx, eidx)
+      const sidx = this.time.findIndex(t => t > this.parseTime(this.startTime));
+      const eidx = this.time.findIndex(t => t > this.parseTime(this.stopTime)) - 1;
+      const workabilityDuringOperation = this.workabilityAlongHeading.slice(sidx, eidx);
       this.MaxWorkability = this.calcService.roundNumber(Math.max(...workabilityDuringOperation), 1, '%');
     } else {
-      this.MaxWorkability = 'select a valid time frame'
+      this.MaxWorkability = 'select a valid time frame';
     }
   }
 
@@ -72,12 +72,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
 
   computeGraphData() {
     const yLimit = 100;
-    let limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
-    let areas = createPlotyAreaLines(
+    const limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
+    const areas = createPlotyAreaLines(
       this.time,
       this.workabilityAlongHeading,
       this.workabilityAlongHeading.map(y => y < yLimit)
-    )
+    );
     this.parsedData = [{
       x: this.time,
       // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
@@ -157,8 +157,8 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
 
   getStartAndEndPoints(datas: number[], limit: number) {
     const valid = datas.map(e => e <= limit);
-    let greens = valid;
-    let reds = valid.map(v => !v);
+    const greens = valid;
+    const reds = valid.map(v => !v);
     for (let i = valid.length - 1; i > 0; i--) {
       if (greens[i] && reds[i - 1]) {
         reds[i] = true;
@@ -181,39 +181,39 @@ function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[
     greens.push({
       x: xVals[0],
       y: yVals[0]
-    })
+    });
   } else {
     reds.push({
       x: xVals[0],
       y: yVals[0]
-    })
+    });
   }
 
   const maxLength = Math.min(xVals.length, yVals.length);
   for (let i = 1; i < maxLength; i++) {
-    let curr = condition[i];
+    const curr = condition[i];
     if (curr == prev) {
       if (curr) {
         greens.push({
           x: xVals[i],
           y: yVals[i],
-        })
+        });
       } else {
         reds.push({
           x: xVals[i],
           y: yVals[i],
-        })
+        });
       }
     } else {
       if (curr) {
         reds.push({
           x: xVals[i],
           y: yVals[i],
-        })
+        });
         reds.push({
           x: xVals[i],
           y: 0,
-        })
+        });
         greens.push({
           x: xVals[i],
           y: 0,
@@ -226,11 +226,11 @@ function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[
         greens.push({
           x: xVals[i],
           y: yVals[i],
-        })
+        });
         greens.push({
           x: xVals[i],
           y: 0,
-        })
+        });
         reds.push({
           x: xVals[i],
           y: 0,
@@ -246,5 +246,5 @@ function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[
   return {
     green: greens,
     red: reds,
-  }
+  };
 }

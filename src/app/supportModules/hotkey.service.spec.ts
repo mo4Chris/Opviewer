@@ -10,7 +10,7 @@ describe('HotkeyService', () => {
 
   it('should create', () => {
     expect(service).toBeTruthy();
-  })
+  });
 
   it('should inject shortcuts', () => {
     let triggered = false;
@@ -19,10 +19,10 @@ describe('HotkeyService', () => {
     }).subscribe(() => {
       triggered = true;
     });
-    var pressEvent = new KeyboardEvent('keydown', {
+    let pressEvent = new KeyboardEvent('keydown', {
       'key': 'control+f'
-    })
-    document.dispatchEvent(pressEvent)
+    });
+    document.dispatchEvent(pressEvent);
     expect(triggered).toBe(true);
-  })
+  });
 });

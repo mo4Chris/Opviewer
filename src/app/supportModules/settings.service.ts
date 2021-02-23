@@ -144,6 +144,6 @@ type TimezoneOptions = number | 'vessel' | 'utc' | 'own' | 'custom' | 'timezone'
 type speedOptions = 'km/h' | 'mph' | 'knots' | 'm/s';
 type distanceOptions = 'km' | 'mile' | 'NM';
 type weightOptions = 'ton' | 'kg';
-type GpsOptions = 'DMS' | 'fractional'
+type GpsOptions = 'DMS' | 'fractional';
 
 

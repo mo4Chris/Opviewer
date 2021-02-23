@@ -35,6 +35,7 @@ abstract class PermissionModel {
   // Forecast
   forecastRead = false;
   forecastChangeLimits = false;
+  forecastCreateProject = false;
 }
 
 
@@ -126,6 +127,7 @@ class AdminPermission extends PermissionModel {
   userManage = true;
 
   forecastRead = true;
+  forecastCreateProject = true;
   forecastChangeLimits = true;
 }
 

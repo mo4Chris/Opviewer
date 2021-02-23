@@ -40,29 +40,29 @@ describe('ForecastDashboardComponent', () => {
   });
 
   it('should have working buttons', async () => {
-    component.projects = [{ 
+    component.projects = [{
       id: 0,
-      name: "string",
+      name: 'string',
       client_id: 1,
       latitude: 2,
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: "string",
-      activation_start_date: "6",
-      activation_end_date: "7",
+      vessel_id: 'string',
+      activation_start_date: '6',
+      activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
     }];
-    let routerSpyProjectOverview = spyOn(RouterService.prototype, 'routeToForecastProjectOverview')
-    let routerSpyForecast = spyOn(RouterService.prototype, 'routeToForecast')
+    const routerSpyProjectOverview = spyOn(RouterService.prototype, 'routeToForecastProjectOverview');
+    const routerSpyForecast = spyOn(RouterService.prototype, 'routeToForecast');
     await fixture.whenStable();
-    let elt: HTMLElement = fixture.nativeElement;
-    let hoverDivs: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button');
+    const elt: HTMLElement = fixture.nativeElement;
+    const hoverDivs: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button');
     hoverDivs.forEach(btn => {
       btn.click();
-    })
-    expect(routerSpyProjectOverview).toHaveBeenCalled()
-    expect(routerSpyForecast).toHaveBeenCalled()
-  })
+    });
+    expect(routerSpyProjectOverview).toHaveBeenCalled();
+    expect(routerSpyForecast).toHaveBeenCalled();
+  });
 });

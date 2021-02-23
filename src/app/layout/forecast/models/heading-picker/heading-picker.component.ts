@@ -8,7 +8,7 @@ import { Component, Input, OnChanges, Output, ChangeDetectionStrategy } from '@a
 })
 export class HeadingPickerComponent implements OnChanges {
   @Input() heading = 0;
-  
+
   public data: Plotly.Data[];
   public loaded = false;
   public PlotLayout: Partial<Plotly.Layout> = {
@@ -28,10 +28,10 @@ export class HeadingPickerComponent implements OnChanges {
         visible: false
       },
       angularaxis: {
-        tickmode: "array",
+        tickmode: 'array',
         tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
         ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-        direction: "clockwise",
+        direction: 'clockwise',
         tickfont: {
           size: 11
         }
@@ -40,7 +40,7 @@ export class HeadingPickerComponent implements OnChanges {
   };
   public config = {
     staticPlot: true
-  }
+  };
 
   constructor() {}
 
@@ -54,8 +54,8 @@ export class HeadingPickerComponent implements OnChanges {
       mode: 'lines',
       name: 'Heading',
       r: [1, 0.7, 0.7, 0.7, 0.7, 1],
-      theta: [this.heading, this.heading-15, (this.heading-165) % 360, (this.heading+165) % 360, this.heading+15, this.heading],
-      fill: "toself",
+      theta: [this.heading, this.heading - 15, (this.heading - 165) % 360, (this.heading + 165) % 360, this.heading + 15, this.heading],
+      fill: 'toself',
       fillcolor: 'black',
       line: {
         color: 'black'

@@ -4,7 +4,7 @@ import { AgmCoreModule, AgmMap } from '@agm/core';
 import { ForecastVesselComponent } from './forecast-project.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { VesselLocationIndicatorComponent } from '../models/vessel-location-indicator/vessel-location-indicator.component'
+import { VesselLocationIndicatorComponent } from '../models/vessel-location-indicator/vessel-location-indicator.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -22,7 +22,7 @@ describe('ForecastProjectComponent', () => {
       declarations: [
         ForecastVesselComponent,
         MockComponents(
-          AgmMap,    
+          AgmMap,
           VesselLocationIndicatorComponent
         )
       ],
@@ -49,7 +49,7 @@ describe('ForecastProjectComponent', () => {
           component.project_id = 1;
         }
       )
-    )
+    );
     fixture.detectChanges();
   });
 
@@ -57,33 +57,18 @@ describe('ForecastProjectComponent', () => {
     expect(component).toBeTruthy();
     await fixture.whenStable();
     expect(component).toBeTruthy();
-    let agmMap = locate('agm-map')
-    expect(agmMap).toBeTruthy();
+    let agmMap = locate('agm-map');
+    expect(agmMap).not.toBeTruthy('Map should not be present');
+
+    component.projectLoaded = true;
+    fixture.detectChanges();
+    agmMap = locate('agm-map');
+    expect(agmMap).toBeTruthy('Map should not be present');
   });
 
-  it('should emit alerts on bad POI input', async () => {
-    let alertSpy = spyOn(AlertService.prototype, 'sendAlert').and.callThrough();
-    await fixture.whenStable();
-    expect(alertSpy).not.toHaveBeenCalled();
-    component.POI = {
-      X: 5,
-      Y: 1,
-      Z: 1,
-    };
-    component.verifyPointOfInterest();
-    expect(alertSpy).not.toHaveBeenCalled();
-    component.POI = {
-      X: -10,
-      Y: 1,
-      Z: 1,
-    };
-    component.verifyPointOfInterest();
-    expect(alertSpy).toHaveBeenCalledTimes(1);
-  })
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));
 
-  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
-
-  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture));
 
   function locate(locator: string) {
     return fixture.nativeElement.querySelector(locator);

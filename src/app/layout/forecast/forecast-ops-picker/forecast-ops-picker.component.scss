@@ -24,3 +24,11 @@
     padding: 3px;
   }
 }
+
+
+td{
+  min-width: 75px;
+  div > input {
+    min-width: 80px;
+  }
+}

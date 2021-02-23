@@ -9,7 +9,7 @@ describe('HeadingPickerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ 
+      declarations: [
         HeadingPickerComponent,
         MockComponents(
           PlotComponent
@@ -26,25 +26,25 @@ describe('HeadingPickerComponent', () => {
   });
 
   it('should create w/out data', () => {
-    component.ngOnChanges()
+    component.ngOnChanges();
     expect(component).toBeTruthy();
   });
 
   it('should create with data', () => {
     component.heading = 100;
-    component.ngOnChanges()
+    component.ngOnChanges();
     fixture.detectChanges();
     expect(component).toBeTruthy();
-    let canvas = fixture.nativeElement.querySelector('plotly-plot');
+    const canvas = fixture.nativeElement.querySelector('plotly-plot');
     expect(canvas).toBeTruthy(); // Note: ploty itself is mocked!
   });
 
   it('should trigger plot redraw on update', () => {
-    let spy = spyOn(component, 'updatePolarPlot')
+    const spy = spyOn(component, 'updatePolarPlot');
     component.heading = 10;
     component.ngOnChanges();
     expect(spy).toHaveBeenCalled();
-  })
+  });
 
   // it('should emit on change', async(() => {
   //   let emitter = spyOn(component.headingChange, 'emit');

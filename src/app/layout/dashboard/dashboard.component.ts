@@ -69,18 +69,18 @@ export class DashboardComponent implements OnInit {
   // used for comparison in the HTML
   userType = UserTypeEnum;
 
-  // Children and event handlers //
-  @ViewChild(AdminComponent)
-  private adminComponent: AdminComponent;
+    // Children and event handlers //
+    @ViewChild(AdminComponent)
+    private adminComponent: AdminComponent;
 
-  @ViewChild(LogisticsSpecialistComponent)
-  private logisticsSpecialistComponent: LogisticsSpecialistComponent;
+    @ViewChild(LogisticsSpecialistComponent)
+    private logisticsSpecialistComponent: LogisticsSpecialistComponent;
 
-  @ViewChild(MarineControllerComponent)
-  private marineControllerComponent: MarineControllerComponent;
+    @ViewChild(MarineControllerComponent)
+    private marineControllerComponent: MarineControllerComponent;
 
-  @ViewChild(VesselMasterComponent)
-  private vesselMasterComponent: VesselMasterComponent;
+    @ViewChild(VesselMasterComponent)
+    private vesselMasterComponent: VesselMasterComponent;
 
   getLocationData(locationData: AisMarkerModel[]): void {
     let lastUpdatedHours: number;

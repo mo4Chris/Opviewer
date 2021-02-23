@@ -42,9 +42,9 @@ export class SignupComponent implements OnInit {
   ) {}
 
   onRegistration() {
-    if (this.registerUserData.email.length == 0) return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' })
+    if (this.registerUserData.email.length == 0) { return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' }); }
     const isValidPermission = Boolean(this.createPermissions.find(p => p == this.registerUserData.permissions));
-    if (!isValidPermission) return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' })
+    if (!isValidPermission) { return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' }); }
 
     if (!this.permission.admin) {
       const tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
@@ -57,7 +57,7 @@ export class SignupComponent implements OnInit {
       return;
     }
     this._auth.registerUser(this.registerUserData).subscribe( res => {
-      this.alert.sendAlert({ type: 'success', text: res.data })
+      this.alert.sendAlert({ type: 'success', text: res.data });
       this.routerService.route(['dashboard', {status: 'success', message: res.data}]);
     }, err => {
       if (err.status === 401) {

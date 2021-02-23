@@ -1317,13 +1317,13 @@ app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
   } , function(err, data) {
     if (err) return onError(res, err);
     if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-      for (i = 0; i < token.userBoats.length;) {
+      for (let i = 0; i < token.userBoats.length;) {
         companyMmsi.push(token.userBoats[i].mmsi);
         i++; // WTF is dit dan weer voor een for loop
       }
       // companyMmsi = token.userBoats.map(boat => boat.mmsi);
     } else {
-      for (i = 0; i < data.length;) {
+      for (let i = 0; i < data.length;) {
         companyMmsi.push(data[i].mmsi);
         i++;
       }

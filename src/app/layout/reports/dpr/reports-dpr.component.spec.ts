@@ -68,36 +68,36 @@ describe('ReportsDprComponent', () => {
 
   it('should correctly use prev day button', async () => {
     const el: HTMLElement = fixture.nativeElement;
-    const prevDayBtn: HTMLButtonElement = el.querySelector('#prevDayButton')
+    const prevDayBtn: HTMLButtonElement = el.querySelector('#prevDayButton');
     await fixture.whenStable();
     const oldValue = toDate(component.datePickerValue).getTime();
     prevDayBtn.click();
-    const newValue = toDate(component.datePickerValue).getTime()
-    expect(Math.round((oldValue - newValue)/1000)/3600 ).toEqual(24)
-  })
+    const newValue = toDate(component.datePickerValue).getTime();
+    expect(Math.round((oldValue - newValue) / 1000) / 3600 ).toEqual(24);
+  });
   it('should correctly use next day button', async () => {
     const el: HTMLElement = fixture.nativeElement;
-    const prevDayBtn: HTMLButtonElement = el.querySelector('#nextDayButton')
+    const prevDayBtn: HTMLButtonElement = el.querySelector('#nextDayButton');
     await fixture.whenStable();
     const oldValue = toDate(component.datePickerValue).getTime();
     prevDayBtn.click();
-    const newValue = toDate(component.datePickerValue).getTime()
-    expect(Math.round((newValue - oldValue)/1000)/3600 ).toEqual(24)
-  })
+    const newValue = toDate(component.datePickerValue).getTime();
+    expect(Math.round((newValue - oldValue) / 1000) / 3600 ).toEqual(24);
+  });
   it('should correctly use the date picker', async () => {
     const el: HTMLElement = fixture.nativeElement;
-    let dpBtn: HTMLButtonElement = el.querySelector('#datePickBtn')
+    const dpBtn: HTMLButtonElement = el.querySelector('#datePickBtn');
     component.sailDates = {
       transfer: [],
       transit: [],
       other: [],
-    }
+    };
     component.noPermissionForData = false;
     component.loaded = true;
     spyOn(component, 'hasSailedTransfer').and.returnValue(true);
     spyOn(component, 'hasSailedTransit').and.returnValue(true);
     spyOn(component, 'hasSailedOther').and.returnValue(false);
-    spyOn(component, 'onChange')
+    spyOn(component, 'onChange');
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -108,7 +108,7 @@ describe('ReportsDprComponent', () => {
     // ToDo: Clicking again does not appear to close the window during testing...
     // dpBtn.click();
     // expect(getDatepickerDropdown()).not.toBeTruthy('Datepicker should be closed when clicking again');
-  })
+  });
   function getDatepickerDropdown(): HTMLElement {
     return fixture.nativeElement.querySelector('ngb-datepicker');
   }
@@ -121,26 +121,26 @@ describe('ReportsDprComponent', () => {
       transfer: [],
       transit: [],
       other: [],
-    }
+    };
     component.noPermissionForData = false;
     component.loaded = true;
     fixture.detectChanges();
     await fixture.whenStable();
 
-    let el: HTMLElement = fixture.nativeElement;
-    let event = new KeyboardEvent('keydown', {
+    const el: HTMLElement = fixture.nativeElement;
+    const event = new KeyboardEvent('keydown', {
       code: 'KeyP',
       key: 'p',
       ctrlKey: true,
-    })
+    });
     document.dispatchEvent(event);
     // ToDo: Current test will work, but ALSO triggers print window
     fixture.detectChanges();
     expect(printSpy).toHaveBeenCalled();
-  })
+  });
 
 });
 
 function toDate(YMD: {year: number, month: number, day: number}): Date {
-  return new Date(YMD.year, YMD.month, YMD.day)
+  return new Date(YMD.year, YMD.month, YMD.day);
 }

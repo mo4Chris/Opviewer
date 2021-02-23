@@ -14,13 +14,13 @@ export class GpsService {
   ) { }
 
   private isValidCoordinate(ll: number) {
-    return (typeof ll == 'number') && (ll >= -180) && (ll <= 180)
+    return (typeof ll == 'number') && (ll >= -180) && (ll <= 180);
   }
 
   formatLng(lng: number) {
     switch (this.settings.unit_latlng) {
       case 'DMS':
-        return this.lonToDms(lng)
+        return this.lonToDms(lng);
       case 'fractional':
         return lng.toFixed(FixedCoordinateLength);
     }
@@ -28,7 +28,7 @@ export class GpsService {
   formatLat(lat: number) {
     switch (this.settings.unit_latlng) {
       case 'DMS':
-        return this.latToDms(lat)
+        return this.latToDms(lat);
       case 'fractional':
         return lat.toFixed(FixedCoordinateLength);
     }
@@ -38,35 +38,35 @@ export class GpsService {
       return {
         lat: this.latToDms(lat),
         lng: this.lonToDms(lng)
-      }
+      };
     } else {
       return {
         lat: this.latToDms(lat.lat),
         lng: this.lonToDms(lat.lng)
-      }
+      };
     }
   }
 
   toDegreesMinutesAndSeconds(coordinate: number) {
-    if (!this.isValidCoordinate(coordinate)) return 'N/a'
-    let absolute = Math.abs(coordinate);
-    let degrees = Math.floor(absolute);
-    let minutesNotTruncated = (absolute - degrees) * 60;
-    let minutes = Math.floor(minutesNotTruncated);
-    let seconds = Math.round((minutesNotTruncated - minutes) * 60);
-    return degrees + "° " + minutes + "′ " + seconds + "″";
+    if (!this.isValidCoordinate(coordinate)) { return 'N/a'; }
+    const absolute = Math.abs(coordinate);
+    const degrees = Math.floor(absolute);
+    const minutesNotTruncated = (absolute - degrees) * 60;
+    const minutes = Math.floor(minutesNotTruncated);
+    const seconds = Math.round((minutesNotTruncated - minutes) * 60);
+    return degrees + '° ' + minutes + '′ ' + seconds + '″';
   }
   latToDms(lat: number) {
-    if (!this.isValidCoordinate(lat)) return 'N/a'
-    let latitude = this.toDegreesMinutesAndSeconds(lat);
-    let latitudeCardinal = lat >= 0 ? "N" : "S";
-    return latitude + " " + latitudeCardinal
-  }  
+    if (!this.isValidCoordinate(lat)) { return 'N/a'; }
+    const latitude = this.toDegreesMinutesAndSeconds(lat);
+    const latitudeCardinal = lat >= 0 ? 'N' : 'S';
+    return latitude + ' ' + latitudeCardinal;
+  }
   lonToDms(lng: number) {
-    if (!this.isValidCoordinate(lng)) return 'N/a'
-    let longitude = this.toDegreesMinutesAndSeconds(lng);
-    let longitudeCardinal = lng >= 0 ? "E" : "W";
-    return longitude + " " + longitudeCardinal;
+    if (!this.isValidCoordinate(lng)) { return 'N/a'; }
+    const longitude = this.toDegreesMinutesAndSeconds(lng);
+    const longitudeCardinal = lng >= 0 ? 'E' : 'W';
+    return longitude + ' ' + longitudeCardinal;
   }
   toDMS(lat: number, lng: number) {
     return `${this.latToDms(lat)}\n${this.lonToDms(lng)}`;

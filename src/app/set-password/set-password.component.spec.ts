@@ -72,6 +72,6 @@ describe('SetPasswordComponent', () => {
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('#QRCodeMain')).toBeNull();
   });
-  
+
 
 });

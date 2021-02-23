@@ -22,7 +22,7 @@ describe('ForecastNewVesselComponent', () => {
         NgxUploaderDirectiveModule,
         RouterTestingModule,
       ],
-      declarations: [ 
+      declarations: [
         ForecastNewVesselComponent,
         FileUploadComponent,
       ],
@@ -44,49 +44,49 @@ describe('ForecastNewVesselComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));
 
-  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture));
 });
 
 
 export function testBrokenHelpButtons(getFixture: () => ComponentFixture<any>) {
   return async () => {
-    let fixture = getFixture();
+    const fixture = getFixture();
     await fixture.whenStable();
-    let elt: HTMLElement = fixture.nativeElement;
-    let helpbtns: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button[popoverClass="helpPopup"]');
+    const elt: HTMLElement = fixture.nativeElement;
+    const helpbtns: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button[popoverClass="helpPopup"]');
     helpbtns.forEach(helper => {
       helper.click();
-      let window = elt.querySelector('ngb-popover-window');
-      expect(window).toBeTruthy(helper.parentElement.textContent)
+      const window = elt.querySelector('ngb-popover-window');
+      expect(window).toBeTruthy(helper.parentElement.textContent);
       if (window) {
-        expect(window.textContent.length).toBeGreaterThan(0, helper.parentElement.textContent)
+        expect(window.textContent.length).toBeGreaterThan(0, helper.parentElement.textContent);
       }
       helper.click(); // Close the window
-    })
-  }
+    });
+  };
 }
 
 export function testEmptyTooltips(getFixture: () => ComponentFixture<any>) {
   // ToDo: get all elements with a broken reference
   return async () => {
-    let fixture = getFixture();
+    const fixture = getFixture();
     await fixture.whenStable();
-    let elt: HTMLElement = fixture.nativeElement;
-    let hoverDivs: NodeListOf<HTMLDivElement> = elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
+    const elt: HTMLElement = fixture.nativeElement;
+    const hoverDivs: NodeListOf<HTMLDivElement> = elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
 
-    if (hoverDivs == null || hoverDivs.length == 0) expect(true).toBe(true); // Hide warnings about no spec
+    if (hoverDivs == null || hoverDivs.length == 0) { expect(true).toBe(true); } // Hide warnings about no spec
 
     hoverDivs.forEach(helper => {
-      helper.dispatchEvent(new MouseEvent('mouseenter'))
-      let window = elt.querySelector('ngb-tooltip-window div.tooltip-inner')
-      expect(window).toBeTruthy(helper.textContent)
+      helper.dispatchEvent(new MouseEvent('mouseenter'));
+      const window = elt.querySelector('ngb-tooltip-window div.tooltip-inner');
+      expect(window).toBeTruthy(helper.textContent);
       if (window) {
-        expect(window.textContent.length).toBeGreaterThan(0, helper.textContent)
+        expect(window.textContent.length).toBeGreaterThan(0, helper.textContent);
       }
-      helper.dispatchEvent(new MouseEvent('mouseleave'))
-    })
-  }
+      helper.dispatchEvent(new MouseEvent('mouseleave'));
+    });
+  };
 }
 

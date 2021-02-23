@@ -2,29 +2,45 @@ var uploader = require('express-fileupload')
 var jwt = require("jsonwebtoken");
 
 
-module.exports = function (app, logger) {
+module.exports = function (app, logger, mailer) {
   app.use(uploader({
     createParentPath: true
   }))
   
-  function unauthorized(res, cause = 'unknown') {
-    logger.warning(`Unauthorized request: ${cause}`)
-    res.status(401).send('Unauthorized request') 
+  function onUnauthorized(res, cause = 'unknown') {
+    logger.warn(`Unauthorized request: ${cause}`)
+    if (cause == 'unknown') {
+      res.status(401).send('Unauthorized request')
+    } else {
+      res.status(401).send(`Unauthorized: ${cause}`)
+    }
+  }
+  function onError(res, err, additionalInfo = 'Internal server error') {
+    if (typeof(err) == 'object') {
+      err.debug = additionalInfo;
+    } else {
+      err = {
+        debug: additionalInfo,
+        msg: err,
+        error: err,
+      }
+    }
+    logger.error(err)
+    res.status(500).send(additionalInfo);
   }
 
   function verifyToken(req, res) {
     try {
-      if (!req.headers.authorization) unauthorized(res, 'Missing headers');
+      if (!req.headers.authorization) onUnauthorized(res, 'Missing headers');
 
       const token = req.headers.authorization;
-      if (token == null || token === 'null')  unauthorized(res, 'Token missing!')
+      if (token == null || token === 'null')  onUnauthorized(res, 'Token missing!')
 
       const payload = jwt.verify(token, 'secretKey');
-      if (payload == null || payload == 'null')  unauthorized(res, 'Token corrupted!')
+      if (payload == null || payload == 'null')  onUnauthorized(res, 'Token corrupted!')
       return payload;
     } catch (err) {
-      logger.error(err);
-      res.status(500).send('Failed to parse jwt token')
+      if (err) onError(res, err, 'Failed to parse jwt token')
     }
   }
 
@@ -34,18 +50,18 @@ module.exports = function (app, logger) {
     if (!token) return;
 
     try {
-      if(!req.files) {
-        return res.send({
-          status: false,
-          message: 'No file uploaded'
-        });
-      }
+      if(!req.files) return res.status(400).send('No file uploaded');
+
       //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
       let lines = req.files.file;
       logger.info('Received new file ' + lines.name)
       
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      lines.mv('./uploads/' + lines.name);
+      const uploadPath = process.env.UPLOAD_FOLDER;
+      const newFileName = 'HULL_LINES_' + lines.name;
+      lines.mv(uploadPath + '/' + newFileName, err => {
+        if (err) return onError(res, err, 'Failed to save file')
+      });
 
       //send response
       res.send({
@@ -57,9 +73,14 @@ module.exports = function (app, logger) {
           size: lines.size
         }
       });
+
+      const body = `File ${newFileName} was just uploaded to the web server\n
+        Files are stored in ${uploadPath}.`
+
+      // send email
+      mailer(process.env.EMAIL, body, 'web master')
     } catch (err) {
-      logger.error(err)
-      res.status(500).send(err);
+      return onError(err);
     }
   });
 }

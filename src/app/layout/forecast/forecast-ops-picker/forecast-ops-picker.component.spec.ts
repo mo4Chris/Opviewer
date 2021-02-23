@@ -41,18 +41,18 @@ describe('ForecastOpsPickerComponent', () => {
   });
 
   it('should emit on change', () => {
-    let emitter = spyOn(component['routerService'], 'routeToForecast');
-    component.projects = [{ 
+    const emitter = spyOn(component['routerService'], 'routeToForecast');
+    component.projects = [{
       id: 0,
-      name: "string",
+      name: 'string',
       client_id: 1,
       latitude: 2,
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: "string",
-      activation_start_date: "6",
-      activation_end_date: "7",
+      vessel_id: 'string',
+      activation_start_date: '6',
+      activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
     }];
@@ -61,27 +61,27 @@ describe('ForecastOpsPickerComponent', () => {
     fixture.detectChanges();
     expect(component.hasSelectedOperation).toBeTruthy();
 
-    let select = fixture.nativeElement.querySelector('select');
-    expect(select).not.toBeNull('Select should be present')
+    const select = fixture.nativeElement.querySelector('select');
+    expect(select).not.toBeNull('Select should be present');
     if (select) {
       select.dispatchEvent(new Event('change'));
       fixture.detectChanges();
       expect(emitter).toHaveBeenCalled();
     }
-  })
+  });
 
   it('should render relevant data', async () => {
-    component.projects = [{ 
+    component.projects = [{
       id: 0,
-      name: "string",
+      name: 'string',
       client_id: 1,
       latitude: 2,
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: "string",
-      activation_start_date: "6",
-      activation_end_date: "7",
+      vessel_id: 'string',
+      activation_start_date: '6',
+      activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
     }];
@@ -90,8 +90,8 @@ describe('ForecastOpsPickerComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    let elt: HTMLElement = fixture.nativeElement;
-    let opt = elt.querySelector('#selectOperation');
+    const elt: HTMLElement = fixture.nativeElement;
+    const opt = elt.querySelector('#selectOperation');
     expect(opt).toBeTruthy();
-  })
+  });
 });

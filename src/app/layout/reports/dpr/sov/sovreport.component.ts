@@ -7,7 +7,6 @@ import { SovModel } from './models/SovModel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovType } from './models/SovType';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import { isArray } from 'util';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
@@ -50,7 +49,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hasDcEvents = false;
   dcInfo: DaughtercraftInfoModel;
 
-  activeTab = 'summary';
+  activeTab: SovDprNavLink = 'sov-summary';
 
   vesselHasWavespectrum = false;
   waveSpectrumAvailable = false;
@@ -553,19 +552,19 @@ export class SovreportComponent implements OnInit, OnChanges {
     // ToDo: this should really be a setting
     switch (this.tokenInfo.userPermission) {
       case 'admin':
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
         break;
       case 'Logistics specialist':
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
         break;
       case 'Marine controller':
-        this.activeTab = 'sov-dpr-input';
+        this.activeTab = 'sov-input-write';
         break;
       case 'Vessel master':
-        this.activeTab = 'sov-dpr-input';
+        this.activeTab = 'sov-input-write';
         break;
       default:
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
     }
   }
 
@@ -633,4 +632,4 @@ export class SovreportComponent implements OnInit, OnChanges {
 
 type anyTransfer = TurbineTransfer | PlatformTransfer | V2vTransfer;
 
-
+type SovDprNavLink = 'sov-summary' | 'sov-input-read' | 'sov-input-write' | 'sov-commercial' | 'dpr-hse-read' | 'sov-wave-spectrum';

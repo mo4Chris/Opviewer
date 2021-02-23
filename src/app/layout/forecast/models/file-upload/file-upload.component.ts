@@ -3,7 +3,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput, IUploadProgress } from 'ngx-uploader-directive';
 import { environment } from '@env/environment';
 
-const DEBUG: boolean = false;
+const DEBUG = false;
 
 @Component({
   selector: 'app-file-upload',
@@ -43,7 +43,7 @@ export class FileUploadComponent {
   }
 
   public get hasFiles() {
-    return Array.isArray(this.files) && this.files.length > 0
+    return Array.isArray(this.files) && this.files.length > 0;
   }
 
   /**
@@ -51,7 +51,7 @@ export class FileUploadComponent {
  * @param output IUploadOutput Model on output.
  */
   onUploadOutput(output: IUploadOutput): void {
-    if (DEBUG==true && output.type != 'dragOver') {
+    if (DEBUG == true && output.type != 'dragOver') {
       console.log(`Event: ${output.type}`);
     }
     switch (output.type) {
@@ -63,7 +63,7 @@ export class FileUploadComponent {
         break;
       case 'allAddedToQueue':
         this.uploadCompleted = false;
-        if (this.uploadOnDrop) this.startUpload();
+        if (this.uploadOnDrop) { this.startUpload(); }
         break;
       case 'addedToQueue':
         this.uploadCompleted = false;
@@ -72,14 +72,14 @@ export class FileUploadComponent {
         break;
       case 'start':
         // uploading start
-        if (this.alert.active) this.alert.clear();
-        this.alert.sendAlert({text: 'Uploading...', type: 'primary'})
+        if (this.alert.active) { this.alert.clear(); }
+        this.alert.sendAlert({text: 'Uploading...', type: 'primary'});
         break;
       case 'uploading':
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         break;
       case 'error':
-        console.error(output)
+        console.error(output);
         this.alert.sendAlert({text: 'Upload failed!', type: 'danger'});
         this.reset();
         break;
@@ -103,7 +103,7 @@ export class FileUploadComponent {
         // The files are uploaded
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         this.alert.sendAlert({text: 'File uploaded!', type: 'success'});
-        this.fileUploadComplete.emit(output.files[0].name)
+        this.fileUploadComplete.emit(output.files[0].name);
         this.uploadCompleted = true;
         break;
     }
@@ -122,12 +122,12 @@ export class FileUploadComponent {
     progress: IUploadProgress,
     action: 'REMOVE' | 'UPDATE'
   ) {
-    if (updatedFiles == undefined) return currentFiles;
+    if (updatedFiles == undefined) { return currentFiles; }
     if (action === 'UPDATE') {
       updatedFiles.forEach(updateFile => {
         currentFiles.forEach((currentFile, currentFileIndex, currentFilesArray) => {
           if (currentFile.name === updateFile.name) {
-            if (progress !== undefined) updateFile.progress = progress
+            if (progress !== undefined) { updateFile.progress = progress; }
             currentFilesArray[currentFileIndex] = updateFile;
           }
         });
@@ -150,7 +150,7 @@ export class FileUploadComponent {
       this.formData.push({'fileHasHeader': 'false'});
       this.formData.push({'delimiter': ','});
 
-      // ToDo: 
+      // ToDo:
       const event: IUploadInput = {
         type: 'uploadAll',
         url: this.uploadUrl,
@@ -164,7 +164,7 @@ export class FileUploadComponent {
       this.alert.sendAlert({
         text: 'No file selected!',
         type: 'warning'
-      })
+      });
     }
   }
 
@@ -181,13 +181,13 @@ export class FileUploadComponent {
 
   public printFileSize(file: ISelectedFile) {
     // ToDo: move this to some sort of service
-    let sz = file.nativeFile.size;
+    const sz = file.nativeFile.size;
     if (sz < 1e3) {
-      return '1kb'
+      return '1kb';
     } else if (sz < 1e6) {
-      return Math.round(sz/1e3) + ' KB';
+      return Math.round(sz / 1e3) + ' KB';
     } else if (sz < 1e9) {
-      return Math.round(sz/1e6) +  'MB';
+      return Math.round(sz / 1e6) +  'MB';
     }
     return 'N/a';
   }

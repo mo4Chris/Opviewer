@@ -8,11 +8,35 @@ app-heading-picker {
 .min-height{
   align-self: center;
   justify-content: center;
-  min-height: 100px;
+  height: 400px;
 }
 
 .not-available{
   font-size: 30px;
   display: table;
   margin: 0 auto;
+  margin-top: 100px;
+}
+
+.nav-card-header{
+  padding-bottom: 6px;
+  padding-top: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  li > a:hover {
+    background-color: rgba(0, 159, 227, 0.7);
+  }
+  a.nav-link {
+    color: white;
+    background-color: rgba(0, 159, 227, 0.3);
+  }
+  a.active{
+    background-color: rgb(0, 159, 227);
+    color: white
+  }
+}
+
+td{
+  min-width: 60px;
 }

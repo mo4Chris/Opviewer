@@ -21,14 +21,47 @@
       </div>
     </div>
 
-    <div class="col-lg-12 col-xl-8" *ngIf="Workability; else workabilityNotAvailable">
-      <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-        [startTime]="startTime" [stopTime]="stopTime">
-      </app-forecast-workability-plot>
+    <div class="col-lg-12 col-xl-8" >
+      <div class='card mb-3'>
+        <div class='card-header nav-card-header'>
+          <ul ngbNav #nav="ngbNav" class="nav-pills">
+            <li [destroyOnHide]="false" ngbNavItem="forecast-workability">
+              <a ngbNavLink>Workability</a>
+              <ng-template ngbNavContent>
+                <ng-container *ngIf="Workability; else workabilityNotAvailable">
+                  <app-forecast-workability-plot [time]="ReponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+                    [startTime]="startTime" [stopTime]="stopTime">
+                  </app-forecast-workability-plot>
 
-      <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
-        [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
-      </app-surface-plot>
+                  <app-surface-plot xLabel="time" yLabel="Heading [deg]" title="Workability" [xData]="ReponseTime"
+                    [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+                  </app-surface-plot>
+                </ng-container>
+              </ng-template>
+            </li>
+          
+            <li ngbNavItem="forecast-weather-overview">
+              <a ngbNavLink>Weather overview</a>
+              <ng-template #weather id="tab-weather" ngbNavContent>
+                <app-forecast-weather-overview [time]="ReponseTime" [response]="response">
+                </app-forecast-weather-overview>
+              </ng-template>
+            </li>
+          
+            <li ngbNavItem="forecast-wave-spectrum">
+              <a ngbNavLink>Wave spectrum</a>
+              <ng-template #weather id="tab-weather" ngbNavContent>
+                HERE BE WAVE SPECTRUM IMPORTED FROM SOV DPR
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+
+
+        <div class='card-body table-responsive'>
+          <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

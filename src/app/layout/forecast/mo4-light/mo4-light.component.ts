@@ -8,7 +8,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
-import { ForecastOperationSettings } from '../forecast-ops-picker/forecast-ops-picker.component'
+import { ForecastOperationSettings } from '../forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 
 @Component({
@@ -19,7 +19,7 @@ import { ForecastMotionLimit } from '../models/forecast-limit';
 export class Mo4LightComponent implements OnInit, OnChanges {
     private client_id: number;
     private project_id: number;
-    
+
     public showContent = false;
     public vessels: string[] = []; // Not used
     public operations: ForecastOperation[] = []; // Change to projects?
@@ -33,13 +33,13 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public limits: ForecastMotionLimit[] = [];
     public selectedHeading = 112;
     public selectedOperation: ForecastOperation = null;
-  
+
     public minForecastDate: YMD;
     public maxForecastDate: YMD;
     public startTime: number;
     public stopTime: number;
-    public formattedDuration: string = 'N/a';
-  
+    public formattedDuration = 'N/a';
+
     constructor(
       private newService: CommonService,
       private dateService: DatetimeService,
@@ -49,7 +49,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       private route: ActivatedRoute,
     ) {
     }
-  
+
     ngOnInit() {
       this.initRoute().subscribe(() => {
         this.loadData();
@@ -61,11 +61,11 @@ export class Mo4LightComponent implements OnInit, OnChanges {
 
     initRoute() {
       return this.route.params.pipe(map(params => {
-        if (!params.project_id) return this.routeService.routeToForecast();
+        if (!params.project_id) { return this.routeService.routeToForecast(); }
         this.project_id = parseInt(params.project_id);
-      }))
+      }));
     }
-  
+
     loadData() {
       // ToDo: only rerout if no permission to forecasting module
       forkJoin([
@@ -78,9 +78,9 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         this.operations = projects;
         this.showContent = true;
         if (this.response) {
-          let responseTimes = this.response.response.Points_Of_Interest.P1.Time;
+          const responseTimes = this.response.response.Points_Of_Interest.P1.Time;
           this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
-          this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length-1]);
+          this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
           const currentOperation = this.operations.find(op => op.id == this.project_id);
           this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
@@ -93,14 +93,14 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         }
       }, error => {
         this.routeService.routeToAccessDenied();
-      })
+      });
     }
-  
-  
+
+
     routeToProject(project_id: number) {
       this.routeService.routeToForecast(project_id);
     }
-  
+
     onProjectSettingsChange(settings: ForecastOperationSettings) {
       this.startTime = settings.startTime;
       this.stopTime = settings.stopTime;
@@ -108,14 +108,14 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     parseResponse() {
-      if (!this.response || this.limits.length==0) return this.Workability = null;
+      if (!this.response || this.limits.length == 0) { return this.Workability = null; }
       const POI = this.response.response.Points_Of_Interest.P1;
       const response = POI.Response;
       this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
       this.WorkabilityHeadings = POI.Heading;
       const limiters = this.limits.map(limit => {
-        return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value)
-      })
+        return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value);
+      });
       this.Workability = this.matService.scale(
         this.matService.transpose(
           this.responseService.combineWorkabilities(limiters)
@@ -126,26 +126,25 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     setWorkabilityAlongHeading() {
-      console.log('UPDATING WORKABILITY')
       const POI = this.response.response.Points_Of_Interest.P1;
-      let headingIdx = this.getHeadingIdx(POI.Heading);
-      this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx]
+      const headingIdx = this.getHeadingIdx(POI.Heading);
+      this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
     }
-  
+
     getHeadingIdx(headings: number[]): number {
       let d = 360;
       let hIdx = null;
       headings.forEach((h, i) => {
-        let dist = Math.abs(h - this.selectedHeading);
+        const dist = Math.abs(h - this.selectedHeading);
         if (dist < d) {
           hIdx = i;
           d = dist;
         }
-      })
+      });
       return hIdx;
     }
   }
-  
+
   interface YMD {
     year: number;
     month: number;

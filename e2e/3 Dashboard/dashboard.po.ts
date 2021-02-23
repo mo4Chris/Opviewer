@@ -1,7 +1,7 @@
 import { browser, by, element, ExpectedConditions } from 'protractor';
 import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 
-let EC = ExpectedConditions;
+const EC = ExpectedConditions;
 
 export class DashboardPage extends E2ePageObject {
     navigateTo() {

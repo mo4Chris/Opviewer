@@ -38,25 +38,25 @@ describe('LoginComponent', () => {
   });
 
   it('should trigger cb on button click', async () => {
-    await fixture.whenStable()
-    sendDataToInput('input[name="username"]', 'test@test.nl')
-    sendDataToInput('input[name="password"]', 'test123')
-    sendDataToInput('input[name="confirm2fa"]', 'test2fa')
-    let cbSpy = spyOn(component, 'onLoggedin');
-    let btn = fixture.nativeElement.querySelector('#loginButton');
+    await fixture.whenStable();
+    sendDataToInput('input[name="username"]', 'test@test.nl');
+    sendDataToInput('input[name="password"]', 'test123');
+    sendDataToInput('input[name="confirm2fa"]', 'test2fa');
+    const cbSpy = spyOn(component, 'onLoggedin');
+    const btn = fixture.nativeElement.querySelector('#loginButton');
     btn.dispatchEvent(new Event('click'));
-    await fixture.whenStable()
+    await fixture.whenStable();
     expect(cbSpy).toHaveBeenCalled();
     expect(component.loginUserData).toEqual({
       username: 'test@test.nl',
       password: 'test123',
       confirm2fa: 'test2fa'
-    })
+    });
   });
 });
 
 function sendDataToInput(selector: string, text: string) {
-  let input = fixture.nativeElement.querySelector(selector);
+  const input = fixture.nativeElement.querySelector(selector);
   input.value = text;
   input.dispatchEvent(new Event('input'));
 }

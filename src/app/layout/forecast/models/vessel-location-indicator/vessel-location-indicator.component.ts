@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as Plotly from 'plotly.js'
+import * as Plotly from 'plotly.js';
 
 @Component({
   selector: 'app-vessel-location-indicator',
@@ -15,9 +15,9 @@ export class VesselLocationIndicatorComponent implements OnChanges {
   @Input() xLabel = 'X (m)';
   @Input() yLabel = 'Y (m)';
   @Input() zLabel = 'z (m)';
-  @Input() X: number = 1;
-  @Input() Y: number = 2;
-  @Input() Z: number = 3;
+  @Input() X = 1;
+  @Input() Y = 2;
+  @Input() Z = 3;
 
   public loaded = false;
   public plotData: Plotly.Data[];
@@ -31,7 +31,7 @@ export class VesselLocationIndicatorComponent implements OnChanges {
       visible: false,
     },
     scene: {
-      aspectmode: "data",
+      aspectmode: 'data',
       camera: {
         center: {
           x: 0.2, y: 0, z: 0,
@@ -49,7 +49,7 @@ export class VesselLocationIndicatorComponent implements OnChanges {
     && isValidNumber(this.Height, 0, 1000)
     && isValidNumber(this.X, 0, this.Length)
     && isValidNumber(this.Y, -this.Width, this.Width)
-    && isValidNumber(this.Z, 0, this.Length)
+    && isValidNumber(this.Z, 0, this.Length);
     return valid;
   }
 
@@ -77,9 +77,9 @@ export class VesselLocationIndicatorComponent implements OnChanges {
   }
 
   calcVesselTrace() {
-    let x = [0, 0.7, 0.9, 0.7,  0, 0, 0, 0.7, 1, 0.7,  0, 0.7];
-    let y = [1,   1,   0,  -1, -1, 1, 1,   1, 0,  -1, -1,   0];
-    let z = [0,   0, 0.2,   0,  0, 0, 1,   1, 1,   1,  1,   0];
+    const x = [0, 0.7, 0.9, 0.7,  0, 0, 0, 0.7, 1, 0.7,  0, 0.7];
+    const y = [1,   1,   0,  -1, -1, 1, 1,   1, 0,  -1, -1,   0];
+    const z = [0,   0, 0.2,   0,  0, 0, 1,   1, 1,   1,  1,   0];
     this.VesselTrace = <any> {
       // text: this.calcService.linspace(0, x.length).map(e=> 'Node ' + e.toString()),
       opacity: 0.5,
@@ -93,8 +93,8 @@ export class VesselLocationIndicatorComponent implements OnChanges {
       i: [ 0, 1, 11, 11, 4, 5, 1, 1,  6,  4, 4, 2, 2, 2, 7, 7, 10],
       j: [ 1, 2,  3,  4, 5, 6, 5, 2, 10,  9, 9, 3, 8, 8, 8, 9,  6],
       k: [11, 3,  4,  5, 6, 7, 7, 7,  4, 10, 3, 9, 9, 7, 9, 6,  9],
-      color: "gray",
-    }
+      color: 'gray',
+    };
   }
 
   public onPlotlyInit(event) {

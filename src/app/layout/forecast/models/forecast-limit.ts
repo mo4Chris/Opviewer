@@ -1,4 +1,4 @@
-import { Dof6, DofType } from "./forecast-response.model"
+import { Dof6, DofType } from './forecast-response.model';
 
 
 export class ForecastMotionLimit {
@@ -21,31 +21,31 @@ export class ForecastMotionLimit {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
-            return 'm/s²'
+            return 'm/s²';
           case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg/s²'
+            return 'deg/s²';
         }
       case 'Vel':
         switch (this.dof) {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
-            return 'm/s'
+            return 'm/s';
           case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg/s'
+            return 'deg/s';
         }
       case 'Disp':
         switch (this.dof) {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
-            return 'm'
+            return 'm';
           case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg'
+            return 'deg';
         }
       default:
-        console.error(`Unsupported unit for type ${this.type} and dof ${this.dof}`)
-        return ''
+        console.error(`Unsupported unit for type ${this.type} and dof ${this.dof}`);
+        return '';
     }
   }
 }

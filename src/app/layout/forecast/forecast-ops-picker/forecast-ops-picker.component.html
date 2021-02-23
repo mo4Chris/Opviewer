@@ -116,9 +116,9 @@
       <td class="tight">
         <!-- <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value"> -->
         <div class="input-group">
-          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value">
+          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value" [min]="0">
           <div class="input-group-append tight">
-              <span class="input-group-text">{{limit.unit}}</span>
+            <span class="input-group-text">{{limit.unit}}</span>
           </div>
         </div>
       </td>

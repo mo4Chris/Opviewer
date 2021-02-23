@@ -685,26 +685,29 @@ export class MockedCommonService extends CommonService {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: 'fakeID',
-    }])
+    }]);
   }
   getForecastClientList() {
-    return mockedObservable([])
+    return mockedObservable([]);
   }
   getForecastUserList() {
-    return mockedObservable([])
+    return mockedObservable([]);
   }
   getForecastVesselList() {
-    return mockedObservable([])
+    return mockedObservable([]);
   }
   getForecastWorkabilityForProject(project_id = 3) {
     const Response = {
       Coordinates: { X: { Data: 0, String_Value: '' }, Y: { Data: 0, String_Value: '' }, Z: { Data: 0, String_Value: '' } },
-      Time: [], // Matlab timestamps
-      Heading: [], // In degrees
+      Time: [737700], // Matlab timestamps
+      Heading: [0], // In degrees
       Response: {
-        Acc: [[[]]],
-        Vel: [[[]]],
-        Disp: [[[]]],
+        Acc: [[[1]]],
+        Vel: [[[1]]],
+        Disp: [[[1]]],
+      },
+      Degrees_Of_Freedom: {
+
       }
     };
     const responseObj: ForecastResponseObject = {
@@ -717,8 +720,8 @@ export class MockedCommonService extends CommonService {
           P1: Response
         }
       }
-    }
-    return mockedObservable([responseObj])
+    };
+    return mockedObservable([responseObj]);
   }
   getForecastProjectsForClient(client_id: number) {
     return mockedObservable([{
@@ -730,7 +733,7 @@ export class MockedCommonService extends CommonService {
       water_depth: 4,
       maximum_duration: 5,
       vessel_id: 'fakeID',
-    }])
+    }]);
   }
 }
 
