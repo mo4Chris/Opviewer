@@ -11,7 +11,7 @@ var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 
 const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] || 'bmodataviewer.com';
-const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.onlCine'
+const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.online'
 const SECURE_METHODS = ['GET', 'POST', 'PUT']
 
 mongo.set('useFindAndModify', false);
@@ -676,7 +676,7 @@ function mailTo(subject, html, user) {
   const mailOptions = {
     from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
     to: user, //'bar@example.com, baz@example.com' list of receivers
-    bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
+    bcc: WEBMASTER_MAIL, //'bar@example.com, baz@example.com' list of bcc receivers
     subject: subject, //'Hello ✔' Subject line
     html: body //'<b>Hello world?</b>' html body
   };
