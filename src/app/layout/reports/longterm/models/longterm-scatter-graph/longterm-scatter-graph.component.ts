@@ -139,7 +139,6 @@ export class LongtermScatterGraphComponent implements OnChanges {
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
     const keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
-      console.error(`Applying filter "${filter.name}"`);
       if (filter.active || filter.active == undefined) {
         filter.active = true;
         xVals.forEach((x, i) => {
