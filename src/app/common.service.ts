@@ -35,8 +35,14 @@ export class CommonService {
     return this.http.post(environment.DB_IP + url, data, httpOptions);
   }
 
-  validatePermissionToViewData(vessel: { mmsi: number}) {
+  validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
     return this.post('/api/validatePermissionToViewData/', vessel);
+  }
+
+  updateAuthorizationToken(token: string) {
+    const oldHeaders = httpOptions.headers;
+    const newHeaders = oldHeaders.set('Authorization', token);
+    httpOptions.headers = newHeaders;
   }
 
   getActiveConnections(): Observable<any> {
@@ -474,7 +480,7 @@ export class CommonService {
   }): Observable<any> {// Observable<WavedataModel> {
     return this.post('/api/getWavedataForDay', request).pipe(
       map(response => {
-        if (response.status === 204) {
+        if (response?.status === 204) {
           return null;
         } else {
           return response; // new WavedataModel(response);

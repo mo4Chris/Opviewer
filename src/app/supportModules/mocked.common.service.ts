@@ -58,7 +58,7 @@ export class MockedCommonService extends CommonService {
     Site?: string,
     onHire?: 0 | 1,
     operationsClass?: VesselType,
-  } = {}): Observable<VesselModel> {
+  } = {}): Observable<any> {
     const defaults = this.getVesselDefault()[0];
     return mockedObservable([{ ...defaults, ...opts }]);
   }

@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { UserType } from './shared/enums/UserType';
+import { CommonService } from './common.service';
+import { map } from 'rxjs/operators';
 
 const httpOptions = {
     headers: new HttpHeaders({
@@ -18,10 +20,18 @@ export class AuthService {
     private _loginurl = environment.DB_IP + '/api/login/';
     private _registerurl = environment.DB_IP + '/api/registerUser/';
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(
+        private httpClient: HttpClient,
+        private commonService: CommonService,
+    ) { }
 
-    loginUser(user): Observable<{token: string}> {
-        return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions);
+    loginUser(user: UserLoginData): Observable<{token: string}> {
+        return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions).pipe(
+            map((tokenObj) => {
+                this.commonService.updateAuthorizationToken(tokenObj.token);
+                return tokenObj;
+            })
+        )
     }
 
     getToken() {
@@ -42,7 +52,13 @@ export class AuthService {
 }
 
 export interface UserObject {
-        username: string;
-        userCompany: string;
-        permissions: UserType;
-  }
+    username: string;
+    userCompany: string;
+    permissions: UserType;
+}
+
+export interface UserLoginData {
+    username: string;
+    password: string;
+    confirm2fa: string;
+};
