@@ -25,7 +25,7 @@ export class ForecastVesselComponent implements OnInit {
     draft: 3.01,
     gm: 4.56789,
     rao: null
-  }]
+  }];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
@@ -34,13 +34,13 @@ export class ForecastVesselComponent implements OnInit {
     X: undefined,
     Y: undefined,
     Z: undefined,
-  }
+  };
   public contractStartDateString = 'N/a';
   public contractEndDateString = '';
 
   public Marker: google.maps.Marker;
-  public Longitude: string = 'N/a';
-  public Lattitude: string = 'N/a';
+  public Longitude = 'N/a';
+  public Lattitude = 'N/a';
 
   constructor(
     private route: ActivatedRoute,
@@ -67,8 +67,8 @@ export class ForecastVesselComponent implements OnInit {
     return this.route.params.pipe(
       map(params => {
         const project_id = params.project_id;
-        if (project_id == 'new') return this.initNewProject();
-        this.project_id = parseFloat(project_id)
+        if (project_id == 'new') { return this.initNewProject(); }
+        this.project_id = parseFloat(project_id);
         if (isNaN(this.project_id)) {
           this.routeService.routeToNotFound();
         }
@@ -84,7 +84,7 @@ export class ForecastVesselComponent implements OnInit {
       this.vessels = vessels;
       this.projectLoaded = true;
       this.onLoaded();
-    })
+    });
   }
   private onLoaded() {
     this.contractStartDateString = this.dateService.isoStringToDmyString(this.project.activation_start_date);
@@ -94,7 +94,7 @@ export class ForecastVesselComponent implements OnInit {
     this.updateMarker();
   }
   private initNewProject() {
-    if (!this.permission.forecastCreateProject)
+    if (!this.permission.forecastCreateProject) {
     this.newService.getForecastVesselList().subscribe(vessels => {
       this.vessels = vessels;
       this.project = {
@@ -110,8 +110,9 @@ export class ForecastVesselComponent implements OnInit {
         client_id: null,
         client_preferences: null,
         consumer_id: null,
-      }
-    })
+      };
+    });
+    }
   }
 
   public onMapReady(map: google.maps.Map) {
@@ -142,15 +143,15 @@ export class ForecastVesselComponent implements OnInit {
     this.updateMarker();
   }
   private updateMarker() {
-    if (!this.Marker) return;
+    if (!this.Marker) { return; }
     this.Marker.setPosition({
       lat: this.project.latitude,
       lng: this.project.longitude,
-    })
+    });
   }
 
   public roundNumber(num: number, dec = 10000, addString?: string) {
-    return this.calcService.roundNumber(num, dec, addString)
+    return this.calcService.roundNumber(num, dec, addString);
   }
 }
 

@@ -15,7 +15,7 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
-  
+
   waveSpectrum: SovWaveSpectum;
   loaded = false;
   data: PlotlyJS.Data[] = [];
@@ -25,9 +25,9 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   smoothFactor = 2;
   Kmax = 2.096; // Size of outer circle
   Kmin = 0.127; // Size of inner circle
- 
+
   plotLayout = {
-   
+
     // General settings for the graph
     height: 600,
     width: 600,
@@ -45,7 +45,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       showgrid: false,
       zeroline: false,
     },
-    
+
     // All the annotations for the plot go here (ie. the north east south west signs)
     annotations: [{
       text: 'N',
@@ -85,7 +85,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       yanchor: 'top',
       name: 'source'
     }],
-    
+
     // Supportings shapes (ie. outer edge to hide the interpolation) go here
     shapes: [{
       type: 'circle',
@@ -116,7 +116,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       y1: 0,
       line: { width: 1 },
     }],
-    
+
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
     updatemenus: [{

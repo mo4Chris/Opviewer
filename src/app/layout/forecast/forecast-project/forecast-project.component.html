@@ -12,8 +12,8 @@
               <td colspan="2" *ngIf="permission.createProject"><input *ngIf="project" [(ngModel)]="project.name"></td>
               <td colspan="2" *ngIf="!permission.createProject">{{project?.name}}</td>
             </tr>
-            <tr>
-              <td *ngIf="permission.admin">Client</td>
+            <tr *ngIf="permission.admin">
+              <td>Client</td>
               <td colspan="2">{{project?.client_id || 'N/a'}} (admin only)</td>
             </tr>
             <tr>

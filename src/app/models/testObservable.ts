@@ -5,5 +5,5 @@ export function mockedObservable(data: any): Observable<any> {
 }
 
 export function mockedPromise(data: any): Promise<any> {
-    return Promise.resolve(data)
+    return Promise.resolve(data);
 }

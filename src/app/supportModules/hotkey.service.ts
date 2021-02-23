@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventManager } from '@angular/platform-browser';import { DOCUMENT } from "@angular/common";
+import { EventManager } from '@angular/platform-browser'; import { DOCUMENT } from '@angular/common';
 
 interface Options {
     keys: string;  // Keys on which the shortcut triggers

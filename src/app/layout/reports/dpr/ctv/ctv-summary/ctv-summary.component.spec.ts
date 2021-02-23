@@ -48,7 +48,7 @@ describe('CtvSummaryComponent', () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(CtvSummaryComponent);
       component = fixture.componentInstance;
-      component.tokenInfo = UserTestService.getMockedAccessToken(); 
+      component.tokenInfo = UserTestService.getMockedAccessToken();
       component.general = general;
       component.generalInputStats = {
         date: general.date,
@@ -72,7 +72,7 @@ describe('CtvSummaryComponent', () => {
         fuelOther: 0,
         fuelPerHour: 1,
       };
-      
+
       fixture.detectChanges();
     });
 
@@ -94,13 +94,13 @@ describe('CtvSummaryComponent', () => {
       fixture = TestBed.createComponent(CtvSummaryComponent);
       component = fixture.componentInstance;
       component.tokenInfo = UserTestService.getMockedAccessToken();
-    })
+    });
 
     it('render', () => {
       fixture.detectChanges();
       expect(component).toBeTruthy();
-    })
-  })
+    });
+  });
 
   describe('should prefer the right fuel value', () => {
     beforeAll((done) => {
@@ -120,7 +120,7 @@ describe('CtvSummaryComponent', () => {
       component = fixture.componentInstance;
       component.tokenInfo = UserTestService.getMockedAccessToken();
 
-      component.fuelConsumedValue = '0 m³';  
+      component.fuelConsumedValue = '0 m³';
       component.general = general;
       component.generalInputStats = {
         date: general.date,
@@ -145,17 +145,17 @@ describe('CtvSummaryComponent', () => {
         fuelPerHour: 1,
       };
       fixture.detectChanges();
-    })
+    });
 
     it('prefer engine fuel value since manual fuel input = 0', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 0;
       component.engine.fuelUsedTotalM3 = 2;
       component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("2 m³");
+
+      expect(component.fuelConsumedValue).toBe('2 m³');
       expect(component).toBeTruthy;
-    })
+    });
 
 
     it('prefer manually inputted fuel value since manual fuel input > 0', () => {
@@ -163,42 +163,42 @@ describe('CtvSummaryComponent', () => {
       component.generalInputStats.fuelConsumption = 3;
       component.engine.fuelUsedTotalM3 = 0;
       component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("3 m³");
+
+      expect(component.fuelConsumedValue).toBe('3 m³');
       expect(component).toBeTruthy;
-    })
+    });
 
     it('prefer manually inputted fuel value when both engine and input has value and > 0 ', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 3;
       component.engine.fuelUsedTotalM3 = 5;
       component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("3 m³");
+
+      expect(component.fuelConsumedValue).toBe('3 m³');
       expect(component).toBeTruthy;
-    })
+    });
 
     it('Value is 0 when both values are 0 ', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 0;
       component.engine.fuelUsedTotalM3 = 0;
       component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("0 m³");
+
+      expect(component.fuelConsumedValue).toBe('0 m³');
       expect(component).toBeTruthy;
-    })
+    });
 
     it('Value is 0 m3 when both values are NaN/Null ', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = null;
       component.engine.fuelUsedTotalM3 = null;
       component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("0 m³");
-      expect(component).toBeTruthy;
-    })
 
-  })
+      expect(component.fuelConsumedValue).toBe('0 m³');
+      expect(component).toBeTruthy;
+    });
+
+  });
 
   describe('should only show H3 no data is available for sumamry', () => {
 
@@ -206,13 +206,13 @@ describe('CtvSummaryComponent', () => {
       fixture = TestBed.createComponent(CtvSummaryComponent);
       component = fixture.componentInstance;
       component.tokenInfo = UserTestService.getMockedAccessToken();
-    })
+    });
 
     it('does not crash when no engine and dprInput data is available', () => {
       fixture.detectChanges();
       const compiled = fixture.debugElement.nativeElement;
       expect(compiled.querySelector('#CtvSummaryWarning').textContent).toContain('There has been an error retrieving the CTV summary statistics');
-    })
+    });
 
     it('does not crash when only dprInput data is available', () => {
       component.generalInputStats = {
@@ -231,7 +231,7 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       const compiled = fixture.debugElement.nativeElement;
       expect(compiled.querySelector('#generalStatisticsHeader').textContent).toBeTruthy();
-    })
+    });
 
     it('does not crash when only engine data is available', () => {
       component.engine = {
@@ -246,6 +246,6 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       const compiled = fixture.debugElement.nativeElement;
       expect(compiled.querySelector('#generalStatisticsHeader').textContent).toBeTruthy();
-    })
-  })
+    });
+  });
 });

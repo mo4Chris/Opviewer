@@ -56,7 +56,7 @@ describe('SovSummaryComponent', () => {
     done();
   });
 
-  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture))
+  it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));
 
-  it('should not have any broken tooltips', testEmptyTooltips(() => fixture))
+  it('should not have any broken tooltips', testEmptyTooltips(() => fixture));
 });

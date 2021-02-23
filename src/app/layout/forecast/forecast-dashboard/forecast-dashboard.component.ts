@@ -36,7 +36,7 @@ export class ForecastDashboardComponent implements OnInit {
   }
 
   onEditUsers(client: Client) {
-    console.error('Not yet implemented!')
+    console.error('Not yet implemented!');
   }
 
   routeToProjectOverview(project_id: number) {
@@ -46,7 +46,7 @@ export class ForecastDashboardComponent implements OnInit {
     this.routerService.routeToForecast(project_id);
   }
   public getClient(client_id: number) {
-    const client = this.clients.find(c => c.id == client_id)
+    const client = this.clients.find(c => c.id == client_id);
     return client ? client.name : 'N/a';
   }
 }

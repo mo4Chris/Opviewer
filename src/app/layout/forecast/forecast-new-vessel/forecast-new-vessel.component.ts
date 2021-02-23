@@ -11,7 +11,7 @@ import { ForecastOperation } from '../models/forecast-response.model';
   styleUrls: ['./forecast-new-vessel.component.scss']
 })
 export class ForecastNewVesselComponent implements OnInit {
-  public vesselName: string = '';
+  public vesselName = '';
   public draftAP: number;
   public draftFP: number;
   public LCG: number;
@@ -21,10 +21,10 @@ export class ForecastNewVesselComponent implements OnInit {
   public Kxx: number;
   public Kyy: number;
   public Kzz: number;
-  
+
   public supportedFormats = [
     'shape', 'hull'
-  ]
+  ];
   private vesselPlan: string;
 
   constructor(
@@ -38,7 +38,7 @@ export class ForecastNewVesselComponent implements OnInit {
     return (this.vesselName.length > 0)
     && isNumber(this.draftAP)
     && isNumber(this.draftFP)
-    && this.vesselPlanReady
+    && this.vesselPlanReady;
   }
   private get vesselPlanReady() {
     return this.vesselPlan.length > 0;
@@ -52,14 +52,14 @@ export class ForecastNewVesselComponent implements OnInit {
   }
 
   roundNumber(num: number, dec = 10000, addString?: string) {
-    return this.calcService.roundNumber(num, dec, addString)
+    return this.calcService.roundNumber(num, dec, addString);
   }
 
   public onFileUploadComplete(filename: string) {
     this.vesselPlan = filename;
   }
   public sendRequest() {
-    let request: ForecastNewVesselRequest = {
+    const request: ForecastNewVesselRequest = {
       VesselName: this.vesselName,
       DraftFP: this.draftFP,
       DraftAP: this.draftAP,
@@ -71,7 +71,7 @@ export class ForecastNewVesselComponent implements OnInit {
       Kxx: this.Kxx,
       Kyy: this.Kyy,
       Kzz: this.Kzz,
-    }
+    };
     // this.newService.saveForecastRequest(request)
   }
 }
@@ -81,7 +81,7 @@ function isNumber(x: any) {
 }
 
 export interface ForecastNewVesselRequest {
-  VesselName: string,
+  VesselName: string;
   DraftFP: number;
   DraftAP: number;
   Vesssel3dFileName: string;

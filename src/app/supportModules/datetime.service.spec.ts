@@ -39,9 +39,9 @@ describe('DatetimeService', () => {
   it('Should correctly handle timezones and offsets', () => {
     expect(settings).toBeTruthy();
     settings.Timezone = 'utc';
-    
-    expect(service.matlabDatenumToTimeString(null)).toBe('N/a')
-    expect(service.matlabDatenumToTimeString(undefined)).toBe('N/a')
+
+    expect(service.matlabDatenumToTimeString(null)).toBe('N/a');
+    expect(service.matlabDatenumToTimeString(undefined)).toBe('N/a');
     // DST = 29 MAR - 25 OCT
     // 737000 = 1 Nov 2017
     // 737250 = 9 Jul 2018
@@ -75,46 +75,46 @@ describe('DatetimeService', () => {
   });
 
   it('should format dates', () => {
-    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 1, 1, 1))).toEqual('Jan 1, 01:01')
-    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 13, 53, 1))).toEqual('Jan 1, 13:53')
-  })
+    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 1, 1, 1))).toEqual('Jan 1, 01:01');
+    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 13, 53, 1))).toEqual('Jan 1, 13:53');
+  });
 
   it('should correct format date as ymdString', () => {
-    expect(service.dateToDateString(new Date(2020, 0, 1, 1, 1, 1))).toEqual('1 Jan 2020')
-    expect(service.dateToDateString(new Date(2021, 2, 24, 13, 53, 1))).toEqual('24 Mar 2021')
-  })
+    expect(service.dateToDateString(new Date(2020, 0, 1, 1, 1, 1))).toEqual('1 Jan 2020');
+    expect(service.dateToDateString(new Date(2021, 2, 24, 13, 53, 1))).toEqual('24 Mar 2021');
+  });
 
   it('should create moments', () => {
-    let mom = service.moment(2020, 2, 3);
-    let mom2 = service.moment(2020, '2', '03')
-    expect(mom.toArray()).toEqual([2020,2,3,0,0,0,0])
-    expect(mom2.toArray()).toEqual([2020,2,3,0,0,0,0])
-  })
+    const mom = service.moment(2020, 2, 3);
+    const mom2 = service.moment(2020, '2', '03');
+    expect(mom.toArray()).toEqual([2020, 2, 3, 0, 0, 0, 0]);
+    expect(mom2.toArray()).toEqual([2020, 2, 3, 0, 0, 0, 0]);
+  });
 
   it('should correctly format matlab datenums', () => {
-    expect(service.matlabDatenumToYMD(737800)).toEqual({ year: 2020, month: 1, day: 10 })
-  })
+    expect(service.matlabDatenumToYMD(737800)).toEqual({ year: 2020, month: 1, day: 10 });
+  });
 
   it('should correctly get current matlab date', () => {
-    let matDate = service.getCurrentMatlabDatenum();
-    let currDate = new Date();
-    expect(service.matlabDatenumToDate(matDate).toUTCString()).toEqual(currDate.toUTCString())
-  })
+    const matDate = service.getCurrentMatlabDatenum();
+    const currDate = new Date();
+    expect(service.matlabDatenumToDate(matDate).toUTCString()).toEqual(currDate.toUTCString());
+  });
 
   it('should correctly parse iso strings', () => {
-    expect(service.isoStringToMoment('2021-01-18T10:20:31.902Z').toString()).toEqual('Mon Jan 18 2021 11:20:31 GMT+0100')
+    expect(service.isoStringToMoment('2021-01-18T10:20:31.902Z').toString()).toEqual('Mon Jan 18 2021 11:20:31 GMT+0100');
   });
 
   it('should correctly format matlab duration', () => {
     expect(service.formatMatlabDuration(0)).toBe('00:00:00');
-    expect(service.formatMatlabDuration(1/24)).toBe('01:00:00');
-    expect(service.formatMatlabDuration(1/24 + 1/24/60)).toBe('01:01:00');
-  })
+    expect(service.formatMatlabDuration(1 / 24)).toBe('01:00:00');
+    expect(service.formatMatlabDuration(1 / 24 + 1 / 24 / 60)).toBe('01:01:00');
+  });
 
   it('should correctly format minute duration', () => {
     expect(service.formatMinuteDuration(0)).toBe('00:00:00');
-    expect(service.formatMinuteDuration(1/30)).toBe('00:00:02');
+    expect(service.formatMinuteDuration(1 / 30)).toBe('00:00:02');
     expect(service.formatMinuteDuration(61)).toBe('01:01:00');
-  })
+  });
 
 });

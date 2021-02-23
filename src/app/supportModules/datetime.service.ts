@@ -70,7 +70,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   matlabDatenumToTimeString(serial: number): string {
-    if (!serial) { return 'N/a' }
+    if (!serial) { return 'N/a'; }
     const serialMoment = this.matlabDatenumToMoment(serial);
     if (serialMoment.isValid()) {
       let time_info: string;
@@ -172,22 +172,22 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   }
 
   formatMatlabDuration(duration: number) {
-    if (typeof(duration) =='number' && duration >= 0) {
+    if (typeof(duration) == 'number' && duration >= 0) {
       const totalSeconds = Math.round(duration * 24 * 60 * 60);
-      let hrs = Math.floor(totalSeconds/ 3600).toString().padStart(2, '0');
-      let mns = Math.floor((totalSeconds / 60) % 60).toString().padStart(2, '0');
-      let sec = Math.floor((totalSeconds) % 60).toString().padStart(2, '0');
+      const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+      const mns = Math.floor((totalSeconds / 60) % 60).toString().padStart(2, '0');
+      const sec = Math.floor((totalSeconds) % 60).toString().padStart(2, '0');
       return `${hrs}:${mns}:${sec}`;
     } else {
-      return 'N/a'
+      return 'N/a';
     }
   }
 
   formatMinuteDuration(diff_minutes: number) {
-    if (typeof(diff_minutes) =='number' && diff_minutes >= 0) {
+    if (typeof(diff_minutes) == 'number' && diff_minutes >= 0) {
       return moment(0).utc().add(diff_minutes, 'minutes').format('HH:mm:ss');
     } else {
-      return 'N/a'
+      return 'N/a';
     }
   }
 
@@ -225,14 +225,14 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
   dateToDayTimeString(date: Date) {
     const offsetHours = this.setting.getTimeOffset(this.vesselOffsetHours);
     date = this.dateAddHours(date, offsetHours);
-    let hours = date.getUTCHours().toString().padStart(2, '0');
-    let mins  = date.getUTCMinutes().toString().padStart(2, '0');
-    let month = DatetimeService.shortMonths[date.getUTCMonth()];
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const mins  = date.getUTCMinutes().toString().padStart(2, '0');
+    const month = DatetimeService.shortMonths[date.getUTCMonth()];
     return `${month} ${date.getUTCDate()}, ${hours}:${mins}`;
   }
 
   dateToDateString(date: Date) {
-    let month = DatetimeService.shortMonths[date.getUTCMonth()];
+    const month = DatetimeService.shortMonths[date.getUTCMonth()];
     return `${date.getUTCDate()} ${month} ${date.getUTCFullYear()}`;
   }
 
@@ -404,12 +404,12 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     });
   }
 
-  
+
   isoStringToMoment(timeString: string): moment.Moment {
     return moment(timeString);
   }
 
   isoStringToDmyString(timeString: string): string {
-    return this.isoStringToMoment(timeString).format('DD MMM YYYY')
+    return this.isoStringToMoment(timeString).format('DD MMM YYYY');
   }
 }

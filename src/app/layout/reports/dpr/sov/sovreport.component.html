@@ -6,7 +6,7 @@
 <div *ngIf="showContent && printMode == 0" class="plsdonotprintthisforfsake">
   <br>
   <ngb-alert #refused style="position: relative;" *ngIf="dprApproval < 0" [dismissible]="false" type="warning">
-    The DPR as signed off by the captain has been refused. Please update as soon as possible!
+    The DPR previously signed off by the vesselmaster has been refused by client. Please update as soon as possible.
   </ngb-alert>
 
 
@@ -24,7 +24,6 @@
 
     <li *ngIf="permission.sovCommercialRead" [disabled]="!hasDprData" [destroyOnHide]="true" ngbNavItem="sov-commercial">
       <a ngbNavLink>Transfers</a>
-    <!-- <ngb-tab *ngIf="permission.sovCommercialRead" title="Transfers" [disabled]="!hasDprData" [id]="'commercial'"> -->
       <ng-template ngbNavContent>
         <app-sov-v2v-transfers *ngIf="sovModel.vessel2vessels.length>0" [vessel2vessels]="sovModel.vessel2vessels"
           [sovInfo]="sovModel.sovInfo" [turbineLocations]="turbineLocations" (v2vPaxTotals)="updateV2vTotal($event)"
@@ -53,7 +52,6 @@
 
     <li *ngIf="permission.sovCommercialRead" [destroyOnHide]="true" ngbNavItem="sov-input-write">
       <a ngbNavLink>DPR input</a>
-    <!-- <ngb-tab title="DPR input" *ngIf="permission.sovDprInputWrite" [id]="'dpr-input-write'"> -->
       <ng-template ngbNavContent>
         <br>
         <ng-container *ngIf="dprApproval <= 0">
@@ -81,7 +79,6 @@
 
     <li *ngIf="permission.sovDprInputRead" [destroyOnHide]="true" ngbNavItem="sov-input-read">
       <a ngbNavLink>Commercial overview</a>
-    <!-- <ngb-tab title="Commercial overview" *ngIf="permission.sovDprInputRead" [id]="'dpr-input-read'"> -->
       <ng-template ngbNavContent>
         <br>
         <app-sov-dpr-input [sovModel]="sovModel" [vesselObject]="vesselObject" [tokenInfo]="tokenInfo"
@@ -91,7 +88,6 @@
 
     <li *ngIf="permission.sovHseRead" [destroyOnHide]="true" ngbNavItem="dpr-hse-read">
       <a ngbNavLink>HSE overview</a>
-    <!-- <ngb-tab title="HSE overview" [disabled]="false" *ngIf="permission.sovHseRead" [id]="'hse-input'"> -->
       <ng-template ngbNavContent>
         <br>
         <app-sov-hse-dpr-input-readonly [hseDprInput]="hseDprInput" [hseDprApprovalCount]="hseDprApproval" [tokenInfo]="tokenInfo"

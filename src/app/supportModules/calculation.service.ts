@@ -71,8 +71,8 @@ export class CalculationService {
       return NaN;
     }
     const copy = array.map(e => Array.isArray(e) ? this.maxInNdArray(e) : e)
-      .filter(e => !isNaN(e))
-    return copy.length>0 ? Math.max(...copy) : NaN;
+      .filter(e => !isNaN(e));
+    return copy.length > 0 ? Math.max(...copy) : NaN;
   }
 
   minInNdArray(array: any[]) {
@@ -82,8 +82,8 @@ export class CalculationService {
       return NaN;
     }
     const copy = array.map(e => Array.isArray(e) ? this.minInNdArray(e) : e)
-      .filter(e => !isNaN(e))
-    return copy.length>0 ? Math.min(...copy) : NaN;
+      .filter(e => !isNaN(e));
+    return copy.length > 0 ? Math.min(...copy) : NaN;
   }
 
   calcPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {

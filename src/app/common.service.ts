@@ -518,7 +518,7 @@ export class CommonService {
   loadUserSettings(): Observable<object> {
     return this.get('/api/loadUserSettings').pipe(
       map(response => {
-        return response.settings
+        return response.settings;
       }));
   }
 
@@ -543,15 +543,15 @@ export class CommonService {
   }
 
   getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject[]> {
-    return this.get('/api/mo4light/getResponseForProject/' + project_id)
+    return this.get('/api/mo4light/getResponseForProject/' + project_id);
   }
-  
+
   getForecastProjectsForClient(client_id: number) {
     return this.get('/api/mo4light/getProjectsForClient/' + client_id);
   }
 
   getForecastProjectById(id: number): Observable<ForecastOperation> {
-    return this.get('/api/mo4light/getProjectById/' + id)
+    return this.get('/api/mo4light/getProjectById/' + id);
   }
 }
 

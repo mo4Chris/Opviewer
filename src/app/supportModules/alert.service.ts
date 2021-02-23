@@ -39,13 +39,13 @@ export class AlertService {
     }
 
     clear() {
-      if (this.timeoutRef) clearTimeout(this.timeoutRef);
+      if (this.timeoutRef) { clearTimeout(this.timeoutRef); }
       this.timeoutRef = null;
       this.active = false;
     }
 
-    private changeAlert({text, type, timeout}: AlertOptions) { // Destructuring 
-      if (this.timeoutRef) clearTimeout(this.timeoutRef);
+    private changeAlert({text, type, timeout}: AlertOptions) { // Destructuring
+      if (this.timeoutRef) { clearTimeout(this.timeoutRef); }
       this.active = true;
       this.text = text;
       this.type = type;

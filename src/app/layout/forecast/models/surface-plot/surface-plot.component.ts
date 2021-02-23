@@ -14,7 +14,7 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() yData: number[];
   @Input() zData: number[][];
   @Input() zMax?: number;
-  @Input() title: string = 'Workability plot'
+  @Input() title = 'Workability plot';
   @Input() useInterpolation = true;
 
   constructor(
@@ -48,12 +48,12 @@ export class SurfacePlotComponent implements OnChanges {
     return this.xData && this.yData && this.zData
       && this.xData.length > 0
       && this.yData.length > 0
-      && this.zData.length > 0
+      && this.zData.length > 0;
   }
 
   ngOnChanges() {
-    if (this.xData && this.xData.length >0 && this.yData.length > 0) {
-      this.validateInput()
+    if (this.xData && this.xData.length > 0 && this.yData.length > 0) {
+      this.validateInput();
       this.parsedData = [{
         x: this.xData,
         y: this.yData,
@@ -64,8 +64,8 @@ export class SurfacePlotComponent implements OnChanges {
         zmax: this.zMax,
         colorscale: [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']],
         colorbar: {
-          tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10) : undefined,
-          ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax/10).map(e => `${e}%`) : undefined,
+          tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10) : undefined,
+          ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10).map(e => `${e}%`) : undefined,
         }
       }];
       this.PlotLayout.xaxis.title = this.xLabel;
@@ -84,12 +84,12 @@ export class SurfacePlotComponent implements OnChanges {
     assert(this.zData.length == yLen, `Length of yData should match zData.length, ${this.zData.length}/${yLen}`);
     this.zData.forEach((z, i) => {
       assert(z.length == xLen, `Length of xData should match zData[${i}].length, ${z.length}/${xLen}`);
-    })
+    });
   }
 }
 
-function assert(condition: boolean, message="assertion failed") {
+function assert(condition: boolean, message= 'assertion failed') {
   if (!condition) {
-    throw(new Error(message))
+    throw(new Error(message));
   }
 }

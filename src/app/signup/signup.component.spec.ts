@@ -27,7 +27,7 @@ describe('SignupComponent', () => {
       declarations: [
         SignupComponent
       ],
-      providers: [ 
+      providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
       ]
@@ -53,18 +53,18 @@ describe('SignupComponent', () => {
   it('should reroute w/out userCreate rights', () => {
     component.permission.admin = false;
     component.permission.userCreate = false;
-    let routerSpy = spyOn(Router.prototype, 'navigate');
+    const routerSpy = spyOn(Router.prototype, 'navigate');
     fixture.detectChanges();
     expect(component).toBeTruthy();
     expect(routerSpy).toHaveBeenCalled();
-  })
+  });
 
   it('should create w/ userCreate rights', async (done) => {
     component.permission.admin = false;
     component.permission.userCreate = true;
-    let routerSpy = spyOn(Router.prototype, 'navigate');
-    let onRegistrationSpy = spyOn(SignupComponent.prototype, 'onRegistration').and.callThrough();
-    let alertSpy = spyOn(AlertService.prototype, 'sendAlert');
+    const routerSpy = spyOn(Router.prototype, 'navigate');
+    const onRegistrationSpy = spyOn(SignupComponent.prototype, 'onRegistration').and.callThrough();
+    const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
     fixture.detectChanges();
     expect(component).toBeTruthy();
     expect(routerSpy).not.toHaveBeenCalled();
@@ -73,14 +73,14 @@ describe('SignupComponent', () => {
       permissions: 'Vessel master',
       email: 'test@test.nl',
       client: 'test company 1',
-    }
-    let btn = fixture.nativeElement.querySelector('#register');
+    };
+    const btn = fixture.nativeElement.querySelector('#register');
     btn.dispatchEvent(new Event('click'));
-    await fixture.whenStable()
-    expect(onRegistrationSpy).toHaveBeenCalled()
+    await fixture.whenStable();
+    expect(onRegistrationSpy).toHaveBeenCalled();
     expect(authSpy).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalled();
     expect(routerSpy).toHaveBeenCalled();
     done();
-  })
+  });
 });

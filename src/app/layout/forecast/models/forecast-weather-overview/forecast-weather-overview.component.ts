@@ -19,28 +19,28 @@ export class ForecastWeatherOverviewComponent implements OnChanges {
       fixedrange: true,
     },
     xaxis: {
-      title: "Time"
+      title: 'Time'
     },
-    
+
     legend: {
       x: 1,
       y: 1,
       xanchor: 'right',
     }
-  }
+  };
 
   public get hasData() {
-    return Array.isArray(this.time)
+    return Array.isArray(this.time);
   }
 
 
   constructor() { }
 
   ngOnChanges() {
-    if (!this.hasData) return;
+    if (!this.hasData) { return; }
     this.computeGraphData();
   }
-  
+
   computeGraphData() {
     const yLimit = 100;
     this.parsedData = [{
