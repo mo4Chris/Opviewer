@@ -9,13 +9,21 @@ var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
+var args = require('minimist')(process.argv.slice(2));
 
-const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] || 'bmodataviewer.com';
-const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.online'
-const SECURE_METHODS = ['GET', 'POST', 'PUT']
 
+//#########################################################
+//########## These can be configured via stdin ############
+//#########################################################
+const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
+const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
+const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
+const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
+
+
+const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 mongo.set('useFindAndModify', false);
-var db = mongo.connect(process.env.DB_CONN, {
+var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, function(err, response) {
@@ -37,9 +45,8 @@ app.get("/api/connectionTest", function(req, res) {
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
-  var allowedOrigins = process.env.IP_USER;
-  var origin = req.headers.origin;
-  // console.log(`${req.method}: ${req.url}`)
+  const allowedOrigins = process.env.IP_USER;
+  const origin = req.headers.origin;
   if (allowedOrigins.indexOf(origin) > -1) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -64,8 +71,6 @@ let transporter = nodemailer.createTransport({
 //#########################################################
 //##################   Models   ###########################
 //#########################################################
-
-
 var Schema = mongo.Schema;
 var userSchema = new Schema({
   username: { type: String },
@@ -3105,8 +3110,8 @@ app.post('/api/saveUserSettings', function(req, res) {
   });
 });
 
-app.listen(8080, function() {
-  logger.info('MO4 Dataviewer listening on port 8080!');
+app.listen(SERVER_PORT, function() {
+  logger.info(`MO4 Dataviewer listening on port ${SERVER_PORT}!`);
 });
 
 

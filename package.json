@@ -14,6 +14,7 @@
     "pree2e": "webdriver-manager update",
     "e2e": "protractor",
     "server-dev": "nodemon src/server.js",
+    "test-server": "jasmine",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points && node patch.js"
   },
   "private": true,
@@ -52,6 +53,7 @@
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "karma-junit-reporter": "1.2.0",
+    "minimist": "^1.2.5",
     "moment-timezone": "^0.5.31",
     "mongoose": "5.9.25",
     "ng-multiselect-dropdown": "0.2.4",
