@@ -1,6 +1,15 @@
 var {Client, Pool} = require('pg')
+var ax = require('axios');
+
 
 const pool = new Client()
+const baseUrl = 'https://mo4-light.azurewebsites.net';
+const http = ax.default;
+const token = process.env.AZURE_TOKEN;
+const headers = {
+  'Authorization': `Bearer ${token}` 
+}
+console.log(headers)
 
 module.exports = function(app, logger) {
   try {
@@ -74,6 +83,72 @@ module.exports = function(app, logger) {
     defaultPgLoader('projects', '*')
   )
 
+  // app.post('/api/mo4light/weather', (req, res) => {
+  //   const response_id = 1;
+  //   console.log('Retrieving weather!')
+  //   pgGet('/response/' + response_id, '').then(raw => {
+  //     const response = raw.data;
+  //     const P1 = response?.response?.Points_Of_Interest?.P1;
+  //     if (P1) {
+  //       console.log(P1)
+  //       res.send(P1);
+  //     } else {
+  //       res.status(204).send(null);
+  //     }
+  //   }, err => {
+  //     onError(res, err);
+  //   }).catch(err => {
+  //     onError(res, err);
+  //   })
+  // })
+  app.post('/api/mo4light/weather', (req, res) => {
+    const response_id = req.body.response_id;
+    if (!(response_id>0)) return onError(res, `Invalid request id ${response_id}`, 'Invalid request id')
+    let PgQuery = `SELECT * from responses where (id=${response_id})`;
+    pool.query(PgQuery).then(data => {
+      const metocean = data.rows[0]?.response?.Points_Of_Interest?.P1?.MetoceanData;
+      const weather = {
+        timeStamp: metocean?.Time,
+        Hs: metocean?.Wave?.Parametric?.Hs,
+        Hmax: metocean?.Wave?.Parametric?.Hmax,
+        Tz: metocean?.Wave?.Parametric?.Tz,
+        Tp: metocean?.Wave?.Parametric?.Tp,
+        waveDir: metocean?.Wave?.Parametric?.MeanDirection,
+        wavePeakDir: metocean?.Wave?.Parametric?.PeakDirection,
+        windSpeed: metocean?.Wind?.Speed,
+        windGust: metocean?.Wind?.Gust,
+        windDir: metocean?.Wind?.Direction,
+      }
+      return res.send(weather);
+    }).catch(err => {
+      console.log(err)
+      onError(res, err)
+    });
+  })
+  app.post('/api/mo4light/spectrum', (req, res) => {
+    const response_id = req.body.response_id;
+    if (!(response_id>0)) return onError(res, `Invalid request id ${response_id}`, 'Invalid request id')
+    let PgQuery = `SELECT * from responses where (id=${response_id})`;
+    pool.query(PgQuery).then(data => {
+      const metocean = data.rows[0]?.response?.Points_Of_Interest?.P1?.MetoceanData;
+      const spectrum = metocean?.Wave?.Spectral;
+      return res.send(spectrum);
+    }).catch(err => {
+      onError(res, err)
+    });
+  })
+
+  function pgGet(endpoint) {
+    const url = baseUrl + endpoint;
+    console.log('url', url)
+    return http.get(url, {headers})
+  }
+
+  function pgPost(endpoint, data) {
+    const url = baseUrl + endpoint;
+    console.log('url', url)
+    return http.post(url, data, {headers})
+  }
   
   function defaultPgLoader(table, fields = '*', filter=null) {
     let PgQuery = '';

@@ -12,6 +12,7 @@ import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/m
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
 import { mockedObservable } from './models/testObservable';
+import { RawWaveData } from './models/wavedataModel';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -477,7 +478,7 @@ export class CommonService {
   getWavedataForDay(request: {
     date: number,
     site: string,
-  }): Observable<any> {// Observable<WavedataModel> {
+  }): Observable<Array<{wavedata: RawWaveData}>> {// Observable<WavedataModel> {
     return this.post('/api/getWavedataForDay', request).pipe(
       map(response => {
         if (response?.status === 204) {
@@ -492,7 +493,7 @@ export class CommonService {
     startDate: number,
     stopDate: number,
     source: string,
-  }): Observable<any> {// Observable<WavedataModel[]> {
+  }): Observable<Array<{wavedata: RawWaveData}>> {//= Observable<RawWaveData[]> {
     return this.post('/api/getWavedataForRange', request).pipe(
       map(response => {
         return response; // .map( wavedata => new WavedataModel(wavedata));
@@ -558,6 +559,17 @@ export class CommonService {
 
   getForecastProjectById(id: number): Observable<ForecastOperation> {
     return this.get('/api/mo4light/getProjectById/' + id);
+  }
+
+  getForecastWeatherForResponse(id: number): Observable<RawWaveData> {
+    return this.post('/api/mo4light/weather', {
+      response_id: id
+    })
+  }
+  getForecastSpectrumForResponse(id: number): Observable<RawWaveData> {
+    return this.post('/api/mo4light/spectrum', {
+      response_id: id
+    })
   }
 }
 

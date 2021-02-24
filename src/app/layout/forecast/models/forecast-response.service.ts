@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
+import { zip } from 'rxjs';
 import { ForecastMotionLimit } from './forecast-limit';
 import { Dof6, Dof6Array, DofType, ForecastOperation } from './forecast-response.model';
 
@@ -12,6 +14,7 @@ type Matrix = number[][];
 export class ForecastResponseService {
 
   constructor(
+    private calcService: CalculationService,
     private matService: MatrixService,
   ) {
   }
@@ -54,6 +57,57 @@ export class ForecastResponseService {
         );
       }
     });
+    if (limits.length == 0) limits.push(new ForecastMotionLimit({dof: 'Heave', type: 'Disp', value: 1.5}))
     return limits;
+  }
+
+
+  // radianToCarthegian(r: number[], theta: number[], z: number[][]) {
+  //   const R = this.calcService.maxInNdArray(r);
+  //   const a = theta.map(t => t * Math.PI / 180);
+  //   const x = this.calcService.linspace(-R, R, 2*R/(R.length + 1));
+  //   const y = this.calcService.linspace(-R, R, 2*R/(R.length + 1));
+  //   return {
+  //     x,
+  //     y,
+  //     c,
+  //   }
+  // }
+  polarToCarthegian(
+    r: number[],
+    theta: number[],
+    z: number[][],
+    {
+      inDegrees = true,
+      useInterpolation = true,
+      smoothFactor = 2,
+    }
+  ) {
+    const a = inDegrees ? theta.map(t => t * Math.PI / 180) : theta;
+
+    const R = this.calcService.maxInNdArray(r);
+    const N = z.length;
+    const step = 2 * R / (N - 1);
+    const x = this.calcService.linspace(-R, R, step);
+    const y = this.calcService.linspace(-R, R, step);
+
+    const Z = z.map((_z, i) => {
+      return _z.map((e, j) => {
+        return
+      })
+    })
+
+    let _x: number[], _y: number[];
+    if (useInterpolation) {
+      _x = this.calcService.linspace(-R, R, step / smoothFactor);
+      _y = this.calcService.linspace(-R, R, step / smoothFactor);
+    } else {
+      _x = x;
+      _y = y;
+    }
+    const sliderSteps = [];
+    if (useInterpolation) {
+      z = this.calcService.interp2(x, y, z, _x, _y);
+    }
   }
 }

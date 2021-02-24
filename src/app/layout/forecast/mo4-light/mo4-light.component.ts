@@ -10,6 +10,7 @@ import { ForecastOperation, ForecastResponseObject } from '../models/forecast-re
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from '../forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
+import { RawWaveData } from '@app/models/wavedataModel';
 
 @Component({
   selector: 'app-mo4-light',
@@ -39,6 +40,9 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public startTime: number;
     public stopTime: number;
     public formattedDuration = 'N/a';
+
+    public weather: RawWaveData;
+    public spectrum: any;
 
     constructor(
       private newService: CommonService,
@@ -86,6 +90,8 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
 
           this.parseResponse();
+
+          this.loadWeather();
         } else {
           this.response = null;
           this.Workability = null;
@@ -93,6 +99,22 @@ export class Mo4LightComponent implements OnInit, OnChanges {
         }
       }, error => {
         this.routeService.routeToAccessDenied();
+      });
+    }
+
+    loadWeather() {
+      console.log('Loading weather')
+      forkJoin([
+        this.newService.getForecastWeatherForResponse(this.response.id),
+        this.newService.getForecastSpectrumForResponse(this.response.id)
+      ]).subscribe(([weather, spectrum]) => {
+        console.log('XXXX')
+        console.log(spectrum)
+        console.log(weather)
+        this.weather = weather;
+        this.spectrum = spectrum;
+      }, error => {
+        console.error(error)
       });
     }
 

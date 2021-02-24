@@ -19,7 +19,7 @@ export class WavedataModel {
         windDir: number[];
     };
 
-    static mergeWavedataArray(arr: WavedataModel[]) {
+    static mergeWavedataArray(arr: Array<WavedataModel | {wavedata: RawWaveData}>) {
         const calcService = new CalculationService;
         const merged = {
             timeStamp: [],
@@ -104,12 +104,6 @@ export class WavedataModel {
 }
 
 export class WaveSourceModel {
-    constructor(objLiteral?: Object) {
-        if (objLiteral) {
-            return Object.assign(new WaveSourceModel(), objLiteral);
-        }
-    }
-
     name: string;
     info: string;
     clients: string | string [];
@@ -128,6 +122,12 @@ export class WaveSourceModel {
         wind: string,
         windDir: string,
     };
+
+    constructor(objLiteral?: Object) {
+        if (objLiteral) {
+            return Object.assign(new WaveSourceModel(), objLiteral);
+        }
+    }
 
     getLatLng() {
         if (this.lon !== null && this.lat !== null) {
@@ -161,4 +161,18 @@ export class WaveSourceModel {
             this.asMapZoomData().setMap(map);
         }
     }
+}
+
+export interface RawWaveData {
+    timeStamp: number[];
+    Hs?: number[];
+    Ts?: number[];
+    Tp?: number[];
+    Tz?: number[];
+    Hmax?: number[];
+    waveDir?: number[];
+    wavePeakDir?: number[];
+    windSpeed?: number[];
+    windGust?: number[];
+    windDir?: number[];
 }
