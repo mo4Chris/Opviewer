@@ -10,8 +10,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { mockedObservable } from '@app/models/testObservable';
-import { AlertService } from '@app/supportModules/alert.service';
 import { testBrokenHelpButtons, testEmptyTooltips } from '../forecast-new-vessel/forecast-new-vessel.component.spec';
+import { map } from 'rxjs/operators';
 
 describe('ForecastProjectComponent', () => {
   let component: ForecastVesselComponent;
@@ -44,11 +44,9 @@ describe('ForecastProjectComponent', () => {
     fixture = TestBed.createComponent(ForecastVesselComponent);
     component = fixture.componentInstance;
     spyOn(component, 'initParameter').and.returnValue(
-      mockedObservable(
-        () => {
-          component.project_id = 1;
-        }
-      )
+      mockedObservable(null).pipe(map(_ => {
+        component.project_id = 1;
+      }))
     );
     fixture.detectChanges();
   });
@@ -58,12 +56,8 @@ describe('ForecastProjectComponent', () => {
     await fixture.whenStable();
     expect(component).toBeTruthy();
     let agmMap = locate('agm-map');
-    expect(agmMap).not.toBeTruthy('Map should not be present');
-
-    component.projectLoaded = true;
-    fixture.detectChanges();
-    agmMap = locate('agm-map');
-    expect(agmMap).toBeTruthy('Map should not be present');
+    expect(agmMap).toBeTruthy('Project should have loaded');
+    expect(agmMap).toBeTruthy('Map should be present');
   });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));

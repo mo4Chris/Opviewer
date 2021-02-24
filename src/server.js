@@ -39,7 +39,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function(req, res, next) {
   var allowedOrigins = process.env.IP_USER;
   var origin = req.headers.origin;
-  // console.log(`${req.method}: ${req.url}`)
   if (allowedOrigins.indexOf(origin) > -1) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -773,7 +772,7 @@ app.use((req, res, next) => {
   try {
     const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
     if (!isSecureMethod) return next();
-    console.log(` - ${req.method} ${req.url}`);
+    // console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;
