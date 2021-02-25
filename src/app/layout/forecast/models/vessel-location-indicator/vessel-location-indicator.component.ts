@@ -61,7 +61,7 @@ export class VesselLocationIndicatorComponent implements OnChanges {
     if (change && (change['Length'] ||  change['Height'] ||  change['Width'])) {
       this.calcVesselTrace();
     }
-    if (this.X && this.Y && this.Z) {
+    if (this.hasData) {
       this.plotData = [{
         mode: 'markers',
         type: 'scatter3d',
@@ -103,12 +103,8 @@ export class VesselLocationIndicatorComponent implements OnChanges {
 }
 
 function isValidNumber(num: number, min?: number, max?: number) {
-  let tf = typeof num == 'number';
-  if (min) {
-    tf = tf && num >= 0;
-  }
-  if (max) {
-    tf = tf && num <= max;
-  }
-  return tf;
+  if (typeof num != 'number' || isNaN(num)) return false;
+  if (min != null && num < min) return false;
+  if (max != null && num > max) return false;
+  return true;
 }

@@ -40,6 +40,7 @@ describe('ForecastWeatherOverviewComponent', () => {
       Hs: [],
     }
     component.ngOnChanges();
+    fixture.detectChanges();
     expect(component.source).toEqual('test')
     expect(getLoadingRef()).toBeFalsy();
   });
