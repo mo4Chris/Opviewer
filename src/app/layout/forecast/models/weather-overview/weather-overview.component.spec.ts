@@ -1,10 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { exec } from 'child_process';
 import { WeatherOverviewComponent } from './weather-overview.component';
 
-fdescribe('WeatherOverviewComponent', () => {
+describe('WeatherOverviewComponent', () => {
   let component: WeatherOverviewComponent;
   let fixture: ComponentFixture<WeatherOverviewComponent>;
   const dateMin = 737700;

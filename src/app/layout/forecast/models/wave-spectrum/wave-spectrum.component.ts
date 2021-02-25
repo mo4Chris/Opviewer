@@ -44,7 +44,6 @@ export class SovWaveSpectrumComponent implements OnChanges {
   };
 
   constructor() {
-    console.log(this)
   }
 
   ngOnChanges(): void {
@@ -59,6 +58,5 @@ export class SovWaveSpectrumComponent implements OnChanges {
   }
 
   public onPlotlyInit() {
-    console.log('PLOTLY wave spectrum init')
   }
 }

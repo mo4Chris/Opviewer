@@ -9,7 +9,6 @@ const token = process.env.AZURE_TOKEN;
 const headers = {
   'Authorization': `Bearer ${token}` 
 }
-console.log(headers)
 
 module.exports = function(app, logger) {
   try {
@@ -122,7 +121,6 @@ module.exports = function(app, logger) {
       }
       return res.send(weather);
     }).catch(err => {
-      console.log(err)
       onError(res, err)
     });
   })
@@ -141,13 +139,11 @@ module.exports = function(app, logger) {
 
   function pgGet(endpoint) {
     const url = baseUrl + endpoint;
-    console.log('url', url)
     return http.get(url, {headers})
   }
 
   function pgPost(endpoint, data) {
     const url = baseUrl + endpoint;
-    console.log('url', url)
     return http.post(url, data, {headers})
   }
   

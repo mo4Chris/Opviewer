@@ -717,6 +717,26 @@ export class MockedCommonService extends CommonService {
   getForecastVesselList() {
     return mockedObservable([]);
   }
+  getForecastWeatherForResponse(id: number) {
+    const dateMin = 737700;
+    const dateMax = 737702;
+    const N = 49;
+    return mockedObservable({
+      source: 'test data',
+      timeStamp: linspace(dateMin, dateMax, N),
+      Hs: linspace(1, 2, N),
+      Tp: linspace(1, 2, N),
+      waveDir: linspace(1, 2, N),
+      windSpeed: linspace(1, 2, N),
+      windDir: linspace(1, 2, N),
+    });
+  }
+  getForecastSpectrumForResponse(id: number) {
+    const dateMin = 737700;
+    const dateMax = 737702;
+    const N = 49;
+    return mockedObservable([]);
+  }
   getForecastWorkabilityForProject(project_id = 3) {
     const Response = {
       Coordinates: { X: { Data: 0, String_Value: '' }, Y: { Data: 0, String_Value: '' }, Z: { Data: 0, String_Value: '' } },

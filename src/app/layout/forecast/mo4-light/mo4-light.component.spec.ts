@@ -16,6 +16,7 @@ import { of } from 'rxjs';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastMotionLimit } from '../models/forecast-limit';
+import { ForecastWeatherOverviewComponent } from './forecast-weather-overview/forecast-weather-overview.component';
 
 
 describe('Mo4LightComponent', () => {
@@ -31,6 +32,7 @@ describe('Mo4LightComponent', () => {
           HeadingPickerComponent,
           SurfacePlotComponent,
           ForecastWorkabilityPlotComponent,
+          ForecastWeatherOverviewComponent,
         )
       ],
       imports: [
@@ -109,6 +111,10 @@ describe('Mo4LightComponent', () => {
 
     it('should show a loading icon when no date is available', () => {
       expect(component).toBeTruthy();
+    });
+    it('should have loaded wave and spectral data', () => {
+      expect(component.weather).toBeTruthy();
+      expect(component.spectrum).toBeTruthy();
     });
   });
 

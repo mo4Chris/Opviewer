@@ -566,7 +566,7 @@ export class CommonService {
       response_id: id
     })
   }
-  getForecastSpectrumForResponse(id: number): Observable<RawWaveData> {
+  getForecastSpectrumForResponse(id: number): Observable<any> {
     return this.post('/api/mo4light/spectrum', {
       response_id: id
     })

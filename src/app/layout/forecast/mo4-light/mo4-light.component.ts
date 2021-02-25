@@ -103,11 +103,11 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     }
 
     loadWeather() {
-      console.log('Loading weather')
       forkJoin([
         this.newService.getForecastWeatherForResponse(this.response.id),
         this.newService.getForecastSpectrumForResponse(this.response.id)
       ]).subscribe(([weather, spectrum]) => {
+        console.log(spectrum)
         this.weather = weather;
         this.spectrum = spectrum;
       }, error => {

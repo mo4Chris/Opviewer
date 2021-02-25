@@ -177,3 +177,10 @@ export interface RawWaveData {
     windGust?: number[];
     windDir?: number[];
 }
+export interface RawSpectralData {
+    source: string;
+    timeStamp: number[];
+    omega: number[];
+    direction: number[];
+    density: number[][][]; // time x omega x direction
+}

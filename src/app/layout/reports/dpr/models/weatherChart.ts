@@ -168,7 +168,6 @@ export class WeatherOverviewChart {
   }
 
   private getDsetHidden(label: string) {
-    console.log(label)
     if (label == null)  return true;
     const current = this.settings.weatherChartHidden[label];
     if (current === undefined) return true;

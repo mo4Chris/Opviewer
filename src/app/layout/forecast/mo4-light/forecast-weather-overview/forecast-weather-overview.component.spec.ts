@@ -3,7 +3,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockComponent } from 'ng-mocks';
 import { WeatherOverviewComponent } from '../../models/weather-overview/weather-overview.component';
-
 import { ForecastWeatherOverviewComponent } from './forecast-weather-overview.component';
 
 describe('ForecastWeatherOverviewComponent', () => {
@@ -40,7 +39,7 @@ describe('ForecastWeatherOverviewComponent', () => {
       timeStamp: [],
       Hs: [],
     }
-    fixture.detectChanges();
+    component.ngOnChanges();
     expect(component.source).toEqual('test')
     expect(getLoadingRef()).toBeFalsy();
   });
