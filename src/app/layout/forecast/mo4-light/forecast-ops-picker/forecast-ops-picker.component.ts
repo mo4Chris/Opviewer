@@ -5,8 +5,8 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import { ForecastMotionLimit } from '../models/forecast-limit';
-import { ForecastLimit, ForecastOperation } from '../models/forecast-response.model';
+import { ForecastMotionLimit } from '../../models/forecast-limit';
+import { ForecastLimit, ForecastOperation } from '../../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-ops-picker',

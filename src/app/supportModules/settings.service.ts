@@ -15,13 +15,14 @@ export class SettingsService {
     LongtermFilterFailedTransfers = false;
 
     // Some session settings - these are not saved across sessions
-    weatherChart = {
+    weatherChartHidden = {
         Hs: false,
         windAvg: false,
-        'V2v transfers': true,
-        'Turbine transfers': true,
-        'Platform transfers': true,
-        'Transit': true,
+        'V2v transfers': false,
+        'Turbine transfers': false,
+        'Platform transfers': false,
+        'Transit': false,
+        'Vessel transfers': false,
     };
 
     constructor (

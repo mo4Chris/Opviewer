@@ -16,7 +16,7 @@ import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-plat
 import { SovRovOperationsComponent } from './sov-rov-operations/sov-rov-operations.component';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
-import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
+import { WaveSpectrumComponent } from './models/wave-spectrum-component/sov-wave-spectrum-component';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovHseDprInputVesselmasterComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { SupportModelModule } from '@app/models/support-model.module';
@@ -59,7 +59,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SovRovOperationsComponent,
     SovV2vTransfersComponent,
     SovWeatherchartComponent,
-    WaveSpectrumComponentComponent,
+    WaveSpectrumComponent,
     SovHseDprInputReadonlyComponent,
     SovHseDprInputVesselmasterComponent,
     SovDcTransfersComponent,

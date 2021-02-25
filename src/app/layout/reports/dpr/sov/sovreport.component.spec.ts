@@ -14,7 +14,7 @@ import { SovSummaryComponent } from './sov-summary/sov-summary.component';
 import { SovDprInputComponent } from './sov-dpr-input/sov-dpr-input.component';
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input/sov-hse-dpr-input-readonly/sov-hse-dpr-input-readonly.component';
 import { SovWeatherchartComponent } from './models/sov-weatherchart/sov-weatherchart.component';
-import { WaveSpectrumComponentComponent } from './models/wave-spectrum-component/wave-spectrum-component.component';
+import { WaveSpectrumComponent } from './models/wave-spectrum-component/sov-wave-spectrum-component';
 import { SovTurbineTransfersComponent } from './sov-turbine-transfers/sov-turbine-transfers.component';
 import { SovPlatformTransfersComponent } from './sov-platform-transfers/sov-platform-transfers.component';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers/sov-v2v-transfers.component';
@@ -67,7 +67,7 @@ describe('SovreportComponent', () => {
         MockComponents(
           SovRovOperationsComponent,
           DprMapComponent,
-          WaveSpectrumComponentComponent,
+          WaveSpectrumComponent,
         ),
       ],
       providers: [

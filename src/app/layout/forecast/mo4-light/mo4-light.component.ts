@@ -8,8 +8,9 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ForecastOperation, ForecastResponseObject } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
-import { ForecastOperationSettings } from '../forecast-ops-picker/forecast-ops-picker.component';
+import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
+import { RawWaveData } from '@app/models/wavedataModel';
 
 @Component({
   selector: 'app-mo4-light',
@@ -31,7 +32,7 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public WorkabilityAlongSelectedHeading: number[];
 
     public limits: ForecastMotionLimit[] = [];
-    public selectedHeading = 112;
+    public selectedHeading = 0;
     public selectedOperation: ForecastOperation = null;
 
     public minForecastDate: YMD;
@@ -39,6 +40,9 @@ export class Mo4LightComponent implements OnInit, OnChanges {
     public startTime: number;
     public stopTime: number;
     public formattedDuration = 'N/a';
+
+    public weather: RawWaveData;
+    public spectrum: any;
 
     constructor(
       private newService: CommonService,
@@ -86,6 +90,8 @@ export class Mo4LightComponent implements OnInit, OnChanges {
           this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
 
           this.parseResponse();
+
+          this.loadWeather();
         } else {
           this.response = null;
           this.Workability = null;
@@ -96,6 +102,17 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       });
     }
 
+    loadWeather() {
+      forkJoin([
+        this.newService.getForecastWeatherForResponse(this.response.id),
+        this.newService.getForecastSpectrumForResponse(this.response.id)
+      ]).subscribe(([weather, spectrum]) => {
+        this.weather = weather;
+        this.spectrum = spectrum;
+      }, error => {
+        console.error(error)
+      });
+    }
 
     routeToProject(project_id: number) {
       this.routeService.routeToForecast(project_id);

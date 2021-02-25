@@ -229,7 +229,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             stopDate: this.dateTimeService.ngbDateToMatlabDatenum(this.toDate),
             source: this.fieldname,
         }).subscribe(wavedata => {
-            this.wavedataArray = wavedata;
+            this.wavedataArray = <any> wavedata;
             this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
             this.wavedataAvailabe = true;
         });

@@ -1,7 +1,7 @@
 <table *ngIf="hasSelectedOperation" class="table table-hover table-striped">
   <thead>
     <tr>
-      <th>
+      <th class="hover-35">
         Selected project:
       </th>
       <th colspan="2">
@@ -125,14 +125,16 @@
     </tr>
     <tr>
       <td colspan=3 *ngIf="permission.forecastChangeLimits">
-        <button class="btn btn-sm btn-danger float-right" [disabled]="!(limits?.length)"
+        <div [ngbTooltip]="currentlyDisabled">
+        <button class="btn btn-sm btn-danger float-right" [disabled]="true || !(limits?.length)"
           (click)="onRemoveLimitsLine();" type="button">
           Remove last
         </button>
-        <button class="btn btn-sm btn-success float-right"
+        <button class="btn btn-sm btn-success float-right" [disabled]="true"
           (click)="onAddLimitsLine();" type="button">
           Add line
         </button>
+      </div>
       </td>
     </tr>
     <tr *ngIf="settingsChanged">
@@ -164,4 +166,7 @@
 <ng-template #helpLimits>
   Select limits to compute workability, by specifying the Limit motion type, the 
   degree of freedom which you are interested in, and finally the limit value.
+</ng-template>
+<ng-template #currentlyDisabled>
+  This feature will be available soon.
 </ng-template>
