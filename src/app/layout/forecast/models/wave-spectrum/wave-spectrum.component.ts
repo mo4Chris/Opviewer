@@ -49,6 +49,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.loaded = false;
+    if (this.omega == null) return
     this.parsedData = [{
       type: <any> "barpolar",
       r: this.omega,

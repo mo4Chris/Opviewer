@@ -125,11 +125,11 @@
     </tr>
     <tr>
       <td colspan=3 *ngIf="permission.forecastChangeLimits">
-        <button class="btn btn-sm btn-danger float-right" [disabled]="!(limits?.length)"
+        <button class="btn btn-sm btn-danger float-right" [disabled]="true || !(limits?.length)"
           (click)="onRemoveLimitsLine();" type="button">
           Remove last
         </button>
-        <button class="btn btn-sm btn-success float-right"
+        <button class="btn btn-sm btn-success float-right" [disabled]="true"
           (click)="onAddLimitsLine();" type="button">
           Add line
         </button>
