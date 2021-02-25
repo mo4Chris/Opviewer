@@ -1,8 +1,9 @@
 import * as Chart from 'chart.js';
 import * as moment from 'moment-timezone';
-import { Moment } from 'moment';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { SettingsService } from '@app/supportModules/settings.service';
+
+
 
 export class WeatherOverviewChart {
   static weatherChartColors = [
@@ -10,8 +11,8 @@ export class WeatherOverviewChart {
     'rgba(255,0,0,1)',
     'rgba(0,155,0,1)',
     'rgba(255, 159, 64, 1)',
-    'rgba(255, 99, 132, 1)',
     'rgba(75, 192, 192, 1)',
+    'rgba(255, 99, 132, 1)',
     'rgba(255,255,0,1)',
     'rgba(153, 102, 255, 1)',
     'rgba(255, 206, 86, 1)',
@@ -24,7 +25,7 @@ export class WeatherOverviewChart {
     Wind: this.settings.unit_speed,
   };
 
-  Chart: Chart;
+  public Chart: Chart;
   private timeLabel: string;
 
   constructor(
@@ -34,28 +35,27 @@ export class WeatherOverviewChart {
     private id?: HTMLElement
   ) {
     args = { ... { wavedataSourceName: 'Source: unknown' }, ...args };
+
     // Support function for chart legend padding
-    Chart.Tooltip.positioners.custom = ChartLegendPositioner;
-    this.timeLabel = args.utcOffset ? 'Time (UTC +' + args.utcOffset + ')' : 'Time';
+    Chart.Tooltip.positioners.custom = (elt, pos) => this.getChartTooltipPosition(elt, pos);
+    
 
     // Fixing dset units
+    this.timeLabel = args.utcOffset ? 'Time (UTC +' + args.utcOffset + ')' : 'Time';
     const dsets = this.sortByAxisID(args.dsets);
     dsets.forEach((dset, _i) => {
-      if (dset.unit == null) dset = this.changeUnitsForDset(dset);
       if (dset.yAxisID == null) dset.yAxisID = 'hidden';
+      if (dset.unit) this.changeUnitsForDset(dset);
       if (dset.yAxisID !== 'hidden') {
-        dset.backgroundColor = WeatherOverviewChart.weatherChartColors[_i];
-        dset.borderColor = WeatherOverviewChart.weatherChartColors[_i];
+        dset.backgroundColor = dset.color || WeatherOverviewChart.weatherChartColors[_i];
+        dset.borderColor = dset.color || WeatherOverviewChart.weatherChartColors[_i];
       }
       dset.hidden = this.getDsetHidden(dset.label);
     });
-    console.log(dsets)
-
-    const yAxes = this.initAxes();
-    console.log('yAxes', yAxes)
-    console.log(dsets)
 
     const timezoneOffset = this.getTimezoneOffset(dsets);
+    const xAxis = this.initTimeAxis(args, timezoneOffset);
+    const yAxes = this.initAxes();
     // Actual chart creation
     this.Chart = new Chart(this.id ?? 'weatherOverview', {
       type: 'line',
@@ -77,25 +77,7 @@ export class WeatherOverviewChart {
         hover: { animationDuration: 0 },
         responsiveAnimationDuration: 0,
         scales: {
-          xAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: this.timeLabel
-            },
-            type: 'time',
-            time: {
-              unit: 'hour',
-              displayFormats: 'HH:mm',
-            },
-            ticks: {
-              min: args.timeStamps[0],
-              max: args.timeStamps[args.timeStamps.length - 1],
-              callback: (value, index, values) => {
-                if (!values[index]) return;
-                return moment.utc(values[index]['value']).utcOffset(timezoneOffset).format('HH:mm');
-              }
-            },
-          }],
+          xAxes: xAxis,
           yAxes: yAxes,
         },
         tooltips: {
@@ -108,19 +90,7 @@ export class WeatherOverviewChart {
           filter: (tooltip, data) => data.datasets[tooltip.datasetIndex].yAxisID !== 'hidden',
         },
         legend: {
-          onClick: (mouseEvent: MouseEvent, legendItem) => {
-            const index = legendItem.datasetIndex;
-            const ci = this.Chart;
-            console.log(this)
-            const meta = ci.getDatasetMeta(index);
-            // See controller.isDatasetVisible comment
-            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-            // Store which graphs are enabled
-            const key = ci.data.datasets[index].label;
-            this.settings.weatherChart[key] = meta.hidden;
-            // We hid a dataset ... rerender the chart
-            ci.update();
-          }
+          onClick: (_, legendItem) => this.onClick(legendItem),
         }
       }
     });
@@ -133,14 +103,12 @@ export class WeatherOverviewChart {
     return 0;
   }
   destroy() {
-    if (this.Chart) {
-      this.Chart.destroy();
-    }
+    if (this.Chart) this.Chart.destroy(); 
   }
 
   private changeUnitsForDset(dset, newUnit?: string) {
-    if (!dset.unit || dset.yAxisID == 'hidden') {
-      console.error(`Cannot change units because current unit ${dset.unit} is not known!`);
+    if (dset.yAxisID == 'hidden') {
+      console.error(`Cannot change units because new unit is not known for hidden axis!`);
       return dset;
     }
     if (newUnit == null) newUnit = this.getUnitByAxisId(dset.yAxisID); 
@@ -151,6 +119,7 @@ export class WeatherOverviewChart {
     this.Unit[dset.unit] = newUnit;
     return dset;
   }
+
   private getUnitByAxisId(id: string) {
     switch (id) {
       case 'Hs': case 'Hmax':
@@ -166,10 +135,11 @@ export class WeatherOverviewChart {
         return this.Unit[id] || '';
     }
   }
+
   private sortByAxisID(dsets): any[] {
     return dsets.sort((A, B) => {
-      const valA = this.getValueForAxis(A.yAxisID);
-      const valB = this.getValueForAxis(B.yAxisID);
+      const valA = getValueForAxis(A.yAxisID);
+      const valB = getValueForAxis(B.yAxisID);
       if (valA < valB) {
         return -1;
       } else if (valA === valB) {
@@ -178,34 +148,37 @@ export class WeatherOverviewChart {
         return 1;
       }
     });
-  }
-  private getValueForAxis(ID: string) {
-    switch (ID) {
-      case 'Hs': case 'Hmax':
-        return 1;
-      case 'Tp': case 'Tz': case 'T0':
-        return 2;
-      case 'Direction':
-        return 3;
-      case 'Wind':
-        return 4;
-      case 'hidden':
-        return 20;
-      default:
-        return 10;
-    }
-  }
-  private getDsetHidden(label: string) {
-    if (label === undefined) {
-      return true;
-    } else {
-      const current = this.settings.weatherChart[label];
-      if (current === undefined) {
-        return true;
-      } else {
-        return current;
+    
+    function getValueForAxis(ID: string) {
+      switch (ID) {
+        case 'Hs': case 'Hmax':
+          return 1;
+        case 'Tp': case 'Tz': case 'T0':
+          return 2;
+        case 'Direction':
+          return 3;
+        case 'Wind':
+          return 4;
+        case 'hidden':
+          return 20;
+        default:
+          return 10;
       }
     }
+  }
+
+  private getDsetHidden(label: string) {
+    console.log(label)
+    if (label == null)  return true;
+    const current = this.settings.weatherChartHidden[label];
+    if (current === undefined) return true;
+    return current;
+  }
+
+  private getDuration(start: string, stop: string): number {
+    const durSeconds = moment(stop).unix() - moment(start).unix();
+    const durDays = Math.round(durSeconds / 24/3600)
+    return durDays;
   }
 
   private initAxes(): ChartAxis[] {
@@ -274,43 +247,86 @@ export class WeatherOverviewChart {
       },
     }]
   }
+  private initTimeAxis(args: WeatherChartArguments, timezoneOffset: number) {
+    const timeStart = args.timeStamps[0];
+    const timeStop = args.timeStamps[args.timeStamps.length - 1];
+    const durDays = this.getDuration(timeStart, timeStop)
+
+    if (durDays <= 1) {
+      return [{
+        scaleLabel: {
+          display: true,
+          labelString: this.timeLabel
+        },
+        type: 'time',
+        time: { unit: 'hour' },
+        ticks: {
+          min: timeStart,
+          max: timeStop,
+          callback: (value, index, values) => {
+            if (!values[index]) return;
+            return moment.utc(values[index]['value']).utcOffset(timezoneOffset).format('HH:mm');
+          }
+        },
+      }]
+    }
+
+    return [{
+      scaleLabel: {
+        display: true,
+        labelString: this.timeLabel
+      },
+      type: 'time',
+      time: { unit: 'day' }
+    }];
+  }
  
   private onTitle(tooltipItem, data) {
     const xlabel = tooltipItem[0].xLabel;
     const _mom = moment.utc(xlabel).format('HH:mm');
     return _mom;
   }
+
   private onLabel(tooltipItem, data) {
-    const dset = data.datasets[tooltipItem.datasetIndex];
-    let label = dset.label || '';
-    if (label) {
-      label += ': ';
-      label += Math.round(dset.data[tooltipItem.index].y * 10) / 10;
-    }
+    const dset  = data.datasets[tooltipItem.datasetIndex];
+    let label   = dset.label || '';
+    if (label) label += ': ' + Math.round(dset.data[tooltipItem.index].y * 10) / 10;
     return label;
   }
-}
 
-function ChartLegendPositioner(elements, position) {
-  const item = this._data.datasets;
-  elements = elements.filter(function (value, _i) {
-    return item[value._datasetIndex].yAxisID !== 'hidden';
-  });
-  let x_mean = mean(elements.map(e => e._model.x));
-  let y_mean = mean(elements.map(e => e._model.y));
-  return {
-    x: x_mean,
-    y: y_mean
+  private onClick(legendItem: any) {
+    const index = legendItem.datasetIndex;
+    const ci = this.Chart;
+    const meta = ci.getDatasetMeta(index);
+    // See controller.isDatasetVisible comment
+    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+    // Store which graphs are enabled
+    const key = ci.data.datasets[index].label;
+    this.settings.weatherChartHidden[key] = meta.hidden;
+    // We hid a dataset ... rerender the chart
+    ci.update();
+  }
+  
+  private getChartTooltipPosition(elements, position) {
+    // Retrieves the coordinates where the tooltip hoverover should be
+    const item = this.Chart.tooltip._data.datasets;
+    elements = elements.filter(function (value, _i) {
+      return item[value._datasetIndex].yAxisID !== 'hidden';
+    });
+    let x_mean = this.calcService.nanMean(elements.map(e => e._model.x));
+    let y_mean = this.calcService.nanMean(elements.map(e => e._model.y));
+    return {
+      x: x_mean,
+      y: y_mean
+    };
   };
-};
-
-function mean(elements: number[]) {
-  let meanValue = 0;
-  elements.forEach(elt => {
-    meanValue += elt
-  });
-  return meanValue / elements.length;
 }
+
+
+
+
+
+
 
 interface WeatherChartArguments {
   dsets: any[];

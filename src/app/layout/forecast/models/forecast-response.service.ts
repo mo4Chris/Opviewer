@@ -57,7 +57,7 @@ export class ForecastResponseService {
         );
       }
     });
-    if (limits.length == 0) limits.push(new ForecastMotionLimit({dof: 'Heave', type: 'Disp', value: 1.5}))
+    if (limits.length == 0) limits.push(new ForecastMotionLimit({dof: 'Heave', type: 'Disp', value: 15}))
     return limits;
   }
 

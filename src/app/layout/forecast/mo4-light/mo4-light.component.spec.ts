@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockComponents } from 'ng-mocks';
-import { ForecastOpsPickerComponent } from '../forecast-ops-picker/forecast-ops-picker.component';
+import { ForecastOpsPickerComponent } from './forecast-ops-picker/forecast-ops-picker.component';
 import { HeadingPickerComponent } from '../models/heading-picker/heading-picker.component';
 import { ForecastWorkabilityPlotComponent } from '../models/forecast-workability-plot/forecast-workability-plot.component';
 import { SurfacePlotComponent } from '../models/surface-plot/surface-plot.component';

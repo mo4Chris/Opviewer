@@ -164,6 +164,7 @@ export class WaveSourceModel {
 }
 
 export interface RawWaveData {
+    source: string;
     timeStamp: number[];
     Hs?: number[];
     Ts?: number[];

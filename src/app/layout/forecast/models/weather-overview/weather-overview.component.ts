@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { WeatherOverviewChart } from '@app/layout/reports/dpr/models/weatherChart';
 import { RawWaveData } from '@app/models/wavedataModel';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -10,7 +10,7 @@ import { SettingsService } from '@app/supportModules/settings.service';
   templateUrl: './weather-overview.component.html',
   styleUrls: ['./weather-overview.component.scss']
 })
-export class WeatherOverviewComponent implements OnInit {
+export class WeatherOverviewComponent implements OnInit, OnChanges {
   @Input() source: string;
   @Input() weather: RawWaveData;
   @Input() units = {
@@ -22,9 +22,10 @@ export class WeatherOverviewComponent implements OnInit {
     waveDir: 'deg',
     wavePeakDir: 'deg'
   };
-  @Input() events: EventInput[];
+  @Input() events = new Array<EventInput>();
 
-  public chart;
+  public chart: WeatherOverviewChart;
+  public loaded = false;
 
   constructor(
     private calculationService: CalculationService,
@@ -36,13 +37,16 @@ export class WeatherOverviewComponent implements OnInit {
   }
 
   ngOnChanges() {
-    if (this.chart) this.chart = null;
-    if (!this.weather) return;
+    this.loaded = false;
+    if (!this.weather) {
+      if (this.chart) this.chart.destroy();
+      return;
+    };
     this.draw();
+    this.loaded = true;
   }
 
   draw() {
-    console.log(this)
     const id = document.getElementById('weatherOverview');
     const timeStamps = this.weather.timeStamp.map(
       matlabTime => this.dateService.matlabDatenumToMoment(matlabTime).toISOString(false)
@@ -51,7 +55,7 @@ export class WeatherOverviewComponent implements OnInit {
 
     const validLabels = this.getValidLabel(this.weather);
     // Parsing the main datasets
-    const dsets: any[] = [];
+    const dsets: plotDset[] = [];
     validLabels.forEach((label, __i) => {
       dsets.push({
         label: label,
@@ -68,6 +72,9 @@ export class WeatherOverviewComponent implements OnInit {
       });
     });
 
+    this.appendEvents(dsets);
+
+    // This actually draws the chart
     this.chart = new WeatherOverviewChart({
       dsets: dsets,
       timeStamps: timeStamps,
@@ -79,7 +86,8 @@ export class WeatherOverviewComponent implements OnInit {
   private getValidLabel(obj: RawWaveData): string[] {
     const valid = new Array<string>();
     Object.keys(obj).forEach(key => {
-      if (key!='timeStamp' && obj[key]?.length>0) {
+      const elt = obj[key];
+      if (key!='timeStamp' && Array.isArray(elt) && elt.some(e => (typeof(e) == 'number' && e>=0))) {
         valid.push(key);
       } 
     });
@@ -90,7 +98,7 @@ export class WeatherOverviewComponent implements OnInit {
     switch (id) {
       case 'Hs': case 'Hmax':
         return 'Hs'
-      case 'windDir': case 'waveDir': case 'direction':
+      case 'windDir': case 'waveDir': case'wavePeakDir': case 'direction':
         return 'waveDir'
       case 'Tp': case 'Tz': case 'T0':
         return 'Tp';
@@ -101,11 +109,49 @@ export class WeatherOverviewComponent implements OnInit {
         return 'hidden'
     }
   }
+
+  appendEvents(dsets: plotDset[]) {
+    this.events.forEach(event => {
+      const staticData = [];
+      event.start.forEach((startNum,i) => {
+        const start = this.dateService.matlabDatenumToMoment(startNum);
+        const stop = this.dateService.matlabDatenumToMoment(event.stop[i]);
+        staticData.push({ x: start, y: 1 });
+        staticData.push({ x: stop, y: 1 });
+        staticData.push({ x: stop, y: NaN });
+      })
+      dsets.push({
+        label: 'Vessel transfers',
+        data: staticData,
+        pointHoverRadius: 0,
+        pointHitRadius: 0,
+        pointRadius: 0,
+        borderWidth: 0,
+        yAxisID: 'hidden',
+        lineTension: 0,
+        color: event.color,
+      });
+    })
+  }
 }
 
 interface EventInput {
   name: string;
   start: number[];
   stop: number[];
+  color?: any;
+}
+
+interface plotDset {
+  label: string;
+  data: any;
+  yAxisID: string;
+  pointHoverRadius?: number;
+  pointHitRadius?: number;
+  pointRadius?: number;
+  borderWidth?: number;
+  unit?: string;
+  fill?: boolean;
+  lineTension?: number;
   color?: any;
 }
