@@ -17,7 +17,7 @@ import { RawWaveData } from '@app/models/wavedataModel';
   templateUrl: './mo4-light.component.html',
   styleUrls: ['./mo4-light.component.scss']
 })
-export class Mo4LightComponent implements OnInit, OnChanges {
+export class Mo4LightComponent implements OnInit {
     private client_id: number;
     private project_id: number;
 
@@ -58,9 +58,6 @@ export class Mo4LightComponent implements OnInit, OnChanges {
       this.initRoute().subscribe(() => {
         this.loadData();
       });
-    }
-
-    ngOnChanges() {
     }
 
     initRoute() {

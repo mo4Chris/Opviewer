@@ -11,7 +11,8 @@
         <div class='card-body table-responsive'>
           <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
             [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
-            (onChange)="onProjectSettingsChange($event)" [limits]="limits">
+            (onChange)="onProjectSettingsChange($event)" [limits]="limits"
+            [vessels]='vessels'>
           </app-forecast-ops-picker>
 
           <app-heading-picker class="center" [heading]="selectedHeading">

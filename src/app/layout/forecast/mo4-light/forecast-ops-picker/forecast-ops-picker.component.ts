@@ -15,6 +15,7 @@ import { ForecastLimit, ForecastOperation } from '../../models/forecast-response
 })
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
+  @Input() vessels: any[];
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
   @Input() maxForecastDate: YMD; // From Response
@@ -27,8 +28,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   public selectedProject: ForecastOperation;
   public date: YMD;
-  public projectStartDate: string;
-  public projectStopDate: string;
 
   public startTime: number;
   public stopTime: number;
@@ -53,6 +52,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
     public gps: GpsService,
     public permission: PermissionService,
   ) {
+    console.log(this);
+    
   }
 
   public get hasSelectedOperation() {
@@ -61,6 +62,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get timeValid() {
     return this.stopTime && this.startTime && this.stopTime > this.startTime;
   }
+  public get selectedVesselName() {
+    const vessel_id = this.selectedProject?.vessel_id;
+    const vessel = this?.vessels?.find(vessel => vessel.id == vessel_id)
+    return vessel?.type || 'N/a';
+  }
 
   ngOnChanges(changes: SimpleChanges = {}) {
     if (this.selectedProjectId) { this.onNewSelectedOperation(); }
@@ -68,14 +74,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   onNewSelectedOperation() {
     this.selectedProject = this.projects.find(project => project.id == this.selectedProjectId);
-    this.projectStartDate = this.formatTime(this.selectedProject.activation_start_date);
-    this.projectStopDate = this.formatTime(this.selectedProject.activation_end_date);
   }
-
-  private formatTime(t: string) {
-    return this.dateService.isoStringToDmyString(t);
-  }
-
   public onHeadingChange() {
     this.headingChanged = true;
     this.heading = this.heading % 360;
@@ -99,6 +98,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
       this.formattedDuration = this.dateService.formatMatlabDuration(duration);
     }
   }
+  public onLimitsChange() {
+    this.limitChanged = true;
+  }
   public onAddLimitsLine() {
     this.limitChanged = true;
     this.limits.push(new ForecastMotionLimit());
@@ -118,6 +120,12 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.headingChanged = false;
     this.limitChanged = false;
     this.operationTimeChanged = false;
+  }
+  public appendLeadingZeros(event) {
+    const input: HTMLInputElement = event.srcElement;
+    if(!isNaN(+input.value) && input.value.length === 1) {
+      input.value = '0' + input.value;
+    }
   }
 }
 
