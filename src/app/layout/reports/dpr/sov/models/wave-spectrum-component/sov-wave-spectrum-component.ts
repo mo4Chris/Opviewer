@@ -7,13 +7,13 @@ import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 
 
 @Component({
-  selector: 'app-wave-spectrum-component',
-  templateUrl: './wave-spectrum-component.component.html',
-  styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
+  selector: 'app-sov-wave-spectrum',
+  templateUrl: './sov-wave-spectrum-component.html',
+  styleUrls: ['./sov-wave-spectrum-component.scss', '../../sovreport.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
-export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
+export class WaveSpectrumComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
 
   waveSpectrum: SovWaveSpectum;

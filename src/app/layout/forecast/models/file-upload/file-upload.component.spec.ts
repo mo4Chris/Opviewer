@@ -55,7 +55,7 @@ describe('FileUploadComponent', () => {
 
   it('should commence upload', async () => {
     const uploadSpy = spyOn(HttpClient.prototype, 'request').and.callFake((req) => {
-      console.log('ToDo: this spy should be triggered');
+      // ToDo: this spy should be triggered
     });
     await fixture.whenStable();
     initTestFile();

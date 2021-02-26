@@ -3,7 +3,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput, IUploadProgress } from 'ngx-uploader-directive';
 import { environment } from '@env/environment';
 
-const DEBUG = false;
+const DEBUG: boolean = false;
 
 @Component({
   selector: 'app-file-upload',

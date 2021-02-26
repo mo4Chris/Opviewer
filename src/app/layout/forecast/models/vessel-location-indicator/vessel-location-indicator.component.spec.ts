@@ -1,3 +1,4 @@
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { PlotlyModule } from 'angular-plotly.js';
@@ -27,5 +28,15 @@ describe('VesselLocationIndicatorComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should draw a vessel when coordinates are zero', () => {
+    component.X = 0;
+    component.Y = 0;
+    component.Z = 0;
+    expect(component.hasData).toBeTruthy();
+    const change: any = {Length: <any> 1};
+    component.ngOnChanges(change);
+    expect(component['VesselTrace']).toBeTruthy();
   });
 });

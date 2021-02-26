@@ -778,7 +778,7 @@ app.use((req, res, next) => {
   try {
     const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
     if (!isSecureMethod) return next();
-    console.log(` - ${req.method} ${req.url}`);
+    // console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;

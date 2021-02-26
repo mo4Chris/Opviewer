@@ -221,8 +221,8 @@ export class MockedCommonService extends CommonService {
       },
       transitTime: '_NaN_',
       utcOffset: '_NaN_',
-      vesselName: 'SOV_example',
-      weatherConditions: mockWeatherConditions(vesselObject.date),
+      vesselname: 'SOV_example',
+      weatherConditions: <any> mockWeatherConditions(vesselObject.date),
     }]);
   }
   getVessel(): Observable<VesselModel[]> {
@@ -275,7 +275,7 @@ export class MockedCommonService extends CommonService {
     }));
   }
 
-  getUserByUsername(username: any) {
+  getUserByUsername(username: any): Observable<any> {
     return mockedObservable([
       UserTestService.getMockedAccessToken()
     ]);
@@ -504,7 +504,7 @@ export class MockedCommonService extends CommonService {
   getLatestTwaUpdate() {
     return mockedObservable(0);
   }
-  getUsers(): Observable<UserModel[]> {
+  getUsers(): Observable<any[]> {
     return mockedObservable([
       UserTestService.getMockedAccessToken()
     ]);
@@ -512,7 +512,7 @@ export class MockedCommonService extends CommonService {
   getLatestGeneral(): Observable<{ _id: number, date: number, vesselname: string }[]> {
     return mockedObservable([]);
   }
-  getGeneralForRange(request: GeneralForRangeInput) {
+  getGeneralForRange(request: GeneralForRangeInput): Observable<any> {
     return this.getGeneral({
       mmsi: <number>request.mmsi[0] ? request.mmsi[0] : request.mmsi,
       date: request.startDate,
@@ -644,6 +644,15 @@ export class MockedCommonService extends CommonService {
       startDate: 0,
       stopDate: 1,
       windField: 'test123',
+  
+      numContractedVessels: 0,
+      weatherDayTarget: 0,
+      weatherDayForecast: [],
+      Dates: [],
+      sailMatrix: [[]],
+      currentlyActive: [],
+      client: '',
+      lastUpdated: 0,
     }]);
   }
 
@@ -675,9 +684,21 @@ export class MockedCommonService extends CommonService {
   }
 
   // Mo4-light
-  getForecastProjectList(): Observable<ForecastOperation[]> {
+  getForecastProjectList(): Observable<any[]> {
     return mockedObservable([{
       id: 0,
+      name: 'a',
+      client_id: 1,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 'fakeID',
+    }]);
+  }
+  getForecastProjectById(id: number): Observable<any> {
+    return mockedObservable([{
+      id,
       name: 'a',
       client_id: 1,
       latitude: 2,
@@ -694,6 +715,26 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
   getForecastVesselList() {
+    return mockedObservable([]);
+  }
+  getForecastWeatherForResponse(id: number) {
+    const dateMin = 737700;
+    const dateMax = 737702;
+    const N = 49;
+    return mockedObservable({
+      source: 'test data',
+      timeStamp: linspace(dateMin, dateMax, N),
+      Hs: linspace(1, 2, N),
+      Tp: linspace(1, 2, N),
+      waveDir: linspace(1, 2, N),
+      windSpeed: linspace(1, 2, N),
+      windDir: linspace(1, 2, N),
+    });
+  }
+  getForecastSpectrumForResponse(id: number) {
+    const dateMin = 737700;
+    const dateMax = 737702;
+    const N = 49;
     return mockedObservable([]);
   }
   getForecastWorkabilityForProject(project_id = 3) {

@@ -40,7 +40,7 @@ describe('CtvSummaryComponent', () => {
         vesselName: 'Test CTV',
         vesselType: 'CTV',
       }).subscribe(_gen => {
-        general = _gen.data[0];
+        general = <any> _gen.data[0]; // ToDo: fix models
         done();
       });
     });
@@ -110,7 +110,7 @@ describe('CtvSummaryComponent', () => {
         vesselName: 'Test CTV',
         vesselType: 'CTV',
       }).subscribe(_gen => {
-        general = _gen.data[0];
+        general = <any> _gen.data[0];
         done();
       });
     });
