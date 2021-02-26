@@ -32,6 +32,8 @@ var db = mongo.connect(DB_CONN, {
   } else {
     logger.info('Connected to Database');
   }
+}).catch(err => {
+  logger.fatal(err);
 });
 
 var app = express();
