@@ -32,8 +32,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   public startTime: number;
   public stopTime: number;
-  public startTimeInput = {hour: null, mns: null};
-  public stopTimeInput = {hour: null, mns: null};
+  public startTimeInput = {hour: null, mns: <any> '00'};
+  public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
 
   private operationTimeChanged = false;
@@ -84,13 +84,13 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public onOpsChange() {
     this.routerService.routeToForecast(this.selectedProjectId);
   }
-  public onTimeChange() {
+  public onTimeChange(change: any) {
     this.operationTimeChanged = true;
     if ( this.date
       && inRange(this.startTimeInput.hour, 0, 24)
-      && inRange(this.startTimeInput.mns, 0, 59)
+      && inRange(+this.startTimeInput.mns, 0, 59)
       && inRange(this.stopTimeInput.hour, 0, 24)
-      && inRange(this.stopTimeInput.mns, 0, 59)
+      && inRange(+this.stopTimeInput.mns, 0, 59)
     ) {
       const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
       this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;

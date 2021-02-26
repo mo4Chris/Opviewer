@@ -94,11 +94,10 @@ export class SetPasswordComponent implements OnInit {
     }
 
     createQrCode() {
-        this.QRCode = 'otpauth://totp/' + this.getUsernameFromParameter() + '?secret=' + this.secretAsBase32 + '&issuer=BMO%20Dataviewer';
+        this.QRCode = 'otpauth://totp/' + this.getUsernameFromParameter() + '?secret=' + this.secretAsBase32 + '&issuer=MO4%20Dataviewer';
     }
 
     openModal(content) {
-
         this.modalReference = this.modalService.open(content, { centered: true, size: 'lg' });
     }
 

@@ -50,7 +50,7 @@
                     </tr>
 
                     <ng-template #syncTooltip class="helpContent">
-                        Time since last synchronized with BMO processing server.
+                        Time since last known AIS ping.
                     </ng-template>
                     <tr [ngbTooltip]="syncTooltip" placement="top">
                         <td>Last updated</td>
@@ -64,7 +64,7 @@
             Sail matrix
             <ng-template #popContent class="helpContent">
                 Table describing deployment for varius vessels in the fleet.
-                By default, BMO fills this table with data from the VMMS systems on board of the vessels.
+                By default, MO4 fills this table with data from the VMMS systems on board of the vessels.
                 These values can be adjusted using the 'edit' button in the bottom left.
                 The white cells indicate that the vessel is assigned to this campaign.
                 Assignment can be changed by using the 'edit fleet' button below.
@@ -242,7 +242,7 @@
                                     <ng-template #tipContent>
                                         Vessel is {{isActive[i][ind] ? "active" : "not active"}}<br />
                                         and {{sailMatrix[i][ind] == 0 ? "did not sail" : sailMatrix[i][ind] == 0.5 ? "sailed for half a day" : sailMatrix[i][ind] == 1 ? "sailed the whole day" : "was not processed"}}<br />
-                                        {{sailMatrix[i][ind] == turbineWarrenty.sailMatrix[i][ind] ? "source: BMO Offshore" : "source: user from " + this.changedUsers[i][ind].client}}
+                                        {{sailMatrix[i][ind] == turbineWarrenty.sailMatrix[i][ind] ? "source: MO4" : "source: user from " + this.changedUsers[i][ind].client}}
                                     </ng-template>
                                     <div placement="top" [ngbTooltip]="tipContent" *ngIf="!edit">
                                         <div *ngIf="sailMatrix[i][ind]!=turbineWarrenty.sailMatrix[i][ind] && hideText==false && !edit">

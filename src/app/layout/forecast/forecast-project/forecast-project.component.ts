@@ -124,7 +124,6 @@ export class ForecastVesselComponent implements OnInit {
       draggable: false,
       map: map,
       zIndex: 2,
-      label: 'POI',
       title: 'Point of interest'
     });
   }
