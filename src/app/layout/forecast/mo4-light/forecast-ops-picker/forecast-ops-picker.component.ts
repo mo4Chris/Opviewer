@@ -110,7 +110,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.limits.pop();
   }
   public onConfirm () {
-    if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
+    // if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
     this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.onChange.emit({
       startTime: this.startTime,
