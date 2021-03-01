@@ -84,7 +84,7 @@ export class Mo4LightComponent implements OnInit {
         this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
         this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
-        const currentOperation = this.operations.find(op => op.id == this.project_id);
+        const currentOperation = this.operations.find(op => op.id === this.project_id);
         this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
 
         this.parseResponse();
@@ -108,7 +108,7 @@ export class Mo4LightComponent implements OnInit {
       this.weather = weather;
       this.spectrum = spectrum;
     }, error => {
-      console.error(error)
+      console.error(error);
     });
   }
 
@@ -117,17 +117,15 @@ export class Mo4LightComponent implements OnInit {
   }
 
   onProjectSettingsChange(settings: ForecastOperationSettings) {
-    console.log('CHANGE')
-    console.log(settings)
-    if (settings?.startTime) this.startTime = settings.startTime;
-    if (settings?.stopTime) this.stopTime = settings.stopTime;
-    if (settings?.limits) this.limits = settings.limits;
+    if (settings?.startTime)  this.startTime  = settings.startTime;
+    if (settings?.stopTime)   this.stopTime   = settings.stopTime;
+    if (settings?.limits)     this.limits     = settings.limits;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
 
   parseResponse() {
-    if (!this.response || this.limits.length == 0) { return this.Workability = null; }
+    if (!this.response || this.limits.length === 0) { return this.Workability = null; }
     const POI = this.response.response.Points_Of_Interest.P1;
     this.Response = POI.Response;
     this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));

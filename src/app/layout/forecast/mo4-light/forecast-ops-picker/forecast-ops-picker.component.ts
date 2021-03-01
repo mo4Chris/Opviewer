@@ -52,8 +52,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     public gps: GpsService,
     public permission: PermissionService,
   ) {
-    console.log(this);
-    
   }
 
   public get hasSelectedOperation() {
@@ -64,16 +62,16 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public get selectedVesselName() {
     const vessel_id = this.selectedProject?.vessel_id;
-    const vessel = this?.vessels?.find(vessel => vessel.id == vessel_id)
+    const vessel = this?.vessels?.find(vessel => vessel.id === vessel_id);
     return vessel?.type || 'N/a';
   }
 
   ngOnChanges(changes: SimpleChanges = {}) {
-    if (this.selectedProjectId) { this.onNewSelectedOperation(); }
-    if (changes.minForecastDate) { this.date = this.minForecastDate; }
+    if (this.selectedProjectId) this.onNewSelectedOperation();
+    if (changes.minForecastDate) this.date = this.minForecastDate;
   }
   onNewSelectedOperation() {
-    this.selectedProject = this.projects.find(project => project.id == this.selectedProjectId);
+    this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
   }
   public onHeadingChange() {
     this.headingChanged = true;
@@ -123,14 +121,14 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public appendLeadingZeros(event) {
     const input: HTMLInputElement = event.srcElement;
-    if(!isNaN(+input.value) && input.value.length === 1) {
+    if (!isNaN(+input.value) && input.value.length === 1) {
       input.value = '0' + input.value;
     }
   }
 }
 
 function inRange(obj: any, min = 0, max = 100) {
-  return typeof(obj) == 'number' && obj >= min && obj <= max;
+  return typeof(obj) === 'number' && obj >= min && obj <= max;
 }
 
 
