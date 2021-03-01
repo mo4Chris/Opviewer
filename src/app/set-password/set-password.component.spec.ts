@@ -52,7 +52,7 @@ describe('SetPasswordComponent', () => {
     component.QRCode = '';
     component.createQrCode();
     fixture.detectChanges();
-    expect(component.QRCode).toBe('otpauth://totp/' + userToken.username + '?secret=' + 'test123' + '&issuer=BMO%20Dataviewer');
+    expect(component.QRCode).toBe('otpauth://totp/' + userToken.username + '?secret=' + 'test123' + '&issuer=MO4%20Dataviewer');
   });
 
   it('should create QRCode', () => {
