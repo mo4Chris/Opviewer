@@ -42,6 +42,15 @@ export class ForecastVesselComponent implements OnInit {
   public Longitude = 'N/a';
   public Lattitude = 'N/a';
 
+  public NewVessel: ForecastVesselRequest = {
+    type: 'NEW',
+    length: NaN,
+    width: NaN,
+    draft: NaN,
+    gm: NaN,
+    rao: null,
+  }
+
   constructor(
     private route: ActivatedRoute,
     private routeService: RouterService,
@@ -124,7 +133,6 @@ export class ForecastVesselComponent implements OnInit {
       draggable: false,
       map: map,
       zIndex: 2,
-      label: 'POI',
       title: 'Point of interest'
     });
   }

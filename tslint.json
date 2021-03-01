@@ -10,7 +10,7 @@
       true,
       "check-space"
     ],
-    "curly": true,
+    "curly": [true, "ignore-same-line"],
     "eofline": true,
     "forin": true,
     "import-blacklist": [
@@ -84,7 +84,7 @@
       true,
       "single"
     ],
-    "radix": true,
+    "radix": false,
     "semicolon": [
       true,
       "always"
@@ -109,10 +109,9 @@
     "whitespace": [
       true,
       "check-branch",
-      "check-decl",
-      "check-operator",
-      "check-separator",
-      "check-type"
+      "check-typecast",
+      "check-module",
+      "check-separator"
     ],
     "directive-selector": [
       true,

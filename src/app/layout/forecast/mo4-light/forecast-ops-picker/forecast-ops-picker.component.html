@@ -14,6 +14,10 @@
   </thead>
   <tbody>
     <tr>
+      <td>Vessel</td>
+        <td colspan="2">{{selectedVesselName}}</td>
+    </tr>
+    <tr>
       <td>Latitude</td>
       <td colspan="2">{{gps.formatLat(selectedProject?.latitude)}}</td>
     </tr>
@@ -21,15 +25,6 @@
       <td>Longitude</td>
       <td colspan="2">{{gps.formatLng(selectedProject?.longitude)}}</td>
     </tr>
-    <tr>
-      <td><div [ngbTooltip]="helpProjectStart">Start</div></td>
-      <td colspan="2">{{projectStartDate || 'N/a'}}</td>
-    </tr>
-    <tr>
-      <td><div [ngbTooltip]="helpProjectStop">Stop</div></td>
-      <td colspan="2">{{projectStopDate || 'N/a'}}</td>
-    </tr>
-    
     <tr><td colspan="3" class="empty-row"></td></tr>
 
     <tr>
@@ -50,10 +45,10 @@
       <td><div [ngbTooltip]="helpTime">Start time</div></td>
       <td colspan="2">
         <div class="flex-container">
-          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.hour"
+          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)" [(ngModel)]="startTimeInput.hour"
             type="number" min="0" max="24" placeholder="HH">
-          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="startTimeInput.mns"
-            type="number" min="0" max="59" step="5" placeholder="MM">
+          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event);"
+            [(ngModel)]="startTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM"/>
         </div>
       </td>
     </tr>
@@ -61,10 +56,10 @@
       <td><div [ngbTooltip]="helpTime">Stop time</div></td>
       <td colspan="2">
         <div class="flex-container">
-          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="stopTimeInput.hour"
+          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)" [(ngModel)]="stopTimeInput.hour"
             type="number" min="0" max="24" placeholder="HH">
-          <input class="form-control form-control-md" (change)="onTimeChange()" [(ngModel)]="stopTimeInput.mns"
-            type="number" min="0" max="59" step="5" placeholder="MM">
+          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
+            [(ngModel)]="stopTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM">
         </div>
       </td>
     </tr>
@@ -97,14 +92,14 @@
     </tr>
     <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.type">
+        <select class="form-control form-control-md" [(ngModel)]="limit.type" (change)="onLimitsChange()">
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>Velocity</option>
           <option value='Disp'>Displacement</option>
         </select>
       </td>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.dof">
+        <select class="form-control form-control-md" [(ngModel)]="limit.dof" (change)="onLimitsChange()">
           <option value="Surge">Surge</option>
           <option value="Sway">Sway</option>
           <option value="Heave">Heave</option>
@@ -116,7 +111,8 @@
       <td class="tight">
         <!-- <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value"> -->
         <div class="input-group">
-          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value" [min]="0">
+          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value"
+            [min]="0"  (change)="onLimitsChange()">
           <div class="input-group-append tight">
             <span class="input-group-text">{{limit.unit}}</span>
           </div>

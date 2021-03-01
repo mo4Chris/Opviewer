@@ -9,12 +9,14 @@
           <tbody class='sep-row'>
             <tr>
               <td>Name</td>
-              <td colspan="2" *ngIf="permission.createProject"><input *ngIf="project" [(ngModel)]="project.name"></td>
-              <td colspan="2" *ngIf="!permission.createProject">{{project?.name}}</td>
+              <td colspan="2" *ngIf="permission.forecastCreateProject">
+                <input *ngIf="project" [(ngModel)]="project.name"> (admin)
+              </td>
+              <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td>
             </tr>
             <tr *ngIf="permission.admin">
               <td>Client</td>
-              <td colspan="2">{{project?.client_id || 'N/a'}} (admin only)</td>
+              <td colspan="2">{{project?.client_id || 'N/a'}} (admin)</td>
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpDateSpan">Span</div></td>
@@ -85,6 +87,7 @@
                 <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select"
                   class="form-control form-control-md" [disabled]="!projectLoaded">
                   <option disabled selected [value]="0">Please select a vessel</option>
+                  <option [ngValue]="NewVessel">Add a new vessel</option>
                   <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.type}}</option>
                 </select>
               </th>
@@ -110,7 +113,8 @@
             <tr>
               <td></td>
               <td>
-                <button (click)="onRequestNewVessel()" class="btn btn-primary" [ngbTooltip]="helpRequestNewVessel">
+                <button (click)="onRequestNewVessel()" class="btn btn-primary" [ngbTooltip]="helpRequestNewVessel"
+                  *ngIf="SelectedVessel">
                   Request new vessel</button>
               </td>
             </tr>
@@ -181,7 +185,7 @@
         <table class='table table-hover table-striped'>
           <tbody class='sep-row'>
             <tr>
-              <td colspan=2>Coming soon...</td>
+              <td colspan=2>Coming soon...</td> 
             </tr>
           </tbody>
         </table>
@@ -219,7 +223,8 @@
 
 
 <ng-template #helpDateSpan>
-  Project start - project end date. Contact MO4 directly if this is not correct.
+  Project start - project end. Please contact MO4
+  if this is not correct.
 </ng-template>
 <ng-template #helpLon>
   Fractional input for longitude in degrees.

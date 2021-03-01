@@ -13,12 +13,14 @@ export class LongtermPrintHeaderComponent implements OnChanges {
   @Input() fieldname: String = 'test field';
   @Input() userCompany: String = '';
   public selectedField; // ToDo: This appears to be missing
+  public url: string;
 
   currentDateTime = moment(new Date()).format('YYYY-MM-DD');
 
   constructor() { }
 
   ngOnChanges() {
+    this.url = window.location.hostname;
   }
 
 }

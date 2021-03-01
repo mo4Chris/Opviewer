@@ -107,7 +107,7 @@ module.exports = function(app, logger) {
     pool.query(PgQuery).then(data => {
       const metocean = data.rows[0]?.response?.Points_Of_Interest?.P1?.MetoceanData;
       const weather = {
-        source: 'Metocean',
+        source: 'Infoplaza',
         timeStamp: metocean?.Time,
         Hs: metocean?.Wave?.Parametric?.Hs,
         Hmax: metocean?.Wave?.Parametric?.Hmax,

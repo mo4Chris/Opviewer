@@ -73,6 +73,32 @@ describe('Mo4LightComponent', () => {
       fixture.detectChanges();
       checkElementIsPresent('app-ng-loading');
     });
+    
+
+    it('should update on init w/out data', () => {
+      const updateSpy1 = spyOn(component, 'computeWorkability')
+      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
+      const updateSpy3 = spyOn(component, 'loadWeather')
+      component['route'].params = mockedObservable({project_id: '3'});
+      fixture.detectChanges()
+      expect(updateSpy1).not.toHaveBeenCalled();
+      expect(updateSpy2).not.toHaveBeenCalled();
+      expect(updateSpy3).toHaveBeenCalled();
+    });
+
+    it('should update on init w/ data', () => {
+      const updateSpy1 = spyOn(component, 'computeWorkability')
+      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
+      const updateSpy3 = spyOn(component, 'loadWeather')
+      spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
+        new ForecastMotionLimit({type: 'Disp', dof: 'Heave', value: 1.5})
+      ]);
+      component['route'].params = mockedObservable({project_id: '3'});
+      fixture.detectChanges()
+      expect(updateSpy1).toHaveBeenCalled();
+      expect(updateSpy2).toHaveBeenCalled();
+      expect(updateSpy3).toHaveBeenCalled();
+    });
   });
 
   describe('after init', () => {
@@ -94,19 +120,30 @@ describe('Mo4LightComponent', () => {
       checkElementIsPresent('app-surface-plot');
     });
     it('should propely set min/max forecast date', () => {
-      expect(component).toBeTruthy();
+      component.startTime = 737000;
+      component.stopTime  = 737100;
+      component.onProjectSettingsChange({
+        startTime: 737200,
+        stopTime: 737300,
+        limits: null
+      });
+      expect(component.startTime).toEqual(737200);
+      expect(component.stopTime ).toEqual(737300);
     });
 
     it('should set and update heading', () => {
+      component.selectedHeading = 100;
       expect(component).toBeTruthy();
     });
 
     it('should update on change project configuration', () => {
-      expect(component).toBeTruthy();
-    });
-
-    it('should set parse workability', () => {
-      expect(component).toBeTruthy();
+      const updateSpy1 = spyOn(component, 'computeWorkability')
+      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
+      const updateSpy3 = spyOn(component, 'loadWeather')
+      component.onProjectSettingsChange(null);
+      expect(updateSpy1).toHaveBeenCalled();
+      expect(updateSpy2).toHaveBeenCalled();
+      expect(updateSpy3).not.toHaveBeenCalled();
     });
 
     it('should show a loading icon when no date is available', () => {
