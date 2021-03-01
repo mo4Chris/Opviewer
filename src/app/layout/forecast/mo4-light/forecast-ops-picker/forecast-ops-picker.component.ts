@@ -84,9 +84,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public onTimeChange(change: any) {
     this.operationTimeChanged = true;
     if ( this.date
-      && inRange(this.startTimeInput.hour, 0, 24)
+      && inRange(+this.startTimeInput.hour, 0, 24)
       && inRange(+this.startTimeInput.mns, 0, 59)
-      && inRange(this.stopTimeInput.hour, 0, 24)
+      && inRange(+this.stopTimeInput.hour, 0, 24)
       && inRange(+this.stopTimeInput.mns, 0, 59)
     ) {
       const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
