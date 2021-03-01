@@ -119,9 +119,9 @@ export class Mo4LightComponent implements OnInit {
   onProjectSettingsChange(settings: ForecastOperationSettings) {
     console.log('CHANGE')
     console.log(settings)
-    if (settings.startTime) this.startTime = settings.startTime;
-    if (settings.stopTime) this.stopTime = settings.stopTime;
-    if (settings.limits) this.limits = settings.limits;
+    if (settings?.startTime) this.startTime = settings.startTime;
+    if (settings?.stopTime) this.stopTime = settings.stopTime;
+    if (settings?.limits) this.limits = settings.limits;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
