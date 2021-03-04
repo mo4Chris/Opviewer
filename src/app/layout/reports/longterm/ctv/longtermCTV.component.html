@@ -8,6 +8,11 @@
         <div *ngIf="!allGraphsEmpty; else noData">
             <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
+
+            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin] =""
+            ></app-ctv-kpi-overview>
+
+
             <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"

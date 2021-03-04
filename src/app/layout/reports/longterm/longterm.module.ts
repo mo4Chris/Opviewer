@@ -19,6 +19,7 @@ import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymen
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { CtvKpiOverviewComponent } from './ctv/models/kpi-overview/ctv-kpi-overview.component';
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
@@ -49,6 +50,7 @@ import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerb
         VesselinfoComponent,
         LongtermComponent,
         SiemensKpiOverviewComponent,
+        CtvKpiOverviewComponent,
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
         LongtermTrendGraphComponent,

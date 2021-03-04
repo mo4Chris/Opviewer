@@ -184,6 +184,14 @@ export class CommonService {
     return this.post('/api/getTransitsForVesselByRange/', vessel);
   }
 
+  getTransfersForVesselByRangeForCTV(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getTransfersForVesselByRangeForCTV/', vessel);
+  }
+
+  getCtvInputsByRange(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getCtvInputsByRange/', vessel);
+  }
+
   getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTurbineTransfersForVesselByRangeForSOV/', vessel);
   }
