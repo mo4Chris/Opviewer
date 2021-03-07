@@ -4,17 +4,7 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-
-
-// Encode daily operations per 15 minutes
-const STATUS_WORKING = 1;
-const STATUS_STANDBY = 2;
-const STATUS_TECHNICAL_DOWNTIME = 3;
-const STATUS_PLANNED_MAINTAINANCE = 12;
-const STATUS_WEATHER_ALLVESSEL = 4;
-const STATUS_WEATHER_OTHER = 5;
-const STATUS_PORTCALL_PLANNED = 6;
-const STATUS_PORTCALL_UNPLANNED = 7;
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-ctv-kpi-overview',
@@ -26,6 +16,8 @@ export class CtvKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   @Input() vesselNames: string[];
   @Input() matlabDateMin: number;
+  @Input() fromDate: NgbDate;
+  @Input() toDate: NgbDate;
 
   kpis: ctvKpi[][] = [[{
     month: 'Test Date',
@@ -103,21 +95,20 @@ export class CtvKpiOverviewComponent implements OnChanges {
       numDaysInMonth = dprs.month.numDays;
     }
     for (let i = 0; i < dprs.date.length; i++) {
-      const ops = new Array(4 * 24).fill(STATUS_WORKING);
-      fuelUsed                 += dprs?.inputStats[i]?.fuelConsumption || 0;
+     
+      fuelUsed                 += this.getFuelValue(dprs, i) ||  0;
       sailedMiles              += dprs?.DPRstats[i]?.sailedDistance || 0;
-      // maintainanceOps       += dprs.vesselNonAvailability[i] ? dprs.vesselNonAvailability[i].length : 0;
     }
     let paxTransfer = 0, cargoUpKg = 0, cargoDownKg = 0,  cargoOps = 0;
     if (turbine) {
-      paxTransfer += turbine.paxUp   .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      paxTransfer += turbine.paxDown  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoUpKg    += turbine.cargoUp .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoDownKg    += turbine.cargoDown.reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoOps += turbine.cargoUp.filter(value => value > 0).length;
-      cargoOps += turbine.cargoDown.filter(value => value > 0).length;
+      paxTransfer     += turbine.paxUp      .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      paxTransfer     += turbine.paxDown    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoUpKg       += turbine.cargoUp    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoDownKg     += turbine.cargoDown  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
+      cargoOps        += turbine.cargoUp    .filter(value => value > 0).length;
+      cargoOps        += turbine.cargoDown  .filter(value => value > 0).length;
     }
-    kpi.totalFuelUsed             = this.calcService.roundNumber(fuelUsed || 0, 10, ' Ltrs');
+    kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' Ltrs');
     kpi.fuelUsedPerWorkingDay   = this.calcService.roundNumber(fuelUsed / sailedMiles || 0, 10, ' litres / NM');
     kpi.totalDistanceSailed     = this.calcService.roundNumber(sailedMiles || 0, 10, '  Nm');;
     kpi.totalPaxTransfered      = paxTransfer;
@@ -147,8 +138,15 @@ export class CtvKpiOverviewComponent implements OnChanges {
       return 0;
     }
   }
-}
 
+  private getFuelValue(dprs, i : number) {
+    if (dprs?.inputStats[i]?.fuelConsumption > 0) {
+      return dprs?.inputStats[i]?.fuelConsumption;
+    } else if (dprs?.DPRstats[i]?.TotalFuel !== "n/a") {
+      return dprs?.DPRstats[i]?.TotalFuel;
+    }
+  }
+}
 interface ctvKpi {
   month: string;
   site: string;

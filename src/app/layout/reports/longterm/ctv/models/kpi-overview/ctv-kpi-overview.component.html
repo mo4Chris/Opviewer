@@ -3,7 +3,7 @@
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3 cardPrint">
       <div class="card-header">
-        Key Performance Indicators
+        User inputted performance
       </div>
       <div class="card-body table-responsive">
         <table class="table printtable table-hover table-striped">
@@ -17,8 +17,8 @@
               <th><div [ngbTooltip]="helpFuelUsedPerWorkingDay">Average fuel usage</div></th>
               <th>Total pax transfered</th>
               <th>Number of cargo operations</th>
-              <th>Cargo incoming (KG)</th>
-              <th>Cargo outgoing (KG)</th>
+              <th>Cargo incoming</th>
+              <th>Cargo outgoing</th>
             </tr>
           </thead>
           <tbody *ngFor="let _kpis of kpis; let _j = index" class="sep-row">

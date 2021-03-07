@@ -28,6 +28,7 @@ import { LongtermPrintHeaderComponent } from './models/longterm-print-header/lon
 import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
+import { FuelOverviewComponent } from './ctv/models/fuel-overview/fuel-overview.component';
 
 @NgModule({
     imports: [
@@ -57,6 +58,7 @@ import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerb
         LongtermPrintHeaderComponent,
         EngineOverviewComponent,
         LongtermPrintHeaderbarComponent,
+        FuelOverviewComponent,
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

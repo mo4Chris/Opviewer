@@ -9,9 +9,13 @@
             <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
 
-            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin] =""
+            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin]="" 
+            [fromDate]="fromDate" [toDate]="toDate"
             ></app-ctv-kpi-overview>
 
+            <app-fuel-overview [vesselObject]="vesselObject" [vesselNames]="vesselNames" [matlabDateMin]="" 
+            [fromDate]="fromDate" [toDate]="toDate"
+            ></app-fuel-overview>
 
             <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
