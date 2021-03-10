@@ -29,6 +29,8 @@ import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilizat
 import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
 import { FuelOverviewComponent } from './ctv/models/fuel-overview/fuel-overview.component';
+import { FuelUsageOverviewComponent } from './ctv/models/fuel-overview/fuel-usage-overview/fuel-usage-overview.component';
+import { FuelAverageOverviewComponent } from './ctv/models/fuel-overview/fuel-average-overview/fuel-average-overview.component';
 
 @NgModule({
     imports: [
@@ -59,6 +61,8 @@ import { FuelOverviewComponent } from './ctv/models/fuel-overview/fuel-overview.
         EngineOverviewComponent,
         LongtermPrintHeaderbarComponent,
         FuelOverviewComponent,
+        FuelUsageOverviewComponent,
+        FuelAverageOverviewComponent,
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],

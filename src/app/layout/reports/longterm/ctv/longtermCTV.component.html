@@ -13,11 +13,8 @@
             [fromDate]="fromDate" [toDate]="toDate"
             ></app-ctv-kpi-overview>
 
-            <app-fuel-overview [vesselObject]="vesselObject" [vesselNames]="vesselNames" [matlabDateMin]="" 
-            [fromDate]="fromDate" [toDate]="toDate"
-            ></app-fuel-overview>
+            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>  
 
-            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"
                     [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"
@@ -30,8 +27,11 @@
                 [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
                 </app-ctv-utilization-graph>
             </div>
-            
 
+            <app-fuel-overview [vesselObject]="vesselObject" [vesselNames]="vesselNames" [matlabDateMin]="" 
+            [fromDate]="fromDate" [toDate]="toDate"
+            ></app-fuel-overview>
+            
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"
