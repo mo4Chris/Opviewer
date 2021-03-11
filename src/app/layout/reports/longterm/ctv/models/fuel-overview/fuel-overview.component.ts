@@ -23,23 +23,23 @@ export class FuelOverviewComponent implements OnChanges {
     ){}
 
   @Input() vesselObject: { dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[], vesselname: string[] };
-  @Input() vesselNames; 
+  @Input() vesselNames;
   @Input() tokenInfo: TokenModel;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
-  
-  
+
+
   retrievedData;
   noData = true;
   RawData: RawGeneralModel[];
   vesselName = '';
   chart: Chart;
-  
+
   ngOnChanges(): void {
     this.getDataForGraph();
   }
 
-  getDataForGraph() { 
+  getDataForGraph() {
     this.newService.getCtvInputsByRange({
       mmsi: this.vesselObject.mmsi,
       dateMin: this.vesselObject.dateMin,
@@ -59,8 +59,8 @@ export class FuelOverviewComponent implements OnChanges {
 }
 
 interface DatasetModel {
-    label: String,
-    data: Object[]
+    label: String;
+    data: Object[];
 }
 
 interface RawGeneralModel {

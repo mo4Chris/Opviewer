@@ -524,7 +524,7 @@ export class CommonService {
   loadUserSettings(): Observable<object> {
     return this.get('/api/loadUserSettings').pipe(
       map(response => {
-        return response.settings
+        return response.settings;
       }));
   }
 

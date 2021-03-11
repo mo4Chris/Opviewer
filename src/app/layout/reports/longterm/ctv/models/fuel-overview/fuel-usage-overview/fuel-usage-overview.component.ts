@@ -13,15 +13,15 @@ import { LongtermProcessingService } from '../../../../models/longterm-processin
   styleUrls: ['./fuel-usage-overview.component.scss']
 })
 export class FuelUsageOverviewComponent implements OnChanges {
-  
+
   @ViewChild('canvas', { static: true }) canvas: ElementRef;
 
   constructor(
     private parser: LongtermProcessingService,
-    ){}
+    ) {}
 
 
-  @Input() retrievedData;   
+  @Input() retrievedData;
   vesselName = '';
   chart: Chart;
   private backgroundcolors = LongtermColorScheme.backgroundColors;
@@ -35,8 +35,8 @@ export class FuelUsageOverviewComponent implements OnChanges {
   }
 
   processDataForGraph(rawData) {
-    let dataset = [];
-    if(rawData !== undefined) {
+    const dataset = [];
+    if (rawData !== undefined) {
       rawData.forEach((vesselDataset, index) => {
         const datasetSet = {
           label: '',
@@ -46,20 +46,22 @@ export class FuelUsageOverviewComponent implements OnChanges {
         };
 
         datasetSet.label = vesselDataset.label[0];
-        for (let index = 0; index < vesselDataset.date.length; index++) {
+        for (let _index = 0; _index < vesselDataset.date.length; _index++) {
           const xyDataset = {
+            x: new Date,
+            y: 0
           };
-          xyDataset.x = this.parser.parseScatterDate(vesselDataset.date[index]);
-          xyDataset.y = this.getFuelValue(vesselDataset, index) ?? 0;
+          xyDataset.x = this.parser.parseScatterDate(vesselDataset.date[_index]);
+          xyDataset.y = this.getFuelValue(vesselDataset, _index) ?? 0;
 
-          if (xyDataset.y !== 0){
+          if (xyDataset.y !== 0) {
             datasetSet.data.push(xyDataset);
           }
         }
         dataset.push(datasetSet);
       });
     }
-    
+
 
     this.createGraph(dataset);
   }
@@ -106,10 +108,10 @@ export class FuelUsageOverviewComponent implements OnChanges {
     this.chart.destroy();
   }
 
-  private getFuelValue(dprs, i : number) {
+  private getFuelValue(dprs, i: number) {
     if (dprs?.inputStats[i]?.fuelConsumption > 0) {
       return dprs?.inputStats[i]?.fuelConsumption;
-    } else if (dprs?.DPRstats[i]?.TotalFuel !== "n/a") {
+    } else if (dprs?.DPRstats[i]?.TotalFuel !== 'n/a') {
       return dprs?.DPRstats[i]?.TotalFuel;
     } else {
       return null;
@@ -119,8 +121,8 @@ export class FuelUsageOverviewComponent implements OnChanges {
 }
 
 interface DatasetModel {
-    label: String,
-    data: Object[]
+    label: String;
+    data: Object[];
 }
 
 interface RawGeneralModel {
