@@ -9,7 +9,7 @@
             <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
 
-            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [vesselNames]="vesselNames" [matlabDateMin]="" 
+            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [minDate]="vesselObject.dateMin" [maxDate]="vesselObject.dateMax" [vesselNames]="vesselNames" [matlabDateMin]="" 
             [fromDate]="fromDate" [toDate]="toDate"
             ></app-ctv-kpi-overview>
 

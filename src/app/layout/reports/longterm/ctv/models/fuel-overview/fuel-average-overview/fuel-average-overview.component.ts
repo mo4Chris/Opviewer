@@ -1,11 +1,9 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as Chart from 'chart.js';
-import { now } from 'moment-timezone';
 import { LongtermColorScheme } from '../../../../models/color_scheme';
-import { LongtermProcessingService } from '../../../../models/longterm-processing-service.service';
 
 @Component({
   selector: 'app-fuel-average-overview',
@@ -17,10 +15,10 @@ export class FuelAverageOverviewComponent implements OnChanges {
   @ViewChild('canvas', { static: true }) canvas: ElementRef;
 
   constructor(
-    private parser: LongtermProcessingService,
     private calculationService: CalculationService,
     private dateTimeService: DatetimeService,
     private newService: CommonService,
+    private ref: ChangeDetectorRef,
     ) {}
 
 
@@ -32,14 +30,21 @@ export class FuelAverageOverviewComponent implements OnChanges {
   private backgroundcolors = LongtermColorScheme.backgroundColors;
 
   ngOnChanges(): void {
-    if (this.chart) {
-      this.reset();
-    }
-    this.getChartData();
+    this.updateChart();
   }
 
+  updateChart() {
+    this.noData = false;
+    this.getChartData((outputs) => {
+        this.dsets = new Array(outputs.length);
+        outputs.forEach((out, index) => {
+          this.buildGraphCallback(out.data, out.matlabDates, index, out.vesselname);
+        });
+      });
+    }
+
   private getChartData(
-    // cb: (out: {data: TimeBreakdown[], matlabDates: number[], vesselname: string}[]) => void
+     cb: (out: {data: any[], matlabDates: number[], vesselname: string}[]) => void
     ) {
     this.newService.getEngineStatsForRange({
       mmsi: this.vesselObject.mmsi,
@@ -47,49 +52,53 @@ export class FuelAverageOverviewComponent implements OnChanges {
       dateMax: this.vesselObject.dateMax,
       reqFields: ['fuelUsedDepartM3', 'fuelUsedReturnM3' , 'fuelUsedTotalM3', 'date']
     }).subscribe((rawdatas) => {
-      console.log(rawdatas);
-
+      const outs: {data: any[], matlabDates: number[], vesselname: string}[] = [];
       if (rawdatas.length > 0 && rawdatas[0].date.length > 0) {
+        rawdatas.map(rawdata => {
+          const chartData = [];
+          const matlabDates = rawdata.date;
+          for (let _index = 0; _index < rawdata.date.length; _index++) {
+            const generalDataDay: fuelObject = {
+              date: rawdata.date[_index],
+              fuelUsedDepartM3: 0,
+              fuelUsedReturnM3: 0,
+              fuelUsedTotalM3: 0,
+            };
+            if (rawdata.fuelUsedTotalM3[_index] > 0) {
+              generalDataDay.fuelUsedDepartM3 = this.calculationService.switchUnits(rawdata?.fuelUsedDepartM3[_index], 'm3', 'liter');
+              generalDataDay.fuelUsedReturnM3 = this.calculationService.switchUnits(rawdata?.fuelUsedReturnM3[_index] || 0, 'm3', 'liter');
+              generalDataDay.fuelUsedTotalM3 =  this.calculationService.switchUnits(rawdata?.fuelUsedTotalM3[_index] - (rawdata?.fuelUsedDepartM3[_index] + rawdata?.fuelUsedReturnM3[_index]) || 0, 'm3', 'liter');
+            }
+            chartData.push(generalDataDay);
+          }
+          outs.push({
+            data: chartData,
+            vesselname: this.matchVesselnameByMmsi(rawdata._id),
+            matlabDates: matlabDates,
+            });
+        });
+      } else {
+        this.noData = true;
+      }
+      if (cb && !this.noData) {
+        this.ref.detectChanges();
+        cb(outs);
+      }
+      this.ref.detectChanges();
+  });
+}
 
-      // const outs: {data: TimeBreakdown[], matlabDates: number[], vesselname: string}[] = [];
-      // if (rawdatas.length > 0 && rawdatas[0].length > 0) {
-      //   rawdatas.map(rawdata => {
-      //     const chartData = [];
-      //     const matlabDates = rawdata.map(e => e.date);
-      //     rawdata.forEach(generalData => {
-      //       const generalDataDay = {
-      //         date: generalData.date,
-      //         minutesInField: 0,
-      //         minutesTransitInbound: 0,
-      //         minutesTransitOutbound: 0,
-      //       };
-      //       if (generalData.minutesInField > 0) {
-      //         generalDataDay.minutesInField = generalData.minutesInField / 60;
-      //         generalDataDay.minutesTransitOutbound = ((+generalData.DPRstats.WindFarmArrivalTime - +generalData.DPRstats.portDepartureTime) * 24) || 0;
-      //         generalDataDay.minutesTransitInbound = ((+generalData.DPRstats.portArrivalTime - +generalData.DPRstats.departureWindFarmTime) * 24) || 0;
-      //       }
-      //       chartData.push(generalDataDay);
-      //     });
-      //     outs.push({
-      //       data: chartData,
-      //       vesselname: this.matchVesselnameByMmsi(rawdata[0].mmsi),
-      //       matlabDates: matlabDates,
-      //     });
-      //   });
-      // } else {
-      //   this.noData = true;
-      // }
-      // if (cb && !this.noData) {
-      //   this.ref.detectChanges();
-      //   cb(outs);
-      // }
-      // this.ref.detectChanges();
-
+private isInvalidData(data) {
+  return ['_ArrayType_'].some((key: string) => {
+    if (data[key]) {
+      return true;
+    } else {
+      return false;
     }
   });
 }
 
-private buildGraphCallback (TimeBreakdowns: TimeBreakdown[], breakdownDates: number[], index: number, vesselname: string) {
+private buildGraphCallback (TimeBreakdowns, breakdownDates: number[], index: number, vesselname: string) {
   const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
   const dateLabels = matlabDates.map((daynum: number) => {
     return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
@@ -104,22 +113,18 @@ private buildGraphCallback (TimeBreakdowns: TimeBreakdown[], breakdownDates: num
       xAxisID: 'x-axis-0',
       yAxisID: 'y-axis-0',
       backgroundColor: LongtermColorScheme.missingData, // vColor.replace('1)', (5 - _j) / 5 + ')'),
-      callback: (index: number) => this.navigateToDPR({
-        mmsi: this.vesselObject.mmsi[0],
-        matlabDate: matlabDates[index],
-      }),
       categoryPercentage: 1.0,
       barPercentage: 1.0,
     };
     return { ...def, ...options };
   };
 
-  const inbound = getDset({
-    label: 'Inbound',
+  const depart = getDset({
+    label: 'Depart',
     backgroundColor: this.backgroundcolors[0].replace('1)', '0.7'),
   });
-  const outbound = getDset({
-    label: 'Outbound',
+  const returntrip = getDset({
+    label: 'Return',
     backgroundColor: this.backgroundcolors[1],
   });
   const inField = getDset({
@@ -130,40 +135,41 @@ private buildGraphCallback (TimeBreakdowns: TimeBreakdown[], breakdownDates: num
     // Loop over days
     validIdx = breakdownDates.findIndex(date => date === day);
     if (validIdx === -1 || this.isInvalidData(TimeBreakdowns[validIdx])) {
-      outbound.data.push(0);
+      returntrip.data.push(0);
       inField.data.push(0);
-      inbound.data.push(0);
+      depart.data.push(0);
     } else {
       const local = TimeBreakdowns[validIdx];
       const hours = {
-        minutesTransitOutbound: 0,
-        minutesInField: 0,
-        minutesTransitInbound: 0,
+        fuelUsedDepartM3: 0,
+        fuelUsedReturnM3: 0,
+        fuelUsedTotalM3: 0,
       };
       Object.keys(local).forEach(key => {
         // 'hoursWaiting', 'hoursSailing', 'hoursOfCTVops', 'hoursAtTurbine', 'hoursAtPlatform'
         switch (key) {
-          case 'minutesTransitOutbound':
-            hours.minutesTransitOutbound = local[key];
+          case 'fuelUsedDepartM3':
+            hours.fuelUsedDepartM3 = local[key];
             break;
-          case 'minutesInField':
-            hours.minutesInField = local[key];
+          case 'fuelUsedReturnM3':
+            hours.fuelUsedReturnM3 = local[key];
             break;
-          case 'minutesTransitInbound':
-            hours.minutesTransitInbound = local[key];
+          case 'fuelUsedTotalM3':
+            hours.fuelUsedTotalM3 = local[key];
             break;
         }
       });
-      inbound.data.push(hours.minutesTransitInbound);
-      outbound.data.push(hours.minutesTransitOutbound);
-      inField.data.push(hours.minutesInField);
+      depart.data.push(hours.fuelUsedDepartM3);
+      returntrip.data.push(hours.fuelUsedReturnM3);
+      inField.data.push(hours.fuelUsedTotalM3);
+
     }
   });
 
   const dsets = {
     labels: dateLabels,
     isFirst: index === 0,
-    datasets: [outbound, inField, inbound],
+    datasets: [depart, inField, returntrip ],
   };
   this.dsets[index] = dsets;
 }
@@ -173,125 +179,17 @@ private matchVesselnameByMmsi(mmsi: number) {
   return this.vesselObject.vesselName[index];
 }
 
-private constructNewChart() {
-  const calcService = this.calculationService;
-  const dateService = this.dateTimeService;
-  this.chart = new Chart(this.canvas.nativeElement, {
-    type: 'bar',
-    data: this.dset,
-    options: {
-      tooltips: {
-        filter: function (tooltipItem, data) {
-          return data.datasets[tooltipItem.datasetIndex].xAxisID === 'x-axis-0';
-        },
-        callbacks: {
-          beforeLabel: function (tooltipItem, data) {
-            const date: Date = data.labels[tooltipItem.index];
-            return [
-              data.datasets[tooltipItem.datasetIndex].stack,
-              dateService.jsDateToDMYString(date),
-            ];
-          },
-          label: () => { }, // Disable to default color cb
-          afterLabel: function (tooltipItem, data) {
-            const info = [];
-            data.datasets.forEach((dset, _i) => {
-              if (dset.data[tooltipItem.index] > 0) {
-                info.push(dset.label + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' hours'));
-              }
-            });
-            return info;
-          },
-          title: function (tooltipItem, data) {
-            // Prevents a bug from showing up in the bar chart tooltip
-          }
-        }
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      legend: {
-        display: true, // this.dset.isFirst,
-        labels: {
-          defaultFontSize: 24,
-          defaultFontStyle: 'bold',
-          filter: (legItem, chart) => {
-            return chart.datasets[legItem.datasetIndex].showInLegend;
-          }
-        },
-        onClick: (event: MouseEvent, legItem) => {
-          const Key = legItem.text;
-          const _dsets = this.chart.config.data.datasets;
-          _dsets.forEach(dset => {
-            const metaKey = Object.keys(dset._meta)[0];
-            if (dset.label === Key && dset._meta[metaKey]) {
-              dset._meta[metaKey].hidden = dset._meta[metaKey].hidden ? undefined : true;
-            }
-          });
-          this.chart.update();
-        }
-      },
-      scales: {
-        xAxes: [{
-          id: 'x-axis-0',
-          stacked: true,
-          display: false,
-          min: 0,
-        }, {
-          id: 'x-axis-time',
-          type: 'time',
-          display: true,
-          beginAtZero: false,
-          time: {
-            unit: 'day'
-          },
-          ticks: {
-            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMin),
-            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.dateMax + 1),
-            maxTicksLimit: 21,
-          },
-          gridLines: {
-            display: false,
-          }
-        }],
-        yAxes: [{
-          id: 'y-axis-0',
-          scaleLabel: {
-            display: true,
-            labelString: 'Number of hours',
-          },
-          ticks: {
-            min: 0,
-            max: 24,
-            stepSize: 4,
-          }
-        }],
-      },
-      annotation: {
-        events: ['mouseover', 'mouseout', 'dblclick', 'click'],
-      },
-      onClick: function (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {
-        if (this.lastClick !== undefined && now() - this.lastClick < 300) {
-          // Two clicks < 300ms ==> double click
-          if (chartElt.length > 0) {
-            chartElt = chartElt[chartElt.length - 1];
-            const dataElt = chartElt._chart.data.datasets[chartElt._datasetIndex];
-            if (dataElt.callback !== undefined) {
-              dataElt.callback(chartElt._index);
-            }
-          }
-        }
-        this.lastClick = now();
-      }
-    }
-  });
-}
-
-
   reset() {
     this.chart.destroy();
   }
 
+}
+
+interface fuelObject {
+  date: Date,
+  fuelUsedDepartM3: Number | Number[],
+  fuelUsedReturnM3:  Number | Number[],
+  fuelUsedTotalM3:  Number | Number[],
 }
 
 interface DatasetModel {

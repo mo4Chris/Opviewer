@@ -18,6 +18,8 @@ export class CtvKpiOverviewComponent implements OnChanges {
   @Input() matlabDateMin: number;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
+  @Input() minDate: number;
+  @Input() maxDate: number;
 
   kpis: ctvKpi[][] = [[{
     month: 'Test Date',
@@ -31,8 +33,6 @@ export class CtvKpiOverviewComponent implements OnChanges {
     cargoUpKg: 1,
   }]];
   currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
-  private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
-  private defaultMinDate: number;
 
   constructor(
     private newService: CommonService,
@@ -40,18 +40,18 @@ export class CtvKpiOverviewComponent implements OnChanges {
     private calcService: CalculationService,
     private ref: ChangeDetectorRef,
   ) {
-    this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
   }
 
   ngOnChanges() {
+    console.log
     this.loadData();
   }
 
   loadData() {
     const makeRequest = (reqFields: string[]) => {
       return {
-        dateMin: this.matlabDateMin ? Math.max(this.defaultMinDate, this.matlabDateMin) : this.defaultMinDate, // 1 november 2019
-        dateMax: this.dateService.getMatlabDateYesterday(),
+        dateMin: this.minDate,
+        dateMax: this.maxDate,
         mmsi: this.mmsi,
         reqFields: reqFields,
       };

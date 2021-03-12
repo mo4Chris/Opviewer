@@ -1,18 +1,13 @@
-<div [hidden]="noData" class="row">
-    <div class="col-lg-8">
-      <div class="canvas-container">
-        <canvas #canvas id="canvas">
-        </canvas>
-      </div>
-    </div>
-    <div class="col-lg-3 hideOnPrint">
-      {{info}}
-    </div>
-  
-    <div class="col-print-11 printOnly">
-      <div class="card mb-3">
-        <div class="card-header">Additional information</div>
-        <!-- <div class="card-body">{{info}}</div> -->
-      </div>
-    </div>
-  </div>
+<div class="row" *ngIf="!noData; else noUtilGraph">
+  <ng-container *ngFor="let dset of dsets" >
+          <div class="graphContainer">
+            <app-fuel-average-overview-graph [dateMin]="vesselObject.dateMin" [dateMax]="vesselObject.dateMax"
+            [dset]="dset" ></app-fuel-average-overview-graph>
+          </div>
+  </ng-container>
+</div>
+
+
+<ng-template #noUtilGraph>
+<div class="row">Utilization graph is not available!</div>
+</ng-template>
