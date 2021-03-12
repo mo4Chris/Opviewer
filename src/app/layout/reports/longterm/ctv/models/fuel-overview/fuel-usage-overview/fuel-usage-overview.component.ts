@@ -26,7 +26,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
   chart: Chart;
   private backgroundcolors = LongtermColorScheme.backgroundColors;
 
-  info = `Fuel consumptionfgcdred34cx  for each day in the selected period.
+  info = `Fuel consumption for each day in the selected period.
   When engine and fuel stats are monitored this will be used as a default value. 
   This value can be overwritten manually by the vesselmaster. 
   The manually inputted value is leading of the automatically retrieved value`;
