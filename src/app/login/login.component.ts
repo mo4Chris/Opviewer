@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
           }
         } else {
           this.alert.sendAlert({
-            text: 'Something is wrong, contact BMO Offshore',
+            text: 'Something is wrong, contact MO4',
             type: 'danger'
           });
         }

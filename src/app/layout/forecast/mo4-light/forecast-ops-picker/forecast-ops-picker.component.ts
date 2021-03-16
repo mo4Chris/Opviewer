@@ -15,6 +15,7 @@ import { ForecastLimit, ForecastOperation } from '../../models/forecast-response
 })
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
+  @Input() vessels: any[];
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
   @Input() maxForecastDate: YMD; // From Response
@@ -27,13 +28,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   public selectedProject: ForecastOperation;
   public date: YMD;
-  public projectStartDate: string;
-  public projectStopDate: string;
 
   public startTime: number;
   public stopTime: number;
-  public startTimeInput = {hour: null, mns: null};
-  public stopTimeInput = {hour: null, mns: null};
+  public startTimeInput = {hour: null, mns: <any> '00'};
+  public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
 
   private operationTimeChanged = false;
@@ -61,21 +60,19 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get timeValid() {
     return this.stopTime && this.startTime && this.stopTime > this.startTime;
   }
+  public get selectedVesselName() {
+    const vessel_id = this.selectedProject?.vessel_id;
+    const vessel = this?.vessels?.find(vessel => vessel.id === vessel_id);
+    return vessel?.type || 'N/a';
+  }
 
   ngOnChanges(changes: SimpleChanges = {}) {
-    if (this.selectedProjectId) { this.onNewSelectedOperation(); }
-    if (changes.minForecastDate) { this.date = this.minForecastDate; }
+    if (this.selectedProjectId) this.onNewSelectedOperation();
+    if (changes.minForecastDate) this.date = this.minForecastDate;
   }
   onNewSelectedOperation() {
-    this.selectedProject = this.projects.find(project => project.id == this.selectedProjectId);
-    this.projectStartDate = this.formatTime(this.selectedProject.activation_start_date);
-    this.projectStopDate = this.formatTime(this.selectedProject.activation_end_date);
+    this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
   }
-
-  private formatTime(t: string) {
-    return this.dateService.isoStringToDmyString(t);
-  }
-
   public onHeadingChange() {
     this.headingChanged = true;
     this.heading = this.heading % 360;
@@ -84,13 +81,13 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public onOpsChange() {
     this.routerService.routeToForecast(this.selectedProjectId);
   }
-  public onTimeChange() {
+  public onTimeChange(change: any) {
     this.operationTimeChanged = true;
     if ( this.date
-      && inRange(this.startTimeInput.hour, 0, 24)
-      && inRange(this.startTimeInput.mns, 0, 59)
-      && inRange(this.stopTimeInput.hour, 0, 24)
-      && inRange(this.stopTimeInput.mns, 0, 59)
+      && inRange(+this.startTimeInput.hour, 0, 24)
+      && inRange(+this.startTimeInput.mns, 0, 59)
+      && inRange(+this.stopTimeInput.hour, 0, 24)
+      && inRange(+this.stopTimeInput.mns, 0, 59)
     ) {
       const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
       this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
@@ -98,6 +95,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
       const duration = this.stopTime - this.startTime;
       this.formattedDuration = this.dateService.formatMatlabDuration(duration);
     }
+  }
+  public onLimitsChange() {
+    this.limitChanged = true;
   }
   public onAddLimitsLine() {
     this.limitChanged = true;
@@ -108,7 +108,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.limits.pop();
   }
   public onConfirm () {
-    if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
+    // if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
     this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.onChange.emit({
       startTime: this.startTime,
@@ -119,10 +119,16 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.limitChanged = false;
     this.operationTimeChanged = false;
   }
+  public appendLeadingZeros(event) {
+    const input: HTMLInputElement = event.srcElement;
+    if (!isNaN(+input.value) && input.value.length === 1) {
+      input.value = '0' + input.value;
+    }
+  }
 }
 
 function inRange(obj: any, min = 0, max = 100) {
-  return typeof(obj) == 'number' && obj >= min && obj <= max;
+  return typeof(obj) === 'number' && obj >= min && obj <= max;
 }
 
 

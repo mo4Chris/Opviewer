@@ -26,11 +26,8 @@ var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, function(err, response) {
-  if (err) {
-    logger.fatal(err);
-  } else {
-    logger.info('Connected to Database');
-  }
+  if (err) return logger.fatal(err);
+  logger.info('Connected to mongo database');
 }).catch(err => {
   logger.fatal(err);
 });
@@ -48,9 +45,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function(req, res, next) {
   const allowedOrigins = process.env.IP_USER;
   const origin = req.headers.origin;
-  if (allowedOrigins.indexOf(origin) > -1) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+  const hasMultipleOrigins = allowedOrigins.indexOf(origin) > -1;
+  if (hasMultipleOrigins) res.setHeader('Access-Control-Allow-Origin', origin);
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
