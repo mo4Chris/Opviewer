@@ -19,7 +19,6 @@ const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]
 const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
 const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const TEST_MODE       = args.TEST_MODE      ?? process.env.TEST_MODE              ?? false;
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 mongo.set('useFindAndModify', false);
@@ -651,7 +650,9 @@ function verifyToken(req, res) {
 
     Usermodel.findByIdAndUpdate(payload.userID, {
       lastActive: new Date()
-    }).exec();
+    }).exec().catch(err => {
+      logger.error('Failed to update last active status of user')
+    });
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -726,7 +727,7 @@ app.post("/api/login", function (req, res) {
     if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
     
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const isLocalHost = ip == '::1' || ip === '' || TEST_MODE;
+    const isLocalHost = ip == '::1' || ip === '';
     const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
     const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
     if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
