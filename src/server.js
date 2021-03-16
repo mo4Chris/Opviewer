@@ -9,18 +9,27 @@ var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
+var args = require('minimist')(process.argv.slice(2));
 
-const SERVER_ADDRESS = process.env.IP_USER.split(",")[0] || 'bmodataviewer.com';
-const WEBMASTER_MAIL = process.env.EMAIL ?? 'webmaster@mo4.online'
-const SECURE_METHODS = ['GET', 'POST', 'PUT']
 
+//#########################################################
+//########## These can be configured via stdin ############
+//#########################################################
+const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
+const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
+const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
+const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
+
+const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 mongo.set('useFindAndModify', false);
-var db = mongo.connect(process.env.DB_CONN, {
+var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, function(err, response) {
   if (err) return logger.fatal(err);
   logger.info('Connected to mongo database');
+}).catch(err => {
+  logger.fatal(err);
 });
 
 var app = express();
@@ -34,8 +43,8 @@ app.get("/api/connectionTest", function(req, res) {
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
-  var allowedOrigins = process.env.IP_USER;
-  var origin = req.headers.origin;
+  const allowedOrigins = process.env.IP_USER;
+  const origin = req.headers.origin;
   const hasMultipleOrigins = allowedOrigins.indexOf(origin) > -1;
   if (hasMultipleOrigins) res.setHeader('Access-Control-Allow-Origin', origin);
 
@@ -59,8 +68,6 @@ let transporter = nodemailer.createTransport({
 //#########################################################
 //##################   Models   ###########################
 //#########################################################
-
-
 var Schema = mongo.Schema;
 var userSchema = new Schema({
   username: { type: String },
@@ -639,7 +646,9 @@ function verifyToken(req, res) {
 
     Usermodel.findByIdAndUpdate(payload.userID, {
       lastActive: new Date()
-    }).exec();
+    }).exec().catch(err => {
+      logger.error('Failed to update last active status of user')
+    });
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -714,8 +723,8 @@ app.post("/api/login", function (req, res) {
     if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
     
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const isLocalHost = ip == '::1';
-    const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, req.body.confirm2fa) != null)
+    const isLocalHost = ip == '::1' || ip === '';
+    const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
     const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
     if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
 
@@ -786,6 +795,7 @@ fileUploadServer(app, logger)
 //####################################################################
 
 app.get("/api/checkUserActive/:user", function(req, res) {
+  // Currently any user can check if any other user is active...
   Usermodel.find({
     username: req.params.user,
     active: 1
@@ -3100,8 +3110,8 @@ app.post('/api/saveUserSettings', function(req, res) {
   });
 });
 
-app.listen(8080, function() {
-  logger.info('MO4 Dataviewer listening on port 8080!');
+app.listen(SERVER_PORT, function() {
+  logger.info(`MO4 Dataviewer listening on port ${SERVER_PORT}!`);
 });
 
 
@@ -3163,3 +3173,5 @@ Number.prototype.padLeft = function(base, chr) {
   var len = (String(base || 10).length - String(this).length) + 1;
   return len > 0 ? new Array(len).join(chr || '0') + this : this;
 }
+
+module.exports = app;

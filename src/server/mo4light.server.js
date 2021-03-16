@@ -12,8 +12,10 @@ const headers = {
 
 module.exports = function(app, logger) {
   try {
-    pool.connect()
-    logger.info(`Connected to pg database at host ${pool.host}`)
+    pool.connect(err => {
+      if (err) return logger.fatal({msg: `Failed  to connect to pg database at host ${pool.host}`, error: err})
+      logger.info(`Connected to pg database at host ${pool.host}`)
+    })
   } catch (err) {
     logger.fatal(err)
   }
