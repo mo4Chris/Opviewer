@@ -1,8 +1,5 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
-import { CommonService } from '@app/common.service';
-import { TokenModel } from '@app/models/tokenModel';
-import { DatetimeService } from '@app/supportModules/datetime.service';
-import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import * as Chart from 'chart.js';
 import { LongtermColorScheme } from '../../../../models/color_scheme';
 import { LongtermProcessingService } from '../../../../models/longterm-processing-service.service';
@@ -18,6 +15,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
 
   constructor(
     private parser: LongtermProcessingService,
+    private calcService: CalculationService,
     ) {}
 
 
@@ -25,6 +23,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
   vesselName = '';
   chart: Chart;
   private backgroundcolors = LongtermColorScheme.backgroundColors;
+  noData = true;
 
   info = `Fuel consumption for each day in the selected period.
   When engine and fuel stats are monitored this will be used as a default value. 
@@ -35,14 +34,14 @@ export class FuelUsageOverviewComponent implements OnChanges {
     if (this.chart) {
       this.reset();
     }
-
     this.processDataForGraph(this.retrievedData);
   }
 
   processDataForGraph(rawData) {
     const dataset = [];
-    if (rawData !== undefined) {
-      rawData.forEach((vesselDataset, index) => {
+    if (rawData.input !== undefined || rawData.engines !== undefined) {
+      this.noData = false;
+      rawData.input.forEach((vesselDataset, index) => {
         const datasetSet = {
           label: '',
           data: [],
@@ -57,7 +56,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
             y: 0
           };
           xyDataset.x = this.parser.parseScatterDate(vesselDataset.date[_index]);
-          xyDataset.y = this.getFuelValue(vesselDataset, _index) ?? 0;
+          xyDataset.y = this.getFuelValue(vesselDataset, rawData?.engines[index]?.fuelUsedTotalM3[_index], _index) ?? 0;
 
           if (xyDataset.y !== 0) {
             datasetSet.data.push(xyDataset);
@@ -65,6 +64,8 @@ export class FuelUsageOverviewComponent implements OnChanges {
         }
         dataset.push(datasetSet);
       });
+    } else {
+      this.noData = true;
     }
 
 
@@ -109,20 +110,30 @@ export class FuelUsageOverviewComponent implements OnChanges {
     this.chart.update();
   }
 
+  private isInvalidData(data) {
+    if (data == undefined) {
+      return true;
+    }
+    return ['_ArrayType_'].some((key: string) => {
+      if (data[key]) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
   reset() {
     this.chart.destroy();
   }
 
-  private getFuelValue(dprs, i: number) {
+  private getFuelValue(dprs, engines, i : number) {
     if (dprs?.inputStats[i]?.fuelConsumption > 0) {
       return dprs?.inputStats[i]?.fuelConsumption;
-    } else if (dprs?.DPRstats[i]?.TotalFuel !== 'n/a') {
-      return dprs?.DPRstats[i]?.TotalFuel;
-    } else {
-      return null;
+    } else if (!this.isInvalidData(engines) && typeof engines === 'number' && engines > 0) {
+      return this.calcService.switchUnits(engines || 0, 'm3', 'liter');
     }
   }
-
 }
 
 interface DatasetModel {

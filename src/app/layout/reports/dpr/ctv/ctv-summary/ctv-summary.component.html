@@ -2,7 +2,7 @@
 
 
   <h3 id="generalStatisticsHeader">General statistics
-    <button class="btn btn-primary submitBtnDate"  (click)="saveGeneralStats()"type="button">Save general stats</button>
+    <button *ngIf="this.tokenInfo.userPermission == 'Vessel master'" class="btn btn-primary submitBtnDate"  (click)="saveGeneralStats()"type="button">Save general stats</button>
   </h3>  
   <div class="row">
     <div class="col-lg-4">
@@ -55,7 +55,7 @@
           <tr>
               <td>Waste oil landed</td>
               <td *ngIf="this.tokenInfo.userPermission == 'Vessel master'"><input id="wasteOilInput" type="number" min="0" step="10" [(ngModel)]="generalInputStats.landedOil" class="form-control-sm col-sm-10"> liters</td>
-              <td id="wasteOilReadonly" *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats?.landedOil, 100, ' liters')}}</td>
+              <td id="wasteOilReadonly" *ngIf="this.tokenInfo.userPermission != 'Vessel master'">{{roundNumber(generalInputStats?.landedOil, 100, ' liter')}}</td>
           </tr>
           <tr>
               <td>Garbage landed</td>
@@ -240,7 +240,7 @@
             {{generalInputStats?.customInput}}</td>
         </tr>
       </table>
-      <button class="btn btn-lg btn-primary submitBtnDate" style="float:right;" (click)="saveGeneralStats()"type="button">Save general stats</button>
+      <button *ngIf="this.tokenInfo.userPermission == 'Vessel master'" class="btn btn-lg btn-primary submitBtnDate" style="float:right;" (click)="saveGeneralStats()"type="button">Save general stats</button>
     </div>
   </div>
 </div>

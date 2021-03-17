@@ -43,7 +43,6 @@ export class CtvKpiOverviewComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    console.log
     this.loadData();
   }
 
@@ -58,23 +57,26 @@ export class CtvKpiOverviewComponent implements OnChanges {
     };
     forkJoin([
       this.newService.getTransfersForVesselByRangeForCTV(makeRequest(['fieldname', 'paxUp', 'paxDown', 'cargoUp', 'cargoDown'])),
-      this.newService.getCtvInputsByRange(makeRequest(['inputStats','DPRstats', 'date'])
-      )]).subscribe(([transfers, dprs]) => {
+      this.newService.getCtvInputsByRange(makeRequest(['inputStats','DPRstats', 'date'])),
+      this.newService.getEngineStatsForRange(makeRequest(['fuelUsedTotalM3', 'date'])
+      )]).subscribe(([transfers, dprs, engines]) => {
         this.kpis = [];
 
         this.mmsi.forEach((_mmsi, _i) => {
           const matchedTransfers  = transfers.find(val => val._id == _mmsi) || {};
           const matchedDprs       = dprs.find(val => val._id == _mmsi) || {};
+          const matchedEngines    = engines.find(val => val._id == _mmsi) || {};
 
           const dpr         = this.dateService.groupDataByMonth(matchedDprs);
           const _transfers  = this.dateService.groupDataByMonth(matchedTransfers);
+          const _engines    = this.dateService.groupDataByMonth(matchedEngines);
           const _kpis       = [];
 
-          dpr.forEach(_dpr => {
+          dpr.forEach((_dpr, index) => {
             const filter    = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
             const transfer  = filter(_transfers);
             const site      = transfer ? transfer.fieldname[0] : 'N/a';
-            _kpis.push(this.computeKpiForMonth({ site: site }, _dpr, transfer));
+            _kpis.push(this.computeKpiForMonth({ site: site }, _dpr, _engines[index], transfer));
           });
           this.kpis.push(_kpis.reverse());
         });
@@ -82,7 +84,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
       });
   }
 
-  computeKpiForMonth(info: { site: string }, dprs, turbine: any): ctvKpi {
+  computeKpiForMonth(info: { site: string }, dprs, engines, turbine: any): ctvKpi {
     const kpi: ctvKpi = <ctvKpi>{};
     kpi.month           = dprs.month.dateString;
     kpi.site            = this.formatFieldName(info.site);
@@ -95,9 +97,8 @@ export class CtvKpiOverviewComponent implements OnChanges {
       numDaysInMonth = dprs.month.numDays;
     }
     for (let i = 0; i < dprs.date.length; i++) {
-     
-      fuelUsed                 += this.getFuelValue(dprs, i) ||  0;
-      sailedMiles              += dprs?.DPRstats[i]?.sailedDistance || 0;
+      fuelUsed                 += this.getFuelValue(dprs, engines, i) ??  0;
+      sailedMiles              += dprs?.DPRstats[i]?.sailedDistance ?? 0;
     }
     let paxTransfer = 0, cargoUpKg = 0, cargoDownKg = 0,  cargoOps = 0;
     if (turbine) {
@@ -108,9 +109,13 @@ export class CtvKpiOverviewComponent implements OnChanges {
       cargoOps        += turbine.cargoUp    .filter(value => value > 0).length;
       cargoOps        += turbine.cargoDown  .filter(value => value > 0).length;
     }
-    kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' Ltrs');
-    kpi.fuelUsedPerWorkingDay   = this.calcService.roundNumber(fuelUsed / sailedMiles || 0, 10, ' litres / NM');
-    kpi.totalDistanceSailed     = this.calcService.roundNumber(sailedMiles || 0, 10, '  Nm');;
+    kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' l');
+    if (sailedMiles > 0){
+      kpi.fuelUsedPerWorkingDay = this.calcService.roundNumber(fuelUsed / sailedMiles || 0, 10, ' l / NM');
+    } else {
+      kpi.fuelUsedPerWorkingDay = 'N/a';
+    }
+    kpi.totalDistanceSailed     = this.calcService.roundNumber(sailedMiles || 0, 10, ' NM');
     kpi.totalPaxTransfered      = paxTransfer;
     kpi.cargoUpKg               = cargoUpKg;
     kpi.cargoDownKg             = cargoDownKg;
@@ -139,11 +144,11 @@ export class CtvKpiOverviewComponent implements OnChanges {
     }
   }
 
-  private getFuelValue(dprs, i : number) {
+  private getFuelValue(dprs, engines, i : number) {
     if (dprs?.inputStats[i]?.fuelConsumption > 0) {
       return dprs?.inputStats[i]?.fuelConsumption;
-    } else if (dprs?.DPRstats[i]?.TotalFuel !== "n/a") {
-      return dprs?.DPRstats[i]?.TotalFuel;
+    } else if (engines?.fuelUsedTotalM3[i] !== "n/a" && typeof engines?.fuelUsedTotalM3[i] === 'number' && engines?.fuelUsedTotalM3[i] > 0) {
+      return this.calcService.switchUnits(engines?.fuelUsedTotalM3[i] || 0, 'm3', 'liter');
     }
   }
 }

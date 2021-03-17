@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -23,6 +23,7 @@ export class FuelAverageOverviewComponent implements OnChanges {
 
 
   @Input() vesselObject;
+  @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
   vesselName = '';
   chart: Chart;
   noData = true;
@@ -98,6 +99,10 @@ private isInvalidData(data) {
   });
 }
 
+navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
+  this.navigateToVesselreport.emit(navItem);
+}
+
 private buildGraphCallback (TimeBreakdowns, breakdownDates: number[], index: number, vesselname: string) {
   const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
   const dateLabels = matlabDates.map((daynum: number) => {
@@ -113,6 +118,10 @@ private buildGraphCallback (TimeBreakdowns, breakdownDates: number[], index: num
       xAxisID: 'x-axis-0',
       yAxisID: 'y-axis-0',
       backgroundColor: LongtermColorScheme.missingData, // vColor.replace('1)', (5 - _j) / 5 + ')'),
+      callback: (index: number) => this.navigateToDPR({
+        mmsi: this.vesselObject.mmsi[0],
+        matlabDate: matlabDates[index],
+      }),
       categoryPercentage: 1.0,
       barPercentage: 1.0,
     };

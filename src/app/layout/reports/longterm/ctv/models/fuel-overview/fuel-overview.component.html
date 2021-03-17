@@ -1,5 +1,5 @@
 <app-fuel-usage-overview *ngIf="!noData" [retrievedData]="retrievedData"
 ></app-fuel-usage-overview>
 
-<app-fuel-average-overview *ngIf="!noData" [vesselObject]="vesselObject"
+<app-fuel-average-overview *ngIf="!noData" [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
 ></app-fuel-average-overview>

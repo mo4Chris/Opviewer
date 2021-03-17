@@ -153,7 +153,7 @@ describe('CtvSummaryComponent', () => {
       component.engine.fuelUsedTotalM3 = 2;
       component.getValueForFuelConsumed();
       
-      expect(component.fuelConsumedValue).toBe("2 m³");
+      expect(component.fuelConsumedValue).toBe("2000.0 liter");
       expect(component).toBeTruthy;
     })
 
@@ -164,7 +164,7 @@ describe('CtvSummaryComponent', () => {
       component.engine.fuelUsedTotalM3 = 0;
       component.getValueForFuelConsumed();
       
-      expect(component.fuelConsumedValue).toBe("3 m³");
+      expect(component.fuelConsumedValue).toBe("3 liter");
       expect(component).toBeTruthy;
     })
 
@@ -174,7 +174,7 @@ describe('CtvSummaryComponent', () => {
       component.engine.fuelUsedTotalM3 = 5;
       component.getValueForFuelConsumed();
       
-      expect(component.fuelConsumedValue).toBe("3 m³");
+      expect(component.fuelConsumedValue).toBe("3 liter");
       expect(component).toBeTruthy;
     })
 

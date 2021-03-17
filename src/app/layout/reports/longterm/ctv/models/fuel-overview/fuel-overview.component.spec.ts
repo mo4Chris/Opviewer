@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
@@ -10,10 +11,14 @@ describe('FuelOverviewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule,
+      ],
       declarations: [ FuelOverviewComponent ],
       providers: [
         MockedCommonServiceProvider,
-        MockedUserServiceProvider
+        MockedUserServiceProvider,
+        
       ]
     })
     .compileComponents();

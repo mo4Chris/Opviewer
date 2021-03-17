@@ -41,7 +41,15 @@ describe('FuelAverageOverviewGraphComponent', () => {
       ],
       isFirst: true,
       datasets : [{
-        stack: ''
+        label: '',
+        data: [],
+        stack: '',
+        showInLegend: true,
+        xAxisID: '',
+        yAxisID: '',
+        backgroundColor: '',
+        categoryPercentage: 0,
+        barPercentage: 0 
       }]
     };
     expect(component).toBeTruthy();
@@ -58,7 +66,40 @@ describe('FuelAverageOverviewGraphComponent', () => {
       ],
       isFirst: false,
       datasets : [{
-        stack: ''
+        label: '',
+        data: [],
+        stack: '',
+        showInLegend: true,
+        xAxisID: '',
+        yAxisID: '',
+        backgroundColor: '',
+        categoryPercentage: 0,
+        barPercentage: 0 
+      }]
+    };
+    expect(component).toBeTruthy();
+  });
+
+  it('should create vessel with dataset', () => {
+
+    component.dateMin = 738126;
+    component.dateMax = 738169;
+    component.dset = {
+      labels : [
+        'Tue Dec 01 2020 01:00:00 GMT+0100 (Central European Standard Time)',
+        'Wed Dec 02 2020 01:00:00 GMT+0100 (Central European Standard Time)'
+      ],
+      isFirst: true,
+      datasets : [{
+        label: 'test 1',
+        data: [0, 1, 2, 3, 4],
+        stack: 'testvessel',
+        showInLegend: true,
+        xAxisID: 'x-axis-0',
+        yAxisID: 'y-axis-0',
+        backgroundColor: '#000',
+        categoryPercentage: 1,
+        barPercentage: 1 
       }]
     };
     expect(component).toBeTruthy();

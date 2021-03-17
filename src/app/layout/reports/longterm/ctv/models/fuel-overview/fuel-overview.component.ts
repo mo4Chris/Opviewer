@@ -2,8 +2,10 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, 
 import { CommonService } from '@app/common.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { RouterService } from '@app/supportModules/router.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
+import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { LongtermColorScheme } from '../../../models/color_scheme';
 import { LongtermProcessingService } from '../../../models/longterm-processing-service.service';
 
@@ -18,8 +20,7 @@ export class FuelOverviewComponent implements OnChanges {
 
   constructor(
     private newService: CommonService,
-    private dateService: DatetimeService,
-    private parser: LongtermProcessingService,
+    private routerService: RouterService,
     ){}
 
   @Input() vesselObject: { dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[], vesselname: string[] };
@@ -27,6 +28,7 @@ export class FuelOverviewComponent implements OnChanges {
   @Input() tokenInfo: TokenModel;
   @Input() fromDate: NgbDate;
   @Input() toDate: NgbDate;
+  @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
 
   retrievedData;
@@ -39,17 +41,29 @@ export class FuelOverviewComponent implements OnChanges {
     this.getDataForGraph();
   }
 
-  getDataForGraph() {
-    this.newService.getCtvInputsByRange({
-      mmsi: this.vesselObject.mmsi,
-      dateMin: this.vesselObject.dateMin,
-      dateMax: this.vesselObject.dateMax,
-      reqFields: ['DPRstats', 'inputStats', 'date']
-    }).subscribe((rawdata) => {
+  navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
+    this.routerService.routeToDPR({ mmsi: navItem.mmsi, date: navItem.matlabDate });
+  }
 
-      if (rawdata.length > 0 && rawdata[0].date.length > 0) {
+  getDataForGraph() {
+    const makeRequest = (reqFields: string[]) => {
+      return {
+        dateMin: this.vesselObject.dateMin,
+        dateMax:  this.vesselObject.dateMax,
+        mmsi: this.vesselObject.mmsi,
+        reqFields: reqFields,
+      };
+    };
+    forkJoin([
+      this.newService.getCtvInputsByRange(makeRequest(['inputStats', 'date'])),
+      this.newService.getEngineStatsForRange(makeRequest(['fuelUsedTotalM3', 'date'])
+      )]).subscribe(([rawdata, engines]) => {
+      if ((rawdata.length > 0 && rawdata[0].date.length > 0) || (engines.length > 0 && engines[0].date.length > 0)) {
         this.noData = false;
-        this.retrievedData = rawdata;
+        this.retrievedData = {
+          'input': rawdata,
+          'engines': engines
+        }
       } else {
         this.noData = true;
       }

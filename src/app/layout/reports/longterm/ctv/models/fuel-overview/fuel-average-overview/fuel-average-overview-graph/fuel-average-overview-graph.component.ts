@@ -17,7 +17,15 @@ export class FuelAverageOverviewGraphComponent implements OnChanges {
     labels: string[],
     isFirst: boolean,
     datasets: {
-      stack: string
+      label: string;
+      data: any[];
+      stack: string;
+      showInLegend: boolean;
+      xAxisID: string;
+      yAxisID: string;
+      backgroundColor: string;
+      categoryPercentage: number;
+      barPercentage: number;
     }[],
   };
 
@@ -73,7 +81,7 @@ export class FuelAverageOverviewGraphComponent implements OnChanges {
               const info = [];
               data.datasets.forEach((dset, _i) => {
                 if (dset.data[tooltipItem.index] > 0) {
-                  info.push(dset.label + ': ' + calcService.GetDecimalValueForNumber(dset.data[tooltipItem.index], ' litres'));
+                  info.push(dset.label + ': ' +  calcService.switchUnitAndMakeString(dset.data[tooltipItem.index] || 0, 'liter', 'liter'));
                 }
               });
               return info;
