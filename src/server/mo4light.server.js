@@ -1,6 +1,7 @@
 var ax = require('axios');
 
-const baseUrl = process.env.AZURE_URL ?? 'https://mo4-light.azurewebsites.net';
+// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+const baseUrl = "http://127.0.0.1:5000/"
 const token   = process.env.AZURE_TOKEN;
 const http    = ax.default;
 const headers = {
@@ -9,6 +10,8 @@ const headers = {
 }
 
 module.exports = function(app, logger) {
+  logger.info(`Connecting to hydro database at ${baseUrl}`)
+
   function onError(res, err, additionalInfo = 'Internal server error') {
     if (typeof(err) == 'object') {
       err.debug = additionalInfo;
@@ -49,6 +52,7 @@ module.exports = function(app, logger) {
     }).catch(err => {
       onError(res, err)
     })
+    console.log('start', new Date(start))
   });
 
   app.get('/api/mo4light/getProjectList', (req, res) => {
@@ -97,8 +101,10 @@ module.exports = function(app, logger) {
 
   app.get('/api/mo4light/getClients', (req, res) => {
     // TODO this endpoint might need to be removed / changed
+    const start = Date.now()
     const token = req['token'];
     pg_get('/clientlist').then((out, err) => {
+      console.log(`Receiving azure clients response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data['clients'];
       // ToDo: filter data by token rights
