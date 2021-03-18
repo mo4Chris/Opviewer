@@ -134,21 +134,21 @@
             "protractorConfig": "./e2e/conf.vm.ctv.js"
           },
           "configurations": {
-            "admin" : {
+            "admin": {
               "protractorConfig": "e2e/conf.admin.js"
             },
-            "ls" : {
+            "ls": {
               "protractorConfig": "e2e/conf.ls.js"
             },
-            "mc" : {
+            "mc": {
               "protractorConfig": "e2e/conf.mc.js"
             },
-            "vm-ctv" : {
+            "vm-ctv": {
               "protractorConfig": "e2e/conf.vm.ctv.js"
             },
-            "vm-sov" : {
+            "vm-sov": {
               "protractorConfig": "e2e/conf.vm.sov.js"
-            }          
+            }
           }
         },
         "lint": {

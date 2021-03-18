@@ -63,9 +63,9 @@ export class CtvSummaryComponent implements OnChanges {
 
   getValueForFuelConsumed() {
     if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
-      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, 'm3'); 
+      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter'); 
     } else if (this.engine.fuelUsedTotalM3) {
-      this.fuelConsumedValue = this.roundNumber(this.engine.fuelUsedTotalM3, 10, 'm3');
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(this.roundNumber(this.engine.fuelUsedTotalM3, 10), 'm3', 'liter');
     } 
   }
 

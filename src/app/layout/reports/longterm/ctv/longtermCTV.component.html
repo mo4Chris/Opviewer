@@ -8,7 +8,13 @@
         <div *ngIf="!allGraphsEmpty; else noData">
             <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
-            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>
+
+            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [minDate]="vesselObject.dateMin" [maxDate]="vesselObject.dateMax" [vesselNames]="vesselNames"
+            [fromDate]="fromDate" [toDate]="toDate"
+            ></app-ctv-kpi-overview>
+
+            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>  
+
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"
                     [wavedata]="mergedWavedata" (navigateToVesselreport)="navigateToDPR($event)"
@@ -21,8 +27,11 @@
                 [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"> 
                 </app-ctv-utilization-graph>
             </div>
-            
 
+            <app-fuel-overview [vesselObject]="vesselObject" [vesselNames]="vesselNames" 
+            [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"
+            ></app-fuel-overview>
+            
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
                 <ng-container [ngSwitch]="transfer_Data.graph">
                     <app-longterm-scatter-graph *ngSwitchCase="'scatter'" [data]="transfer_Data" [vesselObject]="vesselObject"

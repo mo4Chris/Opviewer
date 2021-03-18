@@ -1,0 +1,8 @@
+<div class="row" *ngIf="!noData; else noUtilGraph">
+  <ng-container *ngFor="let dset of dsets" >
+          <div class="graphContainer">
+            <app-fuel-average-overview-graph [dateMin]="vesselObject.dateMin" [dateMax]="vesselObject.dateMax"
+            [dset]="dset" ></app-fuel-average-overview-graph>
+          </div>
+  </ng-container>
+</div>

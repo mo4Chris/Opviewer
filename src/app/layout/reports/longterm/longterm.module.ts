@@ -19,6 +19,7 @@ import { DeploymentGraphComponent } from './ctv/models/deploymentgraph/deploymen
 import { UtilizationGraphComponent } from './sov/models/longterm_utilization/utilizationGraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
 import { SiemensKpiOverviewComponent } from './sov/models/siemens-kpi-overview/siemens-kpi-overview.component';
+import { CtvKpiOverviewComponent } from './ctv/models/kpi-overview/ctv-kpi-overview.component';
 import { LongtermBarGraphComponent } from './models/longterm-bar-graph/longterm-bar-graph.component';
 import { LongtermTrendGraphComponent } from './models/longterm-trend-graph/longterm-trend-graph.component';
 import { LongtermScatterGraphComponent } from './models/longterm-scatter-graph/longterm-scatter-graph.component';
@@ -27,6 +28,10 @@ import { LongtermPrintHeaderComponent } from './models/longterm-print-header/lon
 import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerbar/longterm-print-headerbar.component';
+import { FuelOverviewComponent } from './ctv/models/fuel-overview/fuel-overview.component';
+import { FuelUsageOverviewComponent } from './ctv/models/fuel-overview/fuel-usage-overview/fuel-usage-overview.component';
+import { FuelAverageOverviewComponent } from './ctv/models/fuel-overview/fuel-average-overview/fuel-average-overview.component';
+import { FuelAverageOverviewGraphComponent } from './ctv/models/fuel-overview/fuel-average-overview/fuel-average-overview-graph/fuel-average-overview-graph.component';
 
 @NgModule({
     imports: [
@@ -49,12 +54,17 @@ import { LongtermPrintHeaderbarComponent } from './models/longterm-print-headerb
         VesselinfoComponent,
         LongtermComponent,
         SiemensKpiOverviewComponent,
+        CtvKpiOverviewComponent,
         LongtermScatterGraphComponent,
         LongtermBarGraphComponent,
         LongtermTrendGraphComponent,
         LongtermPrintHeaderComponent,
         EngineOverviewComponent,
         LongtermPrintHeaderbarComponent,
+        FuelOverviewComponent,
+        FuelUsageOverviewComponent,
+        FuelAverageOverviewComponent,
+        FuelAverageOverviewGraphComponent,
     ],
     providers: [CommonService, UserService],
     bootstrap: [LongtermComponent],
