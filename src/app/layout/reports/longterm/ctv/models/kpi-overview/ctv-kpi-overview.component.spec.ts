@@ -9,7 +9,10 @@ import { mockedObservable } from '@app/models/testObservable';
 describe('CtvKpiOverviewComponent', () => {
   let component: CtvKpiOverviewComponent;
   let fixture: ComponentFixture<CtvKpiOverviewComponent>;
-
+  let transferSpy;
+  let dprSpy;
+  let engineSpy;
+  
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -32,6 +35,10 @@ describe('CtvKpiOverviewComponent', () => {
     component.maxDate = 738189;
     component.mmsi = [987654321];
     component.vesselNames = ['Test CTV'];
+
+    transferSpy = spyOn(MockedCommonService.prototype, 'getTransfersForVesselByRangeForCTV');
+    dprSpy =  spyOn(MockedCommonService.prototype, 'getCtvInputsByRange');
+    engineSpy = spyOn(MockedCommonService.prototype, 'getEngineStatsForRange');
 
     fixture.detectChanges();
   });
@@ -79,13 +86,13 @@ describe('CtvKpiOverviewComponent', () => {
     }]
 
 
-    spyOn(MockedCommonService.prototype, 'getTransfersForVesselByRangeForCTV').and.returnValue(mockedObservable(transfers));
-    spyOn(MockedCommonService.prototype, 'getCtvInputsByRange').and.returnValue(mockedObservable(dprs));
-    spyOn(MockedCommonService.prototype, 'getEngineStatsForRange').and.returnValue(mockedObservable(engines));
+    transferSpy.and.returnValue(mockedObservable(transfers));
+    dprSpy.and.returnValue(mockedObservable(dprs));
+    engineSpy.and.returnValue(mockedObservable(engines));
     
     fixture.detectChanges();
     
-    component.loadData();
+    component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
     expect(component.kpis[0][0].cargoDownKg).toBe(1);
@@ -127,13 +134,13 @@ describe('CtvKpiOverviewComponent', () => {
     }]
 
 
-    spyOn(MockedCommonService.prototype, 'getTransfersForVesselByRangeForCTV').and.returnValue(mockedObservable(transfers));
-    spyOn(MockedCommonService.prototype, 'getCtvInputsByRange').and.returnValue(mockedObservable(dprs));
-    spyOn(MockedCommonService.prototype, 'getEngineStatsForRange').and.returnValue(mockedObservable(engines));
+    transferSpy.and.returnValue(mockedObservable(transfers));
+    dprSpy.and.returnValue(mockedObservable(dprs));
+    engineSpy.and.returnValue(mockedObservable(engines));
     
     fixture.detectChanges();
     
-    component.loadData();
+    component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
     expect(component.kpis[0][0].cargoDownKg).toBe(1);
@@ -174,13 +181,13 @@ describe('CtvKpiOverviewComponent', () => {
     }]
 
 
-    spyOn(MockedCommonService.prototype, 'getTransfersForVesselByRangeForCTV').and.returnValue(mockedObservable(transfers));
-    spyOn(MockedCommonService.prototype, 'getCtvInputsByRange').and.returnValue(mockedObservable(dprs));
-    spyOn(MockedCommonService.prototype, 'getEngineStatsForRange').and.returnValue(mockedObservable(engines));
+    transferSpy.and.returnValue(mockedObservable(transfers));
+    dprSpy.and.returnValue(mockedObservable(dprs));
+    engineSpy.and.returnValue(mockedObservable(engines));
     
     fixture.detectChanges();
     
-    component.loadData();
+    component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
     expect(component.kpis[0][0].cargoDownKg).toBe(1);
@@ -221,13 +228,13 @@ describe('CtvKpiOverviewComponent', () => {
     }]
 
 
-    spyOn(MockedCommonService.prototype, 'getTransfersForVesselByRangeForCTV').and.returnValue(mockedObservable(transfers));
-    spyOn(MockedCommonService.prototype, 'getCtvInputsByRange').and.returnValue(mockedObservable(dprs));
-    spyOn(MockedCommonService.prototype, 'getEngineStatsForRange').and.returnValue(mockedObservable(engines));
+    transferSpy.and.returnValue(mockedObservable(transfers));
+    dprSpy.and.returnValue(mockedObservable(dprs));
+    engineSpy.and.returnValue(mockedObservable(engines));
     
     fixture.detectChanges();
     
-    component.loadData();
+    component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
     expect(component.kpis[0][0].cargoDownKg).toBe(1);

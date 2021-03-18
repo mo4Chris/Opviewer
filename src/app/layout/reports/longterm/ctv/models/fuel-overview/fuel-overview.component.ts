@@ -24,10 +24,6 @@ export class FuelOverviewComponent implements OnChanges {
     ){}
 
   @Input() vesselObject: { dateMin: number, dateMax: number, dateNormalMin: string, dateNormalMax: string, mmsi: number[], vesselname: string[] };
-  @Input() vesselNames;
-  @Input() tokenInfo: TokenModel;
-  @Input() fromDate: NgbDate;
-  @Input() toDate: NgbDate;
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
 
