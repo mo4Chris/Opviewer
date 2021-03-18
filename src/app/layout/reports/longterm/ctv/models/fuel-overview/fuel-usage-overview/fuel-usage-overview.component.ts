@@ -111,15 +111,11 @@ export class FuelUsageOverviewComponent implements OnChanges {
   }
 
   private isInvalidData(data) {
-    if (data == undefined) {
-      return true;
+    if (typeof data != "object"){
+      return true
     }
     return ['_ArrayType_'].some((key: string) => {
-      if (data[key]) {
-        return true;
-      } else {
-        return false;
-      }
+      return Boolean(data[key]);
     });
   }
 
