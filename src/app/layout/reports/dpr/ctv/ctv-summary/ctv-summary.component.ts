@@ -28,7 +28,7 @@ export class CtvSummaryComponent implements OnChanges {
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   
-  public fuelConsumedValue = '0 m³';
+  public fuelConsumedValue = '0 liter';
   public tripEfficiency = 'N/a';
 
   constructor(
