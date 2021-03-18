@@ -59,7 +59,7 @@ export class FuelAverageOverviewComponent implements OnChanges {
           const chartData = [];
           const matlabDates = rawdata.date;
           for (let _index = 0; _index < rawdata.date.length; _index++) {
-            const generalDataDay: fuelObject = {
+            const generalDataDay: FuelObject = {
               date: rawdata.date[_index],
               fuelUsedDepartM3: 0,
               fuelUsedReturnM3: 0,
@@ -194,11 +194,11 @@ private matchVesselnameByMmsi(mmsi: number) {
 
 }
 
-interface fuelObject {
-  date: Date,
-  fuelUsedDepartM3: Number | Number[],
-  fuelUsedReturnM3:  Number | Number[],
-  fuelUsedTotalM3:  Number | Number[],
+interface FuelObject {
+  date: Date;
+  fuelUsedDepartM3: Number | Number[];
+  fuelUsedReturnM3:  Number | Number[];
+  fuelUsedTotalM3:  Number | Number[];
 }
 
 interface DatasetModel {

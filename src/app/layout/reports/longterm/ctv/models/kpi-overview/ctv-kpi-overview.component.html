@@ -1,9 +1,8 @@
-
 <div class="row">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3 cardPrint">
-      <div class="card-header">
-        User inputted performance
+      <div [ngbTooltip]="helpStatisticsTable" class="card-header">
+        Operational vessel statistics
       </div>
       <div class="card-body table-responsive">
         <table class="table printtable table-hover table-striped">
@@ -45,17 +44,21 @@
 </div>
 
 <ng-template #helpTotalFuelConsumption>
-  Rounded number of fuel consumed. Combines both engine data and manually inputted data (manual input has priority)
+  Total amount of fuel used per vessel per month. Prefers user set values if fuel count was manually changed in DPR
 </ng-template>
 <ng-template #helpSailingDistance>
-  Rounded number of distance traveled per working day in nautical miles. This data is automatically gathered.
+  Total amount of distance traveled per working day in nautical miles. This data is automatically gathered using the on-board systems.
 </ng-template>
 <ng-template #helpFuelUsedPerWorkingDay>
-  Rounded average number of fuel consumed per nautical mile. Combines both engine data and manually inputted data (manual input has priority)
+  Average fuel consumption per nautical mile. Combines both engine data and manually inputted data (manual input has priority). Does not take in field activities into account.
 </ng-template>
 <ng-template #helpPaxTransfered>
   Total amount of pax transfered in a month. This combines ingoing and outgoing pax.
 </ng-template>
 <ng-template #helpCargoOperations>
   Total amount of cargo operations. This does not display weight or cargo counts. Only the amount of times operations took place.
+</ng-template>
+<ng-template #helpStatisticsTable>
+  This table shows the performance of the vessel during pax and cargo operations as well as transit statistics. This is a combination of user inputted values as well as engine statistics.
+  If both sources are available, user inputted values are displayed.
 </ng-template>

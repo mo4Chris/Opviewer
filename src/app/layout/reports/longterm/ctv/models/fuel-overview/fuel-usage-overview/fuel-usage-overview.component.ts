@@ -26,8 +26,8 @@ export class FuelUsageOverviewComponent implements OnChanges {
   noData = true;
 
   info = `Fuel consumption for each day in the selected period.
-  When engine and fuel stats are monitored this will be used as a default value. 
-  This value can be overwritten manually by the vesselmaster. 
+  When engine and fuel stats are monitored this will be used as a default value.
+  This value can be overwritten manually by the vesselmaster.
   The manually inputted value is leading of the automatically retrieved value`;
 
   ngOnChanges(): void {
@@ -110,24 +110,15 @@ export class FuelUsageOverviewComponent implements OnChanges {
     this.chart.update();
   }
 
-  private isInvalidData(data) {
-    if (typeof data != "object"){
-      return true
-    }
-    return ['_ArrayType_'].some((key: string) => {
-      return Boolean(data[key]);
-    });
-  }
-
   reset() {
     this.chart.destroy();
   }
 
-  private getFuelValue(dprs, engines, i : number) {
+  private getFuelValue(dprs, engines, i: number) {
     if (dprs?.inputStats[i]?.fuelConsumption > 0) {
       return dprs?.inputStats[i]?.fuelConsumption;
-    } else if (!this.isInvalidData(engines) && typeof engines === 'number' && engines > 0) {
-      return this.calcService.switchUnits(engines || 0, 'm3', 'liter');
+    } else if (typeof engines === 'number' && engines > 0) {
+      return this.calcService.switchUnits(engines, 'm3', 'liter');
     }
   }
 }
