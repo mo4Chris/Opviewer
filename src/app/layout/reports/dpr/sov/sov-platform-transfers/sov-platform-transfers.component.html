@@ -58,7 +58,7 @@
                     (ngModelChange)="updatePaxCargoTotal()"> lift off
                 </td>
                 <td>{{platformTransfer.peakWindGust}}</td>
-                <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                <td>{{platformTransfer.Hs}}</td>
                 <td>{{GetDecimalValueForNumber(platformTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
@@ -260,7 +260,7 @@
                   {{platformTransfer.cargoOut || 0}} lift off
                 </td>
                 <td>{{platformTransfer.peakWindGust}}</td>
-                <td>{{GetDecimalValueForNumber(platformTransfer.Hs)}}</td>
+                <td>{{platformTransfer.Hs}}</td>
                 <td>{{GetDecimalValueForNumber(platformTransfer.Hmax)}}</td>
               </tr>
             </ng-container>
