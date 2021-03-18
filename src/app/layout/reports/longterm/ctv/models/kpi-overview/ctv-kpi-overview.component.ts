@@ -16,8 +16,6 @@ export class CtvKpiOverviewComponent implements OnChanges {
   @Input() mmsi: number[];
   @Input() vesselNames: string[];
   @Input() matlabDateMin: number;
-  @Input() fromDate: NgbDate;
-  @Input() toDate: NgbDate;
   @Input() minDate: number;
   @Input() maxDate: number;
 

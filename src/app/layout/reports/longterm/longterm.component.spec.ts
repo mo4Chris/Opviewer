@@ -25,6 +25,11 @@ import { mockedObservable } from '@app/models/testObservable';
 import { EngineOverviewComponent } from './ctv/models/engine-overview/engine-overview.component';
 import { CtvUtilizationGraphComponent } from './ctv/models/longterm_utilization/utilizationGraph.component';
 import { CtvLongtermUtilSubGraphComponent } from './ctv/models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
+import { FuelOverviewComponent } from './ctv/models/fuel-overview/fuel-overview.component';
+import { FuelUsageOverviewComponent } from './ctv/models/fuel-overview/fuel-usage-overview/fuel-usage-overview.component';
+import { FuelAverageOverviewComponent } from './ctv/models/fuel-overview/fuel-average-overview/fuel-average-overview.component';
+import { FuelAverageOverviewGraphComponent } from './ctv/models/fuel-overview/fuel-average-overview/fuel-average-overview-graph/fuel-average-overview-graph.component';
+import { CtvKpiOverviewComponent } from './ctv/models/kpi-overview/ctv-kpi-overview.component';
 
 describe('LongtermComponent', () => {
     let component: LongtermComponent;
@@ -58,6 +63,11 @@ describe('LongtermComponent', () => {
                     EngineOverviewComponent,
                     CtvUtilizationGraphComponent,
                     CtvLongtermUtilSubGraphComponent,
+                    FuelOverviewComponent,
+                    CtvKpiOverviewComponent,
+                    FuelUsageOverviewComponent,
+                    FuelAverageOverviewComponent,
+                    FuelAverageOverviewGraphComponent
                 ),
             ],
             providers: [

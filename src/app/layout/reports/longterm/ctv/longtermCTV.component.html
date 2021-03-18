@@ -10,7 +10,6 @@
             </app-vesselinfo>
 
             <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [minDate]="vesselObject.dateMin" [maxDate]="vesselObject.dateMax" [vesselNames]="vesselNames"
-            [fromDate]="fromDate" [toDate]="toDate"
             ></app-ctv-kpi-overview>
 
             <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>  
@@ -28,8 +27,7 @@
                 </app-ctv-utilization-graph>
             </div>
 
-            <app-fuel-overview [vesselObject]="vesselObject" [vesselNames]="vesselNames" 
-            [fromDate]="fromDate" [toDate]="toDate" (navigateToVesselreport)="navigateToDPR($event)"
+            <app-fuel-overview [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
             ></app-fuel-overview>
             
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">

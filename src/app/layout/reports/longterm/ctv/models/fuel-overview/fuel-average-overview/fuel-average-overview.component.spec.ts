@@ -39,8 +39,6 @@ describe('FuelAverageOverviewComponent', () => {
       dateNormalMin: '',
       dateNormalMax: '',
     };
-    component.vesselObject.dateMin = new NgbDate(2019, 1, 1);
-    component.vesselObject.dateMax = new NgbDate(2019, 2, 1);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.noData).toBe(true);
@@ -56,8 +54,6 @@ describe('FuelAverageOverviewComponent', () => {
       dateNormalMin: '',
       dateNormalMax: '',
     };
-    component.vesselObject.dateMin = new NgbDate(2019, 1, 1);
-    component.vesselObject.dateMax = new NgbDate(2019, 2, 1);
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.noData).toBe(false);

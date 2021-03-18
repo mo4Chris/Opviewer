@@ -14,9 +14,12 @@ import { LongtermBarGraphComponent } from '../models/longterm-bar-graph/longterm
 import { LongtermScatterGraphComponent } from '../models/longterm-scatter-graph/longterm-scatter-graph.component';
 import { LongtermTrendGraphComponent } from '../models/longterm-trend-graph/longterm-trend-graph.component';
 import { CtvUtilizationGraphComponent } from './models/longterm_utilization/utilizationGraph.component';
+import { FuelOverviewComponent } from './models/fuel-overview/fuel-overview.component';
+import { CtvKpiOverviewComponent } from './models/kpi-overview/ctv-kpi-overview.component';
 import { CtvLongtermUtilSubGraphComponent } from './models/longterm_utilization/longterm-util-sub-graph/longterm-util-sub-graph.component';
 import { MockComponents } from 'ng-mocks';
 import { EngineOverviewComponent } from './models/engine-overview/engine-overview.component';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('Longterm_CTV', () => {
   let component: LongtermCTVComponent;
@@ -37,6 +40,7 @@ describe('Longterm_CTV', () => {
         PageHeaderModule,
         CommonModule,
         NgMultiSelectDropDownModule,
+        RouterTestingModule
       ],
       declarations: [
         LongtermCTVComponent,
@@ -48,7 +52,9 @@ describe('Longterm_CTV', () => {
         CtvUtilizationGraphComponent,
         CtvLongtermUtilSubGraphComponent,
         MockComponents(
-          EngineOverviewComponent
+          EngineOverviewComponent,
+          FuelOverviewComponent,
+          CtvKpiOverviewComponent,
         )
       ],
       providers: [
