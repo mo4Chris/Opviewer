@@ -721,7 +721,7 @@ export class MockedCommonService extends CommonService {
     const dateMin = 737700;
     const dateMax = 737702;
     const N = 49;
-    return mockedObservable({
+    const weather = {
       source: 'test data',
       timeStamp: linspace(dateMin, dateMax, N),
       Hs: linspace(1, 2, N),
@@ -729,7 +729,14 @@ export class MockedCommonService extends CommonService {
       waveDir: linspace(1, 2, N),
       windSpeed: linspace(1, 2, N),
       windDir: linspace(1, 2, N),
-    });
+    }
+    const spectrum = {
+      timeStamp: linspace(dateMin, dateMax, N),
+      k_x: [],
+      k_y: [],
+      density: [[[]]],
+    }
+    return mockedObservable({weather, spectrum});
   }
   getForecastSpectrumForResponse(id: number) {
     const dateMin = 737700;
@@ -762,7 +769,7 @@ export class MockedCommonService extends CommonService {
         }
       }
     };
-    return mockedObservable([responseObj]);
+    return mockedObservable(responseObj);
   }
   getForecastProjectsForClient(client_id: number) {
     return mockedObservable([{

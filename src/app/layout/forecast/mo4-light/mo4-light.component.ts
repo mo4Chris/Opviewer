@@ -24,10 +24,10 @@ export class Mo4LightComponent implements OnInit {
   public showContent = false;
   public vessels: string[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
-  public response: ForecastResponseObject;
+  public responseObj: ForecastResponseObject;
 
-  private Response: ForecastResponse;
-  public ReponseTime: Date[];
+  private response: ForecastResponse;
+  public reponseTime: Date[];
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
@@ -75,12 +75,13 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastVesselList(), // Tp
       this.newService.getForecastWorkabilityForProject(this.project_id),
     ]).subscribe(([projects, vessels, responses]) => {
+      console.log(responses)
       this.vessels = vessels;
-      this.response = responses[0];
+      this.responseObj = responses;
       this.operations = projects;
       this.showContent = true;
-      if (this.response) {
-        const responseTimes = this.response.response.Points_Of_Interest.P1.Time;
+      if (this.responseObj) {
+        const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
         this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
         this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
@@ -91,7 +92,7 @@ export class Mo4LightComponent implements OnInit {
 
         this.loadWeather();
       } else {
-        this.response = null;
+        this.responseObj = null;
         this.Workability = null;
         this.limits = [];
       }
@@ -102,11 +103,10 @@ export class Mo4LightComponent implements OnInit {
 
   loadWeather() {
     forkJoin([
-      this.newService.getForecastWeatherForResponse(this.response.id),
-      this.newService.getForecastSpectrumForResponse(this.response.id)
-    ]).subscribe(([weather, spectrum]) => {
-      this.weather = weather;
-      this.spectrum = spectrum;
+      this.newService.getForecastWeatherForResponse(this.project_id)
+    ]).subscribe(([weathers]) => {
+      this.weather = weathers.weather;
+      this.spectrum = weathers.spectrum;
     }, error => {
       console.error(error);
     });
@@ -125,10 +125,12 @@ export class Mo4LightComponent implements OnInit {
   }
 
   parseResponse() {
-    if (!this.response || this.limits.length === 0) { return this.Workability = null; }
-    const POI = this.response.response.Points_Of_Interest.P1;
-    this.Response = POI.Response;
-    this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
+    if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
+    console.log(this.responseObj)
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
+    console.log('POI', POI)
+    this.response = <any> POI;// POI.Response;
+    this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
@@ -136,7 +138,9 @@ export class Mo4LightComponent implements OnInit {
 
   computeWorkability() {
     const limiters = this.limits.map(limit => {
-      return this.responseService.computeLimit(this.Response[limit.type], limit.dof, limit.value);
+      console.log(this.response)
+      console.log(limit)
+      return this.responseService.computeLimit(this.response[limit.type], limit.dof, limit.value);
     });
     this.Workability = this.matService.scale(
       this.matService.transpose(
@@ -147,7 +151,7 @@ export class Mo4LightComponent implements OnInit {
   }
 
   setWorkabilityAlongHeading() {
-    const POI = this.response.response.Points_Of_Interest.P1;
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
   }

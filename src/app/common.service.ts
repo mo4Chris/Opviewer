@@ -549,7 +549,7 @@ export class CommonService {
     return this.get('/api/mo4light/getClients');
   }
 
-  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject[]> {
+  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject> {
     return this.get('/api/mo4light/getResponseForProject/' + project_id);
   }
 
@@ -561,13 +561,8 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectById/' + id);
   }
 
-  getForecastWeatherForResponse(id: number): Observable<RawWaveData> {
+  getForecastWeatherForResponse(id: number): Observable<{weather: RawWaveData, spectrum: any}> {
     return this.post('/api/mo4light/weather', {
-      response_id: id
-    })
-  }
-  getForecastSpectrumForResponse(id: number): Observable<any> {
-    return this.post('/api/mo4light/spectrum', {
       response_id: id
     })
   }
