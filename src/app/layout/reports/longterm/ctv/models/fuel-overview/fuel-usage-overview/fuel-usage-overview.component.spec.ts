@@ -22,6 +22,11 @@ describe('FuelUsageOverviewComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(FuelUsageOverviewComponent);
     component = fixture.componentInstance;
+    component.vesselObject = {
+      mmsi: [235084466],
+      vesselName: ['testvessel']
+    }
+    
     fixture.detectChanges();
   });
 

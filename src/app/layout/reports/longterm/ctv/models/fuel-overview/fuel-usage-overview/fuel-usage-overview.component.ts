@@ -20,6 +20,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
 
 
   @Input() retrievedData;
+  @Input() vesselObject; 
   vesselName = '';
   chart: Chart;
   private backgroundcolors = LongtermColorScheme.backgroundColors;
@@ -48,8 +49,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
           borderColor: this.backgroundcolors[index],
           backgroundColor: this.backgroundcolors[index]
         };
-
-        datasetSet.label = vesselDataset.label[0];
+        datasetSet.label = this.getCorrectLabel(vesselDataset);
         for (let _index = 0; _index < vesselDataset.date.length; _index++) {
           const xyDataset = {
             x: new Date,
@@ -70,6 +70,16 @@ export class FuelUsageOverviewComponent implements OnChanges {
 
 
     this.createGraph(dataset);
+  }
+
+  getCorrectLabel(vesselDataset) {
+    const arrayLocation = this.vesselObject.mmsi.findIndex(value => value == vesselDataset._id)
+
+    if (arrayLocation !== -1) {
+      return this.vesselObject.vesselName[arrayLocation];
+    } else {
+      vesselDataset.label[0]
+    }
   }
 
   createGraph(dataset) {
