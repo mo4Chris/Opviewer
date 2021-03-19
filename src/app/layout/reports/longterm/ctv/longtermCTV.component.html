@@ -9,10 +9,10 @@
             <app-vesselinfo class="graphContainer" [mmsi]="vesselObject.mmsi" (navigateToVesselreport)="navigateToDPR($event)">
             </app-vesselinfo>
 
-            <app-ctv-kpi-overview [mmsi]="vesselObject.mmsi" [minDate]="vesselObject.dateMin" [maxDate]="vesselObject.dateMax" [vesselNames]="vesselNames"
+            <app-ctv-kpi-overview class="graphContainer" [mmsi]="vesselObject.mmsi" [minDate]="vesselObject.dateMin" [maxDate]="vesselObject.dateMax" [vesselNames]="vesselNames"
             ></app-ctv-kpi-overview>
 
-            <app-engine-overview [vesselObject]="vesselObject"></app-engine-overview>  
+            <app-engine-overview class="graphContainer" [vesselObject]="vesselObject"></app-engine-overview>  
 
             <div class="graphContainer" *ngIf="wavedataAvailabe">
                 <app-deployment-graph [vesselObject]="vesselObject" [fromDate]="fromDate" [toDate]="toDate"
@@ -27,7 +27,7 @@
                 </app-ctv-utilization-graph>
             </div>
 
-            <app-fuel-overview [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
+            <app-fuel-overview class="graphContainer" [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
             ></app-fuel-overview>
             
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">
