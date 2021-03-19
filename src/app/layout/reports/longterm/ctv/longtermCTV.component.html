@@ -27,7 +27,7 @@
                 </app-ctv-utilization-graph>
             </div>
 
-            <app-fuel-overview [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
+            <app-fuel-overview class="graphContainer" [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
             ></app-fuel-overview>
             
             <div class="graphContainer" *ngFor="let transfer_Data of comparisonArray;let ind = index">

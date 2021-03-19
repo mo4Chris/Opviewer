@@ -75,7 +75,7 @@ export class FuelUsageOverviewComponent implements OnChanges {
   createGraph(dataset) {
 
     this.chart = new Chart(this.canvas.nativeElement, {
-      type: 'scatter',
+      type: 'bar',
       data: {datasets: dataset},
       options: {
         title: {
