@@ -48,8 +48,8 @@
             <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"
               (onOpen)="openVesselModal($event)" id="selectField" class="multiSelectDiv"
               (onSelect)="selectField($event)" (onDeSelect)="deselectField($event)"
-              [placeholder]="'Select field to add wavedata'" [data]="fieldsWithWavedata"
-              [settings]="fieldSelectSettings">
+              [placeholder]="'Select field to add wavedata'" [settings]="fieldSelectSettings"
+              [data]="fieldsWithWavedata" >
             </ng-multiselect-dropdown>
           </div>
           <button id="printButton" class="selectBtn btn btn-outline-primary space-right" (click)="onPrint()">
