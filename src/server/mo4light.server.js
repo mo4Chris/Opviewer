@@ -39,7 +39,9 @@ module.exports = function(app, logger) {
     const token = req['token'];
     const start = Date.now()
     const client_id = 2;
+    log('Starting azure vessel request')
     pg_get('/vessels', {client_id}).then(async (out, err) => {
+      log(`Receiving azure vessel list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const datas = out.data['vessels'];
       const data_out = datas.map(data => {
@@ -62,7 +64,9 @@ module.exports = function(app, logger) {
   app.get('/api/mo4light/getProjectList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
+    log('Start azure project list request')
     pg_get('/projects').then(async (out, err) => {
+      log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data['projects'];
       const project_output = data.map(d => {
@@ -106,7 +110,9 @@ module.exports = function(app, logger) {
     // TODO this endpoint might need to be removed / changed
     const start = Date.now()
     const token = req['token'];
+    log('Start azure client request')
     pg_get('/clientlist').then((out, err) => {
+      log(`Receiving azure clients response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data['clients'];
       // ToDo: filter data by token rights
@@ -119,7 +125,10 @@ module.exports = function(app, logger) {
   app.get('/api/mo4light/getResponseForProject/:project_id', (req, res) => {
     const project_id = req.params.project_id;
     const token = req['token'];
+    const start = Date.now()
+    log('Start azure response request')
     pg_get('/response/' + project_id).then((out, err) => {
+      log(`Receiving azure motion response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data
       res.send(data)
