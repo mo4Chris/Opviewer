@@ -10,7 +10,7 @@ import { ForecastOperation, ForecastResponseObject, Dof6Array } from '../models/
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
-import { RawWaveData } from '@app/models/wavedataModel';
+import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
 
 @Component({
   selector: 'app-mo4-light',
@@ -43,7 +43,7 @@ export class Mo4LightComponent implements OnInit {
   public formattedDuration = 'N/a';
 
   public weather: RawWaveData;
-  public spectrum: any;
+  public spectrum: RawSpectralData;
 
   constructor(
     private newService: CommonService,
@@ -68,34 +68,54 @@ export class Mo4LightComponent implements OnInit {
     }));
   }
 
-  loadData() {
+  loadData(): void {
+    // return this.newService.getForecastWorkabilityForProject(this.project_id).subscribe()
     // ToDo: only rerout if no permission to forecasting module
     forkJoin([
       this.newService.getForecastProjectList(),
       this.newService.getForecastVesselList(), // Tp
       this.newService.getForecastWorkabilityForProject(this.project_id),
     ]).subscribe(([projects, vessels, responses]) => {
-      console.log(responses)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
       this.showContent = true;
-      if (this.responseObj) {
-        const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
-        this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
-        this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
-        const currentOperation = this.operations.find(op => op.id === this.project_id);
-        this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
-
-        this.parseResponse();
-
-        this.loadWeather();
-      } else {
+      if (!this.responseObj) {
         this.responseObj = null;
         this.Workability = null;
         this.limits = [];
+        return;
       }
+
+      const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
+      this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
+      this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
+
+      const currentOperation = this.operations.find(op => op.id === this.project_id);
+      this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+
+      this.parseResponse();
+
+      // TEMPORARY WORKAROUND FOR WEATHER
+      const raw_weather = this.response['MetoceanData'];
+      const param = raw_weather.Wave.Parametric
+      this.weather = {
+        timeStamp: raw_weather.Time,
+        Hs: param.Hs,
+        Hmax: param.Hmax,
+        Tp: param.Tp,
+        source: 'Infoplaza'
+      }
+      const spectral = raw_weather.Wave.Spectral
+      this.spectrum = {
+        source: 'Infoplaza',
+        k_x: [],
+        k_y: [],
+        density: spectral.Density,
+        timeStamp: this.weather.timeStamp,
+      }
+      // this.loadWeather();
     }, error => {
       this.routeService.routeToAccessDenied();
     });
@@ -126,9 +146,7 @@ export class Mo4LightComponent implements OnInit {
 
   parseResponse() {
     if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
-    console.log(this.responseObj)
     const POI = this.responseObj.response.Points_Of_Interest.P1;
-    console.log('POI', POI)
     this.response = <any> POI;// POI.Response;
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
@@ -137,10 +155,11 @@ export class Mo4LightComponent implements OnInit {
   }
 
   computeWorkability() {
+    if (!(this.limits?.length > 0 )) return this.Workability = null;
+    const response = this.response['Response']
+
     const limiters = this.limits.map(limit => {
-      console.log(this.response)
-      console.log(limit)
-      return this.responseService.computeLimit(this.response[limit.type], limit.dof, limit.value);
+      return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value);
     });
     this.Workability = this.matService.scale(
       this.matService.transpose(

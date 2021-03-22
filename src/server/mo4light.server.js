@@ -1,12 +1,18 @@
 var ax = require('axios');
 
 // const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
-const baseUrl = "http://127.0.0.1:5000/"
+const baseUrl = "http://127.0.0.1:5000"
 const token   = process.env.AZURE_TOKEN;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
-  'Authorization': `Bearer ${token}` 
+  'Authorization': `Bearer ${token}`
+}
+
+function log(message) {
+  const today = new Date()
+  const ts = today.toString().slice(16,24) + '.' + today.getMilliseconds();
+  console.log(`${ts}: ${message}`)
 }
 
 module.exports = function(app, logger) {
@@ -22,8 +28,8 @@ module.exports = function(app, logger) {
         error: err,
       }
     }
-    logger.error(err.message)
-    console.log(err)
+    logger.error(err)
+    // console.log(err)
 
 
     res.status(500).send(additionalInfo);
@@ -34,7 +40,6 @@ module.exports = function(app, logger) {
     const start = Date.now()
     const client_id = 2;
     pg_get('/vessels', {client_id}).then(async (out, err) => {
-      console.log(`Receiving azure vessel list response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const datas = out.data['vessels'];
       const data_out = datas.map(data => {
@@ -52,14 +57,12 @@ module.exports = function(app, logger) {
     }).catch(err => {
       onError(res, err)
     })
-    console.log('start', new Date(start))
   });
 
   app.get('/api/mo4light/getProjectList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
     pg_get('/projects').then(async (out, err) => {
-      console.log(`Receiving azure project response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data['projects'];
       const project_output = data.map(d => {
@@ -74,7 +77,7 @@ module.exports = function(app, logger) {
           activation_start_date: d.activation_start_date,
           activation_end_date: d.activation_start_date,
           client_preferences: d.client_preferences,
-          vessel_id: d.vessel.type
+          vessel_id: d.vessel_id
         }
       })
       // ToDo: filter data by token rights
@@ -104,7 +107,6 @@ module.exports = function(app, logger) {
     const start = Date.now()
     const token = req['token'];
     pg_get('/clientlist').then((out, err) => {
-      console.log(`Receiving azure clients response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
       const data = out.data['clients'];
       // ToDo: filter data by token rights
@@ -190,7 +192,7 @@ module.exports = function(app, logger) {
     if (!data) return http.get(url, {headers});
     return http.get(url, {data, headers});
   }
-  
+
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
     return http.post(url, data, {headers})

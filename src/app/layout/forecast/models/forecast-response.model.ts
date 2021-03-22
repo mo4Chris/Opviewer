@@ -80,4 +80,3 @@ export interface ForecastLimit {
 export type Dof6Array = number[][][]; // Time x Heading x Dof6
 export type Dof6 = 'Surge' | 'Sway' | 'Heave' | 'Roll' | 'Pitch' | 'Yaw';
 export type DofType = 'Disp' | 'Vel' | 'Acc';
-
