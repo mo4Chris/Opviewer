@@ -1,7 +1,6 @@
 var ax = require('axios');
 
-// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
-const baseUrl = "http://127.0.0.1:5000"
+const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const token   = process.env.AZURE_TOKEN;
 const http    = ax.default;
 const headers = {
@@ -29,8 +28,6 @@ module.exports = function(app, logger) {
       }
     }
     logger.error(err)
-    // console.log(err)
-
 
     res.status(500).send(additionalInfo);
   }
