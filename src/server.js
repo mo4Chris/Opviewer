@@ -9,6 +9,7 @@ var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
+var mo4AdminServer = require('./server/administrative.server.js')
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -789,7 +790,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-
+mo4AdminServer(app, logger)
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################

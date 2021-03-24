@@ -533,6 +533,11 @@ export class CommonService {
     return this.get('/api/mo4light/connectionTest');
   }
 
+  getAdministrativeConnectionTest() {
+    console.log('entered common service');
+    return this.get('/api/mo4admin/connectionTest');
+  }
+
   getForecastProjectList(): Observable<ForecastOperation[]> {
     return this.get('/api/mo4light/getProjectList');
   }

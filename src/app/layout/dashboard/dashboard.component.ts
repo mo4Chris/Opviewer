@@ -109,6 +109,11 @@ export class DashboardComponent implements OnInit {
   ///////////////////////////////
 
   ngOnInit() {
+    this.commonService.getAdministrativeConnectionTest().subscribe(result => {
+      console.log(result[0].username);
+    });
+
+
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         this.getAlert();
