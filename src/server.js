@@ -623,9 +623,20 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
-  err['res'] = res;
-  logger.error(err, additionalInfo)
-  res.status(500).send(additionalInfo);
+  try {
+    if (typeof err == 'object') {
+      err['res'] = res;
+    } else {
+      err = {
+        res: res,
+        err: err,
+      }
+    }
+    logger.error(err, additionalInfo)
+    res.status(500).send(additionalInfo);
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 function verifyToken(req, res) {
@@ -704,7 +715,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 
-mo4AdminServer(app, logger)
+mo4AdminServer(app, logger, onError, onUnauthorized)
 
 
 
@@ -727,7 +738,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminServer(app, logger, onError, onUnauthorized)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized)
 
 
 //####################################################################
