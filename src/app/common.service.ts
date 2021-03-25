@@ -534,7 +534,6 @@ export class CommonService {
   }
 
   getAdministrativeConnectionTest() {
-    console.log('entered common service');
     return this.get('/api/mo4admin/connectionTest');
   }
 

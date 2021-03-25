@@ -1,20 +1,20 @@
-var {Client, Pool} = require('pg')
+var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 const pool = new Client({
-    host: process.env.ADMIN_DB_HOST,
-    port: +process.env.ADMIN_DB_PORT,
-    database: process.env.ADMIN_DB_DATABASE,
-    user: process.env.ADMIN_DB_USER,
-    password: process.env.ADMIN_DB_PASSWORD,
-    ssl: false
+  host: process.env.ADMIN_DB_HOST,
+  port: +process.env.ADMIN_DB_PORT,
+  database: process.env.ADMIN_DB_DATABASE,
+  user: process.env.ADMIN_DB_USER,
+  password: process.env.ADMIN_DB_PASSWORD,
+  ssl: false
 })
 
 
-module.exports = function(app, logger, onError, onUnauthorized) {
+module.exports = function (app, logger, onError, onUnauthorized) {
   // ######################### SETUP CODE #########################
   pool.connect().then(() => {
     logger.info(`Connected to admin database at host ${pool.host}`)
@@ -28,7 +28,7 @@ module.exports = function(app, logger, onError, onUnauthorized) {
 
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest',
-      defaultPgLoaderMultiColumn('"userTable"', '"username", "password", "2fa"')
+    defaultPgLoaderMultiColumn('"userTable"', '"username", "password", "2fa"')
   )
 
   app.get('/api/mo4admin/getClients', (req, res) => {
@@ -88,67 +88,79 @@ module.exports = function(app, logger, onError, onUnauthorized) {
   });
 
   app.post("/api/registerUser", function (req, res) {
-    res.send({data: 'Great success!'})
+    res.send({ data: 'Great success!' })
   })
 
   app.post("/api/login", function (req, res) {
     let usernameInput = req.body.username;
-    let passwordInput = req.body.password;
-    let twofactorInput = req.body.confirm2fa;
-    let PgQuery = `SELECT username, password, "2fa" from public."userTable" where (username='${usernameInput}')`;
-    pool.query(PgQuery).then((data, err) => {
+    let token;
+    let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
+    "userTable"."active", "userTable".requires2fa, "userTable"."2fa", "clientTable"."client_name"
+    FROM "userTable"
+    INNER JOIN "clientTable"
+    ON "userTable"."client_id" = "clientTable"."client_id"
+    WHERE ("userTable"."username"='${usernameInput}')`;
+
+    pool.query(PgQuery).then(async (data, err) => {
       if (err) return onError(res, err);
-      if (data?.rows?.length > 0 ){
-          validateLogin(req, data.rows[0], res)
-      } else {
-        return onUnauthorized(res, 'User does not exist');
+      if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
+
+      let user = data.rows[0];
+      console.log(user);
+      const vessels = await getVesselsForUser(res);
+      if (validateLogin(req, user, res)) {
+        const expireDate = new Date();
+        const payload = {
+          userID: user.user_id,
+          //userPermission: user.permissions,
+          userPermission: 'admin',
+          userCompany: user.client_name,
+          userBoats: vessels,
+          username: user.username,
+          expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
+          //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
+        };
+        token = jwt.sign(payload, 'secretKey');
+        logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
+        return res.status(200).send({ token });
+
       }
-      //res.send(data.rows)
-    }).catch(err => onError(res, err))
-
+    }, (err) => {
+      onError(res, err);
+    })
     logger.info('Received login for user: ' + usernameInput);
-    // defaultPgLoaderMultiColumn('public."userTable"', '"username", "password", "2fa"')(function (err, user) {
-    // //   if (user.active == 0) return onUnauthorized(res, 'User is not active, please contact your supervisor');
-    // //   if (!user.password) return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
-    //if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
-
-    // //   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    // //   const isLocalHost = ip == '::1' || ip === '';
-    // //   const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
-    // //   const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
-    // //   if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
-
-    // //   let filter = user.permissions == 'admin' ? null : { client: user.client };
-    // //   turbineWarrantymodel.find(filter, function (err, data) {
-    // //     if (err) return onError(res, err)
-    // //     const expireDate = new Date();
-    // //     const payload = {
-    // //       userID: user._id,
-    // //       userPermission: user.permissions,
-    // //       userCompany: user.client,
-    // //       userBoats: user.boats,
-    // //       username: user.username,
-    // //       expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-    // //       hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
-    // //     };
-
-    // //     let token = jwt.sign(payload, 'secretKey');
-    // //     logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
-
-    // //     return res.status(200).send({ token });
-    // //  });
-    // });
   });
+
+  function getVesselsForUser(res) {
+    let PgQuery = `
+    SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
+      FROM "vesselTable"
+      INNER JOIN "userTable"
+      ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")`;
+    return pool.query(PgQuery).then((data, err) => {
+      if (err) return onError(res, err);
+      if (data.rows.length > 0) {
+        return data.rows;
+      } else {
+        return null;
+      }
+    });
+  };
+
 
   function validateLogin(req, user, res) {
     const userData = req.body;
-    //if (user.active == 0) return onUnauthorized(res, 'User is not active, please contact your supervisor');
+    if (!user.active) return onUnauthorized(res, 'User is not active, please contact your supervisor');
     if (!user.password || user.password == '') return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
     if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
 
-      const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      const isLocalHost = ip == '::1' || ip === '';
-      const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const isLocalHost = ip == '::1' || ip === '';
+    const secret2faValid = (user.secret2fa?.length > 0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
+    const doesNotRequire2fa = !user.requires2fa;
+
+    if (!isLocalHost && !secret2faValid && !doesNotRequire2fa) return onUnauthorized(res, '2fa is incorrect');
+    return true;
     // //   const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
     // //   if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
 
@@ -157,57 +169,37 @@ module.exports = function(app, logger, onError, onUnauthorized) {
     // //     if (err) return onError(res, err)
     const expireDate = new Date();
     const payload = {
-        //userID: user._id,
-        //userPermission: user.permissions,
-        //userCompany: user.client,
-        //userBoats: user.boats,
-        username: user.username,
-        expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-        //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
+      //userID: user._id,
+      //userPermission: user.permissions,
+      //userCompany: user.client,
+      //userBoats: user.boats,
+      username: user.username,
+      expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
+      //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
     };
 
     let token = jwt.sign(payload, 'secretKey');
     logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
 
     return res.status(200).send({ token });
+
   }
 
-//   function verifyToken(req, res) {
-//     try {
-//       if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
 
-//       const token = req.headers.authorization;
-//       if (token == null || token === 'null')  return onUnauthorized(res, 'Token missing!');
-
-//       const payload = jwt.verify(token, 'secretKey');
-//       if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
-
-//       Usermodel.findByIdAndUpdate(payload.userID, {
-//         lastActive: new Date()
-//       }).exec().catch(err => {
-//         logger.error('Failed to update last active status of user')
-//       });
-//       return payload;
-//     } catch (err) {
-//       return onError(res, err, 'Failed to parse jwt token')
-//     }
-//   }
-
-
-  function defaultPgLoader(table, fields = '*', filter=null) {
+  function defaultPgLoader(table, fields = '*', filter = null) {
     let PgQuery = '';
     if (fields == '*') {
-      PgQuery = `SELECT * from ${table}`;
+      PgQuery = `SELECT * from "${table}"`;
     } else if (typeof fields == 'string') {
-      PgQuery = `SELECT (${fields}) from ${table}`;
+      PgQuery = `SELECT (${fields}) from "${table}"`;
     } else {
       const fieldList = fields.join(', ');
-      PgQuery = `SELECT (${fieldList}) from ${table}`;
+      PgQuery = `SELECT (${fieldList}) from "${table}"`;
     }
     if (filter) {
       PgQuery = `${PgQuery} where ${filter}`
     }
-    return function(req, res) {
+    return function (req, res) {
       pool.query(PgQuery).then((data, err) => {
         if (err) return onError(res, err);
         if (fields == '*') return res.send(data.rows)
@@ -227,21 +219,21 @@ module.exports = function(app, logger, onError, onUnauthorized) {
     }
   }
 
-  function defaultPgLoaderMultiColumn(table, fields = '*', filter=null) {
+  function defaultPgLoaderMultiColumn(table, fields = '*', filter = null) {
     let PgQuery = '';
     if (typeof fields == 'string') {
-      PgQuery = `SELECT ${fields} from ${table}`;
+      PgQuery = `SELECT ${fields} from "${table}"`;
     } else {
       const fieldList = fields.join(', ');
-      PgQuery = `SELECT ${fieldList} from ${table}`;
+      PgQuery = `SELECT ${fieldList} from "${table}"`;
     }
     if (filter) {
       PgQuery = `${PgQuery} where ${filter}`
     }
-    return function(req, res) {
+    return function (req, res) {
       pool.query(PgQuery).then((data) => {
-        if (typeof fields == 'string')  return res.send(data.rows);
-          // must check the else functionality for multicolumn
+        if (typeof fields == 'string') return res.send(data.rows);
+        // must check the else functionality for multicolumn
         const out = [];
         data.rows.forEach(row => {
           const data = {};
@@ -265,12 +257,12 @@ module.exports = function(app, logger, onError, onUnauthorized) {
   }
 
 
-  async function createUser({username='', requires2fa=true, vessel_ids=[], client_id=null}, onError = (err)=>{}) {
+  async function createUser({ username = '', requires2fa = true, vessel_ids = [], client_id = null }, onError = (err) => { }) {
     " Creates a new user "
-    if (!(client_id>0)) onError('Invalid client id!')
-    if (!(username?.length==0)) onError('Invalid username!')
+    if (!(client_id > 0)) onError('Invalid client id!')
+    if (!(username?.length == 0)) onError('Invalid username!')
 
-    const valid_vessel_ids = Array.isArray(vessel_ids) && (vessel_ids.length>0);
+    const valid_vessel_ids = Array.isArray(vessel_ids) && (vessel_ids.length > 0);
     const password_setup_token = generateRandomToken();
     const newUser = [
       username,
@@ -295,12 +287,12 @@ module.exports = function(app, logger, onError, onUnauthorized) {
         initUserPermission(user_id).catch(onError);
         initUserSettings(user_id).catch(onError);
         return password_setup_token;
-    })
+      })
   }
 
   function initUserSettings(res, user_id) {
     const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
-    const values = [user_id,'vessel',{},{},{}];
+    const values = [user_id, 'vessel', {}, {}, {}];
     return pool.query(text, [values])
   }
 
@@ -334,7 +326,7 @@ module.exports = function(app, logger, onError, onUnauthorized) {
         createProject: is_admin
       }
     }
-    let values = {... default_values, ... opt_permissions};
+    let values = { ...default_values, ...opt_permissions };
 
     switch (user_type) {
       case 'admin':

@@ -10,6 +10,7 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
+var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -703,63 +704,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 
-app.post("/api/login", function (req, res) {
-  let userData = req.body;
-  logger.info('Received login for user: ' + userData.username);
-  Usermodel.findOne({
-    username: userData.username.toLowerCase()
-  }, function (err, user) {
-    if (err) return onError(res, err)
-    if (!user) return onUnauthorized(res, 'User does not exist');
-    if (user.active == 0) return onUnauthorized(res, 'User is not active, please contact your supervisor');
-    if (!user.password) return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
-    if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
-
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const isLocalHost = ip == '::1' || ip === '';
-    const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
-    const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
-    if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
-
-    let filter = user.permissions == 'admin' ? null : { client: user.client };
-    turbineWarrantymodel.find(filter, function (err, data) {
-      if (err) return onError(res, err)
-      const expireDate = new Date();
-      const payload = {
-        userID: user._id,
-        userPermission: user.permissions,
-        userCompany: user.client,
-        userBoats: user.boats,
-        username: user.username,
-        expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-        hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
-      };
-
-      let token = jwt.sign(payload, 'secretKey');
-      logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
-
-      return res.status(200).send({ token });
-    });
-  });
-});
-
-app.post("/api/setPassword", function(req, res) {
-  let userData = req.body;
-  logger.info('Request to set password for user: ' + userData.user);
-  if (userData.password !== userData.confirmPassword) return onUnauthorized(res, 'Passwords do not match');
-
-  Usermodel.findOneAndUpdate({
-    token: req.body.passwordToken,
-    active: { $ne: false }
-  }, {
-    password: bcrypt.hashSync(req.body.password, 10),
-    secret2fa: req.body.secret2fa,
-    $unset: { token: 1 }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send({ data: "Succesfully reset the password" });
-  });
-});
+mo4AdminServer(app, logger)
 
 
 
