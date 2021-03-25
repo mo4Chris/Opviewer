@@ -613,7 +613,7 @@ var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema,
 
 
 function onUnauthorized(res, cause = 'unknown') {
-  logger.warn(`Unauthorized request: ${cause}`)
+  logger.warn(res, `Unauthorized request: ${cause}`)
   if (cause == 'unknown') {
     res.status(401).send('Unauthorized request')
   } else {
@@ -622,23 +622,15 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
-  if (typeof(err) == 'object') {
-    err.debug = additionalInfo;
-  } else {
-    err = {
-      debug: additionalInfo,
-      msg: err,
-      error: err,
-    }
-  }
-  logger.error(err)
+  err['res'] = res;
+  logger.error(err, additionalInfo)
   res.status(500).send(additionalInfo);
 }
 
 function verifyToken(req, res) {
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
-    
+
     const token = req.headers.authorization;
     if (token == null || token === 'null')  return onUnauthorized(res, 'Token missing!');
 
@@ -722,7 +714,7 @@ app.post("/api/login", function (req, res) {
     if (user.active == 0) return onUnauthorized(res, 'User is not active, please contact your supervisor');
     if (!user.password) return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
     if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
-    
+
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const isLocalHost = ip == '::1' || ip === '';
     const secret2faValid = (user.secret2fa?.length >0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
@@ -755,7 +747,7 @@ app.post("/api/setPassword", function(req, res) {
   let userData = req.body;
   logger.info('Request to set password for user: ' + userData.user);
   if (userData.password !== userData.confirmPassword) return onUnauthorized(res, 'Passwords do not match');
-  
+
   Usermodel.findOneAndUpdate({
     token: req.body.passwordToken,
     active: { $ne: false }
@@ -790,7 +782,9 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminServer(app, logger)
+mo4AdminServer(app, logger, onError, onUnauthorized)
+
+
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################
@@ -863,7 +857,7 @@ app.post("/api/saveVessel", function (req, res) {
   const token = req['token']
   if (req.body.mode === "Save") {
     if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist")  return onUnauthorized(res);
-    
+
     vessel.save(function (err, data) {
       if (err) return onError(res, err);
       res.send({ data: "Record has been Inserted..!!" });
@@ -1618,11 +1612,11 @@ app.post("/api/saveIncidentDpr", function(req, res) {
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
-    }, { 
+    }, {
       toolbox: req.body.toolbox,
       hoc: req.body.hoc,
       ToolboxAmountNew: req.body.ToolboxAmountNew,
-      HOCAmountNew: req.body.HOCAmountNew 
+      HOCAmountNew: req.body.HOCAmountNew
     }, function(err, data) {
       if (err) return onError(res, err);
       res.send({ data: "Succesfully saved the incident input" });
@@ -1691,7 +1685,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
     }, function(err, v2v) {
       if (err) return onError(res, err);
       if (v2v) {
-        if (!Array.isArray(v2v.CTVactivity))  v2v.CTVactivity = [v2v.CTVactivity]; 
+        if (!Array.isArray(v2v.CTVactivity))  v2v.CTVactivity = [v2v.CTVactivity];
         let match = v2v.CTVactivity.findIndex(_act => _act.mmsi == info.mmsi);
         if (match >= 0) {
           v2v.CTVactivity[match] = {...v2v.CTVactivity[match], ...info };
@@ -2186,7 +2180,7 @@ app.post("/api/getGeneralForRange", function(req, res) {
     const startDate = req.body.startDate;
     const stopDate = req.body.stopDate;
     let mmsi = req.body.mmsi;
-    if (typeof(mmsi) == 'number') mmsi = [mmsi]; 
+    if (typeof(mmsi) == 'number') mmsi = [mmsi];
     const projection = req.body.projection || null;
 
     switch (req.body.vesselType) {
@@ -2328,7 +2322,7 @@ app.get("/api/getUserClientById/:id/:client", function(req, res) {
   const token = req['token']
   if (token.userPermission !== 'admin' && token.userCompany != req.params.client) return onUnauthorized(res);
   const id = req.params.id.split(",").filter(function(el) { return el != null && el != '' });
-  if (!id[0]) return onError(res, 'No id provided', 'No id provided'); 
+  if (!id[0]) return onError(res, 'No id provided', 'No id provided');
   Usermodel.find({ _id: id, active: { $ne: false } }, ['_id', 'client'], function(err, data) {
     if (err) return onError(res, err);
     res.send(data);
@@ -2479,7 +2473,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
         active: { $ne: false }
       }, function(err, data) {
         if (err) return onError(res, err);
-        
+
         if (data) {
           videoBudgetmodel.findOneAndUpdate({
             mmsi: req.body.mmsi,
@@ -2560,7 +2554,7 @@ app.post("/api/setInactive", function(req, res) {
   if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
   if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
   Usermodel.findOneAndUpdate({
-    _id: req.body._id 
+    _id: req.body._id
   }, {
     active: 0
   }, function(err, data) {
@@ -3021,7 +3015,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
   }, (err, datas) => {
     if (err) return onError(res, err);
     if (datas === null) return res.status(204).send('Not found');
-    
+
     datas.forEach(data =>
       waveSourceModel.findById(data.source, (err, meta) => {
         if (err) return onError(res, err);
@@ -3118,7 +3112,7 @@ app.listen(SERVER_PORT, function() {
 
 function getUTCstring() {
   const d = new Date();
-  dformat = [d.getUTCFullYear(), // WTF is dit monster
+  const dformat = [d.getUTCFullYear(), // WTF is dit monster
     (d.getMonth() + 1).padLeft(),
     d.getUTCDate().padLeft()
   ].join('-') + ' ' + [d.getUTCHours().padLeft(),
@@ -3170,7 +3164,7 @@ function aggregateStatsOverModel(model, req, res, opts) {
   });
 }
 
-Number.prototype.padLeft = function(base, chr) {
+Number.prototype['padLeft'] = function(base, chr) {
   var len = (String(base || 10).length - String(this).length) + 1;
   return len > 0 ? new Array(len).join(chr || '0') + this : this;
 }
