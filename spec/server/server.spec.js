@@ -1,6 +1,7 @@
 const request = require('supertest');
 const rewire = require('rewire');
 const { Client, Pool } = require('pg');
+const jwt = require("jsonwebtoken");
 const { of } = require('rxjs');
 const bcrypt = require('bcryptjs')
 const twoFactor = require('node-2fa');
@@ -85,20 +86,26 @@ function mockTwoFactorAuthentication(valid = true) {
 }
 
 
-
+// #####################################################################
 // ################# Tests - administrative - no login #################
+// #####################################################################
 describe('Administrative - no login - user should', () => {
   // ToDo: This should be removed and all the auth headers should be set to false
   const username = 'Test vesselmaster';
+  const userID = 1;
   const password = 'test123';
   const company = 'BMO';
   beforeEach(() => {
     mockJsonWebToken({
       active: 1,
+      userID,
       username: username,
       userCompany: company,
       userBoats: [123456789],
-      userPermission: 'Vessel master'
+      userPermission: 'Vessel master',
+      permission: {
+        admin: false,
+      }
     })
   })
 
@@ -127,51 +134,52 @@ describe('Administrative - no login - user should', () => {
   //   await request.expect(expectValidRequest)
   // })
 
-   function assertValidToken(token) {
-    console.log(token)
-    const user_id = token?.userID ?? -1;
-    console.log(user_id)
+  function assertValidToken(encoded_token) {
+    expect(typeof encoded_token).toBe('string')
+    const token = jwt.verify(encoded_token, 'secretKey');
+    const user_id = token['userID'] ?? -1;
     expect(user_id).toBeGreaterThan(0)
+    expect(token['iat']).toBeLessThanOrEqual(Date.now());
+    expect(token['expires']).toBeGreaterThan(Date.now());
+    expect(Array.isArray(token['userBoats'])).toBe(true);
+    expect(typeof token['userCompany']).toBe('string');
   }
 
-  fit('login user - successfull', async () => {
+  it('login user - successfull', async () => {
     const password = 'test123';
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
-      requires2fa: true,
+      secret2fa: "valid_2fa"
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        user_id: userID,
+        client_name: "BMO",
         username,
         password: bcrypt.hashSync(password, 10),
         secret2fa: 'valid_2fa',
+        permission: {admin: false},
         requires2fa: true,
       }]
     })
     const response = await POST('/api/login', login_data, true)
-    console.log("response received")
     expect(response.status).toEqual(200)
-    const token = response.body;
-    console.log("Asserting token")
+    const token = response.body['token'];
     assertValidToken(token);
-    console.log("Done")
   })
   it('login user - successfull - 2fa not required', async () => {
     const password = 'test123';
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
     }
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync(password, 10),
         secret2fa: null,
@@ -184,15 +192,15 @@ describe('Administrative - no login - user should', () => {
   it('not login user - user not active', async () => {
     const password = 'test123';
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
+      secret2fa: "bad_2fa"
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 0,
+        userID,
         username,
         password: bcrypt.hashSync(password, 10),
         secret2fa: 'valid_2fa',
@@ -204,14 +212,14 @@ describe('Administrative - no login - user should', () => {
   })
   it('not login user - missing password', async () => {
     const login_data = {
-      active: true,
       username,
-      user_id: 1,
+      secret2fa: "bad_2fa"
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync('invalid password', 10),
         secret2fa: 'valid_2fa',
@@ -223,14 +231,14 @@ describe('Administrative - no login - user should', () => {
   })
   it('not login user - missing username', async () => {
     const login_data = {
-      active: true,
       password,
-      user_id: 1,
+      secret2fa: "bad_2fa"
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync('invalid password', 10),
         secret2fa: 'valid_2fa',
@@ -242,15 +250,15 @@ describe('Administrative - no login - user should', () => {
   })
   it('not login user - bad password', async () => {
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
+      secret2fa: "bad_2fa"
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync('invalid password', 10),
         secret2fa: 'valid_2fa',
@@ -263,15 +271,15 @@ describe('Administrative - no login - user should', () => {
   it('not login user - bad 2fa', async () => {
     const password = 'test123';
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
+      secret2fa: "bad_2fa"
     }
     mockTwoFactorAuthentication(false)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync(password, 10),
         secret2fa: 'invalid_2fa',
@@ -284,15 +292,14 @@ describe('Administrative - no login - user should', () => {
   it('not login user - missing 2fa', async () => {
     const password = 'test123';
     const login_data = {
-      active: true,
       username,
       password,
-      user_id: 1,
     }
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
         active: 1,
+        userID,
         username,
         password: bcrypt.hashSync(password, 10),
         requires2fa: true,
@@ -318,6 +325,9 @@ describe('Administrative - with login - user should', () => {
       userCompany: company,
       userBoats: [123456789, 987654321],
       userPermission: 'Logistic specialist',
+      permission: {
+        admin: false,
+      }
     })
   })
 
@@ -374,6 +384,29 @@ describe('Administrative - with login - user should', () => {
     const out = response.body;
     await expect(Array.isArray(out)).toBeTruthy('vesselList should return an array')
   })
+})
+
+
+// ################# Tests - administrative - admin login #################
+describe('Administrative - with login - user should', () => {
+  // ToDo: This should be removed and all the auth headers should be set to false
+  const username = 'Glados';
+  const company = 'Aperture industries';
+  const new_user_id = 777;
+  beforeEach(() => {
+    mockJsonWebToken({
+      user_id: 1,
+      client_id: 2,
+      username: username,
+      userCompany: company,
+      userBoats: [123456789, 987654321],
+      userPermission: 'admin',
+      permission: {
+        admin: true
+      }
+    })
+  })
+
 })
 
 // ################# Tests - no login #################

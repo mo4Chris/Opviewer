@@ -13,6 +13,7 @@ import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel
 import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
+import { deprecate } from 'node:util';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -241,16 +242,17 @@ export class CommonService {
     return this.get('/api/getUsers/');
   }
 
-  getUsersForCompany(client: {client: any}[]): Observable<UserModel[]> {
-    return this.post('/api/getUsersForCompany/', client);
-  }
+  // getUsersForCompany(client: {client: any}[]): Observable<UserModel[]> {
+  //   return this.post('/api/getUser/', client);
+  // }
 
   getUserByUsername(username: Object): Observable<UserModel> {
     return this.post('/api/getUserByUsername/', username);
   }
 
   getUserClientById(user: any, client: any): Observable<{_id: string, client: string}> {
-    return this.get('/api/getUserClientById/' + user + '/' + client);
+    console.error('ENDPOINT IS DEPRICATED')
+    return mockedObservable({_id: '0', client: ''})
   }
 
   saveUserBoats(user) {
@@ -550,6 +552,7 @@ export class CommonService {
   }
 
   getForecastClientList() {
+    // Depricated
     return this.get('/api/mo4light/getClients');
   }
 

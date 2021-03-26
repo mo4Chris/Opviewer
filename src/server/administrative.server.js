@@ -62,7 +62,8 @@ module.exports = function (
 
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
-    "userTable"."active", "userTable".requires2fa, "userTable"."2fa", "clientTable"."client_name"
+    "userTable"."active", "userTable"."permission", "userTable".requires2fa, "userTable"."2fa",
+    "clientTable"."client_name"
     FROM "userTable"
     INNER JOIN "clientTable"
     ON "userTable"."client_id" = "clientTable"."client_id"
@@ -80,13 +81,12 @@ module.exports = function (
         const expireDate = new Date();
         const payload = {
           userID: user.user_id,
-          //userPermission: user.permissions,
           userPermission: 'admin',
           userCompany: user.client_name,
           userBoats: vessels,
           username: user.username,
+          permission: user.permission,
           expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-          //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
         };
         token = jwt.sign(payload, 'secretKey');
         logger.trace('Login succesful for user: ' + user.username.toLowerCase())

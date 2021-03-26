@@ -73,19 +73,19 @@ let transporter = nodemailer.createTransport({
 //##################   Models   ###########################
 //#########################################################
 var Schema = mongo.Schema;
-var userSchema = new Schema({
-  username: { type: String },
-  password: { type: String },
-  permissions: { type: String },
-  client: { type: String },
-  boats: { type: Array },
-  token: { type: String },
-  active: { type: Number },
-  secret2fa: { type: String },
-  settings: { type: Object },
-  lastActive: { type: Number },
-}, { versionKey: false });
-var Usermodel = mongo.model('users', userSchema, 'users');
+// var userSchema = new Schema({
+//   username: { type: String },
+//   password: { type: String },
+//   permissions: { type: String },
+//   client: { type: String },
+//   boats: { type: Array },
+//   token: { type: String },
+//   active: { type: Number },
+//   secret2fa: { type: String },
+//   settings: { type: Object },
+//   lastActive: { type: Number },
+// }, { versionKey: false });
+// var Usermodel = mongo.model('users', userSchema, 'users');
 
 var userActivitySchema = new Schema({
   username: { type: String },
@@ -642,6 +642,7 @@ function onError(res, err, additionalInfo = 'Internal server error') {
 }
 
 function verifyToken(req, res) {
+  // TODO: fix this
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
 
@@ -651,11 +652,11 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    Usermodel.findByIdAndUpdate(payload.userID, {
-      lastActive: new Date()
-    }).exec().catch(err => {
-      logger.error('Failed to update last active status of user')
-    });
+    // Usermodel.findByIdAndUpdate(payload.userID, {
+    //   lastActive: new Date()
+    // }).exec().catch(err => {
+    //   logger.error('Failed to update last active status of user')
+    // });
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -747,16 +748,6 @@ mo4AdminPostLoginServer(app, logger, onError, onUnauthorized)
 //#################  Endpoints - with login  #########################
 //####################################################################
 
-app.get("/api/checkUserActive/:user", function(req, res) {
-  // Currently any user can check if any other user is active...
-  Usermodel.find({
-    username: req.params.user,
-    active: 1
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data && data.length > 0)
-  })
-});
 
 app.get("/api/getActiveConnections", function(req, res) {
   const token = req['token']
@@ -765,50 +756,6 @@ app.get("/api/getActiveConnections", function(req, res) {
     body: 'This is not yet tracked'
   });
 })
-
-app.post("/api/registerUser", function(req, res) {
-  const userData = req.body;
-  const token = req['token']
-  logger.info('Received request to create new user: ' + userData.email);
-  switch (token.userPermission){
-    case 'admin':
-      // Always allowed
-      break;
-    case 'Logistics specialist':
-      if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
-      break;
-    default:
-      return onUnauthorized(res, 'User not priviliged to register users!')
-  }
-  Usermodel.findOne({ username: userData.email, active: { $ne: false } },
-    function(err, existingUser) {
-      if (err) return onError(res, err);
-      if (existingUser) return onUnauthorized(res, 'User already exists');
-      let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-      randomToken = randomToken.replace(/\//gi, '8');
-      let user = new Usermodel({
-        "username": userData.email.toLowerCase(),
-        "token": randomToken,
-        "permissions": userData.permissions,
-        "client": userData.client,
-        "secret2fa": "",
-        "active": 1,
-        "password": null,
-      });
-      user.save((error, registeredUser) => {
-        if (error) return onError(res, 'User already exists');
-        const link = SERVER_ADDRESS + "/set-password;token=" + randomToken + ";user=" + user.username;
-        const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
-          'If that doesnt work copy the link below <br>' + link;
-        mailTo('Registered user', html, user.username);
-        logger.info('Succesfully created user ' + user.username)
-        return res.send({
-          data: 'User created',
-          status: 200
-        });
-      });
-    });
-});
 
 app.post("/api/saveVessel", function (req, res) {
   var vessel = new model(req.body);
@@ -881,20 +828,6 @@ app.post("/api/saveCTVGeneralStats", function(req, res) {
       res.send({ data: 'Data has been succesfully saved' });
     });
   });
-});
-
-app.post("/api/get2faExistence", function(req, res) {
-  let userEmail = req.body.userEmail;
-  Usermodel.findOne({ username: userEmail, active: { $ne: false } },
-    function(err, user) {
-      if (err) return onError(res, err);
-      if (!user)  return onError(res, 'User does not exist: ' + userEmail, 'User does not exist');
-      if (user.secret2fa === undefined || user.secret2fa === "" || user.secret2fa === {} || (user.client === 'Bibby Marine' && user.permissions == 'Vessel master')) {
-        res.send({ secret2fa: "" });
-      } else {
-        res.send({ secret2fa: user.secret2fa });
-      }
-    });
 });
 
 app.post("/api/getSovWaveSpectrum", function(req, res) {
@@ -1740,22 +1673,23 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
     let recipient = [];
 
-    Usermodel.find({
-      active: { $ne: false },
-      client: token.userCompany,
-      permissions: 'Client representative',
-      boats: { $elemMatch: { mmsi: mmsi } }
-    }, {
-      username: 1,
-    }, (err, data) => {
-      if (err || data.length === 0) {
-        if (err) return onError(res, err);
-        recipient = [WEBMASTER_MAIL]
-        title = 'Failed to deliver: client representative not found!'
-      } else {
-        recipient = data.map(user => user.username);
-      }
-    });
+    // TODO: Fix this by getting the relevant client representative via the postlogin
+    // Usermodel.find({
+    //   active: { $ne: false },
+    //   client: token.userCompany,
+    //   permissions: 'Client representative',
+    //   boats: { $elemMatch: { mmsi: mmsi } }
+    // }, {
+    //   username: 1,
+    // }, (err, data) => {
+    //   if (err || data.length === 0) {
+    //     if (err) return onError(res, err);
+    //     recipient = [WEBMASTER_MAIL]
+    //     title = 'Failed to deliver: client representative not found!'
+    //   } else {
+    //     recipient = data.map(user => user.username);
+    //   }
+    // });
 
     setTimeout(function() {
       mailTo(title, _body, recipient)
@@ -2232,61 +2166,6 @@ app.post("/api/getDprInputsByRange", function(req, res) {
   aggregateStatsOverModel(SovDprInputmodel, req, res);
 });
 
-app.get("/api/getUsers", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
-  Usermodel.find({}, null, {
-    sort: {
-      client: 'asc',
-      permissions: 'asc'
-    }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
-app.post("/api/getUsersForCompany", function(req, res) {
-  let companyName = req.body[0].client;
-  const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && token.userCompany !== companyName) return onUnauthorized(res);
-  Usermodel.find({
-    client: companyName,
-    permissions: ["Vessel master", "Marine controller", "Logistics specialist", "Qhse specialist", "Client representative"]
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
-app.post("/api/getUserByUsername", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  Usermodel.find({
-    username: req.body.username,
-    active: { $ne: false }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-      return onUnauthorized(res, 'User belongs to different company');
-    } else {
-      res.send(data);
-    }
-  });
-});
-
-app.get("/api/getUserClientById/:id/:client", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== 'admin' && token.userCompany != req.params.client) return onUnauthorized(res);
-  const id = req.params.id.split(",").filter(function(el) { return el != null && el != '' });
-  if (!id[0]) return onError(res, 'No id provided', 'No id provided');
-  Usermodel.find({ _id: id, active: { $ne: false } }, ['_id', 'client'], function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
 app.post("/api/validatePermissionToViewData", function(req, res) {
   // This function is named HORIBLY - it returns a vessel
   validatePermissionToViewVesselData(req, res, function(data) {
@@ -2298,17 +2177,6 @@ app.post("/api/validatePermissionToViewData", function(req, res) {
       res.send(data);
     })
   });
-});
-
-app.post("/api/saveUserBoats", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-  Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { boats: req.body.boats },
-    function(err, data) {
-      if (err) return onError(res, err);
-      res.send({ data: "Succesfully saved the permissions" });
-    });
 });
 
 app.get('/api/getLatestGeneral', function(req, res) {
@@ -2457,115 +2325,6 @@ app.post("/api/saveVideoRequest", function(req, res) {
         }
       });
     });
-  });
-});
-
-app.post("/api/resetPassword", function(req, res) {
-  const token = req['token']
-  logger.info('Password reset requested for user' + token.username)
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-
-  let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-  randomToken = randomToken.replace(/\//gi, '8');
-  Usermodel.findOneAndUpdate({
-    _id: req.body._id,
-    active: { $ne: false }
-  }, {
-    token: randomToken
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    let link = SERVER_ADDRESS + "/set-password;token=" + randomToken + ";user=" + data.username;
-    let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
-      'If that doesnt work copy the link below <br>' + link;
-    mailTo('Password reset', html, data.username);
-    res.send({ data: "Succesfully reset the password" });
-  });
-});
-
-app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
-  const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-
-  Usermodel.findOneAndUpdate({
-    _id: req.body._id
-  }, {
-    active: 1
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    var userActivity = new UserActivitymodel();
-    userActivity.username = req.body.user;
-    userActivity.changedUser = req.body._id;
-    userActivity.newValue = 'active';
-    userActivity.date = new Date();
-
-    userActivity.save(function(err, data) {
-      if (err) return onError(res, err, 'Failed to activate user!');
-      res.send({ data: "Succesfully activated this user" });
-    });
-  });
-});
-
-app.post("/api/setInactive", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-  Usermodel.findOneAndUpdate({
-    _id: req.body._id
-  }, {
-    active: 0
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    var userActivity = new UserActivitymodel();
-    userActivity.username = req.body.user;
-    userActivity.changedUser = req.body._id;
-    userActivity.newValue = 'inactive';
-    userActivity.date = new Date();
-
-    userActivity.save(function(err, data) {
-      if (err) return onError(res, err, 'Failed to deactivate user!')
-      res.send({ data: "Succesfully deactivated this user" });
-    });
-  });
-});
-
-app.post("/api/sendFeedback", function(req, res) {
-  const feedbacklogger = logger.child({ feedback: req.body.message, user: req.body.person, page: req.body.page })
-  Usermodel.findOne({ _id: req.body.person, active: { $ne: false } }, function(err, data) {
-    if (err) {
-      feedbacklogger.error(err);
-      return res.send(err);
-    }
-    if (data) {
-      feedbacklogger.info({ msg: 'Received feedback!' })
-      let html = 'feedback has been given by: ' + data.username + ' on page ' + req.body.page + '.<br><br>' +
-        'feedback message: ' + req.body.message;
-      mailTo('Feedback ' + data.client, html, WEBMASTER_MAIL);
-      res.send({ data: 'Feedback has been sent', status: 200 });
-    } else {
-      return onError(res, err);
-    }
-  });
-});
-
-app.post("/api/getUserByToken", function(req, res) {
-  const user = req.body.user;
-  Usermodel.findOne({
-    token: req.body.passwordToken,
-    username: user,
-    active: { $ne: false }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    if (data) {
-      res.send({
-        username: data.username,
-        userCompany: data.client,
-        permissions: data.permissions
-      });
-    } else {
-      return onError(res, `User ${user} not found!`, 'User not found / password not correct')
-    }
   });
 });
 
@@ -3036,32 +2795,6 @@ app.get('/api/getLatestTwaUpdate/', function(req, res) {
     })
   }
 })
-
-app.get('/api/loadUserSettings', function(req, res) {
-  const token = req['token']
-  Usermodel.findOne({
-    username: token.username
-  }, {
-    settings: 1,
-    _id: 0,
-  }, (err, data) => {
-    if (err) return onError(res, err);
-    res.send(data);
-  })
-});
-
-app.post('/api/saveUserSettings', function(req, res) {
-  const token = req['token']
-  let newSettings = req.body;
-  Usermodel.updateOne({
-    username: token.username,
-  }, {
-    settings: newSettings
-  }, (err, data) => {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
 
 app.listen(SERVER_PORT, function() {
   logger.info(`MO4 Dataviewer listening on port ${SERVER_PORT}!`);
