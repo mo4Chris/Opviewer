@@ -67,7 +67,7 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-const pool = new Pool({
+const admin_server_pool = new Pool({
   host: process.env.ADMIN_DB_HOST,
   port: +process.env.ADMIN_DB_PORT,
   database: process.env.ADMIN_DB_DATABASE,
@@ -76,12 +76,12 @@ const pool = new Pool({
   ssl: false
 })
 
-pool.connect().then(() => {
+admin_server_pool.connect().then(() => {
   logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
 }).catch(err => {
   return logger.fatal(err, "Failed initial connection to admin db!")
 })
-pool.on('error', (err) => {
+admin_server_pool.on('error', (err) => {
   logger.fatal(err, 'Unexpected error in connection with admin database!')
 })
 
@@ -658,27 +658,6 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   }
 }
 
-// function verifyToken(req, res) {
-//   try {
-//     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
-
-//     const token = req.headers.authorization;
-//     if (token == null || token === 'null')  return onUnauthorized(res, 'Token missing!');
-
-//     const payload = jwt.verify(token, 'secretKey');
-//     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
-
-//     Usermodel.findByIdAndUpdate(payload.userID, {
-//       lastActive: new Date()
-//     }).exec().catch(err => {
-//       logger.error('Failed to update last active status of user')
-//     });
-//     return payload;
-//   } catch (err) {
-//     return onError(res, err, 'Failed to parse jwt token')
-//   }
-// }
-
 function verifyToken(req, res) {
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
@@ -690,8 +669,7 @@ function verifyToken(req, res) {
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
     const lastActive = new Date()
-    console.log();
-    pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload.userID])
+    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload.userID])
 
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -753,7 +731,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 
-mo4AdminServer(app, logger, onError, onUnauthorized)
+mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool)
 
 
 
@@ -776,7 +754,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool)
 
 
 //####################################################################
