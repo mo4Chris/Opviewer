@@ -5,7 +5,6 @@ const { of } = require('rxjs');
 const bcrypt = require('bcryptjs')
 const twoFactor = require('node-2fa');
 
-const suppress_pino_output = true;
 
 // This test suite runs unit tests for the server file. Since we use
 // rewire to mock token verification, there is no need for user
@@ -22,21 +21,12 @@ const suppress_pino_output = true;
 
 
 // ################# Setup #################
+const SERVER_LOGGING_LEVEL = 'silent';
+if (SERVER_LOGGING_LEVEL != null) {
+  process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
+}
 const app = rewire('../../src/server')
 
-if (suppress_pino_output) {
-  // Note: some of the server setup messages may still be send to stdout prior to overwriting pino
-  const mocked_logger = {
-    fatal: () => null,
-    error: () => null,
-    warn: () => null,
-    info: () => null,
-    debug: () => null,
-    trace: () => null,
-  }
-  mocked_logger.child = () => mocked_logger;
-  app.__set__('logger', mocked_logger)
-}
 
 // ################# GET & POST #################
 function GET(url, auth = true) {
@@ -64,11 +54,14 @@ async function expectValidRequest(response) {
 async function expectUnAuthRequest(response) {
   return expect(response.status).toEqual(401, `Expected auth failure (401)`)
 }
+async function expectBadRequest(response) {
+  return expect(response.status).toEqual(400, `Expected bad request (400)`)
+}
 async function expectErrorRequest(response) {
   return expect(response.status).toEqual(500, `Expected error response (500)`)
 }
 function expectResponse(responseData, additionalInfo) {
-  return async (response) => expect(response.data).toEqual(responseData, additionalInfo)
+  return async (response) => await expect(response.data).toEqual(responseData, additionalInfo)
 }
 
 function mockJsonWebToken(decoded_token) {
@@ -87,7 +80,8 @@ function mockPostgressRequest(return_value) {
   )
 }
 function mockTwoFactorAuthentication(valid = true) {
-  spyOn(twoFactor, 'verifyToken').and.returnValue(valid);
+  let secret2faSpy = spyOn(twoFactor, 'verifyToken');
+  if (valid) {secret2faSpy.and.returnValue(1)}
 }
 
 
@@ -100,6 +94,7 @@ describe('Administrative - no login - user should', () => {
   const company = 'BMO';
   beforeEach(() => {
     mockJsonWebToken({
+      active: 1,
       username: username,
       userCompany: company,
       userBoats: [123456789],
@@ -115,24 +110,31 @@ describe('Administrative - no login - user should', () => {
     expect(response.status).toBe(200, 'Failed admin connection test!')
     expect(response.body['status']).toBe(1, 'Connection test not returning true!')
   })
-  it('register user', async () => {
-    const request = POST('/api/registerUser', {}, true)
-    await request.expect(expectValidRequest)
-  })
-  it('register user - no 2fa', async () => {
-    const request = POST('/api/registerUser', {}, true)
-    await request.expect(expectValidRequest)
-  })
-  it('not register user with bad token', async () => {
-    const request = POST('/api/registerUser', {}, true)
-    await request.expect(expectValidRequest)
-  })
-  it('not register user with expired token', async () => {
-    const request = POST('/api/registerUser', {}, true)
-    await request.expect(expectValidRequest)
-  })
+  // it('register user', async () => {
+  //   const request = POST('/api/registerUser', {}, true)
+  //   await request.expect(expectValidRequest)
+  // })
+  // it('register user - no 2fa', async () => {
+  //   const request = POST('/api/registerUser', {}, true)
+  //   await request.expect(expectValidRequest)
+  // })
+  // it('not register user with bad token', async () => {
+  //   const request = POST('/api/registerUser', {}, true)
+  //   await request.expect(expectValidRequest)
+  // })
+  // it('not register user with expired token', async () => {
+  //   const request = POST('/api/registerUser', {}, true)
+  //   await request.expect(expectValidRequest)
+  // })
 
-  it('login user - successfull', async () => {
+   function assertValidToken(token) {
+    console.log(token)
+    const user_id = token?.userID ?? -1;
+    console.log(user_id)
+    expect(user_id).toBeGreaterThan(0)
+  }
+
+  fit('login user - successfull', async () => {
     const password = 'test123';
     const login_data = {
       active: true,
@@ -144,13 +146,20 @@ describe('Administrative - no login - user should', () => {
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
         password: bcrypt.hashSync(password, 10),
-        "2fa": 'valid_2fa',
+        secret2fa: 'valid_2fa',
+        requires2fa: true,
       }]
     })
-    const request = POST('/api/login', login_data, true)
-    await request.expect(expectValidRequest)
+    const response = await POST('/api/login', login_data, true)
+    console.log("response received")
+    expect(response.status).toEqual(200)
+    const token = response.body;
+    console.log("Asserting token")
+    assertValidToken(token);
+    console.log("Done")
   })
   it('login user - successfull - 2fa not required', async () => {
     const password = 'test123';
@@ -159,17 +168,39 @@ describe('Administrative - no login - user should', () => {
       username,
       password,
       user_id: 1,
-      requires2fa: false,
     }
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
         password: bcrypt.hashSync(password, 10),
-        "2fa": null,
+        secret2fa: null,
+        requires2fa: false,
       }]
     })
     const request = POST('/api/login', login_data, true)
     await request.expect(expectValidRequest)
+  })
+  it('not login user - user not active', async () => {
+    const password = 'test123';
+    const login_data = {
+      active: true,
+      username,
+      password,
+      user_id: 1,
+    }
+    mockTwoFactorAuthentication(true)
+    mockPostgressRequest({
+      rows: [{
+        active: 0,
+        username,
+        password: bcrypt.hashSync(password, 10),
+        secret2fa: 'valid_2fa',
+        requires2fa: true
+      }]
+    })
+    const request = POST('/api/login', login_data, true)
+    await request.expect(expectUnAuthRequest)
   })
   it('not login user - missing password', async () => {
     const login_data = {
@@ -180,13 +211,34 @@ describe('Administrative - no login - user should', () => {
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
         password: bcrypt.hashSync('invalid password', 10),
-        "2fa": 'valid_2fa',
+        secret2fa: 'valid_2fa',
+        requires2fa: true,
       }]
     })
     const request = POST('/api/login', login_data, true)
-    await request.expect(expectUnAuthRequest)
+    await request.expect(expectBadRequest)
+  })
+  it('not login user - missing username', async () => {
+    const login_data = {
+      active: true,
+      password,
+      user_id: 1,
+    }
+    mockTwoFactorAuthentication(true)
+    mockPostgressRequest({
+      rows: [{
+        active: 1,
+        username,
+        password: bcrypt.hashSync('invalid password', 10),
+        secret2fa: 'valid_2fa',
+        requires2fa: true,
+      }]
+    })
+    const request = POST('/api/login', login_data, true)
+    await request.expect(expectBadRequest)
   })
   it('not login user - bad password', async () => {
     const login_data = {
@@ -198,9 +250,11 @@ describe('Administrative - no login - user should', () => {
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
         password: bcrypt.hashSync('invalid password', 10),
-        "2fa": 'valid_2fa',
+        secret2fa: 'valid_2fa',
+        requires2fa: true,
       }]
     })
     const request = POST('/api/login', login_data, true)
@@ -217,9 +271,11 @@ describe('Administrative - no login - user should', () => {
     mockTwoFactorAuthentication(false)
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
         password: bcrypt.hashSync(password, 10),
-        "2fa": 'invalid_2fa',
+        secret2fa: 'invalid_2fa',
+        requires2fa: true,
       }]
     })
     const request = POST('/api/login', login_data, true)
@@ -236,12 +292,14 @@ describe('Administrative - no login - user should', () => {
     mockTwoFactorAuthentication(true)
     mockPostgressRequest({
       rows: [{
+        active: 1,
         username,
-        password: bcrypt.hashSync(password, 10)
+        password: bcrypt.hashSync(password, 10),
+        requires2fa: true,
       }]
     })
     const request = POST('/api/login', login_data, true)
-    await request.expect(expectValidRequest)
+    await request.expect(expectUnAuthRequest)
   })
 })
 
@@ -251,6 +309,7 @@ describe('Administrative - with login - user should', () => {
   // ToDo: This should be removed and all the auth headers should be set to false
   const username = 'Glados';
   const company = 'Aperture industries';
+  const new_user_id = 666;
   beforeEach(() => {
     mockJsonWebToken({
       user_id: 1,
@@ -263,7 +322,6 @@ describe('Administrative - with login - user should', () => {
   })
 
   it('create new user - successfull', async () => {
-    const new_user_id = 666;
     mockPostgressRequest(new_user_id)
     const newUser = {
       username: 'Bot',
@@ -275,7 +333,6 @@ describe('Administrative - with login - user should', () => {
     request.expect(expectValidRequest)
   })
   it('not create new user - unauthorized', async () => {
-    const new_user_id = 666;
     mockPostgressRequest(new_user_id)
     const newUser = {
       username: 'Bot',
@@ -287,7 +344,6 @@ describe('Administrative - with login - user should', () => {
     await request.expect(expectUnAuthRequest)
   })
   it('not create new user - wrong client', async () => {
-    const new_user_id = 666;
     mockPostgressRequest(new_user_id)
     const newUser = {
       username: 'Bot',
@@ -299,20 +355,18 @@ describe('Administrative - with login - user should', () => {
     await request.expect(expectUnAuthRequest)
   })
   it('not create new user - vessel does not belong to client', async () => {
-    const new_user_id = 666;
     mockPostgressRequest(new_user_id)
     const newUser = {
       username: 'Bot',
       requires2fa: true,
       client_id: 2,
-      vessel_ids: null,
+      vessel_ids: [123456788],
     }
     const request = POST('/api/createUser', newUser, true)
     await request.expect(expectUnAuthRequest)
   })
 
   it('get vessel list - successfull', async () => {
-    const new_user_id = 666;
     mockPostgressRequest(new_user_id)
     const request = GET('/api/vesselList', true)
     const response = await request;
@@ -322,8 +376,6 @@ describe('Administrative - with login - user should', () => {
   })
 })
 
-
-// process.exit(0)
 // ################# Tests - no login #################
 describe('User without login should', () => {
   it('perform connection test', async () => {

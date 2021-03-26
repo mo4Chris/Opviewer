@@ -30,9 +30,6 @@ module.exports = function (
 
 
   // ############## ENDPOINTS ############
-  app.get('/api/admin/connectionTest',
-    defaultPgLoaderMultiColumn('"userTable"', '"username", "password", "2fa"')
-  )
 
   app.get('/api/mo4admin/getClients', (req, res) => {
     const token = req['token'];
@@ -68,19 +65,45 @@ module.exports = function (
     // TODO: verify client ID
     // TODO: verify if vessels belong to client
     // TODO: verify if token is acceptable)
-    console.log('/api/createUser')
     const own_token = req['token'];
-    console.log(own_token)
-    const own_user_id = own_token['user_id'];
-    const own_client_id = own_token['client_id']
-    console.log('req.body', req.body)
-
+    const own_user_id = +own_token['user_id'];
+    const own_vessel_ids = own_token['userBoats'];
+    const own_client_id = +own_token['client_id']
+    logger.trace(own_token)
+    logger.trace(req.body)
     const username = req.body.username;
     const requires2fa = req.body.requires2fa;
     const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
+    logger.debug('Validating incoming request')
+    if (vessel_ids != null && !Array.isArray(vessel_ids)) {
+      logger.info('Vessel is not in valid format')
+      return res.status(400).send('Invalid vessel id format');
+    }
+    logger.trace('Verfying username format')
+    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
+    logger.trace('Verfying 2fa format')
+    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
+    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
+    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
 
+    logger.trace('Verfying client')
+    // TODO: If a user is associated with multiple clients this wont do
     if (client_id != own_client_id) return onUnauthorized(res, 'Target client does not match own client')
+    logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
+    if (own_vessel_ids == null && vessel_ids == null) {
+      // Valid
+    } else if (own_vessel_ids == null) {
+      // TODO: Check if vessel belongs to client
+      // const own_vessel_list = loadVesselList(own_user_id);
+    } else {
+      if (vessel_ids == null) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
+      const illegal = vessel_ids.some(id => {
+        const in_own_vessel_list = own_vessel_ids.some(_onw_id => id === _onw_id)
+        return !in_own_vessel_list;
+      });
+      if (illegal) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
+    }
 
     console.log('Creating user!')
     createUser({
@@ -89,6 +112,7 @@ module.exports = function (
       client_id,
       vessel_ids
     }).catch(err => {
+      console.log('ERROR CATCH')
       console.log(err)
       return onError(res, err, 'Error creating user')
     }).then((password_setup_token) => {
@@ -127,18 +151,17 @@ module.exports = function (
         "client_id"
       ) VALUES($1, $2, $3, $3, $5, $6) RETURNING "user_id"`
     logger.debug('Starting database insert')
-    return pool.query(txt, newUser).then(user_id => {
-      logger.debug('New user has id', user_id)
-      logger.debug('Init user permissions')
-      initUserPermission(user_id).catch(err => {
-        logger.error(err)
-      });
-      logger.debug('Init user settings')
-      initUserSettings(user_id).catch(err => {
-        logger.error(err)
-      });
-      return password_setup_token;
-    }).catch(err => { throw Error(err) })
+    const user_id = await pool.query(txt, newUser);
+    logger.debug('New user has id', user_id)
+    logger.debug('Init user permissions')
+    initUserPermission(user_id).catch(err => {
+      logger.error(err)
+    });
+    logger.debug('Init user settings')
+    initUserSettings(user_id).catch(err => {
+      logger.error(err)
+    });
+    return password_setup_token;
   }
 
 

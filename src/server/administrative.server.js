@@ -47,24 +47,36 @@ module.exports = function (
     res.send({ data: 'Great success!' })
   })
 
-  app.post("/api/login", function (req, res) {
-    let usernameInput = req.body.username;
+  app.post("/api/login", async function (req, res) {
+    let username = req.body.username;
+    let password = req.body.password;
+
+    if (!username) {
+      logger.info('Login failed: missing username')
+      return res.status(400).send('Missing username')
+    }
+    if (!password) {
+      logger.info('Login failed: missing password')
+      return res.status(400).send('Missing password')
+    }
+
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."2fa", "clientTable"."client_name"
     FROM "userTable"
     INNER JOIN "clientTable"
     ON "userTable"."client_id" = "clientTable"."client_id"
-    WHERE ("userTable"."username"='${usernameInput}')`;
+    WHERE ("userTable"."username"='${username}')`;
 
     pool.query(PgQuery).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
-      console.log(user);
-      const vessels = await getVesselsForUser(res).catch(err => {return onError(res, err)});
+      logger.trace(user);
       if (validateLogin(req, user, res)) {
+        const vessels = await getVesselsForUser(res).catch(err => {return onError(res, err)});
+        logger.trace(vessels);
         const expireDate = new Date();
         const payload = {
           userID: user.user_id,
@@ -82,7 +94,7 @@ module.exports = function (
 
       }
     }).catch((err) => {return onError(res, err)})
-    logger.info('Received login for user: ' + usernameInput);
+    logger.info('Received login for user: ' + username);
   });
 
   function getVesselsForUser(res) {
@@ -104,39 +116,26 @@ module.exports = function (
 
   function validateLogin(req, user, res) {
     const userData = req.body;
-    if (!user.active) return onUnauthorized(res, 'User is not active, please contact your supervisor');
-    if (!user.password || user.password == '') return onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
-    if (!bcrypt.compareSync(userData.password, user.password)) return onUnauthorized(res, 'Password is incorrect');
-
+    if (!user.active) {onUnauthorized(res, 'User is not active, please contact your supervisor'); return false}
+    if (!user.password || user.password == '') {
+      onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
+      return false;
+    }
+    if (!bcrypt.compareSync(userData.password, user.password)) {
+      onUnauthorized(res, 'Password is incorrect');
+      return false;
+    }
+    logger.trace(user)
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const isLocalHost = ip == '::1' || ip === '';
     const secret2faValid = (user.secret2fa?.length > 0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
-    const doesNotRequire2fa = !user.requires2fa;
-
-    if (!isLocalHost && !secret2faValid && !doesNotRequire2fa) return onUnauthorized(res, '2fa is incorrect');
+    const requires2fa = (user.requires2fa == null) ? true : Boolean(user.requires2fa);
+    logger.debug({"msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost})
+    if (!isLocalHost && !secret2faValid && requires2fa) {
+      onUnauthorized(res, '2fa is incorrect');
+      return false
+    }
     return true;
-    // //   const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
-    // //   if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
-
-    // //   let filter = user.permissions == 'admin' ? null : { client: user.client };
-    // //   turbineWarrantymodel.find(filter, function (err, data) {
-    // //     if (err) return onError(res, err)
-    const expireDate = new Date();
-    const payload = {
-      //userID: user._id,
-      //userPermission: user.permissions,
-      //userCompany: user.client,
-      //userBoats: user.boats,
-      username: user.username,
-      expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-      //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
-    };
-
-    let token = jwt.sign(payload, 'secretKey');
-    logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
-
-    return res.status(200).send({ token });
-
   }
 
 

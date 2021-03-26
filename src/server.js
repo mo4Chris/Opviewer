@@ -5,8 +5,8 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
 var twoFactor = require('node-2fa');
-var logger = require('pino')();
 require('dotenv').config({ path: __dirname + '/./../.env' });
+var pino = require('pino');
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
@@ -21,9 +21,11 @@ const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]
 const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
 const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
+const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 mongo.set('useFindAndModify', false);
+var logger = pino({level: LOGGING_LEVEL})
 var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
