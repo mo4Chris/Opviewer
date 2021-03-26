@@ -11,6 +11,7 @@ var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
+var { Pool } = require('pg')
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -65,6 +66,24 @@ let transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
+
+const pool = new Pool({
+  host: process.env.ADMIN_DB_HOST,
+  port: +process.env.ADMIN_DB_PORT,
+  database: process.env.ADMIN_DB_DATABASE,
+  user: process.env.ADMIN_DB_USER,
+  password: process.env.ADMIN_DB_PASSWORD,
+  ssl: false
+})
+
+pool.connect().then(() => {
+  logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
+}).catch(err => {
+  return logger.fatal(err, "Failed initial connection to admin db!")
+})
+pool.on('error', (err) => {
+  logger.fatal(err, 'Unexpected error in connection with admin database!')
+})
 
 
 //#########################################################
@@ -639,6 +658,27 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   }
 }
 
+// function verifyToken(req, res) {
+//   try {
+//     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
+
+//     const token = req.headers.authorization;
+//     if (token == null || token === 'null')  return onUnauthorized(res, 'Token missing!');
+
+//     const payload = jwt.verify(token, 'secretKey');
+//     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
+
+//     Usermodel.findByIdAndUpdate(payload.userID, {
+//       lastActive: new Date()
+//     }).exec().catch(err => {
+//       logger.error('Failed to update last active status of user')
+//     });
+//     return payload;
+//   } catch (err) {
+//     return onError(res, err, 'Failed to parse jwt token')
+//   }
+// }
+
 function verifyToken(req, res) {
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
@@ -649,12 +689,10 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    Usermodel.findByIdAndUpdate(payload.userID, {
-      lastActive: new Date()
-    }).exec().catch(err => {
-      logger.error('Failed to update last active status of user')
-    });
-    return payload;
+    const lastActive = new Date()
+    console.log();
+    pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload.userID])
+
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
   }

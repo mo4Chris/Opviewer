@@ -1,15 +1,15 @@
-var { Client, Pool } = require('pg')
+var { Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 const pool = new Pool({
-  host: process.env.ADMINPGHOST,
-  port: +process.env.ADMINPGPORT,
-  database: process.env.ADMINPGDATABASE,
-  user: process.env.ADMINPGUSER,
-  password: process.env.ADMINPGPASSWORD,
+  host: process.env.ADMIN_DB_HOST,
+  port: +process.env.ADMIN_DB_PORT,
+  database: process.env.ADMIN_DB_DATABASE,
+  user: process.env.ADMIN_DB_USER,
+  password: process.env.ADMIN_DB_PASSWORD,
   ssl: false
 })
 
@@ -275,9 +275,6 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
 }
 
 
-
-
-
 function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
   // return pool.query(`SELECT * FROM "${table_name}"`)
 
@@ -294,9 +291,6 @@ function generateRandomToken() {
   randomToken = randomToken.replace(/\//gi, '8');
   return randomToken;
 }
-
-
-
 
 
 function loadUserPermissions(user_id = 0) {

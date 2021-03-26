@@ -115,28 +115,6 @@ module.exports = function (
 
     if (!isLocalHost && !secret2faValid && !doesNotRequire2fa) return onUnauthorized(res, '2fa is incorrect');
     return true;
-    // //   const isBibbyVesselMaster = user.client === 'Bibby Marine' && user.permissions == 'Vessel master';
-    // //   if (!isLocalHost && !secret2faValid && !isBibbyVesselMaster) return onUnauthorized(res, '2fa is incorrect');
-
-    // //   let filter = user.permissions == 'admin' ? null : { client: user.client };
-    // //   turbineWarrantymodel.find(filter, function (err, data) {
-    // //     if (err) return onError(res, err)
-    const expireDate = new Date();
-    const payload = {
-      //userID: user._id,
-      //userPermission: user.permissions,
-      //userCompany: user.client,
-      //userBoats: user.boats,
-      username: user.username,
-      expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-      //hasCampaigns: data?.length >= 1 && (user.permissions !== "Vessel master")
-    };
-
-    let token = jwt.sign(payload, 'secretKey');
-    logger.trace('Login succesful for user: ' + userData.username.toLowerCase())
-
-    return res.status(200).send({ token });
-
   }
 
 
