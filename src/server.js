@@ -23,6 +23,25 @@ const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
 
+
+
+
+
+//#########################################################
+//############ Saving values to process env  ##############
+//#########################################################
+process.env.SERVER_ADDRESS = SERVER_ADDRESS;
+process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
+process.env.SERVER_PORT = SERVER_PORT;
+process.env.DB_CONN = DB_CONN;
+process.env.LOGGING_LEVEL = LOGGING_LEVEL;
+
+
+
+
+//#########################################################
+//########### Init up application middleware  #############
+//#########################################################
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 mongo.set('useFindAndModify', false);
 var logger = pino({level: LOGGING_LEVEL})
@@ -718,6 +737,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 app.use((req, res, next) => {
+  console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
   logger.debug({
     msg: `${req.method}: ${req.url}`,
     method: req.method,
@@ -749,7 +769,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, mailTo)
 
 
 //####################################################################

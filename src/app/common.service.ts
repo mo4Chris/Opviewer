@@ -14,6 +14,7 @@ import { ForecastOperation, ForecastResponseObject } from './layout/forecast/mod
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { deprecate } from 'node:util';
+import { storedSettings } from './supportModules/settings.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -255,8 +256,8 @@ export class CommonService {
     return mockedObservable({_id: '0', client: ''})
   }
 
-  saveUserBoats(user) {
-    return this.post('/api/saveUserBoats/', user);
+  updateUserPermissions(user) {
+    return this.post('/api/updateUserPermissions/', user);
   }
 
   saveFuelStatsSovDpr(sovfuelstats) {
@@ -328,7 +329,7 @@ export class CommonService {
     return this.post('/api/saveRemarksStats/', sovremarks);
   }
 
-  sendFeedback(feedback: {message: string, page: string, person: any}) {
+  sendFeedback(feedback: {message: string, page: string}) {
     return this.post('/api/sendFeedback/', feedback);
   }
 
@@ -384,12 +385,12 @@ export class CommonService {
     return this.post('/api/resetPassword/', user);
   }
 
-  setActive(user) {
-    return this.post('/api/setActive/', user);
+  setActive(user: {username: string}) {
+    return this.post('/api/setUserActive/', user);
   }
 
-  setInactive(user) {
-    return this.post('/api/setInactive/', user);
+  setInactive(user: {username: string}) {
+    return this.post('/api/setUserInactive/', user);
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
@@ -520,15 +521,12 @@ export class CommonService {
     return this.get('/api/getFieldsWithWaveSourcesByCompany');
   }
 
-  saveUserSettings(settings: object): void {
-    this.post('/api/saveUserSettings/', settings).subscribe();
+  saveUserSettings(settings: storedSettings): Observable<any> {
+    return this.post('/api/saveUserSettings/', settings);
   }
 
-  loadUserSettings(): Observable<object> {
-    return this.get('/api/loadUserSettings').pipe(
-      map(response => {
-        return response.settings;
-      }));
+  loadUserSettings(): Observable<storedSettings> {
+    return this.get('/api/loadUserSettings');
   }
 
   getForecastConnectionTest() {

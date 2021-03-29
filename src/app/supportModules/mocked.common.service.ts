@@ -32,7 +32,7 @@ export class MockedCommonService extends CommonService {
   }
 
   loadUserSettings() {
-    return mockedObservable({});
+    return mockedObservable(null);
   }
 
   // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
@@ -644,7 +644,7 @@ export class MockedCommonService extends CommonService {
       startDate: 0,
       stopDate: 1,
       windField: 'test123',
-  
+
       numContractedVessels: 0,
       weatherDayTarget: 0,
       weatherDayForecast: [],

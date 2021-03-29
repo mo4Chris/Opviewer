@@ -2,7 +2,7 @@ var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
-require('dotenv').config({ path: __dirname + '/./../.env' });
+// require('dotenv').config({ path: __dirname + '/./../.env' });
 
 const pool = new Pool({
   host: process.env.ADMIN_DB_HOST,
@@ -17,7 +17,8 @@ module.exports = function (
   app,
   logger,
   onError = (res, err, additionalInfo) => console.log(err),
-  onUnauthorized = (res, err, additionalInfo) => console.log(err),
+  onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
+  mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
 ) {
   pool.connect().then(() => {
     logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
@@ -115,15 +116,16 @@ module.exports = function (
       res.send({ data: 'Vessel succesfully added!' });
       // send email
 
-      // const link = SERVER_ADDRESS + "/set-password;token=" + password_setup_token + ";user=" + username;
-      // const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
-      //   'If that doesnt work copy the link below <br>' + link;
-      // mailTo('Registered user', html, username);
-      // logger.info('Succesfully created user ' + user.username)
-      // return res.send({
-      //   data: 'User created',
-      //   status: 200
-      // });
+      const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+      const link = SERVER_ADDRESS + "/set-password;token=" + password_setup_token + ";user=" + username;
+      const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+        'If that doesnt work copy the link below <br>' + link;
+      mailTo('Registered user', html, username);
+      logger.info('Succesfully created user ' + user.username)
+      return res.send({
+        data: 'User created',
+        status: 200
+      });
     })
   });
 
@@ -188,51 +190,65 @@ app.post("/api/resetPassword", function(req, res) {
   // });
 });
 
-app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
+app.post("/api/setUserActive", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
+  const permission = token['permission'];
+  const is_admin = permission.admin
+  if (!is_admin && !permission.user_manage) return onUnauthorized(res);
+  // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
   if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-
-  // Usermodel.findOneAndUpdate({
-  //   _id: req.body._id
-  // }, {
-  //   active: 1
-  // }, function(err, data) {
-  //   if (err) return onError(res, err);
-  //   var userActivity = new UserActivitymodel();
-  //   userActivity.username = req.body.user;
-  //   userActivity.changedUser = req.body._id;
-  //   userActivity.newValue = 'active';
-  //   userActivity.date = new Date();
-
-  //   userActivity.save(function(err, data) {
-  //     if (err) return onError(res, err, 'Failed to activate user!');
-  //     res.send({ data: "Succesfully activated this user" });
-  //   });
-  // });
+  const username = req.body.username;
+  let query, values;
+  if (is_admin) {
+    query = `UPDATE "userTable"
+      SET "active"=false
+      WHERE "userTable"."username"=$1`
+    values = [username];
+  } else {
+    query = `UPDATE "userTable"
+      SET "active"=false
+      WHERE "userTable"."username"=$1 AND client_id==$2`
+    values = [username, token['client_id']];
+  }
+  logger.info({
+    msg: 'User (re)-activated',
+    manager_user_id: token['userID'],
+    username: username
+  })
+  pool.query(query, values).then(sqldata => {
+    res.send({ data: "Succesfully deactivated this user" });
+  }).catch(err => onError(res, err))
 });
 
-app.post("/api/setInactive", function(req, res) {
+app.post("/api/setUserInactive", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
+  const permission = token['permission'];
+  const is_admin = permission.admin
+  if (!is_admin && !permission.user_manage) return onUnauthorized(res);
+  // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
   if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-  // Usermodel.findOneAndUpdate({
-  //   _id: req.body._id
-  // }, {
-  //   active: 0
-  // }, function(err, data) {
-  //   if (err) return onError(res, err);
-  //   var userActivity = new UserActivitymodel();
-  //   userActivity.username = req.body.user;
-  //   userActivity.changedUser = req.body._id;
-  //   userActivity.newValue = 'inactive';
-  //   userActivity.date = new Date();
-
-  //   userActivity.save(function(err, data) {
-  //     if (err) return onError(res, err, 'Failed to deactivate user!')
-  //     res.send({ data: "Succesfully deactivated this user" });
-  //   });
-  // });
+  // TODO: verify company
+  const username = req.body.username;
+  let query, values;
+  if (is_admin) {
+    query = `UPDATE "userTable"
+      SET "active"=false
+      WHERE "userTable"."username"=$1`
+    values = [username];
+  } else {
+    query = `UPDATE "userTable"
+      SET "active"=false
+      WHERE "userTable"."username"=$1 AND client_id==$2`
+    values = [username, token['client_id']];
+  }
+  logger.info({
+    msg: 'User deactivated',
+    manager_user_id: token['userID'],
+    username: username
+  })
+  pool.query(query, values).then(sqldata => {
+    res.send({ data: "Succesfully deactivated this user" });
+  }).catch(err => onError(res, err))
 });
 
 
@@ -279,77 +295,77 @@ app.post("/api/setInactive", function(req, res) {
   }
 
   app.post("/api/sendFeedback", function(req, res) {
-    const feedbacklogger = logger.child({ feedback: req.body.message, user: req.body.person, page: req.body.page })
-    Usermodel.findOne({ _id: req.body.person, active: { $ne: false } }, function(err, data) {
-      if (err) {
-        feedbacklogger.error(err);
-        return res.send(err);
-      }
-      if (data) {
-        feedbacklogger.info({ msg: 'Received feedback!' })
-        let html = 'feedback has been given by: ' + data.username + ' on page ' + req.body.page + '.<br><br>' +
-          'feedback message: ' + req.body.message;
-        mailTo('Feedback ' + data.client, html, WEBMASTER_MAIL);
-        res.send({ data: 'Feedback has been sent', status: 200 });
-      } else {
-        return onError(res, err);
-      }
-    });
+    const token = req['token'];
+    const user = token['username'];
+    const feedback = req.body.message;
+    const client = user['userCompany']
+    const page = req.body.page;
+    logger.info({
+      msg: 'Received feedback',
+      client: client,
+      user: user,
+      feedback: feedback,
+      page: page
+    })
+    const html = `Feedback has been given by: ${user} on page ${page}.<br><br>
+      Feedback message: ${feedback}`;
+    const WEBMASTER_MAIL = process.env.WEBMASTER_MAIL;
+    mailTo('Feedback ' + client, html, WEBMASTER_MAIL);
+    res.send({ data: 'Feedback has been sent', status: 200 });
   });
 
-  app.post("/api/getUserByToken", function(req, res) {
-    const user = req.body.user;
-    Usermodel.findOne({
-      token: req.body.passwordToken,
-      username: user,
-      active: { $ne: false }
-    }, function(err, data) {
-      if (err) return onError(res, err);
-      if (data) {
-        res.send({
-          username: data.username,
-          userCompany: data.client,
-          permissions: data.permissions
-        });
-      } else {
-        return onError(res, `User ${user} not found!`, 'User not found / password not correct')
-      }
-    });
+  app.post("/api/getUserByRegistrationToken", function(req, res) {
+    const username = req.body.user;
+    const token = req['token'];
+    const pw_token = req.body.passwordToken;
+    // NOT SURE WHAT TO MAKE OF THIS FUNCTION
   });
 
   app.get('/api/loadUserSettings', function(req, res) {
     const token = req['token']
     const user_id = token['userID']
-    'FROM '
-    // Usermodel.findOne({
-    //   username: token.username
-    // }, {
-    //   settings: 1,
-    //   _id: 0,
-    // }, (err, data) => {
-    //   if (err) return onError(res, err);
-    //   res.send(data);
-    // })
+    const query = `SELECT * FROM "userSettingsTable" WHERE "user_id"=$1`
+    const values = [user_id];
+    pool.query(query, values).then(sqldata => {
+      res.send(sqldata.rows[0])
+    }).catch(err => onError(res, err))
   });
 
   app.post('/api/saveUserSettings', function(req, res) {
     const token = req['token']
     let newSettings = req.body;
-    // Usermodel.updateOne({
-    //   username: token.username,
-    // }, {
-    //   settings: newSettings
-    // }, (err, data) => {
-    //   if (err) return onError(res, err);
-    //   res.send(data);
-    // });
+    const user_id = token['userID'];
+    const query = `INSERT INTO "userSettingsTable"("user_id", "unit", "dpr", "longterm", "weather_chart", "timezone")
+      VALUES($1, $2, $3, $4, $5, $6)
+      ON CONFLICT ("user_id")
+        DO UPDATE
+          SET unit=$2,
+           dpr=$3,
+           longterm=$4,
+           weather_chart=$5,
+           timezone=$6
+        WHERE "userSettingsTable"."user_id"=$1`
+    const values = [
+      user_id,
+      newSettings['unit'],
+      newSettings['dpr'],
+      newSettings['longterm'],
+      newSettings['weather_chart'],
+      newSettings['timezone'],
+    ];
+    pool.query(query, values).then(sqldata => {
+      res.send({status: 1});
+    }).catch(err => onError(res, err))
   });
+
   app.get("/api/checkUserActive/:user", function(req, res) {
     // Currently any user can check if any other user is active...
+    // Also, this really should be a post request
+    const token = req['token'];
+    if (!token.permission.user_read) return onUnauthorized(res);
     const query = 'SELECT "active" FROM "userTable" where username=$1';
-    // const vals = req.params.user;
-    const vals = 'test@test.nl'
-    pool.query(query, [vals]).then(sql_response => {
+    const values = [req.params.user]
+    pool.query(query, values).then(sql_response => {
       const data = sql_response.rows[0];
       const out = data.active;
       res.send(out);
@@ -359,7 +375,23 @@ app.post("/api/setInactive", function(req, res) {
   });
 
   app.post("/api/get2faExistence", function (req, res) {
+    // TODO: Seems like this can be integrated in another endpoint
+    const token = req['token'];
+    if (!token.permission.user_read) return onUnauthorized(res);
     let userEmail = req.body.userEmail;
+    const query = `SELECT "secret2fa", "requires2fa"
+    FROM "userTable"
+    WHERE username=$1 AND "active"=1
+    `
+    const values = [userEmail];
+    pool.query(query, [values]).then(sql_response => {
+      const data = sql_response.rows[0];
+      const out = data.secret2fa;
+      if (!out.requires2fa || out.secret2fa == null) return res.send({secret2fa: ""})
+      res.send({secret2fa: out.secret2fa})
+    }).catch(err => {
+      onError(res, err, 'user not found')
+    })
     // Usermodel.findOne({ username: userEmail, active: { $ne: false } },
     //   function (err, user) {
     //     if (err) return onError(res, err);
@@ -419,10 +451,7 @@ app.post("/api/setInactive", function(req, res) {
         }
       })
       return res.send(users)
-    }).catch(err => {
-      console.log(err)
-      // onError(res, err)
-    })
+    }).catch(err => onError(res, err))
   });
 
   app.post("/api/getUserByUsername", function(req, res) {
@@ -483,50 +512,53 @@ app.post("/api/setInactive", function(req, res) {
   app.post("/api/getVesselsForCompany", function(req, res) {
     let companyName = req.body[0].client;
     const token = req['token']
-    console.log(token)
-    // if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
-    // let filter = { client: companyName, active: { $ne: false } };
-    // // if (!req.body[0].notHired) filter.onHire = 1;
-
-    // if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-    //   filter.mmsi = [];
-    //   for (var i = 0; i < token.userBoats.length; i++) {
-    //     filter.mmsi[i] = token.userBoats[i].mmsi;
-    //   }
-    // }
-    // Vesselmodel.find(filter).sort({
-    //   nicename: 'asc'
-    // }).exec( function(err, data) {
-    //   if (err) return onError(res, err);
-    //   res.send(data);
-    // });
+    if (!token.permission.admin) return onUnauthorized(res, 'Admin only');
+    const query = `SELECT "vessel_id", "operations_class", "mmsi", "nicename"
+      FROM "clientTable"
+      LEFT JOIN "vesselTable" ON "clientTable"."client_id" = ANY("vesselTable"."client_ids")
+      WHERE client_name = $1`
+    const values = [companyName];
+    pool.query(query, values).then((data) => {
+      return res.send(data.rows);
+    }).catch(err => onError(res, err, 'Failed to get clients!'))
+    // TODO: filter on active?
   });
 
   app.get("/api/getCompanies", function(req, res) {
     const token = req['token']
-    if (token.userPermission !== 'admin') return onUnauthorized(res);
-    Vesselmodel.find({
-      active: { $ne: false }
-    }).distinct('client', function(err, data) {
-      if (err) return onError(res, err);
-      let BusinessData = data + '';
-      let arrayOfCompanies = [];
-      arrayOfCompanies = BusinessData.split(",");
-      res.send(arrayOfCompanies);
-    });
+    if (!token.permission.admin) return onUnauthorized(res);
+    const query = `SELECT "client_id", "client_name", "client_permissions"
+      FROM "clientTable"`
+    pool.query(query).then((data) => {
+      return res.send(data.rows);
+    }).catch(err => onError(res, err, 'Failed to get clients!'))
   });
 
-  app.post("/api/saveUserBoats", function(req, res) {
-    // TODO
-    // Maybe change to /api/updateVesselsForUser
+  app.post("/api/updateUserPermissions", function(req, res) {
+    // TODO: verify working as intended
     const token = req['token']
-    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-    // if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-    // Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { boats: req.body.boats },
-    //   function(err, data) {
-    //     if (err) return onError(res, err);
-    //     res.send({ data: "Succesfully saved the permissions" });
-    //   });
+    const permission = token['permission'];
+    if (!permission.admin || permission.user_manage) return onUnauthorized(res);
+
+    const target_permission = req.body.permission;
+    const may_not_change_target = target_permission.admin || target_permission.user_type == 'Logistics specialist'
+    if (may_not_change_target) return onUnauthorized(res, 'Vessels for target cannot be changed!')
+
+    const company = req.body.userCompany;
+    const user_id = token['userID'];
+    const same_company = token['userCompany'] == company;
+    if (!permission.admin && !same_company) return onUnauthorized(res, 'Different company!');
+
+    const vessel_ids = req.body['boats'].map(vessel => vessel.vessel_id)
+    const query = `
+      UPDATE "userTable"
+      SET "vessel_ids"=$2
+      WHERE "userTable"."user_id" = $1
+    `
+    const values = [user_id, vessel_ids];
+    pool.query(query, values).then(() => {
+      res.send({data: "Succesfully saved the permissions"})
+    }).catch(err => onError(res, err))
   });
 
 

@@ -66,7 +66,9 @@ export class UsersComponent implements OnInit {
   }
 
   setActive(user: any) {
-    this.newService.setActive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
+    this.newService.setActive({
+      username: user.username,
+    }).pipe(
     map(
         (res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});
@@ -81,7 +83,9 @@ export class UsersComponent implements OnInit {
   }
 
   setInactive(user) {
-    this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
+    this.newService.setInactive({
+      username: user.username,
+    }).pipe(
       map(
         (res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});

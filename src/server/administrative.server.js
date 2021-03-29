@@ -67,7 +67,8 @@ module.exports = function (
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."2fa",
-    "clientTable"."client_name", "user_type"
+    "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "user_type", "forecast", "userTable"."client_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -80,7 +81,7 @@ module.exports = function (
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
-      logger.trace(user);
+      logger.info(user);
 
       if (!validateLogin(req, user, res)) return null;
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
@@ -92,6 +93,7 @@ module.exports = function (
         userCompany: user.client_name,
         userBoats: vessels,
         username: user.username,
+        client_id: user.client_id,
         permission: {
           admin: user.admin,
           user_read: user.user_read,
