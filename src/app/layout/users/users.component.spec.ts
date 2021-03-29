@@ -38,7 +38,7 @@ describe('UsersComponent', () => {
     spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
     spyOn(CommonService.prototype, 'getUsers').and.returnValue(mockedObservable([]));
-    spyOn(CommonService.prototype, 'getUsersForCompany').and.returnValue(mockedObservable([]));
+    // spyOn(CommonService.prototype, 'getUsersForCompany').and.returnValue(mockedObservable([]));
 
     fixture = TestBed.createComponent(UsersComponent);
     component = fixture.componentInstance;
