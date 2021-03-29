@@ -16,7 +16,6 @@ import { RouterService } from '@app/supportModules/router.service';
   animations: [routerTransition()]
 })
 export class SignupComponent implements OnInit {
-
   registerUserData = {
     client: '',
     email: '',
@@ -41,7 +40,7 @@ export class SignupComponent implements OnInit {
     public alert: AlertService,
   ) {}
 
-  onRegistration() {
+  onRegistration(): void {
     if (this.registerUserData.email.length == 0) { return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' }); }
     const isValidPermission = Boolean(this.createPermissions.find(p => p == this.registerUserData.permissions));
     if (!isValidPermission) { return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' }); }

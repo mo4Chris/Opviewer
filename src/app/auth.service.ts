@@ -17,9 +17,8 @@ const httpOptions = {
 export class AuthService {
     private _getUserByTokenUrl = environment.DB_IP + '/api/getUserByToken/';
     private _setPasswordUrl = environment.DB_IP + '/api/setPassword/';
-    private _loginurl = environment.DB_IP + '/api/mo4admin/login';
-    //private _loginurl = environment.DB_IP + '/api/login/';
-    private _registerurl = environment.DB_IP + '/api/registerUser/';
+    private _loginurl = environment.DB_IP + '/api/login/';
+    private _registerurl = environment.DB_IP + '/api/createUser/';
 
     constructor(
         private httpClient: HttpClient,

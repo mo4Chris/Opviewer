@@ -82,7 +82,9 @@ export class SetPasswordComponent implements OnInit {
     }
 
     checkIf2faSecretExists() {
-        this.newService.get2faExistence({userEmail: this.getUsernameFromParameter()}).subscribe(data => {
+        this.newService.get2faExistence({
+            userEmail: this.getUsernameFromParameter()
+        }).subscribe(data => {
             if ( data.secret2fa === '' ) {
                 this.initiate2fa = true;
                 this.createBase32SecretCode();
