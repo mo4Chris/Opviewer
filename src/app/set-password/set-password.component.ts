@@ -20,18 +20,17 @@ import { Observable } from 'rxjs';
 })
 export class SetPasswordComponent implements OnInit {
   passwords = { password: '', confirmPassword: '', confirm2fa: '' };
-  user = '';
+  username = '';
   userCompany: string;
   userType: UserType;
-  token = this.getTokenFromParameter();
+  token = '';
   noUser = false;
   showAfterscreen = false;
   QRCode: string;
   secretAsBase32: string;
-  initiate2fa: Boolean;
   modalReference: NgbModalRef;
-
-  private lastMessage;
+  initiate2fa: boolean;
+  public requires2fa: boolean;
 
   constructor(
     public router: Router,
@@ -42,13 +41,12 @@ export class SetPasswordComponent implements OnInit {
     private alert: AlertService,
   ) { }
 
-  getTokenFromParameter() {
-    let _token;
-    this.route.params.subscribe(params => _token = String(params.token));
-    return _token;
+  initTokenFromParameter() {
+    this.route.params.subscribe(params => this.token = String(params.token));
   }
 
   ngOnInit() {
+    this.initTokenFromParameter();
     this.checkIf2faSecretExists();
 
     if (this.token && this.token !== 'undefined') {
@@ -64,9 +62,10 @@ export class SetPasswordComponent implements OnInit {
       user: this.getUsernameFromParameter()
     }).subscribe(data => {
       if (data.username) {
-        this.user = data.username;
+        this.username = data.username;
         this.userCompany = data.client_name;
         this.userType = data.permission.user_type;
+        this.requires2fa = data.requires2fa;
       } else {
         this.noUser = true;
       }
@@ -126,11 +125,13 @@ export class SetPasswordComponent implements OnInit {
 
     // TODO: Make sure that bibby fixes their stuff and then re-activate 2fa for them
     // TODO: Make sure to implement require2fa here
-    if (this.userCompany === 'Bibby Marine' && this.userType === 'Vessel master') {
+    const isBibbyVesselMaster = this.userCompany === 'Bibby Marine' && this.userType === 'Vessel master';
+    if (isBibbyVesselMaster || !this.requires2fa) {
       return this._auth.setUserPassword({
         passwordToken: this.token,
         password: this.passwords.password,
-        confirmPassword: this.passwords.confirmPassword
+        confirmPassword: this.passwords.confirmPassword,
+        secret2fa: null,
       }).pipe(map((res) => {
           this.showAfterscreen = true;
           setTimeout(() => this.router.navigate(['/login']), 3000);

@@ -130,43 +130,6 @@ module.exports = function (
   });
 
 
-
-  // app.post("/api/registerUser", function(req, res) {
-  //   const userData = req.body;
-  //   const token = req['token']
-  //   logger.info('Received request to create new user: ' + userData.email);
-  //   switch (token.userPermission){
-  //     case 'admin':
-  //       // Always allowed
-  //       break;
-  //     case 'Logistics specialist':
-  //       if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
-  //       break;
-  //     default:
-  //       return onUnauthorized(res, 'User not priviliged to register users!')
-  //   }
-  //   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
-  //     function(err, existingUser) {
-  //       if (err) return onError(res, err);
-  //       if (existingUser) return onUnauthorized(res, 'User already exists');
-  //       let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-  //       randomToken = randomToken.replace(/\//gi, '8');
-  //       let user = new Usermodel({
-  //         "username": userData.email.toLowerCase(),
-  //         "token": randomToken,
-  //         "permissions": userData.permissions,
-  //         "client": userData.client,
-  //         "secret2fa": "",
-  //         "active": 1,
-  //         "password": null,
-  //       });
-  //       user.save((error, registeredUser) => {
-  //         if (error) return onError(res, 'User already exists');
-  //       });
-  //     });
-  //   })
-
-
 app.post("/api/resetPassword", function(req, res) {
   const token = req['token']
   logger.info('Password reset requested for user' + token.username)
@@ -175,19 +138,23 @@ app.post("/api/resetPassword", function(req, res) {
 
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
   randomToken = randomToken.replace(/\//gi, '8');
-  // Usermodel.findOneAndUpdate({
-  //   _id: req.body._id,
-  //   active: { $ne: false }
-  // }, {
-  //   token: randomToken
-  // }, function(err, data) {
-  //   if (err) return onError(res, err);
-  //   let link = SERVER_ADDRESS + "/registerUser;token=" + randomToken + ";user=" + data.username;
-  //   let html = 'Your password has been reset to be able to use your account again you need to <a href="' + link + '">click here</a> <br>' +
-  //     'If that doesnt work copy the link below <br>' + link;
-  //   mailTo('Password reset', html, data.username);
-  //   res.send({ data: "Succesfully reset the password" });
-  // });
+  const user_id = token["userID"];
+  const username = token["username"];
+  const SERVER_ADDRESS = process.env.SERVER_ADDRESS
+
+  // TODO: verify this works
+  const query = `UPDATE "userTable"
+    SET token=$1
+    WHERE "user_id"=$2`
+  const values = [randomToken, user_id]
+  pool.query(query, values).then(sqlresponse => {
+    const link = SERVER_ADDRESS + "/registerUser;token=" + randomToken + ";user=" + username;
+    let html = `Your password has been reset. To use your account again, please
+      <a href="${link}">click here</a> <br>
+      If that doesnt work copy the link below <br> ${link}`;
+      mailTo('Password reset', html, username);
+      res.send({ data: "Succesfully reset the password" });
+  }).catch(err => onError(res, err));
 });
 
 app.post("/api/setUserActive", function(req, res) {

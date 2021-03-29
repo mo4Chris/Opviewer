@@ -43,10 +43,47 @@ module.exports = function (
     })
   })
 
-  app.post("/api/registerUser", function (req, res) {
+  app.post("/api/setPassword", function (req, res) {
     res.send({ data: 'Great success!' })
     // TODO
+
   })
+
+  // app.post("/api/registerUser", function(req, res) {
+  //   const userData = req.body;
+  //   const token = req['token']
+  //   logger.info('Received request to create new user: ' + userData.email);
+  //   switch (token.userPermission){
+  //     case 'admin':
+  //       // Always allowed
+  //       break;
+  //     case 'Logistics specialist':
+  //       if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
+  //       break;
+  //     default:
+  //       return onUnauthorized(res, 'User not priviliged to register users!')
+  //   }
+  //   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
+  //     function(err, existingUser) {
+  //       if (err) return onError(res, err);
+  //       if (existingUser) return onUnauthorized(res, 'User already exists');
+  //       let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+  //       randomToken = randomToken.replace(/\//gi, '8');
+  //       let user = new Usermodel({
+  //         "username": userData.email.toLowerCase(),
+  //         "token": randomToken,
+  //         "permissions": userData.permissions,
+  //         "client": userData.client,
+  //         "secret2fa": "",
+  //         "active": 1,
+  //         "password": null,
+  //       });
+  //       user.save((error, registeredUser) => {
+  //         if (error) return onError(res, 'User already exists');
+  //       });
+  //     });
+  //   })
+
 
   app.post("/api/login", async function (req, res) {
     let username = req.body.username;

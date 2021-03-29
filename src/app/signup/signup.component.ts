@@ -41,9 +41,9 @@ export class SignupComponent implements OnInit {
   ) {}
 
   onRegistration(): void {
-    if (this.registerUserData.email.length == 0) { return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' }); }
+    if (this.registerUserData.email.length == 0) return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' })
     const isValidPermission = Boolean(this.createPermissions.find(p => p == this.registerUserData.permissions));
-    if (!isValidPermission) { return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' }); }
+    if (!isValidPermission) return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' });
 
     if (!this.permission.admin) {
       const tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));

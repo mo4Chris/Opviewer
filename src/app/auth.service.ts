@@ -7,61 +7,71 @@ import { CommonService } from './common.service';
 import { map } from 'rxjs/operators';
 
 const httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type':  'application/json',
-      'Authorization': '' + localStorage.getItem('token')
-    })
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json',
+    'Authorization': '' + localStorage.getItem('token')
+  })
   };
 
 @Injectable()
 export class AuthService {
-    private _getUserByTokenUrl = environment.DB_IP + '/api/getUserByRegistrationToken/';
-    private _setPasswordUrl = environment.DB_IP + '/api/setPassword/';
-    private _loginurl = environment.DB_IP + '/api/login/';
-    private _registerurl = environment.DB_IP + '/api/createUser/';
+  private _getUserByTokenUrl = environment.DB_IP + '/api/getUserByRegistrationToken/';
+  private _setPasswordUrl = environment.DB_IP + '/api/setPassword/';
+  private _loginurl = environment.DB_IP + '/api/login/';
+  private _registerurl = environment.DB_IP + '/api/createUser/';
 
-    constructor(
-        private httpClient: HttpClient,
-        private commonService: CommonService,
-    ) { }
+  constructor(
+    private httpClient: HttpClient,
+    private commonService: CommonService,
+  ) { }
 
-    loginUser(user: UserLoginData): Observable<{token: string}> {
-        return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions).pipe(
-            map((tokenObj) => {
-                this.commonService.updateAuthorizationToken(tokenObj.token);
-                return tokenObj;
-            })
-        )
-    }
+  loginUser(user: UserLoginData): Observable<{token: string}> {
+    return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions).pipe(
+      map((tokenObj) => {
+        this.commonService.updateAuthorizationToken(tokenObj.token);
+        return tokenObj;
+      })
+    )
+  }
 
-    getToken() {
-        return localStorage.getItem('token');
-    }
+  getToken() {
+    return localStorage.getItem('token');
+  }
 
-    registerUser(user): Observable<{ data: string, status: number }> {
-        return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
-    }
+  registerUser(user): Observable<{ data: string, status: number }> {
+    // Create a new account using an account that is already active
+    return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
+  }
 
-    getUserByToken(token): Observable<UserObject>  {
-        return this.httpClient.post<UserObject>(this._getUserByTokenUrl, token, httpOptions);
-    }
+  getUserByToken(token): Observable<UserObject>  {
+    return this.httpClient.post<UserObject>(this._getUserByTokenUrl, token, httpOptions);
+  }
 
-    setUserPassword(passwords): Observable<{token: string}>  {
-        return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, httpOptions);
-    }
+  setUserPassword(passwords: PasswordInfo): Observable<{token: string}>  {
+    // Set password and 2fa using an account which is created but does not yet have a valid password
+    return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, httpOptions);
+  }
 }
 
 export interface UserObject {
-    username: string;
-    client_name: string;
-    permission: {
-        admin: boolean,
-        user_type: UserType;
-    }
+  username: string;
+  client_name: string;
+  requires2fa: boolean;
+  permission: {
+    admin: boolean,
+    user_type: UserType;
+  }
 }
 
 export interface UserLoginData {
-    username: string;
-    password: string;
-    confirm2fa: string;
+  username: string;
+  password: string;
+  confirm2fa: string;
 };
+
+interface PasswordInfo {
+  passwordToken: string;
+  password: string;
+  confirmPassword: string;
+  secret2fa: string;
+}
