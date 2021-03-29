@@ -15,7 +15,6 @@ import { AlertService } from '@app/supportModules/alert.service';
   animations: [routerTransition()]
 })
 export class UserManagementComponent implements OnInit {
-
   constructor(
     public router: Router,
     private newService: CommonService,
@@ -60,25 +59,24 @@ export class UserManagementComponent implements OnInit {
   getUser() {
     this.newService.getUserByUsername({
       username: this.username
-    }).subscribe(data => {
+    }).subscribe(userdata => {
       // Loads the users this person is allowed to edit
       if (!this.permission.admin) {
         if (!this.permission.userRead) {
           this.router.navigate(['/access-denied']);
-        } else {
-          if (this.tokenInfo.userCompany !== data[0].client) {
-            this.router.navigate(['/access-denied']);
-          }
+        } else if (this.tokenInfo.userCompany !== userdata[0].client) {
+          this.router.navigate(['/access-denied']);
         }
       }
+      console.log(userdata[0])
       this.newService.getVesselsForCompany([{
-        client: data[0].client,
-        notHired: 1 }]
-      ).subscribe(vessels => {
+        client: userdata[0].client_name,
+        notHired: 1
+      }]).subscribe(vessels => {
         this.boats = vessels;
       });
-      this.user = data[0];
-      this.multiSelectSettings.singleSelection = (data[0].permissions === 'Vessel master');
+      this.user = userdata[0];
+      this.multiSelectSettings.singleSelection = (userdata[0].permissions === 'Vessel master');
     });
   }
 

@@ -717,6 +717,14 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //####################################################################
 //#################   Endpoints - no login   #########################
 //####################################################################
+app.use((req, res, next) => {
+  logger.debug({
+    msg: `${req.method}: ${req.url}`,
+    method: req.method,
+    url: req.url
+  });
+  next();
+})
 
 mo4AdminServer(app, logger, onError, onUnauthorized)
 
@@ -1051,41 +1059,6 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
       if (err) return onError(res, err);
       res.send(data);
     });
-  });
-});
-
-app.post("/api/getVesselsForCompany", function(req, res) {
-  let companyName = req.body[0].client;
-  const token = req['token']
-  if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
-  let filter = { client: companyName, active: { $ne: false } };
-  // if (!req.body[0].notHired) filter.onHire = 1;
-
-  if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-    filter.mmsi = [];
-    for (var i = 0; i < token.userBoats.length; i++) {
-      filter.mmsi[i] = token.userBoats[i].mmsi;
-    }
-  }
-  Vesselmodel.find(filter).sort({
-    nicename: 'asc'
-  }).exec( function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
-app.get("/api/getCompanies", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
-  Vesselmodel.find({
-    active: { $ne: false }
-  }).distinct('client', function(err, data) {
-    if (err) return onError(res, err);
-    let BusinessData = data + '';
-    let arrayOfCompanies = [];
-    arrayOfCompanies = BusinessData.split(",");
-    res.send(arrayOfCompanies);
   });
 });
 

@@ -34,7 +34,13 @@ export class UsersComponent implements OnInit {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
-        this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
+        this.newService.getUsers().subscribe(
+          data => {
+            console.log(data)
+            this.userData = data
+          },
+          err => this.errData = err
+        );
       } else {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
@@ -48,17 +54,15 @@ export class UsersComponent implements OnInit {
   }
 
   resetPassword(id) {
-    this.newService.resetPassword({ _id: id, client: this.tokenInfo.userCompany }).pipe(
-      map(
-        (res) => {
+    this.newService.resetPassword({
+      _id: id,
+      client: this.tokenInfo.userCompany
+    }).pipe(map((res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});
-        }
-      ),
-      catchError(error => {
+      }),catchError(error => {
         this.alert.sendAlert({text: error, type: 'danger'});
         throw error;
-      })
-    ).subscribe();
+    })).subscribe();
   }
 
   setActive(user: any) {

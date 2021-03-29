@@ -378,24 +378,47 @@ app.post("/api/setInactive", function(req, res) {
     const is_admin = Boolean(token?.permission?.admin) || usertype == 'admin';
     // if ( !is_admin && usertype !== "Logistics specialist") return onUnauthorized(res);
 
-    const selectedFields = `"user_id", "username", "vessel_ids", "client_id",
+    const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
     "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
-    "user_type", "forecast"`
+    "user_type", "forecast", "client_name"`
     let query, value;
     if (is_admin) {
-      let query = `SELECT ${selectedFields}
+      query = `SELECT ${selectedFields}
         FROM "userTable"
-        LEFT JOIN "permissionTable"`;
-      const value = []
+        LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
+        LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"`;
+      value = []
     } else {
-      let query = `SELECT ${selectedFields}
-       FROM "userTable"
-       LEFT JOIN "permissionTable"
-       where "client_id"=$1`;
-      const value = [token['client_id']]
+      query = `SELECT ${selectedFields}
+        FROM "userTable"
+        LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
+        LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
+        where "client_id"=$1`;
+      value = [token['client_id']]
     }
     pool.query(query, value).then(sqldata => {
-      console.log(sqldata)
+      const users = sqldata.rows.map(row => {
+        return {
+          active: row.active,
+          userID: row.user_id,
+          username: row.username,
+          client_name: row.client_name,
+          client_id: row.client_id,
+          vessel_ids: row.vessel_ids,
+          permission: {
+            user_type: row.user_type,
+            admin: row.admin,
+            user_read: row.user_read,
+            user_write: row.user_write,
+            user_manage: row.user_manage,
+            twa: row.twa,
+            dpr: row.dpr,
+            longterm: row.longterm,
+            forecast: row.forecast,
+          }
+        }
+      })
+      return res.send(users)
     }).catch(err => {
       console.log(err)
       // onError(res, err)
@@ -405,33 +428,93 @@ app.post("/api/setInactive", function(req, res) {
   app.post("/api/getUserByUsername", function(req, res) {
     const token = req['token']
     const usertype = token['userPermission'];
-    const is_admin = Boolean(token.permission.admin);
-    if ( !is_admin && usertype !== "Logistics specialist") return onUnauthorized(res);
+    const is_admin = Boolean(token?.permission?.admin) || usertype == 'admin';
+    // if ( !is_admin && usertype !== "Logistics specialist") return onUnauthorized(res);
 
-    let query = 'SELECT * FROM "userTable" WHERE "username"=$1';
-    if (!is_admin) query += 'AND "client_id"=$2'
-    const value = [req.body.username, token['client_id']]
-    pool.query(query, value).then(sql_response => {
-      const datas = sql_response.rows;
-      res.send(datas)
+    const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
+    "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "user_type", "forecast", "client_name"`
+    let query, value;
+    if (is_admin) {
+      query = `SELECT ${selectedFields}
+        FROM "userTable"
+        LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
+        LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
+        WHERE "userTable"."username" = $1`;
+      value = [req.body.username]
+    } else {
+      query = `SELECT ${selectedFields}
+        FROM "userTable"
+        LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
+        LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
+        where "username" = $1 AND "client_id"=$2`;
+      value = [req.body.username, token['client_id']]
+    }
+    pool.query(query, value).then(sqldata => {
+      const users = sqldata.rows.map(row => {
+        return {
+          active: row.active,
+          userID: row.user_id,
+          username: row.username,
+          client_name: row.client_name,
+          client_id: row.client_id,
+          vessel_ids: row.vessel_ids,
+          permission: {
+            user_type: row.user_type,
+            admin: row.admin,
+            user_read: row.user_read,
+            user_write: row.user_write,
+            user_manage: row.user_manage,
+            twa: row.twa,
+            dpr: row.dpr,
+            longterm: row.longterm,
+            forecast: row.forecast,
+          },
+          boats: [], // TODO
+        }
+      })
+      return res.send(users)
     }).catch(err => {
-      onError(res, err)
+      console.log(err)
+      // onError(res, err)
     })
-    // TODO
-    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-    // Usermodel.find({
-    //   username: req.body.username,
-    //   active: { $ne: false }
-    // }, function(err, data) {
-    //   if (err) return onError(res, err);
-    //   if (token.userPermission === "Logistics specialist" && data[0].client !== token.userCompany) {
-    //     return onUnauthorized(res, 'User belongs to different company');
-    //   } else {
-    //     res.send(data);
+  });
+
+  app.post("/api/getVesselsForCompany", function(req, res) {
+    let companyName = req.body[0].client;
+    const token = req['token']
+    console.log(token)
+    // if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
+    // let filter = { client: companyName, active: { $ne: false } };
+    // // if (!req.body[0].notHired) filter.onHire = 1;
+
+    // if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
+    //   filter.mmsi = [];
+    //   for (var i = 0; i < token.userBoats.length; i++) {
+    //     filter.mmsi[i] = token.userBoats[i].mmsi;
     //   }
+    // }
+    // Vesselmodel.find(filter).sort({
+    //   nicename: 'asc'
+    // }).exec( function(err, data) {
+    //   if (err) return onError(res, err);
+    //   res.send(data);
     // });
   });
 
+  app.get("/api/getCompanies", function(req, res) {
+    const token = req['token']
+    if (token.userPermission !== 'admin') return onUnauthorized(res);
+    Vesselmodel.find({
+      active: { $ne: false }
+    }).distinct('client', function(err, data) {
+      if (err) return onError(res, err);
+      let BusinessData = data + '';
+      let arrayOfCompanies = [];
+      arrayOfCompanies = BusinessData.split(",");
+      res.send(arrayOfCompanies);
+    });
+  });
 
   app.post("/api/saveUserBoats", function(req, res) {
     // TODO

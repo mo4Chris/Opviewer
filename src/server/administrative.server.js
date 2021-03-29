@@ -45,6 +45,7 @@ module.exports = function (
 
   app.post("/api/registerUser", function (req, res) {
     res.send({ data: 'Great success!' })
+    // TODO
   })
 
   app.post("/api/login", async function (req, res) {
@@ -56,61 +57,77 @@ module.exports = function (
       return res.status(400).send('Missing username')
     }
     if (!password) {
-      logger.info('Login failed: missing password')
+      logger.info({
+        msg: 'Login failed: missing password',
+        username: username,
+      })
       return res.status(400).send('Missing password')
     }
 
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
-    "userTable"."active", "userTable"."permission", "userTable".requires2fa, "userTable"."2fa",
-    "clientTable"."client_name"
+    "userTable"."active", "userTable".requires2fa, "userTable"."2fa",
+    "clientTable"."client_name", "user_type"
     FROM "userTable"
-    INNER JOIN "clientTable"
-    ON "userTable"."client_id" = "clientTable"."client_id"
-    WHERE ("userTable"."username"='${username}')`;
+    INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
+    LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
+    WHERE "userTable"."username"=$1`
+    const values = [username];
 
-    pool.query(PgQuery).then(async (data, err) => {
+    logger.info('Received login for user: ' + username);
+    pool.query(PgQuery, values).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
       logger.trace(user);
-      if (validateLogin(req, user, res)) {
-        const vessels = await getVesselsForUser(res).catch(err => {return onError(res, err)});
-        logger.trace(vessels);
-        const expireDate = new Date();
-        const payload = {
-          userID: user.user_id,
-          userPermission: 'admin',
-          userCompany: user.client_name,
-          userBoats: vessels,
-          username: user.username,
-          permission: user.permission,
-          expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
-        };
-        token = jwt.sign(payload, 'secretKey');
-        logger.trace('Login succesful for user: ' + user.username.toLowerCase())
-        return res.status(200).send({ token });
 
-      }
+      if (!validateLogin(req, user, res)) return null;
+      const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
+      logger.trace(vessels);
+      const expireDate = new Date();
+      const payload = {
+        userID: user.user_id,
+        userPermission: user.user_type,
+        userCompany: user.client_name,
+        userBoats: vessels,
+        username: user.username,
+        permission: {
+          admin: user.admin,
+          user_read: user.user_read,
+          user_write: user.user_write,
+          user_manage: user.user_manage,
+          twa: user.twa,
+          dpr: user.dpr,
+          longterm: user.longterm,
+          user_type: user.user_type,
+          forecast: user.forecast,
+        },
+        expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
+      };
+      token = jwt.sign(payload, 'secretKey');
+      logger.trace('Login succesful for user: ' + user.username.toLowerCase())
+      return res.status(200).send({ token });
+
     }).catch((err) => {return onError(res, err)})
-    logger.info('Received login for user: ' + username);
   });
 
-  function getVesselsForUser(res) {
+  function getVesselsForUser(res, user_id) {
     let PgQuery = `
     SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
       FROM "vesselTable"
       INNER JOIN "userTable"
-      ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")`;
-    return pool.query(PgQuery).then((data, err) => {
+      ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
+      WHERE "userTable"."user_id"=$1`;
+    const values = [user_id]
+    return pool.query(PgQuery, values).then((data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length > 0) {
         return data.rows;
       } else {
         return null;
       }
-    });
+    }).catch(err => onError(res, err, 'Failed to load vessels'));
   };
 
 
