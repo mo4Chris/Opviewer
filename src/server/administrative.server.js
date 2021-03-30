@@ -43,10 +43,38 @@ module.exports = function (
     })
   })
 
-  app.post("/api/setPassword", function (req, res) {
-    res.send({ data: 'Great success!' })
-    // TODO
+  app.post('/api/setPassword', function (req, res) {
+    const token = req.body.passwordToken;
+    const password = req.body.password;
+    const confirm = req.body.confirmPassword;
+    const secret2fa = req.body.secret2fa;
 
+    if (!token?.length > 0) return res.status(400).send('Missing token')
+    if (password != confirm) return res.status(400).send('Password does not match confirmation code')
+    
+    const query = `SELECT user_id, requires2fa 
+      FROM "userTable"
+      WHERE "token"=$1`
+    const values = [token];
+    pool.query(query, values).then((sqlresponse) => {
+      const data = sqlresponse.rows[0];
+      const requires2fa = data.requires2fa ?? true;
+      const valid2fa = typeof(secret2fa)=='string' && (secret2fa.length > 0);
+      console.log("valid2fa: ", valid2fa, secret2fa)
+      if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
+      
+      const user_id = data.user_id;
+      const query2 = `UPDATE "user
+      SET password=$1,
+          secret2fa=$2,
+          token=null
+      WHERE "user_id"=$3
+      `
+      const value2 = [password, secret2fa, user_id]
+      pool.query(query2, value2).then(() => {
+        res.send({ data: 'Password set successfully!' })
+      }).catch(err => onError(res, err));
+    }).catch(err => onError(res, err, 'Registration token not found!'))
   })
 
   // app.post("/api/registerUser", function(req, res) {

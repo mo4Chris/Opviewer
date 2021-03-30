@@ -23,7 +23,7 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
 
 
 // ################# Setup #################
-const SERVER_LOGGING_LEVEL = 'silent';
+const SERVER_LOGGING_LEVEL = 'info';
 if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
 }
@@ -80,6 +80,7 @@ describe('Administrative - no login - user should', () => {
   const userID = 1;
   const password = 'test123';
   const company = 'BMO';
+  
   beforeEach(() => {
     mockJsonWebToken({
       active: 1,
@@ -102,22 +103,59 @@ describe('Administrative - no login - user should', () => {
     expect(response.status).toBe(200, 'Failed admin connection test!')
     expect(response.body['status']).toBe(1, 'Connection test not returning true!')
   })
-  // it('register user', async () => {
+  fit('set password for user', async () => {
+    const user_requires_2fa = true;
+    const valid_user_registration_from = {
+      passwordToken: "some_valid_token",
+      password: 'val1dP@ssw0rd',
+      confirmPassword: 'val1dP@ssw0rd',
+      secret2fa: 'some_valid_2fa_code',
+    }
+    mockPostgressRequest({
+      rows: [{
+        username: 'test123',
+        requires2fa: user_requires_2fa
+      }]})
+    const request = POST("/api/setPassword", valid_user_registration_from, false)
+    await request.expect(expectValidRequest)
+  })
+  fit('register user - no 2fa', async () => {
+    const user_requires_2fa = false;
+    const valid_user_registration_from = {
+      passwordToken: "some_valid_token",
+      password: 'val1dP@ssw0rd',
+      confirmPassword: 'val1dP@ssw0rd',
+      secret2fa: null,
+    }
+    mockPostgressRequest({
+      rows: [{
+        username: 'test123',
+        requires2fa: user_requires_2fa
+      }]})
+    const request = POST("/api/setPassword", valid_user_registration_from, false)
+    await request.expect(expectValidRequest)
+  })
+  fit('not register user with missing 2fa', async () => {
+    const user_requires_2fa = true;
+    const valid_user_registration_from = {
+      passwordToken: "some_valid_token",
+      password: 'val1dP@ssw0rd',
+      confirmPassword: 'val1dP@ssw0rd',
+      secret2fa: null,
+    }
+    mockPostgressRequest({
+      rows: [{
+        username: 'test123',
+        requires2fa: user_requires_2fa
+      }]})
+    const request = POST("/api/setPassword", valid_user_registration_from, false)
+    await request.expect(expectBadRequest);
+  })
+  // it('not register user with bad/expired token', async () => {
   //   const request = POST('/api/registerUser', {}, true)
   //   await request.expect(expectValidRequest)
   // })
-  // it('register user - no 2fa', async () => {
-  //   const request = POST('/api/registerUser', {}, true)
-  //   await request.expect(expectValidRequest)
-  // })
-  // it('not register user with bad token', async () => {
-  //   const request = POST('/api/registerUser', {}, true)
-  //   await request.expect(expectValidRequest)
-  // })
-  // it('not register user with expired token', async () => {
-  //   const request = POST('/api/registerUser', {}, true)
-  //   await request.expect(expectValidRequest)
-  // })
+  
 
   function assertValidToken(encoded_token) {
     expect(typeof encoded_token).toBe('string')
