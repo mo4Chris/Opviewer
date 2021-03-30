@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { of } = require('rxjs');
 const bcrypt = require('bcryptjs')
 const twoFactor = require('node-2fa');
+const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../helper/validate.server');
 
 
 // This test suite runs unit tests for the server file. Since we use
@@ -49,22 +50,6 @@ function POST(url, data, auth = true) {
 }
 
 // ################# Helpers #################
-async function expectValidRequest(response) {
-  return expect(response.status).toBeLessThanOrEqual(201, response.text)
-}
-async function expectUnAuthRequest(response) {
-  return expect(response.status).toEqual(401, `Expected auth failure (401)`)
-}
-async function expectBadRequest(response) {
-  return expect(response.status).toEqual(400, `Expected bad request (400)`)
-}
-async function expectErrorRequest(response) {
-  return expect(response.status).toEqual(500, `Expected error response (500)`)
-}
-function expectResponse(responseData, additionalInfo) {
-  return async (response) => await expect(response.data).toEqual(responseData, additionalInfo)
-}
-
 function mockJsonWebToken(decoded_token) {
   const jwtMock = {
     sign: (token, keyType) => 'test_token',

@@ -148,7 +148,7 @@ app.post("/api/resetPassword", function(req, res) {
     WHERE "user_id"=$2`
   const values = [randomToken, user_id]
   pool.query(query, values).then(sqlresponse => {
-    const link = SERVER_ADDRESS + "/registerUser;token=" + randomToken + ";user=" + username;
+    const link = SERVER_ADDRESS + "/setPassword;token=" + randomToken + ";user=" + username;
     let html = `Your password has been reset. To use your account again, please
       <a href="${link}">click here</a> <br>
       If that doesnt work copy the link below <br> ${link}`;
