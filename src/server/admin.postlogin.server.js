@@ -335,7 +335,7 @@ app.post("/api/setInactive", function(req, res) {
     const query = 'SELECT "active" FROM "userTable" where username=$1';
     // const vals = req.params.user;
     const vals = 'test@test.nl'
-    pool.query(query, [vals]).then(sql_response => {
+   admin_server_pool.query(query, [vals]).then(sql_response => {
       const data = sql_response.rows[0];
       const out = data.active;
       res.send(out);
@@ -382,7 +382,7 @@ app.post("/api/setInactive", function(req, res) {
         where "client_id"=$1`;
       value = [token['client_id']]
     }
-    pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -436,7 +436,7 @@ app.post("/api/setInactive", function(req, res) {
         where "username" = $1 AND "client_id"=$2`;
       value = [req.body.username, token['client_id']]
     }
-    pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -582,7 +582,13 @@ app.post("/api/setInactive", function(req, res) {
 
 function initUserSettings(res, user_id) {
   const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
-  const values = [user_id, 'vessel', {}, {}, {}];
+  const values = [
+    user_id, 
+    {"type":"vessel","fixedTimeZoneOffset":0,"fixedTimeZoneLoc":"Europe/London"}, 
+    {"distance":"km","speed":"km/h","weight":"ton","gps":"DMS"}, 
+    {"filterFailedTransfers":1},
+    {"Hs":false,"windAvg":false,"V2v transfers":false,"Turbine transfers":false,"Platform transfers":false,"Transit":false,"Vessel transfers":false} 
+  ];
   return admin_server_pool.query(text, [values])
 }
 
@@ -590,6 +596,7 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
   // const text = `INSERT INTO "userSettingsTable"(
   //   user_id, timezone, unit, longterm, weather_chart
   //   ) VALUES($1, $2, $3, $4, $5)`;
+  console.log('entered init process');
   const is_admin = user_type == 'admin';
   const default_values = {
     user_id,
