@@ -40,7 +40,24 @@ module.exports = function (
   });
 
   app.get('/api/vesselList', (req, res) => {
-    res.send([])
+    const token = req.token;
+    const is_admin = token?.permission?.admin ?? false;
+    const client_id = token?.client_id;
+    console.log('client_id', client_id)
+    let query, values;
+    if (is_admin) {
+      query = `SELECT *
+        FROM "vesselTable"`
+      values = [];
+    } else {
+      query = `SELECT *
+        FROM "vesselTable"
+        WHERE $1 == ANY("vesselTable"."client_ids")`
+      values = [client_id];
+    }
+    pool.query(query, values).then(sqlresponse => {
+      res.send(sqlresponse.rows);
+    }).catch(err => onError(res, err));
   });
 
   app.get('/api/userPermissions', (req, res) => {
@@ -57,21 +74,21 @@ module.exports = function (
       return onError(res, err)
     })
   })
-  app.post('/api/createUser', (req, res) => {
+  app.post('/api/createUser',  async (req, res) => {
     // TODO: verify client ID
     // TODO: verify if vessels belong to client
     // TODO: verify if token is acceptable)
     const own_token = req['token'];
-    const own_user_id = +own_token['user_id'];
-    const own_vessel_ids = own_token['userBoats'];
-    const own_client_id = +own_token['client_id'];
-    const own_permissions = +own_token['permission'];
-    logger.trace(own_token)
-    logger.trace(req.body)
+    const own_user_id = +own_token.user_id;
+    const own_vessel_ids = own_token.userBoats;
+    const own_client_id = +own_token.client_id;
+    const own_permissions = own_token.permission;
     const username = req.body.username;
     const requires2fa = req.body.requires2fa;
     const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
+    const user_type = req.body.user_type;
+
     logger.debug('Validating incoming request')
     if (vessel_ids != null && !Array.isArray(vessel_ids)) {
       logger.info('Vessel is not in valid format')
@@ -88,7 +105,8 @@ module.exports = function (
     const is_admin = own_permissions?.['admin'] ?? false
     logger.trace('Verfying client')
     // TODO: If a user is associated with multiple clients this wont do
-    if (is_admin || (client_id != own_client_id)) return onUnauthorized(res, 'Target client does not match own client')
+    console.log(client_id, own_client_id, is_admin)
+    if (!is_admin && (client_id != own_client_id)) return onUnauthorized(res, 'Target client does not match own client')
     logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
       // Valid - do nothing
@@ -103,163 +121,120 @@ module.exports = function (
       });
       if (illegal) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
     }
-    createUser({
-      username,
-      requires2fa,
-      client_id,
-      vessel_ids
-    }).catch(err => {
-      console.log('ERROR CATCH')
-      return onError(res, err, 'Error creating user')
-    }).then((password_setup_token) => {
-      logger.info(`Created new user with random token ${password_setup_token}`)
-      res.send({ data: 'Vessel succesfully added!' });
-      // send email
 
-      const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
-      const link = SERVER_ADDRESS + "/set-password;token=" + password_setup_token + ";user=" + username;
-      const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
-        'If that doesnt work copy the link below <br>' + link;
-      mailTo('Registered user', html, username);
-      logger.info('Succesfully created user ' + user.username)
-      return res.send({
-        data: 'User created',
-        status: 200
-      });
-    })
+    // This part is now solved in an await statement to reduce its complexity
+    let password_setup_token = '';
+    try {
+      password_setup_token = await createUser({
+        username,
+        requires2fa,
+        client_id,
+        vessel_ids,
+        user_type
+      })
+    } catch (err) {
+      if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
+      return onError(res, err, 'Error creating user')
+    }
+    logger.info(`Successfully created new user with random token ${password_setup_token}`)
+    // send email
+    const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+    const link = `${SERVER_ADDRESS}/set-password;token=${password_setup_token};user=${username}`;
+    const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
+      'If that does not work copy the link below <br>' + link;
+    mailTo('Registered user', html, username);
+    logger.info({msg: 'Succesfully created user ', username, created_by: own_user_id})
+    return res.send({ data: `User ${username} succesfully added!` });
   });
 
 
-app.post("/api/resetPassword", function(req, res) {
-  const token = req['token']
-  logger.info('Password reset requested for user' + token.username)
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+  app.post("/api/resetPassword", function(req, res) {
+    const token = req['token']
+    logger.info('Password reset requested for user' + token.username)
+    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
+    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
 
-  let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-  randomToken = randomToken.replace(/\//gi, '8');
-  const user_id = token["userID"];
-  const username = token["username"];
-  const SERVER_ADDRESS = process.env.SERVER_ADDRESS
+    let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
+    randomToken = randomToken.replace(/\//gi, '8');
+    const user_id = token["userID"];
+    const username = token["username"];
+    const SERVER_ADDRESS = process.env.SERVER_ADDRESS
 
-  // TODO: verify this works
-  const query = `UPDATE "userTable"
-    SET token=$1
-    WHERE "user_id"=$2`
-  const values = [randomToken, user_id]
-  pool.query(query, values).then(sqlresponse => {
-    const link = SERVER_ADDRESS + "/setPassword;token=" + randomToken + ";user=" + username;
-    let html = `Your password has been reset. To use your account again, please
-      <a href="${link}">click here</a> <br>
-      If that doesnt work copy the link below <br> ${link}`;
-      mailTo('Password reset', html, username);
-      res.send({ data: "Succesfully reset the password" });
-  }).catch(err => onError(res, err));
-});
+    // TODO: verify this works
+    const query = `UPDATE "userTable"
+      SET token=$1
+      WHERE "user_id"=$2`
+    const values = [randomToken, user_id]
+    pool.query(query, values).then(sqlresponse => {
+      const link = SERVER_ADDRESS + "/setPassword;token=" + randomToken + ";user=" + username;
+      let html = `Your password has been reset. To use your account again, please
+        <a href="${link}">click here</a> <br>
+        If that doesnt work copy the link below <br> ${link}`;
+        mailTo('Password reset', html, username);
+        res.send({ data: "Succesfully reset the password" });
+    }).catch(err => onError(res, err));
+  });
 
-app.post("/api/setUserActive", function(req, res) {
-  const token = req['token']
-  const permission = token['permission'];
-  const is_admin = permission.admin
-  if (!is_admin && !permission.user_manage) return onUnauthorized(res);
-  // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-  const username = req.body.username;
-  let query, values;
-  if (is_admin) {
-    query = `UPDATE "userTable"
-      SET "active"=false
-      WHERE "userTable"."username"=$1`
-    values = [username];
-  } else {
-    query = `UPDATE "userTable"
-      SET "active"=false
-      WHERE "userTable"."username"=$1 AND client_id==$2`
-    values = [username, token['client_id']];
-  }
-  logger.info({
-    msg: 'User (re)-activated',
-    manager_user_id: token['userID'],
-    username: username
-  })
-  pool.query(query, values).then(sqldata => {
-    res.send({ data: "Succesfully deactivated this user" });
-  }).catch(err => onError(res, err))
-});
+  app.post("/api/setUserActive", function(req, res) {
+    const token = req['token']
+    const permission = token['permission'];
+    const is_admin = permission.admin
+    if (!is_admin && !permission.user_manage) return onUnauthorized(res);
+    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
+    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+    const username = req.body.username;
+    let query, values;
+    if (is_admin) {
+      query = `UPDATE "userTable"
+        SET "active"=false
+        WHERE "userTable"."username"=$1`
+      values = [username];
+    } else {
+      query = `UPDATE "userTable"
+        SET "active"=false
+        WHERE "userTable"."username"=$1 AND client_id==$2`
+      values = [username, token['client_id']];
+    }
+    logger.info({
+      msg: 'User (re)-activated',
+      manager_user_id: token['userID'],
+      username: username
+    })
+    pool.query(query, values).then(sqldata => {
+      res.send({ data: "Succesfully deactivated this user" });
+    }).catch(err => onError(res, err))
+  });
 
-app.post("/api/setUserInactive", function(req, res) {
-  const token = req['token']
-  const permission = token['permission'];
-  const is_admin = permission.admin
-  if (!is_admin && !permission.user_manage) return onUnauthorized(res);
-  // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-  // TODO: verify company
-  const username = req.body.username;
-  let query, values;
-  if (is_admin) {
-    query = `UPDATE "userTable"
-      SET "active"=false
-      WHERE "userTable"."username"=$1`
-    values = [username];
-  } else {
-    query = `UPDATE "userTable"
-      SET "active"=false
-      WHERE "userTable"."username"=$1 AND client_id==$2`
-    values = [username, token['client_id']];
-  }
-  logger.info({
-    msg: 'User deactivated',
-    manager_user_id: token['userID'],
-    username: username
-  })
-  pool.query(query, values).then(sqldata => {
-    res.send({ data: "Succesfully deactivated this user" });
-  }).catch(err => onError(res, err))
-});
-
-
-  async function createUser({
-    username = '',
-    requires2fa = true,
-    vessel_ids = [],
-    client_id = null
-  }) {
-    if (!(client_id > 0)) { throw Error('Invalid client id!') }
-    if (!(username?.length > 0)) { throw Error('Invalid username!') }
-
-    logger.info(`Creating new user ${username}`)
-    const password_setup_token = generateRandomToken();
-    const valid_vessel_ids = Array.isArray(vessel_ids) && (vessel_ids.length > 0);
-    const newUser = [
-      username,
-      requires2fa ?? true,
-      true,
-      valid_vessel_ids ? vessel_ids : null,
-      password_setup_token,
-      client_id,
-    ]
-    const txt = `INSERT INTO "userTable"(
-        "username",
-        "requires2fa",
-        "active",
-        "vessel_ids",
-        "token",
-        "client_id"
-      ) VALUES($1, $2, $3, $3, $5, $6) RETURNING "user_id"`
-    logger.debug('Starting database insert')
-    const user_id = await pool.query(txt, newUser);
-    logger.debug('New user has id', user_id)
-    logger.debug('Init user permissions')
-    initUserPermission(user_id).catch(err => {
-      logger.error(err)
-    });
-    logger.debug('Init user settings')
-    initUserSettings(user_id).catch(err => {
-      logger.error(err)
-    });
-    return password_setup_token;
-  }
+  app.post("/api/setUserInactive", function(req, res) {
+    const token = req['token']
+    const permission = token['permission'];
+    const is_admin = permission.admin
+    if (!is_admin && !permission.user_manage) return onUnauthorized(res);
+    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
+    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+    // TODO: verify company
+    const username = req.body.username;
+    let query, values;
+    if (is_admin) {
+      query = `UPDATE "userTable"
+        SET "active"=false
+        WHERE "userTable"."username"=$1`
+      values = [username];
+    } else {
+      query = `UPDATE "userTable"
+        SET "active"=false
+        WHERE "userTable"."username"=$1 AND client_id==$2`
+      values = [username, token['client_id']];
+    }
+    logger.info({
+      msg: 'User deactivated',
+      manager_user_id: token['userID'],
+      username: username
+    })
+    pool.query(query, values).then(sqldata => {
+      res.send({ data: "Succesfully deactivated this user" });
+    }).catch(err => onError(res, err))
+  });
 
   app.post("/api/sendFeedback", function(req, res) {
     const token = req['token'];
@@ -279,13 +254,6 @@ app.post("/api/setUserInactive", function(req, res) {
     const WEBMASTER_MAIL = process.env.WEBMASTER_MAIL;
     mailTo('Feedback ' + client, html, WEBMASTER_MAIL);
     res.send({ data: 'Feedback has been sent', status: 200 });
-  });
-
-  app.post("/api/getUserByRegistrationToken", function(req, res) {
-    const username = req.body.user;
-    const token = req['token'];
-    const pw_token = req.body.passwordToken;
-    // NOT SURE WHAT TO MAKE OF THIS FUNCTION
   });
 
   app.get('/api/loadUserSettings', function(req, res) {
@@ -343,6 +311,9 @@ app.post("/api/setUserInactive", function(req, res) {
 
   app.post("/api/get2faExistence", function (req, res) {
     // TODO: Seems like this can be integrated in another endpoint
+
+    return res.send({secret2fa: ""})
+
     const token = req['token'];
     if (!token.permission.user_read) return onUnauthorized(res);
     let userEmail = req.body.userEmail;
@@ -372,10 +343,10 @@ app.post("/api/setUserInactive", function(req, res) {
   });
 
   app.get("/api/getUsers", function(req, res) {
-    const token = req['token']
-    const usertype = token['userPermission'];
-    const is_admin = Boolean(token?.permission?.admin) || usertype == 'admin';
-    // if ( !is_admin && usertype !== "Logistics specialist") return onUnauthorized(res);
+    const token = req.token;
+    const permission = token.permission;
+    const is_admin = token?.permission?.admin ?? false;
+    if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
     "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
@@ -422,10 +393,11 @@ app.post("/api/setUserInactive", function(req, res) {
   });
 
   app.post("/api/getUserByUsername", function(req, res) {
-    const token = req['token']
-    const usertype = token['userPermission'];
-    const is_admin = Boolean(token?.permission?.admin) || usertype == 'admin';
-    // if ( !is_admin && usertype !== "Logistics specialist") return onUnauthorized(res);
+    const token = req.token;
+    const permission = token.permission;
+    const is_admin = token?.permission?.admin ?? false;
+    const client_id = token.client_id;
+    if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
     "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
@@ -444,7 +416,7 @@ app.post("/api/setUserInactive", function(req, res) {
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
         where "username" = $1 AND "client_id"=$2`;
-      value = [req.body.username, token['client_id']]
+      value = [req.body.username, client_id]
     }
     pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
@@ -471,28 +443,12 @@ app.post("/api/setUserInactive", function(req, res) {
       })
       return res.send(users)
     }).catch(err => {
-      console.log(err)
-      // onError(res, err)
+      onError(res, err)
     })
   });
 
-  app.post("/api/getVesselsForCompany", function(req, res) {
-    let companyName = req.body[0].client;
-    const token = req['token']
-    if (!token.permission.admin) return onUnauthorized(res, 'Admin only');
-    const query = `SELECT "vessel_id", "operations_class", "mmsi", "nicename"
-      FROM "clientTable"
-      LEFT JOIN "vesselTable" ON "clientTable"."client_id" = ANY("vesselTable"."client_ids")
-      WHERE client_name = $1`
-    const values = [companyName];
-    pool.query(query, values).then((data) => {
-      return res.send(data.rows);
-    }).catch(err => onError(res, err, 'Failed to get clients!'))
-    // TODO: filter on active?
-  });
-
   app.get("/api/getCompanies", function(req, res) {
-    const token = req['token']
+    const token = req.token;
     if (!token.permission.admin) return onUnauthorized(res);
     const query = `SELECT "client_id", "client_name", "client_permissions"
       FROM "clientTable"`
@@ -503,9 +459,9 @@ app.post("/api/setUserInactive", function(req, res) {
 
   app.post("/api/updateUserPermissions", function(req, res) {
     // TODO: verify working as intended
-    const token = req['token']
+    const token = req.token;
     const permission = token['permission'];
-    if (!permission.admin || permission.user_manage) return onUnauthorized(res);
+    if (!permission.admin && !permission.user_manage) return onUnauthorized(res);
 
     const target_permission = req.body.permission;
     const may_not_change_target = target_permission.admin || target_permission.user_type == 'Logistics specialist'
@@ -528,35 +484,139 @@ app.post("/api/setUserInactive", function(req, res) {
     }).catch(err => onError(res, err))
   });
 
+  // ############################################################
+  // ##################### HELPER FUNCTIONS #####################
+  // ############################################################
 
-  function defaultPgLoaderMultiColumn(table, fields = '*', filter = null) {
-    let PgQuery = '';
-    if (typeof fields == 'string') {
-      PgQuery = `SELECT ${fields} from "${table}"`;
-    } else {
-      const fieldList = fields.join(', ');
-      PgQuery = `SELECT ${fieldList} from "${table}"`;
+  async function createUser({
+    username = '',
+    user_type = 'Vessel master',
+    requires2fa = true,
+    vessel_ids = [],
+    client_id = null
+  }) {
+    if (!(client_id > 0)) { throw Error('Invalid client id!') }
+    if (!(username?.length > 0)) { throw Error('Invalid username!') }
+
+    logger.info(`Creating new user ${username}`)
+    const password_setup_token = generateRandomToken();
+    const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
+    const query = `INSERT INTO "userTable"(
+      "username",
+      "requires2fa",
+      "active",
+      "vessel_ids",
+      "token",
+      "client_id"
+    ) VALUES($1, $2, $3, $4, $5, $6) RETURNING "userTable"."user_id"`
+    const values = [
+      username,
+      Boolean(requires2fa) ?? true,
+      true,
+      valid_vessel_ids ? vessel_ids : null,
+      password_setup_token,
+      client_id,
+    ]
+    logger.info('Starting database insert')
+    const sqlresponse = await pool.query(query, values)
+    const user_id = sqlresponse.rows[0].user_id;
+
+    logger.info('New user has id ' + user_id)
+    logger.debug('Init user permissions')
+    initUserPermission(user_id, user_type);
+    logger.debug('Init user settings')
+    initUserSettings(user_id);
+    return password_setup_token;
+  }
+  function initUserSettings(user_id = 0) {
+    const localLogger = logger.child({
+      user_id,
+      function: "initUserSettings"
+    })
+    const text = `INSERT INTO "userSettingsTable"
+    (user_id, timezone, unit, longterm, weather_chart, dpr)
+    VALUES($1, $2, $3, $4, $5, $6)`;
+    const values = [+user_id, {type: 'vessel'}, {speed: "knots"}, null, null, null];
+    pool.query(text, values).then(() => {
+      localLogger.info('Created user settings')
+    }).catch((err) => {
+      localLogger.error(err.message)
+    })
+  }
+  function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
+    const localLogger = logger.child({
+      user_id,
+      user_type,
+      function: "initUserPermission"
+    })
+    const is_admin = user_type == 'admin';
+    const default_values = {
+      user_type,
+      admin: is_admin,
+      user_read: true,
+      user_write: is_admin,
+      user_manage: is_admin,
+      dpr: {
+        read: true,
+        sov_input: 'read',
+        sov_commercial: 'read',
+        sov_hse: null,
+      },
+      longterm: {
+        read: false,
+      },
+      twa: {
+        read: is_admin
+      },
+      forecast: {
+        read: is_admin,
+        changeLimits: is_admin,
+        createProject: is_admin
+      }
     }
-    if (filter) {
-      PgQuery = `${PgQuery} where ${filter}`
+    let permissions = { ...default_values, ...opt_permissions };
+
+    switch (user_type) {
+      case 'admin':
+        permissions.dpr.sov_input = 'write';
+        permissions.dpr.sov_hse = 'write';
+        break
+      case 'Vessel master':
+        permissions.user_read = false;
+        permissions.dpr.sov_hse = 'write';
+        break
+      case 'Qhse specialist':
+        permissions.dpr.sov_hse = 'sign';
+        break
+      case 'Marine controller':
+        permissions.longterm.read = true;
+        permissions.dpr.sov_hse = 'read';
+        break
+      case 'Logistics specialist':
+        permissions.longterm.read = true;
+        break
+      case 'Client representative':
+        permissions.dpr.sov_commercial = 'read';
+        permissions.dpr.sov_input = 'read';
+        break
+      case 'Forecast demo':
+        permissions.dpr.read = false;
+        break
     }
-    return function (req, res) {
-      pool.query(PgQuery).then((data) => {
-        if (typeof fields == 'string') return res.send(data.rows);
-        // must check the else functionality for multicolumn
-        const out = [];
-        data.rows.forEach(row => {
-          const data = {};
-          fields.forEach(key => {
-            data[key] = row[key]
-          });
-          out.push(data)
-        });
-        res.send(out);
-      }).catch(err => {
-        onError(res, err);
-      })
-    }
+    const query = `
+      INSERT INTO "userPermissionTable"(
+        "user_id", "admin", "user_read", "user_write", "user_manage", "twa",
+        "dpr", "longterm", "user_type", "forecast"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `
+    const values = [user_id, permissions.admin, permissions.user_read, permissions.user_write,
+      permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
+      permissions.user_type, permissions.forecast];
+    pool.query(query, values).then(() => {
+      localLogger.info('Created user permissions')
+    }).catch((err) => {
+      localLogger.error(err)
+    })
   }
 
   function defaultPgLoader(table, fields = '*', filter = null) {
@@ -593,73 +653,6 @@ app.post("/api/setUserInactive", function(req, res) {
 };
 
 
-function initUserSettings(res, user_id) {
-  const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
-  const values = [user_id, 'vessel', {}, {}, {}];
-  return pool.query(text, [values])
-}
-
-function initUserPermission(user_id, user_type, opt_permissions = {}) {
-  // const text = `INSERT INTO "userSettingsTable"(
-  //   user_id, timezone, unit, longterm, weather_chart
-  //   ) VALUES($1, $2, $3, $4, $5)`;
-  const is_admin = user_type == 'admin';
-  const default_values = {
-    user_id,
-    user_type,
-    admin: is_admin,
-    user_read: true,
-    user_write: is_admin,
-    user_manage: is_admin,
-    dpr: {
-      read: true,
-      sov_input: 'read',
-      sov_commercial: 'read',
-      sov_hse: null,
-    },
-    longterm: {
-      read: false,
-    },
-    twa: {
-      read: is_admin
-    },
-    forecast: {
-      read: is_admin,
-      changeLimits: is_admin,
-      createProject: is_admin
-    }
-  }
-  let values = { ...default_values, ...opt_permissions };
-
-  switch (user_type) {
-    case 'admin':
-      values.dpr.sov_input = 'write';
-      values.dpr.sov_hse = 'write';
-      break
-    case 'Vessel master':
-      values.user_read = false;
-      values.dpr.sov_hse = 'write';
-      break
-    case 'Qhse specialist':
-      values.dpr.sov_hse = 'sign';
-      break
-    case 'Marine controller':
-      values.longterm.read = true;
-      values.dpr.sov_hse = 'read';
-      break
-    case 'Logistics specialist':
-      values.longterm.read = true;
-      break
-    case 'Client representative':
-      values.dpr.sov_commercial = 'read';
-      values.dpr.sov_input = 'read';
-      break
-    case 'Forecast demo':
-      values.dpr.read = false;
-      break
-  }
-  return genericSqlInsert('userPermissionTable', values)
-}
 
 
 function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {

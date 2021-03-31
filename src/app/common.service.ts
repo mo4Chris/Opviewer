@@ -63,6 +63,9 @@ export class CommonService {
   getVessel(): Observable<VesselModel[]> {
     return this.get('/api/getVessel/');
   }
+  getVesselsForCompany(client?: { client: string, notHired?: number}[]) {
+    return this.get('/api/getVesselsForCompany/');
+  }
 
   getSov(vessel: VesselObjectModel) {
     return this.get('/api/getSov/' + vessel.mmsi + '/' + vessel.date);
@@ -75,10 +78,6 @@ export class CommonService {
   getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
     // For both CTV and SOV!
     return this.get('/api/getLatestGeneral/');
-  }
-
-  getLatestGeneralForCompany(opts: {client: string, vesselname?: string}) {
-    // For both CTV and SOV!
   }
 
   getLatestTwaUpdate(): Observable<number> {
@@ -124,11 +123,7 @@ export class CommonService {
     return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date);
   }
 
-  getVesselsForCompany(client: { client: string, notHired?: number}[]) {
-    return this.post('/api/getVesselsForCompany/', client);
-  }
-
-  getCompanies() {
+  getCompanies(): Observable<Client[]> {
     return this.get('/api/getCompanies/');
   }
 
@@ -598,3 +593,11 @@ export interface SovDprSignOrRefuseModel {
   vesselName: string;
   feedback?: string;
 }
+ export interface Client {
+  client_id: number;
+  client_name: string;
+  client_permissions: ClientPermission;
+  client_children: number[];
+ }
+ interface ClientPermission {
+ }

@@ -21,11 +21,11 @@ import { Observable } from 'rxjs';
 export class SetPasswordComponent implements OnInit {
   passwords = { password: '', confirmPassword: '', confirm2fa: '' };
   username = '';
-  userCompany: string;
-  userType: UserType;
   token = '';
+
   noUser = false;
   showAfterscreen = false;
+
   QRCode: string;
   secretAsBase32: string;
   modalReference: NgbModalRef;
@@ -41,39 +41,38 @@ export class SetPasswordComponent implements OnInit {
     private alert: AlertService,
   ) { }
 
-  initTokenFromParameter() {
-    this.route.params.subscribe(params => this.token = String(params.token));
+  initParameters(): Observable<void> {
+    return this.route.params.pipe(map(params => {
+      this.token = String(params.token)
+      this.username = String(params.user)
+    }));
   }
 
   ngOnInit() {
-    this.initTokenFromParameter();
-    this.checkIf2faSecretExists();
-
-    if (this.token && this.token !== 'undefined') {
-      this.getUserByToken(this.token);
-    } else {
-      this.noUser = true;
-    }
-  }
-
-  getUserByToken(token) {
-    this._auth.getUserByToken({
-      passwordToken: token,
-      user: this.getUsernameFromParameter()
-    }).subscribe(data => {
-      if (data.username) {
+    this.initParameters().subscribe(() => {
+      if (!this.token || this.token == 'undefined') return this.noUser = true;
+      this._auth.getRegistrationInformation({
+        registration_token: this.token,
+        user: this.username
+      }).subscribe(data => {
+        if (!data.username) return this.noUser = true;
         this.username = data.username;
-        this.userCompany = data.client_name;
-        this.userType = data.permission.user_type;
         this.requires2fa = data.requires2fa;
-      } else {
+        this.set2faExistence(data.secret2fa);
+      }, err => {
         this.noUser = true;
-      }
-    });
-  }
-
-  getUsernameFromParameter(): Observable<String> {
-    return this.route.params.pipe(map(params => String(params.user)));
+        if (err.status == 400) {
+          return this.alert.sendAlert({
+            type: 'danger',
+            text: 'Registration token invalid - please contact your supervisor',
+            timeout: null})
+        }
+        this.alert.sendAlert({
+          type: 'danger',
+          text: 'Failed to load registration information - please try to reload the page',
+          timeout: null})
+      });
+    })
   }
 
   createBase32SecretCode() {
@@ -83,31 +82,20 @@ export class SetPasswordComponent implements OnInit {
     this.createQrCode();
   }
 
-  checkIf2faSecretExists() {
-    this.newService.get2faExistence({
-      userEmail: this.getUsernameFromParameter()
-    }).subscribe(data => {
-      if ( data.secret2fa === '' ) {
-        this.initiate2fa = true;
-        this.createBase32SecretCode();
-      } else {
-        this.initiate2fa = false;
-        this.secretAsBase32 = data.secret2fa;
-      }
-    });
+  set2faExistence(secret2faResponse: string) {
+    if ( secret2faResponse == '' || secret2faResponse == null ) {
+      this.initiate2fa = true;
+      this.createBase32SecretCode();
+    } else {
+      this.initiate2fa = false;
+      this.secretAsBase32 = secret2faResponse;
+    }
   }
 
   createQrCode() {
-    this.QRCode = 'otpauth://totp/' + this.getUsernameFromParameter() + '?secret=' + this.secretAsBase32 + '&issuer=MO4%20Dataviewer';
+    this.QRCode = `otpauth://totp/${this.username}?secret=${this.secretAsBase32}&issuer=MO4%20Dataviewer`;
   }
 
-  openModal(content) {
-    this.modalReference = this.modalService.open(content, { centered: true, size: 'lg' });
-  }
-
-  closeModal() {
-    this.modalReference.close();
-  }
 
   setUserPassword() {
     this.alert.clear();
@@ -118,31 +106,12 @@ export class SetPasswordComponent implements OnInit {
       });
     } else if (this.passwords.password !== this.passwords.confirmPassword) {
       return this.alert.sendAlert({
-        text: 'Password and confirmation are not equal!',
+        text: 'Password and confirmation do not match!',
         type: 'danger'
       });
     }
 
-    // TODO: Make sure that bibby fixes their stuff and then re-activate 2fa for them
-    // TODO: Make sure to implement require2fa here
-    const isBibbyVesselMaster = this.userCompany === 'Bibby Marine' && this.userType === 'Vessel master';
-    if (isBibbyVesselMaster || !this.requires2fa) {
-      return this._auth.setUserPassword({
-        passwordToken: this.token,
-        password: this.passwords.password,
-        confirmPassword: this.passwords.confirmPassword,
-        secret2fa: null,
-      }).pipe(map((res) => {
-          this.showAfterscreen = true;
-          setTimeout(() => this.router.navigate(['/login']), 3000);
-        }), catchError(error => {
-          this.alert.sendAlert({
-            text: error._body,
-            type: 'danger'
-          });
-          throw error;
-      })).subscribe();
-    }
+    if (!this.requires2fa) this._setPassword(null);
 
     if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) == null) {
       return this.alert.sendAlert({
@@ -151,20 +120,32 @@ export class SetPasswordComponent implements OnInit {
       });
     }
 
+    this._setPassword(this.secretAsBase32);
+  }
+
+  private _setPassword(secret2fa: string) {
     this._auth.setUserPassword({
       passwordToken: this.token,
       password: this.passwords.password,
       confirmPassword: this.passwords.confirmPassword,
-      secret2fa: this.secretAsBase32
-    }).pipe(map((res) => {
-        this.showAfterscreen = true;
-        setTimeout(() => this.router.navigate(['/login']), 3000);
-      }), catchError(err => {
-        this.alert.sendAlert({
-          text: err._body,
-          type: 'danger'
-        });
-        throw err;
-    })).subscribe();
+      secret2fa: secret2fa,
+    }).subscribe(() => {
+      this.showAfterscreen = true;
+      setTimeout(() => this.router.navigate(['/login']), 3000);
+    }), catchError(error => {
+      this.alert.sendAlert({
+        text: error._body,
+        type: 'danger'
+      });
+      throw error;
+    })
+  }
+
+
+  openModal(content) {
+    this.modalReference = this.modalService.open(content, { centered: true, size: 'lg' });
+  }
+  closeModal() {
+    this.modalReference.close();
   }
 }

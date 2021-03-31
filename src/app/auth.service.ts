@@ -15,7 +15,7 @@ const httpOptions = {
 
 @Injectable()
 export class AuthService {
-  private _getUserByTokenUrl = environment.DB_IP + '/api/getUserByRegistrationToken/';
+  private _getUserByTokenUrl = environment.DB_IP + '/api/getRegistrationInformation/';
   private _setPasswordUrl = environment.DB_IP + '/api/setPassword/';
   private _loginurl = environment.DB_IP + '/api/login/';
   private _registerurl = environment.DB_IP + '/api/createUser/';
@@ -38,13 +38,13 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  registerUser(user): Observable<{ data: string, status: number }> {
+  registerUser(user: UserCreationData): Observable<{ data: string, status: number }> {
     // Create a new account using an account that is already active
     return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
   }
 
-  getUserByToken(token): Observable<UserObject>  {
-    return this.httpClient.post<UserObject>(this._getUserByTokenUrl, token, httpOptions);
+  getRegistrationInformation(token: {registration_token: string, user: string}): Observable<SetPasswordData> {
+    return this.httpClient.post<SetPasswordData>(this._getUserByTokenUrl, token, httpOptions);
   }
 
   setUserPassword(passwords: PasswordInfo): Observable<{token: string}>  {
@@ -74,4 +74,18 @@ interface PasswordInfo {
   password: string;
   confirmPassword: string;
   secret2fa: string;
+}
+
+interface SetPasswordData {
+  username: string;
+  requires2fa:boolean;
+  secret2fa: string;
+}
+
+interface UserCreationData {
+  username: string;
+  client_id: number;
+  user_type: string;
+  requires2fa: boolean;
+  vessel_ids: number[];
 }

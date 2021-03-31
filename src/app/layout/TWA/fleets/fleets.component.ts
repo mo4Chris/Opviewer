@@ -36,7 +36,7 @@ export class FleetsComponent implements OnInit {
         this.getMsg();
         if (this.tokenInfo.userPermission === 'admin') {
             this.newService.getCompanies().subscribe(data => {
-                this.companies = ['all'].concat(data);
+                this.companies = ['all'].concat(data.map(info => info.client_name));
             });
             this.newService.getTurbineWarranty().subscribe(data => this.fleets = data);
             this.selectedCompany = 'all';

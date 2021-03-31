@@ -2,7 +2,6 @@ var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
-const { response } = require('express');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
 const pool = new Pool({
@@ -43,26 +42,44 @@ module.exports = function (
     })
   })
 
+  app.post("/api/getRegistrationInformation", function(req, res) {
+    const username = req.body.user;
+    const registration_token = req.body.registration_token;
+    // NOT SURE WHAT TO MAKE OF THIS FUNCTION
+    const query = `SELECT username, requires2fa, secret2fa
+      FROM "userTable"
+      WHERE "token"=$1`
+    const values = [registration_token]
+    pool.query(query, values).then(sqlresponse => {
+      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      const row = sqlresponse.rows[0];
+      res.send({
+        username: row.username,
+        requires2fa: row.requires2fa,
+      })
+    }).catch(err => onError(res, err))
+  });
+
   app.post('/api/setPassword', function (req, res) {
     const token = req.body.passwordToken;
     const password = req.body.password;
     const confirm = req.body.confirmPassword;
     const secret2fa = req.body.secret2fa;
 
-    if (!token?.length > 0) return res.status(400).send('Missing token')
+    if (!(token?.length > 0)) return res.status(400).send('Missing token')
     if (password != confirm) return res.status(400).send('Password does not match confirmation code')
-    
-    const query = `SELECT user_id, requires2fa 
+
+    const query = `SELECT user_id, requires2fa
       FROM "userTable"
       WHERE "token"=$1`
     const values = [token];
     pool.query(query, values).then((sqlresponse) => {
+      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
       const valid2fa = typeof(secret2fa)=='string' && (secret2fa.length > 0);
-      console.log("valid2fa: ", valid2fa, secret2fa)
       if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
-      
+
       const user_id = data.user_id;
       const query2 = `UPDATE "user
       SET password=$1,
@@ -76,42 +93,6 @@ module.exports = function (
       }).catch(err => onError(res, err));
     }).catch(err => onError(res, err, 'Registration token not found!'))
   })
-
-  // app.post("/api/registerUser", function(req, res) {
-  //   const userData = req.body;
-  //   const token = req['token']
-  //   logger.info('Received request to create new user: ' + userData.email);
-  //   switch (token.userPermission){
-  //     case 'admin':
-  //       // Always allowed
-  //       break;
-  //     case 'Logistics specialist':
-  //       if (token.userCompany != userData.client) return onUnauthorized(res, 'Cannot register user for different company')
-  //       break;
-  //     default:
-  //       return onUnauthorized(res, 'User not priviliged to register users!')
-  //   }
-  //   Usermodel.findOne({ username: userData.email, active: { $ne: false } },
-  //     function(err, existingUser) {
-  //       if (err) return onError(res, err);
-  //       if (existingUser) return onUnauthorized(res, 'User already exists');
-  //       let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-  //       randomToken = randomToken.replace(/\//gi, '8');
-  //       let user = new Usermodel({
-  //         "username": userData.email.toLowerCase(),
-  //         "token": randomToken,
-  //         "permissions": userData.permissions,
-  //         "client": userData.client,
-  //         "secret2fa": "",
-  //         "active": 1,
-  //         "password": null,
-  //       });
-  //       user.save((error, registeredUser) => {
-  //         if (error) return onError(res, 'User already exists');
-  //       });
-  //     });
-  //   })
-
 
   app.post("/api/login", async function (req, res) {
     let username = req.body.username;
@@ -131,7 +112,7 @@ module.exports = function (
 
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
-    "userTable"."active", "userTable".requires2fa, "userTable"."2fa",
+    "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
     "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "userTable"."client_id"
     FROM "userTable"

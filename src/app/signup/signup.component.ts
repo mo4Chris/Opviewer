@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonService } from '@app/common.service';
+import { Client, CommonService } from '@app/common.service';
 import { routerTransition } from '@app/router.animations';
 import { AuthService } from '@app/auth.service';
 import { UserService } from '@app/shared/services/user.service';
@@ -23,6 +23,7 @@ export class SignupComponent implements OnInit {
   };
 
   businessNames: string[]; // Loaded iff admin
+  clients: Client[] = [];
   createPermissions: UserType[] = [
     'Vessel master',
     'Logistics specialist',
@@ -38,24 +39,44 @@ export class SignupComponent implements OnInit {
     private userService: UserService,
     public permission: PermissionService,
     public alert: AlertService,
-  ) {}
+  ) {
+    console.log(this)
+  }
+
+  ngOnInit() {
+    if (!this.permission.admin && !this.permission.userCreate) {
+      this.routerService.routeToAccessDenied();
+    } else {
+      this.createPermissions = this.createPermissions.concat(['admin', 'Logistics specialist']);
+      this.newService.getCompanies().subscribe(clients => {
+        this.clients = clients;
+        this.businessNames = clients.map(client => client.client_name);
+      });
+    }
+  }
 
   onRegistration(): void {
+    const tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+    let new_client_id: number;
     if (this.registerUserData.email.length == 0) return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' })
     const isValidPermission = Boolean(this.createPermissions.find(p => p == this.registerUserData.permissions));
     if (!isValidPermission) return this.alert.sendAlert({ text: 'Please select an account type!', type: 'danger' });
-
     if (!this.permission.admin) {
-      const tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+      new_client_id = tokenInfo['client_id'];
       this.registerUserData.client = tokenInfo.userCompany;
-    } else if (this.businessNames.indexOf(this.registerUserData.client) < 0) {
-      this.alert.sendAlert({
-        text: 'User needs a client',
-        type: 'danger',
-      });
-      return;
+    } else {
+      const index = this.businessNames.indexOf(this.registerUserData.client)
+      if (index < 0) return this.alert.sendAlert({text: 'User needs a client',type: 'danger'});
+      new_client_id = this.clients[index].client_id;
     }
-    this._auth.registerUser(this.registerUserData).subscribe( res => {
+    console.log(new_client_id)
+    this._auth.registerUser({
+      client_id: new_client_id,
+      username: this.registerUserData.email,
+      user_type: this.registerUserData.permissions,
+      requires2fa: true, // TODO: make this optional
+      vessel_ids: this.registerUserData.permissions == 'Logistics specialist' ? null : [],
+    }).subscribe( res => {
       this.alert.sendAlert({ type: 'success', text: res.data });
       this.routerService.route(['dashboard', {status: 'success', message: res.data}]);
     }, err => {
@@ -65,14 +86,5 @@ export class SignupComponent implements OnInit {
         this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, please contact MO4' });
       }
     });
-  }
-
-  ngOnInit() {
-    if (!this.permission.admin && !this.permission.userCreate) {
-      this.routerService.routeToAccessDenied();
-    } else {
-      this.createPermissions = this.createPermissions.concat(['admin', 'Logistics specialist']);
-      this.newService.getCompanies().subscribe(data => this.businessNames = data);
-    }
   }
 }

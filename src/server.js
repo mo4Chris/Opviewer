@@ -2,16 +2,18 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
-var twoFactor = require('node-2fa');
+// var bcrypt = require("bcryptjs");
+// var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var pino = require('pino');
+// var expressPinoLogger = require('express-pino-logger')
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
 var args = require('minimist')(process.argv.slice(2));
+
 
 
 //#########################################################
@@ -22,9 +24,6 @@ const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                
 const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
-
-
-
 
 
 //#########################################################
@@ -38,13 +37,14 @@ process.env.LOGGING_LEVEL = LOGGING_LEVEL;
 
 
 
-
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
-const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-mongo.set('useFindAndModify', false);
+var app = express();
+
 var logger = pino({level: LOGGING_LEVEL})
+
+mongo.set('useFindAndModify', false);
 var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -55,14 +55,12 @@ var db = mongo.connect(DB_CONN, {
   logger.fatal(err);
 });
 
-var app = express();
-app.use(bodyParser.json({ limit: '5mb' }));
-
 app.get("/api/connectionTest", function(req, res) {
   logger.debug('Hello world');
   res.send("Hello World");
 })
 
+app.use(bodyParser.json({ limit: '5mb' })); // bodyParser depricated
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
@@ -86,6 +84,8 @@ let transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
+
+const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 
 
 //#########################################################
@@ -925,6 +925,25 @@ app.get("/api/getVessel", function(req, res) {
   }, function(err, data) {
     if (err) return onError(res, err);
     return res.send(data);
+  });
+});
+app.get("/api/getVesselsForCompany", function(req, res) {
+  const token = req['token'];
+  const permission = token.permission;
+  let companyName = token.userCompany;
+  if (token.userCompany !== companyName && !permission.admin) return onUnauthorized(res);
+  let filter = { client: companyName, active: { $ne: false } };
+  if (token.userPermission !== "Logistics specialist" && !permission.admin) {
+    filter.mmsi = [];
+    for (var i = 0; i < token.userBoats.length; i++) {
+      filter.mmsi[i] = token.userBoats[i].mmsi;
+    }
+  }
+  Vesselmodel.find(filter).sort({
+    nicename: 'asc'
+  }).exec( function(err, data) {
+    if (err) return onError(res, err);
+    res.send(data);
   });
 });
 
