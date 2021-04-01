@@ -5,7 +5,7 @@ module.exports = function (
   logger,
   onError = (res, err, additionalInfo) => console.log(err),
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
-  admin_server_admin_server_pool,
+  admin_server_pool,
   mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
 ) {
 
@@ -48,7 +48,7 @@ module.exports = function (
   app.get('/api/userPreferences', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
-    return loadUserPermissions(user_id).catch((err) => {
+    return loadUserPreference(user_id).catch((err) => {
       return onError(res, err)
     })
   })
@@ -341,7 +341,7 @@ module.exports = function (
         where "client_id"=$1`;
       value = [token['client_id']]
     }
-   admin_server_admin_server_pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -393,7 +393,7 @@ module.exports = function (
         where "username" = $1 AND "client_id"=$2`;
       value = [req.body.username, client_id]
     }
-   admin_server_admin_server_pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -549,7 +549,6 @@ module.exports = function (
         createProject: is_admin
       }
     }
-<<<<<<< HEAD
     let permissions = { ...default_values, ...opt_permissions };
 
     switch (user_type) {
@@ -578,24 +577,6 @@ module.exports = function (
       case 'Forecast demo':
         permissions.dpr.read = false;
         break
-=======
-    return function (req, res) {
-      admin_server_admin_server_pool.query(PgQuery).then((data) => {
-        if (typeof fields == 'string') return res.send(data.rows);
-        // must check the else functionality for multicolumn
-        const out = [];
-        data.rows.forEach(row => {
-          const data = {};
-          fields.forEach(key => {
-            data[key] = row[key]
-          });
-          out.push(data)
-        });
-        res.send(out);
-      }).catch(err => {
-        onError(res, err);
-      })
->>>>>>> feature/2/mo4-light
     }
     const query = `
       INSERT INTO "userPermissionTable"(
@@ -627,7 +608,7 @@ module.exports = function (
       PgQuery = `${PgQuery} where ${filter}`
     }
     return function (req, res) {
-      admin_server_admin_server_pool.query(PgQuery).then(data => {
+      admin_server_pool.query(PgQuery).then(data => {
         if (fields == '*') return res.send(data.rows)
         if (typeof fields == 'string') {
           return res.send(data.rows.map(user => user[fields]));
@@ -646,7 +627,6 @@ module.exports = function (
   }
 
 
-<<<<<<< HEAD
   async function testPermissionToManageUser(token, username='') {
     logger.info({
       msg: 'Verifying user management permission',
@@ -665,95 +645,29 @@ module.exports = function (
     if (sqlresponse.rowCount !== 1) throw new Error('User not found')
     const target_client_id = sqlresponse.rows[0].client_id;
     return target_client_id == own_client_id;
-=======
-function initUserSettings(res, user_id) {
-  const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
-  const values = [
-    user_id,
-    {"type":"vessel","fixedTimeZoneOffset":0,"fixedTimeZoneLoc":"Europe/London"},
-    {"distance":"km","speed":"km/h","weight":"ton","gps":"DMS"},
-    {"filterFailedTransfers":1},
-    {"Hs":false,"windAvg":false,"V2v transfers":false,"Turbine transfers":false,"Platform transfers":false,"Transit":false,"Vessel transfers":false}
-  ];
-  return admin_server_admin_server_pool.query(text, [values])
-}
-
-function initUserPermission(user_id, user_type, opt_permissions = {}) {
-  // const text = `INSERT INTO "userSettingsTable"(
-  //   user_id, timezone, unit, longterm, weather_chart
-  //   ) VALUES($1, $2, $3, $4, $5)`;
-  console.log('entered init process');
-  const is_admin = user_type == 'admin';
-  const default_values = {
-    user_id,
-    user_type,
-    admin: is_admin,
-    user_read: true,
-    user_write: is_admin,
-    user_manage: is_admin,
-    dpr: {
-      read: true,
-      sov_input: 'read',
-      sov_commercial: 'read',
-      sov_hse: null,
-    },
-    longterm: {
-      read: false,
-    },
-    twa: {
-      read: is_admin
-    },
-    forecast: {
-      read: is_admin,
-      changeLimits: is_admin,
-      createProject: is_admin
-    }
   }
-  let values = { ...default_values, ...opt_permissions };
 
-  switch (user_type) {
-    case 'admin':
-      values.dpr.sov_input = 'write';
-      values.dpr.sov_hse = 'write';
-      break
-    case 'Vessel master':
-      values.user_read = false;
-      values.dpr.sov_hse = 'write';
-      break
-    case 'Qhse specialist':
-      values.dpr.sov_hse = 'sign';
-      break
-    case 'Marine controller':
-      values.longterm.read = true;
-      values.dpr.sov_hse = 'read';
-      break
-    case 'Logistics specialist':
-      values.longterm.read = true;
-      break
-    case 'Client representative':
-      values.dpr.sov_commercial = 'read';
-      values.dpr.sov_input = 'read';
-      break
-    case 'Forecast demo':
-      values.dpr.read = false;
-      break
->>>>>>> feature/2/mo4-light
+  function loadUserPermissions(user_id = 0) {
+    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
+  }
+  function loadUserPreference(user_id = 0) {
+    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
   }
 };
 // ########################################################################
 // #################### Support function - outside API ####################
 // ########################################################################
 
-function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
-  // return admin_server_admin_server_pool.query(`SELECT * FROM "${table_name}"`)
+// function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
+//   // return admin_server_pool.query(`SELECT * FROM "${table_name}"`)
 
-  const keys = Object.keys(insert_object);
-  const joined_keys = keys.map(k => '"' + k + '"').join(', ')
-  const joined_values = keys.map((key, i) => '$' + (i + 1)).join(', ')
-  const values = keys.map(k => insert_object[k])
-  const full_query = `INSERT INTO "${table_name}"(${joined_keys}) VALUES(${joined_values}) RETURNING ${id_name}`
-  return admin_server_admin_server_pool.query(full_query, values)
-}
+//   const keys = Object.keys(insert_object);
+//   const joined_keys = keys.map(k => '"' + k + '"').join(', ')
+//   const joined_values = keys.map((key, i) => '$' + (i + 1)).join(', ')
+//   const values = keys.map(k => insert_object[k])
+//   const full_query = `INSERT INTO "${table_name}"(${joined_keys}) VALUES(${joined_values}) RETURNING ${id_name}`
+//   return admin_server_pool.query(full_query, values)
+// }
 
 function generateRandomToken() {
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
@@ -762,16 +676,3 @@ function generateRandomToken() {
 }
 
 
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> feature/2/mo4-light
-function loadUserPermissions(user_id = 0) {
-  return admin_server_admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
-}
-function loadUserPreference(user_id = 0) {
-  return admin_server_admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
-}

@@ -31,20 +31,22 @@ export class UsersComponent implements OnInit {
   sort = { active: '', isAsc: true };
 
   ngOnInit() {
-    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
-        this.newService.getUsers().subscribe(
-          data => {
-            this.userData = data
-          },
-          err => this.errData = err
-        );
-      } else {
+    this.newService.checkUserActive(
+      this.tokenInfo.username
+    ).subscribe(userIsActive => {
+      if (userIsActive !== true) {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
         this._router.navigate(['login']);
+        return;
       }
+      if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
+      this.newService.getUsers().subscribe(
+        data => {
+          this.userData = data
+        },
+        err => this.errData = err
+      );
     });
   }
 
