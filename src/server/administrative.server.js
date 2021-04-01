@@ -12,10 +12,6 @@ module.exports = function (
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool
 ) {
-  // ######################### SETUP CODE #########################
-
-
-
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
     admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
@@ -34,7 +30,7 @@ module.exports = function (
       FROM "userTable"
       WHERE "token"=$1`
     const values = [registration_token]
-    pool.query(query, values).then(sqlresponse => {
+    admin_server_pool.query(query, values).then(sqlresponse => {
       if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
       const row = sqlresponse.rows[0];
       res.send({
@@ -56,7 +52,7 @@ module.exports = function (
       FROM "userTable"
       WHERE "token"=$1`
     const values = [token];
-    pool.query(query, values).then((sqlresponse) => {
+    admin_server_pool.query(query, values).then((sqlresponse) => {
       if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
@@ -74,7 +70,7 @@ module.exports = function (
       `
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
       const value2 = [hashed_password, confirm2fa, user_id]
-      pool.query(query2, value2).then(() => {
+      admin_server_pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
       }).catch(err => onError(res, err));
     }).catch(err => onError(res, err, 'Registration token not found!'))
@@ -154,7 +150,7 @@ module.exports = function (
       ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
-    return pool.query(PgQuery, values).then((data, err) => {
+    return admin_server_pool.query(PgQuery, values).then((data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length > 0) {
         return data.rows;

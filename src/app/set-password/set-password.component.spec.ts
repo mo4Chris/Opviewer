@@ -1,5 +1,4 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SetPasswordComponent } from './set-password.component';
 import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -12,7 +11,7 @@ import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
-fdescribe('SetPasswordComponent', () => {
+describe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;
   let fixture: ComponentFixture<SetPasswordComponent>;
   const userToken = UserTestService.getMockedAccessToken();
@@ -34,13 +33,14 @@ fdescribe('SetPasswordComponent', () => {
   }));
 
   beforeEach(() => {
-    spyOn(SetPasswordComponent.prototype, 'initParameters').and.callFake(component => {
-      component.token = userToken;
+    fixture = TestBed.createComponent(SetPasswordComponent);
+    component = fixture.componentInstance;
+    spyOn(AuthService.prototype, 'getRegistrationInformation').and.returnValue(mockedObservable(userToken))
+    spyOn(SetPasswordComponent.prototype, 'initParameters').and.callFake(() => {
+      component.token = 'aratherrandomhashedtoken';
       component.username = userToken.username;
       return mockedObservable(null); // Need to return observable
     })
-    fixture = TestBed.createComponent(SetPasswordComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
@@ -52,25 +52,28 @@ fdescribe('SetPasswordComponent', () => {
     component.QRCode = '';
     component.createQrCode();
     fixture.detectChanges();
-    expect(component.QRCode).toBe('otpauth://totp/' + userToken.username + '?secret=' + 'test123' + '&issuer=MO4%20Dataviewer');
+    expect(component.QRCode).toMatch('otpauth://totp/' + userToken.username);
   });
 
-  it('should create QRCode', () => {
+  it('should create QRCode', async () => {
     component.QRCode = '';
     component.createQrCode();
     component.initiate2fa = true;
+    component.requires2fa = true;
     fixture.detectChanges();
+    await fixture.whenStable();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('#QRCodeMain')).toBeTruthy();
+    await expect(compiled.querySelector('#QRCodeMain')).toBeTruthy();
   });
 
-  it('should not create QRCode', () => {
+  it('should not create QRCode', async () => {
     component.QRCode = '';
     component.createQrCode();
     component.initiate2fa = false;
     fixture.detectChanges();
+    await fixture.whenStable();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('#QRCodeMain')).toBeNull();
+    await expect(compiled.querySelector('#QRCodeMain')).toBeNull();
   });
 
 
