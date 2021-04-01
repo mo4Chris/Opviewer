@@ -2,7 +2,6 @@ var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
-require('dotenv').config({ path: __dirname + '/./../.env' });
 
 const pool = new Pool({
   host: process.env.ADMIN_DB_HOST,

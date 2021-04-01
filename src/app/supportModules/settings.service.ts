@@ -117,7 +117,6 @@ export class SettingsService {
     // loads the settings from the database
     this.newService.loadUserSettings().subscribe(settings => {
       if (settings == null || typeof(settings) != 'object') return;
-      console.log(settings)
       this.initSetting('Timezone', settings?.timezone?.type)
       this.initSetting('fixedTimeZoneOffset', settings?.timezone?.fixedTimeZoneOffset);
       this.initSetting('fixedTimeZoneLoc', settings?.timezone?.fixedTimeZoneLoc)

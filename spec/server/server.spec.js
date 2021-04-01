@@ -23,11 +23,22 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
 
 
 // ################# Setup #################
-const SERVER_LOGGING_LEVEL = 'info';
+const SERVER_LOGGING_LEVEL = 'debug';
 if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
 }
 const app = rewire('../../src/server')
+const callback = {
+  // Spy on these properties to verify unit tests
+  sendMail: (mailOpts, callbacks) => {
+    console.warn(`Uncaught mail ${mailOpts.subject} to ${mailOpts.to}`)
+  }
+}
+app.__set__('nodemailer', {
+  createTransport: () => {
+    return {sendmail: callback.sendMail};
+  }
+})
 
 
 // ################# GET & POST #################
@@ -359,18 +370,21 @@ describe('Administrative - with login - user should', () => {
   const username = 'Glados';
   const company = 'Aperture industries';
   const new_user_id = 666;
+  const client_id = 2;
   beforeEach(() => {
     mockJsonWebToken({
       user_id: 1,
-      client_id: 2,
+      client_id,
       username: username,
       userCompany: company,
       userBoats: [123456789, 987654321],
       userPermission: 'Logistic specialist',
       permission: {
         admin: false,
-        user_type: 'Logistic specialist'
-
+        user_type: 'Logistic specialist',
+        user_read: true,
+        user_write: true,
+        user_manage: true,
       }
     })
   })
@@ -421,7 +435,7 @@ describe('Administrative - with login - user should', () => {
     const request = POST('/api/createUser', newUser, true)
     await request.expect(expectUnAuthRequest)
   })
-  fit('not create new user - wrong client', async () => {
+  it('not create new user - wrong client', async () => {
     mockPostgressRequest([new_user_id])
     const newUser = {
       username: 'Bot',
@@ -451,6 +465,17 @@ describe('Administrative - with login - user should', () => {
     expectValidRequest(response);
     const out = response.body;
     await expect(Array.isArray(out)).toBeTruthy('vesselList should return an array')
+  })
+
+  it('reset password', () => {
+    // Note user is logistic specialist
+    const reset_username = 'forgot@my.email'
+    mockPostgressRequest([{
+      username: reset_username,
+      client_id,
+    }])
+    const request = POST("/api/resetPassword", {username, reset_username})
+    return request.expect(expectValidRequest)
   })
 })
 

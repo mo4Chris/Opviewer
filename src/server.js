@@ -3,11 +3,8 @@ var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
-// var bcrypt = require("bcryptjs");
-// var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var pino = require('pino');
-// var expressPinoLogger = require('express-pino-logger')
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
@@ -671,11 +668,6 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    // Usermodel.findByIdAndUpdate(payload.userID, {
-    //   lastActive: new Date()
-    // }).exec().catch(err => {
-    //   logger.error('Failed to update last active status of user')
-    // });
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -737,7 +729,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 app.use((req, res, next) => {
-  console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
+  // console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
   logger.debug({
     msg: `${req.method}: ${req.url}`,
     method: req.method,

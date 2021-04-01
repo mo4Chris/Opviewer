@@ -39,9 +39,7 @@ export class SignupComponent implements OnInit {
     private userService: UserService,
     public permission: PermissionService,
     public alert: AlertService,
-  ) {
-    console.log(this)
-  }
+  ) {}
 
   ngOnInit() {
     if (!this.permission.admin && !this.permission.userCreate) {
@@ -69,7 +67,6 @@ export class SignupComponent implements OnInit {
       if (index < 0) return this.alert.sendAlert({text: 'User needs a client',type: 'danger'});
       new_client_id = this.clients[index].client_id;
     }
-    console.log(new_client_id)
     this._auth.registerUser({
       client_id: new_client_id,
       username: this.registerUserData.email,

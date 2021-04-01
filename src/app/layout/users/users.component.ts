@@ -36,7 +36,6 @@ export class UsersComponent implements OnInit {
         if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
         this.newService.getUsers().subscribe(
           data => {
-            console.log(data)
             this.userData = data
           },
           err => this.errData = err
@@ -53,16 +52,13 @@ export class UsersComponent implements OnInit {
     this._router.navigate(['usermanagement', { username: username }]);
   }
 
-  resetPassword(id) {
-    this.newService.resetPassword({
-      _id: id,
-      client: this.tokenInfo.userCompany
-    }).pipe(map((res) => {
-          this.alert.sendAlert({text: res.data, type: 'success'});
-      }),catchError(error => {
-        this.alert.sendAlert({text: error, type: 'danger'});
-        throw error;
-    })).subscribe();
+  resetPassword(username: string) {
+    this.newService.resetPassword(username).subscribe(res => {
+      this.alert.sendAlert({text: res.data, type: 'success'});
+    }, error => {
+      this.alert.sendAlert({text: error, type: 'danger'});
+      throw error;
+    });
   }
 
   setActive(user: any) {

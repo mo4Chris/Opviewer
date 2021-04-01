@@ -376,8 +376,8 @@ export class CommonService {
     return this.post('/api/updateDprFieldsSOVHseDpr/', dataObject);
   }
 
-  resetPassword(user) {
-    return this.post('/api/resetPassword/', user);
+  resetPassword(username: string) {
+    return this.post('/api/resetPassword/', {username});
   }
 
   setActive(user: {username: string}) {

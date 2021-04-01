@@ -1,8 +1,5 @@
 var { Client, Pool } = require('pg')
-var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
-var twoFactor = require('node-2fa');
-// require('dotenv').config({ path: __dirname + '/./../.env' });
+var bcrypt = require("bcryptjs");;
 
 const pool = new Pool({
   host: process.env.ADMIN_DB_HOST,
@@ -43,7 +40,6 @@ module.exports = function (
     const token = req.token;
     const is_admin = token?.permission?.admin ?? false;
     const client_id = token?.client_id;
-    console.log('client_id', client_id)
     let query, values;
     if (is_admin) {
       query = `SELECT *
@@ -147,31 +143,42 @@ module.exports = function (
   });
 
 
-  app.post("/api/resetPassword", function(req, res) {
+  app.post("/api/resetPassword", async function(req, res) {
     const token = req['token']
-    logger.info('Password reset requested for user' + token.username)
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+    const requesting_user = token.username;
+    const username = req.body.username;
+    const localLogger = logger.child({
+      requested_by: requesting_user,
+      req_user_type: token.permission.user_type,
+      username
+    })
+    localLogger.info(`Password reset requested`)
+    testPermissionToManageUser(token, username).catch(err => {
+      if (err.message == 'User not found') return res.status(400).send('User not found');
+      return onError(res, err)
+    }).then((has_rights) => {
+      localLogger.debug('Valid permission = ' + has_rights)
+      if (!has_rights) return onUnauthorized(res);
+      const randomToken = generateRandomToken();
+      const SERVER_ADDRESS = process.env.SERVER_ADDRESS
 
-    let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-    randomToken = randomToken.replace(/\//gi, '8');
-    const user_id = token["userID"];
-    const username = token["username"];
-    const SERVER_ADDRESS = process.env.SERVER_ADDRESS
-
-    // TODO: verify this works
-    const query = `UPDATE "userTable"
-      SET token=$1
-      WHERE "user_id"=$2`
-    const values = [randomToken, user_id]
-    pool.query(query, values).then(sqlresponse => {
-      const link = SERVER_ADDRESS + "/setPassword;token=" + randomToken + ";user=" + username;
-      let html = `Your password has been reset. To use your account again, please
-        <a href="${link}">click here</a> <br>
-        If that doesnt work copy the link below <br> ${link}`;
-        mailTo('Password reset', html, username);
-        res.send({ data: "Succesfully reset the password" });
-    }).catch(err => onError(res, err));
+      // TODO: verify this works
+      const query = `UPDATE "userTable"
+        SET "token"=$1,
+          "password"=null
+        WHERE "username"=$2`
+      const values = [randomToken, username]
+      localLogger.debug('Executing database insert')
+      pool.query(query, values).then(() => {
+        localLogger.debug('Insert successfull - sending email')
+        const link = SERVER_ADDRESS + "/set-password;token=" + randomToken + ";user=" + username;
+        let html = `Your password has been reset. To use your account again, please
+          <a href="${link}">click here</a> <br>
+          If that doesnt work copy the link below <br> ${link}`;
+          mailTo('Password reset', html, username);
+          res.send({ data: "Succesfully reset the password" });
+      }).catch(err => onError(res, err));
+    })
   });
 
   app.post("/api/setUserActive", function(req, res) {
@@ -649,10 +656,31 @@ module.exports = function (
       }).catch(err => onError(res, err))
     }
   }
+
+
+  async function testPermissionToManageUser(token, username='') {
+    logger.info({
+      msg: 'Verifying user management permission',
+      request_by: token.username,
+      username: username
+    })
+    const permission = token.permission;
+    const own_client_id = token.client_id;
+    if (permission.admin) return true;
+    if (!permission.user_manage) return false;
+    const query = `SELECT client_id
+      FROM "userTable"
+      WHERE "userTable"."username" = $1`
+    const values = [username];
+    const sqlresponse = await pool.query(query, values);
+    if (sqlresponse.rowCount !== 1) throw new Error('User not found')
+    const target_client_id = sqlresponse.rows[0].client_id;
+    return target_client_id == own_client_id;
+  }
 };
-
-
-
+// ########################################################################
+// #################### Support function - outside API ####################
+// ########################################################################
 
 function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
   // return pool.query(`SELECT * FROM "${table_name}"`)
@@ -670,6 +698,7 @@ function generateRandomToken() {
   randomToken = randomToken.replace(/\//gi, '8');
   return randomToken;
 }
+
 
 
 
