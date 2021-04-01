@@ -105,7 +105,6 @@ module.exports = function (
     const is_admin = own_permissions?.['admin'] ?? false
     logger.trace('Verfying client')
     // TODO: If a user is associated with multiple clients this wont do
-    console.log(client_id, own_client_id, is_admin)
     if (!is_admin && (client_id != own_client_id)) return onUnauthorized(res, 'Target client does not match own client')
     logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {

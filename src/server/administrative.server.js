@@ -64,12 +64,11 @@ module.exports = function (
     const token = req.body.passwordToken;
     const password = req.body.password;
     const confirm = req.body.confirmPassword;
-    const secret2fa = req.body.secret2fa;
+    const confirm2fa = req.body.secret2fa;
 
     if (!(token?.length > 0)) return res.status(400).send('Missing token')
     if (password != confirm) return res.status(400).send('Password does not match confirmation code')
-
-    const query = `SELECT user_id, requires2fa
+    const query = `SELECT user_id, secret2fa, requires2fa
       FROM "userTable"
       WHERE "token"=$1`
     const values = [token];
@@ -77,17 +76,20 @@ module.exports = function (
       if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
-      const valid2fa = typeof(secret2fa)=='string' && (secret2fa.length > 0);
+      const valid2fa = typeof(confirm2fa)=='string' && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
+      const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
+      if (!secret2faValid) return res.status(400).send('2FA code is not correct!')
 
       const user_id = data.user_id;
-      const query2 = `UPDATE "user
+      const query2 = `UPDATE "userTable"
       SET password=$1,
           secret2fa=$2,
           token=null
-      WHERE "user_id"=$3
+      WHERE "userTable"."user_id"=$3
       `
-      const value2 = [password, secret2fa, user_id]
+      const hashed_password = bcrypt.hashSync(req.body.password, 10)
+      const value2 = [hashed_password, confirm2fa, user_id]
       pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
       }).catch(err => onError(res, err));

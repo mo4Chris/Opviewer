@@ -105,7 +105,7 @@ describe('Administrative - no login - user should', () => {
     request.expect(expectValidRequest)
     const response = await request;
     expect(response.status).toBe(200, 'Failed admin connection test!')
-    expect(response.body['status']).toBe(1, 'Connection test not returning true!')
+    await expect(response.body['status']).toBe(1, 'Connection test not returning true!')
   })
   it('set password for user', async () => {
     const user_requires_2fa = true;
@@ -178,7 +178,7 @@ describe('Administrative - no login - user should', () => {
       requires2fa: true
     }])
     const response = POST('/api/getRegistrationInformation', request_data, false)
-    response.expect(expectValidRequest);
+    await response.expect(expectValidRequest);
   })
   it('not get registration information for an invalid token', async () => {
     const registration_token = 'Invalid token';
@@ -188,7 +188,7 @@ describe('Administrative - no login - user should', () => {
     }
     mockPostgressRequest([])
     const response = POST('/api/getRegistrationInformation', request_data, false)
-    response.expect(expectBadRequest);
+    await response.expect(expectBadRequest);
   })
 
 
@@ -375,7 +375,20 @@ describe('Administrative - with login - user should', () => {
     })
   })
 
-  it('create new user - successfull', async () => {
+  it('create new user - successfull - admin', async () => {
+    mockJsonWebToken({
+      user_id: 1,
+      client_id: 2,
+      username: username,
+      userCompany: company,
+      userBoats: null,
+      userPermission: 'admin',
+      permission: {
+        admin: true,
+        user_type: 'admin'
+
+      }
+    })
     mockPostgressRequest([new_user_id])
     const newUser = {
       username: 'Bot',
@@ -384,9 +397,20 @@ describe('Administrative - with login - user should', () => {
       vessel_ids: null,
     }
     const request = POST('/api/createUser', newUser, true)
-    request.expect(expectValidRequest)
+    await request.expect(expectValidRequest)
   })
-  it('not create new user - unauthorized', async () => {
+  it('create new user - successfull', async () => {
+    mockPostgressRequest([new_user_id])
+    const newUser = {
+      username: 'Bot',
+      requires2fa: true,
+      client_id: 2,
+      vessel_ids: [123456789, 987654321],
+    }
+    const request = POST('/api/createUser', newUser, true)
+    await request.expect(expectValidRequest)
+  })
+  it('not create new user - cannot assign all vessels to new user as user w/ limited vessels', async () => {
     mockPostgressRequest([new_user_id])
     const newUser = {
       username: 'Bot',
@@ -397,13 +421,13 @@ describe('Administrative - with login - user should', () => {
     const request = POST('/api/createUser', newUser, true)
     await request.expect(expectUnAuthRequest)
   })
-  it('not create new user - wrong client', async () => {
+  fit('not create new user - wrong client', async () => {
     mockPostgressRequest([new_user_id])
     const newUser = {
       username: 'Bot',
       requires2fa: true,
-      client_id: 2,
-      vessel_ids: null,
+      client_id: 5,
+      vessel_ids: [123456789, 987654321],
     }
     const request = POST('/api/createUser', newUser, true)
     await request.expect(expectUnAuthRequest)
