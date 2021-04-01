@@ -1,32 +1,17 @@
-var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 
-const pool = new Pool({
-  host: process.env.ADMIN_DB_HOST,
-  port: +process.env.ADMIN_DB_PORT,
-  database: process.env.ADMIN_DB_DATABASE,
-  user: process.env.ADMIN_DB_USER,
-  password: process.env.ADMIN_DB_PASSWORD,
-  ssl: false
-})
 
 module.exports = function (
   app,
   logger,
   onError = (res, err, additionalInfo) => console.log(err),
   onUnauthorized = (res, err, additionalInfo) => console.log(err),
+  admin_server_pool
 ) {
-  pool.connect().then(() => {
-    logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
-  }).catch(err => {
-    return logger.fatal(err, "Failed initial connection to admin db!")
-  })
-  pool.on('error', (err) => {
-    logger.fatal(err, 'Unexpected error in connection with admin database!')
-  })
+
 
 
   // ############## ENDPOINTS ############
@@ -265,17 +250,18 @@ app.post("/api/setInactive", function(req, res) {
         "client_id"
       ) VALUES($1, $2, $3, $3, $5, $6) RETURNING "user_id"`
     logger.debug('Starting database insert')
-    const user_id = await pool.query(txt, newUser);
-    logger.debug('New user has id', user_id)
-    logger.debug('Init user permissions')
-    initUserPermission(user_id).catch(err => {
-      logger.error(err)
-    });
-    logger.debug('Init user settings')
-    initUserSettings(user_id).catch(err => {
-      logger.error(err)
-    });
-    return password_setup_token;
+    return admin_server_pool.query(txt, newUser).then(user_id => {
+      logger.debug('New user has id', user_id)
+      logger.debug('Init user permissions')
+      initUserPermission(user_id).catch(err => {
+        logger.error(err)
+      });
+      logger.debug('Init user settings')
+      initUserSettings(user_id).catch(err => {
+        logger.error(err)
+      });
+      return password_setup_token;
+    }).catch(err => { throw Error(err) })
   }
 
   app.post("/api/sendFeedback", function(req, res) {
@@ -349,7 +335,7 @@ app.post("/api/setInactive", function(req, res) {
     const query = 'SELECT "active" FROM "userTable" where username=$1';
     // const vals = req.params.user;
     const vals = 'test@test.nl'
-    pool.query(query, [vals]).then(sql_response => {
+   admin_server_pool.query(query, [vals]).then(sql_response => {
       const data = sql_response.rows[0];
       const out = data.active;
       res.send(out);
@@ -396,7 +382,7 @@ app.post("/api/setInactive", function(req, res) {
         where "client_id"=$1`;
       value = [token['client_id']]
     }
-    pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -450,7 +436,7 @@ app.post("/api/setInactive", function(req, res) {
         where "username" = $1 AND "client_id"=$2`;
       value = [req.body.username, token['client_id']]
     }
-    pool.query(query, value).then(sqldata => {
+   admin_server_pool.query(query, value).then(sqldata => {
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -542,7 +528,7 @@ app.post("/api/setInactive", function(req, res) {
       PgQuery = `${PgQuery} where ${filter}`
     }
     return function (req, res) {
-      pool.query(PgQuery).then((data) => {
+      admin_server_pool.query(PgQuery).then((data) => {
         if (typeof fields == 'string') return res.send(data.rows);
         // must check the else functionality for multicolumn
         const out = [];
@@ -574,7 +560,7 @@ app.post("/api/setInactive", function(req, res) {
       PgQuery = `${PgQuery} where ${filter}`
     }
     return function (req, res) {
-      pool.query(PgQuery).then(data => {
+      admin_server_pool.query(PgQuery).then(data => {
         if (fields == '*') return res.send(data.rows)
         if (typeof fields == 'string') {
           return res.send(data.rows.map(user => user[fields]));
@@ -596,14 +582,21 @@ app.post("/api/setInactive", function(req, res) {
 
 function initUserSettings(res, user_id) {
   const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
-  const values = [user_id, 'vessel', {}, {}, {}];
-  return pool.query(text, [values])
+  const values = [
+    user_id, 
+    {"type":"vessel","fixedTimeZoneOffset":0,"fixedTimeZoneLoc":"Europe/London"}, 
+    {"distance":"km","speed":"km/h","weight":"ton","gps":"DMS"}, 
+    {"filterFailedTransfers":1},
+    {"Hs":false,"windAvg":false,"V2v transfers":false,"Turbine transfers":false,"Platform transfers":false,"Transit":false,"Vessel transfers":false} 
+  ];
+  return admin_server_pool.query(text, [values])
 }
 
 function initUserPermission(user_id, user_type, opt_permissions = {}) {
   // const text = `INSERT INTO "userSettingsTable"(
   //   user_id, timezone, unit, longterm, weather_chart
   //   ) VALUES($1, $2, $3, $4, $5)`;
+  console.log('entered init process');
   const is_admin = user_type == 'admin';
   const default_values = {
     user_id,
@@ -664,14 +657,14 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
 
 
 function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
-  // return pool.query(`SELECT * FROM "${table_name}"`)
+  // return admin_server_pool.query(`SELECT * FROM "${table_name}"`)
 
   const keys = Object.keys(insert_object);
   const joined_keys = keys.map(k => '"' + k + '"').join(', ')
   const joined_values = keys.map((key, i) => '$' + (i + 1)).join(', ')
   const values = keys.map(k => insert_object[k])
   const full_query = `INSERT INTO "${table_name}"(${joined_keys}) VALUES(${joined_values}) RETURNING ${id_name}`
-  return pool.query(full_query, values)
+  return admin_server_pool.query(full_query, values)
 }
 
 function generateRandomToken() {
@@ -681,12 +674,9 @@ function generateRandomToken() {
 }
 
 
-
-
-
 function loadUserPermissions(user_id = 0) {
-  return pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
+  return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
 }
 function loadUserPreference(user_id = 0) {
-  return pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
+  return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
 }
