@@ -9,6 +9,7 @@ var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
+var { Pool } = require('pg')
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -83,25 +84,29 @@ let transporter = nodemailer.createTransport({
 });
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
+const admin_server_pool = new Pool({
+  host: process.env.ADMIN_DB_HOST,
+  port: +process.env.ADMIN_DB_PORT,
+  database: process.env.ADMIN_DB_DATABASE,
+  user: process.env.ADMIN_DB_USER,
+  password: process.env.ADMIN_DB_PASSWORD,
+  ssl: false
+})
+
+admin_server_pool.connect().then(() => {
+  logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
+}).catch(err => {
+  return logger.fatal(err, "Failed initial connection to admin db!")
+})
+admin_server_pool.on('error', (err) => {
+  logger.fatal(err, 'Unexpected error in connection with admin database!')
+})
 
 
 //#########################################################
 //##################   Models   ###########################
 //#########################################################
 var Schema = mongo.Schema;
-// var userSchema = new Schema({
-//   username: { type: String },
-//   password: { type: String },
-//   permissions: { type: String },
-//   client: { type: String },
-//   boats: { type: Array },
-//   token: { type: String },
-//   active: { type: Number },
-//   secret2fa: { type: String },
-//   settings: { type: Object },
-//   lastActive: { type: Number },
-// }, { versionKey: false });
-// var Usermodel = mongo.model('users', userSchema, 'users');
 
 var userActivitySchema = new Schema({
   username: { type: String },
@@ -668,6 +673,9 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
+    const lastActive = new Date()
+    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload['userID']])
+
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -738,7 +746,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, onError, onUnauthorized)
+mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool)
 
 
 
@@ -761,7 +769,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, mailTo)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
 
 //####################################################################

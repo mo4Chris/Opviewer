@@ -12,7 +12,7 @@ import { UserTestService } from '@app/shared/services/test.user.service';
 import { NgxQRCodeModule } from '@techiediaries/ngx-qrcode';
 import { mockedObservable } from '@app/models/testObservable';
 
-describe('SetPasswordComponent', () => {
+fdescribe('SetPasswordComponent', () => {
   let component: SetPasswordComponent;
   let fixture: ComponentFixture<SetPasswordComponent>;
   const userToken = UserTestService.getMockedAccessToken();
@@ -34,11 +34,11 @@ describe('SetPasswordComponent', () => {
   }));
 
   beforeEach(() => {
-    spyOn(SetPasswordComponent.prototype, 'getTokenFromParameter').and.returnValue(userToken);
-    spyOn(SetPasswordComponent.prototype, 'getUsernameFromParameter').and.returnValue(userToken.username);
-    spyOn(SetPasswordComponent.prototype, 'getUserByToken');
-    spyOn(CommonService.prototype, 'get2faExistence').and.returnValue(mockedObservable({secret2fa: 'test123'}));
-
+    spyOn(SetPasswordComponent.prototype, 'initParameters').and.callFake(component => {
+      component.token = userToken;
+      component.username = userToken.username;
+      return mockedObservable(null); // Need to return observable
+    })
     fixture = TestBed.createComponent(SetPasswordComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

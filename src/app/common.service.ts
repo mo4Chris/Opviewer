@@ -444,10 +444,6 @@ export class CommonService {
     return this.post('/api/getVesselsToAddToFleet/', fleet);
   }
 
-  get2faExistence(user: {userEmail: any}) {
-    return this.post('/api/get2faExistence', user);
-  }
-
   getSovWaveSpectrumAvailable(vessel: {date:  number, mmsi: number}) {
     return this.post('/api/getSovWaveSpectrumAvailable', vessel);
   }

@@ -1,16 +1,7 @@
-var { Client, Pool } = require('pg')
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 
-const pool = new Pool({
-  host: process.env.ADMIN_DB_HOST,
-  port: +process.env.ADMIN_DB_PORT,
-  database: process.env.ADMIN_DB_DATABASE,
-  user: process.env.ADMIN_DB_USER,
-  password: process.env.ADMIN_DB_PASSWORD,
-  ssl: false
-})
 
 
 
@@ -19,21 +10,15 @@ module.exports = function (
   logger,
   onError = (res, err, additionalInfo) => console.log(err),
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
+  admin_server_pool
 ) {
   // ######################### SETUP CODE #########################
-  pool.connect().then(() => {
-    logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
-  }).catch(err => {
-    return logger.fatal(err, "Failed initial connection to admin db!")
-  })
-  pool.on('error', (err) => {
-    logger.fatal(err, 'Unexpected error in connection with admin database!')
-  })
+
 
 
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
-    pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
+    admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
       return res.send({status: 1})
     }).catch((err) => {
       logger.warn(err, 'Connection test failed')
@@ -123,7 +108,7 @@ module.exports = function (
     const values = [username];
 
     logger.info('Received login for user: ' + username);
-    pool.query(PgQuery, values).then(async (data, err) => {
+    admin_server_pool.query(PgQuery).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
