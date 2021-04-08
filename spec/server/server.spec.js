@@ -28,17 +28,6 @@ if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
 }
 const app = rewire('../../src/server')
-const callback = {
-  // Spy on these properties to verify unit tests
-  sendMail: (mailOpts, callbacks) => {
-    console.warn(`Uncaught mail ${mailOpts.subject} to ${mailOpts.to}`)
-  }
-}
-app.__set__('nodemailer', {
-  createTransport: () => {
-    return {sendmail: callback.sendMail};
-  }
-})
 
 
 // ################# GET & POST #################
@@ -84,6 +73,11 @@ function mockTwoFactorAuthentication(valid = true) {
   let secret2faSpy = spyOn(twoFactor, 'verifyToken');
   if (valid) {secret2faSpy.and.returnValue(1)}
 }
+function mockMailer() {
+  return spyOn(app.__get__('transporter'), 'sendMail').and.callFake((mailOpts) => {
+    console.log(`Uncaught mail ${mailOpts.subject} to ${mailOpts.to}`)
+  })
+}
 
 
 // #####################################################################
@@ -97,6 +91,7 @@ describe('Administrative - no login - user should', () => {
   const company = 'BMO';
 
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       active: 1,
       userID,
@@ -126,6 +121,7 @@ describe('Administrative - no login - user should', () => {
       confirmPassword: 'val1dP@ssw0rd',
       secret2fa: 'some_valid_2fa_code',
     }
+    mockTwoFactorAuthentication(true);
     mockPostgressRequest([{
         username: 'test123',
         requires2fa: user_requires_2fa,
@@ -143,10 +139,10 @@ describe('Administrative - no login - user should', () => {
       secret2fa: null,
     }
     mockPostgressRequest([{
-        username: 'test123',
-        requires2fa: user_requires_2fa,
-        secret2fa: ''
-      }])
+      username: 'test123',
+      requires2fa: user_requires_2fa,
+      secret2fa: ''
+    }])
     const request = POST("/api/setPassword", valid_user_registration_form, false)
     await request.expect(expectValidRequest)
   })
@@ -372,6 +368,7 @@ describe('Administrative - with login - user should', () => {
   const new_user_id = 666;
   const client_id = 2;
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       user_id: 1,
       client_id,
@@ -487,6 +484,7 @@ describe('Administrative - with login - user should', () => {
   const company = 'Aperture industries';
   const new_user_id = 777;
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       user_id: 1,
       client_id: 2,
@@ -537,6 +535,7 @@ describe('Vessel master should', () => {
   const company = 'BMO';
 
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       username: username,
       userCompany: company,
@@ -589,6 +588,7 @@ describe('Marine controller should', () => {
   const company = 'BMO';
 
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       username: username,
       userCompany: company,
@@ -640,6 +640,7 @@ describe('Logistic specialist should', () => {
   const otherCompany = 'Totally not BMO'
 
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       username: username,
       userCompany: company,
@@ -695,6 +696,7 @@ describe('Admin should', () => {
   const company = 'BMO';
 
   beforeEach(() => {
+    mockMailer();
     mockJsonWebToken({
       username: username,
       userCompany: company,

@@ -702,6 +702,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
+  const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
   const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
   const mailOptions = {
@@ -713,8 +714,8 @@ function mailTo(subject, html, user) {
   };
 
   // send mail with defined transport object
+  maillogger.info('Sending email')
   transporter.sendMail(mailOptions, (error, info) => {
-    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });

@@ -45,6 +45,12 @@ module.exports = function (
     const password = req.body.password;
     const confirm = req.body.confirmPassword;
     const confirm2fa = req.body.secret2fa;
+    const localLogger = logger.child({
+      token,
+      hasPassword: password != null,
+      has2Fa: confirm2fa != null
+    })
+    localLogger.info('Receiving set password request')
 
     if (!(token?.length > 0)) return res.status(400).send('Missing token')
     if (password != confirm) return res.status(400).send('Password does not match confirmation code')
@@ -53,13 +59,15 @@ module.exports = function (
       WHERE "token"=$1`
     const values = [token];
     admin_server_pool.query(query, values).then((sqlresponse) => {
+      localLogger.debug('Got sql response')
       if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
+      if (!requires2fa) localLogger.info('User does not require 2FA')
       const valid2fa = typeof(confirm2fa)=='string' && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
-      if (!secret2faValid) return res.status(400).send('2FA code is not correct!')
+      if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
 
       const user_id = data.user_id;
       const query2 = `UPDATE "userTable"
@@ -72,7 +80,9 @@ module.exports = function (
       const value2 = [hashed_password, confirm2fa, user_id]
       admin_server_pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
-      }).catch(err => onError(res, err));
+      }).catch(err => {
+        onError(res, err)
+      });
     }).catch(err => onError(res, err, 'Registration token not found!'))
   })
 
