@@ -1,17 +1,16 @@
 var express = require('express');
-var bodyParser = require('body-parser');
-var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
-var twoFactor = require('node-2fa');
-require('dotenv').config({ path: __dirname + '/./../.env' });
 var pino = require('pino');
+
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
+
+var mongo = require("mongoose");
 var { Pool } = require('pg')
+require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -38,14 +37,14 @@ var db = mongo.connect(DB_CONN, {
 });
 
 var app = express();
-app.use(bodyParser.json({ limit: '5mb' }));
+app.use(express.json({ limit: '5mb' }));
 
 app.get("/api/connectionTest", function(req, res) {
   logger.debug('Hello world');
   res.send("Hello World");
 })
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
   const allowedOrigins = process.env.IP_USER;
@@ -60,7 +59,8 @@ app.use(function(req, res, next) {
 });
 
 let transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, // Lint beweert dat deze property niet bestaat
+  // @ts-ignore
+  host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   secure: (+process.env.EMAIL_PORT == 465),
   auth: {
@@ -672,7 +672,10 @@ function verifyToken(req, res) {
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload.userID])
+    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
+      lastActive,
+      payload['userID']
+    ])
 
     return payload;
   } catch (err) {
@@ -727,7 +730,7 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
     user: user,
     type: type,
     content: content
-  }, confirmFcn());
+  }, confirmFcn);
 };
 
 
@@ -783,22 +786,25 @@ app.get("/api/getActiveConnections", function(req, res) {
 })
 
 app.post("/api/saveVessel", function (req, res) {
-  var vessel = new model(req.body);
-  const token = req['token']
-  if (req.body.mode === "Save") {
-    if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist")  return onUnauthorized(res);
+  return onError(res, new Error('Not supported'), 'Function not supported')
+  // var vessel = new model(req.body);
+  // const token = req['token']
+  // if (req.body.mode === "Save") {
+  //   const is_admin = token.permission.admin;
+  //   const is_
+  //   if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist")  return onUnauthorized(res);
 
-    vessel.save(function (err, data) {
-      if (err) return onError(res, err);
-      res.send({ data: "Record has been Inserted..!!" });
-    });
-  } else {
-    if (token.userPermission !== "admin") return onUnauthorized(res);
-    Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
-      if (err) return onError(res, err);
-      res.send({ data: "Record has been Updated..!!" });
-    });
-  }
+  //   vessel.save(function (err, data) {
+  //     if (err) return onError(res, err);
+  //     res.send({ data: "Record has been Inserted..!!" });
+  //   });
+  // } else {
+  //   if (token.userPermission !== "admin") return onUnauthorized(res);
+  //   Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
+  //     if (err) return onError(res, err);
+  //     res.send({ data: "Record has been Updated..!!" });
+  //   });
+  // }
 });
 
 

@@ -51,8 +51,10 @@ export class CommonService {
     return this.get('/api/getActiveConnections/');
   }
 
-  saveVessel(vessel) {
-    return this.post('/api/saveVessel/', vessel);
+  /* @depricated */
+  saveVessel(vessel: VesselModel) {
+    throw new Error('Not implemented')
+    // return this.post('/api/saveVessel/', vessel);
   }
 
   saveTransfer(transfer) {

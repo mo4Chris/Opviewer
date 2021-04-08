@@ -105,7 +105,7 @@ module.exports = function (
       ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
-    return pool.query(PgQuery, values).then((data, err) => {
+    return admin_server_pool.query(PgQuery, values).then((data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length > 0) {
         return data.rows;
