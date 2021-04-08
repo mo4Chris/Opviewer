@@ -110,8 +110,8 @@ export class Mo4LightComponent implements OnInit {
       const spectral = raw_weather.Wave.Spectral
       this.spectrum = {
         source: 'Infoplaza',
-        k_x: [],
-        k_y: [],
+        k_x: spectral.kx,
+        k_y: spectral.ky,
         density: spectral.Density,
         timeStamp: this.weather.timeStamp,
       }
