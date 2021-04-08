@@ -1669,24 +1669,6 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
     let recipient = [];
 
-    // TODO: Fix this by getting the relevant client representative via the postlogin
-    // Usermodel.find({
-    //   active: { $ne: false },
-    //   client: token.userCompany,
-    //   permissions: 'Client representative',
-    //   boats: { $elemMatch: { mmsi: mmsi } }
-    // }, {
-    //   username: 1,
-    // }, (err, data) => {
-    //   if (err || data.length === 0) {
-    //     if (err) return onError(res, err);
-    //     recipient = [WEBMASTER_MAIL]
-    //     title = 'Failed to deliver: client representative not found!'
-    //   } else {
-    //     recipient = data.map(user => user.username);
-    //   }
-    // });
-
     setTimeout(function() {
       mailTo(title, _body, recipient)
     }, 3000);
@@ -2455,26 +2437,11 @@ app.get("/api/getParkLocations", function(req, res) {
   });
 });
 
-app.get("/api/getParkLocationForVessels", function(req, res) {
-  //ToDo: windfields do not yet have associated companies
-  //ToDo: netjes afvangen als client een streepje bevat
-  let companyName = req.params.company.replace('--_--', ' ');
-  const token = req['token']
-  if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
-  ParkLocationmodel.find({
-    client: companyName,
-    active: { $ne: false }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
 app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(req, res) {
   const token = req['token']
   let fleetID = req.params.fleetID;
   let client = req.params.client;
-  let stopDate = req.params.stopDate;
+  let stopDate = +req.params.stopDate;
   if (token.userPermission !== 'admin' && token.userCompany !== client) return onUnauthorized(res);
   activeListingsModel.aggregate([{
     $match: {
@@ -2579,7 +2546,7 @@ app.post("/api/setActiveListings", function(req, res) {
       startDate.setDate(startDate.getDate() - 1);
       var endDate = new Date(listing.dateEnd);
       endDate.setDate(endDate.getDate() + 1);
-      activeListing = new activeListingsModel();
+      let activeListing = new activeListingsModel();
       activeListing.vesselname = listing.vesselname;
       activeListing.fleetID = listing.fleetID;
       activeListing.dateChanged = Date.now();
@@ -2604,7 +2571,7 @@ app.post("/api/setActiveListings", function(req, res) {
         }
       }
       if (!listing.deleted) {
-        activeListing.deleted = false;
+        activeListing.deleted = 0;
         activeListing.dateStart = listing.dateStart;
         activeListing.dateEnd = listing.dateEnd;
       }

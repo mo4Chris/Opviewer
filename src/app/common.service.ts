@@ -170,11 +170,6 @@ export class CommonService {
     return this.get('/api/getParkLocations');
   }
 
-  getParkLocationForCompany(company: string) {
-    company = company.replace(' ', '--_--');
-    return this.get('/api/getParkLocationForCompany/' + company);
-  }
-
   getPlatformLocations(src_name: string) {
     // ToDo: replace hardcoded platforms filename with dynamic links when more than 1 source becomes available
     return this.post('/api/getPlatformLocations/', {Name: 'Northsea_offshore_oilgas_platform_coordinates'});
