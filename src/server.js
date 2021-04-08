@@ -2700,7 +2700,7 @@ app.post("/api/getWavedataForDay", function(req, res) {
     waveSourceModel.findById(data.source, (err, meta) => {
       if (err) return onError(res, err);
       let company = token.userCompany;
-      let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string' ?
+      let hasAccessRights = token.permission.admin === true || (typeof(meta.clients) == 'string' ?
         meta.clients === company : meta.clients.some(client => client == company))
       if (!hasAccessRights) return onUnauthorized(res);
       data.meta = meta;
@@ -2727,7 +2727,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
       waveSourceModel.findById(data.source, (err, meta) => {
         if (err) return onError(res, err);
         let company = token.userCompany;
-        let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string' ?
+        let hasAccessRights = token.permission.admin === true || (typeof(meta.clients) == 'string' ?
           meta.clients === company : meta.clients.some(client => client == company))
         if (hasAccessRights) {
           data.meta = meta;
@@ -2742,7 +2742,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
 
 app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
   const token = req['token']
-  if (token.userPermission === 'admin') {
+  if (token.permission.admin === true) {
     waveSourceModel.find({}, {
         site: 1,
         name: 1
@@ -2771,7 +2771,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
 
 app.get('/api/getLatestTwaUpdate/', function(req, res) {
   const token = req['token']
-  if (token.userPermission === 'admin') {
+  if (token.permission.admin === true) {
     // let currMatlabDate = Math.floor((moment() / 864e5) + 719529 - 3);
     turbineWarrantymodel.find({}, {
       lastUpdated: 1

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
+// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 import { UserType } from './shared/enums/UserType';
 import { CommonService } from './common.service';
@@ -31,7 +32,7 @@ export class AuthService {
                 this.commonService.updateAuthorizationToken(tokenObj.token);
                 return tokenObj;
             })
-        )
+        );
     }
 
     getToken() {
@@ -61,4 +62,4 @@ export interface UserLoginData {
     username: string;
     password: string;
     confirm2fa: string;
-};
+}

@@ -153,8 +153,8 @@ module.exports = function (
 app.post("/api/resetPassword", function(req, res) {
   const token = req['token']
   logger.info('Password reset requested for user' + token.username)
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
+  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
 
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
   randomToken = randomToken.replace(/\//gi, '8');
@@ -175,8 +175,8 @@ app.post("/api/resetPassword", function(req, res) {
 
 app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
   const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
+  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
 
   // Usermodel.findOneAndUpdate({
   //   _id: req.body._id
@@ -199,8 +199,8 @@ app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
 
 app.post("/api/setInactive", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-  if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
+  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
   // Usermodel.findOneAndUpdate({
   //   _id: req.body._id
   // }, {

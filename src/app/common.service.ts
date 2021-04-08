@@ -1,6 +1,6 @@
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
@@ -251,8 +251,8 @@ export class CommonService {
   }
 
   getUserClientById(user: any, client: any): Observable<{_id: string, client: string}> {
-    console.error('ENDPOINT IS DEPRICATED')
-    return mockedObservable({_id: '0', client: ''})
+    console.error('ENDPOINT IS DEPRICATED');
+    return mockedObservable({_id: '0', client: ''});
   }
 
   saveUserBoats(user) {
@@ -495,7 +495,7 @@ export class CommonService {
     startDate: number,
     stopDate: number,
     source: string,
-  }): Observable<Array<{wavedata: RawWaveData}>> {//= Observable<RawWaveData[]> {
+  }): Observable<Array<{wavedata: RawWaveData}>> {// = Observable<RawWaveData[]> {
     return this.post('/api/getWavedataForRange', request).pipe(
       map(response => {
         return response; // .map( wavedata => new WavedataModel(wavedata));
@@ -571,12 +571,12 @@ export class CommonService {
   getForecastWeatherForResponse(id: number): Observable<RawWaveData> {
     return this.post('/api/mo4light/weather', {
       response_id: id
-    })
+    });
   }
   getForecastSpectrumForResponse(id: number): Observable<any> {
     return this.post('/api/mo4light/spectrum', {
       response_id: id
-    })
+    });
   }
 }
 

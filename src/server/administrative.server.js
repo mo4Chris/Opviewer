@@ -51,8 +51,9 @@ module.exports = function (
 
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
-    "userTable"."active", "userTable".requires2fa, "userTable"."2fa",
-    "clientTable"."client_name", "user_type"
+    "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
+    "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", 
+    "user_manage", "twa", "dpr", "longterm", "forecast"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -60,7 +61,7 @@ module.exports = function (
     const values = [username];
 
     logger.info('Received login for user: ' + username);
-    admin_server_pool.query(PgQuery).then(async (data, err) => {
+    admin_server_pool.query(PgQuery, values).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
@@ -71,6 +72,7 @@ module.exports = function (
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
       logger.trace(vessels);
       const expireDate = new Date();
+      console.log(user);
       const payload = {
         userID: user.user_id,
         userPermission: user.user_type,
@@ -105,7 +107,7 @@ module.exports = function (
       ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
-    return pool.query(PgQuery, values).then((data, err) => {
+    return admin_server_pool.query(PgQuery, values).then((data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length > 0) {
         return data.rows;
