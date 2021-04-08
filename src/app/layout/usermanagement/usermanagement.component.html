@@ -6,16 +6,17 @@
       <td>{{user.username}}</td>
     </tr>
     <tr>
-      <td>Permissions:</td>
-      <td>{{user.permissions}}</td>
+      <td>Permissions type:</td>
+      <td>{{user.permission.user_type}}</td>
     </tr>
     <tr *ngIf="permission.admin">
       <td>Client:</td>
-      <td>{{user.client}}</td>
+      <td>{{user.client_name}}</td>
     </tr>
   </table>
   <div class="multiSelectDiv">
-    <ng-multiselect-dropdown [placeholder]="'Select vessel'" [settings]="multiSelectSettings" [data]="boats" [(ngModel)]="user.boats"
+    <ng-multiselect-dropdown [placeholder]="'Select vessel'" [settings]="multiSelectSettings"
+    [data]="boats" [(ngModel)]="user.boats"
       >
     </ng-multiselect-dropdown>
   </div>
