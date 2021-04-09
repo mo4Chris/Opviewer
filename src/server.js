@@ -14,6 +14,7 @@ require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
 
 
+
 //#########################################################
 //########## These can be configured via stdin ############
 //#########################################################
@@ -23,9 +24,26 @@ const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
 
-const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-mongo.set('useFindAndModify', false);
+
+//#########################################################
+//############ Saving values to process env  ##############
+//#########################################################
+process.env.SERVER_ADDRESS = SERVER_ADDRESS;
+process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
+process.env.SERVER_PORT = SERVER_PORT;
+process.env.DB_CONN = DB_CONN;
+process.env.LOGGING_LEVEL = LOGGING_LEVEL;
+
+
+
+//#########################################################
+//########### Init up application middleware  #############
+//#########################################################
+var app = express();
+
 var logger = pino({level: LOGGING_LEVEL})
+
+mongo.set('useFindAndModify', false);
 var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -69,6 +87,7 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 const admin_server_pool = new Pool({
   host: process.env.ADMIN_DB_HOST,
   port: +process.env.ADMIN_DB_PORT,
@@ -92,19 +111,6 @@ admin_server_pool.on('error', (err) => {
 //##################   Models   ###########################
 //#########################################################
 var Schema = mongo.Schema;
-// var userSchema = new Schema({
-//   username: { type: String },
-//   password: { type: String },
-//   permissions: { type: String },
-//   client: { type: String },
-//   boats: { type: Array },
-//   token: { type: String },
-//   active: { type: Number },
-//   secret2fa: { type: String },
-//   settings: { type: Object },
-//   lastActive: { type: Number },
-// }, { versionKey: false });
-// var Usermodel = mongo.model('users', userSchema, 'users');
 
 var userActivitySchema = new Schema({
   username: { type: String },
@@ -687,11 +693,9 @@ function validatePermissionToViewVesselData(req, res, callback) {
   const token = req['token'];
   const mmsi = req.body.mmsi ?? req.params.mmsi
   let filter;
-  switch (token.userPermission) {
-    case 'admin':
-      filter = { mmsi };
-      break;
-    default:
+  if (token.permission.admin) {
+    filter = { mmsi };
+  } else {
       filter = { mmsi, client: token.userCompany };
   }
   Vesselmodel.find(filter, ['_id'], function(err, isValid) {
@@ -703,6 +707,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
+  const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
   const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
   const mailOptions = {
@@ -714,8 +719,8 @@ function mailTo(subject, html, user) {
   };
 
   // send mail with defined transport object
+  maillogger.info('Sending email')
   transporter.sendMail(mailOptions, (error, info) => {
-    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
@@ -738,6 +743,7 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 app.use((req, res, next) => {
+  // console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
   logger.debug({
     msg: `${req.method}: ${req.url}`,
     method: req.method,
@@ -769,7 +775,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
 
 //####################################################################
@@ -779,7 +785,7 @@ mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool)
 
 app.get("/api/getActiveConnections", function(req, res) {
   const token = req['token']
-  if (token.userPermission != "admin") return onUnauthorized(res, 'Only admin may request active connections!');
+  if (!token.permission.admin) return onUnauthorized(res, 'Only admin may request active connections!');
   res.send({
     body: 'This is not yet tracked'
   });
@@ -916,8 +922,20 @@ app.post("/api/getCommentsForVessel", function(req, res) {
 });
 
 app.get("/api/getVessel", function(req, res) {
+  return getVesselsForUser(req, res);
+});
+
+function getVesselsForUser (req, res) {
   const token = req['token'];
-  if (token.userPermission != 'admin') return onUnauthorized(res, 'Admin only')
+
+  if (token.permission.admin) return getVesselsForAdmin(token, res);
+  if (token.permission.user_see_all_vessels_client) return getAllVesselsForClient(token, res);
+  if (!token.permission.admin && !token.permission.user_see_all_vessels_client) return getAssignedVessels(token, res);
+
+}
+
+function getVesselsForAdmin(token, res) {
+  if (!token.permission.admin) return onUnauthorized(res, 'Admin only')
   Vesselmodel.find({
     active: { $ne: false }
   }, null, {
@@ -929,7 +947,59 @@ app.get("/api/getVessel", function(req, res) {
     if (err) return onError(res, err);
     return res.send(data);
   });
-});
+}
+
+function getAllVesselsForClient(token, res) {
+  if (!token.permission.user_see_all_vessels_client) return onUnauthorized(res, 'Not allowed to see all vessels')
+  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
+  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
+  Vesselmodel.find({
+    active: { $ne: false },
+    client: token.userCompany
+  }, null, {
+    sort: {
+      client: 'asc',
+      nicename: 'asc'
+    }
+  }, function(err, data) {
+    if (err) return onError(res, err);
+    return res.send(data);
+  });
+}
+
+function getAssignedVessels(token, res) {
+  let PgQuery = `
+  SELECT "vesselTable"."mmsi"
+    FROM "vesselTable"
+    INNER JOIN "userTable"
+    ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
+    WHERE "userTable"."user_id"=$1`;
+  const values = [token.userID]
+  return admin_server_pool.query(PgQuery, values).then((data, err) => {
+    if (err) return onError(res, err);
+    if (data.rows.length > 0) {
+      const finalArray = data.rows.map(function (obj) {
+        return obj.mmsi;
+      });
+      Vesselmodel.find({
+        active: { $ne: false },
+        mmsi: {$in: finalArray}
+      }, null, {
+        sort: {
+          client: 'asc',
+          nicename: 'asc'
+        }
+      }, function(err, data) {
+        if (err) return onError(res, err);
+        return res.send(data);
+      });
+
+    } else {
+      return null;
+    }
+  }).catch(err => onError(res, err, 'Failed to load vessels'));
+
+}
 
 app.get("/api/getHarbourLocations", function(req, res) {
   harbourModel.find({
@@ -1151,111 +1221,111 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
   });
 });
 
-app.get("/api/getLatestBoatLocation", function(req, res) {
-  const token = req['token']
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
-  boatLocationmodel.aggregate([{
-      $match: {
-        active: { $ne: false }
-      }
-    },
-    {
-      $group: {
-        _id: "$MMSI",
-        "LON": {
-          "$last": "$LON"
-        },
-        "LAT": {
-          "$last": "$LAT"
-        },
-        "TIMESTAMP": {
-          "$last": "$TIMESTAMP"
-        }
-      }
-    },
-    // This code runs every 30 seconds if left in place
-    {
-      $lookup: {
-        from: 'vessels',
-        localField: '_id',
-        foreignField: 'mmsi',
-        as: 'vesselInformation'
-      }
-    },
-    {
-      $addFields: {
-        vesselInformation: "$vesselInformation.nicename"
-      }
-    }
-  ]).exec(function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
+// app.get("/api/getLatestBoatLocation", function(req, res) {
+//   const token = req['token']
+//   if (token.permission.admin === false) return onUnauthorized(res);
+//   boatLocationmodel.aggregate([{
+//       $match: {
+//         active: { $ne: false }
+//       }
+//     },
+//     {
+//       $group: {
+//         _id: "$MMSI",
+//         "LON": {
+//           "$last": "$LON"
+//         },
+//         "LAT": {
+//           "$last": "$LAT"
+//         },
+//         "TIMESTAMP": {
+//           "$last": "$TIMESTAMP"
+//         }
+//       }
+//     },
+//     // This code runs every 30 seconds if left in place
+//     {
+//       $lookup: {
+//         from: 'vessels',
+//         localField: '_id',
+//         foreignField: 'mmsi',
+//         as: 'vesselInformation'
+//       }
+//     },
+//     {
+//       $addFields: {
+//         vesselInformation: "$vesselInformation.nicename"
+//       }
+//     }
+//   ]).exec(function(err, data) {
+//     if (err) return onError(res, err);
+//     res.send(data);
+//   });
+// });
 
-app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
-  let companyName = req.params.company;
-  let companyMmsi = [];
-  const token = req['token']
-  if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res, 'Company does not match')
-  Vesselmodel.find({
-    client: companyName,
-    active: { $ne: false }
-  } , function(err, data) {
-    if (err) return onError(res, err);
-    if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-      for (let i = 0; i < token.userBoats.length;) {
-        companyMmsi.push(token.userBoats[i].mmsi);
-        i++; // WTF is dit dan weer voor een for loop
-      }
-      // companyMmsi = token.userBoats.map(boat => boat.mmsi);
-    } else {
-      for (let i = 0; i < data.length;) {
-        companyMmsi.push(data[i].mmsi);
-        i++;
-      }
-    }
+// app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
+//   let companyName = req.params.company;
+//   let companyMmsi = [];
+//   const token = req['token']
+//   if (token.userCompany !== companyName && token.permission.admin === false) return onUnauthorized(res, 'Company does not match')
+//   Vesselmodel.find({
+//     client: companyName,
+//     active: { $ne: false }
+//   } , function(err, data) {
+//     if (err) return onError(res, err);
+//     if (!token.permission.user_manage && !token.permission.admin) {
+//       for (let i = 0; i < token.userBoats.length;) {
+//         companyMmsi.push(token.userBoats[i].mmsi);
+//         i++; // WTF is dit dan weer voor een for loop
+//       }
+//       // companyMmsi = token.userBoats.map(boat => boat.mmsi);
+//     } else {
+//       for (let i = 0; i < data.length;) {
+//         companyMmsi.push(data[i].mmsi);
+//         i++;
+//       }
+//     }
 
-    boatLocationmodel.aggregate([{
-        "$match": {
-          MMSI: { $in: companyMmsi },
-          active: { $ne: false }
-        }
-      },
-      {
-        $group: {
-          _id: "$MMSI",
-          "LON": {
-            "$last": "$LON"
-          },
-          "LAT": {
-            "$last": "$LAT"
-          },
-          "TIMESTAMP": {
-            "$last": "$TIMESTAMP"
-          }
-        }
-      },
-      // This code runs every 30 seconds if left in place
-      {
-        $lookup: {
-          from: 'vessels',
-          localField: '_id',
-          foreignField: 'mmsi',
-          as: 'vesselInformation'
-        }
-      },
-      {
-        $addFields: {
-          vesselInformation: "$vesselInformation.nicename"
-        }
-      }
-    ]).exec(function(err, data) {
-      if (err) return onError(res, err);
-      res.send(data);
-    });
-  });
-});
+//     boatLocationmodel.aggregate([{
+//         "$match": {
+//           MMSI: { $in: companyMmsi },
+//           active: { $ne: false }
+//         }
+//       },
+//       {
+//         $group: {
+//           _id: "$MMSI",
+//           "LON": {
+//             "$last": "$LON"
+//           },
+//           "LAT": {
+//             "$last": "$LAT"
+//           },
+//           "TIMESTAMP": {
+//             "$last": "$TIMESTAMP"
+//           }
+//         }
+//       },
+//       // This code runs every 30 seconds if left in place
+//       {
+//         $lookup: {
+//           from: 'vessels',
+//           localField: '_id',
+//           foreignField: 'mmsi',
+//           as: 'vesselInformation'
+//         }
+//       },
+//       {
+//         $addFields: {
+//           vesselInformation: "$vesselInformation.nicename"
+//         }
+//       }
+//     ]).exec(function(err, data) {
+//       if (err) return onError(res, err);
+//       res.send(data);
+//     });
+//   });
+// });
 
 app.post("/api/getDatesWithValues", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -2168,7 +2238,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
     }
   }
 
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
+  if (!token.permission.admin) return onUnauthorized(res);
   generalmodel.aggregate([{
     $group: {
       _id: '$mmsi',
@@ -2321,7 +2391,7 @@ app.post("/api/getGeneral", function(req, res) {
 
 app.get("/api/getTurbineWarranty", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
+  if (!token.permission.admin) return onUnauthorized(res);
   turbineWarrantymodel.find({
     active: { $ne: false }
   }, function(err, data) {
@@ -2343,7 +2413,7 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
       logger.warn({ msg: 'No TWA found - getTurbineWarrantyOne' })
       return res.send({ err: "No TWA found" });
     }
-    if (token.userPermission !== 'admin' && token.userCompany !== data.client) return onUnauthorized(res);
+    if (!token.permission.admin && token.userCompany !== data.client) return onUnauthorized(res);
     sailDayChangedmodel.find({
       fleetID: data._id,
       active: { $ne: false }
@@ -2356,7 +2426,7 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
 
 app.post("/api/getTurbineWarrantyForCompany", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin' && token.userCompany !== req.body.client && token.hasCampaigns) return onUnauthorized(res);
+  if (!token.permission.admin && token.userCompany !== req.body.client && token.permission.twa.read) return onUnauthorized(res);
   turbineWarrantymodel.find({
     client: req.body.client,
     active: { $ne: false }
@@ -2388,7 +2458,7 @@ app.post("/api/setSaildays", function(req, res) {
 
 app.post("/api/addVesselToFleet", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) return onUnauthorized(res);
+  if (!token.permission.admin && token.userCompany !== req.body.client) return onUnauthorized(res);
   const filter = {
     campaignName: req.body.campaignName,
     startDate: req.body.startDate,
@@ -2442,7 +2512,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(re
   let fleetID = req.params.fleetID;
   let client = req.params.client;
   let stopDate = +req.params.stopDate;
-  if (token.userPermission !== 'admin' && token.userCompany !== client) return onUnauthorized(res);
+  if (!token.permission.admin && token.userCompany !== client) return onUnauthorized(res);
   activeListingsModel.aggregate([{
     $match: {
       fleetID: fleetID,
@@ -2518,7 +2588,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(re
 app.get("/api/getAllActiveListingsForFleet/:fleetID", function(req, res) {
   const token = req['token']
   let fleetID = req.params.fleetID;
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
+  if (!token.permission.admin) return onUnauthorized(res);
   activeListingsModel.find({
     fleetID: fleetID,
     active: { $ne: false }
@@ -2530,7 +2600,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function(req, res) {
 
 app.post("/api/setActiveListings", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin' && token.userCompany !== req.body.client) return onUnauthorized(res);
+  if (!token.permission.admin && token.userCompany !== req.body.client) return onUnauthorized(res);
   let listings = req.body.listings;
   let activeVessels = [];
   let fleetID = req.body.fleetID;
@@ -2605,7 +2675,7 @@ app.post("/api/getHasSailedDatesCTV", function(req, res) {
 
 app.post("/api/getVesselsToAddToFleet", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin') return onUnauthorized(res);
+  if (!token.permission.admin) return onUnauthorized(res);
   vesselsToAddToFleetmodel.find({
     campaignName: req.body.campaignName,
     active: { $ne: false },
@@ -2619,7 +2689,7 @@ app.post("/api/getVesselsToAddToFleet", function(req, res) {
 
 app.post("/api/saveFleetRequest", function(req, res) {
   const token = req['token']
-  if (token.userPermission !== 'admin' && token.userPermission !== 'Logistics specialist') return onUnauthorized(res);
+  if (!token.permission.admin && !token.permission.user_manage) return onUnauthorized(res);
   const request = new turbineWarrantyRequestmodel();
   request.fullFleet = req.body.boats;
   request.activeFleet = req.body.boats;
@@ -2673,7 +2743,7 @@ app.post("/api/getWavedataForDay", function(req, res) {
     waveSourceModel.findById(data.source, (err, meta) => {
       if (err) return onError(res, err);
       let company = token.userCompany;
-      let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string' ?
+      let hasAccessRights = token.permission.admin|| (typeof(meta.clients) == 'string' ?
         meta.clients === company : meta.clients.some(client => client == company))
       if (!hasAccessRights) return onUnauthorized(res);
       data.meta = meta;
@@ -2700,7 +2770,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
       waveSourceModel.findById(data.source, (err, meta) => {
         if (err) return onError(res, err);
         let company = token.userCompany;
-        let hasAccessRights = token.userPermission === 'admin' || (typeof(meta.clients) == 'string' ?
+        let hasAccessRights = token.permission.admin || (typeof(meta.clients) == 'string' ?
           meta.clients === company : meta.clients.some(client => client == company))
         if (hasAccessRights) {
           data.meta = meta;
@@ -2715,7 +2785,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
 
 app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
   const token = req['token']
-  if (token.userPermission === 'admin') {
+  if (token.permission.admin) {
     waveSourceModel.find({}, {
         site: 1,
         name: 1
@@ -2744,7 +2814,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
 
 app.get('/api/getLatestTwaUpdate/', function(req, res) {
   const token = req['token']
-  if (token.userPermission === 'admin') {
+  if (token.permission.admin) {
     // let currMatlabDate = Math.floor((moment() / 864e5) + 719529 - 3);
     turbineWarrantymodel.find({}, {
       lastUpdated: 1

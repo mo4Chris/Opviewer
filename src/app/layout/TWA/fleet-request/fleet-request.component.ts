@@ -83,7 +83,8 @@ export class FleetRequestComponent implements OnInit {
                 this.boats = data.map(v => v.nicename);
             });
         } else {
-            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }]).subscribe(data => {
+            //this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany, notHired: 1 }])
+            this.newService.getVessel().subscribe(data => {
                 this.boats = data.map(v => v.nicename);
             });
         }

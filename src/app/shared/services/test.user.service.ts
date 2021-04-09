@@ -20,12 +20,25 @@ export class UserTestService extends UserService {
                 mmsi: 123456789,
                 nicename: 'Test_BMO'
             }],
+            client_id: 1,
             userCompany: 'BMO',
             userPermission: 'admin',
             username: 'tester',
             hasCampaigns: true,
             expires: 1234,
-            iat: 1234
+            iat: 1234,
+            permission: {
+                admin: true,
+                dpr: null,
+                twa: null,
+                longterm: null,
+                forecast: {
+                    read: true,
+                },
+                user_read: true,
+                user_manage: true,
+                user_type: 'admin',
+            }
         };
         return {...defaults, ...config};
     }

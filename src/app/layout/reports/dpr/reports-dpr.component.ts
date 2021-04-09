@@ -77,7 +77,7 @@ export class ReportsDprComponent implements OnInit {
             this.buildPageWithCurrentInformation();
           });
         } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+          this.newService.getVessel().subscribe(data => {
             this.vessels = data;
             this.buildPageWithCurrentInformation();
           });

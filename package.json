@@ -1,5 +1,5 @@
 {
-  "name": "Dataviewer",
+  "name": "dataviewer",
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
@@ -47,6 +47,7 @@
     "dotenv": "6.2.0",
     "express": "4.16.3",
     "express-fileupload": "^1.2.1",
+    "express-pino-logger": "^6.0.0",
     "font-awesome": "4.7.0",
     "fs": "0.0.1-security",
     "hi-base32": "0.5.0",

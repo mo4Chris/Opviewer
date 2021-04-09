@@ -17,10 +17,10 @@ export class HeaderComponent implements OnInit {
   routerValue = '';
   pushRightClass = 'push-right';
   modalReference: NgbModalRef;
-  pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login' ];
+  pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login', 'longterm', 'forecast' ];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   userCreatePermission;
-  feedback: {message: string, page: string, person: any};
+  feedback: {message: string, page: string};
 
   constructor(
     private translate: TranslateService,
@@ -49,7 +49,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.userCreatePermission = this.permission.userCreate;
-    this.feedback = {message: '', page: '', person: this.tokenInfo.userID};
+    this.feedback = {message: '', page: ''};
   }
 
   openModal(content) {

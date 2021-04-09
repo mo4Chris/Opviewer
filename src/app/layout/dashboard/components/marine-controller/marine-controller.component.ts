@@ -36,9 +36,7 @@ export class MarineControllerComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.newService.getVesselsForCompany([{
-        client: this.tokenInfo.userCompany
-      }]).subscribe(vessels => {
+      this.newService.getVessel().subscribe(vessels => {
         this.vesselInfos = vessels;
         this.setZoomLevel();
         this.getUnassignedTransfers();
