@@ -105,8 +105,8 @@ module.exports = function (
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
-    "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
-    "user_type", "forecast", "userTable"."client_id"
+    "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", 
+    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client", "userTable"."client_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -114,7 +114,7 @@ module.exports = function (
     const values = [username];
 
     logger.info('Received login for user: ' + username);
-    admin_server_pool.query(PgQuery).then(async (data, err) => {
+    admin_server_pool.query(PgQuery, values).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
@@ -142,6 +142,7 @@ module.exports = function (
           longterm: user.longterm,
           user_type: user.user_type,
           forecast: user.forecast,
+          user_see_all_vessels_client: user.user_see_all_vessels_client,
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };

@@ -159,10 +159,11 @@ export class FleetavailabilityComponent implements OnInit {
                         this.existingVessels = _vessel.map(v => v.nicename);
                     });
                 } else {
-                    this.newService.getVesselsForCompany([{
-                        client: this.tokenInfo.userCompany,
-                        notHired: 1
-                    }]).subscribe(_vessel => {
+                    // this.newService.getVesselsForCompany([{
+                    //     client: this.tokenInfo.userCompany,
+                    //     notHired: 1
+                    // }])
+                    this.newService.getVessel().subscribe(_vessel => {
                         this.existingVessels = data.map(v => v.nicename);
                     });
                 }

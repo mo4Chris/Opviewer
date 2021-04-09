@@ -99,7 +99,7 @@ export class LongtermComponent implements OnInit {
       Chart.pluginService.register(ChartAnnotation);
       forkJoin([
         this.newService.getFieldsWithWaveSourcesByCompany(),
-        this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]),
+        this.newService.getVessel(),
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
       ]).subscribe(([fields, vessels, validatedValue]) => {
         if (validatedValue.length != 1) return this.noPermissionForData = true;

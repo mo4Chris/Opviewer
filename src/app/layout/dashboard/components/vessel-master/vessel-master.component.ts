@@ -34,9 +34,7 @@ export class VesselMasterComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.newService.getVesselsForCompany([{
-        client: this.tokenInfo.userCompany
-      }]).subscribe(vessels => {
+      this.newService.getVessel().subscribe(vessels => {
         this.vesselInfo = vessels[0]; // Vessel master only gets 1 vessel
         this.setZoomLevel();
         this.getUnassignedTransfers();

@@ -49,7 +49,7 @@ export class TablesComponent implements OnInit {
               });
               this.applyFilter(''); });
           } else {
-            this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
+            this.newService.getVessel().subscribe(data => {
               this.Repdata = data;
               this.Repdata.forEach(_rep => {
                 _rep.client = isArray(_rep.client) ? _rep.client : [];
