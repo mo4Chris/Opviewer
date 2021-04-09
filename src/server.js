@@ -10,7 +10,6 @@ var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
 var { Pool } = require('pg');
-const { response } = require('express');
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -924,9 +923,7 @@ async function getVesselsForUser (req, res) {
 
   if (token.permission.admin) return await getVesselsForAdmin(token, res);
   if (token.permission.user_see_all_vessels_client) return await getAllVesselsForClient(token, res);
-  if (!token.permission.admin && !token.permission.user_see_all_vessels_client) return await getAssignedVessels(token, res);
-
-  return null;
+  return await getAssignedVessels(token, res);
 }
 
 async function getVesselsForAdmin(token, res) {
