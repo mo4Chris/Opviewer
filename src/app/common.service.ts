@@ -557,14 +557,6 @@ export class CommonService {
       response_id: id
     });
   }
-<<<<<<< HEAD
-=======
-  getForecastSpectrumForResponse(id: number): Observable<any> {
-    return this.post('/api/mo4light/spectrum', {
-      response_id: id
-    });
-  }
->>>>>>> feature/2/mo4-light
 }
 
 export interface StatsRangeRequest {

@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
-import { CommonService } from '../../../common.service';
-import { UserService } from '../../../shared/services/user.service';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
+import { UserService } from '@app/shared/services/user.service';
 import { Router } from '@angular/router';
-import { DatetimeService } from '../../../supportModules/datetime.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import { catchError, map } from 'rxjs/operators';
 import * as moment from 'moment-timezone';
 
@@ -64,7 +64,14 @@ export class FleetRequestComponent implements OnInit {
         unSelectAllText: 'Unselect All',
         singleSelection: false
     };
-    selectClientSettings = Object.assign({}, this.selectVesselsSettings);
+    selectClientSettings = {
+        idField: 'client_id',
+        textField: 'client_name',
+        allowSearchFilter: true,
+        selectAllText: 'Select All',
+        unSelectAllText: 'Unselect All',
+        singleSelection: false
+    };
 
     ngOnInit() {
         this.selectClientSettings.singleSelection = true;

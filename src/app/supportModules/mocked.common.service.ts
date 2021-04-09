@@ -757,9 +757,29 @@ export class MockedCommonService extends CommonService {
         Disp: [[[1]]],
       },
       Degrees_Of_Freedom: {
-
       }
     };
+    // TEMPORARY
+    const dateMin = 737700;
+    const dateMax = 737702;
+    const N = 49;
+    Response["MetoceanData"] = {
+      Time: linspace(dateMin, dateMax, N),
+      Wave: {
+        Parametric: {
+          Hs: linspace(1, 2, N),
+          Hmax: linspace(1, 2, N),
+          Tp: linspace(1, 2, N),
+          source: 'McFakerson'
+        },
+        Spectral: {
+          kx: [],
+          ky: [],
+          Density: [[]],
+        }
+      }
+    }
+    //
     const responseObj: ForecastResponseObject = {
       consumer_id: 1,
       id: 1,
@@ -769,7 +789,7 @@ export class MockedCommonService extends CommonService {
         Points_Of_Interest: {
           P1: Response
         }
-      }
+      },
     };
     return mockedObservable(responseObj);
   }
