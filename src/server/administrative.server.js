@@ -53,7 +53,7 @@ module.exports = function (
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
     "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", 
-    "user_manage", "twa", "dpr", "longterm", "forecast"
+    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -72,7 +72,6 @@ module.exports = function (
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
       logger.trace(vessels);
       const expireDate = new Date();
-      console.log(user);
       const payload = {
         userID: user.user_id,
         userPermission: user.user_type,
@@ -89,6 +88,7 @@ module.exports = function (
           longterm: user.longterm,
           user_type: user.user_type,
           forecast: user.forecast,
+          user_see_all_vessels_client: user.user_see_all_vessels_client,
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };

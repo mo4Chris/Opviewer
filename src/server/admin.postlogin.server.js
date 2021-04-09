@@ -153,8 +153,8 @@ module.exports = function (
 app.post("/api/resetPassword", function(req, res) {
   const token = req['token']
   logger.info('Password reset requested for user' + token.username)
-  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
-  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (!token.permission.admin &&  !token.permission.user_manage) return onUnauthorized(res);
+  if (token.permission.user_manage && req.body.client !== token.userCompany) return onUnauthorized(res);
 
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
   randomToken = randomToken.replace(/\//gi, '8');
@@ -175,8 +175,8 @@ app.post("/api/resetPassword", function(req, res) {
 
 app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
   const token = req['token']
-  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
-  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (!token.permission.admin &&  !token.permission.user_manage) return onUnauthorized(res);
+  if (token.permission.user_manage && req.body.client !== token.userCompany) return onUnauthorized(res);
 
   // Usermodel.findOneAndUpdate({
   //   _id: req.body._id
@@ -199,8 +199,8 @@ app.post("/api/setActive", function(req, res) { // Naam moet eigenlijk wel beter
 
 app.post("/api/setInactive", function(req, res) {
   const token = req['token']
-  if (token.permission.admin === false &&  token.permission.user_mange === false) return onUnauthorized(res);
-  if (token. token.permission.user_manage === true && req.body.client !== token.userCompany) return onUnauthorized(res);
+  if (!token.permission.admin &&  !token.permission.user_manage) return onUnauthorized(res);
+  if (token.permission.user_manage && req.body.client !== token.userCompany) return onUnauthorized(res);
   // Usermodel.findOneAndUpdate({
   //   _id: req.body._id
   // }, {
@@ -466,27 +466,33 @@ app.post("/api/setInactive", function(req, res) {
     })
   });
 
-  app.post("/api/getVesselsForCompany", function(req, res) {
-    let companyName = req.body[0].client;
-    const token = req['token']
-    console.log(token)
-    // if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
-    // let filter = { client: companyName, active: { $ne: false } };
-    // // if (!req.body[0].notHired) filter.onHire = 1;
+  
 
-    // if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
-    //   filter.mmsi = [];
-    //   for (var i = 0; i < token.userBoats.length; i++) {
-    //     filter.mmsi[i] = token.userBoats[i].mmsi;
-    //   }
-    // }
-    // Vesselmodel.find(filter).sort({
-    //   nicename: 'asc'
-    // }).exec( function(err, data) {
-    //   if (err) return onError(res, err);
-    //   res.send(data);
-    // });
-  });
+  
+
+
+
+  // app.post("/api/getVesselsForCompany", function(req, res) {
+  //   let companyName = req.body[0].client;
+  //   const token = req['token']
+  //   console.log(token)
+  //   // if (token.userCompany !== companyName && token.userPermission !== "admin") return onUnauthorized(res);
+  //   // let filter = { client: companyName, active: { $ne: false } };
+  //   // // if (!req.body[0].notHired) filter.onHire = 1;
+
+  //   // if (token.userPermission !== "Logistics specialist" && token.userPermission !== "admin") {
+  //   //   filter.mmsi = [];
+  //   //   for (var i = 0; i < token.userBoats.length; i++) {
+  //   //     filter.mmsi[i] = token.userBoats[i].mmsi;
+  //   //   }
+  //   // }
+  //   // Vesselmodel.find(filter).sort({
+  //   //   nicename: 'asc'
+  //   // }).exec( function(err, data) {
+  //   //   if (err) return onError(res, err);
+  //   //   res.send(data);
+  //   // });
+  // });
 
   app.get("/api/getCompanies", function(req, res) {
     const token = req['token']
@@ -516,35 +522,35 @@ app.post("/api/setInactive", function(req, res) {
   });
 
 
-  function defaultPgLoaderMultiColumn(table, fields = '*', filter = null) {
-    let PgQuery = '';
-    if (typeof fields == 'string') {
-      PgQuery = `SELECT ${fields} from "${table}"`;
-    } else {
-      const fieldList = fields.join(', ');
-      PgQuery = `SELECT ${fieldList} from "${table}"`;
-    }
-    if (filter) {
-      PgQuery = `${PgQuery} where ${filter}`
-    }
-    return function (req, res) {
-      admin_server_pool.query(PgQuery).then((data) => {
-        if (typeof fields == 'string') return res.send(data.rows);
-        // must check the else functionality for multicolumn
-        const out = [];
-        data.rows.forEach(row => {
-          const data = {};
-          fields.forEach(key => {
-            data[key] = row[key]
-          });
-          out.push(data)
-        });
-        res.send(out);
-      }).catch(err => {
-        onError(res, err);
-      })
-    }
-  }
+  // function defaultPgLoaderMultiColumn(table, fields = '*', filter = null) {
+  //   let PgQuery = '';
+  //   if (typeof fields == 'string') {
+  //     PgQuery = `SELECT ${fields} from "${table}"`;
+  //   } else {
+  //     const fieldList = fields.join(', ');
+  //     PgQuery = `SELECT ${fieldList} from "${table}"`;
+  //   }
+  //   if (filter) {
+  //     PgQuery = `${PgQuery} where ${filter}`
+  //   }
+  //   return function (req, res) {
+  //     admin_server_pool.query(PgQuery).then((data) => {
+  //       if (typeof fields == 'string') return res.send(data.rows);
+  //       // must check the else functionality for multicolumn
+  //       const out = [];
+  //       data.rows.forEach(row => {
+  //         const data = {};
+  //         fields.forEach(key => {
+  //           data[key] = row[key]
+  //         });
+  //         out.push(data)
+  //       });
+  //       res.send(out);
+  //     }).catch(err => {
+  //       onError(res, err);
+  //     })
+  //   }
+  // }
 
   function defaultPgLoader(table, fields = '*', filter = null) {
     let PgQuery = '';
@@ -580,6 +586,8 @@ app.post("/api/setInactive", function(req, res) {
 };
 
 
+
+
 function initUserSettings(res, user_id) {
   const text = 'INSERT INTO "userSettingsTable"(user_id, timezone, unit, longterm, weather_chart) VALUES($1, $2, $3, $4, $5)';
   const values = [
@@ -605,6 +613,7 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
     user_read: true,
     user_write: is_admin,
     user_manage: is_admin,
+    user_see_all_vessels_client: is_admin,
     dpr: {
       read: true,
       sov_input: 'read',
@@ -643,6 +652,7 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
       break
     case 'Logistics specialist':
       values.longterm.read = true;
+      values.user_see_all_vessels_client = true;
       break
     case 'Client representative':
       values.dpr.sov_commercial = 'read';
@@ -650,6 +660,7 @@ function initUserPermission(user_id, user_type, opt_permissions = {}) {
       break
     case 'Forecast demo':
       values.dpr.read = false;
+      values.forecast.read = true;
       break
   }
   return genericSqlInsert('userPermissionTable', values)

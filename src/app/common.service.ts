@@ -124,7 +124,7 @@ export class CommonService {
   }
 
   getVesselsForCompany(client: { client: string, notHired?: number}[]) {
-    return this.post('/api/getVesselsForCompany/', client);
+    return this.get('/api/getVessel/');
   }
 
   getCompanies() {
