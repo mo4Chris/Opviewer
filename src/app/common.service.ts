@@ -14,6 +14,7 @@ import { ForecastOperation, ForecastResponseObject } from './layout/forecast/mod
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { deprecate } from 'node:util';
+import { storedSettings } from './supportModules/settings.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -62,6 +63,9 @@ export class CommonService {
   getVessel(): Observable<VesselModel[]> {
     return this.get('/api/getVessel/');
   }
+  getVesselsForCompany(client?: { client: string, notHired?: number}[]) {
+    return this.get('/api/getVesselsForCompany/');
+  }
 
   getSov(vessel: VesselObjectModel) {
     return this.get('/api/getSov/' + vessel.mmsi + '/' + vessel.date);
@@ -74,10 +78,6 @@ export class CommonService {
   getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
     // For both CTV and SOV!
     return this.get('/api/getLatestGeneral/');
-  }
-
-  getLatestGeneralForCompany(opts: {client: string, vesselname?: string}) {
-    // For both CTV and SOV!
   }
 
   getLatestTwaUpdate(): Observable<number> {
@@ -127,7 +127,7 @@ export class CommonService {
     return this.get('/api/getVessel/');
   }
 
-  getCompanies() {
+  getCompanies(): Observable<Client[]> {
     return this.get('/api/getCompanies/');
   }
 
@@ -255,8 +255,8 @@ export class CommonService {
     return mockedObservable({_id: '0', client: ''});
   }
 
-  saveUserBoats(user) {
-    return this.post('/api/saveUserBoats/', user);
+  updateUserPermissions(user) {
+    return this.post('/api/updateUserPermissions/', user);
   }
 
   saveFuelStatsSovDpr(sovfuelstats) {
@@ -328,7 +328,7 @@ export class CommonService {
     return this.post('/api/saveRemarksStats/', sovremarks);
   }
 
-  sendFeedback(feedback: {message: string, page: string, person: any}) {
+  sendFeedback(feedback: {message: string, page: string}) {
     return this.post('/api/sendFeedback/', feedback);
   }
 
@@ -380,16 +380,16 @@ export class CommonService {
     return this.post('/api/updateDprFieldsSOVHseDpr/', dataObject);
   }
 
-  resetPassword(user) {
-    return this.post('/api/resetPassword/', user);
+  resetPassword(username: string) {
+    return this.post('/api/resetPassword/', {username});
   }
 
-  setActive(user) {
-    return this.post('/api/setActive/', user);
+  setActive(user: {username: string}) {
+    return this.post('/api/setUserActive/', user);
   }
 
-  setInactive(user) {
-    return this.post('/api/setInactive/', user);
+  setInactive(user: {username: string}) {
+    return this.post('/api/setUserInactive/', user);
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
@@ -446,10 +446,6 @@ export class CommonService {
 
   getVesselsToAddToFleet(fleet) {
     return this.post('/api/getVesselsToAddToFleet/', fleet);
-  }
-
-  get2faExistence(user: {userEmail: any}) {
-    return this.post('/api/get2faExistence', user);
   }
 
   getSovWaveSpectrumAvailable(vessel: {date:  number, mmsi: number}) {
@@ -520,15 +516,12 @@ export class CommonService {
     return this.get('/api/getFieldsWithWaveSourcesByCompany');
   }
 
-  saveUserSettings(settings: object): void {
-    this.post('/api/saveUserSettings/', settings).subscribe();
+  saveUserSettings(settings: storedSettings): Observable<any> {
+    return this.post('/api/saveUserSettings/', settings);
   }
 
-  loadUserSettings(): Observable<object> {
-    return this.get('/api/loadUserSettings').pipe(
-      map(response => {
-        return response.settings;
-      }));
+  loadUserSettings(): Observable<storedSettings> {
+    return this.get('/api/loadUserSettings');
   }
 
   getForecastConnectionTest() {
@@ -600,3 +593,11 @@ export interface SovDprSignOrRefuseModel {
   vesselName: string;
   feedback?: string;
 }
+ export interface Client {
+  client_id: number;
+  client_name: string;
+  client_permissions: ClientPermission;
+  client_children: number[];
+ }
+ interface ClientPermission {
+ }

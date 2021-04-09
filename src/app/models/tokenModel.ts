@@ -8,8 +8,10 @@ export class TokenModel {
         mmsi: number,
         nicename: string
     }[];
+    client_id: number;
     userCompany: string;
     userPermission: UserType;
+    permission: UserPermissions;
     username: string;
     hasCampaigns: boolean;
     expires: number;
@@ -23,4 +25,14 @@ export class TokenModel {
     }
 }
 
+export interface UserPermissions {
+    admin: boolean,
+    user_read: boolean,
+    user_manage: boolean,
+    dpr: any,
+    longterm: any,
+    twa: any,
+    forecast: any,
+    user_type: UserType,
+}
 

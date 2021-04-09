@@ -1,4 +1,4 @@
-import { CommonService, StatsRangeRequest } from '../common.service';
+import { Client, CommonService, StatsRangeRequest } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
 import { VesselModel } from '../models/vesselModel';
 // tslint:disable-next-line:import-blacklist
@@ -32,7 +32,7 @@ export class MockedCommonService extends CommonService {
   }
 
   loadUserSettings() {
-    return mockedObservable({});
+    return mockedObservable(null);
   }
 
   // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
@@ -80,8 +80,13 @@ export class MockedCommonService extends CommonService {
     const T = linspace(vesselObject.date - 15, vesselObject.date - 5, 1);
     return mockedObservable(T);
   }
-  getCompanies() {
-    return mockedObservable(['MO4']);
+  getCompanies(): Observable<Client[]> {
+    return mockedObservable([{
+      client_name: 'MO4',
+      client_id: 1,
+      client_children: [],
+      client_permissions: {},
+    }] as Client[]);
   }
 
   getGeneral(vesselObject: VesselObjectModel) {
@@ -644,7 +649,7 @@ export class MockedCommonService extends CommonService {
       startDate: 0,
       stopDate: 1,
       windField: 'test123',
-  
+
       numContractedVessels: 0,
       weatherDayTarget: 0,
       weatherDayForecast: [],

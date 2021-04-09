@@ -33,9 +33,6 @@ export class UserSettingsComponent implements OnInit {
   }
 
   saveSettings() {
-    this.alert.sendAlert({
-      text: 'Settings saved!'
-    });
     this.settings.saveSettings();
   }
 

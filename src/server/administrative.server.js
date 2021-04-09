@@ -1,8 +1,6 @@
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
-const { response } = require('express');
-require('dotenv').config({ path: __dirname + '/./../.env' });
 
 
 
@@ -14,10 +12,6 @@ module.exports = function (
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool
 ) {
-  // ######################### SETUP CODE #########################
-
-
-
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
     admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
@@ -28,9 +22,68 @@ module.exports = function (
     })
   })
 
-  app.post("/api/registerUser", function (req, res) {
-    res.send({ data: 'Great success!' })
-    // TODO
+  app.post("/api/getRegistrationInformation", function(req, res) {
+    const username = req.body.user;
+    const registration_token = req.body.registration_token;
+    // NOT SURE WHAT TO MAKE OF THIS FUNCTION
+    const query = `SELECT username, requires2fa, secret2fa
+      FROM "userTable"
+      WHERE "token"=$1`
+    const values = [registration_token]
+    admin_server_pool.query(query, values).then(sqlresponse => {
+      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      const row = sqlresponse.rows[0];
+      res.send({
+        username: row.username,
+        requires2fa: row.requires2fa,
+      })
+    }).catch(err => onError(res, err))
+  });
+
+  app.post('/api/setPassword', function (req, res) {
+    const token = req.body.passwordToken;
+    const password = req.body.password;
+    const confirm = req.body.confirmPassword;
+    const confirm2fa = req.body.secret2fa;
+    const localLogger = logger.child({
+      token,
+      hasPassword: password != null,
+      has2Fa: confirm2fa != null
+    })
+    localLogger.info('Receiving set password request')
+
+    if (!(token?.length > 0)) return res.status(400).send('Missing token')
+    if (password != confirm) return res.status(400).send('Password does not match confirmation code')
+    const query = `SELECT user_id, secret2fa, requires2fa
+      FROM "userTable"
+      WHERE "token"=$1`
+    const values = [token];
+    admin_server_pool.query(query, values).then((sqlresponse) => {
+      localLogger.debug('Got sql response')
+      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      const data = sqlresponse.rows[0];
+      const requires2fa = data.requires2fa ?? true;
+      if (!requires2fa) localLogger.info('User does not require 2FA')
+      const valid2fa = typeof(confirm2fa)=='string' && (confirm2fa.length > 0);
+      if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
+      const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
+      if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
+
+      const user_id = data.user_id;
+      const query2 = `UPDATE "userTable"
+      SET password=$1,
+          secret2fa=$2,
+          token=null
+      WHERE "userTable"."user_id"=$3
+      `
+      const hashed_password = bcrypt.hashSync(req.body.password, 10)
+      const value2 = [hashed_password, confirm2fa, user_id]
+      admin_server_pool.query(query2, value2).then(() => {
+        res.send({ data: 'Password set successfully!' })
+      }).catch(err => {
+        onError(res, err)
+      });
+    }).catch(err => onError(res, err, 'Registration token not found!'))
   })
 
   app.post("/api/login", async function (req, res) {
@@ -53,7 +106,7 @@ module.exports = function (
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
     "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", 
-    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client"
+    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client", "userTable"."client_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -66,7 +119,7 @@ module.exports = function (
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
-      logger.trace(user);
+      logger.info(user);
 
       if (!validateLogin(req, user, res)) return null;
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
@@ -78,6 +131,7 @@ module.exports = function (
         userCompany: user.client_name,
         userBoats: vessels,
         username: user.username,
+        client_id: user.client_id,
         permission: {
           admin: user.admin,
           user_read: user.user_read,
