@@ -63,9 +63,6 @@ export class CommonService {
   getVessel(): Observable<VesselModel[]> {
     return this.get('/api/getVessel/');
   }
-  getVesselsForCompany(client?: { client: string, notHired?: number}[]) {
-    return this.get('/api/getVesselsForCompany/');
-  }
 
   getSov(vessel: VesselObjectModel) {
     return this.get('/api/getSov/' + vessel.mmsi + '/' + vessel.date);
@@ -123,9 +120,6 @@ export class CommonService {
     return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date);
   }
 
-  getVesselsForCompany(client: { client: string, notHired?: number}[]) {
-    return this.get('/api/getVessel/');
-  }
 
   getCompanies(): Observable<Client[]> {
     return this.get('/api/getCompanies/');

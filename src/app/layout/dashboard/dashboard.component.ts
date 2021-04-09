@@ -109,8 +109,6 @@ export class DashboardComponent implements OnInit {
   ///////////////////////////////
 
   ngOnInit() {
-    console.log(this.userService.getDecodedAccessToken(localStorage.getItem('token')));
-
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (userIsActive === true) {
         this.getAlert();

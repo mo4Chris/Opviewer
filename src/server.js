@@ -686,11 +686,9 @@ function validatePermissionToViewVesselData(req, res, callback) {
   const token = req['token'];
   const mmsi = req.body.mmsi ?? req.params.mmsi
   let filter;
-  switch (token.permission.admin) {
-    case true:
-      filter = { mmsi };
-      break;
-    default:
+  if (token.permission.admin) {
+    filter = { mmsi };
+  } else {
       filter = { mmsi, client: token.userCompany };
   }
   Vesselmodel.find(filter, ['_id'], function(err, isValid) {
@@ -912,22 +910,6 @@ app.post("/api/getCommentsForVessel", function(req, res) {
     });
   });
 });
-
-// app.get("/api/getVessel", function(req, res) {
-//   const token = req['token'];
-//   if (token.permission.admin === false) return onUnauthorized(res, 'Admin only')
-//   Vesselmodel.find({
-//     active: { $ne: false }
-//   }, null, {
-//     sort: {
-//       client: 'asc',
-//       nicename: 'asc'
-//     }
-//   }, function(err, data) {
-//     if (err) return onError(res, err);
-//     return res.send(data);
-//   });
-// });
 
 app.get("/api/getVessel", function(req, res) {
   return getVesselsForUser(req, res);

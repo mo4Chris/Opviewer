@@ -41,7 +41,7 @@ describe('UsermanagementComponent', () => {
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
     // spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
     // spyOn(CommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([user]));
-    spyOn(CommonService.prototype, 'getVesselsForCompany').and.returnValue(mockedObservable(user.userBoats));
+    spyOn(CommonService.prototype, 'getVessel').and.returnValue(mockedObservable(user.userBoats));
 
     spyOn(UserManagementComponent.prototype, 'getUsernameFromParameter').and.returnValue(user.username);
 
