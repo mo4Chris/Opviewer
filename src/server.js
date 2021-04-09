@@ -1265,7 +1265,6 @@ app.get("/api/getLatestBoatLocationForCompany/:company", async function(req, res
       for (let i = 0; i < uservessels.length; i++) {
         companyMmsi.push(uservessels[i].mmsi);
       }
-      // companyMmsi = token.userBoats.map(boat => boat.mmsi);
     } else {
       for (let i = 0; i < data.length; i++) {
           companyMmsi.push(data[i].mmsi);
