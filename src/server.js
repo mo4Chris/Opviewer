@@ -930,7 +930,7 @@ async function getVesselsForUser (req, res) {
 }
 
 async function getVesselsForAdmin(token, res) {
-  if (!token.permission.admin) return new Error('Unauthorized user, Admin only');
+  if (!token.permission.admin) throw new Error('Unauthorized user, Admin only');
   return Vesselmodel.find({
     active: { $ne: false }
   }, null, {
@@ -943,7 +943,7 @@ async function getVesselsForAdmin(token, res) {
 }
 
 async function getAllVesselsForClient(token, res) {
-  if (!token.permission.user_see_all_vessels_client)  return new Error('Unauthorized user, not allowed to see all vessels');
+  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
   //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
   if (token.userCompany == 'MO4') token.userCompany = 'BMO'
   return Vesselmodel.find({
@@ -1207,70 +1207,14 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
   });
 });
 
-app.get("/api/getLatestBoatLocation", function(req, res) {
-  const token = req['token']
-  if (!token.permission.admin) return onUnauthorized(res);
-  boatLocationmodel.aggregate([{
-      $match: {
-        active: { $ne: false }
-      }
-    },
-    {
-      $group: {
-        _id: "$MMSI",
-        "LON": {
-          "$last": "$LON"
-        },
-        "LAT": {
-          "$last": "$LAT"
-        },
-        "TIMESTAMP": {
-          "$last": "$TIMESTAMP"
-        }
-      }
-    },
-    // This code runs every 30 seconds if left in place
-    {
-      $lookup: {
-        from: 'vessels',
-        localField: '_id',
-        foreignField: 'mmsi',
-        as: 'vesselInformation'
-      }
-    },
-    {
-      $addFields: {
-        vesselInformation: "$vesselInformation.nicename"
-      }
-    }
-  ]).exec(function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
-app.get("/api/getLatestBoatLocationForCompany/:company", async function(req, res) {
-  let companyName = req.params.company;
+app.get("/api/getLatestBoatLocation/", async function(req, res) {
   let companyMmsi = [];
-  const token = req['token']
-  if (token.userCompany !== companyName && !token.permission.admin) return onUnauthorized(res, 'Company does not match')
-  
-  Vesselmodel.find({
-    client: companyName,
-    active: { $ne: false }
-  } , async function(err, data) {
-    if (err) return onError(res, err);
-    if (!token.permission.user_manage && !token.permission.admin) {
-      uservessels = await getVesselsForUser(req);
-      for (let i = 0; i < uservessels.length; i++) {
-        companyMmsi.push(uservessels[i].mmsi);
-      }
-    } else {
-      for (let i = 0; i < data.length; i++) {
-          companyMmsi.push(data[i].mmsi);
-        
-      }
+
+    uservessels = await getVesselsForUser(req);
+    for (let i = 0; i < uservessels.length; i++) {
+      companyMmsi.push(uservessels[i].mmsi);
     }
+    
     boatLocationmodel.aggregate([{
         "$match": {
           MMSI: { $in: companyMmsi },
@@ -1309,7 +1253,6 @@ app.get("/api/getLatestBoatLocationForCompany/:company", async function(req, res
       if (err) return onError(res, err);
       res.send(data);
     });
-  });
 });
 
 app.post("/api/getDatesWithValues", function(req, res) {

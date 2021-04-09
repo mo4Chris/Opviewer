@@ -41,7 +41,7 @@ export class VesselMasterComponent implements OnInit {
   }
 
   getLocations() {
-    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }
