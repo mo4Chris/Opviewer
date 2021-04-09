@@ -2,9 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
 var nodemailer = require('nodemailer');
-var twoFactor = require('node-2fa');
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var pino = require('pino');
 var mo4lightServer = require('./server/mo4light.server.js')
@@ -13,6 +11,7 @@ var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
 var { Pool } = require('pg')
 var args = require('minimist')(process.argv.slice(2));
+
 
 
 //#########################################################
@@ -24,9 +23,26 @@ const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
 
-const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-mongo.set('useFindAndModify', false);
+
+//#########################################################
+//############ Saving values to process env  ##############
+//#########################################################
+process.env.SERVER_ADDRESS = SERVER_ADDRESS;
+process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
+process.env.SERVER_PORT = SERVER_PORT;
+process.env.DB_CONN = DB_CONN;
+process.env.LOGGING_LEVEL = LOGGING_LEVEL;
+
+
+
+//#########################################################
+//########### Init up application middleware  #############
+//#########################################################
+var app = express();
+
 var logger = pino({level: LOGGING_LEVEL})
+
+mongo.set('useFindAndModify', false);
 var db = mongo.connect(DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -37,14 +53,12 @@ var db = mongo.connect(DB_CONN, {
   logger.fatal(err);
 });
 
-var app = express();
-app.use(bodyParser.json({ limit: '5mb' }));
-
 app.get("/api/connectionTest", function(req, res) {
   logger.debug('Hello world');
   res.send("Hello World");
 })
 
+app.use(bodyParser.json({ limit: '5mb' })); // bodyParser depricated
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
@@ -69,6 +83,7 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
 const admin_server_pool = new Pool({
   host: process.env.ADMIN_DB_HOST,
   port: +process.env.ADMIN_DB_PORT,
@@ -92,19 +107,6 @@ admin_server_pool.on('error', (err) => {
 //##################   Models   ###########################
 //#########################################################
 var Schema = mongo.Schema;
-// var userSchema = new Schema({
-//   username: { type: String },
-//   password: { type: String },
-//   permissions: { type: String },
-//   client: { type: String },
-//   boats: { type: Array },
-//   token: { type: String },
-//   active: { type: Number },
-//   secret2fa: { type: String },
-//   settings: { type: Object },
-//   lastActive: { type: Number },
-// }, { versionKey: false });
-// var Usermodel = mongo.model('users', userSchema, 'users');
 
 var userActivitySchema = new Schema({
   username: { type: String },
@@ -672,7 +674,7 @@ function verifyToken(req, res) {
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload.userID])
+    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload['userID']])
 
     return payload;
   } catch (err) {
@@ -700,6 +702,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
+  const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
   const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
   const mailOptions = {
@@ -711,8 +714,8 @@ function mailTo(subject, html, user) {
   };
 
   // send mail with defined transport object
+  maillogger.info('Sending email')
   transporter.sendMail(mailOptions, (error, info) => {
-    const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
@@ -735,6 +738,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 app.use((req, res, next) => {
+  // console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
   logger.debug({
     msg: `${req.method}: ${req.url}`,
     method: req.method,
@@ -766,7 +770,7 @@ app.use((req, res, next) => {
 
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
 
 //####################################################################
@@ -922,6 +926,25 @@ app.get("/api/getVessel", function(req, res) {
   }, function(err, data) {
     if (err) return onError(res, err);
     return res.send(data);
+  });
+});
+app.get("/api/getVesselsForCompany", function(req, res) {
+  const token = req['token'];
+  const permission = token.permission;
+  let companyName = token.userCompany;
+  if (token.userCompany !== companyName && !permission.admin) return onUnauthorized(res);
+  let filter = { client: companyName, active: { $ne: false } };
+  if (token.userPermission !== "Logistics specialist" && !permission.admin) {
+    filter.mmsi = [];
+    for (var i = 0; i < token.userBoats.length; i++) {
+      filter.mmsi[i] = token.userBoats[i].mmsi;
+    }
+  }
+  Vesselmodel.find(filter).sort({
+    nicename: 'asc'
+  }).exec( function(err, data) {
+    if (err) return onError(res, err);
+    res.send(data);
   });
 });
 

@@ -31,21 +31,22 @@ export class UsersComponent implements OnInit {
   sort = { active: '', isAsc: true };
 
   ngOnInit() {
-    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
-        this.newService.getUsers().subscribe(
-          data => {
-            console.log(data)
-            this.userData = data
-          },
-          err => this.errData = err
-        );
-      } else {
+    this.newService.checkUserActive(
+      this.tokenInfo.username
+    ).subscribe(userIsActive => {
+      if (userIsActive !== true) {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
         this._router.navigate(['login']);
+        return;
       }
+      if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
+      this.newService.getUsers().subscribe(
+        data => {
+          this.userData = data
+        },
+        err => this.errData = err
+      );
     });
   }
 
@@ -53,20 +54,19 @@ export class UsersComponent implements OnInit {
     this._router.navigate(['usermanagement', { username: username }]);
   }
 
-  resetPassword(id) {
-    this.newService.resetPassword({
-      _id: id,
-      client: this.tokenInfo.userCompany
-    }).pipe(map((res) => {
-          this.alert.sendAlert({text: res.data, type: 'success'});
-      }),catchError(error => {
-        this.alert.sendAlert({text: error, type: 'danger'});
-        throw error;
-    })).subscribe();
+  resetPassword(username: string) {
+    this.newService.resetPassword(username).subscribe(res => {
+      this.alert.sendAlert({text: res.data, type: 'success'});
+    }, error => {
+      this.alert.sendAlert({text: error, type: 'danger'});
+      throw error;
+    });
   }
 
   setActive(user: any) {
-    this.newService.setActive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
+    this.newService.setActive({
+      username: user.username,
+    }).pipe(
     map(
         (res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});
@@ -81,7 +81,9 @@ export class UsersComponent implements OnInit {
   }
 
   setInactive(user) {
-    this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
+    this.newService.setInactive({
+      username: user.username,
+    }).pipe(
       map(
         (res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});

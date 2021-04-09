@@ -1,5 +1,5 @@
 <div [@routerTransition]>
-  <app-page-header [heading]="'Users'" [icon]="'fa-edit'"></app-page-header>
+  <app-page-header heading="Users" icon="fa-edit"></app-page-header>
   <div class="row">
     <div class="col col-xl-12 col-lg-24">
       <div class="card mb-3">
@@ -7,6 +7,7 @@
           Management
         </div>
         <div class="card-body table-responsive">
+
           <table class="table table-hover table-striped">
             <thead>
               <tr>
@@ -37,13 +38,15 @@
                 <td>{{user_data.username}}</td>
                 <td>{{user_data.permission.user_type}}</td>
                 <td *ngIf="permission.admin">{{user_data.client_name}}</td>
-                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)" [class.disabled]="user_data.permissions == 'admin' || user_data.permissions == 'Logistics specialist'">Manage vessels</a></td>
-                <td><a class="btn rounded-btn" (click)="resetPassword(user_data._id)">Reset password</a></td>
+                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)"
+                  [class.disabled]="user_data.permission.admin || user_data.permission.user_type == 'Logistics specialist'">Manage vessels</a></td>
+                <td><a class="btn rounded-btn" (click)="resetPassword(user_data.username)">Reset password</a></td>
                 <td *ngIf="user_data.active == 1"><a class="btn rounded-btn-red" (click)="setInactive(user_data)">Deactivate user</a></td>
                 <td *ngIf="user_data.active == 0"><a class="btn rounded-btn" (click)="setActive(user_data)">Activate user</a></td>
               </tr>
             </tbody>
           </table>
+
         </div>
       </div>
     </div>
