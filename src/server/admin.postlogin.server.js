@@ -282,12 +282,11 @@ module.exports = function (
   });
 
   app.get("/api/checkUserActive/:user", function(req, res) {
-    // Currently any user can check if any other user is active...
-    // Also, this really should be a post request
+    // Function is currently used to check status of userID in Token
+
     const token = req['token'];
-    if (!token.permission.user_read) return onUnauthorized(res);
-    const query = 'SELECT "active" FROM "userTable" where username=$1';
-    const values = [req.params.user]
+    const query = 'SELECT "active" FROM "userTable" where "user_id"=$1';
+    const values = [token.userID]
     admin_server_pool.query(query, values).then(sql_response => {
       const data = sql_response.rows[0];
       const out = data.active;
@@ -531,6 +530,7 @@ module.exports = function (
       user_read: true,
       user_write: is_admin,
       user_manage: is_admin,
+      user_see_all_vessels_client: is_admin,
       dpr: {
         read: true,
         sov_input: 'read',
@@ -569,6 +569,7 @@ module.exports = function (
         break
       case 'Logistics specialist':
         permissions.longterm.read = true;
+        permissions.user_see_all_vessels_client = true;
         break
       case 'Client representative':
         permissions.dpr.sov_commercial = 'read';
@@ -576,6 +577,7 @@ module.exports = function (
         break
       case 'Forecast demo':
         permissions.dpr.read = false;
+        permissions.forecast.read = true;
         break
     }
     const query = `
