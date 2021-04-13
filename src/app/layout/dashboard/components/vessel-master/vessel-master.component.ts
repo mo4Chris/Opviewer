@@ -33,17 +33,15 @@ export class VesselMasterComponent implements OnInit {
   unassignedTransferLookback = 14;
 
   ngOnInit() {
-    setTimeout(() => {
       this.newService.getVessel().subscribe(vessels => {
         this.vesselInfo = vessels[0]; // Vessel master only gets 1 vessel
         this.setZoomLevel();
         this.getUnassignedTransfers();
       });
-    });
   }
 
   getLocations() {
-    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }

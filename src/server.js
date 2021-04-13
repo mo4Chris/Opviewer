@@ -922,52 +922,49 @@ app.post("/api/getCommentsForVessel", function(req, res) {
 });
 
 app.get("/api/getVessel", function(req, res) {
-  return getVesselsForUser(req, res);
+  getVesselsForUser(req, res).then(response => {
+    res.send(response)
+  }
+    ).catch(err => onError(res,err));
 });
 
-function getVesselsForUser (req, res) {
+async function getVesselsForUser (req, res) {
   const token = req['token'];
 
-  if (token.permission.admin) return getVesselsForAdmin(token, res);
-  if (token.permission.user_see_all_vessels_client) return getAllVesselsForClient(token, res);
-  if (!token.permission.admin && !token.permission.user_see_all_vessels_client) return getAssignedVessels(token, res);
-
+  if (token.permission.admin) return await getVesselsForAdmin(token, res);
+  if (token.permission.user_see_all_vessels_client) return await getAllVesselsForClient(token, res);
+  return await getAssignedVessels(token, res);
 }
 
-function getVesselsForAdmin(token, res) {
-  if (!token.permission.admin) return onUnauthorized(res, 'Admin only')
-  Vesselmodel.find({
+async function getVesselsForAdmin(token, res) {
+  if (!token.permission.admin) throw new Error('Unauthorized user, Admin only');
+  return Vesselmodel.find({
     active: { $ne: false }
   }, null, {
     sort: {
       client: 'asc',
       nicename: 'asc'
     }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    return res.send(data);
   });
+  
 }
 
-function getAllVesselsForClient(token, res) {
-  if (!token.permission.user_see_all_vessels_client) return onUnauthorized(res, 'Not allowed to see all vessels')
+async function getAllVesselsForClient(token, res) {
+  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
   //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
   if (token.userCompany == 'MO4') token.userCompany = 'BMO'
-  Vesselmodel.find({
+  return Vesselmodel.find({
     active: { $ne: false },
     client: token.userCompany
-  }, null, {
+  },null,{
     sort: {
       client: 'asc',
       nicename: 'asc'
     }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    return res.send(data);
   });
 }
 
-function getAssignedVessels(token, res) {
+async function getAssignedVessels(token, res) {
   let PgQuery = `
   SELECT "vesselTable"."mmsi"
     FROM "vesselTable"
@@ -975,30 +972,20 @@ function getAssignedVessels(token, res) {
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
-  return admin_server_pool.query(PgQuery, values).then((data, err) => {
-    if (err) return onError(res, err);
-    if (data.rows.length > 0) {
-      const finalArray = data.rows.map(function (obj) {
-        return obj.mmsi;
-      });
-      Vesselmodel.find({
-        active: { $ne: false },
-        mmsi: {$in: finalArray}
-      }, null, {
-        sort: {
-          client: 'asc',
-          nicename: 'asc'
-        }
-      }, function(err, data) {
-        if (err) return onError(res, err);
-        return res.send(data);
-      });
+  data = await admin_server_pool.query(PgQuery, values)
+  
+  if (! (data?.rows?.length > 0)) return null;
+  finalArray = data.rows.map(obj => obj.mmsi);
 
-    } else {
-      return null;
+  return Vesselmodel.find({
+    active: { $ne: false },
+    mmsi: {$in: finalArray}
+  }, null, {
+    sort: {
+      client: 'asc',
+      nicename: 'asc'
     }
-  }).catch(err => onError(res, err, 'Failed to load vessels'));
-
+  });
 }
 
 app.get("/api/getHarbourLocations", function(req, res) {
@@ -1221,111 +1208,53 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
   });
 });
 
-// app.get("/api/getLatestBoatLocation", function(req, res) {
-//   const token = req['token']
-//   if (token.permission.admin === false) return onUnauthorized(res);
-//   boatLocationmodel.aggregate([{
-//       $match: {
-//         active: { $ne: false }
-//       }
-//     },
-//     {
-//       $group: {
-//         _id: "$MMSI",
-//         "LON": {
-//           "$last": "$LON"
-//         },
-//         "LAT": {
-//           "$last": "$LAT"
-//         },
-//         "TIMESTAMP": {
-//           "$last": "$TIMESTAMP"
-//         }
-//       }
-//     },
-//     // This code runs every 30 seconds if left in place
-//     {
-//       $lookup: {
-//         from: 'vessels',
-//         localField: '_id',
-//         foreignField: 'mmsi',
-//         as: 'vesselInformation'
-//       }
-//     },
-//     {
-//       $addFields: {
-//         vesselInformation: "$vesselInformation.nicename"
-//       }
-//     }
-//   ]).exec(function(err, data) {
-//     if (err) return onError(res, err);
-//     res.send(data);
-//   });
-// });
+app.get("/api/getLatestBoatLocation/", async function(req, res) {
+  let companyMmsi = [];
 
-// app.get("/api/getLatestBoatLocationForCompany/:company", function(req, res) {
-//   let companyName = req.params.company;
-//   let companyMmsi = [];
-//   const token = req['token']
-//   if (token.userCompany !== companyName && token.permission.admin === false) return onUnauthorized(res, 'Company does not match')
-//   Vesselmodel.find({
-//     client: companyName,
-//     active: { $ne: false }
-//   } , function(err, data) {
-//     if (err) return onError(res, err);
-//     if (!token.permission.user_manage && !token.permission.admin) {
-//       for (let i = 0; i < token.userBoats.length;) {
-//         companyMmsi.push(token.userBoats[i].mmsi);
-//         i++; // WTF is dit dan weer voor een for loop
-//       }
-//       // companyMmsi = token.userBoats.map(boat => boat.mmsi);
-//     } else {
-//       for (let i = 0; i < data.length;) {
-//         companyMmsi.push(data[i].mmsi);
-//         i++;
-//       }
-//     }
-
-//     boatLocationmodel.aggregate([{
-//         "$match": {
-//           MMSI: { $in: companyMmsi },
-//           active: { $ne: false }
-//         }
-//       },
-//       {
-//         $group: {
-//           _id: "$MMSI",
-//           "LON": {
-//             "$last": "$LON"
-//           },
-//           "LAT": {
-//             "$last": "$LAT"
-//           },
-//           "TIMESTAMP": {
-//             "$last": "$TIMESTAMP"
-//           }
-//         }
-//       },
-//       // This code runs every 30 seconds if left in place
-//       {
-//         $lookup: {
-//           from: 'vessels',
-//           localField: '_id',
-//           foreignField: 'mmsi',
-//           as: 'vesselInformation'
-//         }
-//       },
-//       {
-//         $addFields: {
-//           vesselInformation: "$vesselInformation.nicename"
-//         }
-//       }
-//     ]).exec(function(err, data) {
-//       if (err) return onError(res, err);
-//       res.send(data);
-//     });
-//   });
-// });
+    uservessels = await getVesselsForUser(req);
+    for (let i = 0; i < uservessels.length; i++) {
+      companyMmsi.push(uservessels[i].mmsi);
+    }
+    
+    boatLocationmodel.aggregate([{
+        "$match": {
+          MMSI: { $in: companyMmsi },
+          active: { $ne: false }
+        }
+      }, 
+      {
+        $group: {
+          _id: "$MMSI",
+          "LON": {
+            "$last": "$LON"
+          },
+          "LAT": {
+            "$last": "$LAT"
+          },
+          "TIMESTAMP": {
+            "$last": "$TIMESTAMP"
+          }
+        }
+      },
+      // This code runs every 30 seconds if left in place
+      {
+        $lookup: {
+          from: 'vessels',
+          localField: '_id',
+          foreignField: 'mmsi',
+          as: 'vesselInformation'
+        }
+      },
+      {
+        $addFields: {
+          vesselInformation: "$vesselInformation.nicename"
+        }
+      }
+    ]).exec(function(err, data) {
+      if (err) return onError(res, err);
+      res.send(data);
+    });
+});
 
 app.post("/api/getDatesWithValues", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
