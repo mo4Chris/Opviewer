@@ -35,7 +35,6 @@ process.env.DB_CONN = DB_CONN;
 process.env.LOGGING_LEVEL = LOGGING_LEVEL;
 
 
-
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################

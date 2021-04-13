@@ -52,8 +52,8 @@
             <li ngbNavItem="forecast-wave-spectrum">
               <a ngbNavLink>Wave spectrum</a>
               <ng-template #spectralGraph id="tab-weather" ngbNavContent>
-                <app-wave-spectrum [omega]="spectrum?.Omega" [heading]="spectrum?.Direction"
-                  [spectrum]="spectrum?.Density">
+                <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"
+                  [spectrum]="spectrum?.density" [time]="spectrum?.timeStamp">
                 </app-wave-spectrum>
               </ng-template>
             </li>

@@ -108,13 +108,15 @@ export class Mo4LightComponent implements OnInit {
         source: 'Infoplaza'
       }
       const spectral = raw_weather.Wave.Spectral
+      console.log(spectral)
       this.spectrum = {
         source: 'Infoplaza',
-        k_x: spectral.kx,
-        k_y: spectral.ky,
+        k_x: spectral.Kx.map(x => x[0]),
+        k_y: spectral.Ky.map(x => x[0]),
         density: spectral.Density,
         timeStamp: this.weather.timeStamp,
       }
+      console.log(this.spectrum)
       // this.loadWeather();
     }, error => {
       this.routeService.routeToAccessDenied();

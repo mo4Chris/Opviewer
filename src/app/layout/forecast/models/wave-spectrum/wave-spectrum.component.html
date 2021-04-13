@@ -6,12 +6,16 @@
     </plotly-plot>
   </div>
 
-  <div class="text-container col-xl-6">
+  <div class="text-container col-xl-12">
     Wave spectrum for which workability has been computed. The graph
     shows the direction the waves are coming from, i.e. a peak at 45 degrees
-    in the north-east indicates a wave from the north-east moving towards the 
+    in the north-east indicates a wave from the north-east moving towards the
     south-west. Higher spectral energy indicates higher waves. A peak close
-    to the center implies short-crested waves (usually wind waves), whilst 
+    to the center implies short-crested waves (usually wind waves), whilst
     peaks towards the edges correspond to long-crested swell waves.
+  </div>
+  <div>
+    <input type="number"  [min]="1" [max]="spectrum?.length || 1" (change)="switchIndex()"
+      [(ngModel)]="spectrumIndex">
   </div>
 </div>
