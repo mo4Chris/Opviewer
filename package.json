@@ -1,5 +1,5 @@
 {
-  "name": "Dataviewer",
+  "name": "dataviewer",
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
@@ -15,7 +15,7 @@
     "pree2e": "webdriver-manager update",
     "e2e": "protractor",
     "server-dev": "nodemon src/server.js",
-    "test-server": "jasmine",
+    "server-test": "jasmine",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points && node patch.js"
   },
   "private": true,
@@ -85,6 +85,7 @@
     "@types/jasminewd2": "^2.0.8",
     "@types/node": "^12.11.1",
     "@types/plotly.js": "^1.50.16",
+    "chromedriver": "^87.0.0",
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.3.0",
     "jasmine-reporters": "^2.3.2",

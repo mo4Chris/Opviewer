@@ -10,7 +10,7 @@ import { ForecastOperation, ForecastResponseObject, Dof6Array } from '../models/
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
-import { RawWaveData } from '@app/models/wavedataModel';
+import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
 
 @Component({
   selector: 'app-mo4-light',
@@ -24,10 +24,10 @@ export class Mo4LightComponent implements OnInit {
   public showContent = false;
   public vessels: string[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
-  public response: ForecastResponseObject;
+  public responseObj: ForecastResponseObject;
 
-  private Response: ForecastResponse;
-  public ReponseTime: Date[];
+  private response: ForecastResponse;
+  public reponseTime: Date[];
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
@@ -43,7 +43,7 @@ export class Mo4LightComponent implements OnInit {
   public formattedDuration = 'N/a';
 
   public weather: RawWaveData;
-  public spectrum: any;
+  public spectrum: RawSpectralData;
 
   constructor(
     private newService: CommonService,
@@ -68,7 +68,8 @@ export class Mo4LightComponent implements OnInit {
     }));
   }
 
-  loadData() {
+  loadData(): void {
+    // return this.newService.getForecastWorkabilityForProject(this.project_id).subscribe()
     // ToDo: only rerout if no permission to forecasting module
     forkJoin([
       this.newService.getForecastProjectList(),
@@ -76,25 +77,45 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
     ]).subscribe(([projects, vessels, responses]) => {
       this.vessels = vessels;
-      this.response = responses[0];
+      this.responseObj = responses;
       this.operations = projects;
       this.showContent = true;
-      if (this.response) {
-        const responseTimes = this.response.response.Points_Of_Interest.P1.Time;
-        this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
-        this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
-        const currentOperation = this.operations.find(op => op.id === this.project_id);
-        this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
-
-        this.parseResponse();
-
-        this.loadWeather();
-      } else {
-        this.response = null;
+      if (!this.responseObj) {
+        this.responseObj = null;
         this.Workability = null;
         this.limits = [];
+        return;
       }
+
+      const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
+      this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
+      this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
+
+      const currentOperation = this.operations.find(op => op.id === this.project_id);
+      this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+
+      this.parseResponse();
+
+      // TEMPORARY WORKAROUND FOR WEATHER
+      const raw_weather = this.response['MetoceanData'];
+      const param = raw_weather.Wave.Parametric
+      this.weather = {
+        timeStamp: raw_weather.Time,
+        Hs: param.Hs,
+        Hmax: param.Hmax,
+        Tp: param.Tp,
+        source: 'Infoplaza'
+      }
+      const spectral = raw_weather.Wave.Spectral
+      this.spectrum = {
+        source: 'Infoplaza',
+        k_x: spectral.kx,
+        k_y: spectral.ky,
+        density: spectral.Density,
+        timeStamp: this.weather.timeStamp,
+      }
+      // this.loadWeather();
     }, error => {
       this.routeService.routeToAccessDenied();
     });
@@ -102,11 +123,10 @@ export class Mo4LightComponent implements OnInit {
 
   loadWeather() {
     forkJoin([
-      this.newService.getForecastWeatherForResponse(this.response.id),
-      this.newService.getForecastSpectrumForResponse(this.response.id)
-    ]).subscribe(([weather, spectrum]) => {
-      this.weather = weather;
-      this.spectrum = spectrum;
+      this.newService.getForecastWeatherForResponse(this.project_id)
+    ]).subscribe(([weathers]) => {
+      this.weather = weathers.weather;
+      this.spectrum = weathers.spectrum;
     }, error => {
       console.error(error);
     });
@@ -125,18 +145,21 @@ export class Mo4LightComponent implements OnInit {
   }
 
   parseResponse() {
-    if (!this.response || this.limits.length === 0) { return this.Workability = null; }
-    const POI = this.response.response.Points_Of_Interest.P1;
-    this.Response = POI.Response;
-    this.ReponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
+    if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
+    this.response = <any> POI;// POI.Response;
+    this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
 
   computeWorkability() {
+    if (!(this.limits?.length > 0 )) return this.Workability = null;
+    const response = this.response['Response']
+
     const limiters = this.limits.map(limit => {
-      return this.responseService.computeLimit(this.Response[limit.type], limit.dof, limit.value);
+      return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value);
     });
     this.Workability = this.matService.scale(
       this.matService.transpose(
@@ -147,7 +170,7 @@ export class Mo4LightComponent implements OnInit {
   }
 
   setWorkabilityAlongHeading() {
-    const POI = this.response.response.Points_Of_Interest.P1;
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
   }

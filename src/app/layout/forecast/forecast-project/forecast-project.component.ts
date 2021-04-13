@@ -164,6 +164,7 @@ export class ForecastVesselComponent implements OnInit {
 }
 
 export interface ForecastVesselRequest {
+  client_id?: number;
   type: string;
   length: number;
   width: number;

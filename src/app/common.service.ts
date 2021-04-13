@@ -52,8 +52,10 @@ export class CommonService {
     return this.get('/api/getActiveConnections/');
   }
 
-  saveVessel(vessel) {
-    return this.post('/api/saveVessel/', vessel);
+  /* @depricated */
+  saveVessel(vessel: VesselModel) {
+    throw new Error('Not implemented')
+    // return this.post('/api/saveVessel/', vessel);
   }
 
   saveTransfer(transfer) {
@@ -160,11 +162,6 @@ export class CommonService {
 
   getParkLocations() {
     return this.get('/api/getParkLocations');
-  }
-
-  getParkLocationForCompany(company: string) {
-    company = company.replace(' ', '--_--');
-    return this.get('/api/getParkLocationForCompany/' + company);
   }
 
   getPlatformLocations(src_name: string) {
@@ -539,7 +536,7 @@ export class CommonService {
     return this.get('/api/mo4light/getClients');
   }
 
-  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject[]> {
+  getForecastWorkabilityForProject(project_id: number): Observable<ForecastResponseObject> {
     return this.get('/api/mo4light/getResponseForProject/' + project_id);
   }
 
@@ -551,13 +548,8 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectById/' + id);
   }
 
-  getForecastWeatherForResponse(id: number): Observable<RawWaveData> {
+  getForecastWeatherForResponse(id: number): Observable<{weather: RawWaveData, spectrum: any}> {
     return this.post('/api/mo4light/weather', {
-      response_id: id
-    });
-  }
-  getForecastSpectrumForResponse(id: number): Observable<any> {
-    return this.post('/api/mo4light/spectrum', {
       response_id: id
     });
   }

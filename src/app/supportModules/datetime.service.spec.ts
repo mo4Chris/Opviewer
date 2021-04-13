@@ -18,6 +18,7 @@ describe('DatetimeService', () => {
       ], imports : []
     });
     service = TestBed.inject(DatetimeService);
+    service.vesselOffsetHours = 1; // For consistent tests
     settings = TestBed.inject(SettingsService);
   });
 

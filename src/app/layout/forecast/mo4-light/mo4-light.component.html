@@ -29,12 +29,12 @@
               <a ngbNavLink>Workability</a>
               <ng-template ngbNavContent>
                 <ng-container *ngIf="Workability; else workabilityNotAvailable">
-                  <app-forecast-workability-plot [time]="ReponseTime"
-                    [workabilityAlongHeading]="WorkabilityAlongSelectedHeading" [startTime]="startTime"
-                    [stopTime]="stopTime">
+                  <app-forecast-workability-plot
+                    [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+                    [startTime]="startTime" [stopTime]="stopTime">
                   </app-forecast-workability-plot>
 
-                  <app-surface-plot xLabel="time" yLabel="Heading (deg)" title="Workability" [xData]="ReponseTime"
+                  <app-surface-plot xLabel="time" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
                     [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
                   </app-surface-plot>
                 </ng-container>

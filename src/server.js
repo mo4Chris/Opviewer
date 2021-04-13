@@ -1,15 +1,16 @@
 var express = require('express');
-var bodyParser = require('body-parser');
-var mongo = require("mongoose");
 var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
-require('dotenv').config({ path: __dirname + '/./../.env' });
 var pino = require('pino');
+
 var mo4lightServer = require('./server/mo4light.server.js')
 var fileUploadServer = require('./server/file-upload.server.js')
 var mo4AdminServer = require('./server/administrative.server.js')
 var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
-var { Pool } = require('pg');
+
+var mongo = require("mongoose");
+var { Pool } = require('pg')
+require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
 
 
@@ -53,13 +54,15 @@ var db = mongo.connect(DB_CONN, {
   logger.fatal(err);
 });
 
+var app = express();
+app.use(express.json({ limit: '5mb' }));
+
 app.get("/api/connectionTest", function(req, res) {
   logger.debug('Hello world');
   res.send("Hello World");
 })
 
-app.use(bodyParser.json({ limit: '5mb' })); // bodyParser depricated
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
   const allowedOrigins = process.env.IP_USER;
@@ -74,7 +77,8 @@ app.use(function(req, res, next) {
 });
 
 let transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, // Lint beweert dat deze property niet bestaat
+  // @ts-ignore
+  host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   secure: (+process.env.EMAIL_PORT == 465),
   auth: {
@@ -674,7 +678,10 @@ function verifyToken(req, res) {
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [lastActive, payload['userID']])
+    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
+      lastActive,
+      payload['userID']
+    ])
 
     return payload;
   } catch (err) {
@@ -719,7 +726,7 @@ function mailTo(subject, html, user) {
   });
 }
 
-function sendUpstream(content, type, user, confirmFcn = function() {}) {
+function sendUpstream(content, type, user, confirmFcn = function(){}) {
   // Assumes the token has been validated
   const date = getUTCstring();
   logger.trace('Upstream save')
@@ -728,7 +735,7 @@ function sendUpstream(content, type, user, confirmFcn = function() {}) {
     user: user,
     type: type,
     content: content
-  }, confirmFcn());
+  }, confirmFcn);
 };
 
 
@@ -785,22 +792,25 @@ app.get("/api/getActiveConnections", function(req, res) {
 })
 
 app.post("/api/saveVessel", function (req, res) {
-  var vessel = new model(req.body);
-  const token = req['token']
-  if (req.body.mode === "Save") {
-    if (!token.permission.admin && !token.permission.user_manage)  return onUnauthorized(res);
+  return onError(res, new Error('Not supported'), 'Function not supported')
+  // var vessel = new model(req.body);
+  // const token = req['token']
+  // if (req.body.mode === "Save") {
+  //   const is_admin = token.permission.admin;
+  //   const is_
+  //   if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist")  return onUnauthorized(res);
 
-    vessel.save(function (err, data) {
-      if (err) return onError(res, err);
-      res.send({ data: "Record has been Inserted..!!" });
-    });
-  } else {
-    if (!token.permission.admin) return onUnauthorized(res);
-    Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
-      if (err) return onError(res, err);
-      res.send({ data: "Record has been Updated..!!" });
-    });
-  }
+  //   vessel.save(function (err, data) {
+  //     if (err) return onError(res, err);
+  //     res.send({ data: "Record has been Inserted..!!" });
+  //   });
+  // } else {
+  //   if (token.userPermission !== "admin") return onUnauthorized(res);
+  //   Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
+  //     if (err) return onError(res, err);
+  //     res.send({ data: "Record has been Updated..!!" });
+  //   });
+  // }
 });
 
 
@@ -964,24 +974,18 @@ async function getAssignedVessels(token, res) {
   const values = [token.userID]
   data = await admin_server_pool.query(PgQuery, values)
   
-  if (data.rows.length > 0) {
-    finalArray = data.rows.map(function (obj) {
-      return obj.mmsi;
-    });
+  if (! (data?.rows?.length > 0)) return null;
+  finalArray = data.rows.map(obj => obj.mmsi);
 
-    return Vesselmodel.find({
-      active: { $ne: false },
-      mmsi: {$in: finalArray}
-    }, null, {
-      sort: {
-        client: 'asc',
-        nicename: 'asc'
-      }
-    });
-    
-  } else {
-    return null;
-  }
+  return Vesselmodel.find({
+    active: { $ne: false },
+    mmsi: {$in: finalArray}
+  }, null, {
+    sort: {
+      client: 'asc',
+      nicename: 'asc'
+    }
+  });
 }
 
 app.get("/api/getHarbourLocations", function(req, res) {
@@ -1663,24 +1667,6 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
       // ToDo: set proper recipient
     let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
     let recipient = [];
-
-    // TODO: Fix this by getting the relevant client representative via the postlogin
-    // Usermodel.find({
-    //   active: { $ne: false },
-    //   client: token.userCompany,
-    //   permissions: 'Client representative',
-    //   boats: { $elemMatch: { mmsi: mmsi } }
-    // }, {
-    //   username: 1,
-    // }, (err, data) => {
-    //   if (err || data.length === 0) {
-    //     if (err) return onError(res, err);
-    //     recipient = [WEBMASTER_MAIL]
-    //     title = 'Failed to deliver: client representative not found!'
-    //   } else {
-    //     recipient = data.map(user => user.username);
-    //   }
-    // });
 
     setTimeout(function() {
       mailTo(title, _body, recipient)
@@ -2450,26 +2436,11 @@ app.get("/api/getParkLocations", function(req, res) {
   });
 });
 
-app.get("/api/getParkLocationForVessels", function(req, res) {
-  //ToDo: windfields do not yet have associated companies
-  //ToDo: netjes afvangen als client een streepje bevat
-  let companyName = req.params.company.replace('--_--', ' ');
-  const token = req['token']
-  if (token.userCompany !== companyName && !token.permission.admin) return onUnauthorized(res);
-  ParkLocationmodel.find({
-    client: companyName,
-    active: { $ne: false }
-  }, function(err, data) {
-    if (err) return onError(res, err);
-    res.send(data);
-  });
-});
-
 app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(req, res) {
   const token = req['token']
   let fleetID = req.params.fleetID;
   let client = req.params.client;
-  let stopDate = req.params.stopDate;
+  let stopDate = +req.params.stopDate;
   if (!token.permission.admin && token.userCompany !== client) return onUnauthorized(res);
   activeListingsModel.aggregate([{
     $match: {
@@ -2574,7 +2545,7 @@ app.post("/api/setActiveListings", function(req, res) {
       startDate.setDate(startDate.getDate() - 1);
       var endDate = new Date(listing.dateEnd);
       endDate.setDate(endDate.getDate() + 1);
-      activeListing = new activeListingsModel();
+      let activeListing = new activeListingsModel();
       activeListing.vesselname = listing.vesselname;
       activeListing.fleetID = listing.fleetID;
       activeListing.dateChanged = Date.now();
@@ -2599,7 +2570,7 @@ app.post("/api/setActiveListings", function(req, res) {
         }
       }
       if (!listing.deleted) {
-        activeListing.deleted = false;
+        activeListing.deleted = 0;
         activeListing.dateStart = listing.dateStart;
         activeListing.dateEnd = listing.dateEnd;
       }

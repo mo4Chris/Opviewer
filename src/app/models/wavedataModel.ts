@@ -180,7 +180,7 @@ export interface RawWaveData {
 export interface RawSpectralData {
     source: string;
     timeStamp: number[];
-    omega: number[];
-    direction: number[];
+    k_x: number[];
+    k_y: number[];
     density: number[][][]; // time x omega x direction
 }
