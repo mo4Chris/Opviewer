@@ -1,4 +1,7 @@
 var ax = require('axios');
+require('dotenv').config({ path: __dirname + '/../../.env' });
+// It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
+// as appearantly these variables are available inside the the module.exports callback.
 
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const token   = process.env.AZURE_TOKEN;
@@ -15,7 +18,14 @@ function log(message) {
 }
 
 module.exports = function(app, logger) {
-  logger.info(`Connecting to hydro database at ${baseUrl}`)
+  if (token == null) {
+    logger.fatal('Azure connection token not found!')
+    process.exit(1)
+  }
+  pg_get('').then((data, err) => {
+    if (err) return logger.fatal('Failed to connect to hydro API')
+    logger.info(`Successfully connected to hydro API at ${baseUrl}`)
+  })
 
   function onError(res, err, additionalInfo = 'Internal server error') {
     if (typeof(err) == 'object') {
@@ -131,6 +141,18 @@ module.exports = function(app, logger) {
     })
   });
 
+  app.put('/api/mo4light/projectSettings', (req, res) => {
+    const project_name = req.body.project_name;
+    const settings = req.body.project_settings
+    const token = req['token'];
+    const is_admin = token.permission.admin;
+    // TODO: verify project belongs to client
+    pg_put('/project/' + project_name).then((out, err) => {
+      if (err) return onError(res, err, 'Failed to store project settings');
+
+    })
+  })
+
   app.post('/api/mo4light/weather', (req, res) => {
     const project_id = req.params.project_id;
     const token = req['token'];
@@ -146,6 +168,11 @@ module.exports = function(app, logger) {
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
     return http.post(url, data, {headers})
+  }
+
+  function pg_put(endpoint, data) {
+    const url = baseUrl + endpoint;
+    return http.put(url, data, {headers})
   }
 };
 
