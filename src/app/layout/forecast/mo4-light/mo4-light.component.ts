@@ -111,8 +111,8 @@ export class Mo4LightComponent implements OnInit {
       console.log(spectral)
       this.spectrum = {
         source: 'Infoplaza',
-        k_x: spectral.Kx.map(x => x[0]),
-        k_y: spectral.Ky.map(x => x[0]),
+        k_x: spectral.Kx, //.map(x => x[0]),
+        k_y: spectral.Ky, //.map(x => x[0]),
         density: spectral.Density,
         timeStamp: this.weather.timeStamp,
       }

@@ -14,8 +14,9 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() k_y: number[];
   @Input() spectrum: number[][][];
 
-  private Kmin = 0;
-  private Kmax = 3.4438;
+  // private Kmin = 0;
+  // private Kmax = 3.4438;
+  private Kmax = 28.9;
 
   public parsedData: Plotly.Data[];
   public spectrumIndex = 1;
@@ -29,13 +30,13 @@ export class SovWaveSpectrumComponent implements OnChanges {
     center: true,
     xaxis: {
       visible: false,
-      title: 'Kx [rad/m]',
+      title: 'Tx [1/s]',
       showgrid: false,
       zeroline: false,
     },
     yaxis: {
       visible: false,
-      title: 'Ky [rad/m]',
+      title: 'Ty [1/s]',
       showgrid: false,
       zeroline: false,
     },
@@ -50,15 +51,6 @@ export class SovWaveSpectrumComponent implements OnChanges {
       radialaxis: {
         visible: false
       },
-      angularaxis: {
-        tickmode: 'array',
-        tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
-        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-        direction: 'clockwise',
-        tickfont: {
-          size: 11
-        }
-      } as any
     },
     annotations: [{
       text: 'N',
@@ -73,6 +65,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
       x: this.Kmax,
       y: 0,
       xanchor: 'left',
+      xshift: 3,
       font: { size: 20 }
     }, {
       text: 'S',
@@ -87,39 +80,25 @@ export class SovWaveSpectrumComponent implements OnChanges {
       x: - this.Kmax,
       y: 0,
       xanchor: 'right',
+      xshift: -5,
       font: { size: 20 }
-    }, {
-      text: '', // Assigned later
-      showarrow: false,
-      x: this.Kmax,
-      y: -this.Kmax,
-      // textangle: 90,
-      xanchor: 'right',
-      yanchor: 'top',
-      name: 'source'
-    }],
-    shapes: [{
-      type: 'circle',
-      x0: -this.Kmax,
-      x1: this.Kmax,
-      y0: -this.Kmax,
-      y1: this.Kmax,
-      line: { width: 5 },
-    }, {
-      type: 'line',
-      x0: 0,
-      x1: 0,
-      y0: -this.Kmax,
-      y1: this.Kmax,
-      line: { width: 1 },
-    }, {
-      type: 'line',
-      x0: -this.Kmax,
-      x1: this.Kmax,
-      y0: 0,
-      y1: 0,
-      line: { width: 1 },
-    }],
+    },
+    this.makeCircleTextAnnotation(5, '5s'),
+    this.makeCircleTextAnnotation(10, '10s'),
+    this.makeCircleTextAnnotation(15, '15s'),
+    this.makeCircleTextAnnotation(20, '20s'),
+    this.makeCircleTextAnnotation(25, '25s'),
+  ],
+    shapes: [
+      this.makeCircle(this.Kmax, {width: 5}),
+      this.makeCircle(5, {width: 1, color: 'white'}),
+      this.makeCircle(10, {width: 1, color: 'white'}),
+      this.makeCircle(15, {width: 1, color: 'white'}),
+      this.makeCircle(20, {width: 1, color: 'white'}),
+      this.makeCircle(25, {width: 1, color: 'white'}),
+      this.makeLine(0),
+      this.makeLine(90),
+    ],
   };
 
 
@@ -181,4 +160,50 @@ export class SovWaveSpectrumComponent implements OnChanges {
 
   }
 
+  makeLine(angle, font = <any> {width: 1, color: "white"}) {
+    const x0 = Math.cos(angle * Math.PI / 180) * this.Kmax;
+    const y0 = Math.sin(angle * Math.PI / 180) * this.Kmax;
+    console.log(x0, y0)
+    const out = {
+      type: <'line'> 'line',
+      x0: -x0,
+      x1: x0,
+      y0: -y0,
+      y1: y0,
+      line: font
+    }
+    // type: 'line',
+    // x0: -this.Kmax,
+    // x1: this.Kmax,
+    // y0: 0,
+    // y1: 0,
+    // line: { width: 1 },
+    return out;
+  }
+  makeCircle(radius = this.Kmax, font = <any> {width: 5, color: "black"}) {
+    const out = {
+      type: <'circle'> 'circle',
+      x0: -radius,
+      x1: radius,
+      y0: -radius,
+      y1: radius,
+      line: font
+    }
+    return out;
+  }
+
+  makeCircleTextAnnotation(value = 5, txt = '5s') {
+    return {
+      text: txt,
+      showarrow: false,
+      x: 0,
+      y: -value,
+      xanchor: <any> 'left',
+      yanchor: <any> 'top',
+      font: <any> {
+        color: "white",
+        size: 8,
+      }
+    }
+  }
 }
