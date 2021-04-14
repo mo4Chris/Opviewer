@@ -17,7 +17,7 @@ import { ForecastOperation } from '../models/forecast-response.model';
   styleUrls: ['./forecast-project.component.scss']
 })
 export class ForecastVesselComponent implements OnInit {
-  public project_id: number;
+  public project_name: string;
   public vessels: ForecastVesselRequest[] = [{
     type: 'Big bad vessel',
     length: 70,
@@ -75,18 +75,15 @@ export class ForecastVesselComponent implements OnInit {
   initParameter(): Observable<void> {
     return this.route.params.pipe(
       map(params => {
-        const project_id = params.project_id;
-        if (project_id == 'new') { return this.initNewProject(); }
-        this.project_id = parseFloat(project_id);
-        if (isNaN(this.project_id)) {
-          this.routeService.routeToNotFound();
-        }
+        this.project_name = params.project_name;
+        if (this.project_name == 'new') return this.initNewProject();
+        if (this.project_name == null) return this.routeService.routeToNotFound();
       })
     );
   }
   private loadData() {
     forkJoin([
-      this.newService.getForecastProjectById(this.project_id),
+      this.newService.getForecastProjectByName(this.project_name),
       this.newService.getForecastVesselList(),
     ]).subscribe(([project, vessels]) => {
       this.project = project[0];
@@ -141,6 +138,19 @@ export class ForecastVesselComponent implements OnInit {
   }
   public onConfirm() {
     // ToDo: send the values back to the database
+    console.log('Storing data')
+    console.log(this.project)
+    this.newService.saveForecastProjectSettings(this.project).subscribe(data => {
+      this.alert.sendAlert({
+        text: data
+      })
+    }, err => {
+      console.log('err', err)
+      this.alert.sendAlert({
+        text: err.error,
+        type: 'danger'
+      })
+    })
   }
   public onUpdateLon() {
     this.Longitude = this.gps.lonToDms(this.project.longitude);

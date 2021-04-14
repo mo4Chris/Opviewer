@@ -38,6 +38,10 @@ export class CommonService {
     return this.http.post(environment.DB_IP + url, data, httpOptions);
   }
 
+  put(url: string, data: any): Observable<any> {
+    return this.http.put(environment.DB_IP + url, data, httpOptions);
+  }
+
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
     return this.post('/api/validatePermissionToViewData/', vessel);
   }
@@ -523,10 +527,14 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectList');
   }
 
+  getForecastProjectByName(project_name: string): Observable<ForecastOperation> {
+    return this.post('/api/mo4light/getProject', {project_name});
+  }
+
   getForecastVesselList() {
     return this.get('/api/mo4light/getVesselList');
   }
-  
+
   getForecastClientList() {
     // Depricated
     return this.get('/api/mo4light/getClients');
@@ -540,13 +548,25 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectsForClient/' + client_id);
   }
 
-  getForecastProjectById(id: number): Observable<ForecastOperation> {
-    return this.get('/api/mo4light/getProjectById/' + id);
-  }
+  // getForecastProjectById(id: number): Observable<ForecastOperation> {
+  //   return this.get('/api/mo4light/getProjectById/' + id);
+  // }
 
   getForecastWeatherForResponse(id: number): Observable<{weather: RawWaveData, spectrum: any}> {
     return this.post('/api/mo4light/weather', {
       response_id: id
+    });
+  }
+
+  saveForecastProjectSettings(project: ForecastOperation) {
+    return this.put('/api/mo4light/projectSettings', {
+      project_name: project.name,
+      project_settings: {
+        latitude: project.latitude,
+        longitude: project.longitude,
+        water_depth: project.water_depth,
+        vessel_id: project.vessel_id,
+      }
     });
   }
 }

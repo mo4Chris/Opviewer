@@ -98,6 +98,39 @@ module.exports = function(app, logger) {
     })
   });
 
+  app.post('/api/mo4light/getProject', (req, res) => {
+    const token = req['token'];
+    const project_name = req.body.project_name;
+    console.log('project_name', project_name)
+    if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
+    const start = Date.now()
+    log('Start azure project list request')
+    pg_get('/projects').then(async (out, err) => {
+      log(`Receiving azure project list after ${Date.now() - start}ms`)
+      if (err) return onError(res, err, err);
+      const data = out.data['projects'];
+      const project_output = data.map(d => {
+        return {
+          id: d.id,
+          name: d.name,
+          client_id: d.client_id,
+          longitude: d.longitude,
+          latitude: d.latitude,
+          water_depth: d.water_depth,
+          maximum_duration: d.maximum_duration,
+          activation_start_date: d.activation_start_date,
+          activation_end_date: d.activation_start_date,
+          client_preferences: d.client_preferences,
+          vessel_id: d.vessel_id
+        }
+      })
+      // ToDo: filter data by token rights
+      res.send(project_output)
+    }).catch(err => {
+      onError(res, err)
+    })
+  });
+
   app.get('/api/mo4light/getClients', (req, res) => {
     // TODO this endpoint might need to be removed / changed
     const start = Date.now()
@@ -141,16 +174,46 @@ module.exports = function(app, logger) {
     })
   });
 
-  app.put('/api/mo4light/projectSettings', (req, res) => {
+  app.put('/api/mo4light/projectSettings', async (req, res) => {
     const project_name = req.body.project_name;
-    const settings = req.body.project_settings
+    const received_settings = req.body.project_settings;
+    const localLogger = logger.child({
+      project_name,
+      new_settings: received_settings
+    })
+    localLogger.info('Incoming project save request')
+    if (typeof(received_settings) != 'object') return res.onBadRequest('Invalid settings')
+    if (typeof(project_name) != 'string') return res.onBadRequest('project_name must be string')
+
     const token = req['token'];
     const is_admin = token.permission.admin;
     // TODO: verify project belongs to client
-    pg_put('/project/' + project_name).then((out, err) => {
-      if (err) return onError(res, err, 'Failed to store project settings');
+    localLogger.info('Getting project')
+    const html_response = await pg_get('/project/' + project_name);
+    const updated_project = html_response.data;
 
-    })
+    localLogger.info('Done getting project - performing update')
+    const update_if_not_null = (fld) => {
+      if (received_settings[fld] != null) updated_project[fld] = received_settings[fld];
+    }
+    update_if_not_null('latitude')
+    update_if_not_null('longitude')
+    update_if_not_null('water_depth')
+    update_if_not_null('vessel_id')
+    if (is_admin) {
+      update_if_not_null('name')
+      update_if_not_null('activation_start_date')
+      update_if_not_null('activation_end_date')
+    }
+    localLogger.debug('Double encrypting client preference')
+    // updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
+
+    localLogger.debug('Forwarding request to hydro API')
+    localLogger.info(updated_project)
+    pg_put('/project/' + project_name, updated_project).then((data, err) => {
+      if (err) return res.onError(err, 'Failed to store project settings');
+      res.send('Successfully saved project!')
+    }).catch(res.onError)
   })
 
   app.post('/api/mo4light/weather', (req, res) => {

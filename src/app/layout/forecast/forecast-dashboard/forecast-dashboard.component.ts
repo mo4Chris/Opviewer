@@ -36,8 +36,8 @@ export class ForecastDashboardComponent implements OnInit {
     console.error('Not yet implemented!');
   }
 
-  routeToProjectOverview(project_id: number) {
-    this.routerService.routeToForecastProjectOverview(project_id);
+  routeToProjectOverview(project_name: string) {
+    this.routerService.routeToForecastProjectOverview(project_name);
   }
   routeToProject(project_id: number) {
     this.routerService.routeToForecast(project_id);

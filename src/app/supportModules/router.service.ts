@@ -84,9 +84,9 @@ export class RouterService {
             this.route(['forecast']);
         }
     }
-    routeToForecastProjectOverview(project_id: number) {
+    routeToForecastProjectOverview(project_name: string) {
         this.route(['forecast', 'project-overview', {
-            project_id: project_id
+          project_name
         }]);
     }
     routeToForecastNewVesselRequest() {
