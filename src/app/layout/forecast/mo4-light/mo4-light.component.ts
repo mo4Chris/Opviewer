@@ -11,6 +11,7 @@ import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
+import { ForecastVesselRequest } from '../forecast-project/forecast-project.component';
 
 @Component({
   selector: 'app-mo4-light',
@@ -22,7 +23,7 @@ export class Mo4LightComponent implements OnInit {
   private project_id: number;
 
   public showContent = false;
-  public vessels: string[] = []; // Not used
+  public vessels: ForecastVesselRequest[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
   public responseObj: ForecastResponseObject;
 
@@ -76,6 +77,7 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastVesselList(), // Tp
       this.newService.getForecastWorkabilityForProject(this.project_id),
     ]).subscribe(([projects, vessels, responses]) => {
+      console.log('vessels', vessels)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;

@@ -15,6 +15,7 @@ import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { deprecate } from 'node:util';
 import { storedSettings } from './supportModules/settings.service';
+import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -527,11 +528,11 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectList');
   }
 
-  getForecastProjectByName(project_name: string): Observable<ForecastOperation> {
+  getForecastProjectByName(project_name: string): Observable<ForecastOperation[]> {
     return this.post('/api/mo4light/getProject', {project_name});
   }
 
-  getForecastVesselList() {
+  getForecastVesselList(): Observable<ForecastVesselRequest[]> {
     return this.get('/api/mo4light/getVesselList');
   }
 
@@ -558,7 +559,7 @@ export class CommonService {
     });
   }
 
-  saveForecastProjectSettings(project: ForecastOperation) {
+  saveForecastProjectSettings(project: ForecastOperation): Observable<{data: string}> {
     return this.put('/api/mo4light/projectSettings', {
       project_name: project.name,
       project_settings: {

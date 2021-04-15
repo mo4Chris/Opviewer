@@ -29,7 +29,7 @@ export class ForecastVesselComponent implements OnInit {
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
-  public SelectedVessel: ForecastVesselRequest = <any> 0;
+  public SelectedVessel: ForecastVesselRequest | 0 = 0;
   public POI = {
     X: undefined,
     Y: undefined,
@@ -60,7 +60,9 @@ export class ForecastVesselComponent implements OnInit {
     private dateService: DatetimeService,
     public permission: PermissionService,
     public gps: GpsService,
-  ) { }
+  ) {
+    // console.log(this)
+  }
 
   public get projectReady() {
     return Boolean(this.SelectedVessel);
@@ -69,6 +71,7 @@ export class ForecastVesselComponent implements OnInit {
 
   ngOnInit() {
     this.initParameter().subscribe(() => {
+      if (this.project_name == 'new') return;
       this.loadData();
     });
   }
@@ -76,18 +79,24 @@ export class ForecastVesselComponent implements OnInit {
     return this.route.params.pipe(
       map(params => {
         this.project_name = params.project_name;
+        console.log('this.project_name', this.project_name)
         if (this.project_name == 'new') return this.initNewProject();
         if (this.project_name == null) return this.routeService.routeToNotFound();
       })
     );
   }
-  private loadData() {
+  loadData() {
     forkJoin([
       this.newService.getForecastProjectByName(this.project_name),
       this.newService.getForecastVesselList(),
-    ]).subscribe(([project, vessels]) => {
-      this.project = project[0];
+    ]).subscribe(([_project, vessels]) => {
+      console.log('vessels', vessels)
+      console.log('_project', _project)
+
+      this.project = _project[0];
       this.vessels = vessels;
+      this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0
+      console.log('this.SelectedVessel', this.SelectedVessel)
       this.projectLoaded = true;
       this.onLoaded();
     });
@@ -100,7 +109,11 @@ export class ForecastVesselComponent implements OnInit {
     this.updateMarker();
   }
   private initNewProject() {
+    console.log('INIT NEW PROJECT')
     if (!this.permission.forecastCreateProject) {
+      this.alert.sendAlert({text: 'You do not have permission to create projects', 'type': 'danger'})
+      return this.routeService.routeToForecast();
+    }
     this.newService.getForecastVesselList().subscribe(vessels => {
       this.vessels = vessels;
       this.project = {
@@ -118,7 +131,6 @@ export class ForecastVesselComponent implements OnInit {
         consumer_id: null,
       };
     });
-    }
   }
 
   public onMapReady(map: google.maps.Map) {
@@ -138,14 +150,13 @@ export class ForecastVesselComponent implements OnInit {
   }
   public onConfirm() {
     // ToDo: send the values back to the database
-    console.log('Storing data')
-    console.log(this.project)
+    this.project.vessel_id = this.SelectedVessel == 0 ? null : this.SelectedVessel.id;
     this.newService.saveForecastProjectSettings(this.project).subscribe(msg => {
       this.alert.sendAlert({
         text: msg.data
       })
     }, err => {
-      console.log('err', err)
+      console.error(err)
       this.alert.sendAlert({
         text: err.error,
         type: 'danger'
@@ -174,6 +185,7 @@ export class ForecastVesselComponent implements OnInit {
 }
 
 export interface ForecastVesselRequest {
+  id?: number;
   client_id?: number;
   type: string;
   length: number;

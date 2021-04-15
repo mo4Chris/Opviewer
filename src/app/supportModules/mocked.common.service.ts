@@ -37,13 +37,27 @@ export class MockedCommonService extends CommonService {
 
   // Overriding the get and post methods as we want to know about any uncaught requests made to the server.
   get(request_url: string) {
-    console.error('Uncaught get request: ' + request_url);
+    console.error('Uncaught GET request: ' + request_url);
     const Response: any = 0;
     return Response;
   }
-
   post(request_url: string, payload = []) {
-    console.error('Uncaught post request: ' + request_url);
+    console.error('Uncaught POST request: ' + request_url);
+    const Response: any = 0;
+    return Response;
+  }
+  put(request_url: string, payload = []) {
+    console.error('Uncaught PUT request: ' + request_url);
+    const Response: any = 0;
+    return Response;
+  }
+  patch(request_url: string, payload = []) {
+    console.error('Uncaught PATCH request: ' + request_url);
+    const Response: any = 0;
+    return Response;
+  }
+  delete(request_url: string, payload = []) {
+    console.error('Uncaught DELETE request: ' + request_url);
     const Response: any = 0;
     return Response;
   }
@@ -698,16 +712,20 @@ export class MockedCommonService extends CommonService {
       vessel_id: 'fakeID',
     }]);
   }
-  getForecastProjectById(id: number): Observable<any> {
+  getForecastProjectByName(name: string): Observable<ForecastOperation[]> {
     return mockedObservable([{
-      id,
-      name: 'a',
+      id: 123,
+      name,
       client_id: 1,
       latitude: 2,
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'fakeID',
+      vessel_id: 123,
+      activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+      activation_end_date: "2023-02-10T09:44:17.881913+00:00",
+      client_preferences: null,
+      consumer_id: 123
     }]);
   }
   getForecastClientList() {
