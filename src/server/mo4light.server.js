@@ -205,14 +205,18 @@ module.exports = function(app, logger) {
       update_if_not_null('activation_start_date')
       update_if_not_null('activation_end_date')
     }
+    updated_project['water_depth'] = 15
+    console.log('updated_project', updated_project)
     localLogger.debug('Double encrypting client preference')
-    // updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
+    updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
 
     localLogger.debug('Forwarding request to hydro API')
-    localLogger.info(updated_project)
-    pg_put('/project/' + project_name, updated_project).then((data, err) => {
+    // localLogger.info(updated_project)
+    pg_put('/project/' + project_name, updated_project).then((out, err) => {
+      console.log('out', out.data)
       if (err) return res.onError(err, 'Failed to store project settings');
-      res.send('Successfully saved project!')
+      localLogger.info('Save succesfull')
+      return res.send({data: 'Successfully saved project!'})
     }).catch(res.onError)
   })
 

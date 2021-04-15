@@ -140,9 +140,9 @@ export class ForecastVesselComponent implements OnInit {
     // ToDo: send the values back to the database
     console.log('Storing data')
     console.log(this.project)
-    this.newService.saveForecastProjectSettings(this.project).subscribe(data => {
+    this.newService.saveForecastProjectSettings(this.project).subscribe(msg => {
       this.alert.sendAlert({
-        text: data
+        text: msg.data
       })
     }, err => {
       console.log('err', err)
