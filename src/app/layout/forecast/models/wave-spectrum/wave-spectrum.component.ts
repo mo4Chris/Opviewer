@@ -118,7 +118,6 @@ export class SovWaveSpectrumComponent implements OnChanges {
   }
 
   ngOnChanges(): void {
-    console.log(this)
     this.loaded = false;
     if (this.k_x == null) return
     this.plotViaIndex();
@@ -175,7 +174,6 @@ export class SovWaveSpectrumComponent implements OnChanges {
       })
     }
 
-
     this.parsedData = [
       spectrum_heatmap_trace,
       meanWaveMarker,
@@ -203,9 +201,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   }
 
   public onSliderChange(event: any) {
-    console.log('event', event)
     const new_index = event.step._index;
-    console.log('new_index', new_index)
     if (!(new_index >= 0)) return;
     this.spectrumIndex = new_index + 1;
     this.plotViaIndex()
