@@ -125,6 +125,8 @@ export class LongtermProcessingService {
         return elt / 1000;
       case 'MSI': case 'msi':
         return elt;
+      case 'A8': case "AW":
+        return elt;
       case 'transitTimeMinutes':
         return elt;
       case 'visitDuration': case 'duration':

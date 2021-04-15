@@ -14,6 +14,7 @@
               <th><div [ngbTooltip]="helpTotalFuelConsumption">Total fuel used</div></th>
               <th><div [ngbTooltip]="helpSailingDistance">Total distance sailed</div></th>
               <th><div [ngbTooltip]="helpFuelUsedPerWorkingDay">Average fuel consumption</div></th>
+              <th>Amount of dockings</th>
               <th><div [ngbTooltip]="helpPaxTransfered">Total pax transfered</div></th>
               <th><div [ngbTooltip]="helpCargoOperations">Number of cargo operations</div></th>
               <th>Cargo incoming</th>
@@ -31,6 +32,7 @@
               <td>{{kpi.totalFuelUsed}}</td>
               <td>{{kpi.totalDistanceSailed}}</td>
               <td>{{kpi.fuelUsedPerWorkingDay}}</td>
+              <td>{{kpi.amountDockings}}</td>
               <td>{{kpi.totalPaxTransfered}}</td>
               <td>{{kpi.numCargoOps}}</td>
               <td>{{kpi.cargoUpKg}}</td>
