@@ -169,10 +169,6 @@ export class CommonService {
     return this.post('/api/getPlatformLocations/', {Name: 'Northsea_offshore_oilgas_platform_coordinates'});
   }
 
-  getLatestBoatLocationForCompany(company: string): Observable<AisMarkerModel[]> {
-    return this.get('/api/getLatestBoatLocationForCompany/' + company);
-  }
-
   getTransfersForVessel(mmsi: number, date: number): Observable<any[]> {
     return this.get('/api/getTransfersForVessel/' + mmsi + '/' + date);
   }

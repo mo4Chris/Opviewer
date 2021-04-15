@@ -7,8 +7,6 @@ Vesselmodel.find({
   
   data.forEach(user => {
 
-    console.log(user);
-
     // const values = [user.mmsi, user.nicename, user.operationsClass, user.onHire];
     // const text = ` "vesselTable"(mmsi, nicename, operations_class, active)
     // VALUES($1, $2, $3, $4)`;
