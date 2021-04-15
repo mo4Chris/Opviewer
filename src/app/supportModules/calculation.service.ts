@@ -181,8 +181,7 @@ export class CalculationService {
 
   linspace(start: number, stop: number, step: number = 1) {
     if (!(step>0)) return [];
-    const len = Math.floor((stop - start) / step) + 1
-    console.log('len', len)
+    const len = Math.floor((stop - start) / step) + 1;
     const linspace = start <= stop ? new Array(len) : [];
     let curr = start;
     for (let _i = 0; _i < linspace.length; _i++) {

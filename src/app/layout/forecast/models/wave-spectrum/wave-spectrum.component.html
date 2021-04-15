@@ -1,21 +1,18 @@
 <div class="row">
   <app-ng-loading class="full-width" *ngIf="!loaded"></app-ng-loading>
-  <div [hidden]="!loaded" class="spectal-container">
+  <div [hidden]="!loaded" class="spectral-container">
     <plotly-plot [data]="parsedData" [layout]='PlotLayout'
-      (initialized)="onPlotlyInit($event)" [useResizeHandler]="true">
+      (initialized)="onPlotlyInit($event)" [useResizeHandler]="true"
+      (sliderEnd)="onSliderChange($event)">
     </plotly-plot>
   </div>
 
   <div class="text-container col-xl-12">
-    Wave spectrum for which workability has been computed. The graph
+    Wave spectrum which was used to compute the workability. The graph
     shows the direction the waves are coming from, i.e. a peak at 45 degrees
     in the north-east indicates a wave from the north-east moving towards the
-    south-west. Higher spectral energy indicates higher waves. A peak close
-    to the center implies short-crested waves (usually wind waves), whilst
-    peaks towards the edges correspond to long-crested swell waves.
-  </div>
-  <div>
-    <input type="number"  [min]="1" [max]="spectrum?.length || 1" (change)="switchIndex()"
-      [(ngModel)]="spectrumIndex">
+    south-west. The white lines show the wave period. This means that a peak
+    close to the center corresponds short-crested waves (usually wind waves),
+    whilst peaks further out correspond to long-crested swell waves.
   </div>
 </div>

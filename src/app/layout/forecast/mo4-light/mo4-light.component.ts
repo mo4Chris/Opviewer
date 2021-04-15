@@ -105,6 +105,8 @@ export class Mo4LightComponent implements OnInit {
         Hs: param.Hs,
         Hmax: param.Hmax,
         Tp: param.Tp,
+        waveDir: param.MeanDirection,
+        wavePeakDir: param.PeakDirection,
         source: 'Infoplaza'
       }
       const spectral = raw_weather.Wave.Spectral
