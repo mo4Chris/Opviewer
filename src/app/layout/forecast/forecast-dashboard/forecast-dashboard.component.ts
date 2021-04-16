@@ -27,11 +27,11 @@ export class ForecastDashboardComponent implements OnInit {
     forkJoin([
       this.newService.getForecastClientList(),
       this.newService.getForecastProjectList(),
-      this.newService.getForecastUserList(),
-    ]).subscribe(([clients, projects, users]) => {
+      // this.newService.getForecastUserList(),
+    ]).subscribe(([clients, projects]) => {
       this.clients = clients;
       this.projects = projects;
-      this.users = users;
+      // this.users = users;
     });
   }
 

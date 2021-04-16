@@ -527,10 +527,6 @@ export class CommonService {
     return this.get('/api/mo4light/getVesselList');
   }
 
-  getForecastUserList() {
-    return this.get('/api/mo4light/getUsers');
-  }
-
   getForecastClientList() {
     // Depricated
     return this.get('/api/mo4light/getClients');
