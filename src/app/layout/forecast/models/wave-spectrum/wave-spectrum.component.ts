@@ -14,6 +14,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() time: number[];
   @Input() k_x: number[];
   @Input() k_y: number[];
+  @Input() waveHeight: number[];
   @Input() waveDir: number[];
   @Input() wavePeakDir: number[];
   @Input() spectrum: number[][][];
@@ -22,6 +23,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
+  public currentWaveHeight = null;
   public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
@@ -187,6 +189,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
       meanWaveMarker,
       peakWaveMarker,
     ];
+    this.currentWaveHeight = this.calcService.getDecimalValueForNumber(this.waveHeight[index], ' m')
   }
 
   setSliderSteps() {

@@ -57,6 +57,27 @@ interface ForecastResponsePreference {
   };
 }
 
+
+
+interface ForecastExpectedResponsePreference {
+  points: POI[];
+  ops_start_time: any;
+  ops_stop_time: any;
+  limits: ForecastLimit[]
+  Max_Type: MAX_TYPE
+}
+interface POI {
+  name: string;
+  x: PoiValue;
+  y: PoiValue;
+  z: PoiValue;
+}
+interface PoiValue {
+  type: 'absolute'|'relative';
+  value: number;
+}
+type MAX_TYPE = 'MPM' | 'STD';
+
 interface ForecastVesselLocation {
   X: { // From aft of vessel towards the bow
     Data: number;

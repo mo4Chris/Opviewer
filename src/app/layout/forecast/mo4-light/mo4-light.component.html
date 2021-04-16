@@ -54,7 +54,8 @@
               <ng-template #spectralGraph id="tab-weather" ngbNavContent>
                 <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"
                   [spectrum]="spectrum?.density" [time]="spectrum?.timeStamp"
-                  [waveDir]="weather.waveDir" [wavePeakDir]="weather.wavePeakDir">
+                  [waveDir]="weather.waveDir" [wavePeakDir]="weather.wavePeakDir"
+                  [waveHeight]="weather.Hs">
                 </app-wave-spectrum>
               </ng-template>
             </li>
