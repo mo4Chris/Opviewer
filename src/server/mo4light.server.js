@@ -4,11 +4,11 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 // as appearantly these variables are available inside the the module.exports callback.
 
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
-const token   = process.env.AZURE_TOKEN;
+const bearer  = process.env.AZURE_TOKEN;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
-  'Authorization': `Bearer ${token}`
+  'Authorization': `Bearer ${bearer}`
 }
 
 function log(message) {
@@ -18,10 +18,11 @@ function log(message) {
 }
 
 module.exports = function(app, logger) {
-  if (token == null) {
+  if (bearer == null) {
     logger.fatal('Azure connection token not found!')
     process.exit(1)
   }
+  logger.info(`Connecting to hydro database at ${baseUrl}`)
   pg_get('').then((data, err) => {
     if (err) return logger.fatal('Failed to connect to hydro API')
     logger.info(`Successfully connected to hydro API at ${baseUrl}`)
@@ -95,6 +96,7 @@ module.exports = function(app, logger) {
       // ToDo: filter data by token rights
       res.send(project_output)
     }).catch(err => {
+      console.log(err)
       onError(res, err)
     })
   });
@@ -144,6 +146,7 @@ module.exports = function(app, logger) {
       // ToDo: filter data by token rights
       res.send(data)
     }).catch(err => {
+      console.log(err)
       onError(res, err)
     })
   });

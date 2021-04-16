@@ -4,13 +4,11 @@ import { VesselModel } from '../models/vesselModel';
 // tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 import { UserTestService } from '../shared/services/test.user.service';
-import { UserModel } from '../models/userModel';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
-import { getValueInRange } from '@ng-bootstrap/ng-bootstrap/util/util';
 import { Injectable } from '@angular/core';
-import { ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
+import { ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
 
 
 const emptyMatlabObject = {
