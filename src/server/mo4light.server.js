@@ -201,6 +201,7 @@ module.exports = function(app, logger) {
     update_if_not_null('longitude')
     update_if_not_null('water_depth')
     update_if_not_null('vessel_id')
+    update_if_not_null('client_preferences')
     if (is_admin) {
       update_if_not_null('name')
       update_if_not_null('activation_start_date')

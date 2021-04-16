@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CommonService } from '@app/common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
@@ -94,4 +95,10 @@ describe('ForecastOpsPickerComponent', () => {
     const opt = elt.querySelector('#selectOperation');
     expect(opt).toBeTruthy();
   });
+
+  it('should save on changes', () => {
+    const saveSpy = spyOn(MockedCommonService.prototype, 'saveForecastProjectSettings');
+    component.onConfirm();
+    expect(saveSpy).toHaveBeenCalled();
+  })
 });

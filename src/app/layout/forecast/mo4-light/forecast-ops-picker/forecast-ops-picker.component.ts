@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { CommonService } from '@app/common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -49,6 +50,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     private dateService: DatetimeService,
     private routerService: RouterService,
     private alert: AlertService,
+    private newService: CommonService,
     public gps: GpsService,
     public permission: PermissionService,
   ) {
@@ -118,12 +120,31 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.headingChanged = false;
     this.limitChanged = false;
     this.operationTimeChanged = false;
+    this.saveProjectConfigChanges()
   }
   public appendLeadingZeros(event) {
     const input: HTMLInputElement = event.srcElement;
     if (!isNaN(+input.value) && input.value.length === 1) {
       input.value = '0' + input.value;
     }
+  }
+
+  saveProjectConfigChanges() {
+    const new_dof = init_dof_array();
+    this.limits.forEach((limit => {
+      console.log(limit)
+    }))
+    this.selectedProject.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom = new_dof;
+    this.newService.saveForecastProjectSettings(this.selectedProject).subscribe({
+      // @Chris, this is how we are supposed to use subscribe now... subscribe(next => {}, err =>{}) is depricated
+      next: () => {},
+      error: err => {
+        this.alert.sendAlert({
+          type: 'warning',
+          text: 'An issue occured - project settings not saved'
+        })
+      }
+    });
   }
 }
 
@@ -143,4 +164,15 @@ export interface ForecastOperationSettings {
   startTime: number;
   stopTime: number;
   limits: any;
+}
+
+function init_dof_array() {
+  return {
+    'Roll': { 'Disp': false, 'Vel': false, 'Acc': false },
+    'Pitch': { 'Disp': false, 'Vel': false, 'Acc': false },
+    'Yaw': { 'Disp': false, 'Vel': false, 'Acc': false },
+    'Surge': { 'Disp': false, 'Vel': false, 'Acc': false },
+    'Sway': { 'Disp': false, 'Vel': false, 'Acc': false },
+    'Heave': { 'Disp': false, 'Vel': false, 'Acc': false }
+  }
 }
