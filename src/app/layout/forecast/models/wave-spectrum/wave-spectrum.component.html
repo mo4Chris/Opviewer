@@ -1,4 +1,7 @@
 <div class="row">
+  <div class="text-container col-xl-12" *ngIf="!spectrumValid">
+    Can not draw: spectrum not valid
+  </div>
   <app-ng-loading class="full-width" *ngIf="!loaded"></app-ng-loading>
   <div [hidden]="!loaded" class="spectral-container">
     <plotly-plot [data]="parsedData" [layout]='PlotLayout'
@@ -14,5 +17,7 @@
     south-west. The white lines show the wave period. This means that a peak
     close to the center corresponds short-crested waves (usually wind waves),
     whilst peaks further out correspond to long-crested swell waves.
+    <br><br>
+    Double click to reset the graphics
   </div>
 </div>
