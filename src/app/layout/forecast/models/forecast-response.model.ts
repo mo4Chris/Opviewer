@@ -59,12 +59,21 @@ interface ForecastResponsePreference {
 
 
 
-interface ForecastExpectedResponsePreference {
+export interface ForecastExpectedResponsePreference {
   points: POI[];
+  Degrees_Of_Freedom?: {
+    'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+    'Pitch': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+    'Yaw': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+    'Surge': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+    'Sway': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+    'Heave': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean }
+  };
   ops_start_time: any;
   ops_stop_time: any;
-  limits: ForecastLimit[]
-  Max_Type: MAX_TYPE
+  ops_heading: number;
+  limits: ForecastLimit[];
+  Max_Type: MAX_TYPE;
 }
 interface POI {
   name: string;

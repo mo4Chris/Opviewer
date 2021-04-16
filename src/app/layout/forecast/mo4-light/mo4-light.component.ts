@@ -59,6 +59,7 @@ export class Mo4LightComponent implements OnInit {
   ngOnInit() {
     this.initRoute().subscribe(() => {
       this.loadData();
+      console.log('this', this)
     });
   }
 

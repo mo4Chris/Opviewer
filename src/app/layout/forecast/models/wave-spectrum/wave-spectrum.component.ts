@@ -163,32 +163,29 @@ export class SovWaveSpectrumComponent implements OnChanges {
       connectgaps: false,
     }
 
-    let meanWaveMarker = null;
-    if (this.waveDir?.[index]) {
+    this.parsedData = []
+    if (typeof this.waveDir?.[index] == "number") {
       const meanWaveDir_deg = this.waveDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       let ang = [meanWaveDir_deg+5,meanWaveDir_deg,meanWaveDir_deg-5];
-      meanWaveMarker = this.makeHeadingMarker(r, ang, {
+      const meanWaveMarker = this.makeHeadingMarker(r, ang, {
         text: `Mean wave direction: ${meanWaveDir_deg.toFixed(0)}&#xb0;`
       })
+      this.parsedData.push(meanWaveMarker)
     }
 
-    let peakWaveMarker = null;
-    if (this.wavePeakDir?.[index]) {
+    if (typeof this.wavePeakDir?.[index] == "number") {
       const peakWaveDir_deg = this.wavePeakDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       const ang = [peakWaveDir_deg+5,peakWaveDir_deg,peakWaveDir_deg-5];
-      peakWaveMarker = this.makeHeadingMarker(r, ang, {
+      const peakWaveMarker = this.makeHeadingMarker(r, ang, {
         fillcolor: 'green',
         text: `Peak wave direction: ${peakWaveDir_deg.toFixed(0)}&#xb0;`
       })
+      this.parsedData.push(peakWaveMarker)
     }
 
-    this.parsedData = [
-      spectrum_heatmap_trace,
-      meanWaveMarker,
-      peakWaveMarker,
-    ];
+    this.parsedData.push(spectrum_heatmap_trace);
     this.currentWaveHeight = this.calcService.getDecimalValueForNumber(this.waveHeight[index], ' m')
   }
 

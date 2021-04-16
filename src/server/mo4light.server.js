@@ -198,7 +198,10 @@ module.exports = function(app, logger) {
 
     localLogger.info('Done getting project - performing update')
     const update_if_not_null = (fld) => {
-      if (received_settings[fld] != null) updated_project[fld] = received_settings[fld];
+      if (received_settings[fld] != null) {
+        logger.info('Setting ' + fld)
+        updated_project[fld] = received_settings[fld];
+      }
     }
     update_if_not_null('latitude')
     update_if_not_null('longitude')
@@ -217,6 +220,7 @@ module.exports = function(app, logger) {
     // localLogger.info(updated_project)
     pg_put('/project/' + project_name, updated_project).then((out, err) => {
       if (err) return res.onError(err, 'Failed to store project settings');
+      localLogger.info(out.data)
       localLogger.info('Save succesfull')
       return res.send({data: 'Successfully saved project!'})
     }).catch(res.onError)

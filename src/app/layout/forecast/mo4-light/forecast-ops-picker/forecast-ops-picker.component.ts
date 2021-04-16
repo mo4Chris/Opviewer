@@ -7,7 +7,7 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
-import { ForecastLimit, ForecastOperation } from '../../models/forecast-response.model';
+import { ForecastLimit, ForecastOperation, ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -74,6 +74,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   onNewSelectedOperation() {
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
+    console.log('this.selectedProject', this.selectedProject)
   }
   public onHeadingChange() {
     this.headingChanged = true;
@@ -135,6 +136,25 @@ export class ForecastOpsPickerComponent implements OnChanges {
       console.log(limit)
     }))
     this.selectedProject.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom = new_dof;
+
+    const p1 = this.selectedProject.client_preferences.Points_Of_Interest.P1;
+    const new_preferences: ForecastExpectedResponsePreference = {
+      Max_Type: 'MPM',
+      ops_start_time: null,
+      ops_stop_time: null,
+      ops_heading: this.heading,
+      points: [{
+        name: 'P1',
+        x: {value: p1.Coordinates.X.Data, type: 'absolute'},
+        y: {value: p1.Coordinates.Y.Data, type: 'absolute'},
+        z: {value: p1.Coordinates.Z.Data, type: 'absolute'},
+      }],
+      limits: this.limits,
+      Degrees_Of_Freedom: p1.Degrees_Of_Freedom
+    }
+    this.selectedProject.client_preferences = <any> new_preferences;
+    console.log(new_preferences)
+
     this.newService.saveForecastProjectSettings(this.selectedProject).subscribe({
       // @Chris, this is how we are supposed to use subscribe now... subscribe(next => {}, err =>{}) is depricated
       next: () => {},

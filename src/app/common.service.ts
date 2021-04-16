@@ -567,6 +567,8 @@ export class CommonService {
         longitude: project.longitude,
         water_depth: project.water_depth,
         vessel_id: project.vessel_id,
+        client_preferences: project.client_preferences,
+        maximum_duration: project.maximum_duration
       }
     });
   }
