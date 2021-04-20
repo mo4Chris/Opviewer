@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { PlotlyModule } from 'angular-plotly.js';
@@ -9,7 +9,7 @@ describe('SurfacePlotComponent', () => {
   let fixture: ComponentFixture<SurfacePlotComponent>;
   const calc = new CalculationService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         SurfacePlotComponent

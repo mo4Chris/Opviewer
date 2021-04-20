@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input-vesselmaster.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -14,10 +13,9 @@ import { MockedUserServiceProvider } from '@app/shared/services/test.user.servic
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;
   let fixture: ComponentFixture<SovDprInputVesselmasterComponent>;
-
   let saveSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

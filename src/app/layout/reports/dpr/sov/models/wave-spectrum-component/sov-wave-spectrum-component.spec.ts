@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { WaveSpectrumComponent } from './sov-wave-spectrum-component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SupportModelModule } from '@app/models/support-model.module';
@@ -12,7 +12,7 @@ describe('WaveSpectrumComponent', () => {
   let component: WaveSpectrumComponent;
   let fixture: ComponentFixture<WaveSpectrumComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         PlotlyModule,

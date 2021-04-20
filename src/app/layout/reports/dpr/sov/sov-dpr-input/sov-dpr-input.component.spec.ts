@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDprInputComponent } from './sov-dpr-input.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SovDprInputReadonlyComponent } from './sov-dpr-input-readonly/sov-dpr-input-readonly.component';
@@ -16,7 +15,7 @@ describe('SovDprInputComponent', () => {
   let fixture: ComponentFixture<SovDprInputComponent>;
   let saveSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

@@ -1,11 +1,10 @@
-import { TestBed, async } from '@angular/core/testing';
-
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { LongtermProcessingService } from './longterm-processing-service.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('LongtermProcessingService', () => {
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [
         MockedCommonServiceProvider,

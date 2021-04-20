@@ -1,9 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { UserManagementComponent } from './usermanagement.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { UserManagementRoutingModule } from './usermanagement-routing.module';
 import { PageHeaderModule } from '../../shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -20,7 +18,7 @@ describe('UsermanagementComponent', () => {
   let fixture: ComponentFixture<UserManagementComponent>;
   const user = UserTestService.getMockedAccessToken();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -37,7 +35,7 @@ describe('UsermanagementComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
     // spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
     // spyOn(CommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([user]));

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FleetsComponent } from './fleets.component';
 import { CommonService } from '../../../common.service';
@@ -16,7 +16,7 @@ describe('FleetComponent', () => {
     let component: FleetsComponent;
     let fixture: ComponentFixture<FleetsComponent>;
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             imports: [
               FormsModule,

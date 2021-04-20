@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
 import { SovWeatherchartComponent } from './sov-weatherchart.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
@@ -11,7 +11,7 @@ describe('SovWeatherchartComponent', () => {
   let fixture: ComponentFixture<SovWeatherchartComponent>;
   const mockedCommonService = new MockedCommonService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

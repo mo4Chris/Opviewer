@@ -1,6 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockComponents } from 'ng-mocks';
-import { AgmCoreModule, AgmMap } from '@agm/core';
+import { AgmMap } from '@agm/core';
 import { ForecastVesselComponent } from './forecast-project.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -17,7 +17,7 @@ describe('ForecastProjectComponent', () => {
   let component: ForecastVesselComponent;
   let fixture: ComponentFixture<ForecastVesselComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         ForecastVesselComponent,

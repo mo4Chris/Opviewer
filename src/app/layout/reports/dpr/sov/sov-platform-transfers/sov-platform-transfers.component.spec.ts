@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovPlatformTransfersComponent } from './sov-platform-transfers.component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SharedPipesModule } from '@app/shared';
@@ -16,7 +15,7 @@ describe('SovPlatformTransfersComponent', () => {
   let saveSpy: jasmine.Spy;
 
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

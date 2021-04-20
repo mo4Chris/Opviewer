@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
@@ -12,7 +12,7 @@ describe('Dashboard MarineController Component', () => {
   let fixture: ComponentFixture<MarineControllerComponent>;
   const token = UserTestService.getMockedAccessToken({});
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MarineControllerComponent ],
       imports: [

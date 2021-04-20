@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
@@ -11,7 +11,7 @@ describe('WaveSpectrumComponent', () => {
   let fixture: ComponentFixture<SovWaveSpectrumComponent>;
   const matService = new MatrixService()
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SovWaveSpectrumComponent ],
       imports: [

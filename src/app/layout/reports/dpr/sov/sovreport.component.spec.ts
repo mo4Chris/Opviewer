@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 import { SovreportComponent } from './sovreport.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SharedPipesModule, PageHeaderModule } from '@app/shared';
@@ -35,7 +34,7 @@ describe('SovreportComponent', () => {
   let fixture: ComponentFixture<SovreportComponent>;
   const fakeSimpleChange = {change: new SimpleChange(null, 1, true)};
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         AgmCoreModule,
@@ -78,7 +77,7 @@ describe('SovreportComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
 
     fixture = TestBed.createComponent(SovreportComponent);
     component = fixture.componentInstance;

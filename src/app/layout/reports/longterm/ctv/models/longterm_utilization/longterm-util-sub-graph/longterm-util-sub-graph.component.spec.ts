@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { CtvUtilizationGraphComponent } from '../utilizationGraph.component';
@@ -8,7 +8,7 @@ describe('CtvLongtermUtilSubGraphComponent', () => {
   let component: CtvLongtermUtilSubGraphComponent;
   let fixture: ComponentFixture<CtvLongtermUtilSubGraphComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [],
       declarations: [

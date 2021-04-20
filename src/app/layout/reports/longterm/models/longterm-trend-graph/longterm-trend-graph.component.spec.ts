@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { LongtermTrendGraphComponent } from './longterm-trend-graph.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -31,7 +31,7 @@ describe('LongtermTrendGraphComponent', () => {
   let component: LongtermTrendGraphComponent;
   let fixture: ComponentFixture<LongtermTrendTestComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         LongtermTrendGraphComponent,
