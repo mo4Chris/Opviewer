@@ -45,15 +45,13 @@ describe('SovSummaryComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should create a summary', (done) => {
+  it('Should create a summary', () => {
     component.CalculateDailySummary();
     expect(component).toBeTruthy();
-    done();
   });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));

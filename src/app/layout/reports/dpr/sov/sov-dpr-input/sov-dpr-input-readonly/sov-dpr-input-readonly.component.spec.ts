@@ -44,16 +44,14 @@ describe('SovDprInputReadonlyComponent', () => {
 
   });
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should set people on board', (done) => {
+  it('Should set people on board', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.catering.totalPob).toEqual(0);
-    done();
   });
 
 });

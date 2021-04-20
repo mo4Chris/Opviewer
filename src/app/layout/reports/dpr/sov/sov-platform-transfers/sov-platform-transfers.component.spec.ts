@@ -60,17 +60,15 @@ describe('SovPlatformTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.saveAllPlatformTransfers();
     expect(saveSpy).toHaveBeenCalledTimes(2 + component.platformTransfers.length);
-    done();
   });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));

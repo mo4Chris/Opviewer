@@ -54,17 +54,15 @@ describe('DprMapComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should create', (done) => {
+    it('should create', async () => {
       expect(component).toBeTruthy();
       expect(component.hidden).toBe(true);
       expect(component.hasValidVesselTrace).toBe(true);
       component.ngOnChanges();
       expect(component.hidden).toBe(false);
       expect(component).toBeTruthy();
-      component.onLoaded.subscribe((map) => {
-        expect(consoleSpy).toHaveBeenCalledTimes(0);
-        done();
-      });
+      await component.onLoaded.subscribe()
+      expect(consoleSpy).toHaveBeenCalledTimes(0);
     });
   });
 });

@@ -59,7 +59,7 @@ describe('SignupComponent', () => {
     expect(routerSpy).toHaveBeenCalled();
   });
 
-  it('should create w/ userCreate rights', async (done) => {
+  it('should create w/ userCreate rights', async () => {
     component.permission.admin = false;
     component.permission.userCreate = true;
     const routerSpy = spyOn(Router.prototype, 'navigate');
@@ -81,6 +81,5 @@ describe('SignupComponent', () => {
     expect(authSpy).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalled();
     expect(routerSpy).toHaveBeenCalled();
-    done();
   });
 });

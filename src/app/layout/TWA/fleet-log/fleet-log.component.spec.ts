@@ -43,8 +43,7 @@ describe('FleetLogComponent', () => {
   }));
 
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 });

@@ -49,9 +49,8 @@ describe('SovWeatherchartComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('Should run ngOnChanges', (done) => {
+  it('Should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 });

@@ -49,16 +49,14 @@ describe('SovTurbineTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.saveAllTurbineTransfers();
     expect(saveSpy).toHaveBeenCalledTimes(2 + component.turbineTransfers.length);
-    done();
   });
 });

@@ -97,6 +97,7 @@ export class Mo4LightComponent implements OnInit {
 
       this.parseResponse();
 
+      if (this.response == null) return
       // TEMPORARY WORKAROUND FOR WEATHER
       const raw_weather = this.response['MetoceanData'];
       const param = raw_weather.Wave.Parametric

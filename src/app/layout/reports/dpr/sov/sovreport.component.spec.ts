@@ -105,7 +105,7 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should create as admin', (done) => {
+  it('should create as admin', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -115,10 +115,9 @@ describe('SovreportComponent', () => {
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(true);
-    done();
   });
 
-  it('should create as Vessel master', (done) => {
+  it('should create as Vessel master', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -128,10 +127,9 @@ describe('SovreportComponent', () => {
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(false);
-    done();
   });
 
-  it('should create as Marine controller', (done) => {
+  it('should create as Marine controller', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -140,10 +138,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Qhse specialist', (done) => {
+  it('should create as Qhse specialist', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -152,10 +149,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Logistics specialist', (done) => {
+  it('should create as Logistics specialist', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -164,10 +160,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Client representative', (done) => {
+  it('should create as Client representative', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -176,7 +171,6 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 });
 

@@ -49,12 +49,11 @@ describe('SovDprInputComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should update HOC', (done) => {
+  it('Should update HOC', () => {
     component.updateHOCTotal();
     expect(component).toBeTruthy();
     component.hoc = {
@@ -67,10 +66,9 @@ describe('SovDprInputComponent', () => {
     expect(component).toBeTruthy();
     expect(component.hoc.Total).toEqual(2);
     expect(component.hoc.TotalNew).toEqual(5);
-    done();
   });
 
-  it('Should update Toolbox', (done) => {
+  it('Should update Toolbox', () => {
     component.updateToolboxTotal();
     expect(component).toBeTruthy();
     component.toolbox = {
@@ -83,12 +81,10 @@ describe('SovDprInputComponent', () => {
     expect(component).toBeTruthy();
     expect(component.toolbox.Total).toEqual(2);
     expect(component.toolbox.TotalNew).toEqual(5);
-    done();
   });
 
-  it('Should correctly add standby times', (done) => {
+  it('Should correctly add standby times', () => {
     component.getTotalTimeStandby([{total: '02:10'}, {total: '01:30'}]);
     expect(component.totalStandbyTime).toEqual('03:40');
-    done();
   });
 });

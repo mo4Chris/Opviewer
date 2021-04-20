@@ -59,16 +59,14 @@ describe('SovV2vTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.savev2vPaxInput();
     expect(saveSpy).toHaveBeenCalledTimes(1);
-    done();
   });
 });
