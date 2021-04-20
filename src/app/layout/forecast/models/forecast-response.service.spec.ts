@@ -8,7 +8,7 @@ describe('ForecastResponseService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.get(ForecastResponseService);
+    service = TestBed.inject(ForecastResponseService);
   });
 
   it('should be created', () => {
