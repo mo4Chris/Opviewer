@@ -14,8 +14,8 @@ export interface ForecastOperation {
 }
 
 export interface ForecastResponseObject {
-  consumer_id: number;
   id: number;
+  consumer_id: number;
   metocean_id: string;
   project_id: number;
   response: {
@@ -57,10 +57,8 @@ interface ForecastResponsePreference {
   };
 }
 
-
-
 export interface ForecastExpectedResponsePreference {
-  points: POI[];
+  Points: POI[];
   Degrees_Of_Freedom?: {
     'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
     'Pitch': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
@@ -69,21 +67,21 @@ export interface ForecastExpectedResponsePreference {
     'Sway': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
     'Heave': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean }
   };
-  ops_start_time: any;
-  ops_stop_time: any;
-  ops_heading: number;
-  limits: ForecastLimit[];
+  Ops_Start_Time: any;
+  Ops_Stop_Time: any;
+  Ops_Heading: number;
+  Limits: ForecastLimit[];
   Max_Type: MAX_TYPE;
 }
 interface POI {
-  name: string;
-  x: PoiValue;
-  y: PoiValue;
-  z: PoiValue;
+  Name: string;
+  X: PoiValue;
+  Y: PoiValue;
+  Z: PoiValue;
 }
 interface PoiValue {
-  type: 'absolute'|'relative';
-  value: number;
+  Type: 'absolute'|'relative';
+  Value: number;
 }
 type MAX_TYPE = 'MPM' | 'STD';
 

@@ -140,16 +140,16 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const p1 = this.selectedProject.client_preferences.Points_Of_Interest.P1;
     const new_preferences: ForecastExpectedResponsePreference = {
       Max_Type: 'MPM',
-      ops_start_time: null,
-      ops_stop_time: null,
-      ops_heading: this.heading,
-      points: [{
-        name: 'P1',
-        x: {value: p1.Coordinates.X.Data, type: 'absolute'},
-        y: {value: p1.Coordinates.Y.Data, type: 'absolute'},
-        z: {value: p1.Coordinates.Z.Data, type: 'absolute'},
+      Ops_Start_Time: null,
+      Ops_Stop_Time: null,
+      Ops_Heading: this.heading,
+      Points: [{
+        Name: 'P1',
+        X: {Value: p1.Coordinates.X.Data, Type: 'absolute'},
+        Y: {Value: p1.Coordinates.Y.Data, Type: 'absolute'},
+        Z: {Value: p1.Coordinates.Z.Data, Type: 'absolute'},
       }],
-      limits: this.limits,
+      Limits: this.limits,
       Degrees_Of_Freedom: p1.Degrees_Of_Freedom
     }
     this.selectedProject.client_preferences = <any> new_preferences;
