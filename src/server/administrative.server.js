@@ -40,6 +40,69 @@ module.exports = function (
     }).catch(err => onError(res, err))
   });
 
+  app.post('/api/createDemoUser',  async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password
+    const requires2fa = req.body.requires2fa;
+    const client_id = req.body.client_id;
+    const vessel_ids = req.body.vessel_ids;
+    const user_type = req.body.user_type;
+    const expireDate = newDate();
+    expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
+    
+
+    logger.debug('Validating incoming request')
+    if (vessel_ids != null && !Array.isArray(vessel_ids)) {
+      logger.info('Vessel is not in valid format')
+      return res.status(400).send('Invalid vessel id format');
+    }
+    logger.trace('Verfying username format')
+    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
+    logger.trace('Verfying 2fa format')
+    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
+    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
+    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
+    logger.trace(`Verfying password format ${password} (${typeof password})`)
+    if (typeof(password) != ("string" || null) || password.length<=6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
+
+
+    // This part is now solved in an await statement to reduce its complexity
+    let password_setup_token = '';
+
+    //turn account creation back on after other functions
+
+    // try {
+    //   password_setup_token = await createUser({
+    //     username,
+    //     requires2fa,
+    //     client_id,
+    //     vessel_ids,
+    //     user_type,
+    //     password,
+    //     demo_expiration_date
+    //   })
+    // } catch (err) {
+    //   if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
+    //   return onError(res, err, 'Error creating user')
+    // }
+    logger.info(`Successfully created new user with random token ${password_setup_token}`)
+    // send email
+    const html = `Dear Webmaster, <br><br>
+
+    A demo account has been created for ${req.body.username}.<br>
+    Please add the following details to the customer-contact excel sheet.<br>
+    Username: ${req.body.username}<br>
+    Full name: ${req.body.fullName}<br>
+    Company: ${req.body.company}<br>
+    Function: ${req.body.function}<br>
+    Phone number: ${req.body?.phoneNumber}
+    `;
+
+    // mailTo('Registered user', html);
+    logger.info({msg: 'Succesfully created user ', username})
+    return res.send({ data: `User ${username} succesfully added!` });
+  });
+
   app.post('/api/setPassword', function (req, res) {
     const token = req.body.passwordToken;
     const password = req.body.password;
@@ -171,6 +234,54 @@ module.exports = function (
     }).catch(err => onError(res, err, 'Failed to load vessels'));
   };
 
+  async function createUser({
+    username = '',
+    user_type = 'Vessel master',
+    requires2fa = true,
+    vessel_ids = [],
+    client_id = null,
+    password = null,
+    demo_expiration_date = ''
+  }) {
+    if (!(client_id > 0)) { throw Error('Invalid client id!') }
+    if (!(username?.length > 0)) { throw Error('Invalid username!') }
+
+    logger.info(`Creating new user ${username}`)
+    const password_setup_token = generateRandomToken();
+    if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
+    const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
+    const query = `INSERT INTO "userTable"(
+      "username",
+      "requires2fa",
+      "active",
+      "vessel_ids",
+      "token",
+      "client_id",
+      "password",
+      "demo_expiration_date"
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "userTable"."user_id"`
+    const values = [
+      username,
+      Boolean(requires2fa) ?? true,
+      true,
+      valid_vessel_ids ? vessel_ids : null,
+      password_setup_token,
+      client_id,
+      password,
+      demo_expiration_date
+    ]
+    logger.info('Starting database insert')
+    const sqlresponse = await admin_server_pool.query(query, values)
+    const user_id = sqlresponse.rows[0].user_id;
+
+    logger.info('New user has id ' + user_id)
+    logger.debug('Init user permissions')
+    initUserPermission(user_id, user_type);
+    logger.debug('Init user settings')
+    initUserSettings(user_id);
+    return password_setup_token;
+  }
+
 
   function validateLogin(req, user, res) {
     const userData = req.body;
@@ -195,6 +306,98 @@ module.exports = function (
     }
     return true;
   }
+  
+  function initUserSettings(user_id = 0) {
+    const localLogger = logger.child({
+      user_id,
+      function: "initUserSettings"
+    })
+    const text = `INSERT INTO "userSettingsTable"
+    (user_id, timezone, unit, longterm, weather_chart, dpr)
+    VALUES($1, $2, $3, $4, $5, $6)`;
+    const values = [+user_id, {type: 'vessel'}, {speed: "knots"}, null, null, null];
+    admin_server_pool.query(text, values).then(() => {
+      localLogger.info('Created user settings')
+    }).catch((err) => {
+      localLogger.error(err.message)
+    })
+  }
+  function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
+    const localLogger = logger.child({
+      user_id,
+      user_type,
+      function: "initUserPermission"
+    })
+    const is_admin = user_type == 'admin';
+    const default_values = {
+      user_type,
+      admin: is_admin,
+      user_read: true,
+      demo: false,
+      user_manage: is_admin,
+      user_see_all_vessels_client: is_admin,
+      dpr: {
+        read: true,
+        sov_input: 'read',
+        sov_commercial: 'read',
+        sov_hse: null,
+      },
+      longterm: {
+        read: false,
+      },
+      twa: {
+        read: is_admin
+      },
+      forecast: {
+        read: is_admin,
+        changeLimits: is_admin,
+        createProject: is_admin
+      }
+    }
+    let permissions = { ...default_values, ...opt_permissions };
 
-
+    switch (user_type) {
+      case 'admin':
+        permissions.dpr.sov_input = 'write';
+        permissions.dpr.sov_hse = 'write';
+        break
+      case 'Vessel master':
+        permissions.user_read = false;
+        permissions.dpr.sov_hse = 'write';
+        break
+      case 'Qhse specialist':
+        permissions.dpr.sov_hse = 'sign';
+        break
+      case 'Marine controller':
+        permissions.longterm.read = true;
+        permissions.dpr.sov_hse = 'read';
+        break
+      case 'Logistics specialist':
+        permissions.longterm.read = true;
+        permissions.user_see_all_vessels_client = true;
+        break
+      case 'Client representative':
+        permissions.dpr.sov_commercial = 'read';
+        permissions.dpr.sov_input = 'read';
+        break
+      case 'demo':
+        permissions.dpr.read = false;
+        permissions.forecast.read = true;
+        break
+    }
+    const query = `
+      INSERT INTO "userPermissionTable"(
+        "user_id", "admin", "user_read", "demo", "user_manage", "twa",
+        "dpr", "longterm", "user_type", "forecast"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `
+    const values = [user_id, permissions.admin, permissions.user_read, permissions.demo,
+      permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
+      permissions.user_type, permissions.forecast];
+    admin_server_pool.query(query, values).then(() => {
+      localLogger.info('Created user permissions')
+    }).catch((err) => {
+      localLogger.error(err)
+    })
+  }
 };

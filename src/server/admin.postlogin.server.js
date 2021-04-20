@@ -124,67 +124,6 @@ module.exports = function (
     return res.send({ data: `User ${username} succesfully added!` });
   });
 
-  app.post('/api/createDemoUser',  async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password
-    const requires2fa = req.body.requires2fa;
-    const client_id = req.body.client_id;
-    const vessel_ids = req.body.vessel_ids;
-    const user_type = req.body.user_type;
-    
-
-    logger.debug('Validating incoming request')
-    if (vessel_ids != null && !Array.isArray(vessel_ids)) {
-      logger.info('Vessel is not in valid format')
-      return res.status(400).send('Invalid vessel id format');
-    }
-    logger.trace('Verfying username format')
-    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
-    logger.trace('Verfying 2fa format')
-    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
-    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
-    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
-    logger.trace(`Verfying password format ${password} (${typeof password})`)
-    if (typeof(password) != ("string" || null) || password.length<=6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
-
-
-    // This part is now solved in an await statement to reduce its complexity
-    let password_setup_token = '';
-
-    //turn account creation back on after other functions
-
-    // try {
-    //   password_setup_token = await createUser({
-    //     username,
-    //     requires2fa,
-    //     client_id,
-    //     vessel_ids,
-    //     user_type,
-    //     password
-    //   })
-    // } catch (err) {
-    //   if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
-    //   return onError(res, err, 'Error creating user')
-    // }
-    logger.info(`Successfully created new user with random token ${password_setup_token}`)
-    // send email
-    const html = `Dear Webmaster, <br><br>
-
-    A demo account has been created for ${req.body.username}.<br>
-    Please add the following details to the customer-contact excel sheet.<br>
-    Username: ${req.body.username}<br>
-    Full name: ${req.body.fullName}<br>
-    Company: ${req.body.company}<br>
-    Function: ${req.body.function}<br>
-    Phone number: ${req.body?.phoneNumber}
-    `;
-
-    // mailTo('Registered user', html);
-    logger.info({msg: 'Succesfully created user ', username})
-    return res.send({ data: `User ${username} succesfully added!` });
-  });
-
-
   app.post("/api/resetPassword", async function(req, res) {
     const token = req['token']
     const requesting_user = token.username;
@@ -345,12 +284,31 @@ module.exports = function (
     // Function is currently used to check status of userID in Token
 
     const token = req['token'];
-    const query = 'SELECT "active" FROM "userTable" where "user_id"=$1';
+    const query = 'SELECT "active", "demo_expiration_date" FROM "userTable" where "user_id"=$1';
     const values = [token.userID]
     admin_server_pool.query(query, values).then(sql_response => {
       const data = sql_response.rows[0];
-      const out = data.active;
-      res.send(out);
+      if (data.demo_expiration_date != null && data.demo_expiration_date <= new Date().valueOf) {
+        const query2 = 'SELECT "user_type" FROM "userPermissionTable" where "user_id"=$1';
+
+        admin_server_pool.query(query2, values).then(resp => {
+          const data_type = resp.rows[0].user_type;
+
+          if (data_type == 'demo'){
+            const query3 = 'UPDATE "userTable SET "active"=false where "user_id"=$1';
+            admin_server_pool.query(query3, values);
+            res.send(false);
+          } else {
+            const query3 = 'UPDATE "userPermissionTable SET "demo"=false where "user_id"=$1';
+            admin_server_pool.query(query3, values);
+            res.send(data);
+          }
+        })
+      } else {
+        const out = data.active;
+        res.send(out);
+      }
+      
     }).catch(err => {
       onError(res, err, 'user not found')
     })

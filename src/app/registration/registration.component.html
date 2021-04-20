@@ -28,7 +28,7 @@
               id="phoneNumberField" [(ngModel)]="registerUserData.phoneNumber" placeholder="Phone number">
               <br>
             
-              <input type="checkbox" id="dataPolicy">
+              <input type="checkbox" id="dataPolicy" name="dataPolicy" [(ngModel)]="registerUserData.agreeDataPolicy">
               <label class="checkbox" for='dataPolicy'> I Agree to <a [routerLink]="" (click)="openModal(content)">MO4's data policy</a> and activate my 30-day trial.</label>
             
             <!-- <input type="" class="form-control input-underline input-lg" name="Field"
