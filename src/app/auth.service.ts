@@ -20,6 +20,7 @@ export class AuthService {
   private _setPasswordUrl = environment.DB_IP + '/api/setPassword/';
   private _loginurl = environment.DB_IP + '/api/login/';
   private _registerurl = environment.DB_IP + '/api/createUser/';
+  private _registerDemourl = environment.DB_IP + '/api/createDemoUser/';
 
   constructor(
     private httpClient: HttpClient,
@@ -42,6 +43,11 @@ export class AuthService {
   registerUser(user: UserCreationData): Observable<{ data: string, status: number }> {
     // Create a new account using an account that is already active
     return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
+  }
+
+  registerDemoUser(user: UserDemoData): Observable<{ data: string, status: number }> {
+    // Create a new account using an account that is already active
+    return this.httpClient.post<{ data: string, status: number }>(this._registerDemourl, user, httpOptions);
   }
 
   getRegistrationInformation(token: {registration_token: string, user: string}): Observable<SetPasswordData> {
@@ -86,6 +92,19 @@ interface SetPasswordData {
 interface UserCreationData {
   username: string;
   client_id: number;
+  user_type: string;
+  requires2fa: boolean;
+  vessel_ids: number[];
+}
+
+interface UserDemoData {
+  username: string;
+  password: string,
+  client_id: number;
+  company: string,
+  fullName: string,
+  function: string,
+  phoneNumber: string,
   user_type: string;
   requires2fa: boolean;
   vessel_ids: number[];

@@ -1,0 +1,58 @@
+<div class="login-page" [@routerTransition]>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <img class="user-avatar" src="assets/images/logo.png" width="150" />
+      <h1>MO4 Dataviewer - Create trial account</h1>
+      <form role="form">
+        <div class="form-content">
+          <div class="form-group">
+            <input type="email" class="form-control input-underline input-lg" name="emailField"
+              id="emailField" [(ngModel)]="registerUserData.email" placeholder="Email *" required>
+              <br>
+              <input type="password" class="form-control input-underline input-lg" name="passwordField" id="passwordField"
+              [(ngModel)]="registerUserData.password" placeholder="Password (at least 7 characters) *" required>
+              <br>
+              <input type="password" class="form-control input-underline input-lg" name="confirmPasswordField" id="confirmPasswordField"
+              [(ngModel)]="registerUserData.confirmPassword" placeholder="Confirm password *" required>
+              <br>
+              <input type="text" class="form-control input-underline input-lg" name="nameField"
+              id="nameField" [(ngModel)]="registerUserData.name" placeholder="Full name*" required>
+              <br>
+            <input type="text" class="form-control input-underline input-lg" name="companyField"
+              id="companyField" [(ngModel)]="registerUserData.company" placeholder="Company *" required>
+              <br>
+            <input type="text" class="form-control input-underline input-lg" name="functionField"
+              id="functionField" [(ngModel)]="registerUserData.function" placeholder="Function *" required>
+              <br>
+            <input type="tel" class="form-control input-underline input-lg" name="phoneNumberField"
+              id="phoneNumberField" [(ngModel)]="registerUserData.phoneNumber" placeholder="Phone number">
+              <br>
+            
+              <input type="checkbox" id="dataPolicy">
+              <label class="checkbox" for='dataPolicy'> I Agree to <a [routerLink]="" (click)="openModal(content)">MO4's data policy</a> and activate my 30-day trial.</label>
+            
+            <!-- <input type="" class="form-control input-underline input-lg" name="Field"
+              id="Field" [(ngModel)]="registerUserData." placeholder="*">   -->
+          </div>
+
+
+          <ngb-alert *ngIf="alert.active" [type]="alert.type" (close)="alert.active=false">{{ alert.text }}</ngb-alert>
+        </div>
+        <a id="register" class="btn rounded-btn" (click)="onRegistration()"> Register </a>&nbsp;
+        <a id="cancel" class="btn rounded-btn" [routerLink]="['/login']">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+      <h4 class="modal-title">MO4's data policy</h4>
+      <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="modal-body">
+    <div [innerHTML]="dataPolicy"></div>
+  </div>
+</ng-template>

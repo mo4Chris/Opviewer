@@ -124,6 +124,66 @@ module.exports = function (
     return res.send({ data: `User ${username} succesfully added!` });
   });
 
+  app.post('/api/createDemoUser',  async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password
+    const requires2fa = req.body.requires2fa;
+    const client_id = req.body.client_id;
+    const vessel_ids = req.body.vessel_ids;
+    const user_type = req.body.user_type;
+    
+
+    logger.debug('Validating incoming request')
+    if (vessel_ids != null && !Array.isArray(vessel_ids)) {
+      logger.info('Vessel is not in valid format')
+      return res.status(400).send('Invalid vessel id format');
+    }
+    logger.trace('Verfying username format')
+    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
+    logger.trace('Verfying 2fa format')
+    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
+    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
+    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
+    logger.trace(`Verfying password format ${password} (${typeof password})`)
+    if (typeof(password) != ("string" || null) || password.length<=6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
+
+
+    // This part is now solved in an await statement to reduce its complexity
+    let password_setup_token = '';
+
+    //turn account creation back on after other functions
+
+    // try {
+    //   password_setup_token = await createUser({
+    //     username,
+    //     requires2fa,
+    //     client_id,
+    //     vessel_ids,
+    //     user_type,
+    //     password
+    //   })
+    // } catch (err) {
+    //   if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
+    //   return onError(res, err, 'Error creating user')
+    // }
+    logger.info(`Successfully created new user with random token ${password_setup_token}`)
+    // send email
+    const html = `Dear Webmaster, <br><br>
+
+    A demo account has been created for ${req.body.username}.<br>
+    Please add the following details to the customer-contact excel sheet.<br>
+    Username: ${req.body.username}<br>
+    Full name: ${req.body.fullName}<br>
+    Company: ${req.body.company}<br>
+    Function: ${req.body.function}<br>
+    Phone number: ${req.body?.phoneNumber}
+    `;
+
+    // mailTo('Registered user', html);
+    logger.info({msg: 'Succesfully created user ', username})
+    return res.send({ data: `User ${username} succesfully added!` });
+  });
+
 
   app.post("/api/resetPassword", async function(req, res) {
     const token = req['token']
@@ -323,7 +383,7 @@ module.exports = function (
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
-    "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
     if (is_admin) {
@@ -353,7 +413,7 @@ module.exports = function (
             user_type: row.user_type,
             admin: row.admin,
             user_read: row.user_read,
-            user_write: row.user_write,
+            demo: row.demo,
             user_manage: row.user_manage,
             twa: row.twa,
             dpr: row.dpr,
@@ -374,7 +434,7 @@ module.exports = function (
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
-    "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
     if (is_admin) {
@@ -405,7 +465,7 @@ module.exports = function (
             user_type: row.user_type,
             admin: row.admin,
             user_read: row.user_read,
-            user_write: row.user_write,
+            demo: row.demo,
             user_manage: row.user_manage,
             twa: row.twa,
             dpr: row.dpr,
@@ -467,13 +527,15 @@ module.exports = function (
     user_type = 'Vessel master',
     requires2fa = true,
     vessel_ids = [],
-    client_id = null
+    client_id = null,
+    password = null,
   }) {
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
     logger.info(`Creating new user ${username}`)
     const password_setup_token = generateRandomToken();
+    if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
     const query = `INSERT INTO "userTable"(
       "username",
@@ -481,8 +543,9 @@ module.exports = function (
       "active",
       "vessel_ids",
       "token",
-      "client_id"
-    ) VALUES($1, $2, $3, $4, $5, $6) RETURNING "userTable"."user_id"`
+      "client_id",
+      "password"
+    ) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING "userTable"."user_id"`
     const values = [
       username,
       Boolean(requires2fa) ?? true,
@@ -490,6 +553,7 @@ module.exports = function (
       valid_vessel_ids ? vessel_ids : null,
       password_setup_token,
       client_id,
+      password
     ]
     logger.info('Starting database insert')
     const sqlresponse = await admin_server_pool.query(query, values)
@@ -502,6 +566,8 @@ module.exports = function (
     initUserSettings(user_id);
     return password_setup_token;
   }
+
+  
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
       user_id,
@@ -528,7 +594,7 @@ module.exports = function (
       user_type,
       admin: is_admin,
       user_read: true,
-      user_write: is_admin,
+      demo: false,
       user_manage: is_admin,
       user_see_all_vessels_client: is_admin,
       dpr: {
@@ -575,18 +641,18 @@ module.exports = function (
         permissions.dpr.sov_commercial = 'read';
         permissions.dpr.sov_input = 'read';
         break
-      case 'Forecast demo':
+      case 'demo':
         permissions.dpr.read = false;
         permissions.forecast.read = true;
         break
     }
     const query = `
       INSERT INTO "userPermissionTable"(
-        "user_id", "admin", "user_read", "user_write", "user_manage", "twa",
+        "user_id", "admin", "user_read", "demo", "user_manage", "twa",
         "dpr", "longterm", "user_type", "forecast"
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `
-    const values = [user_id, permissions.admin, permissions.user_read, permissions.user_write,
+    const values = [user_id, permissions.admin, permissions.user_read, permissions.demo,
       permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
       permissions.user_type, permissions.forecast];
     admin_server_pool.query(query, values).then(() => {
