@@ -323,7 +323,7 @@ module.exports = function (
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
-    "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "admin", "user_read", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
     if (is_admin) {
@@ -353,7 +353,6 @@ module.exports = function (
             user_type: row.user_type,
             admin: row.admin,
             user_read: row.user_read,
-            user_write: row.user_write,
             user_manage: row.user_manage,
             twa: row.twa,
             dpr: row.dpr,
@@ -374,7 +373,7 @@ module.exports = function (
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
-    "admin", "user_read", "user_write", "user_manage", "twa", "dpr", "longterm",
+    "admin", "user_read", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
     if (is_admin) {
@@ -405,7 +404,6 @@ module.exports = function (
             user_type: row.user_type,
             admin: row.admin,
             user_read: row.user_read,
-            user_write: row.user_write,
             user_manage: row.user_manage,
             twa: row.twa,
             dpr: row.dpr,
@@ -528,7 +526,6 @@ module.exports = function (
       user_type,
       admin: is_admin,
       user_read: true,
-      user_write: is_admin,
       user_manage: is_admin,
       user_see_all_vessels_client: is_admin,
       dpr: {
@@ -582,11 +579,11 @@ module.exports = function (
     }
     const query = `
       INSERT INTO "userPermissionTable"(
-        "user_id", "admin", "user_read", "user_write", "user_manage", "twa",
+        "user_id", "admin", "user_read", "user_manage", "twa",
         "dpr", "longterm", "user_type", "forecast"
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `
-    const values = [user_id, permissions.admin, permissions.user_read, permissions.user_write,
+    const values = [user_id, permissions.admin, permissions.user_read,
       permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
       permissions.user_type, permissions.forecast];
     admin_server_pool.query(query, values).then(() => {

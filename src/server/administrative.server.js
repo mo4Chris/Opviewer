@@ -105,7 +105,7 @@ module.exports = function (
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
-    "clientTable"."client_name", "user_type", "admin", "user_read", "user_write", 
+    "clientTable"."client_name", "user_type", "admin", "user_read",
     "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client", "userTable"."client_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
@@ -135,7 +135,6 @@ module.exports = function (
         permission: {
           admin: user.admin,
           user_read: user.user_read,
-          user_write: user.user_write,
           user_manage: user.user_manage,
           twa: user.twa,
           dpr: user.dpr,
