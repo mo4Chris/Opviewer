@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogisticsSpecialistComponent } from './logistics-specialist.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -11,7 +11,7 @@ describe('Dashboard logistic specialist', () => {
   let fixture: ComponentFixture<LogisticsSpecialistComponent>;
   const token = UserTestService.getMockedAccessToken({});
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LogisticsSpecialistComponent ],
       imports: [

@@ -144,7 +144,7 @@ describe('CTV dpr', () => {
             expect(dockings.count()).toBeGreaterThan(0);
         });
 
-        it('should set normal values for docking table', async (done) => {
+        it('should set normal values for docking table', async () => {
             expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
             expect(page.getEltInDockingRow(dockingRow, 0).getText()).toBe('1');
 
@@ -164,7 +164,6 @@ describe('CTV dpr', () => {
             expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
             target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
             expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
-            return done();
         });
 
         it('and allow users to input pax in / out', () => {

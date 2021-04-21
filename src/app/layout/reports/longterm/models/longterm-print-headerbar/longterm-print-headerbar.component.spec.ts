@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LongtermPrintHeaderbarComponent } from './longterm-print-headerbar.component';
 
@@ -6,7 +6,7 @@ describe('LongtermPrintHeaderComponent', () => {
   let component: LongtermPrintHeaderbarComponent;
   let fixture: ComponentFixture<LongtermPrintHeaderbarComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LongtermPrintHeaderbarComponent ]
     })

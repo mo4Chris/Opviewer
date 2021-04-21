@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -11,7 +11,7 @@ describe('ForecastWorkabilityPlotComponent', () => {
   let fixture: ComponentFixture<ForecastWorkabilityPlotComponent>;
   const calc = new CalculationService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         ForecastWorkabilityPlotComponent

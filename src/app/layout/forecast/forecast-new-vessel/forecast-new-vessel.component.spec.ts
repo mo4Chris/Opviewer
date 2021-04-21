@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
@@ -13,7 +13,7 @@ describe('ForecastNewVesselComponent', () => {
   let component: ForecastNewVesselComponent;
   let fixture: ComponentFixture<ForecastNewVesselComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,

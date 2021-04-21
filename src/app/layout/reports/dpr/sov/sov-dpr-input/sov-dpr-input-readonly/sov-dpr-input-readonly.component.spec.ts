@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDprInputReadonlyComponent } from './sov-dpr-input-readonly.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -15,7 +14,7 @@ describe('SovDprInputReadonlyComponent', () => {
   let component: SovDprInputReadonlyComponent;
   let fixture: ComponentFixture<SovDprInputReadonlyComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -44,16 +43,14 @@ describe('SovDprInputReadonlyComponent', () => {
 
   });
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should set people on board', (done) => {
+  it('Should set people on board', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
     expect(component.catering.totalPob).toEqual(0);
-    done();
   });
 
 });

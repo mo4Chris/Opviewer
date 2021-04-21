@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovSummaryComponent } from './sov-summary.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -13,7 +13,7 @@ describe('SovSummaryComponent', () => {
   let fixture: ComponentFixture<SovSummaryComponent>;
   const newService = new MockedCommonService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -27,7 +27,7 @@ describe('SovSummaryComponent', () => {
     }).compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(SovSummaryComponent);
     component = fixture.componentInstance;
     component.backgroundColors = [];
@@ -45,15 +45,13 @@ describe('SovSummaryComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should create a summary', (done) => {
+  it('Should create a summary', () => {
     component.CalculateDailySummary();
     expect(component).toBeTruthy();
-    done();
   });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));

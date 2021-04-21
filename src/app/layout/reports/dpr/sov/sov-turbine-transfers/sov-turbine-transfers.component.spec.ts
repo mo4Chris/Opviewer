@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovTurbineTransfersComponent } from './sov-turbine-transfers.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -12,7 +12,7 @@ describe('SovTurbineTransfersComponent', () => {
   let fixture: ComponentFixture<SovTurbineTransfersComponent>;
   let saveSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -49,16 +49,14 @@ describe('SovTurbineTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.saveAllTurbineTransfers();
     expect(saveSpy).toHaveBeenCalledTimes(2 + component.turbineTransfers.length);
-    done();
   });
 });

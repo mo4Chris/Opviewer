@@ -49,9 +49,7 @@ var db = mongo.connect(DB_CONN, {
 }, function(err, response) {
   if (err) return logger.fatal(err);
   logger.info('Connected to mongo database');
-}).catch(err => {
-  logger.fatal(err);
-});
+})
 
 var app = express();
 app.use(express.json({ limit: '5mb' }));

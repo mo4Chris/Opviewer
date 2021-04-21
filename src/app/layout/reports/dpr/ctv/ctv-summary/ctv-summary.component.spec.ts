@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CtvSummaryComponent } from './ctv-summary.component';
 import { MockedCommonServiceProvider, MockedCommonService } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
@@ -16,7 +16,7 @@ describe('CtvSummaryComponent', () => {
   let general: CTVGeneralStatsModel;
 
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CtvSummaryComponent ],
       providers: [

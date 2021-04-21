@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { UtilizationGraphComponent } from './utilizationGraph.component';
@@ -9,7 +9,7 @@ describe('Sov Utilization Graph', () => {
   const mockedCommonService = new MockedCommonService();
   const defaultVessel = mockedCommonService.getVesselDefault();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ UtilizationGraphComponent ],
       providers: [
