@@ -8,7 +8,6 @@ import { CommonService } from '../common.service';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
-import { UserType } from '@app/shared/enums/UserType';
 import { AlertService } from '@app/supportModules/alert.service';
 import { Observable } from 'rxjs';
 

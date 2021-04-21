@@ -82,6 +82,7 @@ describe('WaveSpectrumComponent', () => {
     component.k_y = linspace(-28.9, 28.9, numKSteps);
     component.waveDir = linspace(200, 300, numTimeSteps);
     component.wavePeakDir = linspace(210, 310, numTimeSteps);
+    component.waveHeight = linspace(1, 3, numTimeSteps);
     component.spectrum = component.time.map(t => matService.random(numKSteps, numKSteps));
   }
 });

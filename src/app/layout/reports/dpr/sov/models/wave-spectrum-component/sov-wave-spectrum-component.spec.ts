@@ -8,7 +8,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
-describe('WaveSpectrumComponent', () => {
+describe('SOV WaveSpectrumComponent', () => {
   let component: WaveSpectrumComponent;
   let fixture: ComponentFixture<WaveSpectrumComponent>;
 

@@ -3,6 +3,7 @@ import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CommonService } from '@app/common.service';
+import { mockedObservable } from '@app/models/testObservable';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -97,7 +98,35 @@ describe('ForecastOpsPickerComponent', () => {
   });
 
   it('should save on changes', () => {
-    const saveSpy = spyOn(MockedCommonService.prototype, 'saveForecastProjectSettings');
+    const saveSpy = spyOn(MockedCommonService.prototype, 'saveForecastProjectSettings').and.returnValue(
+      mockedObservable(null)
+    )
+    component.selectedProject ={
+      id: 0,
+      name: 'string',
+      client_id: 1,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 123,
+      activation_start_date: '6',
+      activation_end_date: '7',
+      client_preferences: {
+        Points_Of_Interest: {
+          P1: {
+            Degrees_Of_Freedom: null,
+            Coordinates: {
+              X: {Data: 0, String_Value: ''},
+              Y: {Data: 0, String_Value: ''},
+              Z: {Data: 0, String_Value: ''}
+            },
+            Max_Type: 'MPM'
+          },
+        }
+      },
+      consumer_id: 8,
+    }
     component.onConfirm();
     expect(saveSpy).toHaveBeenCalled();
   })

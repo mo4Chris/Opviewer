@@ -2,7 +2,6 @@ import { Component, Input, OnChanges, ChangeDetectionStrategy, NgZone, } from '@
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
-import { isArray } from 'util';
 import * as Chart from 'chart.js';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -49,7 +48,7 @@ export class SovWeatherchartComponent implements OnChanges {
     const weather = this.sovModel.sovInfo.weatherConditions;
     this.utcOffset = this.settings.getTimeOffset(this.vesselUtcOffset) || 0;
     const offset = this.utcOffset / 24;
-    if (weather !== undefined && isArray(weather.time)) {
+    if (weather !== undefined && Array.isArray(weather.time)) {
       this.weatherOverviewChartCalculated = true;
       const timeStamps = weather.time.map(matlabTime => {
         return this.datetimeService

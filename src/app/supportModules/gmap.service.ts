@@ -4,7 +4,6 @@ import { DatetimeService } from '../supportModules/datetime.service';
 import { EventService } from '../supportModules/event.service';
 import { mapLegend, mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
 import { MapZoomData, MapZoomLayer, MapZoomPolygon } from '../models/mapZoomLayer';
-import { isObject } from 'util';
 import { Observable } from 'rxjs';
 import { V2vTransfer } from '@app/layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vTransfer';
 import { TurbineParkWithDrawData, OffshorePlatformWithData, TurbineWithData } from '@app/layout/reports/dpr/map/dpr-map/dpr-map.component';
@@ -333,7 +332,7 @@ export class GmapService {
         // Gets the lons and lat coordinates of the vessel route closest to the target time stamp, with given tolerance
         let optimal = null;
         let minDist = opts.tolerance;
-        if (isObject(locs) && Array.isArray(locs.time) && Array.isArray(locs.lon) && Array.isArray(locs.lat)) {
+        if (typeof(locs)=='object' && Array.isArray(locs.time) && Array.isArray(locs.lon) && Array.isArray(locs.lat)) {
             locs.time.forEach((_t: number, _i: number) => {
                 if (Math.abs(_t - target) < minDist) {
                     minDist = Math.abs(_t - target);

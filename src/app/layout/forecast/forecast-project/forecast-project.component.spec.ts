@@ -83,7 +83,7 @@ describe('ForecastProjectComponent', () => {
   let fixture: ComponentFixture<ForecastVesselComponent>;
   let routingSpy: jasmine.Spy
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         ForecastVesselComponent,
