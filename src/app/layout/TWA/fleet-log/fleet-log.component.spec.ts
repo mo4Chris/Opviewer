@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetLogComponent } from './fleet-log.component';
@@ -16,7 +16,7 @@ describe('FleetLogComponent', () => {
   let component: FleetLogComponent;
   let fixture: ComponentFixture<FleetLogComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -43,8 +43,7 @@ describe('FleetLogComponent', () => {
   }));
 
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 });

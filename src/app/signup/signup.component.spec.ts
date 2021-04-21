@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SignupComponent } from './signup.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ describe('SignupComponent', () => {
   let fixture: ComponentFixture<SignupComponent>;
   let authSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -59,7 +59,7 @@ describe('SignupComponent', () => {
     expect(routerSpy).toHaveBeenCalled();
   });
 
-  it('should create w/ userCreate rights', async (done) => {
+  it('should create w/ userCreate rights', async () => {
     component.permission.admin = false;
     component.permission.userCreate = true;
     const routerSpy = spyOn(Router.prototype, 'navigate');
@@ -81,6 +81,5 @@ describe('SignupComponent', () => {
     expect(authSpy).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalled();
     expect(routerSpy).toHaveBeenCalled();
-    done();
   });
 });

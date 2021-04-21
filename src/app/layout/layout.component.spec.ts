@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayoutComponent } from './layout.component';
 import { NgbModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +16,7 @@ describe('LayoutComponent', () => {
     let fixture: ComponentFixture<LayoutComponent>;
 
     beforeEach(
-        async(() => {
+        waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [
                     FormsModule,

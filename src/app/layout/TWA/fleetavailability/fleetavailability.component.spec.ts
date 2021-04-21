@@ -1,6 +1,5 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { FleetavailabilityComponent, TurbineWarrentyModel } from './fleetavailability.component';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '../../../shared';
@@ -33,7 +32,7 @@ describe('FleetAvailabilityComponent', () => {
     _id: 'abc'
 };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -50,7 +49,7 @@ describe('FleetAvailabilityComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
     spyOn(FleetavailabilityComponent.prototype, 'getCampaignName').and.returnValue(campaign.campaignName);
     spyOn(FleetavailabilityComponent.prototype, 'getStartDate').and.returnValue(campaign.startDate);

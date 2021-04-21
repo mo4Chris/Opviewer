@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SetPasswordComponent } from './set-password.component';
 import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -16,7 +16,7 @@ describe('SetPasswordComponent', () => {
   let fixture: ComponentFixture<SetPasswordComponent>;
   const userToken = UserTestService.getMockedAccessToken();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientModule,

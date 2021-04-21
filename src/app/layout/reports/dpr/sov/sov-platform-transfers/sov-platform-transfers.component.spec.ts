@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovPlatformTransfersComponent } from './sov-platform-transfers.component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SharedPipesModule } from '@app/shared';
@@ -16,7 +15,7 @@ describe('SovPlatformTransfersComponent', () => {
   let saveSpy: jasmine.Spy;
 
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -60,17 +59,15 @@ describe('SovPlatformTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.saveAllPlatformTransfers();
     expect(saveSpy).toHaveBeenCalledTimes(2 + component.platformTransfers.length);
-    done();
   });
 
   it('should not have any broken help buttons', testBrokenHelpButtons(() => fixture));

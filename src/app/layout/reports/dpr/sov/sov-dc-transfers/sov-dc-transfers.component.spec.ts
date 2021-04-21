@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDcTransfersComponent } from './sov-dc-transfers.component';
 import { CommonModule } from '@angular/common';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -12,7 +11,7 @@ describe('SovDcTransfersComponent', () => {
   let component: SovDcTransfersComponent;
   let fixture: ComponentFixture<SovDcTransfersComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SovDcTransfersComponent ],
       imports: [

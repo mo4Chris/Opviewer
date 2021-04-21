@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockComponent } from 'ng-mocks';
 import { WeatherOverviewComponent } from '../../models/weather-overview/weather-overview.component';
@@ -9,7 +9,7 @@ describe('ForecastWeatherOverviewComponent', () => {
   let component: ForecastWeatherOverviewComponent;
   let fixture: ComponentFixture<ForecastWeatherOverviewComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,

@@ -1,9 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { StatsRangeRequest } from '@app/common.service';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { EngineOverviewComponent } from './engine-overview.component';
 
 describe('EngineOverviewComponent', () => {
@@ -11,7 +9,7 @@ describe('EngineOverviewComponent', () => {
   let fixture: ComponentFixture<EngineOverviewComponent>;
 
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

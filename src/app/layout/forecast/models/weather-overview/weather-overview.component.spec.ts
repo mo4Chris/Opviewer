@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { WeatherOverviewComponent } from './weather-overview.component';
@@ -9,7 +9,7 @@ describe('WeatherOverviewComponent', () => {
   const dateMin = 737700;
   const dateMax = 737702;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ WeatherOverviewComponent ],
       providers: [

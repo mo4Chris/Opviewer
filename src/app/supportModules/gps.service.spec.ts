@@ -13,7 +13,7 @@ describe('GpsService', () => {
         MockedUserServiceProvider,
       ]
     });
-    service = TestBed.get(GpsService);
+    service = TestBed.inject(GpsService);
   });
 
   it('should be created', () => {

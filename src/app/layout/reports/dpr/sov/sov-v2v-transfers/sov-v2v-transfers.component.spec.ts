@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovV2vTransfersComponent } from './sov-v2v-transfers.component';
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -14,7 +14,7 @@ describe('SovV2vTransfersComponent', () => {
   let fixture: ComponentFixture<SovV2vTransfersComponent>;
   let saveSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -59,16 +59,14 @@ describe('SovV2vTransfersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should run ngOnChanges', (done) => {
+  it('should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should save stats', (done) => {
+  it('Should save stats', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.savev2vPaxInput();
     expect(saveSpy).toHaveBeenCalledTimes(1);
-    done();
   });
 });

@@ -6,7 +6,7 @@ describe('MatrixService', () => {
   let service: MatrixService;
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.get(MatrixService);
+    service = TestBed.inject(MatrixService);
   });
 
   it('should be created', () => {

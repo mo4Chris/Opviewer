@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SiemensKpiOverviewComponent } from './siemens-kpi-overview.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -9,7 +8,7 @@ describe('SiemensKpiOverviewComponent', () => {
   let component: SiemensKpiOverviewComponent;
   let fixture: ComponentFixture<SiemensKpiOverviewComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,

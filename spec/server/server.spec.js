@@ -380,7 +380,6 @@ describe('Administrative - with login - user should', () => {
         admin: false,
         user_type: 'Logistic specialist',
         user_read: true,
-        user_write: true,
         user_manage: true,
       }
     })
@@ -650,7 +649,6 @@ describe('Logistic specialist should', () => {
       permission: {
         admin: false,
         user_read: true,
-        user_write: true,
         user_manage: true,
       }
     })
@@ -706,7 +704,6 @@ describe('Admin should', () => {
       permission: {
         admin: true,
         user_read: true,
-        user_write: true,
         user_manage: true,
       }
     })
