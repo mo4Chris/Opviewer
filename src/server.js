@@ -35,7 +35,6 @@ process.env.DB_CONN = DB_CONN;
 process.env.LOGGING_LEVEL = LOGGING_LEVEL;
 
 
-
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
@@ -50,9 +49,7 @@ var db = mongo.connect(DB_CONN, {
 }, function(err, response) {
   if (err) return logger.fatal(err);
   logger.info('Connected to mongo database');
-}).catch(err => {
-  logger.fatal(err);
-});
+})
 
 var app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -946,7 +943,7 @@ async function getVesselsForAdmin(token, res) {
       nicename: 'asc'
     }
   });
-  
+
 }
 
 async function getAllVesselsForClient(token, res) {
@@ -973,7 +970,7 @@ async function getAssignedVessels(token, res) {
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
   data = await admin_server_pool.query(PgQuery, values)
-  
+
   if (! (data?.rows?.length > 0)) return null;
   finalArray = data.rows.map(obj => obj.mmsi);
 
@@ -1215,13 +1212,13 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
     for (let i = 0; i < uservessels.length; i++) {
       companyMmsi.push(uservessels[i].mmsi);
     }
-    
+
     boatLocationmodel.aggregate([{
         "$match": {
           MMSI: { $in: companyMmsi },
           active: { $ne: false }
         }
-      }, 
+      },
       {
         $group: {
           _id: "$MMSI",

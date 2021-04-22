@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SovHseDprInputReadonlyComponent } from './sov-hse-dpr-input-readonly.component';
 import { CommonModule } from '@angular/common';
@@ -13,7 +13,7 @@ describe('SovHseDprInputReadonlyComponent', () => {
   let component: SovHseDprInputReadonlyComponent;
   let fixture: ComponentFixture<SovHseDprInputReadonlyComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,

@@ -5,7 +5,7 @@ describe('HotkeyService', () => {
   let service: Hotkeys;
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.get(Hotkeys);
+    service = TestBed.inject(Hotkeys);
   });
 
   it('should create', () => {

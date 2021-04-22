@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 import { SovreportComponent } from './sovreport.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SharedPipesModule, PageHeaderModule } from '@app/shared';
@@ -35,7 +34,7 @@ describe('SovreportComponent', () => {
   let fixture: ComponentFixture<SovreportComponent>;
   const fakeSimpleChange = {change: new SimpleChange(null, 1, true)};
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         AgmCoreModule,
@@ -78,7 +77,7 @@ describe('SovreportComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
 
     fixture = TestBed.createComponent(SovreportComponent);
     component = fixture.componentInstance;
@@ -105,7 +104,7 @@ describe('SovreportComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should create as admin', (done) => {
+  it('should create as admin', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -115,10 +114,9 @@ describe('SovreportComponent', () => {
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(true);
-    done();
   });
 
-  it('should create as Vessel master', (done) => {
+  it('should create as Vessel master', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -128,10 +126,9 @@ describe('SovreportComponent', () => {
 
     defaultTestLoaded(component);
     expect(component.waveSpectrumAvailable).toBe(false);
-    done();
   });
 
-  it('should create as Marine controller', (done) => {
+  it('should create as Marine controller', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -140,10 +137,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Qhse specialist', (done) => {
+  it('should create as Qhse specialist', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -152,10 +148,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Logistics specialist', (done) => {
+  it('should create as Logistics specialist', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -164,10 +159,9 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 
-  it('should create as Client representative', (done) => {
+  it('should create as Client representative', () => {
     component.tokenInfo = UserTestService.getMockedAccessToken({
       userPermission: 'admin'
     });
@@ -176,7 +170,6 @@ describe('SovreportComponent', () => {
     component.ngOnChanges(fakeSimpleChange);
 
     defaultTestLoaded(component);
-    done();
   });
 });
 

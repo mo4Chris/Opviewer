@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { UsersComponent } from './users.component';
 import { CommonService } from '../../common.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -18,7 +17,7 @@ describe('UsersComponent', () => {
   let component: UsersComponent;
   let fixture: ComponentFixture<UsersComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -34,7 +33,7 @@ describe('UsersComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     spyOn(CommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
     spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
     spyOn(CommonService.prototype, 'getUsers').and.returnValue(mockedObservable([]));

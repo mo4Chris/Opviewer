@@ -1,5 +1,5 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { PlotlyModule } from 'angular-plotly.js';
 
@@ -9,7 +9,7 @@ describe('VesselLocationIndicatorComponent', () => {
   let component: VesselLocationIndicatorComponent;
   let fixture: ComponentFixture<VesselLocationIndicatorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         PlotlyModule,

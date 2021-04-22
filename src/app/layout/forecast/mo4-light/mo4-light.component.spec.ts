@@ -23,7 +23,7 @@ describe('Mo4LightComponent', () => {
   let component: Mo4LightComponent;
   let fixture: ComponentFixture<Mo4LightComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
         Mo4LightComponent,
@@ -47,7 +47,7 @@ describe('Mo4LightComponent', () => {
       ]
     })
     .compileComponents();
-  }));
+  });
 
   beforeEach(async () => {
     fixture = TestBed.createComponent(Mo4LightComponent);

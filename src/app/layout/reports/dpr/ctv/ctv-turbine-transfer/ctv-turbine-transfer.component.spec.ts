@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvTurbineTransferComponent } from './ctv-turbine-transfer.component';
 import { UserTestService, MockedUserServiceProvider } from '@app/shared/services/test.user.service';
@@ -12,7 +12,7 @@ describe('CtvTurbineTransferComponent', () => {
   let component: CtvTurbineTransferComponent;
   let fixture: ComponentFixture<CtvTurbineTransferComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CtvTurbineTransferComponent ],
       imports: [

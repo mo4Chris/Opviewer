@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlotComponent } from 'angular-plotly.js';
 import { MockComponents } from 'ng-mocks';
 import { HeadingPickerComponent } from './heading-picker.component';
@@ -7,7 +7,7 @@ describe('HeadingPickerComponent', () => {
   let component: HeadingPickerComponent;
   let fixture: ComponentFixture<HeadingPickerComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         HeadingPickerComponent,
@@ -46,7 +46,7 @@ describe('HeadingPickerComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  // it('should emit on change', async(() => {
+  // it('should emit on change', waitForAsync(() => {
   //   let emitter = spyOn(component.headingChange, 'emit');
   //   component.heading = 234;
   //   fixture.detectChanges();

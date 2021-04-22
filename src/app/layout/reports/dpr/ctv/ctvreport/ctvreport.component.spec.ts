@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvreportComponent } from './ctvreport.component';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
@@ -47,7 +47,7 @@ describe('CtvReportComponent', () => {
   };
   // const mapPromise: Promise<google.maps.Map> = new Promise(() => null);
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -75,13 +75,15 @@ describe('CtvReportComponent', () => {
     consoleSpy = spyOn(console, 'error').and.callThrough();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(CtvreportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
 
   it('Should create as admin', async(() => {
+    // TODO: fix these unit tests
+
     component.tokenInfo = tokenInfo.admin;
     component.vesselObject = vesselObject(component.tokenInfo);
 

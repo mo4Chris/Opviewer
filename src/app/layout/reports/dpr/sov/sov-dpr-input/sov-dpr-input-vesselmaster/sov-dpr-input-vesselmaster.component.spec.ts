@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input-vesselmaster.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -14,10 +13,9 @@ import { MockedUserServiceProvider } from '@app/shared/services/test.user.servic
 describe('SovDprInputVesselmasterComponent', () => {
   let component: SovDprInputVesselmasterComponent;
   let fixture: ComponentFixture<SovDprInputVesselmasterComponent>;
-
   let saveSpy: jasmine.Spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -50,12 +48,11 @@ describe('SovDprInputVesselmasterComponent', () => {
 
   });
 
-  it('should create', (done) => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    done();
   });
 
-  it('Should update HOC', (done) => {
+  it('Should update HOC', () => {
     component.updateHOCTotal();
     expect(component).toBeTruthy();
     component.hoc = {
@@ -68,10 +65,9 @@ describe('SovDprInputVesselmasterComponent', () => {
     expect(component).toBeTruthy();
     expect(component.hoc.Total).toEqual(2);
     expect(component.hoc.TotalNew).toEqual(5);
-    done();
   });
 
-  it('Should update Toolbox', (done) => {
+  it('Should update Toolbox', () => {
     setInputs(component);
     component.updateToolboxTotal();
     expect(component).toBeTruthy();
@@ -85,10 +81,9 @@ describe('SovDprInputVesselmasterComponent', () => {
     expect(component).toBeTruthy();
     expect(component.toolbox.Total).toEqual(2);
     expect(component.toolbox.TotalNew).toEqual(5);
-    done();
   });
 
-  it('Should correctly subscribe to the save hook', (done) => {
+  it('Should correctly subscribe to the save hook', () => {
     expect(saveSpy).toHaveBeenCalledTimes(0);
     component.saveFuelStats();
     expect(saveSpy).toHaveBeenCalledTimes(1);
@@ -100,8 +95,6 @@ describe('SovDprInputVesselmasterComponent', () => {
     expect(saveSpy).toHaveBeenCalledTimes(7);
     component.saveDPStats();
     expect(saveSpy).toHaveBeenCalledTimes(8);
-
-    done();
   });
 
 });
