@@ -18,7 +18,7 @@ module.exports = function (config) {
         random: true,
         DEFAULT_UPDATE_INTERVAL: 0
       },
-      clearContext: true // leave Jasmine Spec Runner output visible in browser
+      clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
     coverageIstanbulReporter: {
       reports: [ 'html' ],

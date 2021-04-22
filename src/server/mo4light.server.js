@@ -3,7 +3,8 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
 // as appearantly these variables are available inside the the module.exports callback.
 
-const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+const baseUrl = 'http://localhost:5000';
+// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
 const timeout = process.env.TIMEOUT || 60000;
 const http    = ax.default;
@@ -105,7 +106,6 @@ module.exports = function(app, logger) {
   app.post('/api/mo4light/getProject', (req, res) => {
     const token = req['token'];
     const project_name = req.body.project_name;
-    console.log('project_name', project_name)
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     log('Start azure project list request')
