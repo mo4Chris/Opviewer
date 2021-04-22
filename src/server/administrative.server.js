@@ -10,7 +10,8 @@ module.exports = function (
   logger,
   onError = (res, err, additionalInfo) => console.log(err),
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
-  admin_server_pool
+  admin_server_pool,
+  mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
 ) {
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
@@ -47,9 +48,6 @@ module.exports = function (
     const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
     const user_type = req.body.user_type;
-    const expireDate = newDate();
-    expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
-    
 
     logger.debug('Validating incoming request')
     if (vessel_ids != null && !Array.isArray(vessel_ids)) {
@@ -66,26 +64,21 @@ module.exports = function (
     if (typeof(password) != ("string" || null) || password.length<=6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
 
-    // This part is now solved in an await statement to reduce its complexity
-    let password_setup_token = '';
 
     //turn account creation back on after other functions
-
-    // try {
-    //   password_setup_token = await createUser({
-    //     username,
-    //     requires2fa,
-    //     client_id,
-    //     vessel_ids,
-    //     user_type,
-    //     password,
-    //     demo_expiration_date
-    //   })
-    // } catch (err) {
-    //   if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
-    //   return onError(res, err, 'Error creating user')
-    // }
-    logger.info(`Successfully created new user with random token ${password_setup_token}`)
+    try {
+      await createUser({
+        username,
+        requires2fa,
+        client_id,
+        vessel_ids,
+        user_type,
+        password
+      })
+    } catch (err) {
+      if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
+      return onError(res, err, 'Error creating user')
+    }
     // send email
     const html = `Dear Webmaster, <br><br>
 
@@ -98,7 +91,7 @@ module.exports = function (
     Phone number: ${req.body?.phoneNumber}
     `;
 
-    // mailTo('Registered user', html);
+    mailTo('Registered demo user', html, 'webmaster@mo4.online');
     logger.info({msg: 'Succesfully created user ', username})
     return res.send({ data: `User ${username} succesfully added!` });
   });
@@ -236,18 +229,19 @@ module.exports = function (
 
   async function createUser({
     username = '',
-    user_type = 'Vessel master',
-    requires2fa = true,
-    vessel_ids = [],
+    requires2fa = false,
     client_id = null,
-    password = null,
-    demo_expiration_date = ''
+    vessel_ids = [],
+    user_type = 'demo',
+    password = null
   }) {
+    let expireDate = new Date();
+    expireDate = '' + expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
     logger.info(`Creating new user ${username}`)
-    const password_setup_token = generateRandomToken();
+    const password_setup_token = null;
     if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
     const query = `INSERT INTO "userTable"(
@@ -268,9 +262,9 @@ module.exports = function (
       password_setup_token,
       client_id,
       password,
-      demo_expiration_date
+      expireDate
     ]
-    logger.info('Starting database insert')
+    
     const sqlresponse = await admin_server_pool.query(query, values)
     const user_id = sqlresponse.rows[0].user_id;
 
@@ -279,7 +273,7 @@ module.exports = function (
     initUserPermission(user_id, user_type);
     logger.debug('Init user settings')
     initUserSettings(user_id);
-    return password_setup_token;
+    return ;
   }
 
 
@@ -322,6 +316,7 @@ module.exports = function (
       localLogger.error(err.message)
     })
   }
+
   function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
     const localLogger = logger.child({
       user_id,
@@ -381,6 +376,7 @@ module.exports = function (
         permissions.dpr.sov_input = 'read';
         break
       case 'demo':
+        permissions.demo = true;
         permissions.dpr.read = false;
         permissions.forecast.read = true;
         break

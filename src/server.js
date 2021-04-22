@@ -752,7 +752,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool)
+mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
 
 

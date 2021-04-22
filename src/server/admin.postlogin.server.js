@@ -288,18 +288,19 @@ module.exports = function (
     const values = [token.userID]
     admin_server_pool.query(query, values).then(sql_response => {
       const data = sql_response.rows[0];
-      if (data.demo_expiration_date != null && data.demo_expiration_date <= new Date().valueOf) {
+      let currentDate = new Date();
+      if (data.demo_expiration_date != null && data.demo_expiration_date <= new Date().valueOf()) {
         const query2 = 'SELECT "user_type" FROM "userPermissionTable" where "user_id"=$1';
 
         admin_server_pool.query(query2, values).then(resp => {
           const data_type = resp.rows[0].user_type;
 
           if (data_type == 'demo'){
-            const query3 = 'UPDATE "userTable SET "active"=false where "user_id"=$1';
+            const query3 = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
             admin_server_pool.query(query3, values);
             res.send(false);
           } else {
-            const query3 = 'UPDATE "userPermissionTable SET "demo"=false where "user_id"=$1';
+            const query3 = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
             admin_server_pool.query(query3, values);
             res.send(data);
           }
@@ -486,7 +487,6 @@ module.exports = function (
     requires2fa = true,
     vessel_ids = [],
     client_id = null,
-    password = null,
   }) {
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
@@ -501,17 +501,15 @@ module.exports = function (
       "active",
       "vessel_ids",
       "token",
-      "client_id",
-      "password"
-    ) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING "userTable"."user_id"`
+      "client_id"
+    ) VALUES($1, $2, $3, $4, $5, $6) RETURNING "userTable"."user_id"`
     const values = [
       username,
       Boolean(requires2fa) ?? true,
       true,
       valid_vessel_ids ? vessel_ids : null,
       password_setup_token,
-      client_id,
-      password
+      client_id
     ]
     logger.info('Starting database insert')
     const sqlresponse = await admin_server_pool.query(query, values)
@@ -600,6 +598,7 @@ module.exports = function (
         permissions.dpr.sov_input = 'read';
         break
       case 'demo':
+        permissions.demo = true
         permissions.dpr.read = false;
         permissions.forecast.read = true;
         break

@@ -60,26 +60,26 @@ export class RegistrationComponent implements OnInit {
     if (this.registerUserData.function.length == 0) return this.alert.sendAlert({ text: 'Please enter your function within your company', type: 'danger' })
     if (this.registerUserData.agreeDataPolicy == false) return this.alert.sendAlert({ text: 'You have to agree with the Data Policy to create your account', type: 'danger'})
 
-    // this._auth.registerDemoUser({
-    //   client_id: 1,
-    //   username: this.registerUserData.email,
-    //   user_type: 'demo',
-    //   requires2fa: false,
-    //   vessel_ids: [],
-    //   password: this.registerUserData.password, 
-    //   company: this.registerUserData.company, 
-    //   fullName: this.registerUserData.name, 
-    //   function: this.registerUserData.function,
-    //   phoneNumber: this.registerUserData.phoneNumber,
-    // }).subscribe( res => {
-    //   this.alert.sendAlert({ type: 'success', text: res.data });
-    //   this.routerService.route(['login', {status: 'success', message: res.data}]);
-    // }, err => {
-    //   if (err.status === 401) {
-    //     this.alert.sendAlert({ type: 'danger', text: err.error, timeout: null });
-    //   } else {
-    //     this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, please contact MO4' });
-    //   }
-    // });
+    this._auth.registerDemoUser({
+      client_id: 1,
+      username: this.registerUserData.email,
+      user_type: 'demo',
+      requires2fa: false,
+      vessel_ids: [],
+      password: this.registerUserData.password, 
+      company: this.registerUserData.company, 
+      fullName: this.registerUserData.name, 
+      function: this.registerUserData.function,
+      phoneNumber: this.registerUserData.phoneNumber,
+    }).subscribe( res => {
+      this.alert.sendAlert({ type: 'success', text: res.data });
+      this.routerService.route(['login', {status: 'success', message: res.data}]);
+    }, err => {
+      if (err.status === 401) {
+        this.alert.sendAlert({ type: 'danger', text: err.error, timeout: null });
+      } else {
+        this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, please contact MO4' });
+      }
+    });
   }
 }
