@@ -15,12 +15,13 @@ module.exports = function (config) {
     ],
     client:{
       jasmine: {
-        random: true
+        random: true,
+        DEFAULT_UPDATE_INTERVAL: 0
       },
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: true // leave Jasmine Spec Runner output visible in browser
     },
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly' ],
+      reports: [ 'html' ],
       fixWebpackSourcePaths: true
     },
     angularCli: {
@@ -38,6 +39,6 @@ module.exports = function (config) {
         flags: ['--no-sandbox']
       }
     },
-    singleRun: false
+    singleRun: false,
   });
 };

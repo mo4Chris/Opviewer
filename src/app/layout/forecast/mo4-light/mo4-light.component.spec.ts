@@ -94,7 +94,7 @@ describe('Mo4LightComponent', () => {
       const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
-        new ForecastMotionLimit({type: 'Disp', dof: 'Heave', value: 1.5})
+        new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 1.5})
       ]);
       component['route'].params = mockedObservable({project_id: '3'});
       fixture.detectChanges()
@@ -109,7 +109,7 @@ describe('Mo4LightComponent', () => {
     beforeEach(() => {
       component['route'].params = mockedObservable({project_id: '3'});
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
-        new ForecastMotionLimit({type: 'Disp', dof: 'Heave', value: 1.5})
+        new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 15, Unit: 'cm'})
       ]);
       fixture.detectChanges();
     });

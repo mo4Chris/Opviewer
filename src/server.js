@@ -635,10 +635,15 @@ var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema,
 //############################################################
 //#################  Support functions  ######################
 //############################################################
-
-
 function onUnauthorized(res, cause = 'unknown') {
-  logger.warn(res, `Unauthorized request: ${cause}`)
+  const req = res.req;
+  logger.warn({
+    msg: `Bad request: ${cause}`,
+    type: 'BAD_REQUEST',
+    cause,
+    username: req?.token?.username,
+    url: req.url,
+  })
   if (cause == 'unknown') {
     res.status(401).send('Unauthorized request')
   } else {
@@ -648,6 +653,10 @@ function onUnauthorized(res, cause = 'unknown') {
 
 function onError(res, err, additionalInfo = 'Internal server error') {
   try {
+    const response_message = err?.response?.data?.message;
+    if (response_message) {
+      err['message'] = response_message;
+    }
     if (typeof err == 'object') {
       err['res'] = res;
     } else {
@@ -660,6 +669,22 @@ function onError(res, err, additionalInfo = 'Internal server error') {
     res.status(500).send(additionalInfo);
   } catch (err) {
     console.error(err)
+  }
+}
+
+function onBadRequest(res, cause = 'Bad request') {
+  const req = res.req;
+  logger.warn({
+    msg: `Bad request: ${cause}`,
+    type: 'BAD_REQUEST',
+    cause,
+    username: req.token.username,
+    url: req.url,
+  })
+  if (cause == 'Bad request') {
+    res.status(400).send('Bad request')
+  } else {
+    res.status(400).send(`Bad request: ${cause}`)
   }
 }
 
@@ -746,6 +771,13 @@ app.use((req, res, next) => {
     method: req.method,
     url: req.url
   });
+  next();
+})
+
+app.use((req, res, next) => {
+  res['onError'] = (err, additionalInfo) => onError(res, err, additionalInfo);
+  res['onUnauthorized'] = (cause) => onUnauthorized(res, cause);
+  res['onBadRequest'] = (cause) => onBadRequest(res, cause);
   next();
 })
 

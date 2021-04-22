@@ -1,8 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PlotlyModule } from 'angular-plotly.js';
 import { SovWaveSpectrumComponent } from './wave-spectrum.component';
 
@@ -17,6 +19,8 @@ describe('WaveSpectrumComponent', () => {
       imports: [
         PlotlyModule,
         SupportModelModule,
+        CommonModule,
+        NgbModule
       ],
       providers: [
         MockedUserServiceProvider,
@@ -82,6 +86,7 @@ describe('WaveSpectrumComponent', () => {
     component.k_y = linspace(-28.9, 28.9, numKSteps);
     component.waveDir = linspace(200, 300, numTimeSteps);
     component.wavePeakDir = linspace(210, 310, numTimeSteps);
+    component.waveHeight = linspace(1, 3, numTimeSteps);
     component.spectrum = component.time.map(t => matService.random(numKSteps, numKSteps));
   }
 });

@@ -9,8 +9,9 @@ import { map } from 'rxjs/operators';
 import { ForecastOperation, ForecastResponseObject, Dof6Array } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
-import { ForecastMotionLimit } from '../models/forecast-limit';
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
+import { ForecastVesselRequest } from '../forecast-project/forecast-project.component';
+import { ForecastMotionLimit } from '../models/forecast-limit';
 
 @Component({
   selector: 'app-mo4-light',
@@ -18,11 +19,10 @@ import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
   styleUrls: ['./mo4-light.component.scss']
 })
 export class Mo4LightComponent implements OnInit {
-  private client_id: number;
   private project_id: number;
 
   public showContent = false;
-  public vessels: string[] = []; // Not used
+  public vessels: ForecastVesselRequest[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
   public responseObj: ForecastResponseObject;
 
@@ -73,7 +73,7 @@ export class Mo4LightComponent implements OnInit {
     // ToDo: only rerout if no permission to forecasting module
     forkJoin([
       this.newService.getForecastProjectList(),
-      this.newService.getForecastVesselList(), // Tp
+      this.newService.getForecastVesselList(), // Really should only get the relevant vessel
       this.newService.getForecastWorkabilityForProject(this.project_id),
     ]).subscribe(([projects, vessels, responses]) => {
       this.vessels = vessels;
@@ -94,6 +94,7 @@ export class Mo4LightComponent implements OnInit {
 
       const currentOperation = this.operations.find(op => op.id === this.project_id);
       this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+      this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
 
       this.parseResponse();
 
@@ -156,13 +157,12 @@ export class Mo4LightComponent implements OnInit {
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
-
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
 
     const limiters = this.limits.map(limit => {
-      return this.responseService.computeLimit(response[limit.type], limit.dof, limit.value);
+      return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
     });
     this.Workability = this.matService.scale(
       this.matService.transpose(
@@ -171,7 +171,6 @@ export class Mo4LightComponent implements OnInit {
       100
     );
   }
-
   setWorkabilityAlongHeading() {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
@@ -197,7 +196,6 @@ interface YMD {
   month: number;
   day: number;
 }
-
 interface ForecastResponse {
   Acc: Dof6Array;
   Vel: Dof6Array;

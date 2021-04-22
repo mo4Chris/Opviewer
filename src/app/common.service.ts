@@ -15,6 +15,7 @@ import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { deprecate } from 'node:util';
 import { storedSettings } from './supportModules/settings.service';
+import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -36,6 +37,10 @@ export class CommonService {
 
   post(url: string, data: any): Observable<any> {
     return this.http.post(environment.DB_IP + url, data, httpOptions);
+  }
+
+  put(url: string, data: any): Observable<any> {
+    return this.http.put(environment.DB_IP + url, data, httpOptions);
   }
 
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
@@ -523,7 +528,11 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectList');
   }
 
-  getForecastVesselList() {
+  getForecastProjectByName(project_name: string): Observable<ForecastOperation[]> {
+    return this.post('/api/mo4light/getProject', {project_name});
+  }
+
+  getForecastVesselList(): Observable<ForecastVesselRequest[]> {
     return this.get('/api/mo4light/getVesselList');
   }
 
@@ -540,13 +549,27 @@ export class CommonService {
     return this.get('/api/mo4light/getProjectsForClient/' + client_id);
   }
 
-  getForecastProjectById(id: number): Observable<ForecastOperation> {
-    return this.get('/api/mo4light/getProjectById/' + id);
-  }
+  // getForecastProjectById(id: number): Observable<ForecastOperation> {
+  //   return this.get('/api/mo4light/getProjectById/' + id);
+  // }
 
   getForecastWeatherForResponse(id: number): Observable<{weather: RawWaveData, spectrum: any}> {
     return this.post('/api/mo4light/weather', {
       response_id: id
+    });
+  }
+
+  saveForecastProjectSettings(project: ForecastOperation): Observable<{data: string}> {
+    return this.put('/api/mo4light/projectSettings', {
+      project_name: project.name,
+      project_settings: {
+        latitude: project.latitude,
+        longitude: project.longitude,
+        water_depth: project.water_depth,
+        vessel_id: project.vessel_id,
+        client_preferences: project.client_preferences,
+        maximum_duration: project.maximum_duration
+      }
     });
   }
 }

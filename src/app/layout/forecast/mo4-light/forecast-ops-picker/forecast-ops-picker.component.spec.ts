@@ -2,9 +2,12 @@ import { CommonModule } from '@angular/common';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CommonService } from '@app/common.service';
+import { mockedObservable } from '@app/models/testObservable';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
 describe('ForecastOpsPickerComponent', () => {
@@ -50,7 +53,7 @@ describe('ForecastOpsPickerComponent', () => {
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'string',
+      vessel_id: 213,
       activation_start_date: '6',
       activation_end_date: '7',
       client_preferences: null,
@@ -79,7 +82,7 @@ describe('ForecastOpsPickerComponent', () => {
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'string',
+      vessel_id: 123,
       activation_start_date: '6',
       activation_end_date: '7',
       client_preferences: null,
@@ -94,4 +97,49 @@ describe('ForecastOpsPickerComponent', () => {
     const opt = elt.querySelector('#selectOperation');
     expect(opt).toBeTruthy();
   });
+
+  it('should save on changes', () => {
+    const saveSpy = spyOn(MockedCommonService.prototype, 'saveForecastProjectSettings').and.returnValue(
+      mockedObservable(null)
+    )
+    component.selectedProject ={
+      id: 0,
+      name: 'string',
+      client_id: 1,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 123,
+      activation_start_date: '6',
+      activation_end_date: '7',
+      client_preferences: mockClientPreferences(),
+      consumer_id: 8,
+    }
+    component.onConfirm();
+    expect(saveSpy).toHaveBeenCalled();
+  })
 });
+
+
+function mockClientPreferences(): ForecastExpectedResponsePreference {
+  return {
+    Points_Of_Interest: {
+      P1: {
+        Degrees_Of_Freedom: null,
+        Coordinates: {
+          X: {Data: 0, String_Value: ''},
+          Y: {Data: 0, String_Value: ''},
+          Z: {Data: 0, String_Value: ''}
+        },
+        Max_Type: 'MPM'
+      },
+    },
+    Limits: [],
+    Max_Type: 'MPM',
+    Ops_Start_Time: '03:12',
+    Ops_Stop_Time: '11:23',
+    Ops_Heading: 210,
+    Points: [],
+  }
+}

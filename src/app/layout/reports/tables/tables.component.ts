@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
-
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { UserService } from '@app/shared/services/user.service';
 import { StringMutationService } from '@app/shared/services/stringMutation.service';
@@ -9,7 +8,6 @@ import { VesselModel } from '@app/models/vesselModel';
 import { TokenModel } from '@app/models/tokenModel';
 import { RouterService } from '@app/supportModules/router.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { isArray, isString } from 'util';
 
 @Component({
     selector: 'app-report-tables',
@@ -44,16 +42,16 @@ export class TablesComponent implements OnInit {
             this.newService.getVessel().subscribe(data => {
               this.Repdata = data;
               this.Repdata.forEach(_rep => {
-                _rep.client = isArray(_rep.client) ? _rep.client : [];
-                _rep.client = _rep.client.filter((_client: any) => isString(_client));
+                _rep.client = Array.isArray(_rep.client) ? _rep.client : [];
+                _rep.client = _rep.client.filter((_client: any) => typeof(_client) == 'string');
               });
               this.applyFilter(''); });
           } else {
             this.newService.getVessel().subscribe(data => {
               this.Repdata = data;
               this.Repdata.forEach(_rep => {
-                _rep.client = isArray(_rep.client) ? _rep.client : [];
-                _rep.client = _rep.client.filter((_client: any) => isString(_client));
+                _rep.client = Array.isArray(_rep.client) ? _rep.client : [];
+                _rep.client = _rep.client.filter((_client: any) => typeof(_client) == 'string');
               });
               this.applyFilter('');
             });

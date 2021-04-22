@@ -11,6 +11,18 @@
   </div>
 
   <div class="text-container col-xl-12">
+    <table class="table table-hover table-striped">
+      <tbody>
+        <tr>
+          <td>
+            <div [ngbTooltip]="help_hs">
+              H<sub>s</sub>
+            </div>
+          </td>
+          <td>{{currentWaveHeight}}</td>
+        </tr>
+      </tbody>
+    </table>
     Wave spectrum which was used to compute the workability. The graph
     shows the direction the waves are coming from, i.e. a peak at 45 degrees
     in the north-east indicates a wave from the north-east moving towards the
@@ -18,6 +30,10 @@
     close to the center corresponds short-crested waves (usually wind waves),
     whilst peaks further out correspond to long-crested swell waves.
     <br><br>
-    Double click to reset the graphics
+    Double click to reset the graphics.
   </div>
 </div>
+
+<ng-template #help_hs>
+  Wave height computed from the wave spectrum (Hm0)
+</ng-template>
