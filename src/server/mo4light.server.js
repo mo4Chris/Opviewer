@@ -5,6 +5,7 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
+const timeout = process.env.TIMEOUT || 30000;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
@@ -26,7 +27,7 @@ module.exports = function(app, logger) {
   pg_get('').then((data, err) => {
     if (err) return logger.fatal('Failed to connect to hydro API')
     logger.info(`Successfully connected to hydro API at ${baseUrl}`)
-  })
+  }).catch(err => logger.fatal(err, 'Failed to connect to hydro API'))
 
   function onError(res, err, additionalInfo = 'Internal server error') {
     if (typeof(err) == 'object') {
@@ -162,6 +163,7 @@ module.exports = function(app, logger) {
       const data = out.data
       res.send(data)
     }).catch(err => {
+      console.log('err', err.data)
       onError(res, err, `Failed to get response for project with id ${project_id}`)
     })
   })
@@ -235,17 +237,17 @@ module.exports = function(app, logger) {
   function pg_get(endpoint, data) {
     const url = baseUrl + endpoint;
     if (!data) return http.get(url, {headers});
-    return http.get(url, {data, headers});
+    return http.get(url, {data, headers, timeout});
   }
 
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
-    return http.post(url, data, {headers})
+    return http.post(url, data, {headers, timeout})
   }
 
   function pg_put(endpoint, data) {
     const url = baseUrl + endpoint;
-    return http.put(url, data, {headers})
+    return http.put(url, data, {headers, timeout})
   }
 };
 

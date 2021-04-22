@@ -1,3 +1,5 @@
+import { ForecastMotionLimit } from "./forecast-limit";
+
 export interface ForecastOperation {
   id: number;
   name: string;
@@ -9,7 +11,7 @@ export interface ForecastOperation {
   vessel_id: number;
   activation_start_date: string;
   activation_end_date: string;
-  client_preferences: ForecastResponsePreference;
+  client_preferences: ForecastExpectedResponsePreference;
   consumer_id: number;
 }
 
@@ -36,28 +38,27 @@ interface ForecastResponse {
   };
 }
 
-interface ForecastResponsePreference {
-  'Points_Of_Interest': {
-    'P1': {
-      'Coordinates': {
-        'X': { 'Data': number, 'String_Value': string },
-        'Y': { 'Data': number, 'String_Value': string },
-        'Z': { 'Data': number, 'String_Value': string }
-      },
-      'Max_Type': string,
-      'Degrees_Of_Freedom': {
-        'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
-        'Pitch': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
-        'Yaw': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
-        'Surge': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
-        'Sway': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
-        'Heave': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean }
-      }
+interface ForecastResponsePoi {
+  'P1': {
+    'Coordinates': {
+      'X': { 'Data': number, 'String_Value': string },
+      'Y': { 'Data': number, 'String_Value': string },
+      'Z': { 'Data': number, 'String_Value': string }
+    },
+    'Max_Type': string,
+    'Degrees_Of_Freedom': {
+      'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+      'Pitch': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+      'Yaw': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+      'Surge': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+      'Sway': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
+      'Heave': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean }
     }
-  };
+  }
 }
 
 export interface ForecastExpectedResponsePreference {
+  Points_Of_Interest?: ForecastResponsePoi
   Points: POI[];
   Degrees_Of_Freedom?: {
     'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
@@ -70,7 +71,7 @@ export interface ForecastExpectedResponsePreference {
   Ops_Start_Time: any;
   Ops_Stop_Time: any;
   Ops_Heading: number;
-  Limits: ForecastLimit[];
+  Limits: ForecastMotionLimit[];
   Max_Type: MAX_TYPE;
 }
 interface POI {
@@ -99,10 +100,11 @@ interface ForecastVesselLocation {
     String_Value: string;
   };
 }
-export interface ForecastLimit {
-  type: DofType;
-  dof: Dof6;
-  value: number;
+export interface StoredForecastLimit {
+  Type: DofType;
+  Dof: Dof6;
+  Unit: string;
+  Value: number;
 }
 
 export type Dof6Array = number[][][]; // Time x Heading x Dof6

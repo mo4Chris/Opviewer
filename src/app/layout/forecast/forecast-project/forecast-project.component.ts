@@ -61,7 +61,6 @@ export class ForecastVesselComponent implements OnInit {
     public permission: PermissionService,
     public gps: GpsService,
   ) {
-    // console.log(this)
   }
 
   public get projectReady() {
@@ -79,7 +78,6 @@ export class ForecastVesselComponent implements OnInit {
     return this.route.params.pipe(
       map(params => {
         this.project_name = params.project_name;
-        console.log('this.project_name', this.project_name)
         if (this.project_name == 'new') return this.initNewProject();
         if (this.project_name == null) return this.routeService.routeToNotFound();
       })
@@ -90,13 +88,9 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastProjectByName(this.project_name),
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
-      console.log('vessels', vessels)
-      console.log('_project', _project)
-
       this.project = _project[0];
       this.vessels = vessels;
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0
-      console.log('this.SelectedVessel', this.SelectedVessel)
       this.projectLoaded = true;
       this.onLoaded();
     });
@@ -109,7 +103,6 @@ export class ForecastVesselComponent implements OnInit {
     this.updateMarker();
   }
   private initNewProject() {
-    console.log('INIT NEW PROJECT')
     if (!this.permission.forecastCreateProject) {
       this.alert.sendAlert({text: 'You do not have permission to create projects', 'type': 'danger'})
       return this.routeService.routeToForecast();

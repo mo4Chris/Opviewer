@@ -1,23 +1,35 @@
+import { Injectable } from '@angular/core';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { Dof6, DofType } from './forecast-response.model';
 
-
+@Injectable({
+  providedIn: 'root'
+})
 export class ForecastMotionLimit {
-  type: DofType;
-  dof: Dof6;
-  value: number;
+  Type: DofType;
+  Dof: Dof6;
+  Value: number;
 
-  constructor ({type, dof, value} = {type: null, dof: null, value: null}) {
-    this.type = type;
-    this.value = value;
-    this.dof = dof;
+  constructor(
+    inputs?: ForecastLimitInputs,
+  ) {
+    if (!inputs) return;
+    this.Type = inputs.Type ?? null;
+    this.Dof = inputs.Dof ?? null;
+    if (!inputs.Unit) {
+      const calcService = new CalculationService;
+      this.Value = calcService.switchUnits(inputs.Value, inputs.Unit, this.Unit);
+    } else {
+      this.Value = inputs.Value;
+    }
   }
 
-  public get unit() {
-    switch (this.type) {
+  public get Unit() {
+    switch (this.Type) {
       case null:
         return '-';
       case 'Acc':
-        switch (this.dof) {
+        switch (this.Dof) {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
@@ -26,7 +38,7 @@ export class ForecastMotionLimit {
             return 'deg/s²';
         }
       case 'Vel':
-        switch (this.dof) {
+        switch (this.Dof) {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
@@ -35,7 +47,7 @@ export class ForecastMotionLimit {
             return 'deg/s';
         }
       case 'Disp':
-        switch (this.dof) {
+        switch (this.Dof) {
           case null:
             return '-';
           case 'Heave': case 'Surge': case 'Sway':
@@ -44,8 +56,23 @@ export class ForecastMotionLimit {
             return 'deg';
         }
       default:
-        console.error(`Unsupported unit for type ${this.type} and dof ${this.dof}`);
+        console.error(`Unsupported unit for type ${this.Type} and dof ${this.Dof}`);
         return '';
     }
   }
+  public toObject() {
+    return {
+      Type: this.Type,
+      Dof: this.Dof,
+      Value: this.Value,
+      Unit: this.Unit
+    }
+  }
+}
+
+interface ForecastLimitInputs {
+  Type: DofType;
+  Dof: Dof6;
+  Value: number;
+  Unit?: string;
 }
