@@ -641,7 +641,7 @@ function onUnauthorized(res, cause = 'unknown') {
     msg: `Bad request: ${cause}`,
     type: 'BAD_REQUEST',
     cause,
-    username: req.token.username,
+    username: req?.token?.username,
     url: req.url,
   })
   if (cause == 'unknown') {
@@ -653,7 +653,7 @@ function onUnauthorized(res, cause = 'unknown') {
 
 function onError(res, err, additionalInfo = 'Internal server error') {
   try {
-    const response_message = err?.response.data?.message;
+    const response_message = err?.response?.data?.message;
     if (response_message) {
       console.log(response_message);
       err['message'] = response_message;
