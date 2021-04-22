@@ -157,7 +157,6 @@ export class Mo4LightComponent implements OnInit {
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
-
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
@@ -172,7 +171,6 @@ export class Mo4LightComponent implements OnInit {
       100
     );
   }
-
   setWorkabilityAlongHeading() {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
@@ -198,7 +196,6 @@ interface YMD {
   month: number;
   day: number;
 }
-
 interface ForecastResponse {
   Acc: Dof6Array;
   Vel: Dof6Array;

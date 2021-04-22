@@ -7,6 +7,7 @@ import { mockedObservable } from '@app/models/testObservable';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
 describe('ForecastOpsPickerComponent', () => {
@@ -112,22 +113,33 @@ describe('ForecastOpsPickerComponent', () => {
       vessel_id: 123,
       activation_start_date: '6',
       activation_end_date: '7',
-      client_preferences: {
-        Points_Of_Interest: {
-          P1: {
-            Degrees_Of_Freedom: null,
-            Coordinates: {
-              X: {Data: 0, String_Value: ''},
-              Y: {Data: 0, String_Value: ''},
-              Z: {Data: 0, String_Value: ''}
-            },
-            Max_Type: 'MPM'
-          },
-        }
-      },
+      client_preferences: mockClientPreferences(),
       consumer_id: 8,
     }
     component.onConfirm();
     expect(saveSpy).toHaveBeenCalled();
   })
 });
+
+
+function mockClientPreferences(): ForecastExpectedResponsePreference {
+  return {
+    Points_Of_Interest: {
+      P1: {
+        Degrees_Of_Freedom: null,
+        Coordinates: {
+          X: {Data: 0, String_Value: ''},
+          Y: {Data: 0, String_Value: ''},
+          Z: {Data: 0, String_Value: ''}
+        },
+        Max_Type: 'MPM'
+      },
+    },
+    Limits: [],
+    Max_Type: 'MPM',
+    Ops_Start_Time: '03:12',
+    Ops_Stop_Time: '11:23',
+    Ops_Heading: 210,
+    Points: [],
+  }
+}
