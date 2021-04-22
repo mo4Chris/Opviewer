@@ -5,7 +5,7 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
-const timeout = process.env.TIMEOUT || 30000;
+const timeout = process.env.TIMEOUT || 60000;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
