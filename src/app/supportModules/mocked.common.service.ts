@@ -241,7 +241,7 @@ export class MockedCommonService extends CommonService {
       speednotifylimit: emptyMatlabObject,
       impactnotifylimit: emptyMatlabObject,
       operationsClass: 'CTV',
-      Site: <string><unknown>emptyMatlabObject,
+      Site: <string> <unknown> emptyMatlabObject,
       onHire: true,
       videobudget: 120,
       videoResetDay: 19,
@@ -514,7 +514,7 @@ export class MockedCommonService extends CommonService {
   }
   getGeneralForRange(request: GeneralForRangeInput): Observable<any> {
     return this.getGeneral({
-      mmsi: <number>request.mmsi[0] ? request.mmsi[0] : request.mmsi,
+      mmsi: <number> request.mmsi[0] ? request.mmsi[0] : request.mmsi,
       date: request.startDate,
       vesselType: request.vesselType,
       vesselName: 'Test123'
@@ -729,13 +729,13 @@ export class MockedCommonService extends CommonService {
       waveDir: linspace(1, 2, N),
       windSpeed: linspace(1, 2, N),
       windDir: linspace(1, 2, N),
-    }
+    };
     const spectrum = {
       timeStamp: linspace(dateMin, dateMax, N),
       k_x: [],
       k_y: [],
       density: [[[]]],
-    }
+    };
     return mockedObservable({weather, spectrum});
   }
   getForecastSpectrumForResponse(id: number) {
@@ -761,7 +761,7 @@ export class MockedCommonService extends CommonService {
     const dateMin = 737700;
     const dateMax = 737702;
     const N = 49;
-    Response["MetoceanData"] = {
+    Response['MetoceanData'] = {
       Time: linspace(dateMin, dateMax, N),
       Wave: {
         Parametric: {
@@ -776,7 +776,7 @@ export class MockedCommonService extends CommonService {
           Density: [[]],
         }
       }
-    }
+    };
     //
     const responseObj: ForecastResponseObject = {
       consumer_id: 1,

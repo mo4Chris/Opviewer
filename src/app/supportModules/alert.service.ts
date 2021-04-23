@@ -22,7 +22,7 @@ export class AlertService {
         const defaultOptions: AlertOptions = {
           text: '<No text provided>',
           type: 'success',
-          timeout: (opts.type == 'danger') ? DEFAULT_ERROR_TIMEOUT : this.timeout,
+          timeout: (opts.type === 'danger') ? DEFAULT_ERROR_TIMEOUT : this.timeout,
         };
        opts = {...defaultOptions, ...opts};
         if (opts.type === 'danger' || !this.active) {

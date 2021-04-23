@@ -59,7 +59,7 @@ describe('RegistrationComponent', () => {
       job_title: 'Opperbaas',
       phoneNumber: '',
       agreeDataPolicy: true
-    }
+    };
 
     const btn = fixture.nativeElement.querySelector('#register');
     btn.click();
