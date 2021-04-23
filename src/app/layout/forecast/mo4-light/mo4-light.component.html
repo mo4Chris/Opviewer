@@ -24,7 +24,7 @@
     <div class="col-lg-12 col-xl-8">
       <div class='card mb-3'>
         <div class='card-header nav-card-header'>
-          <ul ngbNav #nav="ngbNav" class="nav-pills" [activeId]="route.fragment | async">
+          <ul ngbNav #nav="ngbNav" class="nav-pills" [activeId]="route.fragment | async" (navChange)="onTabSwitch($event)">
             <li [destroyOnHide]="false" ngbNavItem="forecast-workability">
               <a ngbNavLink>Workability</a>
               <ng-template ngbNavContent>
@@ -54,8 +54,7 @@
               <ng-template #spectralGraph id="tab-weather" ngbNavContent>
                 <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"
                   [spectrum]="spectrum?.density" [time]="spectrum?.timeStamp"
-                  [waveDir]="weather.waveDir" [wavePeakDir]="weather.wavePeakDir"
-                  [waveHeight]="weather.Hs">
+                  [weather]="weather">
                 </app-wave-spectrum>
               </ng-template>
             </li>

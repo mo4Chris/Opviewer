@@ -1,4 +1,4 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 
 
@@ -91,5 +91,9 @@ export class RouterService {
     }
     routeToForecastNewVesselRequest() {
         this.route(['forecast', 'new-vessel']);
+    }
+
+    switchFragment(fragment: string) {
+        this._router.navigate([], {fragment})
     }
 }

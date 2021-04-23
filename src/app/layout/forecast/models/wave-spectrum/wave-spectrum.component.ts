@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { RawWaveData } from '@app/models/wavedataModel';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 import { PlotData } from 'plotly.js';
 
 
@@ -14,16 +16,14 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() time: number[];
   @Input() k_x: number[];
   @Input() k_y: number[];
-  @Input() waveHeight: number[];
-  @Input() waveDir: number[];
-  @Input() wavePeakDir: number[];
+  @Input() weather: RawWaveData;
   @Input() spectrum: number[][][];
 
   private Kmax = 28.8;
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
-  public currentWaveHeight = null;
+  
   public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
@@ -115,7 +115,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   constructor(
     private calcService: CalculationService,
     private dateService: DatetimeService,
-    private matService: MatrixService,
+    private settings: SettingsService,
   ) {
   }
 
@@ -125,7 +125,10 @@ export class SovWaveSpectrumComponent implements OnChanges {
       return Array.isArray(_spec) && _spec.length>0
     })
   }
-
+  public get active_hs() {
+    const Hs = this?.weather?.Hmax[this.spectrumIndex]
+    return this.calcService.getDecimalValueForNumber(Hs, ' m')
+  }
   ngOnChanges(): void {
     this.loaded = false;
     if (this.k_x == null || !this.spectrumValid) return
@@ -165,8 +168,8 @@ export class SovWaveSpectrumComponent implements OnChanges {
     }
 
     this.parsedData = []
-    if (typeof this.waveDir?.[index] == "number") {
-      const meanWaveDir_deg = this.waveDir[index];
+    if (typeof this.weather.waveDir?.[index] == "number") {
+      const meanWaveDir_deg = this.weather.waveDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       let ang = [meanWaveDir_deg+5,meanWaveDir_deg,meanWaveDir_deg-5];
       const meanWaveMarker = this.makeHeadingMarker(r, ang, {
@@ -175,8 +178,8 @@ export class SovWaveSpectrumComponent implements OnChanges {
       this.parsedData.push(meanWaveMarker)
     }
 
-    if (typeof this.wavePeakDir?.[index] == "number") {
-      const peakWaveDir_deg = this.wavePeakDir[index];
+    if (typeof this.weather.wavePeakDir?.[index] == "number") {
+      const peakWaveDir_deg = this.weather.wavePeakDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       const ang = [peakWaveDir_deg+5,peakWaveDir_deg,peakWaveDir_deg-5];
       const peakWaveMarker = this.makeHeadingMarker(r, ang, {
@@ -187,7 +190,6 @@ export class SovWaveSpectrumComponent implements OnChanges {
     }
 
     this.parsedData.push(spectrum_heatmap_trace);
-    this.currentWaveHeight = this.calcService.getDecimalValueForNumber(this.waveHeight[index], ' m')
   }
 
   setSliderSteps() {

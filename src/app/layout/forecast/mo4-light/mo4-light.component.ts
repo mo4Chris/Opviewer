@@ -60,7 +60,6 @@ export class Mo4LightComponent implements OnInit {
       this.loadData();
     });
   }
-
   initRoute() {
     return this.route.params.pipe(map(params => {
       if (!params.project_id) { return this.routeService.routeToForecast(); }
@@ -124,7 +123,6 @@ export class Mo4LightComponent implements OnInit {
       this.routeService.routeToAccessDenied();
     });
   }
-
   loadWeather() {
     forkJoin([
       this.newService.getForecastWeatherForResponse(this.project_id)
@@ -138,14 +136,6 @@ export class Mo4LightComponent implements OnInit {
 
   routeToProject(project_id: number) {
     this.routeService.routeToForecast(project_id);
-  }
-
-  onProjectSettingsChange(settings: ForecastOperationSettings) {
-    if (settings?.startTime)  this.startTime  = settings.startTime;
-    if (settings?.stopTime)   this.stopTime   = settings.stopTime;
-    if (settings?.limits)     this.limits     = settings.limits;
-    this.computeWorkability();
-    this.setWorkabilityAlongHeading();
   }
 
   parseResponse() {
@@ -176,7 +166,6 @@ export class Mo4LightComponent implements OnInit {
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
   }
-
   getHeadingIdx(headings: number[]): number {
     let d = 360;
     let hIdx = null;
@@ -189,6 +178,17 @@ export class Mo4LightComponent implements OnInit {
     });
     return hIdx;
   }
+
+  onProjectSettingsChange(settings: ForecastOperationSettings) {
+    if (settings?.startTime)  this.startTime  = settings.startTime;
+    if (settings?.stopTime)   this.stopTime   = settings.stopTime;
+    if (settings?.limits)     this.limits     = settings.limits;
+    this.computeWorkability();
+    this.setWorkabilityAlongHeading();
+  }
+  onTabSwitch(event: NavChangeEvent) {
+    this.routeService.switchFragment(event.nextId)
+  }
 }
 
 interface YMD {
@@ -200,4 +200,9 @@ interface ForecastResponse {
   Acc: Dof6Array;
   Vel: Dof6Array;
   Disp: Dof6Array;
+}
+export interface NavChangeEvent {
+  activeId: string
+  nextId: string
+  preventDefault: () => void;
 }
