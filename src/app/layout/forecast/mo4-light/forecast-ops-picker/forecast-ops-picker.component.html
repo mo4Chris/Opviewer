@@ -92,14 +92,14 @@
     </tr>
     <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.type" (change)="onLimitsChange()">
+        <select class="form-control form-control-md" [(ngModel)]="limit.Type" (change)="onLimitsChange()">
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>Velocity</option>
           <option value='Disp'>Displacement</option>
         </select>
       </td>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.dof" (change)="onLimitsChange()">
+        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
           <option value="Surge">Surge</option>
           <option value="Sway">Sway</option>
           <option value="Heave">Heave</option>
@@ -109,12 +109,12 @@
         </select>
       </td>
       <td class="tight">
-        <!-- <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value"> -->
+        <!-- <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"> -->
         <div class="input-group">
-          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.value"
+          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"
             [min]="0"  (change)="onLimitsChange()">
           <div class="input-group-append tight">
-            <span class="input-group-text">{{limit.unit}}</span>
+            <span class="input-group-text">{{limit.Unit}}</span>
           </div>
         </div>
       </td>
@@ -160,7 +160,7 @@
   Heading of the vessel in degrees during operation
 </ng-template>
 <ng-template #helpLimits>
-  Select limits to compute workability, by specifying the Limit motion type, the 
+  Select limits to compute workability, by specifying the Limit motion type, the
   degree of freedom which you are interested in, and finally the limit value.
 </ng-template>
 <ng-template #currentlyDisabled>

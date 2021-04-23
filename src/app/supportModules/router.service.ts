@@ -1,4 +1,4 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 
 
@@ -84,12 +84,16 @@ export class RouterService {
             this.route(['forecast']);
         }
     }
-    routeToForecastProjectOverview(project_id: number) {
+    routeToForecastProjectOverview(project_name: string) {
         this.route(['forecast', 'project-overview', {
-            project_id: project_id
+          project_name
         }]);
     }
     routeToForecastNewVesselRequest() {
         this.route(['forecast', 'new-vessel']);
+    }
+
+    switchFragment(fragment: string) {
+        this._router.navigate([], {fragment})
     }
 }

@@ -24,7 +24,7 @@
                 </button>
               </td>
               <td>
-                <button (click)="routeToProjectOverview(project.id)" class="btn btn-primary">
+                <button (click)="routeToProjectOverview(project.name)" class="btn btn-primary">
                   Edit
                 </button>
               </td>
@@ -35,7 +35,7 @@
     </div>
   </div>
 
-  <div class="col-sm-12 col-md-12 col-lg-6 col-xl-4">
+  <div *ngIf="false" class="col-sm-12 col-md-12 col-lg-6 col-xl-4">
     <div class='card mb-3'>
       <div class='card-header'>
         Client list
@@ -77,21 +77,21 @@
     </div>
   </div>
 
-  <div class="col-sm-12 col-md-12 col-lg-6 col-xl-4">
+  <div class="col-md-12 col-lg-12 col-xl-12">
     <div class='card mb-3'>
       <div class='card-header'>
         MO4 Light
       </div>
       <div class='card-body'>
-        You currently have access to MO4 Light, designed to show off all the 
+        You currently have access to MO4 Light, designed to show off all the
         features MO4 has to offer. This product is still subject to change.
         <br><br>
-        To add additional projects, please contact our sales team at 
+        To add additional projects, please contact our sales team at
         <a href="mailto:sales@mo4.online">sales@mo4.online</a>
         <br><br>
         A more complete forecasting package, called MO4 PRO, is coming soon.
         This will unlock all options, and provide you with everything MO4 has to offer.
-      
+
       </div>
     </div>
   </div>

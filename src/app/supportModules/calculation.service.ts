@@ -225,7 +225,9 @@ export class CalculationService {
     }
   }
 
-  switchUnits(vals: number | number[], from: string, to: string) {
+  switchUnits(vals: number, from: string, to: string): number;
+  switchUnits(vals: number[], from: string, to: string): number[]
+  switchUnits(vals: number | number[], from: string, to: string): number | number[] {
     if (from === to) {
       return vals;
     }

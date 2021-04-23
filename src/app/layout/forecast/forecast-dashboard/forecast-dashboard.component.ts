@@ -12,7 +12,6 @@ import { ForecastOperation } from '../models/forecast-response.model';
 export class ForecastDashboardComponent implements OnInit {
   public projects: ForecastOperation[];
   public clients: Client[];
-  public users: any[];
 
   constructor(
     public routerService: RouterService,
@@ -27,11 +26,9 @@ export class ForecastDashboardComponent implements OnInit {
     forkJoin([
       this.newService.getForecastClientList(),
       this.newService.getForecastProjectList(),
-      // this.newService.getForecastUserList(),
     ]).subscribe(([clients, projects]) => {
       this.clients = clients;
       this.projects = projects;
-      // this.users = users;
     });
   }
 
@@ -39,8 +36,8 @@ export class ForecastDashboardComponent implements OnInit {
     console.error('Not yet implemented!');
   }
 
-  routeToProjectOverview(project_id: number) {
-    this.routerService.routeToForecastProjectOverview(project_id);
+  routeToProjectOverview(project_name: string) {
+    this.routerService.routeToForecastProjectOverview(project_name);
   }
   routeToProject(project_id: number) {
     this.routerService.routeToForecast(project_id);

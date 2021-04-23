@@ -15,7 +15,6 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { StringMutationService } from '@app/shared/services/stringMutation.service';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { UserModel } from '@app/models/userModel';
-import { isArray } from 'util';
 
 
 @Component({
@@ -114,7 +113,7 @@ export class FleetavailabilityComponent implements OnInit {
             startDate: this.params.startDate
         }).subscribe(data => {
             if (data.data != null) {
-                if (!isArray(data.data.sailMatrix[0])) {
+                if (!Array.isArray(data.data.sailMatrix[0])) {
                     data.data.sailMatrix = [data.data.sailMatrix];
                 }
                 this.turbineWarrenty = data.data;

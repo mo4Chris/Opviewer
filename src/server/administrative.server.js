@@ -3,8 +3,6 @@ var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 
 
-
-
 module.exports = function (
   app,
   logger,
@@ -146,12 +144,15 @@ module.exports = function (
     let username = req.body.username;
     let password = req.body.password;
 
+    const localLogger = logger.child({
+      username
+    })
     if (!username) {
-      logger.info('Login failed: missing username')
+      localLogger.info('Login failed: missing username')
       return res.status(400).send('Missing username')
     }
     if (!password) {
-      logger.info({
+      localLogger.info({
         msg: 'Login failed: missing password',
         username: username,
       })
@@ -169,16 +170,17 @@ module.exports = function (
     WHERE "userTable"."username"=$1`
     const values = [username];
 
-    logger.info('Received login for user: ' + username);
+    localLogger.info('Received login for user: ' + username);
     admin_server_pool.query(PgQuery, values).then(async (data, err) => {
       if (err) return onError(res, err);
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
-
+      localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
+      localLogger.debug('Retrieving vessels for user')
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
-      logger.trace(vessels);
+      localLogger.trace(vessels);
       const expireDate = new Date();
       const payload = {
         userID: user.user_id,
@@ -201,8 +203,9 @@ module.exports = function (
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };
+      localLogger.trace('Signing payload')
       token = jwt.sign(payload, 'secretKey');
-      logger.trace('Login succesful for user: ' + user.username.toLowerCase())
+      localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())
       return res.status(200).send({ token });
 
     }).catch((err) => {return onError(res, err)})

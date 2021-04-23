@@ -549,7 +549,7 @@ describe('Vessel master should', () => {
     })
   })
 
-  it('no be able to check if a user is active', async () => {
+  xit('no be able to check if a user is active', async () => {
     mockPostgressRequest([{
       active: true,
     }])

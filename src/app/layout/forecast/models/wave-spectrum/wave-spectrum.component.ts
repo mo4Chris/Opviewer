@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { RawWaveData } from '@app/models/wavedataModel';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 import { PlotData } from 'plotly.js';
 
 
@@ -14,14 +16,14 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() time: number[];
   @Input() k_x: number[];
   @Input() k_y: number[];
-  @Input() waveDir: number[];
-  @Input() wavePeakDir: number[];
+  @Input() weather: RawWaveData;
   @Input() spectrum: number[][][];
 
-  private Kmax = 28.9;
+  private Kmax = 28.8;
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
+  
   public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
@@ -90,6 +92,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
       this.makeCircle(25, {width: 1, color: 'white'}),
       this.makeLine(0),
       this.makeLine(90),
+      this.makeDonut(this.Kmax, 1.05*this.Kmax), // Hides the rough outer edges of the voided spectrum
     ],
     sliders: [{
       x: 0.5,
@@ -112,7 +115,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   constructor(
     private calcService: CalculationService,
     private dateService: DatetimeService,
-    private matService: MatrixService,
+    private settings: SettingsService,
   ) {
   }
 
@@ -122,7 +125,10 @@ export class SovWaveSpectrumComponent implements OnChanges {
       return Array.isArray(_spec) && _spec.length>0
     })
   }
-
+  public get active_hs() {
+    const Hs = this?.weather?.Hmax[this.spectrumIndex]
+    return this.calcService.getDecimalValueForNumber(Hs, ' m')
+  }
   ngOnChanges(): void {
     this.loaded = false;
     if (this.k_x == null || !this.spectrumValid) return
@@ -139,7 +145,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
     const y = this.calcService.interp1(this.k_y, this.k_y, k)
     const z_temp = this.calcService.interp2(this.k_x, this.k_y, this.spectrum[index], k, k)
     const z = z_temp.map(zz => zz.map(z => Math.log(1 + z)));
-    const R2 = this.Kmax ** 2;
+    const R2 = 1.03 * this.Kmax ** 2;
 
     z.reverse();
     x.forEach((_x, ix) => {
@@ -161,32 +167,29 @@ export class SovWaveSpectrumComponent implements OnChanges {
       connectgaps: false,
     }
 
-    let meanWaveMarker = null;
-    if (this.waveDir?.[index]) {
-      const meanWaveDir_deg = this.waveDir[index];
+    this.parsedData = []
+    if (typeof this.weather.waveDir?.[index] == "number") {
+      const meanWaveDir_deg = this.weather.waveDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       let ang = [meanWaveDir_deg+5,meanWaveDir_deg,meanWaveDir_deg-5];
-      meanWaveMarker = this.makeHeadingMarker(r, ang, {
+      const meanWaveMarker = this.makeHeadingMarker(r, ang, {
         text: `Mean wave direction: ${meanWaveDir_deg.toFixed(0)}&#xb0;`
       })
+      this.parsedData.push(meanWaveMarker)
     }
 
-    let peakWaveMarker = null;
-    if (this.wavePeakDir?.[index]) {
-      const peakWaveDir_deg = this.wavePeakDir[index];
+    if (typeof this.weather.wavePeakDir?.[index] == "number") {
+      const peakWaveDir_deg = this.weather.wavePeakDir[index];
       let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
       const ang = [peakWaveDir_deg+5,peakWaveDir_deg,peakWaveDir_deg-5];
-      peakWaveMarker = this.makeHeadingMarker(r, ang, {
+      const peakWaveMarker = this.makeHeadingMarker(r, ang, {
         fillcolor: 'green',
         text: `Peak wave direction: ${peakWaveDir_deg.toFixed(0)}&#xb0;`
       })
+      this.parsedData.push(peakWaveMarker)
     }
 
-    this.parsedData = [
-      spectrum_heatmap_trace,
-      meanWaveMarker,
-      peakWaveMarker,
-    ];
+    this.parsedData.push(spectrum_heatmap_trace);
   }
 
   setSliderSteps() {
@@ -235,6 +238,29 @@ export class SovWaveSpectrumComponent implements OnChanges {
       y0: -radius,
       y1: radius,
       line: font
+    }
+  }
+  private makeDonut(rMin: number, mMax: number) {
+    const sq = 0.55; // Some stupid constant needed to make these curves work as we cannot use A
+    return {
+      type: <'path'> 'path',
+      path: `M ${rMin},0 
+        C ${rMin},${sq*rMin} ${sq*rMin},${rMin} 0,${rMin}
+        C -${sq*rMin},${rMin} -${rMin},${sq*rMin} -${rMin},0
+        C -${rMin},-${sq*rMin} -${sq*rMin},-${rMin} 0,-${rMin}
+        C ${sq*rMin},-${rMin} ${rMin},-${sq*rMin} ${rMin},0
+        Z
+        M ${mMax},0 
+        C ${mMax},${sq*mMax} ${sq*mMax},${mMax} 0,${mMax}
+        C -${sq*mMax},${mMax} -${mMax},${sq*mMax} -${mMax},0
+        C -${mMax},-${sq*mMax} -${sq*mMax},-${mMax} 0,-${mMax}
+        C ${sq*mMax},-${mMax} ${mMax},-${sq*mMax} ${mMax},0
+        Z
+        `,
+      fillcolor: 'white',
+      line: {
+        width: 0
+      }
     }
   }
   private makeCircleTextAnnotation(value = 5, txt = '5s') {

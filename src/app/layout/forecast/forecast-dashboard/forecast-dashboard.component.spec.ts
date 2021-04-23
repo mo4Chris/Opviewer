@@ -48,7 +48,7 @@ describe('ForecastDashboardComponent', () => {
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'string',
+      vessel_id: 1234,
       activation_start_date: '6',
       activation_end_date: '7',
       client_preferences: null,

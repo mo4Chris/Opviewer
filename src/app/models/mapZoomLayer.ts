@@ -1,6 +1,5 @@
 import { EventService } from '../supportModules/event.service';
 import { mapMarkerIcon } from '../layout/dashboard/models/mapLegend';
-import { isArray } from 'util';
 
 export class MapZoomLayer {
     map: google.maps.Map;
@@ -127,7 +126,7 @@ export class MapZoomData extends MapZoomChild {
         enableInfoWindow: boolean = true,
     ) {
         super();
-        if (isArray(lon)) {
+        if (Array.isArray(lon)) {
             this.lon = lon[0];
             this.lat = lat[0];
         } else {
@@ -343,9 +342,9 @@ export class MapZoomPolygon extends MapZoomChild {
     private concatLonLatArray(lons: number[], lats: number[]) {
         const lonlatArray = [];
         let latt: number;
-        if (isArray(lons)) {
+        if (Array.isArray(lons)) {
             lons.forEach((long, idx) => {
-                if (isArray(long)) {
+                if (Array.isArray(long)) {
                     latt = lats[idx][0];
                     lonlatArray.push({lng: long[0], lat: latt});
                 } else {
