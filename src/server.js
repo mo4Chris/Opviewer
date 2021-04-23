@@ -770,6 +770,40 @@ app.use((req, res, next) => {
   }
 })
 
+app.use((req,res, next) => {
+  const token = req['token'];
+  const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
+  if (!isSecureMethod) return next();
+  const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type" 
+  FROM "userTable" userType 
+  LEFT JOIN "userPermissionTable" userPerm 
+  ON userType."user_id" = userperm."user_id" 
+  where userType."user_id"=$1`;
+  const values = [token.userID]
+  admin_server_pool.query(query, values).then(sql_response => {
+    const data = sql_response.rows[0];
+    let currentDate = new Date();
+    if(!data.active) return onUnauthorized(res, 'Your account is inactive');
+    
+    if (data.demo_expiration_date != null && data.demo_expiration_date <= currentDate.valueOf()) {
+        
+      const data_type = resp.rows[0].user_type;
+
+      if (data_type == 'demo'){
+        const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
+        admin_server_pool.query(setUserInactiveQuery, values);
+        res.send(false);
+      } else {
+        const setDemoToFalseQuery = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
+        admin_server_pool.query(setDemoToFalseQuery, values);
+        res.send(data);
+      }
+    } else {
+      next();
+    }
+  })
+});
+
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
 mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)

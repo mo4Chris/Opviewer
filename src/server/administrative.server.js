@@ -175,7 +175,6 @@ module.exports = function (
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
-      logger.info(user);
 
       if (!validateLogin(req, user, res)) return null;
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});

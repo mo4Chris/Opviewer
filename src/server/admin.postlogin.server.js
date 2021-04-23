@@ -282,37 +282,8 @@ module.exports = function (
 
   app.get("/api/checkUserActive/:user", function(req, res) {
     // Function is currently used to check status of userID in Token
-
-    const token = req['token'];
-    const query = 'SELECT "active", "demo_expiration_date" FROM "userTable" where "user_id"=$1';
-    const values = [token.userID]
-    admin_server_pool.query(query, values).then(sql_response => {
-      const data = sql_response.rows[0];
-      let currentDate = new Date();
-      if (data.demo_expiration_date != null && data.demo_expiration_date <= new Date().valueOf()) {
-        const checkUserPermissionQuery = 'SELECT "user_type" FROM "userPermissionTable" where "user_id"=$1';
-
-        admin_server_pool.query(checkUserPermissionQuery, values).then(resp => {
-          const data_type = resp.rows[0].user_type;
-
-          if (data_type == 'demo'){
-            const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-            admin_server_pool.query(setUserInactiveQuery, values);
-            res.send(false);
-          } else {
-            const setDemoToFalseQuery = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
-            admin_server_pool.query(setDemoToFalseQuery, values);
-            res.send(data);
-          }
-        })
-      } else {
-        const out = data.active;
-        res.send(out);
-      }
-      
-    }).catch(err => {
-      onError(res, err, 'user not found')
-    })
+    // Function is deprecated. Has to be removed. Has been resolved by middleware in server.js
+    res.send(true);
   });
 
   app.post("/api/get2faExistence", function (req, res) {
