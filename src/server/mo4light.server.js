@@ -3,8 +3,8 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
 // as appearantly these variables are available inside the the module.exports callback.
 
-const baseUrl = 'http://localhost:5000';
-// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+// const baseUrl = 'http://localhost:5000';
+const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
 const timeout = process.env.TIMEOUT || 60000;
 const http    = ax.default;

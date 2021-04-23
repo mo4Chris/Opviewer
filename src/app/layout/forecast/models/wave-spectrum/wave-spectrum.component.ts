@@ -19,7 +19,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() wavePeakDir: number[];
   @Input() spectrum: number[][][];
 
-  private Kmax = 28.9;
+  private Kmax = 28.8;
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
@@ -92,6 +92,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
       this.makeCircle(25, {width: 1, color: 'white'}),
       this.makeLine(0),
       this.makeLine(90),
+      this.makeDonut(this.Kmax, 1.05*this.Kmax), // Hides the rough outer edges of the voided spectrum
     ],
     sliders: [{
       x: 0.5,
@@ -141,7 +142,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
     const y = this.calcService.interp1(this.k_y, this.k_y, k)
     const z_temp = this.calcService.interp2(this.k_x, this.k_y, this.spectrum[index], k, k)
     const z = z_temp.map(zz => zz.map(z => Math.log(1 + z)));
-    const R2 = this.Kmax ** 2;
+    const R2 = 1.03 * this.Kmax ** 2;
 
     z.reverse();
     x.forEach((_x, ix) => {
@@ -235,6 +236,29 @@ export class SovWaveSpectrumComponent implements OnChanges {
       y0: -radius,
       y1: radius,
       line: font
+    }
+  }
+  private makeDonut(rMin: number, mMax: number) {
+    const sq = 0.55; // Some stupid constant needed to make these curves work as we cannot use A
+    return {
+      type: <'path'> 'path',
+      path: `M ${rMin},0 
+        C ${rMin},${sq*rMin} ${sq*rMin},${rMin} 0,${rMin}
+        C -${sq*rMin},${rMin} -${rMin},${sq*rMin} -${rMin},0
+        C -${rMin},-${sq*rMin} -${sq*rMin},-${rMin} 0,-${rMin}
+        C ${sq*rMin},-${rMin} ${rMin},-${sq*rMin} ${rMin},0
+        Z
+        M ${mMax},0 
+        C ${mMax},${sq*mMax} ${sq*mMax},${mMax} 0,${mMax}
+        C -${sq*mMax},${mMax} -${mMax},${sq*mMax} -${mMax},0
+        C -${mMax},-${sq*mMax} -${sq*mMax},-${mMax} 0,-${mMax}
+        C ${sq*mMax},-${mMax} ${mMax},-${sq*mMax} ${mMax},0
+        Z
+        `,
+      fillcolor: 'white',
+      line: {
+        width: 0
+      }
     }
   }
   private makeCircleTextAnnotation(value = 5, txt = '5s') {
