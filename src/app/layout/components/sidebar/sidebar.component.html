@@ -6,25 +6,25 @@
             &nbsp;{{ 'Dashboard' | translate }}
         </a>
         
-        <a *ngIf="usertoken.admin || usertoken.dpr.read || usertoken.longterm.read" 
+        <a *ngIf="usertoken.dpr.read || usertoken.longterm.read" 
         [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']" 
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>
             &nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
-        <a *ngIf="usertoken.admin || usertoken.twa.read" 
+        <a *ngIf="usertoken.twa.read" 
         [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" 
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-ship"></i>
             &nbsp;{{ 'Campaigns' | translate }}
         </a>
-        <a *ngIf="usertoken.admin || usertoken.user_manage" 
+        <a *ngIf="usertoken.user_manage" 
         [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" 
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-users"></i>
             &nbsp;{{ 'Users' | translate }}
         </a>
-        <a *ngIf="usertoken.admin || usertoken.user_manage" 
+        <a *ngIf="usertoken.user_manage" 
         [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" 
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-user-plus"></i>
@@ -35,7 +35,7 @@
             <i class="fa fa-fw fa-cog"></i>
             &nbsp;{{ 'Settings' | translate }}
         </a>
-        <a *ngIf="usertoken.admin || usertoken.forecast.read"
+        <a *ngIf="usertoken.forecast.read"
         routerLink="/forecast" [routerLinkActive]="['router-link-active']" 
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-rss"></i>

@@ -85,9 +85,9 @@ module.exports = function (
     A demo account has been created for ${req.body.username}.<br>
     Please add the following details to the customer-contact excel sheet.<br>
     Username: ${req.body.username}<br>
-    Full name: ${req.body.fullName}<br>
+    Full name: ${req.body.full_name}<br>
     Company: ${req.body.company}<br>
-    Function: ${req.body.function}<br>
+    Function: ${req.body.job_title}<br>
     Phone number: ${req.body?.phoneNumber}
     `;
 

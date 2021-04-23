@@ -33,7 +33,7 @@ export class AuthService {
         this.commonService.updateAuthorizationToken(tokenObj.token);
         return tokenObj;
       })
-    )
+    );
   }
 
   getToken() {
@@ -67,7 +67,7 @@ export interface UserObject {
   permission: {
     admin: boolean,
     user_type: UserType;
-  }
+  };
 }
 
 export interface UserLoginData {
@@ -99,12 +99,12 @@ interface UserCreationData {
 
 interface UserDemoData {
   username: string;
-  password: string,
+  password: string;
   client_id: number;
-  company: string,
-  fullName: string,
-  function: string,
-  phoneNumber: string,
+  company: string;
+  full_name: string;
+  job_title: string;
+  phoneNumber: string;
   user_type: string;
   requires2fa: boolean;
   vessel_ids: number[];

@@ -21,7 +21,7 @@ export class RegistrationComponent implements OnInit {
     confirmPassword: '',
     name: '',
     company: '',
-    function: '',
+    job_title: '',
     phoneNumber: '',
     agreeDataPolicy: false
   };
@@ -39,7 +39,7 @@ export class RegistrationComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-   
+
   }
 
   openModal(content) {
@@ -51,14 +51,14 @@ export class RegistrationComponent implements OnInit {
   }
 
   onRegistration(): void {
-    if (this.registerUserData.email.length == 0) return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' })
-    if (this.registerUserData.password.length == 0) return this.alert.sendAlert({ text: 'Please enter password', type: 'danger' })
-    if (this.registerUserData.confirmPassword.length == 0) return this.alert.sendAlert({ text: 'Please confirm your password', type: 'danger' })
-    if (this.registerUserData.password !== this.registerUserData.confirmPassword) return this.alert.sendAlert({ text: 'Your passwords are not the same', type: 'danger' })
-    if (this.registerUserData.name.length == 0) return this.alert.sendAlert({ text: 'Please enter your full name', type: 'danger' })
-    if (this.registerUserData.company.length == 0) return this.alert.sendAlert({ text: 'Please enter company name', type: 'danger' })
-    if (this.registerUserData.function.length == 0) return this.alert.sendAlert({ text: 'Please enter your function within your company', type: 'danger' })
-    if (this.registerUserData.agreeDataPolicy == false) return this.alert.sendAlert({ text: 'You have to agree with the Data Policy to create your account', type: 'danger'})
+    if (this.registerUserData.email.length === 0) return this.alert.sendAlert({ text: 'Please enter email', type: 'danger' });
+    if (this.registerUserData.password.length === 0) return this.alert.sendAlert({ text: 'Please enter password', type: 'danger' });
+    if (this.registerUserData.confirmPassword.length === 0) return this.alert.sendAlert({ text: 'Please confirm your password', type: 'danger' });
+    if (this.registerUserData.password !== this.registerUserData.confirmPassword) return this.alert.sendAlert({ text: 'Your passwords are not the same', type: 'danger' });
+    if (this.registerUserData.name.length === 0) return this.alert.sendAlert({ text: 'Please enter your full name', type: 'danger' });
+    if (this.registerUserData.company.length === 0) return this.alert.sendAlert({ text: 'Please enter company name', type: 'danger' });
+    if (this.registerUserData.job_title.length === 0) return this.alert.sendAlert({ text: 'Please enter your job title within your company', type: 'danger' });
+    if (this.registerUserData.agreeDataPolicy === false) return this.alert.sendAlert({ text: 'You have to agree with the Data Policy to create your account', type: 'danger'});
 
     this._auth.registerDemoUser({
       client_id: 1,
@@ -66,16 +66,16 @@ export class RegistrationComponent implements OnInit {
       user_type: 'demo',
       requires2fa: false,
       vessel_ids: [],
-      password: this.registerUserData.password, 
-      company: this.registerUserData.company, 
-      fullName: this.registerUserData.name, 
-      function: this.registerUserData.function,
+      password: this.registerUserData.password,
+      company: this.registerUserData.company,
+      full_name: this.registerUserData.name,
+      job_title: this.registerUserData.job_title,
       phoneNumber: this.registerUserData.phoneNumber,
     }).subscribe( res => {
       this.alert.sendAlert({ type: 'success', text: res.data });
       this.routerService.route(['login', {status: 'success', message: res.data}]);
     }, err => {
-      if (err.status === 401) {
+      if (err.status === 400 || err.status === 401) {
         this.alert.sendAlert({ type: 'danger', text: err.error, timeout: null });
       } else {
         this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, please contact MO4' });

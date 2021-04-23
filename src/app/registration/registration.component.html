@@ -21,8 +21,8 @@
             <input type="text" class="form-control input-underline input-lg" name="companyField"
               id="companyField" [(ngModel)]="registerUserData.company" placeholder="Company *" required>
               <br>
-            <input type="text" class="form-control input-underline input-lg" name="functionField"
-              id="functionField" [(ngModel)]="registerUserData.function" placeholder="Function *" required>
+            <input type="text" class="form-control input-underline input-lg" name="jobTitleField"
+              id="jobTitleField" [(ngModel)]="registerUserData.job_title" placeholder="Job title *" required>
               <br>
             <input type="tel" class="form-control input-underline input-lg" name="phoneNumberField"
               id="phoneNumberField" [(ngModel)]="registerUserData.phoneNumber" placeholder="Phone number">
@@ -30,9 +30,7 @@
             
               <input type="checkbox" id="dataPolicy" name="dataPolicy" [(ngModel)]="registerUserData.agreeDataPolicy">
               <label class="checkbox" for='dataPolicy'> I Agree to <a [routerLink]="" (click)="openModal(content)">MO4's data policy</a> and activate my 30-day trial.</label>
-            
-            <!-- <input type="" class="form-control input-underline input-lg" name="Field"
-              id="Field" [(ngModel)]="registerUserData." placeholder="*">   -->
+
           </div>
 
 

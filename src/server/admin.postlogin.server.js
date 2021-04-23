@@ -290,18 +290,18 @@ module.exports = function (
       const data = sql_response.rows[0];
       let currentDate = new Date();
       if (data.demo_expiration_date != null && data.demo_expiration_date <= new Date().valueOf()) {
-        const query2 = 'SELECT "user_type" FROM "userPermissionTable" where "user_id"=$1';
+        const checkUserPermissionQuery = 'SELECT "user_type" FROM "userPermissionTable" where "user_id"=$1';
 
-        admin_server_pool.query(query2, values).then(resp => {
+        admin_server_pool.query(checkUserPermissionQuery, values).then(resp => {
           const data_type = resp.rows[0].user_type;
 
           if (data_type == 'demo'){
-            const query3 = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-            admin_server_pool.query(query3, values);
+            const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
+            admin_server_pool.query(setUserInactiveQuery, values);
             res.send(false);
           } else {
-            const query3 = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
-            admin_server_pool.query(query3, values);
+            const setDemoToFalseQuery = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
+            admin_server_pool.query(setDemoToFalseQuery, values);
             res.send(data);
           }
         })
@@ -493,7 +493,6 @@ module.exports = function (
 
     logger.info(`Creating new user ${username}`)
     const password_setup_token = generateRandomToken();
-    if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
     const query = `INSERT INTO "userTable"(
       "username",
