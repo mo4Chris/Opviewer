@@ -8,7 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PlotlyModule } from 'angular-plotly.js';
 import { SovWaveSpectrumComponent } from './wave-spectrum.component';
 
-fdescribe('WaveSpectrumComponent', () => {
+describe('WaveSpectrumComponent', () => {
   let component: SovWaveSpectrumComponent;
   let fixture: ComponentFixture<SovWaveSpectrumComponent>;
   const matService = new MatrixService()
