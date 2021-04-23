@@ -655,7 +655,6 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   try {
     const response_message = err?.response?.data?.message;
     if (response_message) {
-      console.log(response_message);
       err['message'] = response_message;
     }
     if (typeof err == 'object') {

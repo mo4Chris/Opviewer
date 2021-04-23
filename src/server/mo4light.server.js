@@ -184,8 +184,7 @@ module.exports = function(app, logger) {
     const project_name = req.body.project_name;
     const received_settings = req.body.project_settings;
     const localLogger = logger.child({
-      project_name,
-      new_settings: received_settings
+      project_name
     })
     localLogger.info('Incoming project save request')
     if (typeof(received_settings) != 'object') return res.onBadRequest('Invalid settings')
@@ -201,7 +200,7 @@ module.exports = function(app, logger) {
     localLogger.info('Done getting project - performing update')
     const update_if_not_null = (fld) => {
       if (received_settings[fld] != null) {
-        logger.info('Setting ' + fld)
+        logger.debug(`Setting ${fld} to ${received_settings[fld]}`)
         updated_project[fld] = received_settings[fld];
       }
     }
@@ -222,7 +221,6 @@ module.exports = function(app, logger) {
     // localLogger.info(updated_project)
     pg_put('/project/' + project_name, updated_project).then((out, err) => {
       if (err) return res.onError(err, 'Failed to store project settings');
-      localLogger.info(out.data)
       localLogger.info('Save succesfull')
       return res.send({data: 'Successfully saved project!'})
     }).catch(res.onError)
