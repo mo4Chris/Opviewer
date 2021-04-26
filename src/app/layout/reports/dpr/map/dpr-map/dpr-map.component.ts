@@ -106,7 +106,7 @@ export class DprMapComponent implements OnChanges {
     if (map !== null) {
       // ToDo: fix the width check here
       const mapPixelWidth = map.offsetWidth || this.width || Math.round(0.75 * window.innerWidth);
-      this.mapProperties = this.calcService.calcPropertiesForMap(
+      this.mapProperties = this.calcService.GetPropertiesForMap(
         mapPixelWidth,
         this.vesselTrace.lat,
         this.vesselTrace.lon
