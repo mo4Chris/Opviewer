@@ -98,7 +98,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   buildPageWhenRouteLoaded() {
     this.GetAvailableRouteDatesForVessel();
-    forkJoin(
+    forkJoin([
       this.commonService.getSov(this.vesselObject),
       this.commonService.getSovDprInput(this.vesselObject),
       this.commonService.getSovHseDprInput(this.vesselObject),
@@ -111,7 +111,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.vesselObject.mmsi,
         this.vesselObject.date
       ),
-    ).subscribe(
+    ]).subscribe(
       ([
         sov,
         dprInput,

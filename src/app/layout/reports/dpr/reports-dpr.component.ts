@@ -35,7 +35,6 @@ export class ReportsDprComponent implements OnInit {
     public permission: PermissionService,
     private hotkeys: Hotkeys,
     ) {
-
   }
 
   startDate = this.getInitialDateObject();

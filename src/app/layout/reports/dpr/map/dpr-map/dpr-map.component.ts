@@ -98,7 +98,7 @@ export class DprMapComponent implements OnChanges {
         if (this.hasValidVesselTrace) {
           reject('Error initializing google map!');
         }
-      }, 3000);
+      }, 30000);
     });
   }
   setMapProperties() {

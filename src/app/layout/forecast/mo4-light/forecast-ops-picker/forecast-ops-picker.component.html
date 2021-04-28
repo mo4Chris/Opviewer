@@ -18,12 +18,20 @@
         <td colspan="2">{{selectedVesselName}}</td>
     </tr>
     <tr>
+      <td><div [ngbTooltip]="helpLastUpdate">Last update</div></td>
+      <td colspan="2">{{lastUpdated}}</td>
+    </tr>
+    <!-- <tr>
       <td>Latitude</td>
       <td colspan="2">{{gps.formatLat(selectedProject?.latitude)}}</td>
     </tr>
     <tr>
       <td>Longitude</td>
       <td colspan="2">{{gps.formatLng(selectedProject?.longitude)}}</td>
+    </tr> -->
+    <tr>
+      <td>Location</td>
+      <td colspan="2">{{gps.formatLat(selectedProject?.latitude)}}, {{gps.formatLng(selectedProject?.longitude)}}</td>
     </tr>
     <tr><td colspan="3" class="empty-row"></td></tr>
 
@@ -56,8 +64,8 @@
       <td><div [ngbTooltip]="helpTime">Stop time</div></td>
       <td colspan="2">
         <div class="flex-container">
-          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)" [(ngModel)]="stopTimeInput.hour"
-            type="number" min="0" max="24" placeholder="HH">
+          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
+            [(ngModel)]="stopTimeInput.hour" type="number" min="0" max="24" placeholder="HH">
           <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
             [(ngModel)]="stopTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM">
         </div>
@@ -165,4 +173,7 @@
 </ng-template>
 <ng-template #currentlyDisabled>
   This feature will be available soon.
+</ng-template>
+<ng-template #helpLastUpdate>
+  Last time the forecast was updated. By default, this occurs every 6 hours.
 </ng-template>

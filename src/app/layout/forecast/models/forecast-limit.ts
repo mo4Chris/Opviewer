@@ -18,7 +18,7 @@ export class ForecastMotionLimit {
     this.Dof = inputs.Dof ?? null;
     if (!inputs.Unit) {
       const calcService = new CalculationService;
-      this.Value = calcService.switchUnits(inputs.Value, inputs.Unit, this.Unit);
+      this.Value = calcService.switchUnits(inputs.Value, inputs.Unit, this.SimpleUnit);
     } else {
       this.Value = inputs.Value;
     }
@@ -60,12 +60,26 @@ export class ForecastMotionLimit {
         return '';
     }
   }
+  private get SimpleUnit() {
+    const NiceUnit = this.Unit
+    switch (NiceUnit) {
+      case 'm/s²':
+        return 'm\/s2';
+      case 'deg/s²':
+        return 'deg\/s2';
+      case 'm/s':
+        return 'm\/s';
+      case 'deg/s':
+        return 'deg\/s';
+    }
+    return NiceUnit;
+  }
   public toObject() {
     return {
       Type: this.Type,
       Dof: this.Dof,
       Value: this.Value,
-      Unit: this.Unit
+      Unit: this.SimpleUnit,
     }
   }
 }

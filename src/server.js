@@ -19,7 +19,7 @@ var args = require('minimist')(process.argv.slice(2));
 //########## These can be configured via stdin ############
 //#########################################################
 const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.SERVER_PORT    ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
+const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
 const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
@@ -806,19 +806,19 @@ app.use((req,res, next) => {
   const token = req['token'];
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
-  const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type" 
-  FROM "userTable" userType 
-  LEFT JOIN "userPermissionTable" userPerm 
-  ON userType."user_id" = userperm."user_id" 
+  const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
+  FROM "userTable" userType
+  LEFT JOIN "userPermissionTable" userPerm
+  ON userType."user_id" = userperm."user_id"
   where userType."user_id"=$1`;
   const values = [token.userID]
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
     if(!data.active) return onUnauthorized(res, 'Your account is inactive');
-    
+
     if (data.demo_expiration_date != null && data.demo_expiration_date <= currentDate.valueOf()) {
-        
+
       const data_type = resp.rows[0].user_type;
 
       if (data_type == 'demo'){
