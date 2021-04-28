@@ -652,6 +652,7 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 onOutdatedToken(res, cause = 'Outdated token, please log in again') {
+  const req = res.req; 
   logger.warn({
     msg: `Bad request: ${cause}`,
     type: 'BAD_REQUEST',
