@@ -67,6 +67,14 @@ export class GmapService {
             height: 20
         }
     );
+    static iconForecastLocation: mapMarkerIcon = new mapMarkerIcon(
+        'assets/images/forecast-location.png',
+        'Forecast location',
+        {
+            width: 20,
+            height: 20
+        }
+    );
     static iconVessel2VesselTransfer: mapMarkerIcon = new mapMarkerIcon(
         'assets/images/vesselToVesselTransfer.png',
         'Vessel to vessel transfer',
@@ -403,6 +411,23 @@ export class GmapService {
                 harbour.name.split('_').join(' '),
             ));
         });
+    }
+
+    plotForecastLocations(googleMap: google.maps.Map, forecastLocations: Observable<{name: string, lon: number, lat: number}[]>, minZoom = 5, maxZoom = 30) {
+        const forecastLocationLayer = new MapZoomLayer(googleMap, minZoom, maxZoom);
+        forecastLocations.subscribe(_locs => {
+            console.log('_locs', _locs)
+            _locs.forEach(_loc => {
+                forecastLocationLayer.addData(new MapZoomData(
+                    _loc.lon,
+                    _loc.lat,
+                    GmapService.iconForecastLocation,
+                    GmapService.iconForecastLocation.description,
+                    _loc.name,
+                ));
+            });
+        });
+        forecastLocationLayer.draw();
     }
 
     plotPlatforms(googleMap: google.maps.Map, platformLocations, minZoom = 10, maxZoom = 30) {

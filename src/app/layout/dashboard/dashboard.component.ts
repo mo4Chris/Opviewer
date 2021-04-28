@@ -168,6 +168,9 @@ export class DashboardComponent implements OnInit {
     // Draw platforms if zoomed in
     const platforms = this.commonService.getPlatformLocations('');
     this.mapService.plotPlatforms(this.googleMap, platforms);
+    // Drawing the forecast locations
+    const forecastLocations = this.commonService.getForecastProjectLocations();
+    this.mapService.plotForecastLocations(this.googleMap, forecastLocations)
   }
 
   makeLegend() {
@@ -213,6 +216,7 @@ export class DashboardComponent implements OnInit {
       this.mapLegend.add(GmapService.iconVesselOld);
       this.mapLegend.add(GmapService.iconHarbour);
       this.mapLegend.add(GmapService.iconWindfield);
+      this.mapLegend.add(GmapService.iconForecastLocation);
 
       // Generate the legend
       const legend = document.getElementById('mapLegendID');

@@ -180,6 +180,23 @@ module.exports = function(app, logger) {
     })
   });
 
+  app.get('/api/forecastProjectLocations', async (req, res) => {
+    const token = req['token'];
+    pg_get('/projects').then(async (out, err) => {
+      if (err) return onError(res, err, err);
+      const data = out.data['projects'];
+      const project_output = data.map(d => {
+        return {
+          name: d.name,
+          lon: d.longitude,
+          lat: d.latitude
+        }
+      })
+      // ToDo: filter data by token rights
+      res.send(project_output)
+    })
+  })
+
   app.put('/api/mo4light/projectSettings', async (req, res) => {
     const project_name = req.body.project_name;
     const received_settings = req.body.project_settings;
