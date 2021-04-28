@@ -815,10 +815,9 @@ app.use((req, res, next) => {
 
 app.use((req,res, next) => {
   const token = req['token'];
+  if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
-
-  if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
 
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
