@@ -27,6 +27,7 @@ export class Mo4LightComponent implements OnInit {
   public responseObj: ForecastResponseObject;
 
   private response: ForecastResponse;
+  public lastUpdated = 'N/a';
   public reponseTime: Date[];
   public Workability: number[][];
   public WorkabilityHeadings: number[];
@@ -80,14 +81,15 @@ export class Mo4LightComponent implements OnInit {
       this.responseObj = responses;
       this.operations = projects;
       this.showContent = true;
-
       if (!this.responseObj) {
+        this.lastUpdated = 'N/a';
         this.responseObj = null;
         this.Workability = null;
         this.limits = [];
         return;
       }
 
+      this.setLastUpdateTime();
       const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
       this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
       this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
@@ -189,6 +191,11 @@ export class Mo4LightComponent implements OnInit {
   }
   onTabSwitch(event: NavChangeEvent) {
     this.routeService.switchFragment(event.nextId)
+  }
+  setLastUpdateTime() {
+    const ts = this.responseObj.metocean_id;
+    const tnum = this.dateService.isoStringToMoment(ts);
+    this.lastUpdated = tnum.format('DD-MMM HH:mm');
   }
 }
 

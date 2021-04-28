@@ -11,7 +11,7 @@
         <div class='card-body table-responsive'>
           <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
             [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
-            (onChange)="onProjectSettingsChange($event)" [limits]="limits"
+            (onChange)="onProjectSettingsChange($event)" [limits]="limits" [lastUpdated]="lastUpdated"
             [vessels]='vessels'>
           </app-forecast-ops-picker>
 
@@ -31,7 +31,7 @@
                 <ng-container *ngIf="Workability; else workabilityNotAvailable">
                   <app-forecast-workability-plot
                     [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-                    [startTime]="startTime" [stopTime]="stopTime">
+                    [startTime]="startTime" [stopTime]="stopTime" [lastUpdate]="lastUpdate">
                   </app-forecast-workability-plot>
 
                   <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"

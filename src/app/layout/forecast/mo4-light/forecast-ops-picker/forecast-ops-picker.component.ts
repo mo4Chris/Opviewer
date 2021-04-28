@@ -16,6 +16,7 @@ import { ForecastOperation, ForecastExpectedResponsePreference } from '../../mod
 })
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
+  @Input() lastUpdated: string;
   @Input() vessels: any[];
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
@@ -160,6 +161,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
+    if (this.stopTime < this.startTime) this.stopTime = this.stopTime + 1;
     const duration = this.stopTime - this.startTime;
     this.formattedDuration = this.dateService.formatMatlabDuration(duration);
   }
