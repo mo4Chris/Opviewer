@@ -13,6 +13,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   @Input() time: Date[];
   @Input() startTime: number;
   @Input() stopTime: number;
+  @Input() config: Partial<Plotly.Config> = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
+    displaylogo: false
+  }
 
   public MaxWorkability = '';
   public parsedData: Plotly.Data[];
@@ -22,15 +28,22 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       range: [0, 120],
       title: 'Workability (%)',
       fixedrange: true,
+      automargin: true,
     },
     xaxis: {
-      title: 'Time'
+      automargin: true,
+      type: 'date',
     },
-
     legend: {
       x: 1,
       y: 1,
       xanchor: 'right',
+    },
+    margin: {
+      t: 40,
+      b: 0,
+      l: 40,
+      r: 40
     }
   };
 

@@ -232,6 +232,8 @@ export class CalculationService {
       return vals;
     }
     switch (from) {
+      case 'm/s2': case 'm/s²':
+        return this.switchAccelerationUnits(vals, from, to);
       case 'km/h': case 'm/s': case 'knots': case 'knt': case 'mph': case 'knot': case 'mp/h':
         return this.switchSpeedUnits(vals, from, to);
       case 'km': case 'm': case 'cm': case 'mile': case 'NM':
@@ -263,6 +265,24 @@ export class CalculationService {
           return 1852;
         case 'cm':
           return 1 / 100;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
+  }
+
+  switchAccelerationUnits(vals: number | number[], from: string, to: string) {
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'm/s2': case 'm/s²':
+          return 1;
         default:
           console.error('Invalid unit "' + type + '"!');
           return 1;

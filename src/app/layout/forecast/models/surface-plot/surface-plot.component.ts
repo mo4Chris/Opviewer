@@ -16,6 +16,12 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() zMax?: number;
   @Input() title = 'Workability plot';
   @Input() useInterpolation = true;
+  @Input() config: Partial<Plotly.Config> = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
+    displaylogo: false
+  }
 
   constructor(
     private calcService: CalculationService,
@@ -40,8 +46,15 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'yLabel',
       showgrid: false,
       zeroline: false,
+      // automargin: true,
       tick0: 0,
       dtick: 45,
+    },
+    margin: {
+      t: 40,
+      b: 40,
+      l: 40,
+      r: 40
     }
   };
   public get hasData() {
@@ -52,26 +65,25 @@ export class SurfacePlotComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    if (this.xData && this.xData.length > 0 && this.yData.length > 0) {
-      this.validateInput();
-      this.parsedData = [{
-        x: this.xData,
-        y: this.yData,
-        z: this.zData,
-        type: 'contour',
-        zmin: 0,
-        zmid: 80,
-        zmax: this.zMax,
-        colorscale: [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']],
-        colorbar: {
-          tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10) : undefined,
-          ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10).map(e => `${e}%`) : undefined,
-        }
-      }];
-      this.PlotLayout.xaxis.title = this.xLabel;
-      this.PlotLayout.yaxis.title = this.yLabel;
-      this.PlotLayout.title = this.title;
-    }
+    if (!(this.xData && this.xData.length > 0 && this.yData.length > 0)) return;
+    this.validateInput();
+    this.parsedData = [{
+      x: this.xData,
+      y: this.yData,
+      z: this.zData,
+      type: 'contour',
+      zmin: 0,
+      zmid: 80,
+      zmax: this.zMax,
+      colorscale: [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']],
+      colorbar: {
+        tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10) : undefined,
+        ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10).map(e => `${e}%`) : undefined,
+      }
+    }];
+    this.PlotLayout.xaxis.title = this.xLabel;
+    this.PlotLayout.yaxis.title = this.yLabel;
+    this.PlotLayout.title = this.title;
   }
 
   public onPlotlyInit(event) {

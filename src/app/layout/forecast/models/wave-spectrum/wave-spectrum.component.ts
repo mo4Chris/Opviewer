@@ -23,7 +23,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
-  
+
   public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
@@ -110,6 +110,12 @@ export class SovWaveSpectrumComponent implements OnChanges {
       steps: [], // The slider steps are added dynamically
     }],
   };
+  public PlotlyOptions: Partial<Plotly.Config> = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
+    displaylogo: false
+  }
 
 
   constructor(
@@ -126,7 +132,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
     })
   }
   public get active_hs() {
-    const Hs = this?.weather?.Hmax[this.spectrumIndex]
+    const Hs = this?.weather?.Hs[this.spectrumIndex]
     return this.calcService.getDecimalValueForNumber(Hs, ' m')
   }
   ngOnChanges(): void {
@@ -244,13 +250,13 @@ export class SovWaveSpectrumComponent implements OnChanges {
     const sq = 0.55; // Some stupid constant needed to make these curves work as we cannot use A
     return {
       type: <'path'> 'path',
-      path: `M ${rMin},0 
+      path: `M ${rMin},0
         C ${rMin},${sq*rMin} ${sq*rMin},${rMin} 0,${rMin}
         C -${sq*rMin},${rMin} -${rMin},${sq*rMin} -${rMin},0
         C -${rMin},-${sq*rMin} -${sq*rMin},-${rMin} 0,-${rMin}
         C ${sq*rMin},-${rMin} ${rMin},-${sq*rMin} ${rMin},0
         Z
-        M ${mMax},0 
+        M ${mMax},0
         C ${mMax},${sq*mMax} ${sq*mMax},${mMax} 0,${mMax}
         C -${sq*mMax},${mMax} -${mMax},${sq*mMax} -${mMax},0
         C -${mMax},-${sq*mMax} -${sq*mMax},-${mMax} 0,-${mMax}

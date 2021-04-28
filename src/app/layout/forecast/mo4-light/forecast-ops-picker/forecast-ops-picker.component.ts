@@ -134,6 +134,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   saveProjectConfigChanges() {
     const old_preferences = this.selectedProject.client_preferences;
     const new_preferences: ForecastExpectedResponsePreference = {
+      Points_Of_Interest: old_preferences.Points_Of_Interest,
       Max_Type: 'MPM',
       Ops_Start_Time: formatTime(this.startTimeInput),
       Ops_Stop_Time: formatTime(this.stopTimeInput),
