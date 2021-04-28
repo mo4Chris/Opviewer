@@ -651,8 +651,9 @@ function onUnauthorized(res, cause = 'unknown') {
   }
 }
 
-onOutdatedToken(res, cause = 'Outdated token, please log in again') {
+function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
   const req = res.req; 
+  const isValidToken = true;
   logger.warn({
     msg: `Bad request: ${cause}`,
     type: 'BAD_REQUEST',
@@ -660,7 +661,7 @@ onOutdatedToken(res, cause = 'Outdated token, please log in again') {
     username: req?.token?.username,
     url: req.url,
   })
-  res.send(false);
+  res.send(!isValidToken);
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
