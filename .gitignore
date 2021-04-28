@@ -55,3 +55,4 @@ startNodeServer.bat
 startSeleniumServer.bat
 *.bat
 uploads/
+src/server/spectrum.json

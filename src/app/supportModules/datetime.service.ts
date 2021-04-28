@@ -353,6 +353,15 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return this.getCurrentMatlabDatenum() - serial;
   }
 
+  roundToMinutes(dnums: number[], num_minutes: number): number[] {
+    const DT = 60 * 24 / num_minutes;
+    const minT = Math.floor(dnums[0]);
+    return dnums.map(dnum => {
+      // We add 1 seconds so we do not suffer from rounding errors
+      return (Math.round((dnum - minT) * DT) + 0.01) / DT + minT;
+    })
+  }
+
   groupMatlabDatenums(matlab_dates: number[], groupBy: 'day' | 'month' | 'year' = 'month'): any[] {
     if (!Array.isArray(matlab_dates) || matlab_dates.length === 0) {return []; }
     const dates = matlab_dates.map(dnum => this.matlabDatenumToYMD(dnum));

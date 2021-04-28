@@ -127,13 +127,16 @@ export class CommonService {
     return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date);
   }
 
-
   getCompanies(): Observable<Client[]> {
     return this.get('/api/getCompanies/');
   }
 
   getHarbourLocations() {
     return this.get('/api/getHarbourLocations/');
+  }
+
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, name: string}[]> {
+    return this.get('/api/forecastProjectLocations')
   }
 
   checkUserActive(username: string) {

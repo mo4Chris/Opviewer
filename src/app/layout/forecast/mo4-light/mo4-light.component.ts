@@ -69,7 +69,6 @@ export class Mo4LightComponent implements OnInit {
   }
 
   loadData(): void {
-    // return this.newService.getForecastWorkabilityForProject(this.project_id).subscribe()
     // ToDo: only rerout if no permission to forecasting module
     forkJoin([
       this.newService.getForecastProjectList(),
@@ -103,6 +102,7 @@ export class Mo4LightComponent implements OnInit {
       if (this.response == null) return
       // TEMPORARY WORKAROUND FOR WEATHER
       const raw_weather = this.response['MetoceanData'];
+      raw_weather.Time = this.dateService.roundToMinutes(raw_weather.Time, 2)
       const param = raw_weather.Wave.Parametric
       this.weather = {
         timeStamp: raw_weather.Time,
@@ -153,7 +153,6 @@ export class Mo4LightComponent implements OnInit {
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
-
     const limiters = this.limits.map(limit => {
       return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
     });

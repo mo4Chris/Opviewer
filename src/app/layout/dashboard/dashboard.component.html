@@ -29,7 +29,7 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
             </agm-marker-cluster >
         </agm-map>
         <div id="mapLegendID" class="mapLegend">
-            <h2> 
+            <h2>
                 Legend
             </h2>
         </div>
@@ -40,14 +40,14 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
 
 <!-- Currently, children are only used for one-way binding. When filled with content. Move to content above. -->
 <div *ngIf="tokenInfo.userPermission == userType.Admin">
-    <app-admin [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-admin>
+    <app-admin [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)" (zoominfo)="setZoominfo($event)"></app-admin>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.LogisticsSpecialist">
-    <app-logistics-specialist [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-logistics-specialist>
+    <app-logistics-specialist [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)" (zoominfo)="setZoominfo($event)"></app-logistics-specialist>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.MarineController">
-    <app-marine-controller [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)"  (zoominfo)="getZoominfo($event)"></app-marine-controller>
+    <app-marine-controller [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)"  (zoominfo)="setZoominfo($event)"></app-marine-controller>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.Vesselmaster">
-    <app-vessel-master [tokenInfo]="tokenInfo" (locationData)="getLocationData($event)" (zoominfo)="getZoominfo($event)"></app-vessel-master>
+    <app-vessel-master [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)" (zoominfo)="setZoominfo($event)"></app-vessel-master>
 </div>

@@ -43,10 +43,10 @@ export class DashboardComponent implements OnInit {
   // Map settings
   googleMap: google.maps.Map;
   mapStyle = GmapService.defaultMapStyle;
-  zoominfo = {
-    longitude: 0,
-    latitude: 0,
-    zoomlvl: 7
+  zoominfo: ZoomInfo = {
+    longitude: 0.0,
+    latitude: 55,
+    zoomlvl: 5.5
   };
   mapTypeId = 'roadmap';
   streetViewControl = false;
@@ -82,7 +82,7 @@ export class DashboardComponent implements OnInit {
     @ViewChild(VesselMasterComponent)
     private vesselMasterComponent: VesselMasterComponent;
 
-  getLocationData(locationData: AisMarkerModel[]): void {
+  setLocationData(locationData: AisMarkerModel[]): void {
     let lastUpdatedHours: number;
     this.locationData = locationData;
     this.locationData.forEach(marker => {
@@ -97,8 +97,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getZoominfo(zoominfo: any): void {
-    // Is this not setZoominfo?
+  setZoominfo(zoominfo: ZoomInfo): void {
     this.zoominfo = zoominfo;
   }
 
@@ -168,6 +167,9 @@ export class DashboardComponent implements OnInit {
     // Draw platforms if zoomed in
     const platforms = this.commonService.getPlatformLocations('');
     this.mapService.plotPlatforms(this.googleMap, platforms);
+    // Drawing the forecast locations
+    const forecastLocations = this.commonService.getForecastProjectLocations();
+    this.mapService.plotForecastLocations(this.googleMap, forecastLocations)
   }
 
   makeLegend() {
@@ -213,6 +215,7 @@ export class DashboardComponent implements OnInit {
       this.mapLegend.add(GmapService.iconVesselOld);
       this.mapLegend.add(GmapService.iconHarbour);
       this.mapLegend.add(GmapService.iconWindfield);
+      this.mapLegend.add(GmapService.iconForecastLocation);
 
       // Generate the legend
       const legend = document.getElementById('mapLegendID');
@@ -281,4 +284,10 @@ interface ClusterStyle {
    * The anchor position of the icon x, y.
    */
   iconAnchor?: [number, number];
+}
+
+interface ZoomInfo {
+  longitude: number;
+  latitude: number;
+  zoomlvl: number;
 }

@@ -162,7 +162,7 @@ module.exports = function(app, logger) {
     pg_get('/response/' + project_id).then((out, err) => {
       log(`Receiving azure motion response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const data = out.data
+      const data = out.data;
       res.send(data)
     }).catch(err => {
       console.log('err', err.data)
@@ -181,6 +181,23 @@ module.exports = function(app, logger) {
       onError(res, err, err)
     })
   });
+
+  app.get('/api/forecastProjectLocations', async (req, res) => {
+    const token = req['token'];
+    pg_get('/projects').then(async (out, err) => {
+      if (err) return onError(res, err, err);
+      const data = out.data['projects'];
+      const project_output = data.map(d => {
+        return {
+          name: d.name,
+          lon: d.longitude,
+          lat: d.latitude
+        }
+      })
+      // ToDo: filter data by token rights
+      res.send(project_output)
+    })
+  })
 
   app.put('/api/mo4light/projectSettings', async (req, res) => {
     const project_name = req.body.project_name;
