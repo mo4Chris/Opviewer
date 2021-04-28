@@ -110,11 +110,13 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      console.log(userIsActive);
       if (userIsActive === true) {
         this.getAlert();
         this.makeLegend();
         this.getLocations();
       } else {
+        console.log('token must be removed');
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
         this.router.navigate(['login']);
