@@ -162,7 +162,7 @@ module.exports = function(app, logger) {
     pg_get('/response/' + project_id).then((out, err) => {
       log(`Receiving azure motion response after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const data = out.data
+      const data = out.data;
       res.send(data)
     }).catch(err => {
       console.log('err', err.data)
