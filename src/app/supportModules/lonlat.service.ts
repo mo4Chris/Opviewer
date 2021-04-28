@@ -8,7 +8,7 @@ export class LonlatService {
 
     lonlatarrayToLatLngArray(input: { lon: any[], lat: any[], time?: any[] }): latlngArrayModel {
         const latlngArray: latlngArrayModel = [];
-        let latlng;
+        let latlng: {lng: number, lat: number};
         input.lon.forEach((lon, index) => {
             if (input.lat[index][0]) {
                 latlng = {
@@ -21,7 +21,7 @@ export class LonlatService {
                     lng: lon
                 };
             }
-            latlngArray.push(latlng);
+            if (typeof(latlng.lat) == 'number') latlngArray.push(latlng);
         });
         if (input.time) {
             input.time.forEach((t, i) => {

@@ -9,7 +9,7 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastOperation } from '../models/forecast-response.model';
+import { ForecastOperation, PointOfInterest } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-project',
@@ -30,10 +30,11 @@ export class ForecastVesselComponent implements OnInit {
   public projectLoaded = false;
   public new = false;
   public SelectedVessel: ForecastVesselRequest | 0 = 0;
-  public POI = {
-    X: undefined,
-    Y: undefined,
-    Z: undefined,
+  public POI: PointOfInterest = {
+    Name: 'Primary',
+    X: {Value: 0, Type: 'absolute', 'Unit': 'm'},
+    Y: {Value: 0, Type: 'absolute', 'Unit': 'm'},
+    Z: {Value: 0, Type: 'absolute', 'Unit': 'm'},
   };
   public contractStartDateString = 'N/a';
   public contractEndDateString = '';
@@ -100,6 +101,16 @@ export class ForecastVesselComponent implements OnInit {
     this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
     this.Longitude = this.gps.lonToDms(this.project.longitude);
     this.Lattitude = this.gps.latToDms(this.project.latitude);
+    const poi = this.project.client_preferences.Points;
+    if (poi) {
+      this.POI = poi[0];
+      this.POI.X.Type = 'absolute';
+      this.POI.Y.Type = 'absolute';
+      this.POI.Z.Type = 'absolute';
+      this.POI.X.Unit = 'm';
+      this.POI.Y.Unit = 'm';
+      this.POI.Z.Unit = 'm';
+    }
     this.updateMarker();
   }
   private initNewProject() {

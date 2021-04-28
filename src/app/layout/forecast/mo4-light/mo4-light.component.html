@@ -1,75 +1,71 @@
-<div *ngIf="showContent; else loading">
-  <div class="row center font-sm">
-    <div class="col-lg-12 col-xl-4">
-      <div class='card mb-3'>
-        <div class='card-header flex-box'>
-          <div>Project overview</div>
-          <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
-            [ngbPopover]="helpProjectOverview" placement="bottom" popoverClass="helpPopup">?
-          </button>
-        </div>
-        <div class='card-body table-responsive'>
-          <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
-            [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
-            (onChange)="onProjectSettingsChange($event)" [limits]="limits"
-            [vessels]='vessels'>
-          </app-forecast-ops-picker>
-
-          <app-heading-picker class="center" [heading]="selectedHeading">
-          </app-heading-picker>
-        </div>
+<div *ngIf="showContent; else loading" class="row center font-sm">
+  <div class="col-lg-12 col-xl-4">
+    <div class='card mb-3'>
+      <div class='card-header flex-box'>
+        <div>Project overview</div>
+        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+          [ngbPopover]="helpProjectOverview" placement="bottom" popoverClass="helpPopup">?
+        </button>
+      </div>
+      <div class='card-body table-responsive'>
+        <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
+          [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
+          (onChange)="onProjectSettingsChange($event)" [limits]="limits" [lastUpdated]="lastUpdated"
+          [vessels]='vessels'>
+        </app-forecast-ops-picker>
+        <app-heading-picker class="center" [heading]="selectedHeading">
+        </app-heading-picker>
       </div>
     </div>
+  </div>
 
-    <div class="col-lg-12 col-xl-8">
-      <div class='card mb-3'>
-        <div class='card-header nav-card-header'>
-          <ul ngbNav #nav="ngbNav" class="nav-pills" [activeId]="route.fragment | async" (navChange)="onTabSwitch($event)">
-            <li [destroyOnHide]="false" ngbNavItem="forecast-workability">
-              <a ngbNavLink>Workability</a>
-              <ng-template ngbNavContent>
-                <ng-container *ngIf="Workability; else workabilityNotAvailable">
-                  <app-forecast-workability-plot
-                    [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-                    [startTime]="startTime" [stopTime]="stopTime">
-                  </app-forecast-workability-plot>
+  <div class="col-lg-12 col-xl-8">
+    <div class='card mb-3'>
+      <div class='card-header nav-card-header'>
+        <ul ngbNav #nav="ngbNav" class="nav-pills" (navChange)="onTabSwitch($event)">
+          <li [destroyOnHide]="false" ngbNavItem="forecast-workability">
+            <a ngbNavLink>Workability</a>
+            <ng-template ngbNavContent>
+              <ng-container *ngIf="Workability; else workabilityNotAvailable">
+                <app-forecast-workability-plot
+                  [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
+                  [startTime]="startTime" [stopTime]="stopTime">
+                </app-forecast-workability-plot>
 
-                  <app-surface-plot xLabel="time" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
-                    [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
-                  </app-surface-plot>
-                </ng-container>
-              </ng-template>
-            </li>
+                <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
+                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+                </app-surface-plot>
+              </ng-container>
+            </ng-template>
+          </li>
 
-            <li ngbNavItem="forecast-weather-overview">
-              <a ngbNavLink>Weather overview</a>
-              <ng-template #weatherGraph id="tab-weather" ngbNavContent>
-                <app-forecast-weather-overview [weather]="weather">
-                </app-forecast-weather-overview>
-              </ng-template>
-            </li>
+          <li ngbNavItem="forecast-weather-overview">
+            <a ngbNavLink>Weather overview</a>
+            <ng-template #weatherGraph id="tab-weather" ngbNavContent>
+              <app-forecast-weather-overview [weather]="weather">
+              </app-forecast-weather-overview>
+            </ng-template>
+          </li>
 
-            <li ngbNavItem="forecast-wave-spectrum">
-              <a ngbNavLink>Wave spectrum</a>
-              <ng-template #spectralGraph id="tab-weather" ngbNavContent>
-                <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"
-                  [spectrum]="spectrum?.density" [time]="spectrum?.timeStamp"
-                  [weather]="weather">
-                </app-wave-spectrum>
-              </ng-template>
-            </li>
-          </ul>
-        </div>
+          <li ngbNavItem="forecast-wave-spectrum">
+            <a ngbNavLink>Wave spectrum</a>
+            <ng-template #spectralGraph id="tab-weather" ngbNavContent>
+              <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"
+                [spectrum]="spectrum?.density" [time]="spectrum?.timeStamp"
+                [weather]="weather">
+              </app-wave-spectrum>
+            </ng-template>
+          </li>
+        </ul>
+      </div>
 
 
-        <div class='card-body table-responsive'>
-          <div [ngbNavOutlet]="nav" class="mt-2"></div>
-        </div>
+      <div class='card-body table-responsive'>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
       </div>
     </div>
   </div>
 </div>
-
 
 <ng-template #loading>
   <app-ng-loading></app-ng-loading>

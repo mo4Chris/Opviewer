@@ -23,7 +23,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
-  
+
   public PlotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     showlegend: false,
@@ -110,6 +110,12 @@ export class SovWaveSpectrumComponent implements OnChanges {
       steps: [], // The slider steps are added dynamically
     }],
   };
+  public PlotlyOptions: Partial<Plotly.Config> = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
+    displaylogo: false
+  }
 
 
   constructor(
@@ -126,7 +132,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
     })
   }
   public get active_hs() {
-    const Hs = this?.weather?.Hmax[this.spectrumIndex]
+    const Hs = this?.weather?.Hs[this.spectrumIndex]
     return this.calcService.getDecimalValueForNumber(Hs, ' m')
   }
   ngOnChanges(): void {
@@ -169,24 +175,11 @@ export class SovWaveSpectrumComponent implements OnChanges {
 
     this.parsedData = []
     if (typeof this.weather.waveDir?.[index] == "number") {
-      const meanWaveDir_deg = this.weather.waveDir[index];
-      let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
-      let ang = [meanWaveDir_deg+5,meanWaveDir_deg,meanWaveDir_deg-5];
-      const meanWaveMarker = this.makeHeadingMarker(r, ang, {
-        text: `Mean wave direction: ${meanWaveDir_deg.toFixed(0)}&#xb0;`
-      })
-      this.parsedData.push(meanWaveMarker)
+      this.makeHeadingMarker(this.weather.waveDir[index], 'Mean wave direction', 'red')
     }
 
     if (typeof this.weather.wavePeakDir?.[index] == "number") {
-      const peakWaveDir_deg = this.weather.wavePeakDir[index];
-      let r = [1.05 * this.Kmax, 1.15 * this.Kmax, 1.05 * this.Kmax];
-      const ang = [peakWaveDir_deg+5,peakWaveDir_deg,peakWaveDir_deg-5];
-      const peakWaveMarker = this.makeHeadingMarker(r, ang, {
-        fillcolor: 'green',
-        text: `Peak wave direction: ${peakWaveDir_deg.toFixed(0)}&#xb0;`
-      })
-      this.parsedData.push(peakWaveMarker)
+      this.makeHeadingMarker(this.weather.wavePeakDir[index], 'Peak wave direction', 'green')
     }
 
     this.parsedData.push(spectrum_heatmap_trace);
@@ -244,13 +237,13 @@ export class SovWaveSpectrumComponent implements OnChanges {
     const sq = 0.55; // Some stupid constant needed to make these curves work as we cannot use A
     return {
       type: <'path'> 'path',
-      path: `M ${rMin},0 
+      path: `M ${rMin},0
         C ${rMin},${sq*rMin} ${sq*rMin},${rMin} 0,${rMin}
         C -${sq*rMin},${rMin} -${rMin},${sq*rMin} -${rMin},0
         C -${rMin},-${sq*rMin} -${sq*rMin},-${rMin} 0,-${rMin}
         C ${sq*rMin},-${rMin} ${rMin},-${sq*rMin} ${rMin},0
         Z
-        M ${mMax},0 
+        M ${mMax},0
         C ${mMax},${sq*mMax} ${sq*mMax},${mMax} 0,${mMax}
         C -${sq*mMax},${mMax} -${mMax},${sq*mMax} -${mMax},0
         C -${mMax},-${sq*mMax} -${sq*mMax},-${mMax} 0,-${mMax}
@@ -287,27 +280,35 @@ export class SovWaveSpectrumComponent implements OnChanges {
     }
     return {... defaults, ... opts};
   }
-  private makeHeadingMarker(r: number[], ang_degs: number[], config: Partial<PlotData> = {}): Partial<PlotData> {
-    const theta = ang_degs.map(t => (90-t) * Math.PI / 180);
-    let x0 = []; let y0 = [];
-    theta.forEach((_theta, i) => {
-      x0.push(Math.cos(_theta) * r[i]);
-      y0.push(Math.sin(_theta) * r[i]);
+  private makeHeadingMarker(angle: number, direction = 'Mean wave direction', color = 'green') {
+    let r = [1.15 * this.Kmax, 1.05 * this.Kmax, 1.15 * this.Kmax];
+    let ang = [angle+3,angle,angle-3];
+    const meanWaveMarker = drawHeadingMarker(r, ang, {
+      text: `${direction}: ${angle.toFixed(0)}&#xb0;`
     })
-    const defaults: Partial<PlotData> = {
-      type: 'scatter',
-      x: x0,
-      y: y0,
-      fillcolor: 'red',
-      line: {
-        width: 0,
-      },
-      mode: 'none',
-      fill: 'toself',
-      hoveron: 'fills',
-      hoverinfo: 'text',
-      text: 'Mean wave direction'
-    };
-    return {... defaults, ... config}
+    this.parsedData.push(meanWaveMarker)
+    function drawHeadingMarker(r: number[], ang_degs: number[], config: Partial<PlotData> = {}): Partial<PlotData> {
+      const theta = ang_degs.map(t => (90-t) * Math.PI / 180);
+      let x0 = []; let y0 = [];
+      theta.forEach((_theta, i) => {
+        x0.push(Math.cos(_theta) * r[i]);
+        y0.push(Math.sin(_theta) * r[i]);
+      })
+      const defaults: Partial<PlotData> = {
+        type: 'scatter',
+        x: x0,
+        y: y0,
+        fillcolor: color,
+        line: {
+          width: 0,
+        },
+        mode: 'none',
+        fill: 'toself',
+        hoveron: 'fills',
+        hoverinfo: 'text',
+        text: direction
+      };
+      return {... defaults, ... config}
+    }
   }
 }

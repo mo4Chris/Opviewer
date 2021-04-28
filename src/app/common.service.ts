@@ -572,6 +572,10 @@ export class CommonService {
       }
     });
   }
+
+  getCtvForecast() {
+    return this.get('/api/mo4light/ctvForecast')
+  }
 }
 
 export interface StatsRangeRequest {

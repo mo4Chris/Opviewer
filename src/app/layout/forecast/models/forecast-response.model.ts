@@ -59,7 +59,7 @@ interface ForecastResponsePoi {
 
 export interface ForecastExpectedResponsePreference {
   Points_Of_Interest?: ForecastResponsePoi
-  Points: POI[];
+  Points: PointOfInterest[];
   Degrees_Of_Freedom?: {
     'Roll': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
     'Pitch': { 'Disp': boolean, 'Vel': boolean, 'Acc': boolean },
@@ -74,7 +74,7 @@ export interface ForecastExpectedResponsePreference {
   Limits: ForecastMotionLimit[];
   Max_Type: MAX_TYPE;
 }
-interface POI {
+export interface PointOfInterest {
   Name: string;
   X: PoiValue;
   Y: PoiValue;
@@ -83,6 +83,7 @@ interface POI {
 interface PoiValue {
   Type: 'absolute'|'relative';
   Value: number;
+  Unit: string;
 }
 type MAX_TYPE = 'MPM' | 'STD';
 
