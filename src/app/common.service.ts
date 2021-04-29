@@ -30,20 +30,30 @@ export class CommonService {
 
   constructor(
     private http: HttpClient, 
-    ) {
-      if(localStorage.getItem('token') !== null) this.validateOudatedUserToken();
-     }
+    ) {}
 
   get(url: string): Observable<any> {
-    return this.http.get(environment.DB_IP + url, httpOptions);
+    return this.http.get(environment.DB_IP + url, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return this.getServerErrorMessage(err);
+      }
+    ));
   }
 
   post(url: string, data: any): Observable<any> {
-    return this.http.post(environment.DB_IP + url, data, httpOptions);
+    return this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return this.getServerErrorMessage(err);
+      }
+    ));
   }
 
   put(url: string, data: any): Observable<any> {
-    return this.http.put(environment.DB_IP + url, data, httpOptions);
+    return this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return this.getServerErrorMessage(err);
+      }
+    ));
   }
 
   private getServerErrorMessage(error: HttpErrorResponse) {
@@ -59,11 +69,7 @@ export class CommonService {
 }
 
   validateOudatedUserToken() {
-    return this.get('/api/validateOudatedUserToken/').pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.getServerErrorMessage(err);
-      }
-    ));
+    return this.get('/api/validateOudatedUserToken/');
   }
 
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {

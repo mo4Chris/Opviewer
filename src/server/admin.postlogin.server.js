@@ -41,6 +41,7 @@ module.exports = function (
   app.get('/api/userPermissions', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     return loadUserPermissions(user_id).catch((err) => {
       return onError(res, err)
     })
@@ -48,6 +49,7 @@ module.exports = function (
   app.get('/api/userPreferences', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     return loadUserPreference(user_id).catch((err) => {
       return onError(res, err)
     })
@@ -246,6 +248,7 @@ module.exports = function (
   app.get('/api/loadUserSettings', function(req, res) {
     const token = req['token']
     const user_id = token['userID']
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     const query = `SELECT * FROM "userSettingsTable" WHERE "user_id"=$1`
     const values = [user_id];
     admin_server_pool.query(query, values).then(sqldata => {
@@ -257,6 +260,7 @@ module.exports = function (
     const token = req['token']
     let newSettings = req.body;
     const user_id = token['userID'];
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     const query = `INSERT INTO "userSettingsTable"("user_id", "unit", "dpr", "longterm", "weather_chart", "timezone")
       VALUES($1, $2, $3, $4, $5, $6)
       ON CONFLICT ("user_id")
@@ -433,6 +437,7 @@ module.exports = function (
 
     const company = req.body.userCompany;
     const user_id = token['userID'];
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     const same_company = token['userCompany'] == company;
     if (!permission.admin && !same_company) return onUnauthorized(res, 'Different company!');
 

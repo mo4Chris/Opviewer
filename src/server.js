@@ -652,6 +652,7 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
+  console.log('entered function');
   const req = res.req; 
 
   logger.warn({
@@ -792,6 +793,7 @@ app.use((req, res, next) => {
   res['onError'] = (err, additionalInfo) => onError(res, err, additionalInfo);
   res['onUnauthorized'] = (cause) => onUnauthorized(res, cause);
   res['onBadRequest'] = (cause) => onBadRequest(res, cause);
+  res['onOutdatedToken'] = (cause) => onOutdatedToken(res, cause);
   next();
 })
 
@@ -806,6 +808,7 @@ app.use((req, res, next) => {
     if (!isSecureMethod) return next();
     // console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
+    if(typeof token.userID !== 'number') return onOutdatedToken(res)
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;
     next();
@@ -824,7 +827,6 @@ app.use((req,res, next) => {
   LEFT JOIN "userPermissionTable" userPerm
   ON userType."user_id" = userperm."user_id"
   where userType."user_id"=$1`;
-  if(typeof token.userID !== 'number') return onOutdatedToken(res)
   const values = [token.userID]
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
@@ -1053,7 +1055,7 @@ async function getAssignedVessels(token, res) {
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
-  if(typeof token.userID !== 'number') return onOutdatedToken(res);
+  if(typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
   const values = [token.userID]
   data = await admin_server_pool.query(PgQuery, values)
 
