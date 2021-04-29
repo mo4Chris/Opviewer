@@ -651,14 +651,14 @@ function onUnauthorized(res, cause = 'unknown') {
   }
 }
 
-function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
+function onOutdatedToken(res, token) {
   const req = res.req; 
-  if(req != undefined){
+  if(token != undefined){
     logger.warn({
       msg: `Outdated request: ${cause}`,
       type: 'OUTDATED_REQUEST',
       cause,
-      username: req?.token?.username,
+      username: token?.username,
       url: req?.url,
     })
     
@@ -714,7 +714,7 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    if(typeof token.userID !== 'number') return onOutdatedToken(payload)
+    if(typeof token.userID !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
     admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
@@ -810,7 +810,6 @@ app.use((req, res, next) => {
     if (!isSecureMethod) return next();
     // console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
-    if(typeof token.userID !== 'number') return onOutdatedToken(res)
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;
     next();
@@ -823,7 +822,7 @@ app.use((req,res, next) => {
   const token = req['token'];
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
-  if(typeof token.userID !== 'number') return onOutdatedToken(res)
+  if(typeof token?.userID !== 'number') return onOutdatedToken(res, token)
   
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
