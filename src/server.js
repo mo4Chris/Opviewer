@@ -651,7 +651,7 @@ function onUnauthorized(res, cause = 'unknown') {
   }
 }
 
-function onOutdatedToken(res, token) {
+function onOutdatedToken(res, token, cause = 'Outdated token, please log in again') {
   const req = res.req; 
   if(token != undefined){
     logger.warn({
@@ -714,7 +714,7 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    if(typeof token.userID !== 'number') return onOutdatedToken(res, payload)
+    if(typeof payload?.userID !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
     admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
