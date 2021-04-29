@@ -151,7 +151,6 @@ export class Mo4LightComponent implements OnInit {
   parseResponse() {
     if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
     const POI = this.responseObj.response.Points_Of_Interest.P1;
-    console.log('POI', POI)
     this.response = <any> POI;// POI.Response;
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
@@ -162,15 +161,12 @@ export class Mo4LightComponent implements OnInit {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     if (! POI?.SlipResponse) return;
     const slip = POI.SlipResponse;
-    console.log('slip', slip)
     const slipCoeffIndex = 3;
     const thrustIndex = 3;
     this.SlipCoefficients = slip.Friction_Coeff_Range;
     this.SlipThrustLevels = slip.Thrust_Range;
-    printSize(slip.ProbabilityWindowNoSlip)
     this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[slipCoeffIndex][thrustIndex]));
     this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
-    printSize(this.SlipProbability)
   }
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
