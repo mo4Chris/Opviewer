@@ -13,7 +13,6 @@ import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel
 import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
-import { deprecate } from 'node:util';
 import { storedSettings } from './supportModules/settings.service';
 import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 

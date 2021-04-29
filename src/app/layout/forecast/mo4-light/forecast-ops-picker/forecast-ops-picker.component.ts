@@ -158,10 +158,17 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   private updateOperationTimes() {
-    const matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date as NgbDate);
+    const currentTimeStamp = this.dateService.getCurrentMatlabDatenum();
+    const matlabDate = Math.floor(currentTimeStamp);
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
-    if (this.stopTime < this.startTime) this.stopTime = this.stopTime + 1;
+    if (this.stopTime < this.startTime) this.stopTime += 1;
+    const currentPastStopTime = currentTimeStamp > this.stopTime;
+    if (currentPastStopTime) {
+      this.startTime += 1;
+      this.stopTime += 1;
+      console.log('this.stopTime', this.stopTime)
+    }
     const duration = this.stopTime - this.startTime;
     this.formattedDuration = this.dateService.formatMatlabDuration(duration);
   }
