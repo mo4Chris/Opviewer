@@ -28,9 +28,7 @@ const httpOptions = {
 })
 export class CommonService {
 
-  constructor(
-    private http: HttpClient, 
-    ) {}
+  constructor(private http: HttpClient) {}
 
   get(url: string): Observable<any> {
     return this.http.get(environment.DB_IP + url, httpOptions).pipe(
