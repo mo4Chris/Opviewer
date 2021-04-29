@@ -30,7 +30,9 @@ export class CommonService {
 
   constructor(
     private http: HttpClient, 
-    ) { }
+    ) {
+      if(localStorage.getItem('token') !== null) this.validateOudatedUserToken();
+     }
 
   get(url: string): Observable<any> {
     return this.http.get(environment.DB_IP + url, httpOptions);
