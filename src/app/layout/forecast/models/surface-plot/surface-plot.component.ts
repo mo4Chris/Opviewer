@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { MatrixService } from '@app/supportModules/matrix.service';
 import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
@@ -25,6 +26,7 @@ export class SurfacePlotComponent implements OnChanges {
 
   constructor(
     private calcService: CalculationService,
+    private matService: MatrixService
   ) {
     // this.initTestData();
   }
@@ -70,7 +72,7 @@ export class SurfacePlotComponent implements OnChanges {
     this.parsedData = [{
       x: this.xData,
       y: this.yData,
-      z: this.zData,
+      z: this.matService.transpose(this.zData),
       type: 'contour',
       zmin: 0,
       zmid: 80,
@@ -93,9 +95,9 @@ export class SurfacePlotComponent implements OnChanges {
   validateInput() {
     const xLen = this.xData.length;
     const yLen = this.yData.length;
-    assert(this.zData.length == yLen, `Length of yData should match zData.length, ${this.zData.length}/${yLen}`);
+    assert(this.zData.length == xLen, `Length of xData should match zData.length, ${this.zData.length}/${xLen}`);
     this.zData.forEach((z, i) => {
-      assert(z.length == xLen, `Length of xData should match zData[${i}].length, ${z.length}/${xLen}`);
+      assert(z.length == yLen, `Length of yData should match zData[${i}].length, ${z.length}/${yLen}`);
     });
   }
 }

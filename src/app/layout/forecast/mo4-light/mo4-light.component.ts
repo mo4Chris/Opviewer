@@ -6,7 +6,7 @@ import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastOperation, ForecastResponseObject, Dof6Array } from '../models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
@@ -32,6 +32,11 @@ export class Mo4LightComponent implements OnInit {
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
+
+  private ctvSlipResponse: CtvSlipResponse;
+  public SlipProbability: number[][] = [];
+  public SlipCoefficients: number[];
+  public SlipThrustLevels: number[];
 
   public limits: ForecastMotionLimit[] = [];
   public selectedHeading = 0;
@@ -76,6 +81,7 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
       // this.newService.getCtvForecast()
     ]).subscribe(([projects, vessels, responses]) => {
+      console.log('responses', responses)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
@@ -98,6 +104,7 @@ export class Mo4LightComponent implements OnInit {
       this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
 
       this.parseResponse();
+      this.parseCtvSlipResponse();
 
       if (this.response == null) return
       // TEMPORARY WORKAROUND FOR WEATHER
@@ -144,11 +151,26 @@ export class Mo4LightComponent implements OnInit {
   parseResponse() {
     if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
     const POI = this.responseObj.response.Points_Of_Interest.P1;
+    console.log('POI', POI)
     this.response = <any> POI;// POI.Response;
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
+  }
+  parseCtvSlipResponse() {
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
+    if (! POI?.SlipResponse) return;
+    const slip = POI.SlipResponse;
+    console.log('slip', slip)
+    const slipCoeffIndex = 3;
+    const thrustIndex = 3;
+    this.SlipCoefficients = slip.Friction_Coeff_Range;
+    this.SlipThrustLevels = slip.Thrust_Range;
+    printSize(slip.ProbabilityWindowNoSlip)
+    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[slipCoeffIndex][thrustIndex]));
+    this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
+    printSize(this.SlipProbability)
   }
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
@@ -157,16 +179,16 @@ export class Mo4LightComponent implements OnInit {
       return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
     });
     this.Workability = this.matService.scale(
-      this.matService.transpose(
-        this.responseService.combineWorkabilities(limiters)
-      ),
+      this.responseService.combineWorkabilities(limiters),
       100
     );
+    console.log('printSize(this.Workability)')
+    printSize(this.Workability)
   }
   setWorkabilityAlongHeading() {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
-    this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
+    this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
   getHeadingIdx(headings: number[]): number {
     let d = 360;
@@ -212,4 +234,15 @@ export interface NavChangeEvent {
   activeId: string
   nextId: string
   preventDefault: () => void;
+}
+
+
+function printSize(A: any[]) {
+  let sz = A.length.toString();
+  A = A[0];
+  while (Array.isArray(A)) {
+    sz += 'x' + A.length
+    A = A[0];
+  }
+  console.log('Size = ' + sz)
 }

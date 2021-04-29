@@ -36,6 +36,7 @@ interface ForecastResponse {
     Vel: Dof6Array;
     Disp: Dof6Array;
   };
+  SlipResponse?: CtvSlipResponse;
 }
 
 interface ForecastResponsePoi {
@@ -57,6 +58,12 @@ interface ForecastResponsePoi {
   }
 }
 
+export interface CtvSlipResponse{
+  Dimensions: string;
+  Friction_Coeff_Range: number[];
+  ProbabilityWindowNoSlip: number[][][];
+  Thrust_Range: number[];
+}
 export interface ForecastExpectedResponsePreference {
   Points_Of_Interest?: ForecastResponsePoi
   Points: PointOfInterest[];
