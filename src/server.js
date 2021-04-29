@@ -653,15 +653,15 @@ function onUnauthorized(res, cause = 'unknown') {
 
 function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
   const req = res.req; 
-  const isValidToken = true;
+
   logger.warn({
-    msg: `Bad request: ${cause}`,
-    type: 'BAD_REQUEST',
+    msg: `Outdated request: ${cause}`,
+    type: 'OUTDATED_REQUEST',
     cause,
     username: req?.token?.username,
     url: req.url,
   })
-  res.send(!isValidToken);
+  res.status(460).send(cause);
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
@@ -820,6 +820,7 @@ app.use((req,res, next) => {
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
   if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
+  
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
   LEFT JOIN "userPermissionTable" userPerm

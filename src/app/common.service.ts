@@ -1,8 +1,8 @@
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable,  } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
@@ -13,7 +13,6 @@ import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel
 import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
-import { deprecate } from 'node:util';
 import { storedSettings } from './supportModules/settings.service';
 import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 
@@ -32,16 +31,44 @@ export class CommonService {
   constructor(private http: HttpClient) { }
 
   get(url: string): Observable<any> {
-    return this.http.get(environment.DB_IP + url, httpOptions);
+    const response = this.http.get(environment.DB_IP + url, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.getServerErrorMessage(err);
+        return response;
+      }
+    ));
+    return response;
   }
 
   post(url: string, data: any): Observable<any> {
-    return this.http.post(environment.DB_IP + url, data, httpOptions);
+     
+    const response = this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.getServerErrorMessage(err);
+        return response;
+      }
+    ));
+    return response;
   }
 
   put(url: string, data: any): Observable<any> {
-    return this.http.put(environment.DB_IP + url, data, httpOptions);
+    const response =  this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        this.getServerErrorMessage(err);
+        return response;
+      }
+    ));
+    return response;
   }
+
+  private getServerErrorMessage(error: HttpErrorResponse) {
+    switch (error.status) {
+        case 460: {
+            localStorage.removeItem('token')
+            return `Not Found: ${error.message}`;
+        }
+    }
+}
 
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
     return this.post('/api/validatePermissionToViewData/', vessel);
