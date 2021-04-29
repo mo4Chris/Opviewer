@@ -31,34 +31,29 @@ export class CommonService {
   constructor(private http: HttpClient) { }
 
   get(url: string): Observable<any> {
-    const response = this.http.get(environment.DB_IP + url, httpOptions).pipe(
+    return this.http.get(environment.DB_IP + url, httpOptions).pipe(
       catchError((err: HttpErrorResponse) => {
-        this.getServerErrorMessage(err);
-        return response;
+        return this.getServerErrorMessage(err);
+        
       }
     ));
-    return response;
   }
 
   post(url: string, data: any): Observable<any> {
      
-    const response = this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
+    return this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
       catchError((err: HttpErrorResponse) => {
-        this.getServerErrorMessage(err);
-        return response;
+        return this.getServerErrorMessage(err);
       }
     ));
-    return response;
   }
 
   put(url: string, data: any): Observable<any> {
-    const response =  this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
+    return this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
       catchError((err: HttpErrorResponse) => {
-        this.getServerErrorMessage(err);
-        return response;
+        return this.getServerErrorMessage(err);
       }
     ));
-    return response;
   }
 
   private getServerErrorMessage(error: HttpErrorResponse) {
@@ -66,7 +61,9 @@ export class CommonService {
         case 460: {
             localStorage.removeItem('token');
             window.location.reload();
-            return `${error.message}`;
+        }
+        default: {
+          return error.error;
         }
     }
 }
