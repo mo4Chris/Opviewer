@@ -796,8 +796,6 @@ app.use((req, res, next) => {
 
 mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
-
-
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
 // ##############################################################
@@ -819,7 +817,6 @@ app.use((req,res, next) => {
   const token = req['token'];
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
-  if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
   
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
@@ -859,6 +856,11 @@ mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool,
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################
+
+app.get("/api/validateOudatedUserToken", function(req,res){
+  const token = req['token'];
+  if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
+});
 
 
 app.get("/api/getActiveConnections", function(req, res) {
