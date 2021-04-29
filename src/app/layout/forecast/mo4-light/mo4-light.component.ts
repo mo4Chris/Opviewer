@@ -81,7 +81,6 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
       // this.newService.getCtvForecast()
     ]).subscribe(([projects, vessels, responses]) => {
-      console.log('responses', responses)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
@@ -178,8 +177,6 @@ export class Mo4LightComponent implements OnInit {
       this.responseService.combineWorkabilities(limiters),
       100
     );
-    console.log('printSize(this.Workability)')
-    printSize(this.Workability)
   }
   setWorkabilityAlongHeading() {
     if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
@@ -233,13 +230,3 @@ export interface NavChangeEvent {
   preventDefault: () => void;
 }
 
-
-function printSize(A: any[]) {
-  let sz = A.length.toString();
-  A = A[0];
-  while (Array.isArray(A)) {
-    sz += 'x' + A.length
-    A = A[0];
-  }
-  console.log('Size = ' + sz)
-}
