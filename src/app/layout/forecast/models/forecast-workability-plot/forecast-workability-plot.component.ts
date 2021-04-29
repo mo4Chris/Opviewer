@@ -28,7 +28,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       range: [0, 120],
       title: 'Workability (%)',
       fixedrange: true,
-      automargin: true,
     },
     xaxis: {
       automargin: true,
@@ -42,7 +41,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     margin: {
       t: 40,
       b: 0,
-      l: 40,
+      l: 60,
       r: 40
     }
   };
