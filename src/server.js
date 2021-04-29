@@ -653,16 +653,17 @@ function onUnauthorized(res, cause = 'unknown') {
 
 function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
   const req = res.req; 
-
-  logger.warn({
-    msg: `Outdated request: ${cause}`,
-    type: 'OUTDATED_REQUEST',
-    cause,
-    username: req?.token?.username,
-    url: req.url,
-  })
-  
-  res.status(460).send(cause);
+  if(req != undefined){
+    logger.warn({
+      msg: `Outdated request: ${cause}`,
+      type: 'OUTDATED_REQUEST',
+      cause,
+      username: req?.token?.username,
+      url: req?.url,
+    })
+    
+    res.status(460).send(cause);
+  }
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
