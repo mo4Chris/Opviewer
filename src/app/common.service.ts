@@ -1,8 +1,8 @@
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable,  } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
@@ -28,19 +28,40 @@ const httpOptions = {
 })
 export class CommonService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   get(url: string): Observable<any> {
-    return this.http.get(environment.DB_IP + url, httpOptions);
+    return this.http.get(environment.DB_IP + url, httpOptions).pipe(
+      catchError(this.getServerErrorMessage));
   }
 
   post(url: string, data: any): Observable<any> {
-    return this.http.post(environment.DB_IP + url, data, httpOptions);
+    return this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return this.getServerErrorMessage(err);
+      }
+    ));
   }
 
   put(url: string, data: any): Observable<any> {
-    return this.http.put(environment.DB_IP + url, data, httpOptions);
+    return this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return this.getServerErrorMessage(err);
+      }
+    ));
   }
+
+  private getServerErrorMessage(error: HttpErrorResponse) {
+    switch (error.status) {
+        case 460: {
+            localStorage.removeItem('token');
+            window.location.reload();
+        }
+        default: {
+          return error.error;
+        }
+    }
+}
 
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
     return this.post('/api/validatePermissionToViewData/', vessel);
