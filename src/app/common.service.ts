@@ -64,8 +64,9 @@ export class CommonService {
   private getServerErrorMessage(error: HttpErrorResponse) {
     switch (error.status) {
         case 460: {
-            localStorage.removeItem('token')
-            return `Not Found: ${error.message}`;
+            localStorage.removeItem('token');
+            window.location.reload();
+            return `${error.message}`;
         }
     }
 }
