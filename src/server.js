@@ -661,6 +661,7 @@ function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
     username: req?.token?.username,
     url: req.url,
   })
+  
   res.status(460).send(cause);
 }
 
@@ -823,6 +824,7 @@ app.use((req,res, next) => {
   LEFT JOIN "userPermissionTable" userPerm
   ON userType."user_id" = userperm."user_id"
   where userType."user_id"=$1`;
+  if(typeof token.userID !== 'number') return onOutdatedToken(res)
   const values = [token.userID]
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
@@ -1051,6 +1053,7 @@ async function getAssignedVessels(token, res) {
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
+  if(typeof token.userID !== 'number') return onOutdatedToken(res);
   const values = [token.userID]
   data = await admin_server_pool.query(PgQuery, values)
 

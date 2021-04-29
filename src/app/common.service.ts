@@ -15,7 +15,6 @@ import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { storedSettings } from './supportModules/settings.service';
 import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
-import { Router } from '@angular/router';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -31,7 +30,6 @@ export class CommonService {
 
   constructor(
     private http: HttpClient, 
-    public router: Router
     ) { }
 
   get(url: string): Observable<any> {
@@ -50,8 +48,7 @@ export class CommonService {
     switch (error.status) {
         case 460: {
             localStorage.removeItem('token');
-            this.router.navigate(['login']);
-            //window.location.reload();
+            window.location.reload();
         }
         default: {
           return error.error;
