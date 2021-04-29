@@ -65,6 +65,13 @@ module.exports = function (
 
     //turn account creation back on after other functions
     try {
+      const query = `SELECT t.username
+        FROM "userTable" t
+        WHERE t."username"=$1`
+      const values = [username];
+      const response = await admin_server_pool.query(query, values)
+      const user_exists = response.rowCount > 0;
+      if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await createProject()
       await createUser({
         username,
@@ -301,7 +308,8 @@ module.exports = function (
       "longitude",
       "water_depth",
       "client_preferences"
-    ) RETURNING "projectTable"."id"`
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     RETURNING "projectTable"."id"`
     const values = [
       project_name,
       2,
@@ -506,7 +514,13 @@ module.exports = function (
           "Value": 1.5,
           "Unit": "m"
         },
-      ]
+      ],
+      "Ctv_Slip_Options": {
+          "Window_Length_Seconds": 2,
+          "Max_Allowed_Slip_Meter": 30,
+          "Thrust_Level_N": 100000,
+          "Slip_Coefficient": 0.7
+      }
     }
   }
 };

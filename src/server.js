@@ -652,7 +652,7 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onOutdatedToken(res, token, cause = 'Outdated token, please log in again') {
-  const req = res.req; 
+  const req = res.req;
   if(token != undefined){
     logger.warn({
       msg: `Outdated request: ${cause}`,
@@ -661,7 +661,7 @@ function onOutdatedToken(res, token, cause = 'Outdated token, please log in agai
       username: token?.username,
       url: req?.url,
     })
-    
+
     res.status(460).send(cause);
   }
 }
@@ -693,7 +693,7 @@ function onBadRequest(res, cause = 'Bad request') {
     msg: `Bad request: ${cause}`,
     type: 'BAD_REQUEST',
     cause,
-    username: req.token.username,
+    username: req?.token?.username ?? 'UNKNOWN',
     url: req.url,
   })
   if (cause == 'Bad request') {
@@ -823,7 +823,7 @@ app.use((req,res, next) => {
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
   if(typeof token?.userID !== 'number') return onOutdatedToken(res, token)
-  
+
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
   LEFT JOIN "userPermissionTable" userPerm
