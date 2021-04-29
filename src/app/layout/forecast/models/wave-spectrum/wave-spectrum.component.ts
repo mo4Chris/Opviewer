@@ -19,97 +19,12 @@ export class SovWaveSpectrumComponent implements OnChanges {
   @Input() weather: RawWaveData;
   @Input() spectrum: number[][][];
 
-  private Kmax = 28.8;
+  private Kmax = 24.8;
   public parsedData: Plotly.Data[];
   public spectrumIndex = 0;
   public loaded = false;
 
-  public PlotLayout: Partial<Plotly.Layout> = {
-    // General settings for the graph
-    showlegend: false,
-    height: 600,
-    width: 600,
-    xaxis: {
-      visible: false,
-      title: 'Tx [1/s]',
-      showgrid: false,
-      zeroline: false,
-      range: [-1.15 * this.Kmax, 1.15*this.Kmax]
-    },
-    yaxis: {
-      visible: false,
-      title: 'Ty [1/s]',
-      showgrid: false,
-      zeroline: false,
-      range: [-1.15 * this.Kmax, 1.15*this.Kmax]
-    },
-    radialaxis: {
-      'visible': false,
-    },
-    margin: {
-      l: 40,
-      r: 20,
-      b: 0,
-      t: 0,
-      pad: 4
-    },
-    annotations: [
-      this.makeTextAnnotation({
-        text: 'N',
-        x: 0,
-        y: this.Kmax,
-        yanchor: 'bottom',
-      }), this.makeTextAnnotation({
-        text: 'E',
-        x: this.Kmax,
-        y: 0,
-        xanchor: 'left',
-        xshift: 3,
-      }), this.makeTextAnnotation({
-        text: 'S',
-        x: 0,
-        y: -this.Kmax,
-        yanchor: 'top',
-      }), this.makeTextAnnotation({
-        text: 'W',
-        x: - this.Kmax,
-        y: 0,
-        xanchor: 'right',
-        xshift: -5,
-      }),
-      this.makeCircleTextAnnotation(5, '5s'),
-      this.makeCircleTextAnnotation(10, '10s'),
-      this.makeCircleTextAnnotation(15, '15s'),
-      this.makeCircleTextAnnotation(20, '20s'),
-      this.makeCircleTextAnnotation(25, '25s'),
-    ],
-    shapes: [
-      this.makeCircle(this.Kmax, {width: 5}),
-      this.makeCircle(5, {width: 1, color: 'white'}),
-      this.makeCircle(10, {width: 1, color: 'white'}),
-      this.makeCircle(15, {width: 1, color: 'white'}),
-      this.makeCircle(20, {width: 1, color: 'white'}),
-      this.makeCircle(25, {width: 1, color: 'white'}),
-      this.makeLine(0),
-      this.makeLine(90),
-      this.makeDonut(this.Kmax, 1.05*this.Kmax), // Hides the rough outer edges of the voided spectrum
-    ],
-    sliders: [{
-      x: 0.5,
-      y: -0.05,
-      xanchor: 'center',
-      yanchor: 'middle',
-      currentvalue: {
-        xanchor: 'center',
-        visible: true,
-        font: { size: 20 },
-        offset: 0,
-        prefix: '',
-        suffix: '',
-      },
-      steps: [], // The slider steps are added dynamically
-    }],
-  };
+  public PlotLayout: Partial<Plotly.Layout>;
   public PlotlyOptions: Partial<Plotly.Config> = {
     displayModeBar: true,
     modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
@@ -138,6 +53,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
   ngOnChanges(): void {
     this.loaded = false;
     if (this.k_x == null || !this.spectrumValid) return
+    this.initPlotLayout();
     this.plotViaIndex();
     this.setSliderSteps();
     this.loaded = true;
@@ -199,6 +115,96 @@ export class SovWaveSpectrumComponent implements OnChanges {
       })
     })
     this.PlotLayout.sliders[0].steps = steps;
+  }
+
+  initPlotLayout() {
+    this.Kmax = 0.99 * Math.max(...this.k_x)
+    this.PlotLayout = {
+      // General settings for the graph
+      showlegend: false,
+      height: 600,
+      width: 600,
+      xaxis: {
+        visible: false,
+        title: 'Tx [1/s]',
+        showgrid: false,
+        zeroline: false,
+        range: [-1.15 * this.Kmax, 1.15*this.Kmax]
+      },
+      yaxis: {
+        visible: false,
+        title: 'Ty [1/s]',
+        showgrid: false,
+        zeroline: false,
+        range: [-1.15 * this.Kmax, 1.15*this.Kmax]
+      },
+      radialaxis: {
+        'visible': false,
+      },
+      margin: {
+        l: 40,
+        r: 20,
+        b: 0,
+        t: 0,
+        pad: 4
+      },
+      annotations: [
+        this.makeTextAnnotation({
+          text: 'N',
+          x: 0,
+          y: this.Kmax,
+          yanchor: 'bottom',
+        }), this.makeTextAnnotation({
+          text: 'E',
+          x: this.Kmax,
+          y: 0,
+          xanchor: 'left',
+          xshift: 3,
+        }), this.makeTextAnnotation({
+          text: 'S',
+          x: 0,
+          y: -this.Kmax,
+          yanchor: 'top',
+        }), this.makeTextAnnotation({
+          text: 'W',
+          x: - this.Kmax,
+          y: 0,
+          xanchor: 'right',
+          xshift: -5,
+        }),
+        this.makeCircleTextAnnotation(5, '5s'),
+        this.makeCircleTextAnnotation(10, '10s'),
+        this.makeCircleTextAnnotation(15, '15s'),
+        this.makeCircleTextAnnotation(20, '20s'),
+        this.makeCircleTextAnnotation(25, '25s'),
+      ],
+      shapes: [
+        this.makeCircle(this.Kmax, {width: 5}),
+        this.makeCircle(5, {width: 1, color: 'white'}),
+        this.makeCircle(10, {width: 1, color: 'white'}),
+        this.makeCircle(15, {width: 1, color: 'white'}),
+        this.makeCircle(20, {width: 1, color: 'white'}),
+        this.makeCircle(25, {width: 1, color: 'white'}),
+        this.makeLine(0),
+        this.makeLine(90),
+        this.makeDonut(this.Kmax, 1.05*this.Kmax), // Hides the rough outer edges of the voided spectrum
+      ],
+      sliders: [{
+        x: 0.5,
+        y: -0.05,
+        xanchor: 'center',
+        yanchor: 'middle',
+        currentvalue: {
+          xanchor: 'center',
+          visible: true,
+          font: { size: 20 },
+          offset: 0,
+          prefix: '',
+          suffix: '',
+        },
+        steps: [], // The slider steps are added dynamically
+      }],
+    };
   }
 
   onPlotlyInit() {

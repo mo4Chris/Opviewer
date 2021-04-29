@@ -92,7 +92,7 @@ interface PoiValue {
   Value: number;
   Unit: string;
 }
-type MAX_TYPE = 'MPM' | 'STD';
+type MAX_TYPE = 'MPM' | 'STD' | 'Significant';
 
 interface ForecastVesselLocation {
   X: { // From aft of vessel towards the bow

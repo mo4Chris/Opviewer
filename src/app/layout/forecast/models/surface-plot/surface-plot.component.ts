@@ -63,11 +63,12 @@ export class SurfacePlotComponent implements OnChanges {
     return this.xData && this.yData && this.zData
       && this.xData.length > 0
       && this.yData.length > 0
-      && this.zData.length > 0;
+      && this.zData.length > 0
+      && this.zData[0].length > 0;
   }
 
   ngOnChanges() {
-    if (!(this.xData && this.xData.length > 0 && this.yData.length > 0)) return;
+    if (!this.hasData) return;
     this.validateInput();
     this.parsedData = [{
       x: this.xData,

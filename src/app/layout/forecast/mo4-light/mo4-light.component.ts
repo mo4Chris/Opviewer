@@ -186,6 +186,7 @@ export class Mo4LightComponent implements OnInit {
     printSize(this.Workability)
   }
   setWorkabilityAlongHeading() {
+    if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
