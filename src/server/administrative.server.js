@@ -65,13 +65,15 @@ module.exports = function (
 
     //turn account creation back on after other functions
     try {
+      const demo_project_id = await createProject()
       await createUser({
         username,
         requires2fa,
         client_id,
         vessel_ids,
         user_type,
-        password
+        password,
+        demo_project_id,
       })
     } catch (err) {
       if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
@@ -162,7 +164,7 @@ module.exports = function (
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
-    "clientTable"."client_name", "user_type", "admin", "user_read", "demo", 
+    "clientTable"."client_name", "user_type", "admin", "user_read", "demo",
     "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client", "userTable"."client_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
@@ -235,10 +237,11 @@ module.exports = function (
     client_id = null,
     vessel_ids = [],
     user_type = 'demo',
-    password = null
+    password = null,
+    demo_project_id = null
   }) {
-    let expireDate = new Date();
-    expireDate = '' + expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
+    const expireDate = new Date();
+    const formattedExpireDate = '' + expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
@@ -254,8 +257,9 @@ module.exports = function (
       "token",
       "client_id",
       "password",
-      "demo_expiration_date"
-    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "userTable"."user_id"`
+      "demo_expiration_date",
+      "demo_project_id
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "userTable"."user_id"`
     const values = [
       username,
       Boolean(requires2fa) ?? true,
@@ -264,9 +268,10 @@ module.exports = function (
       password_setup_token,
       client_id,
       password,
-      expireDate
+      formattedExpireDate,
+      demo_project_id
     ]
-    
+
     const sqlresponse = await admin_server_pool.query(query, values)
     const user_id = sqlresponse.rows[0].user_id;
 
@@ -276,6 +281,44 @@ module.exports = function (
     logger.debug('Init user settings')
     initUserSettings(user_id);
     return ;
+  }
+  async function createProject(client_id = 1) {
+    logger.info(`Creating new project with client id = ${client_id}`)
+    const currentTime = Date.now()
+    const activation_start_date = '1';
+    const activation_end_date = '1';
+    const project_name = `demo_${currentTime}`
+    const project_preferences = initProjectPreferences();
+    const query = `INSERT INTO "projectTable"(
+      "name",
+      "consumer_id",
+      "client_id",
+      "vessel_id",
+      "activation_start_date",
+      "activation_end_date",
+      "maximum_duration",
+      "latitude",
+      "longitude",
+      "water_depth",
+      "client_preferences"
+    ) RETURNING "projectTable"."id"`
+    const values = [
+      project_name,
+      2,
+      client_id,
+      1,
+      activation_start_date,
+      activation_end_date,
+      "01:00:00",
+      52,
+      3,
+      20,
+      project_preferences,
+    ]
+    const sqlresponse = await admin_server_pool.query(query, values)
+    const new_project_id = sqlresponse.rows[0].id;
+    logger.debug(`Succesfully created project!`)
+    return new_project_id
   }
 
 
@@ -302,7 +345,7 @@ module.exports = function (
     }
     return true;
   }
-  
+
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
       user_id,
@@ -397,5 +440,73 @@ module.exports = function (
     }).catch((err) => {
       localLogger.error(err)
     })
+  }
+  function initProjectPreferences() {
+    return {
+      "Points": [
+        {
+          "Name": "Crane",
+          "X": {
+            "Value": 5.0,
+            "Type": "absolute",
+            "Unit": "m"
+          },
+          "Y": {
+            "Value": 3.5,
+            "Type": "absolute",
+            "Unit": "m"
+          },
+          "Z": {
+            "Value": 2.0,
+            "Type": "absolute",
+            "Unit": "m"
+          }
+        }
+      ],
+      "Degrees_Of_Freedom": {
+        "Roll": {
+          "Disp": true,
+          "Vel": false,
+          "Acc": false
+        },
+        "Pitch": {
+          "Disp": false,
+          "Vel": false,
+          "Acc": true
+        },
+        "Yaw": {
+          "Disp": false,
+          "Vel": true,
+          "Acc": false
+        },
+        "Surge": {
+          "Disp": false,
+          "Vel": false,
+          "Acc": false
+        },
+        "Sway": {
+          "Disp": false,
+          "Vel": true,
+          "Acc": false
+        },
+        "Heave": {
+          "Disp": true,
+          "Vel": true,
+          "Acc": false
+        }
+      },
+      "Ops_Start_Time": "12:00",
+      "Ops_Stop_Time": "13:00",
+      "Ops_Heading": 45,
+      "Max_Type": "MPM",
+      "Limits": [
+        {
+          "Dof": "Heave",
+          "Type": "Disp",
+          "Value": 1.5,
+          "Unit": "m"
+        },
+      ]
+    }
   }
 };
