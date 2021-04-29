@@ -124,6 +124,7 @@ module.exports = function (
       if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
 
       const user_id = data.user_id;
+      if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
       const query2 = `UPDATE "userTable"
       SET password=$1,
           secret2fa=$2,
@@ -176,6 +177,7 @@ module.exports = function (
       if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
 
       let user = data.rows[0];
+      if (typeof user.user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
       localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
       localLogger.debug('Retrieving vessels for user')
@@ -212,6 +214,7 @@ module.exports = function (
   });
 
   function getVesselsForUser(res, user_id) {
+    if (typeof user_id !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
     let PgQuery = `
     SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
       FROM "vesselTable"
