@@ -119,6 +119,13 @@ export class SovWaveSpectrumComponent implements OnChanges {
 
   initPlotLayout() {
     this.Kmax = 0.99 * Math.max(...this.k_x)
+    const circleAnnotations = this.calcService.linspace(5, this.Kmax, 5).map(_n => {
+      return this.makeCircleTextAnnotation(_n, `${_n}s`);
+    });
+    const circleShapes = this.calcService.linspace(5, this.Kmax, 5).map(_n => {
+      return this.makeCircle(_n, {width: 1, color: 'white'});
+    });
+
     this.PlotLayout = {
       // General settings for the graph
       showlegend: false,
@@ -172,19 +179,11 @@ export class SovWaveSpectrumComponent implements OnChanges {
           xanchor: 'right',
           xshift: -5,
         }),
-        this.makeCircleTextAnnotation(5, '5s'),
-        this.makeCircleTextAnnotation(10, '10s'),
-        this.makeCircleTextAnnotation(15, '15s'),
-        this.makeCircleTextAnnotation(20, '20s'),
-        this.makeCircleTextAnnotation(25, '25s'),
+        ...circleAnnotations
       ],
       shapes: [
         this.makeCircle(this.Kmax, {width: 5}),
-        this.makeCircle(5, {width: 1, color: 'white'}),
-        this.makeCircle(10, {width: 1, color: 'white'}),
-        this.makeCircle(15, {width: 1, color: 'white'}),
-        this.makeCircle(20, {width: 1, color: 'white'}),
-        this.makeCircle(25, {width: 1, color: 'white'}),
+        ... circleShapes,
         this.makeLine(0),
         this.makeLine(90),
         this.makeDonut(this.Kmax, 1.05*this.Kmax), // Hides the rough outer edges of the voided spectrum
