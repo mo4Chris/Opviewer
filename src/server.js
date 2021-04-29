@@ -651,6 +651,21 @@ function onUnauthorized(res, cause = 'unknown') {
   }
 }
 
+function onOutdatedToken(res, token, cause = 'Outdated token, please log in again') {
+  const req = res.req; 
+  if(token != undefined){
+    logger.warn({
+      msg: `Outdated request: ${cause}`,
+      type: 'OUTDATED_REQUEST',
+      cause,
+      username: token?.username,
+      url: req?.url,
+    })
+    
+    res.status(460).send(cause);
+  }
+}
+
 function onError(res, err, additionalInfo = 'Internal server error') {
   try {
     const response_message = err?.response?.data?.message;
@@ -698,6 +713,8 @@ function verifyToken(req, res) {
 
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
+
+    if(typeof payload?.userID !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
     admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
@@ -778,12 +795,11 @@ app.use((req, res, next) => {
   res['onError'] = (err, additionalInfo) => onError(res, err, additionalInfo);
   res['onUnauthorized'] = (cause) => onUnauthorized(res, cause);
   res['onBadRequest'] = (cause) => onBadRequest(res, cause);
+  res['onOutdatedToken'] = (cause) => onOutdatedToken(res, cause);
   next();
 })
 
 mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
-
-
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -806,12 +822,15 @@ app.use((req,res, next) => {
   const token = req['token'];
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
+  if(typeof token?.userID !== 'number') return onOutdatedToken(res, token)
+  
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
   LEFT JOIN "userPermissionTable" userPerm
   ON userType."user_id" = userperm."user_id"
   where userType."user_id"=$1`;
   const values = [token.userID]
+
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
@@ -844,7 +863,6 @@ mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool,
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################
-
 
 app.get("/api/getActiveConnections", function(req, res) {
   const token = req['token']
