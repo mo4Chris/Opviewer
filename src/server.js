@@ -713,6 +713,8 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
+    if(typeof token.userID !== 'number') return onOutdatedToken(payload)
+
     const lastActive = new Date()
     admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
       lastActive,
@@ -820,6 +822,7 @@ app.use((req,res, next) => {
   const token = req['token'];
   const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
   if (!isSecureMethod) return next();
+  if(typeof token.userID !== 'number') return onOutdatedToken(res)
   
   const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
   FROM "userTable" userType
@@ -827,6 +830,7 @@ app.use((req,res, next) => {
   ON userType."user_id" = userperm."user_id"
   where userType."user_id"=$1`;
   const values = [token.userID]
+
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
@@ -1048,7 +1052,6 @@ async function getAssignedVessels(token, res) {
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
-  if(typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
   const values = [token.userID]
   data = await admin_server_pool.query(PgQuery, values)
 

@@ -32,10 +32,7 @@ export class CommonService {
 
   get(url: string): Observable<any> {
     return this.http.get(environment.DB_IP + url, httpOptions).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.getServerErrorMessage(err);
-      }
-    ));
+      catchError(this.getServerErrorMessage));
   }
 
   post(url: string, data: any): Observable<any> {
