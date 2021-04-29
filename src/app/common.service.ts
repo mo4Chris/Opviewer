@@ -68,10 +68,6 @@ export class CommonService {
     }
 }
 
-  validateOudatedUserToken() {
-    return this.get('/api/validateOudatedUserToken/');
-  }
-
   validatePermissionToViewData(vessel: { mmsi: number}): Observable<VesselModel[]> {
     return this.post('/api/validatePermissionToViewData/', vessel);
   }

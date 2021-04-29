@@ -652,7 +652,6 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onOutdatedToken(res, cause = 'Outdated token, please log in again') {
-  console.log('entered function');
   const req = res.req; 
 
   logger.warn({
@@ -860,12 +859,6 @@ mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool,
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################
-
-app.get("/api/validateOudatedUserToken", function(req,res){
-  const token = req['token'];
-  if (typeof token.userID !== 'number') return onOutdatedToken(res, 'Outdated token, please log in again');
-});
-
 
 app.get("/api/getActiveConnections", function(req, res) {
   const token = req['token']
