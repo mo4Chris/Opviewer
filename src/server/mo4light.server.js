@@ -111,26 +111,24 @@ module.exports = function(app, logger) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     log('Start azure project list request')
-    pg_get('/projects').then(async (out, err) => {
+    pg_get('/project/' + project_name).then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
-      const project_output = data.map(d => {
-        return {
-          id: d.id,
-          name: d.name,
-          client_id: d.client_id,
-          longitude: d.longitude,
-          latitude: d.latitude,
-          water_depth: d.water_depth,
-          maximum_duration: d.maximum_duration,
-          activation_start_date: d.activation_start_date,
-          activation_end_date: d.activation_start_date,
-          client_preferences: d.client_preferences,
-          vessel_id: d.vessel_id
-        }
-      })
-      // ToDo: filter data by token rights
+      const project = out.data;
+      if (!checkProjectPermission(token, project)) return res.onUnauthorized()
+      const project_output = [{
+        id: project.id,
+        name: project.name,
+        client_id: project.client_id,
+        longitude: project.longitude,
+        latitude: project.latitude,
+        water_depth: project.water_depth,
+        maximum_duration: project.maximum_duration,
+        activation_start_date: project.activation_start_date,
+        activation_end_date: project.activation_start_date,
+        client_preferences: project.client_preferences,
+        vessel_id: project.vessel_id
+      }]
       res.send(project_output)
     }).catch(err => {
       onError(res, err)
