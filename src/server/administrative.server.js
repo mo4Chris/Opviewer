@@ -138,8 +138,8 @@ module.exports = function (
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
       if (!requires2fa) localLogger.info('User does not require 2FA')
-      const valid2fa = typeof (confirm2fa) == 'string' && (confirm2fa.length > 0);
-      if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
+      const valid2fa = (typeof(confirm2fa) == 'string') && (confirm2fa.length > 0);
+      if (requires2fa && !valid2fa) return res.onBadRequest('2FA code is required but not provided!')
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
       if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
 
@@ -157,7 +157,7 @@ module.exports = function (
       }).catch(err => {
         onError(res, err)
       });
-    }).catch(err => onError(res, err, 'Registration token not found!'))
+    }).catch(err => res.onError(err, 'Registration token not found!'))
   })
 
   app.post("/api/login", async function (req, res) {

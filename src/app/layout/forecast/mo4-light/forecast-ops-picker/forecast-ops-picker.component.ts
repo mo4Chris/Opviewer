@@ -91,7 +91,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges = {}) {
     
     if (changes.minForecastDate) this.date = this.minForecastDate;
-    if (this.selectedProjectId) this.onNewSelectedOperation();
+    if (changes.selectedProjectId) this.onNewSelectedOperation();
   }
   onNewSelectedOperation() {
     this.slipValue = this.slipCoefficients[0]; //ToDo: Retrieve from settings
