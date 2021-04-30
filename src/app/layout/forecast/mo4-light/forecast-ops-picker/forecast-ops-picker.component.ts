@@ -5,9 +5,15 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
-import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
 import { ForecastOperation, ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
+
+const DEFAULT_SLIP_OPTIONS = {
+  Max_Allowed_Slip_Meter: 2,
+  Slip_Coefficient: 0.7,
+  Thrust_Level_N: 10000,
+  Window_Length_Seconds: 120,
+}
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -142,7 +148,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
       Ops_Heading: this.heading,
       Points: old_preferences.Points,
       Limits: <any> this.limits.map(_limit => _limit.toObject()),
-      Degrees_Of_Freedom: old_preferences.Degrees_Of_Freedom
+      Degrees_Of_Freedom: old_preferences.Degrees_Of_Freedom,
+      Ctv_Slip_Options: old_preferences.Ctv_Slip_Options ?? DEFAULT_SLIP_OPTIONS // Use version of chris when applicable
     }
     this.selectedProject.client_preferences = <any> new_preferences;
     this.newService.saveForecastProjectSettings(this.selectedProject).subscribe({

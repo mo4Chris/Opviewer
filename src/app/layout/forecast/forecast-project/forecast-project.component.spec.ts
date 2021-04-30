@@ -121,7 +121,8 @@ describe('ForecastProjectComponent', () => {
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it('should create', async () => {
+    await fixture.whenStable()
     expect(component).toBeTruthy();
     let agmMap = locate('agm-map');
     // expect(agmMap).toBeTruthy('Project should have loaded');

@@ -42,6 +42,7 @@ describe('ForecastDashboardComponent', () => {
   it('should have working buttons', async () => {
     component.projects = [{
       id: 0,
+      nicename: 'TESTY',
       name: 'string',
       client_id: 1,
       latitude: 2,

@@ -8,7 +8,8 @@ import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 import { Injectable } from '@angular/core';
-import { ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
+import { ForecastExpectedResponsePreference, ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
+import { ForecastMotionLimit } from '@app/layout/forecast/models/forecast-limit';
 
 
 const emptyMatlabObject = {
@@ -723,7 +724,7 @@ export class MockedCommonService extends CommonService {
       vessel_id: 123,
       activation_start_date: "2020-02-10T09:44:17.881913+00:00",
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
-      client_preferences: null,
+      client_preferences: mockForecastProjectPreferences(),
       consumer_id: 123
     }]);
   }
@@ -866,6 +867,87 @@ function mockWeatherConditions(date: number) {
     windGust: time.map(() => 1),
     windDirection: time.map(x => 180 * (x - date)),
   };
+}
+
+function mockForecastProjectPreferences(): ForecastExpectedResponsePreference {
+  return {
+    "Points": [
+        {
+            "Name": "Crane",
+            "X": {
+                "Value": 0.5,
+                "Type": "absolute",
+                "Unit": "m"
+            },
+            "Y": {
+                "Value": 1.0,
+                "Type": "absolute",
+                "Unit": "m"
+            },
+            "Z": {
+                "Value": 5.0,
+                "Type": "absolute",
+                "Unit": "m"
+            }
+        }
+    ],
+    "Degrees_Of_Freedom": {
+        "Roll": {
+            "Disp": true,
+            "Vel": false,
+            "Acc": false
+        },
+        "Pitch": {
+            "Disp": false,
+            "Vel": false,
+            "Acc": true
+        },
+        "Yaw": {
+            "Disp": false,
+            "Vel": true,
+            "Acc": false
+        },
+        "Surge": {
+            "Disp": false,
+            "Vel": false,
+            "Acc": false
+        },
+        "Sway": {
+            "Disp": false,
+            "Vel": true,
+            "Acc": false
+        },
+        "Heave": {
+            "Disp": true,
+            "Vel": true,
+            "Acc": false
+        }
+    },
+    "Ops_Start_Time": "00:55",
+    "Ops_Stop_Time": "03:55",
+    "Ops_Heading": 180,
+    "Max_Type": "MPM",
+    "Limits": [
+        new ForecastMotionLimit({
+            "Dof": "Heave",
+            "Type": "Disp",
+            "Value": 2.0,
+            "Unit": "m"
+        }),
+        new ForecastMotionLimit({
+            "Dof": "Roll",
+            "Type": "Acc",
+            "Value": 3.0,
+            "Unit": "m"
+        })
+    ],
+    "Ctv_Slip_Options": {
+      "Window_Length_Seconds": 2,
+      "Max_Allowed_Slip_Meter": 30,
+      "Thrust_Level_N": 100000,
+      "Slip_Coefficient": 0.7
+    }
+  }
 }
 
 type VesselType = 'CTV' | 'OSV' | 'SOV';

@@ -103,7 +103,7 @@ export class ForecastVesselComponent implements OnInit {
     this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
     this.Longitude = this.gps.lonToDms(this.project.longitude);
     this.Lattitude = this.gps.latToDms(this.project.latitude);
-    const poi = this.project.client_preferences.Points;
+    const poi = this.project?.client_preferences?.Points;
     if (poi) {
       this.POI = poi[0];
       this.POI.X.Type = 'absolute';
