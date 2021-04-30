@@ -35,6 +35,10 @@
                 <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
                   [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
                 </app-surface-plot>
+
+                <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip stability" [xData]="reponseTime"
+                  [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100">
+                </app-surface-plot>
               </ng-container>
             </ng-template>
           </li>
