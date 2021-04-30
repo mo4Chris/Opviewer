@@ -9,14 +9,14 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Client</th>
+              <th *ngIf="permission.admin">Client</th>
               <th>Project overview</th>
               <th>Edit project</th>
             </tr>
           </thead>
           <tbody class='sep-row'>
             <tr *ngFor='let project of projects; let _index = index'>
-              <td>{{project.name}}</td>
+              <td>{{project.nicename}}</td>
               <td>{{getClient(project.client_id)}}</td>
               <td>
                 <button (click)="routeToProject(project.id)" class="btn btn-primary">

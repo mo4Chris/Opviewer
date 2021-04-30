@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
 import { ForecastOperation } from '../models/forecast-response.model';
@@ -16,6 +17,7 @@ export class ForecastDashboardComponent implements OnInit {
   constructor(
     public routerService: RouterService,
     private newService: CommonService,
+    public permission: PermissionService
   ) { }
 
   ngOnInit() {

@@ -714,6 +714,7 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([{
       id: 123,
       name,
+      nicename: 'Nice name',
       client_id: 1,
       latitude: 2,
       longitude: 3,
