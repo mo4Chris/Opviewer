@@ -167,7 +167,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     if (currentPastStopTime) {
       this.startTime += 1;
       this.stopTime += 1;
-      console.log('this.stopTime', this.stopTime)
     }
     const duration = this.stopTime - this.startTime;
     this.formattedDuration = this.dateService.formatMatlabDuration(duration);
