@@ -6,7 +6,7 @@ import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastOperation, ForecastResponseObject, Dof6Array } from '../models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
@@ -32,6 +32,11 @@ export class Mo4LightComponent implements OnInit {
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
+
+  private ctvSlipResponse: CtvSlipResponse;
+  public SlipProbability: number[][] = [];
+  public SlipCoefficients: number[];
+  public SlipThrustLevels: number[];
 
   public limits: ForecastMotionLimit[] = [];
   public selectedHeading = 0;
@@ -98,6 +103,7 @@ export class Mo4LightComponent implements OnInit {
       this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
 
       this.parseResponse();
+      this.parseCtvSlipResponse();
 
       if (this.response == null) return
       // TEMPORARY WORKAROUND FOR WEATHER
@@ -150,6 +156,17 @@ export class Mo4LightComponent implements OnInit {
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
   }
+  parseCtvSlipResponse() {
+    const POI = this.responseObj.response.Points_Of_Interest.P1;
+    if (! POI?.SlipResponse) return;
+    const slip = POI.SlipResponse;
+    const slipCoeffIndex = 3;
+    const thrustIndex = 3;
+    this.SlipCoefficients = slip.Friction_Coeff_Range;
+    this.SlipThrustLevels = slip.Thrust_Range;
+    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[slipCoeffIndex][thrustIndex]));
+    this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
+  }
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
@@ -157,16 +174,15 @@ export class Mo4LightComponent implements OnInit {
       return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
     });
     this.Workability = this.matService.scale(
-      this.matService.transpose(
-        this.responseService.combineWorkabilities(limiters)
-      ),
+      this.responseService.combineWorkabilities(limiters),
       100
     );
   }
   setWorkabilityAlongHeading() {
+    if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
-    this.WorkabilityAlongSelectedHeading = this.Workability[headingIdx];
+    this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
   getHeadingIdx(headings: number[]): number {
     let d = 360;
@@ -213,3 +229,4 @@ export interface NavChangeEvent {
   nextId: string
   preventDefault: () => void;
 }
+

@@ -136,7 +136,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const old_preferences = this.selectedProject.client_preferences;
     const new_preferences: ForecastExpectedResponsePreference = {
       Points_Of_Interest: old_preferences.Points_Of_Interest,
-      Max_Type: 'MPM',
+      Max_Type: old_preferences.Max_Type ?? 'Significant',
       Ops_Start_Time: formatTime(this.startTimeInput),
       Ops_Stop_Time: formatTime(this.stopTimeInput),
       Ops_Heading: this.heading,

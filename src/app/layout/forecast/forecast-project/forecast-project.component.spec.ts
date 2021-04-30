@@ -138,7 +138,6 @@ describe('ForecastProjectComponent', () => {
       .and.returnValue(mockedObservable({data: 'Great succes'}));
     const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
     const saveBtn = locate('button') as HTMLButtonElement;
-    console.log('saveBtn', saveBtn)
     expect(saveBtn).toBeTruthy();
     expect(alertSpy).not.toHaveBeenCalled();
     expect(saveSpy).not.toHaveBeenCalled();
