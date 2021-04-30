@@ -81,6 +81,12 @@ export interface ForecastExpectedResponsePreference {
   Ops_Heading: number;
   Limits: ForecastMotionLimit[];
   Max_Type: MAX_TYPE;
+  Ctv_Slip_Options: {
+    Window_Length_Seconds: number,
+    Max_Allowed_Slip_Meter: number,
+    Thrust_Level_N: number,
+    Slip_Coefficient: number
+  }
 }
 export interface PointOfInterest {
   Name: string;

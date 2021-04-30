@@ -1,6 +1,7 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { CalculationService } from '@app/supportModules/calculation.service';
+import { MatrixService } from '@app/supportModules/matrix.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import { SurfacePlotComponent } from './surface-plot.component';
 
@@ -8,6 +9,7 @@ describe('SurfacePlotComponent', () => {
   let component: SurfacePlotComponent;
   let fixture: ComponentFixture<SurfacePlotComponent>;
   const calc = new CalculationService();
+  const mat = new MatrixService();
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -46,29 +48,24 @@ describe('SurfacePlotComponent', () => {
   });
 
   it('should create with data', async () => {
+    await fixture.whenStable()
     component.xData   = calc.linspace(737000, 737001, 1 / 10).map(t => datenumToDate(t));
     component.yData   = calc.linspace(0, 40, 10);
-    component.zData   = calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200 + e, 20));
+    component.zData   = mat.transpose(calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200 + e, 20)));
     component.xLabel  = 'test_label_x';
     component.yLabel  = 'test_label_y';
     component.title   = 'Test title';
     component.ngOnChanges();
     await fixture.whenStable();
-    const layout = component.PlotLayout;
     expect(component).toBeTruthy();
     expect(component.loaded).toBe(true);
-    expect(component.parsedData).toBeTruthy();
-    expect(component.parsedData.length).toEqual(1);
-    expect(component.parsedData.length).toEqual(1);
-    expect(layout.xaxis.title['text']).toBe(component.xLabel);
-    expect(layout.yaxis.title['text']).toBe(component.yLabel);
-    expect(layout.yaxis.title['text']).toBe(component.yLabel);
+    expect(component?.parsedData?.length).toEqual(1);
   });
 
   it('should render a graph', async () => {
     component.xData   = calc.linspace(737000, 737001, 1 / 10).map(t => datenumToDate(t));
     component.yData   = calc.linspace(0, 40, 10);
-    component.zData   = calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200 + e, 20));
+    component.zData   = mat.transpose(calc.linspace(0, 200, 50).map(e => calc.linspace(e, 200 + e, 20)));
     component.xLabel  = 'test_label_x';
     component.yLabel  = 'test_label_y';
     component.title   = 'Test title';

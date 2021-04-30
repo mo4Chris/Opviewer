@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SupportModelModule } from '@app/models/support-model.module';
+import { RawWaveData } from '@app/models/wavedataModel';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -55,7 +56,7 @@ describe('WaveSpectrumComponent', () => {
 
   it('not fail on missing waveDir', async () => {
     mockSpectrumComponent(component);
-    component.waveDir = null;
+    component.weather.waveDir = null;
     component.ngOnChanges();
     await fixture.whenStable();
     expect(component).toBeTruthy();
@@ -63,7 +64,7 @@ describe('WaveSpectrumComponent', () => {
 
   it('not fail on missing wavePeakDir', async () => {
     mockSpectrumComponent(component);
-    component.wavePeakDir = null;
+    component.weather.wavePeakDir = null;
     component.ngOnChanges();
     await fixture.whenStable();
     expect(component).toBeTruthy();
@@ -84,9 +85,7 @@ describe('WaveSpectrumComponent', () => {
     component.time = linspace(737700, 737701, numTimeSteps),
     component.k_x = linspace(-28.9, 28.9, numKSteps);
     component.k_y = linspace(-28.9, 28.9, numKSteps);
-    component.waveDir = linspace(200, 300, numTimeSteps);
-    component.wavePeakDir = linspace(210, 310, numTimeSteps);
-    component.waveHeight = linspace(1, 3, numTimeSteps);
+    component.weather = mockWeather(numTimeSteps);
     component.spectrum = component.time.map(t => matService.random(numKSteps, numKSteps));
   }
 });
@@ -97,4 +96,14 @@ function linspace(s, e, n) {
     y[i] = s + (e - s) * i / (n - 1);
   }
   return y;
+}
+
+function mockWeather(numTimeSteps = 25): RawWaveData {
+  return {
+    source: 'Dodgy',
+    timeStamp: linspace(737700, 737701, numTimeSteps),
+    waveDir: linspace(200, 300, numTimeSteps),
+    wavePeakDir: linspace(210, 310, numTimeSteps),
+    Hs: linspace(1, 3, numTimeSteps),
+  }
 }

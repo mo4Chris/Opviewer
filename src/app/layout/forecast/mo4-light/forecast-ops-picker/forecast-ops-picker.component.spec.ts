@@ -47,6 +47,7 @@ describe('ForecastOpsPickerComponent', () => {
     const emitter = spyOn(component['routerService'], 'routeToForecast');
     component.projects = [{
       id: 0,
+      nicename: 'TESTY',
       name: 'string',
       client_id: 1,
       latitude: 2,
@@ -76,6 +77,7 @@ describe('ForecastOpsPickerComponent', () => {
   it('should render relevant data', async () => {
     component.projects = [{
       id: 0,
+      nicename: 'TESTY',
       name: 'string',
       client_id: 1,
       latitude: 2,
@@ -104,6 +106,7 @@ describe('ForecastOpsPickerComponent', () => {
     )
     component.selectedProject ={
       id: 0,
+      nicename: 'BOOOOOOOOOOOJ',
       name: 'string',
       client_id: 1,
       latitude: 2,
@@ -141,5 +144,11 @@ function mockClientPreferences(): ForecastExpectedResponsePreference {
     Ops_Stop_Time: '11:23',
     Ops_Heading: 210,
     Points: [],
+    Ctv_Slip_Options: {
+      Max_Allowed_Slip_Meter: 2,
+      Slip_Coefficient: 0.7,
+      Thrust_Level_N: 10000,
+      Window_Length_Seconds: 120,
+    }
   }
 }
