@@ -1,6 +1,16 @@
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
+var ax = require('axios');
+
+const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+const bearer = process.env.AZURE_TOKEN;
+const timeout = +process.env.TIMEOUT || 60000;
+const http = ax.default;
+const headers = {
+  "content-type": "application/json",
+  'Authorization': `Bearer ${bearer}`
+}
 
 
 module.exports = function (
@@ -9,19 +19,19 @@ module.exports = function (
   onError = (res, err, additionalInfo) => console.log(err),
   onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool,
-  mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
+  mailTo = (subject, body, recipient = 'webmaster@mo4.online') => { }
 ) {
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
     admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
-      return res.send({status: 1})
+      return res.send({ status: 1 })
     }).catch((err) => {
       logger.warn(err, 'Connection test failed')
-      return res.send({status: 0})
+      return res.send({ status: 0 })
     })
   })
 
-  app.post("/api/getRegistrationInformation", function(req, res) {
+  app.post("/api/getRegistrationInformation", function (req, res) {
     const username = req.body.user;
     const registration_token = req.body.registration_token;
     // NOT SURE WHAT TO MAKE OF THIS FUNCTION
@@ -39,7 +49,7 @@ module.exports = function (
     }).catch(err => onError(res, err))
   });
 
-  app.post('/api/createDemoUser',  async (req, res) => {
+  app.post('/api/createDemoUser', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password
     const requires2fa = req.body.requires2fa;
@@ -53,13 +63,13 @@ module.exports = function (
       return res.status(400).send('Invalid vessel id format');
     }
     logger.trace('Verfying username format')
-    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
+    if (typeof (username) != 'string' || username.length <= 0) return res.status(400).send('Invalid username. Should be string')
     logger.trace('Verfying 2fa format')
-    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
+    if (requires2fa != 0 && requires2fa != 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
     logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
-    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
+    if (typeof (client_id) != "number") return res.status(400).send('Invalid client id: should be int')
     logger.trace(`Verfying password format ${password} (${typeof password})`)
-    if (typeof(password) != ("string" || null) || password.length<=6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
+    if (typeof (password) != ("string" || null) || password.length <= 6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
 
 
@@ -72,7 +82,8 @@ module.exports = function (
       const response = await admin_server_pool.query(query, values)
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
-      const demo_project_id = await createProject()
+      throw new Error('SHOULD BE FIXED ASAP')
+      const demo_project_id = await createProject() // works
       await createUser({
         username,
         requires2fa,
@@ -99,7 +110,7 @@ module.exports = function (
     `;
 
     mailTo('Registered demo user', html, 'webmaster@mo4.online');
-    logger.info({msg: 'Succesfully created user ', username})
+    logger.info({ msg: 'Succesfully created user ', username })
     return res.send({ data: `User ${username} succesfully added!` });
   });
 
@@ -127,7 +138,7 @@ module.exports = function (
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
       if (!requires2fa) localLogger.info('User does not require 2FA')
-      const valid2fa = typeof(confirm2fa)=='string' && (confirm2fa.length > 0);
+      const valid2fa = typeof (confirm2fa) == 'string' && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.status(400).send('2FA code is required but not provided!')
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
       if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
@@ -188,7 +199,7 @@ module.exports = function (
       localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
       localLogger.debug('Retrieving vessels for user')
-      const vessels = await getVesselsForUser(res, user.user_id).catch(err => {return onError(res, err)});
+      const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return onError(res, err) });
       localLogger.trace(vessels);
       const expireDate = new Date();
       const payload = {
@@ -217,7 +228,7 @@ module.exports = function (
       localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())
       return res.status(200).send({ token });
 
-    }).catch((err) => {return onError(res, err)})
+    }).catch((err) => { return onError(res, err) })
   });
 
   function getVesselsForUser(res, user_id) {
@@ -248,7 +259,7 @@ module.exports = function (
     demo_project_id = null
   }) {
     const expireDate = new Date();
-    const formattedExpireDate = '' + expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
+    const formattedExpireDate = expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
@@ -256,7 +267,7 @@ module.exports = function (
     const password_setup_token = null;
     if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
-    const query = `INSERT INTO "userTable"(
+    const query = `INSERT INTO public."userTable" (
       "username",
       "requires2fa",
       "active",
@@ -287,52 +298,46 @@ module.exports = function (
     initUserPermission(user_id, user_type);
     logger.debug('Init user settings')
     initUserSettings(user_id);
-    return ;
+    return;
   }
-  async function createProject(client_id = 1) {
+  async function createProject(client_id = 4) {
     logger.info(`Creating new project with client id = ${client_id}`)
     const currentTime = Date.now()
-    const activation_start_date = '1';
-    const activation_end_date = '1';
+    const currentDate = new Date(currentTime);
+    const activation_start_date = toIso8601(currentDate);
+    const nextMonth = new Date(currentDate.setMonth(currentDate.getMonth() + 1))
+    const activation_end_date = toIso8601(nextMonth);
     const project_name = `demo_${currentTime}`
     const project_preferences = initProjectPreferences();
-    const query = `INSERT INTO "projectTable"(
-      "name",
-      "consumer_id",
-      "client_id",
-      "vessel_id",
-      "activation_start_date",
-      "activation_end_date",
-      "maximum_duration",
-      "latitude",
-      "longitude",
-      "water_depth",
-      "client_preferences"
-    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-     RETURNING "projectTable"."id"`
-    const values = [
-      project_name,
-      2,
-      client_id,
-      1,
-      activation_start_date,
-      activation_end_date,
-      "01:00:00",
-      52,
-      3,
-      20,
-      project_preferences,
-    ]
-    const sqlresponse = await admin_server_pool.query(query, values)
-    const new_project_id = sqlresponse.rows[0].id;
-    logger.debug(`Succesfully created project!`)
-    return new_project_id
+    const project_insert = {
+      "name": project_name,
+      "consumer_id": 2,
+      "client_id": client_id,
+      "vessel_id": 1,
+      "activation_start_date": activation_start_date,
+      "activation_end_date": activation_end_date,
+      "maximum_duration": 60,
+      "latitude": 52,
+      "longitude": 3,
+      "water_depth": 20,
+      "client_preferences": JSON.stringify(project_preferences)
+    }
+    const project = await pg_post('/project/' + project_name, project_insert).catch(err => {
+      logger.error(err.response.data.message)
+      throw err
+    });
+    if (project?.data?.code != 201) {
+      logger.error(project.data.message)
+      throw new Error('Issue creating new project')
+    }
+    logger.info('Created project with id ' + project?.data?.id)
+    return project.data.message.id;
   }
 
 
   function validateLogin(req, user, res) {
     const userData = req.body;
-    if (!user.active) {onUnauthorized(res, 'User is not active, please contact your supervisor'); return false}
+    if (!user.active) { onUnauthorized(res, 'User is not active, please contact your supervisor'); return false }
     if (!user.password || user.password == '') {
       onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
       return false;
@@ -346,7 +351,7 @@ module.exports = function (
     const isLocalHost = ip == '::1' || ip === '';
     const secret2faValid = (user.secret2fa?.length > 0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
     const requires2fa = (user.requires2fa == null) ? true : Boolean(user.requires2fa);
-    logger.debug({"msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost})
+    logger.debug({ "msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost })
     if (!isLocalHost && !secret2faValid && requires2fa) {
       onUnauthorized(res, '2fa is incorrect');
       return false
@@ -362,7 +367,7 @@ module.exports = function (
     const text = `INSERT INTO "userSettingsTable"
     (user_id, timezone, unit, longterm, weather_chart, dpr)
     VALUES($1, $2, $3, $4, $5, $6)`;
-    const values = [+user_id, {type: 'vessel'}, {speed: "knots"}, null, null, null];
+    const values = [+user_id, { type: 'vessel' }, { speed: "knots" }, null, null, null];
     admin_server_pool.query(text, values).then(() => {
       localLogger.info('Created user settings')
     }).catch((err) => {
@@ -451,6 +456,57 @@ module.exports = function (
   }
   function initProjectPreferences() {
     return {
+      "Points_Of_Interest": {
+        "P1": {
+          "Coordinates": {
+            "X": {
+              "Data": 0.0,
+              "String_Value": "Midship"
+            },
+            "Y": {
+              "Data": 0.0,
+              "String_Value": "Starboard_Center"
+            },
+            "Z": {
+              "Data": 0.0,
+              "String_Value": "Keel_Plus_10"
+            }
+          },
+          "Max_Type": "MPM",
+          "Degrees_Of_Freedom": {
+            "Roll": {
+              "Disp": true,
+              "Vel": false,
+              "Acc": false
+            },
+            "Pitch": {
+              "Disp": false,
+              "Vel": false,
+              "Acc": true
+            },
+            "Yaw": {
+              "Disp": false,
+              "Vel": true,
+              "Acc": false
+            },
+            "Surge": {
+              "Disp": false,
+              "Vel": false,
+              "Acc": false
+            },
+            "Sway": {
+              "Disp": false,
+              "Vel": true,
+              "Acc": false
+            },
+            "Heave": {
+              "Disp": true,
+              "Vel": true,
+              "Acc": false
+            }
+          }
+        }
+      },
       "Points": [
         {
           "Name": "Crane",
@@ -516,11 +572,20 @@ module.exports = function (
         },
       ],
       "Ctv_Slip_Options": {
-          "Window_Length_Seconds": 2,
-          "Max_Allowed_Slip_Meter": 30,
-          "Thrust_Level_N": 100000,
-          "Slip_Coefficient": 0.7
+        "Window_Length_Seconds": 2,
+        "Max_Allowed_Slip_Meter": 30,
+        "Thrust_Level_N": 100000,
+        "Slip_Coefficient": 0.7
       }
     }
   }
+
+  function pg_post(endpoint, data) {
+    const url = baseUrl + endpoint;
+    return http.post(url, data, { headers, timeout })
+  }
 };
+
+function toIso8601(d) {
+  return d.toISOString().slice(0, 23) + '+00:00';
+}

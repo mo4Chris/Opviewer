@@ -59,6 +59,7 @@ module.exports = function(app, logger) {
       const data_out = datas.map(data => {
         return {
           id: data.id,
+          nicename: data.display_name,
           type: data.type,
           length: data.length,
           width: data.width,
