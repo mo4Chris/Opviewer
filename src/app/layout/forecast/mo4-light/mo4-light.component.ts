@@ -42,6 +42,9 @@ export class Mo4LightComponent implements OnInit {
   public selectedHeading = 0;
   public selectedOperation: ForecastOperation = null;
 
+  public selectedSlipCoefficient = 0;
+  public selectedThrustIndex = 0
+
   public minForecastDate: YMD;
   public maxForecastDate: YMD;
   public startTime: number;
@@ -160,11 +163,11 @@ export class Mo4LightComponent implements OnInit {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     if (! POI?.SlipResponse) return;
     const slip = POI.SlipResponse;
-    const slipCoeffIndex = 3;
-    const thrustIndex = 3;
+
     this.SlipCoefficients = slip.Friction_Coeff_Range;
     this.SlipThrustLevels = slip.Thrust_Range;
-    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[slipCoeffIndex][thrustIndex]));
+
+    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[this.selectedThrustIndex][this.selectedSlipCoefficient]));
     this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
   }
   computeWorkability() {
@@ -203,6 +206,7 @@ export class Mo4LightComponent implements OnInit {
     if (settings?.limits)     this.limits     = settings.limits;
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
+    this.parseCtvSlipResponse();
   }
   onTabSwitch(event: NavChangeEvent) {
     this.routeService.switchFragment(event.nextId)

@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
@@ -28,6 +29,14 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Output() headingChange = new EventEmitter<number>();
   @Output() onChange = new EventEmitter<ForecastOperationSettings>();
 
+  @Input() slipCoefficient = 0;
+  @Input() slipCoefficients = [];
+  @Input() thrustIndex = 0;
+  @Input() slipThrustLevels = [];
+
+  @Output() slipCoefficientChange = new EventEmitter<number>();
+  @Output() thrustIndexChange = new EventEmitter<number>();
+
   public selectedProject: ForecastOperation;
   public date: YMD;
 
@@ -36,6 +45,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public startTimeInput = {hour: null, mns: <any> '00'};
   public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
+  
+  public slipValue;
+  public thrustValue = this.slipThrustLevels[0];
 
   private operationTimeChanged = false;
   private headingChanged = false;
@@ -54,6 +66,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     private newService: CommonService,
     public gps: GpsService,
     public permission: PermissionService,
+    public calcService: CalculationService,
   ) {
   }
 
@@ -70,10 +83,13 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges = {}) {
+    
     if (changes.minForecastDate) this.date = this.minForecastDate;
     if (this.selectedProjectId) this.onNewSelectedOperation();
   }
   onNewSelectedOperation() {
+    this.slipValue = this.slipCoefficients[0]; //ToDo: Retrieve from settings
+    this.thrustValue = this.slipThrustLevels[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
@@ -87,6 +103,26 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.headingChanged = true;
     this.heading = this.heading % 360;
     this.headingChange.emit(this.heading);
+  }
+
+  public onSlipCoefChange() {
+    let sv = this.slipValue;
+
+    var closest = this.slipCoefficients.reduce(function(prev, curr) {
+      return (Math.abs(curr - sv) < Math.abs(prev - sv) ? curr : prev);
+    });
+    const closestIndex = this.slipCoefficients.indexOf(closest)
+    this.slipCoefficientChange.emit(closestIndex);
+  }
+
+  public onThrustIndexChange() {
+    let thrustValue = this.thrustValue;
+
+    var closest = this.slipThrustLevels.reduce(function(prev, curr) {
+      return (Math.abs(curr - thrustValue) < Math.abs(prev - thrustValue) ? curr : prev);
+    });
+    const closestIndex = this.slipThrustLevels.indexOf(closest)
+    this.thrustIndexChange.emit(closestIndex);
   }
   public onOpsChange() {
     this.routerService.routeToForecast(this.selectedProjectId);
@@ -186,6 +222,8 @@ export interface ForecastOperationSettings {
   startTime: number;
   stopTime: number;
   limits?: any;
+  slipLimit?: any;
+
 }
 interface YMD {
   year: number;
