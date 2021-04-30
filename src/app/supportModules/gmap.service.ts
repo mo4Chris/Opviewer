@@ -416,7 +416,6 @@ export class GmapService {
     plotForecastLocations(googleMap: google.maps.Map, forecastLocations: Observable<{name: string, lon: number, lat: number}[]>, minZoom = 5, maxZoom = 30) {
         const forecastLocationLayer = new MapZoomLayer(googleMap, minZoom, maxZoom);
         forecastLocations.subscribe(_locs => {
-            console.log('_locs', _locs)
             _locs.forEach(_loc => {
                 forecastLocationLayer.addData(new MapZoomData(
                     _loc.lon,

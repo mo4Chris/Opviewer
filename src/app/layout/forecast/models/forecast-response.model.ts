@@ -36,6 +36,7 @@ interface ForecastResponse {
     Vel: Dof6Array;
     Disp: Dof6Array;
   };
+  SlipResponse?: CtvSlipResponse;
 }
 
 interface ForecastResponsePoi {
@@ -57,6 +58,12 @@ interface ForecastResponsePoi {
   }
 }
 
+export interface CtvSlipResponse{
+  Dimensions: string;
+  Friction_Coeff_Range: number[];
+  ProbabilityWindowNoSlip: number[][][];
+  Thrust_Range: number[];
+}
 export interface ForecastExpectedResponsePreference {
   Points_Of_Interest?: ForecastResponsePoi
   Points: PointOfInterest[];
@@ -85,7 +92,7 @@ interface PoiValue {
   Value: number;
   Unit: string;
 }
-type MAX_TYPE = 'MPM' | 'STD';
+type MAX_TYPE = 'MPM' | 'STD' | 'Significant';
 
 interface ForecastVesselLocation {
   X: { // From aft of vessel towards the bow
