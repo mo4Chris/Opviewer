@@ -19,7 +19,8 @@ import { ForecastOperation, PointOfInterest } from '../models/forecast-response.
 export class ForecastVesselComponent implements OnInit {
   public project_name: string;
   public vessels: ForecastVesselRequest[] = [{
-    type: 'Big bad vessel',
+    nicename: 'Big bad vessel',
+    type: 'example_vessel',
     length: 70,
     width: 12.4,
     draft: 3.01,
@@ -45,6 +46,7 @@ export class ForecastVesselComponent implements OnInit {
 
   public NewVessel: ForecastVesselRequest = {
     type: 'NEW',
+    nicename: 'NEW',
     length: NaN,
     width: NaN,
     draft: NaN,
@@ -122,7 +124,8 @@ export class ForecastVesselComponent implements OnInit {
       this.vessels = vessels;
       this.project = {
         id: null,
-        name: 'Enter new name',
+        name: 'newProject', // TODO
+        nicename: 'Enter new name',
         latitude: 0,
         longitude: 0,
         water_depth: 0,
@@ -190,6 +193,7 @@ export class ForecastVesselComponent implements OnInit {
 
 export interface ForecastVesselRequest {
   id?: number;
+  nicename: string;
   client_id?: number;
   type: string;
   length: number;

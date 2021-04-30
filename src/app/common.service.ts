@@ -586,6 +586,7 @@ export class CommonService {
     return this.put('/api/mo4light/projectSettings', {
       project_name: project.name,
       project_settings: {
+        display_name: project.nicename,
         latitude: project.latitude,
         longitude: project.longitude,
         water_depth: project.water_depth,

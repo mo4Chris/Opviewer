@@ -28,7 +28,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       range: [0, 120],
       title: 'Workability (%)',
       fixedrange: true,
-      automargin: true,
     },
     xaxis: {
       automargin: true,
@@ -42,7 +41,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     margin: {
       t: 40,
       b: 0,
-      l: 40,
+      l: 60,
       r: 40
     }
   };
@@ -93,16 +92,13 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     );
     this.parsedData = [{
       x: this.time,
-      // y: this.workabilityAlongHeading.map(y => (y > yLimit) ? NaN : y),
       y: limits.green,
       type: 'scatter', // This is a line
       name: 'Workability - under limit',
       connectgaps: false,
-      // showlegend: false,
       line: {
         color: 'green',
       },
-      // fill: 'tozeroy',
     }, {
       x: this.time,
       y: limits.red,
@@ -113,7 +109,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       line: {
         color: 'red',
       },
-      // fill: 'tozeroy',
     },
     {
       x: areas.green.map(g => g.x),
@@ -154,7 +149,6 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
         y: [200, 200],
         name: 'Selected time frame',
         mode: 'none',
-        // showlegend: false,
         hoverinfo: 'none',
         line: {
           color: 'black',

@@ -7,7 +7,7 @@
       <th colspan="2">
         <select id="selectOperation" [(ngModel)]="selectedProjectId" (change)="onOpsChange()"
         class="input form-control form-control-md">
-          <option [ngValue]="op.id" *ngFor="let op of projects">{{op.name}}</option>
+          <option [ngValue]="op.id" *ngFor="let op of projects">{{op.nicename}}</option>
         </select>
       </th>
     </tr>

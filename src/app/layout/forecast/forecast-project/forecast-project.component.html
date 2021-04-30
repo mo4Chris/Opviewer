@@ -9,10 +9,10 @@
           <tbody class='sep-row'>
             <tr>
               <td>Name</td>
-              <td colspan="2" *ngIf="permission.forecastCreateProject">
-                <input *ngIf="project" [(ngModel)]="project.name"> (admin)
+              <td colspan="2" *ngIf="true">
+                <input *ngIf="project" [(ngModel)]="project.nicename">
               </td>
-              <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td>
+              <!-- <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td> -->
             </tr>
             <tr *ngIf="permission.admin">
               <td>Client</td>
@@ -88,7 +88,7 @@
                   class="form-control form-control-md" [disabled]="!projectLoaded">
                   <option disabled  selected [value]="0">Please select a vessel</option>
                   <option disabled  [ngValue]="NewVessel">Request a new vessel</option>
-                  <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.type}}</option>
+                  <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.nicename}}</option>
                 </select>
               </th>
             </tr>
