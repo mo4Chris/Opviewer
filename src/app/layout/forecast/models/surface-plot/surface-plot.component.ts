@@ -47,15 +47,15 @@ export class SurfacePlotComponent implements OnChanges {
       visible: true,
       title: 'yLabel',
       showgrid: false,
-      zeroline: false,
-      // automargin: true,
+      // zeroline: false,
+      automargin: true,
       tick0: 0,
       dtick: 45,
     },
     margin: {
       t: 40,
       b: 40,
-      l: 40,
+      l: 60,
       r: 40
     }
   };

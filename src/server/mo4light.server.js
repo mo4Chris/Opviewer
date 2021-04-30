@@ -55,10 +55,11 @@ module.exports = function(app, logger) {
     pg_get('/vessels', {client_id}).then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const datas = out.data['vessels'];
+      const datas = out.data['vessels'].filter(d => checkVesselPermission(token, d));;
       const data_out = datas.map(data => {
         return {
           id: data.id,
+          nicename: data.display_name,
           type: data.type,
           length: data.length,
           width: data.width,
@@ -81,7 +82,7 @@ module.exports = function(app, logger) {
     pg_get('/projects').then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const data = out.data['projects'];
+      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
           id: d.id,
@@ -111,26 +112,24 @@ module.exports = function(app, logger) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     log('Start azure project list request')
-    pg_get('/projects').then(async (out, err) => {
+    pg_get('/project/' + project_name).then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
-      const data = out.data['projects'];
-      const project_output = data.map(d => {
-        return {
-          id: d.id,
-          name: d.name,
-          client_id: d.client_id,
-          longitude: d.longitude,
-          latitude: d.latitude,
-          water_depth: d.water_depth,
-          maximum_duration: d.maximum_duration,
-          activation_start_date: d.activation_start_date,
-          activation_end_date: d.activation_start_date,
-          client_preferences: d.client_preferences,
-          vessel_id: d.vessel_id
-        }
-      })
-      // ToDo: filter data by token rights
+      const project = out.data;
+      if (!checkProjectPermission(token, project)) return res.onUnauthorized()
+      const project_output = [{
+        id: project.id,
+        name: project.name,
+        client_id: project.client_id,
+        longitude: project.longitude,
+        latitude: project.latitude,
+        water_depth: project.water_depth,
+        maximum_duration: project.maximum_duration,
+        activation_start_date: project.activation_start_date,
+        activation_end_date: project.activation_start_date,
+        client_preferences: project.client_preferences,
+        vessel_id: project.vessel_id
+      }]
       res.send(project_output)
     }).catch(err => {
       onError(res, err)
@@ -171,11 +170,12 @@ module.exports = function(app, logger) {
   })
 
   app.get('/api/mo4light/getProjectsForClient/:client_id', (req, res) => {
+    const token = req['token'];
+    if (!token.permission.admin) return res.onUnauthorized('Admin only')
     const client_id = req.params.client_id;
     pg_get('/clients/' + client_id).then((out, err) => {
       if (err) return onError(res, err, err);
-      const data = out.data['clients'];
-      // ToDo: filter data by token rights
+      const data = out.data['projects']; // Already admin only
       res.send(data)
     }).catch(err => {
       onError(res, err, err)
@@ -186,7 +186,7 @@ module.exports = function(app, logger) {
     const token = req['token'];
     pg_get('/projects').then(async (out, err) => {
       if (err) return onError(res, err, err);
-      const data = out.data['projects'];
+      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
           name: d.name,
@@ -237,7 +237,6 @@ module.exports = function(app, logger) {
     updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
 
     localLogger.debug('Forwarding request to hydro API')
-    // localLogger.info(updated_project)
     pg_put('/project/' + project_name, updated_project).then((out, err) => {
       if (err) return res.onError(err, 'Failed to store project settings');
       localLogger.info('Save succesfull')
@@ -257,17 +256,29 @@ module.exports = function(app, logger) {
     res.send(forecast)
   })
 
+
+  function checkProjectPermission(userToken, project) {
+    const perm = userToken?.permission
+    if (perm.admin) return true;
+    return perm?.forecast.read
+      && project.client_id == userToken.client_id
+  }
+  function checkVesselPermission(userToken, vessel) {
+    const perm = userToken?.permission
+    if (perm.admin) return true;
+    return perm?.forecast.read
+      && vessel.client_id == userToken.client_id
+  }
+
   function pg_get(endpoint, data) {
     const url = baseUrl + endpoint;
     if (!data) return http.get(url, {headers});
     return http.get(url, {data, headers, timeout});
   }
-
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
     return http.post(url, data, {headers, timeout})
   }
-
   function pg_put(endpoint, data) {
     const url = baseUrl + endpoint;
     return http.put(url, data, {headers, timeout})
@@ -280,3 +291,4 @@ function loadLocalJson(filename = 'src/server/spectrum.json') {
   const str = rawdata.toString()
   return JSON.parse(str)
 }
+
