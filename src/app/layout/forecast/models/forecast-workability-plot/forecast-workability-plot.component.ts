@@ -69,10 +69,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
 
   computeMaxWorkability() {
     if (!this.startTime || !this.stopTime) return this.MaxWorkability = 'select a valid time frame';
-    const sidx = this.time.findIndex(t => t.valueOf() > this.startTime);
-    const eidx = this.time.findIndex(t => t.valueOf() > this.stopTime) - 1;
+    const start_num = this.dateService.matlabDatenumToDate(this.startTime).valueOf();
+    const stop_num = this.dateService.matlabDatenumToDate(this.stopTime).valueOf();
+    const sidx = this.time.findIndex(t => t.valueOf() > start_num);
+    const eidx = this.time.findIndex(t => t.valueOf() > stop_num);
     const workabilityDuringOperation = this.workabilityAlongHeading.slice(sidx, eidx);
-    if (this.workabilityAlongHeading.length == 0) return this.MaxWorkability = 'N/a';
+    if (eidx - sidx < 1) return this.MaxWorkability = 'N/a';
     this.MaxWorkability = this.calcService.roundNumber(Math.max(...workabilityDuringOperation), 1, '%');
   }
 

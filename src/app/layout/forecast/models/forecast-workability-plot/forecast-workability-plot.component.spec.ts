@@ -91,12 +91,12 @@ describe('ForecastWorkabilityPlotComponent', () => {
   });
 
   it('should correctly compute the maximum workability', () => {
-    component.workabilityAlongHeading = calc.linspace(0, 200, 20);
+    component.workabilityAlongHeading = calc.linspace(10, 210, 20);
     component.time      = calc.linspace(737000, 737001, 1 / 10).map(t => datenumToDate(t));
     component.startTime = 737000.05;
     component.stopTime  = 737000.15;
     component.ngOnChanges();
-    expect(component.MaxWorkability).toEqual('180%');
+    expect(component.MaxWorkability).toEqual('20%');
   })
 })
 
