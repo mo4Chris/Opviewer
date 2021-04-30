@@ -3,6 +3,7 @@ import { ForecastMotionLimit } from "./forecast-limit";
 export interface ForecastOperation {
   id: number;
   name: string;
+  nicename: string;
   client_id: number;
   latitude: number;
   longitude: number;

@@ -9,10 +9,10 @@
           <tbody class='sep-row'>
             <tr>
               <td>Name</td>
-              <td colspan="2" *ngIf="permission.forecastCreateProject">
-                <input *ngIf="project" [(ngModel)]="project.name"> (admin)
+              <td colspan="2" *ngIf="true">
+                <input *ngIf="project" [(ngModel)]="project.nicename">
               </td>
-              <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td>
+              <!-- <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td> -->
             </tr>
             <tr *ngIf="permission.admin">
               <td>Client</td>

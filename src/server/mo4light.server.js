@@ -87,6 +87,7 @@ module.exports = function(app, logger) {
         return {
           id: d.id,
           name: d.name,
+          nicename: d.display_name,
           client_id: d.client_id,
           longitude: d.longitude,
           latitude: d.latitude,
@@ -120,6 +121,7 @@ module.exports = function(app, logger) {
       const project_output = [{
         id: project.id,
         name: project.name,
+        nicename: project.display_name,
         client_id: project.client_id,
         longitude: project.longitude,
         latitude: project.latitude,
@@ -223,6 +225,7 @@ module.exports = function(app, logger) {
         updated_project[fld] = received_settings[fld];
       }
     }
+    update_if_not_null('display_name')
     update_if_not_null('latitude')
     update_if_not_null('longitude')
     update_if_not_null('water_depth')

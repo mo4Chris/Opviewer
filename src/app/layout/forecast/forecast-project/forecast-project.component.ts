@@ -124,7 +124,8 @@ export class ForecastVesselComponent implements OnInit {
       this.vessels = vessels;
       this.project = {
         id: null,
-        name: 'Enter new name',
+        name: 'newProject', // TODO
+        nicename: 'Enter new name',
         latitude: 0,
         longitude: 0,
         water_depth: 0,
