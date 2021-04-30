@@ -649,6 +649,13 @@ export class MockedCommonService extends CommonService {
       lat: [1]
     }]);
   }
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, name: string}[]> {
+    return mockedObservable([{
+      name: 'Test harbour',
+      lon: 50,
+      lat: 1
+    }]);
+  }
 
   getTurbineWarrantyForCompany(input: { client: string }): Observable<CampaignModel[]> {
     return mockedObservable([{

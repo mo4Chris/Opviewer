@@ -96,7 +96,7 @@ describe('ForecastWorkabilityPlotComponent', () => {
     component.startTime = 737000.05;
     component.stopTime  = 737000.15;
     component.ngOnChanges();
-    expect(component.MaxWorkability).toEqual('20%');
+    expect(component.MaxWorkability).toEqual('30%');
   })
 })
 
