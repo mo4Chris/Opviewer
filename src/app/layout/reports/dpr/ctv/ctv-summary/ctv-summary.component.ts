@@ -7,6 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 @Component({
   selector: 'app-ctv-summary',
@@ -37,14 +38,13 @@ export class CtvSummaryComponent implements OnChanges {
     private dateService: DatetimeService,
     private calcService: CalculationService,
     public permission: PermissionService,
+    public settings: SettingsService
   ) {
   }
 
   ngOnChanges() {
     if (this.engine && this.general && this.general.sailedDistance) {
-      this.tripEfficiency = this.roundNumber(
-        (this.engine.fuelUsedTotalM3 * 1000)/ (+this.general.sailedDistance.replace('km',''))
-        ,10, ' L/km')
+      this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
       }
     this.getValueForFuelConsumed();
   }

@@ -100,7 +100,7 @@
               <td>{{switchUnitAndMakeString(engine?.fuelOther, 'm3', 'liter')}}</td>
           </tr>  
           <tr>
-              <td>Total CO2 emission</td>
+              <td><div [ngbTooltip]="helpCo2Explanation">Total CO2 emission</div></td>
               <td>{{roundNumber(engine?.co2TotalKg, 10, ' kg')}}</td>
           </tr>
       </table>
@@ -251,6 +251,15 @@
 
 <ng-template #helpTripEfficiency>
   Fuel used per hour sailed
+</ng-template>
+
+<ng-template #helpCo2Explanation>
+  Dutch standards for fuel Co2 emission standards (2002):<br>
+  Fuel Energy Density is 41.0 Mj/kg<br>
+  Co2 Density is 77.4 kg Co2/GJ<br>
+  Fuel Density is 0.980 kg/L<br><br>
+
+  CO2 = Fuel amount x Fuel Density x Fuel Energy Density x CO2 density
 </ng-template>
 
 <ng-template #helpFuelUsedDockings>

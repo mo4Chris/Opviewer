@@ -65,6 +65,22 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             'MSI averages in percent per day. This graph displays the outbound MSI only. ',
         },
         {
+            x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV inbound', dataType: 'transitIn', info:
+            'WBV scores per day. This graph displays the inbound WBV only. This is a figure indicating motion induced fatigue.',
+            annotation: () => this.parser.drawMultipleHorizontalLines(
+                [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
+                {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
+                ), 
+        },
+        {
+            x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV outbound', dataType: 'transitOut', info:
+            'WBV scores per day. This graph displays the outbound WBV only. This is a figure indicating motion induced fatigue.',
+            annotation: () => this.parser.drawMultipleHorizontalLines(
+                [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
+                {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
+                ), 
+        },
+        {
             x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
                 'Shows the peak impact for each vessel during turbine transfers. The peak impact is computed as the maximum of all bumbs during transfer, ' +
                 'and need not be the result of the initial approach.'

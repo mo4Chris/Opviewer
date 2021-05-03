@@ -24,6 +24,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
     site: 'TEST',
     totalFuelUsed: 'N/a',
     fuelUsedPerWorkingDay: 'N/a',
+    amountDockings: 1,
     totalPaxTransfered: 1,
     numCargoOps: 1,
     totalDistanceSailed: 'N/a',
@@ -54,7 +55,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
       };
     };
     forkJoin([
-      this.newService.getTransfersForVesselByRangeForCTV(makeRequest(['fieldname', 'paxUp', 'paxDown', 'cargoUp', 'cargoDown'])),
+      this.newService.getTransfersForVesselByRangeForCTV(makeRequest(['fieldname', 'paxUp', 'paxDown', 'cargoUp', 'cargoDown', 'detector'])),
       this.newService.getCtvInputsByRange(makeRequest(['inputStats','DPRstats', 'date'])),
       this.newService.getEngineStatsForRange(makeRequest(['fuelUsedTotalM3', 'date'])
       )]).subscribe(([transfers, dprs, engines]) => {
@@ -98,14 +99,17 @@ export class CtvKpiOverviewComponent implements OnChanges {
       fuelUsed                 += this.getFuelValue(dprs, engines, i) ??  0;
       sailedMiles              += dprs?.DPRstats[i]?.sailedDistance ?? 0;
     }
-    let paxTransfer = 0, cargoUpKg = 0, cargoDownKg = 0,  cargoOps = 0;
+    let paxTransfer = 0, amountDockings = 0, cargoUpKg = 0, cargoDownKg = 0,  cargoOps = 0;
     if (turbine) {
+      
       paxTransfer     += turbine.paxUp      .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       paxTransfer     += turbine.paxDown    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       cargoUpKg       += turbine.cargoUp    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       cargoDownKg     += turbine.cargoDown  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
       cargoOps        += turbine.cargoUp    .filter(value => value > 0).length;
       cargoOps        += turbine.cargoDown  .filter(value => value > 0).length;
+      amountDockings  += turbine.detector   .filter(value => value == 'docking').length;
+
     }
     kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' l');
     if (sailedMiles > 0){
@@ -115,6 +119,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
     }
     kpi.totalDistanceSailed     = this.calcService.roundNumber(sailedMiles || 0, 10, ' NM');
     kpi.totalPaxTransfered      = paxTransfer;
+    kpi.amountDockings          = amountDockings;
     kpi.cargoUpKg               = cargoUpKg;
     kpi.cargoDownKg             = cargoDownKg;
     kpi.numCargoOps             = cargoOps;
@@ -156,6 +161,7 @@ interface ctvKpi {
   totalFuelUsed: string;
   totalDistanceSailed: string;
   fuelUsedPerWorkingDay: string;
+  amountDockings: number;
   totalPaxTransfered: number;
   numCargoOps: number;
   cargoUpKg: number;
