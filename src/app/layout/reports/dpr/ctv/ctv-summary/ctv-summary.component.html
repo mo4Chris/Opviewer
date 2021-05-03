@@ -100,7 +100,7 @@
               <td>{{switchUnitAndMakeString(engine?.fuelOther, 'm3', 'liter')}}</td>
           </tr>  
           <tr>
-              <td>Total CO2 emission</td>
+              <td><div [ngbTooltip]="helpCo2Explanation">Total CO2 emission</div></td>
               <td>{{roundNumber(engine?.co2TotalKg, 10, ' kg')}}</td>
           </tr>
       </table>
@@ -251,6 +251,19 @@
 
 <ng-template #helpTripEfficiency>
   Fuel used per hour sailed
+</ng-template>
+
+<ng-template #helpCo2Explanation>
+  Dutch standards for fuel Co2 emission standards (2002):<br>
+  Residual Fuel Oil is 41.0 Mj/kg<br>
+  Co2 usage is 77.4 kg Co2/GJ<br>
+  Density is 0.980 kg/L<br>
+  resulting in:<br>
+  fuelKG = 980 * fuelM3<br>
+  fuelMJ = 41.0 * fuelKg<br>
+  fuelCo2 = 0.0774 * fuelMJ<br><br>
+
+  CO2 = fuelM3 * 980 * 41.0 * 0.0774;
 </ng-template>
 
 <ng-template #helpFuelUsedDockings>
