@@ -44,9 +44,7 @@ export class CtvSummaryComponent implements OnChanges {
 
   ngOnChanges() {
     if (this.engine && this.general && this.general.sailedDistance) {
-      this.tripEfficiency = this.roundNumber(
-        ((this.engine.fuelUsedTotalM3 * 1000) / (+this.general.sailedDistance.replace(/[a-z]/gi, '')))
-        , 10, ' liter/'+ this.settings.unit_distance);
+      this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
       }
     this.getValueForFuelConsumed();
   }

@@ -82,6 +82,12 @@ export class CalculationService {
     return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
   }
 
+  getFuelEcon(fuelUsedTotalM3 = 0, sailedDistance, distance_unit_type){
+    return this.roundNumber(
+      ((fuelUsedTotalM3 * 1000) / (+sailedDistance.replace(/[a-z]/gi, '')))
+      , 10, ' liter/'+ distance_unit_type);
+  }
+
   GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
     function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
