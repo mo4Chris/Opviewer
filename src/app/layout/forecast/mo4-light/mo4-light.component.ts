@@ -40,7 +40,6 @@ export class Mo4LightComponent implements OnInit {
 
   public limits: ForecastMotionLimit[] = [];
   public selectedHeading = 0;
-  public selectedOperation: ForecastOperation = null;
 
   public selectedSlipCoefficient = 0;
   public selectedThrustIndex = 0
@@ -76,6 +75,18 @@ export class Mo4LightComponent implements OnInit {
     }));
   }
 
+  public get projectSettingsChanged(): Boolean {
+
+    const settings = this?.responseObj?.response?.Points_Of_Interest?.P1?.Project_Settings;
+    const op = this.operations?.find(p => p?.id == this.responseObj?.id)
+    const valid = Boolean(settings) && Boolean(op)
+    if (!valid) return false;
+    const settings_not_changed = op.latitude == this.responseObj.latitude
+      && op.longitude == this.responseObj.longitude
+      && op.water_depth == settings.water_depth;
+    return !settings_not_changed;
+  }
+
   loadData(): void {
     // ToDo: only rerout if no permission to forecasting module
     forkJoin([
@@ -84,6 +95,7 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
       // this.newService.getCtvForecast()
     ]).subscribe(([projects, vessels, responses]) => {
+      console.log('responses', responses)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
