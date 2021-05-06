@@ -782,6 +782,13 @@ export class MockedCommonService extends CommonService {
         Disp: [[[1]]],
       },
       Degrees_Of_Freedom: {
+      },
+      Project_Settings: {
+        client_preferences: null,
+        latitude: 10,
+        longitude: 20,
+        water_depth: 20,
+        maximum_duration: 180,
       }
     };
     // TEMPORARY
@@ -808,6 +815,8 @@ export class MockedCommonService extends CommonService {
     const responseObj: ForecastResponseObject = {
       consumer_id: 1,
       id: 1,
+      longitude: 10,
+      latitude: 20,
       metocean_id: '2',
       project_id: project_id,
       response: {

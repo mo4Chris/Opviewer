@@ -7,7 +7,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
-import { ForecastOperation, ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
+import { ForecastOperation, ForecastExpectedResponsePreference, ForecastResponseObject } from '../../models/forecast-response.model';
 
 const DEFAULT_SLIP_OPTIONS = {
   Max_Allowed_Slip_Meter: 2,
@@ -25,6 +25,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
   @Input() lastUpdated: string;
   @Input() vessels: any[];
+  @Input() response: ForecastResponseObject; // Used for readonly settings
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
   @Input() maxForecastDate: YMD; // From Response
@@ -51,7 +52,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public startTimeInput = {hour: null, mns: <any> '00'};
   public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
-  
+
   public slipValue;
   public thrustValue = this.slipThrustLevels[0];
 
@@ -85,14 +86,20 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get selectedVesselName() {
     const vessel_id = this.selectedProject?.vessel_id;
     const vessel = this?.vessels?.find(vessel => vessel.id === vessel_id);
-    return vessel?.type || 'N/a';
+    return vessel?.nicename || 'N/a';
   }
 
   ngOnChanges(changes: SimpleChanges = {}) {
-    
+
     if (changes.minForecastDate) this.date = this.minForecastDate;
     if (changes.selectedProjectId) this.onNewSelectedOperation();
   }
+
+  public formatThrust(thrust: number): string {
+    const newValue = this.calcService.switchForceUnits(thrust, 'N', 'kN');
+    return newValue.toFixed(0) + 'kN';
+  }
+
   onNewSelectedOperation() {
     this.slipValue = this.slipCoefficients[0]; //ToDo: Retrieve from settings
     this.thrustValue = this.slipThrustLevels[0]; //ToDo: Retrieve from settings
@@ -110,7 +117,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.heading = this.heading % 360;
     this.headingChange.emit(this.heading);
   }
-
   public onSlipCoefChange() {
     let sv = this.slipValue;
 
@@ -120,7 +126,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const closestIndex = this.slipCoefficients.indexOf(closest)
     this.slipCoefficientChange.emit(closestIndex);
   }
-
   public onThrustIndexChange() {
     let thrustValue = this.thrustValue;
 
