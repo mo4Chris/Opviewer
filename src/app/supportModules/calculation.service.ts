@@ -216,7 +216,7 @@ export class CalculationService {
     return out;
   }
 
-  switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string, ): string {
+  switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
     const newValues = this.switchUnits([+value], oldUnit, newUnit);
     if (newValues && newValues[0] && !isNaN(newValues[0])) {
       return this.getDecimalValueForNumber(newValues[0], ' ' + newUnit);

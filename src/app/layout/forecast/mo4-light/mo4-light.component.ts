@@ -95,7 +95,6 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
       // this.newService.getCtvForecast()
     ]).subscribe(([projects, vessels, responses]) => {
-      console.log('responses', responses)
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
