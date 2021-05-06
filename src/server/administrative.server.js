@@ -97,9 +97,7 @@ module.exports = function (
       return onError(res, err, 'Error creating user')
     }
     // send email
-    const html = `Dear Webmaster, <br><br>
-
-    A demo account has been created for ${req.body.username}.<br>
+    const html = `A demo account has been created for ${req.body.username}.<br>
     Please add the following details to the customer-contact excel sheet.<br>
     Username: ${req.body.username}<br>
     Full name: ${req.body.full_name}<br>
@@ -296,7 +294,7 @@ module.exports = function (
 
     logger.info('New user has id ' + user_id)
     logger.debug('Init user permissions')
-    initUserPermission(user_id, user_type);
+    initUserPermission(user_id, user_type, {demo: true});
     logger.debug('Init user settings')
     initUserSettings(user_id);
     return;
@@ -429,6 +427,7 @@ module.exports = function (
       case 'Logistics specialist':
         permissions.longterm.read = true;
         permissions.user_see_all_vessels_client = true;
+        permissions.user_manage = true;
         break
       case 'Client representative':
         permissions.dpr.sov_commercial = 'read';
