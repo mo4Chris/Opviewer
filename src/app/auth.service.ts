@@ -100,7 +100,6 @@ interface UserCreationData {
 interface UserDemoData {
   username: string;
   password: string;
-  client_id: number;
   company: string;
   full_name: string;
   job_title: string;

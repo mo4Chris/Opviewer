@@ -855,7 +855,7 @@ app.use((req,res, next) => {
   })
 });
 
-mo4lightServer(app, logger)
+mo4lightServer(app, logger, admin_server_pool)
 fileUploadServer(app, logger)
 mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 

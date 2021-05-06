@@ -53,7 +53,6 @@ module.exports = function (
     const username = req.body.username;
     const password = req.body.password
     const requires2fa = req.body.requires2fa;
-    const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
     const user_type = req.body.user_type;
 
@@ -66,12 +65,14 @@ module.exports = function (
     if (typeof (username) != 'string' || username.length <= 0) return res.status(400).send('Invalid username. Should be string')
     logger.trace('Verfying 2fa format')
     if (requires2fa != 0 && requires2fa != 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
-    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
-    if (typeof (client_id) != "number") return res.status(400).send('Invalid client id: should be int')
     logger.trace(`Verfying password format ${password} (${typeof password})`)
-    if (typeof (password) != ("string" || null) || password.length <= 6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
+    const is_bad_pw = typeof (password) != ("string" || null) || password.length <= 6
+    if (is_bad_pw) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
-
+    // Getting demo client information
+    const data = await admin_server_pool.query('SELECT * FROM "clientTable" WHERE "client_name" = $1', ["Demo"])
+    if (data.rowCount == 0) return res.onError(null, 'Failed to get demo client information')
+    const demo_client = data.rows[0];
 
     //turn account creation back on after other functions
     try {
@@ -86,7 +87,7 @@ module.exports = function (
       await createUser({
         username,
         requires2fa,
-        client_id,
+        client_id: demo_client.client_id,
         vessel_ids,
         user_type,
         password,
@@ -195,8 +196,16 @@ module.exports = function (
       let user = data.rows[0];
       localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
-      localLogger.debug('Retrieving vessels for user')
+      localLogger.debug('Retrieving vessels for user');
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return onError(res, err) });
+
+      localLogger.debug('Retrieving client for user');
+      const query = 'SELECT "forecast_client_id" FROM "clientTable" WHERE "client_id" = $1';
+      const client_data = await admin_server_pool.query(query, [user.client_id]);
+      if (client_data.rowCount == 0) return res.onError('Issue getting client forecast id for user')
+      const forecast_client_id = client_data.rows[0].forecast_client_id;
+      localLogger.debug('Found forecast client id' + forecast_client_id)
+
       localLogger.trace(vessels);
       const expireDate = new Date();
       const payload = {
@@ -206,6 +215,7 @@ module.exports = function (
         userBoats: vessels,
         username: user.username,
         client_id: user.client_id,
+        forecast_client_id: forecast_client_id,
         permission: {
           admin: user.admin,
           user_read: user.user_read,
@@ -220,6 +230,7 @@ module.exports = function (
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };
+      localLogger.info(payload)
       localLogger.trace('Signing payload')
       token = jwt.sign(payload, 'secretKey');
       localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())
@@ -310,6 +321,7 @@ module.exports = function (
     const project_preferences = initProjectPreferences();
     const project_insert = {
       "name": project_name,
+      "display_name": "Demo project",
       "consumer_id": 2,
       "client_id": client_id,
       "vessel_id": 1,
@@ -579,6 +591,7 @@ module.exports = function (
       }
     }
   }
+
 
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
