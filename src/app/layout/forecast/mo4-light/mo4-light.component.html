@@ -31,26 +31,26 @@
             <a ngbNavLink>Workability</a>
             <ng-template ngbNavContent>
               <ng-container *ngIf="Workability; else workabilityNotAvailable">
-                <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
-                  [ngbPopover]="helpWorkabilityAlongHeading" placement="bottom" popoverClass="helpPopup" container="body">?
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpWorkabilityAlongHeading" popoverClass="helpPopup" container="body">?
                 </button>
-                <app-forecast-workability-plot
+                <app-forecast-workability-plot class="left"
                   [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
                   [startTime]="startTime" [stopTime]="stopTime">
                 </app-forecast-workability-plot>
 
-                <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
-                  [ngbPopover]="helpWorkabilitySpectrum" placement="bottom" popoverClass="helpPopup" container="body">?
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpWorkabilitySpectrum" popoverClass="helpPopup" container="body">?
                 </button>
                 <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
-                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125" class=left>
                 </app-surface-plot>
 
-                <button type="button" class="btn btn-outline-secondary helpBtn float-right" [autoClose]="true"
-                  [ngbPopover]="helpSlipProbability" placement="bottom" popoverClass="helpPopup" container="body">?
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpSlipProbability" popoverClass="helpPopup" container="body">?
                 </button>
                 <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip probability"
-                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100">
+                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left">
                 </app-surface-plot>
               </ng-container>
             </ng-template>
