@@ -274,10 +274,12 @@ module.exports = function(app, logger, admin_server_pool) {
       && project.client_id == userToken.client_id
   }
   function checkVesselPermission(userToken, vessel) {
+    const GENERIC_VESSEL_CLIENT_ID = 1;
     const perm = userToken?.permission
     if (perm.admin) return true;
-    return perm?.forecast.read
-      && vessel.client_id == userToken.client_id
+    const client_match = vessel.client_id == userToken.client_id;
+    const generic_match = vessel.client_id == GENERIC_VESSEL_CLIENT_ID;
+    return perm?.forecast.read && (client_match || generic_match)
   }
 
   function pg_get(endpoint, data) {
