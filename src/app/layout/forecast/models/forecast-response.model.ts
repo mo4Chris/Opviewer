@@ -19,6 +19,8 @@ export interface ForecastOperation {
 export interface ForecastResponseObject {
   id: number;
   consumer_id: number;
+  longitude: number;
+  latitude: number;
   metocean_id: string;
   project_id: number;
   response: {
@@ -38,6 +40,13 @@ interface ForecastResponse {
     Disp: Dof6Array;
   };
   SlipResponse?: CtvSlipResponse;
+  Project_Settings: {
+    client_preferences: ForecastExpectedResponsePreference;
+    latitude: number;
+    longitude: number;
+    water_depth: number;
+    maximum_duration?: number;
+  }
 }
 
 interface ForecastResponsePoi {

@@ -1,3 +1,6 @@
+<ngb-alert *ngIf="projectSettingsChanged" type="warning">
+  Project settings have been changed but are not yet applied to this forecast response.
+</ngb-alert>
 <div *ngIf="showContent; else loading" class="row center font-sm">
   <div class="col-lg-12 col-xl-4">
     <div class='card mb-3'>
@@ -12,7 +15,7 @@
           [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
           (onChange)="onProjectSettingsChange($event)" [limits]="limits" [lastUpdated]="lastUpdated"
           [(slipCoefficient)]="selectedSlipCoefficient" [(thrustIndex)]="selectedThrustIndex"  [vessels]='vessels'
-          [slipCoefficients]="SlipCoefficients" [slipThrustLevels]="SlipThrustLevels">
+          [slipCoefficients]="SlipCoefficients" [slipThrustLevels]="SlipThrustLevels" [response]="responseObj">
         </app-forecast-ops-picker>
         <app-heading-picker class="center" [heading]="selectedHeading">
         </app-heading-picker>
@@ -28,17 +31,26 @@
             <a ngbNavLink>Workability</a>
             <ng-template ngbNavContent>
               <ng-container *ngIf="Workability; else workabilityNotAvailable">
-                <app-forecast-workability-plot
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpWorkabilityAlongHeading" popoverClass="helpPopup" container="body">?
+                </button>
+                <app-forecast-workability-plot class="left"
                   [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
                   [startTime]="startTime" [stopTime]="stopTime">
                 </app-forecast-workability-plot>
 
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpWorkabilitySpectrum" popoverClass="helpPopup" container="body">?
+                </button>
                 <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
-                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125">
+                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125" class=left>
                 </app-surface-plot>
 
-                <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip stability" [xData]="reponseTime"
-                  [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100">
+                <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
+                  [ngbPopover]="helpSlipProbability" popoverClass="helpPopup" container="body">?
+                </button>
+                <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip probability"
+                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left">
                 </app-surface-plot>
               </ng-container>
             </ng-template>
@@ -89,4 +101,25 @@
   changed by navigating to the project settings page.
   <br><br>
   Note: a workability forecast cannot be generated unless valid limits have been specified!
+</ng-template>
+<ng-template #helpWorkabilityAlongHeading>
+  Shows the expected workability along the selected heading.
+  Workability is defined as the maximum over all the limits. Hence, 100% workability
+  corresponds to at least one of the limits being reached. If workability exceeds 100%,
+  the conditions are expected to be unsafe to perform the selected operation at that time.
+</ng-template>
+<ng-template #helpWorkabilitySpectrum>
+  Shows the expected workability for all headings.
+  Workability is defined as the maximum over all the limits. Hence, 100% workability
+  corresponds to at least one of the limits being reached. If workability exceeds 100%,
+  the conditions are expected to be unsafe to perform the selected operation at that time.
+</ng-template>
+<ng-template #helpSlipProbability>
+  Shows the expected slip probabilty for CTVs during push on transfer with a stationary
+  offshore object, such as an offshore wind turbine.
+  Slip probability is defined as the likelyhood of at least 1 event where the vessels'
+  bumper slips for more than the allowed slip margin over a predefined period. This depends
+  on the slip coefficient and thrust force applied when making contact with the turbine.
+  The stable period duration and allowed slip levels can be set on the project overview
+  page (as such changes require new simulations).
 </ng-template>

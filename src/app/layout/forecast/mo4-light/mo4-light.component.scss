@@ -40,3 +40,14 @@ app-heading-picker {
 td{
   min-width: 60px;
 }
+
+.right {
+  // display: block;
+  float: right;
+  clear: both;
+}
+.left {
+  float: left;
+  clear: both;
+  width: 100%;
+}

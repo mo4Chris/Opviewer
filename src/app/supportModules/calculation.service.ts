@@ -227,7 +227,7 @@ export class CalculationService {
 
   switchUnits(vals: number, from: string, to: string): number;
   switchUnits(vals: number[], from: string, to: string): number[]
-  switchUnits(vals: number | number[], from: string, to: string): number | number[] {
+  switchUnits(vals: any, from: string, to: string): any {
     if (from === to) {
       return vals;
     }
@@ -246,13 +246,17 @@ export class CalculationService {
         return this.switchWeightUnits(vals, from, to);
       case 'liter': case 'm3':
         return this.switchVolumeUnits(vals, from, to);
+      case 'N': case 'kN':
+        return this.switchForceUnits(vals, from, to);
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;
     }
   }
 
-  switchDistanceUnits(vals: number | number[], from: string, to: string) {
+  switchDistanceUnits(vals: number, from: string, to: string): number;
+  switchDistanceUnits(vals: number[], from: string, to: string): number[]
+  switchDistanceUnits(vals: any, from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm':
@@ -278,7 +282,9 @@ export class CalculationService {
     }
   }
 
-  switchAccelerationUnits(vals: number | number[], from: string, to: string) {
+  switchAccelerationUnits(vals: number, from: string, to: string): number;
+  switchAccelerationUnits(vals: number[], from: string, to: string): number[]
+  switchAccelerationUnits(vals: any, from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm/s2': case 'm/s²':
@@ -296,7 +302,9 @@ export class CalculationService {
     }
   }
 
-  switchSpeedUnits(vals: number | number[], from: string, to: string) {
+  switchSpeedUnits(vals: number, from: string, to: string): number;
+  switchSpeedUnits(vals: number[], from: string, to: string): number[]
+  switchSpeedUnits(vals: any, from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm/s':
@@ -324,7 +332,9 @@ export class CalculationService {
     }
   }
 
-  switchDurationUnits(vals: number|number[], from: string, to: string) {
+  switchDurationUnits(vals: number, from: string, to: string): number;
+  switchDurationUnits(vals: number[], from: string, to: string): number[]
+  switchDurationUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -351,7 +361,9 @@ export class CalculationService {
     }
   }
 
-  switchDirectionUnits(vals: number | number[], from: string, to: string) {
+  switchDirectionUnits(vals: number, from: string, to: string): number;
+  switchDirectionUnits(vals: number[], from: string, to: string): number[]
+  switchDirectionUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -372,7 +384,9 @@ export class CalculationService {
     }
   }
 
-  switchVolumeUnits(vals: number |  number[], from: string, to: string) {
+  switchVolumeUnits(vals: number, from: string, to: string): number;
+  switchVolumeUnits(vals: number[], from: string, to: string): number[]
+  switchVolumeUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -395,7 +409,9 @@ export class CalculationService {
     }
   }
 
-  switchWeightUnits(vals: number | number[], from: string, to: string) {
+  switchWeightUnits(vals: number, from: string, to: string): number;
+  switchWeightUnits(vals: number[], from: string, to: string): number[]
+  switchWeightUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -404,6 +420,29 @@ export class CalculationService {
         case 'gram':
           return 0.001;
         case 'ton': case 'tons':
+          return 1000;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
+  }
+
+  switchForceUnits(vals: number, from: string, to: string): number;
+  switchForceUnits(vals: number[], from: string, to: string): number[]
+  switchForceUnits(vals: any, from: string, to: string) {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'N': case 'newton':
+          return 1;
+        case 'kN':
           return 1000;
         default:
           console.error('Invalid unit "' + type + '"!');
