@@ -82,7 +82,6 @@ module.exports = function (
       const response = await admin_server_pool.query(query, values)
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
-      throw new Error('SHOULD BE FIXED ASAP')
       const demo_project_id = await createProject() // works
       await createUser({
         username,
@@ -259,7 +258,7 @@ module.exports = function (
     demo_project_id = null
   }) {
     const expireDate = new Date();
-    const formattedExpireDate = expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
+    const formattedExpireDate = toIso8601(new Date(expireDate.setMonth(expireDate.getMonth() + 1)))
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
@@ -267,27 +266,29 @@ module.exports = function (
     const password_setup_token = null;
     if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
-    const query = `INSERT INTO public."userTable" (
-      "username",
-      "requires2fa",
-      "active",
-      "vessel_ids",
-      "token",
-      "client_id",
-      "password",
-      "demo_expiration_date",
-      "demo_project_id
-    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "userTable"."user_id"`
+    const query = `INSERT INTO public."userTable"(
+      username,
+      requires2fa,
+      secret2fa,
+      active,
+      vessel_ids,
+      password,
+      token,
+      client_id,
+      demo_project_id,
+      demo_expiration_date
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "userTable"."user_id"`
     const values = [
       username,
       Boolean(requires2fa) ?? true,
+      null,
       true,
       valid_vessel_ids ? vessel_ids : null,
+      password,
       password_setup_token,
       client_id,
-      password,
-      formattedExpireDate,
-      demo_project_id
+      demo_project_id,
+      formattedExpireDate
     ]
 
     const sqlresponse = await admin_server_pool.query(query, values)
