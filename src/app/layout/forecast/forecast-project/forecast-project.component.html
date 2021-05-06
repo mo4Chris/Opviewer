@@ -48,7 +48,7 @@
             </tr>
             <tr>
               <td><div [ngbTooltip]="helpWaterDepth">Water depth</div></td>
-              <td>
+              <td colspan="2">
                 <div class="input-group">
                   <input class="form-control form-control-sm" type="number" [(ngModel)]="project.water_depth"
                     [min]="0" placeholder="Depth">
@@ -57,7 +57,30 @@
                   </div>
                 </div>
               </td>
-              <td></td>
+            </tr>
+            <tr *ngIf="ctv_slip_settings">
+              <td><div [ngbTooltip]="helpCtvSlipDuration">Push on duration</div></td>
+              <td colspan="2">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="ctv_slip_settings.Window_Length_Seconds"
+                    [min]="0" placeholder="Slip window">
+                  <div class="input-group-append">
+                    <span class="input-group-text">s</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="ctv_slip_settings">
+              <td><div [ngbTooltip]="helpCtvMaxSlip">Max allowed slip</div></td>
+              <td colspan="2">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="ctv_slip_settings.Max_Allowed_Slip_Meter"
+                    [min]="0" placeholder="Slip window" [step]="0.1">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -115,7 +138,7 @@
               <td>
                 <!-- [ngbTooltip]="helpRequestNewVessel" is currently swapped out by unavailable just to be sure -->
                 <span [ngbTooltip]="currentlyUnavailable">
-                   <button disabled (click)="onRequestNewVessel()" class="btn btn-primary" 
+                   <button disabled (click)="onRequestNewVessel()" class="btn btn-primary"
                   *ngIf="SelectedVessel">
                   Request new vessel</button>
                 </span>
@@ -228,6 +251,13 @@
   This functionality is currently unavailable. We are looking to implement this in the upcoming version of MO4 light.
 </ng-template>
 
+<ng-template #helpCtvSlipDuration>
+  Amount of time an push on transfer is expected to take. Longer periods increase the probability of a slip
+  event in the period.
+</ng-template>
+<ng-template #helpCtvMaxSlip>
+  Amount of distance the tip of the CTV is allowed to slip during a push on transfer, before it is considered a slip event.
+</ng-template>
 
 <ng-template #helpDateSpan>
   Project start - project end. Please contact MO4
