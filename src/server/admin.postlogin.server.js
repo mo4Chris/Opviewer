@@ -11,11 +11,15 @@ module.exports = function (
 
   // ############## ENDPOINTS ############
 
-  app.get('/api/mo4admin/getClients', (req, res) => {
+  app.get('/api/getClients', (req, res) => {
     const token = req['token'];
     const perm = token['permission'];
     if (!perm.admin) return onUnauthorized(res);
-    defaultPgLoader('clients')(req, res);
+    // defaultPgLoader('clientList')(req, res);
+    const query = `SELECT * FROM "clientTable"`
+    admin_server_pool.query(query).then(sqlresponse => {
+      res.send(sqlresponse.rows);
+    }).catch(err => onError(res, err));
   });
 
   app.get('/api/vesselList', (req, res) => {
@@ -45,6 +49,7 @@ module.exports = function (
       return onError(res, err)
     })
   })
+
   app.get('/api/userPreferences', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
@@ -52,6 +57,7 @@ module.exports = function (
       return onError(res, err)
     })
   })
+
   app.post('/api/createUser',  async (req, res) => {
     // TODO: verify client ID
     // TODO: verify if vessels belong to client
@@ -493,7 +499,7 @@ module.exports = function (
     return password_setup_token;
   }
 
-  
+
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
       user_id,
