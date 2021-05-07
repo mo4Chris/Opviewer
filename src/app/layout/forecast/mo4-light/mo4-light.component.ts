@@ -4,8 +4,8 @@ import { CommonService } from '@app/common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
@@ -91,63 +91,73 @@ export class Mo4LightComponent implements OnInit {
 
   loadData(): void {
     // ToDo: only rerout if no permission to forecasting module
+    this.responseNotFound = false;
     forkJoin([
       this.newService.getForecastProjectList(),
       this.newService.getForecastVesselList(), // Really should only get the relevant vessel
-      this.newService.getForecastWorkabilityForProject(this.project_id),
+      this.newService.getForecastWorkabilityForProject(this.project_id).pipe(catchError(err => {
+        if (err.status == 404) {
+          this.responseNotFound = true;
+          return of(null)
+        }
+        throw err;
+      })),
       // this.newService.getCtvForecast()
-    ]).subscribe(([projects, vessels, responses]) => {
-      this.responseNotFound = false;
-      this.vessels = vessels;
-      this.responseObj = responses;
-      this.operations = projects;
-      this.showContent = true;
-      if (!this.responseObj) {
-        this.lastUpdated = 'N/a';
-        this.responseObj = null;
-        this.Workability = null;
-        this.limits = [];
-        return;
+    ]).subscribe({
+      next: ([projects, vessels, responses]) => {
+        this.vessels = vessels;
+        this.responseObj = responses;
+        this.operations = projects;
+        this.showContent = true;
+
+        const currentOperation = this.operations.find(op => op.id === this.project_id);
+        this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+        this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
+
+        if (!this.responseObj) {
+          this.lastUpdated = 'N/a';
+          this.responseObj = null;
+          this.Workability = null;
+          this.limits = [];
+          return;
+        }
+
+        this.setLastUpdateTime();
+        const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
+        this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
+        this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
+
+        this.parseResponse();
+        this.parseCtvSlipResponse();
+
+        if (this.response == null) return
+        // TEMPORARY WORKAROUND FOR WEATHER
+        const raw_weather = this.response['MetoceanData'];
+        raw_weather.Time = this.dateService.roundToMinutes(raw_weather.Time, 2)
+        const param = raw_weather.Wave.Parametric
+        this.weather = {
+          timeStamp: raw_weather.Time,
+          Hs: param.Hs,
+          Hmax: param.Hmax,
+          Tp: param.Tp,
+          waveDir: param.MeanDirection,
+          wavePeakDir: param.PeakDirection,
+          source: 'Infoplaza'
+        }
+        const spectral = raw_weather.Wave.Spectral
+        this.spectrum = {
+          source: 'Infoplaza',
+          k_x: spectral.Kx, //.map(x => x[0]),
+          k_y: spectral.Ky, //.map(x => x[0]),
+          density: spectral.Density,
+          timeStamp: this.weather.timeStamp,
+        }
+        // this.loadWeather();
+      },
+      error: err => {
+        console.error('error', err)
+        this.routeService.routeToAccessDenied();
       }
-
-      this.setLastUpdateTime();
-      const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
-      this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
-      this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
-
-      const currentOperation = this.operations.find(op => op.id === this.project_id);
-      this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
-      this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
-
-      this.parseResponse();
-      this.parseCtvSlipResponse();
-
-      if (this.response == null) return
-      // TEMPORARY WORKAROUND FOR WEATHER
-      const raw_weather = this.response['MetoceanData'];
-      raw_weather.Time = this.dateService.roundToMinutes(raw_weather.Time, 2)
-      const param = raw_weather.Wave.Parametric
-      this.weather = {
-        timeStamp: raw_weather.Time,
-        Hs: param.Hs,
-        Hmax: param.Hmax,
-        Tp: param.Tp,
-        waveDir: param.MeanDirection,
-        wavePeakDir: param.PeakDirection,
-        source: 'Infoplaza'
-      }
-      const spectral = raw_weather.Wave.Spectral
-      this.spectrum = {
-        source: 'Infoplaza',
-        k_x: spectral.Kx, //.map(x => x[0]),
-        k_y: spectral.Ky, //.map(x => x[0]),
-        density: spectral.Density,
-        timeStamp: this.weather.timeStamp,
-      }
-      // this.loadWeather();
-    }, error => {
-      if (error.status_code = 404) return this.responseNotFound = true;
-      this.routeService.routeToAccessDenied();
     });
   }
   loadWeather() {
@@ -175,14 +185,16 @@ export class Mo4LightComponent implements OnInit {
     this.setWorkabilityAlongHeading();
   }
   parseCtvSlipResponse() {
-    const POI = this.responseObj.response.Points_Of_Interest.P1;
+    const POI = this.responseObj?.response?.Points_Of_Interest?.P1;
     if (! POI?.SlipResponse) return;
     const slip = POI.SlipResponse;
 
     this.SlipCoefficients = slip.Friction_Coeff_Range;
     this.SlipThrustLevels = slip.Thrust_Range;
 
-    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(_s => _s.map(__s => __s[this.selectedThrustIndex][this.selectedSlipCoefficient]));
+    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(
+      _s => _s.map(__s => __s[this.selectedThrustIndex][this.selectedSlipCoefficient])
+    );
     this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
   }
   computeWorkability() {
