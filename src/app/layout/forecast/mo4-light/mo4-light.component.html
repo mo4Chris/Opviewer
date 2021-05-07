@@ -1,6 +1,9 @@
 <ngb-alert *ngIf="projectSettingsChanged" type="warning">
   Project settings have been changed but are not yet applied to this forecast response.
 </ngb-alert>
+<div *ngIf="responseNotFound">
+  Project not found!
+</div>
 <div *ngIf="showContent; else loading" class="row center font-sm">
   <div class="col-lg-12 col-xl-4">
     <div class='card mb-3'>

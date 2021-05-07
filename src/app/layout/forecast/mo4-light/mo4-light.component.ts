@@ -22,6 +22,8 @@ export class Mo4LightComponent implements OnInit {
   private project_id: number;
 
   public showContent = false;
+  public responseNotFound = false;
+
   public vessels: ForecastVesselRequest[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
   public responseObj: ForecastResponseObject;
@@ -95,6 +97,7 @@ export class Mo4LightComponent implements OnInit {
       this.newService.getForecastWorkabilityForProject(this.project_id),
       // this.newService.getCtvForecast()
     ]).subscribe(([projects, vessels, responses]) => {
+      this.responseNotFound = false;
       this.vessels = vessels;
       this.responseObj = responses;
       this.operations = projects;
@@ -143,6 +146,7 @@ export class Mo4LightComponent implements OnInit {
       }
       // this.loadWeather();
     }, error => {
+      if (error.status_code = 404) return this.responseNotFound = true;
       this.routeService.routeToAccessDenied();
     });
   }

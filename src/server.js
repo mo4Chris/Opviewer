@@ -799,7 +799,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminServer(app, logger, admin_server_pool, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####

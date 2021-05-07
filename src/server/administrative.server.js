@@ -16,8 +16,6 @@ const headers = {
 module.exports = function (
   app,
   logger,
-  onError = (res, err, additionalInfo) => console.log(err),
-  onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool,
   mailTo = (subject, body, recipient = 'webmaster@mo4.online') => { }
 ) {
@@ -46,7 +44,7 @@ module.exports = function (
         username: row.username,
         requires2fa: row.requires2fa,
       })
-    }).catch(err => onError(res, err))
+    }).catch(err => res.onError(err))
   });
 
   app.post('/api/createDemoUser', async (req, res) => {
@@ -94,8 +92,8 @@ module.exports = function (
         demo_project_id,
       })
     } catch (err) {
-      if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
-      return onError(res, err, 'Error creating user')
+      if (err.constraint == 'Unique usernames') return res.onUnauthorized('User already exists')
+      return res.onError(err, 'Error creating user')
     }
     // send email
     const html = `A demo account has been created for ${req.body.username}.<br>
@@ -152,9 +150,7 @@ module.exports = function (
       const value2 = [hashed_password, confirm2fa, user_id]
       admin_server_pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
-      }).catch(err => {
-        onError(res, err)
-      });
+      }).catch(err => res.onError(err));
     }).catch(err => res.onError(err, 'Registration token not found!'))
   })
 
@@ -190,14 +186,14 @@ module.exports = function (
 
     localLogger.info('Received login for user: ' + username);
     admin_server_pool.query(PgQuery, values).then(async (data, err) => {
-      if (err) return onError(res, err);
-      if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
+      if (err) return res.onError(err);
+      if (data.rows.length == 0) return res.onUnauthorized('User does not exist');
 
       let user = data.rows[0];
       localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
       localLogger.debug('Retrieving vessels for user');
-      const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return onError(res, err) });
+      const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return res.onError(err) });
 
       localLogger.debug('Retrieving client for user');
       const query = 'SELECT "forecast_client_id" FROM "clientTable" WHERE "client_id" = $1';
@@ -236,7 +232,7 @@ module.exports = function (
       localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())
       return res.status(200).send({ token });
 
-    }).catch((err) => { return onError(res, err) })
+    }).catch((err) => { return res.onError( err) })
   });
 
   function getVesselsForUser(res, user_id) {
@@ -248,13 +244,13 @@ module.exports = function (
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
     return admin_server_pool.query(PgQuery, values).then((data, err) => {
-      if (err) return onError(res, err);
+      if (err) return res.onError( err);
       if (data.rows.length > 0) {
         return data.rows;
       } else {
         return null;
       }
-    }).catch(err => onError(res, err, 'Failed to load vessels'));
+    }).catch(err => res.onError( err, 'Failed to load vessels'));
   };
 
   async function createUser({
@@ -348,13 +344,13 @@ module.exports = function (
 
   function validateLogin(req, user, res) {
     const userData = req.body;
-    if (!user.active) { onUnauthorized(res, 'User is not active, please contact your supervisor'); return false }
+    if (!user.active) { res.onUnauthorized('User is not active, please contact your supervisor'); return false }
     if (!user.password || user.password == '') {
-      onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
+      res.onUnauthorized('Account needs to be activated before loggin in, check your email for the link');
       return false;
     }
     if (!bcrypt.compareSync(userData.password, user.password)) {
-      onUnauthorized(res, 'Password is incorrect');
+      res.onUnauthorized('Password is incorrect');
       return false;
     }
     logger.trace(user)
@@ -364,7 +360,7 @@ module.exports = function (
     const requires2fa = (user.requires2fa == null) ? true : Boolean(user.requires2fa);
     logger.debug({ "msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost })
     if (!isLocalHost && !secret2faValid && requires2fa) {
-      onUnauthorized(res, '2fa is incorrect');
+      res.onUnauthorized('2fa is incorrect');
       return false
     }
     return true;

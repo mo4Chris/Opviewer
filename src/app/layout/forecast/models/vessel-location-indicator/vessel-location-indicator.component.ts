@@ -40,7 +40,14 @@ export class VesselLocationIndicatorComponent implements OnChanges {
         up: {x: 0, y: 0, z: 1},
       }
     },
+    hovermode: false
   };
+  public plotConfig = {
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['zoom3d', 'pan3d', 'autoScale3d', 'toggleSpikelines', 'hoverClosestCartesian',
+      'hoverCompareCartesian', 'resetCameraLastSave3d', 'hoverClosest3d', 'orbitRotation', 'tableRotation'],
+    displaylogo: false
+  }
   private VesselTrace: Plotly.Data;
 
   public get hasData() {
