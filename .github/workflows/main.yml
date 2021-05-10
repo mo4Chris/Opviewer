@@ -80,7 +80,15 @@ jobs:
       - name: Start API server
         run: npm run server-dev
         env:
-
+          IP_USER: http://localhost:4200, http://localhost:4300, http://localhost:4444
+          DB_CONN: {{ secrets.DB_CONN_TEST }}
+          AZURE_URL: http://mo4-hydro-api.azurewebsites.net
+          AZURE_TOKEN: {{ secrets.AZURE_TOKEN_TEST }}
+          ADMIN_DB_HOST: mo4light-administrative-database.postgres.database.azure.com
+          ADMIN_DB_USER: MO4Admin@mo4light-administrative-database
+          ADMIN_DB_PASSWORD: {{ secrets.ADMIN_DB_PASSWORD }}
+          ADMIN_DB_DATABASE: postgres
+          ADMIN_DB_PORT: 5432
 
       - name: Run unit tests for vm ctv
         run: npm run ng e2e --configuration vm-ctv
