@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 import { CTVGeneralStatsModel } from '../../models/generalstats.model';
 import { TokenModel } from '@app/models/tokenModel';
 import { AlertService } from '@app/supportModules/alert.service';
@@ -7,6 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 @Component({
   selector: 'app-ctv-summary',
@@ -15,9 +16,8 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
     './ctv-summary.component.scss',
     '../ctvreport/ctvreport.component.scss',
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CtvSummaryComponent {
+export class CtvSummaryComponent implements OnChanges {
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
@@ -29,13 +29,24 @@ export class CtvSummaryComponent {
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
   
+  public fuelConsumedValue = '0 liter';
+  public tripEfficiency = 'N/a';
+
   constructor(
     private alert: AlertService,
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
     public permission: PermissionService,
+    public settings: SettingsService
   ) {
+  }
+
+  ngOnChanges() {
+    if (this.engine && this.general && this.general.sailedDistance) {
+      this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
+      }
+    this.getValueForFuelConsumed();
   }
 
   saveGeneralStats() {
@@ -48,6 +59,14 @@ export class CtvSummaryComponent {
         this.alert.sendAlert({text: error, type: 'danger'});
         throw error;
       })).subscribe();
+  }
+
+  getValueForFuelConsumed() {
+    if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
+      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter'); 
+    } else if (this.engine.fuelUsedTotalM3) {
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(this.roundNumber(this.engine.fuelUsedTotalM3, 10), 'm3', 'liter');
+    } 
   }
 
   getMatlabDateToJSTime(serial) {

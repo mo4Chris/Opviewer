@@ -19,7 +19,7 @@ export class SovData {
     }
 }
 
-interface weatherConditionModel{
+interface weatherConditionModel {
     wavesource: string;
     time: number[];
     waveDirection: number[];

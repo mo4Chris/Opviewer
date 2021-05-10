@@ -1,21 +1,18 @@
-import { SovRovOperationsComponent } from "./sov-rov-operations.component";
-import { ComponentFixture, TestBed, async } from "@angular/core/testing";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgMultiSelectDropDownModule } from "ng-multiselect-dropdown";
-import { SharedPipesModule } from "@app/shared";
-import { MockedCommonServiceProvider } from "@app/supportModules/mocked.common.service";
-import { UserTestService } from "@app/shared/services/test.user.service";
-
-
-
+import { SovRovOperationsComponent } from './sov-rov-operations.component';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { SharedPipesModule } from '@app/shared';
+import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 
 describe('Sov Rov transfer component', () => {
     let component: SovRovOperationsComponent;
     let fixture: ComponentFixture<SovRovOperationsComponent>;
-  
-  
+
+
     beforeEach(async(() => {
       TestBed.configureTestingModule({
         imports: [
@@ -23,11 +20,12 @@ describe('Sov Rov transfer component', () => {
           CommonModule,
           FormsModule,
           NgMultiSelectDropDownModule,
-          SharedPipesModule
+          SharedPipesModule,
         ],
         declarations: [ SovRovOperationsComponent ],
         providers: [
-            MockedCommonServiceProvider
+          MockedCommonServiceProvider,
+          MockedUserServiceProvider,
         ]
       })
       .compileComponents();
@@ -44,8 +42,8 @@ describe('Sov Rov transfer component', () => {
       fixture.detectChanges();
     }));
 
-    
+
   it('Should instantiate', () => {
     expect(component).toBeTruthy();
   });
-})
+});

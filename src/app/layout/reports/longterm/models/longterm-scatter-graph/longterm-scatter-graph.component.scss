@@ -6,5 +6,27 @@
 }
 .col-lg-8{
     position: relative;
+}
+
+.canvas-container{
     height: 400px;
+    width: 100%;
+}
+
+.graphExplanation {
+    border: 1px #222 solid;
+}
+
+.filter {
+    margin-left: 30px;
+}
+
+.custom-switch {
+    padding-left: 2.25rem;
+}
+.custom-control {
+    position: relative;
+    display: block;
+    min-height: 1.5rem;
+    padding-left: 1.5rem;
 }

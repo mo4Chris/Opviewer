@@ -1,15 +1,12 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
-import { LongtermVesselObjectModel } from '../../longterm.component';
+import { LongtermVesselObjectModel } from '@longterm/longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
-import { SettingsService } from '@app/supportModules/settings.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
-import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
 import { LongtermProcessingService, LongtermScatterValueArray, LongtermParsedWavedata } from '../longterm-processing-service.service';
+import {LongtermDataFilter} from '../scatterInterface';
 
 @Component({
   selector: 'app-longterm-scatter-graph',
@@ -25,16 +22,21 @@ export class LongtermScatterGraphComponent implements OnChanges {
   @Input() vesselLabels: string[] = ['Label A', 'Label B', 'Label C'];
   @Input() wavedata: LongtermParsedWavedata;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
+  @Input() filters: LongtermDataFilter[] = [{
+    name: 'Test filter',
+    filter: (x, y) => x < y,
+  }];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
-  @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('canvas', { static: true }) canvas: ElementRef;
   private context: CanvasRenderingContext2D;
 
   hasData: boolean;
-  info: string;
+  public info: string;
   chart: Chart;
+  scatterData: ScatterDataElt[];
   axisType: any;
 
   constructor(
@@ -48,6 +50,9 @@ export class LongtermScatterGraphComponent implements OnChanges {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     if (this.chart) {
       this.reset();
+    }
+    if (this.filters == undefined) {
+      this.filters = [];
     }
 
     this.info = this.data.info || 'N/a';
@@ -124,8 +129,28 @@ export class LongtermScatterGraphComponent implements OnChanges {
         };
         scatterData.push({ x: x, y: y, callback: navToDPRByDate });
       });
-      return scatterData;
+      const _x = scatterData.map(d => d.x) as number[];
+      const _y = scatterData.map(d => d.y) as number[];
+      const keep = this.applyFilters(_x, _y, data._id);
+      return scatterData.filter((_, i) => keep[i]);
     });
+  }
+
+  applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
+    const keep: boolean[] = xVals.map(_ => true);
+    this.filters.forEach(filter => {
+      console.log(`Applying filter "${filter.name}"`);
+      if (filter.active || filter.active == undefined) {
+        filter.active = true;
+        xVals.forEach((x, i) => {
+          if (keep[i]) {
+            const y = yVals[i];
+            keep[i] = filter.filter(x, y, mmsi);
+          }
+        });
+      }
+    });
+    return keep;
   }
 
   createChart(args: ScatterArguments) {
@@ -308,3 +333,4 @@ interface ScatterDataElt {
   key?: string;
   callback?: Function;
 }
+

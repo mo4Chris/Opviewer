@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { HttpModule } from '@angular/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -12,12 +13,14 @@ import { AppComponent } from './app.component';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './shared';
 import { CommonService } from './common.service';
-import { PlotlyModule } from 'angular-plotly.js';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
 import { AgmCoreModule } from '@agm/core';
 import { environment } from 'environments/environment';
 
-PlotlyModule.plotlyjs = PlotlyJS;
+PlotlyViaCDNModule.plotlyVersion = 'latest';
+PlotlyViaCDNModule.plotlyBundle = 'basic';
+
+
 // AoT requires an exported function for factories
 export function createTranslateLoader(http: HttpClient) {
     // for development
@@ -29,9 +32,11 @@ export function createTranslateLoader(http: HttpClient) {
     imports: [
         CommonModule,
         BrowserModule,
+        PlotlyViaCDNModule,
         BrowserAnimationsModule,
         HttpClientModule,
-        HttpModule,
+        FormsModule,
+        ReactiveFormsModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
@@ -43,7 +48,6 @@ export function createTranslateLoader(http: HttpClient) {
             apiKey: environment.GOOGLE_API_KEY
         }),
         AppRoutingModule,
-        PlotlyModule,
     ],
     declarations: [AppComponent],
     providers: [AuthGuard, AuthService, CommonService],

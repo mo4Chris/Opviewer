@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone, ElementRef } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
@@ -70,16 +70,16 @@ export class DashboardComponent implements OnInit {
     userType = UserTypeEnum;
 
     // Children and event handlers //
-    @ViewChild(AdminComponent)
+    @ViewChild(AdminComponent) 
     private adminComponent: AdminComponent;
 
-    @ViewChild(LogisticsSpecialistComponent)
+    @ViewChild(LogisticsSpecialistComponent) 
     private logisticsSpecialistComponent: LogisticsSpecialistComponent;
 
-    @ViewChild(MarineControllerComponent)
+    @ViewChild(MarineControllerComponent)  
     private marineControllerComponent: MarineControllerComponent;
 
-    @ViewChild(VesselMasterComponent)
+    @ViewChild(VesselMasterComponent)  
     private vesselMasterComponent: VesselMasterComponent;
 
     getLocationData(locationData: AisMarkerModel[]): void {

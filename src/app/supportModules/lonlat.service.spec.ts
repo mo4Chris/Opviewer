@@ -6,7 +6,7 @@ describe('LonlatService', () => {
   let service: LonlatService;
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.get(LonlatService);
+    service = TestBed.inject(LonlatService);
   });
 
   it('should be created', () => {
@@ -23,12 +23,12 @@ describe('LonlatService', () => {
   });
 
   it('should correctly estimate distances', () => {
-    let from = {lng: 21.0122287, lat: 52.2296756};
-    let to = {lng: 16.9251681, lat: 52.406374};
-    let d = service.latlngdist(from, to);
-    let expectedDist = 278.458;
-    expect(d).toBeCloseTo(expectedDist, 3)
-  })
+    const from = {lng: 21.0122287, lat: 52.2296756};
+    const to = {lng: 16.9251681, lat: 52.406374};
+    const d = service.latlngdist(from, to);
+    const expectedDist = 278.458;
+    expect(d).toBeCloseTo(expectedDist, 3);
+  });
 });
 
 

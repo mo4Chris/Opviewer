@@ -9,17 +9,17 @@ const routes: Routes = [
         component: LayoutComponent,
         children: [
             { path: '', redirectTo: 'dashboard' },
-            { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
-            { path: 'reports', loadChildren: './reports/reports.module#ReportsModule'},
-            { path: 'campaigns', loadChildren: './TWA/fleets/fleets.module#FleetsModule' },
-            { path: 'fleet-log', loadChildren: './TWA/fleet-log/fleet-log.module#FleetLogModule' },
-            { path: 'campaign-request', loadChildren: './TWA/fleet-request/fleet-request.module#FleetRequestModule' },
-            { path: 'fleetavailability', loadChildren: './TWA/fleetavailability/fleetavailability.module#FleetavailabilityModule' },
-            { path: 'users', loadChildren: './users/users.module#UsersModule' },
-            { path: 'user-settings', loadChildren: './user-settings/user-settings.module#UserSettingsModule' },
-            { path: 'usermanagement', loadChildren: './usermanagement/usermanagement.module#UserManagementModule' },
-            { path: 'access-denied', loadChildren: './access-denied/access-denied.module#AccessDeniedModule' },
-            { path: 'not-found', loadChildren: './not-found/not-found.module#NotFoundModule' }
+            { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
+            { path: 'reports', loadChildren: () => import('./reports/reports.module').then(m => m.ReportsModule)},
+            { path: 'campaigns', loadChildren: () => import('./TWA/fleets/fleets.module').then(m => m.FleetsModule) },
+            { path: 'fleet-log', loadChildren: () => import('./TWA/fleet-log/fleet-log.module').then(m => m.FleetLogModule) },
+            { path: 'campaign-request', loadChildren: () => import('./TWA/fleet-request/fleet-request.module').then(m => m.FleetRequestModule) },
+            { path: 'fleetavailability', loadChildren: () => import('./TWA/fleetavailability/fleetavailability.module').then(m => m.FleetavailabilityModule) },
+            { path: 'users', loadChildren: () => import('./users/users.module').then(m => m.UsersModule) },
+            { path: 'user-settings', loadChildren: () => import('./user-settings/user-settings.module').then(m => m.UserSettingsModule) },
+            { path: 'usermanagement', loadChildren: () => import('./usermanagement/usermanagement.module').then(m => m.UserManagementModule) },
+            { path: 'access-denied', loadChildren: () => import('./access-denied/access-denied.module').then(m => m.AccessDeniedModule) },
+            { path: 'not-found', loadChildren: () => import('./not-found/not-found.module').then(m => m.NotFoundModule) }
         ]
     },
 ];

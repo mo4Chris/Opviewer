@@ -38,13 +38,18 @@
     }
 }
 
+.settings-icon {
+    // float: right; // ToDo: fix headerContainer width
+}
+
 .headerContainer{
     margin-top: -15px;
     padding-top: 15px;
     position: fixed;
     background: #ffffff;
-    width: 100%;
     z-index: 10;
+    width: 100%;
+    // ToDo: Set correct width, as width 100% is completely senseless
 }
 .headerSpacer{
     height: 80px;
@@ -139,6 +144,10 @@
         display: none;
     }
 
+    .headerBarStyling {
+        margin-top: 0;
+    }
+
     .printOnly{
         display: block;
         font-size: 14px;
@@ -163,6 +172,10 @@
         height: 8cm;
         margin-top: 0.25cm;
         float: right;
+    }
+
+    .divContainer {
+        margin-top: 15mm;
     }
 
     .frontpageContent {

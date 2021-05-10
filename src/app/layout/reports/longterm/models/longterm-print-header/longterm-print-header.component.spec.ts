@@ -23,7 +23,7 @@ describe('LongtermPrintHeaderComponent', () => {
       dateMax: 738081,
       dateNormalMin: '2020-10-16',
       dateNormalMax: '2020-10-17',
-    }
+    };
     fixture.detectChanges();
   });
 

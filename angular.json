@@ -11,6 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "aot": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -30,15 +31,20 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true,
+              "buildOptimizer": false,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -47,6 +53,12 @@
               ]
             },
             "staging": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -119,30 +131,30 @@
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "./protractor.conf.js"
+            "protractorConfig": "./e2e/conf.vm.ctv.js"
           },
           "configurations": {
-            "admin" : {
+            "admin": {
               "protractorConfig": "e2e/conf.admin.js"
             },
-            "ls" : {
+            "ls": {
               "protractorConfig": "e2e/conf.ls.js"
             },
-            "mc" : {
+            "mc": {
               "protractorConfig": "e2e/conf.mc.js"
             },
-            "vm-ctv" : {
+            "vm-ctv": {
               "protractorConfig": "e2e/conf.vm.ctv.js"
             },
-            "vm-sov" : {
+            "vm-sov": {
               "protractorConfig": "e2e/conf.vm.sov.js"
-            }          
+            }
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": "e2e/config.e2e.json",
+            "tsConfig": "e2e/tsconfig.json",
             "exclude": [
               "**/node_modules/**"
             ]
@@ -155,10 +167,13 @@
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",
-      "styleext": "scss"
+      "style": "scss"
     },
     "@schematics/angular:directive": {
       "prefix": "app"
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

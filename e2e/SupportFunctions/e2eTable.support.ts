@@ -1,5 +1,5 @@
-import { by, element, ElementArrayFinder, ElementFinder, promise } from "protractor";
-import { protractor } from "protractor/built/ptor";
+import { by, element, ElementArrayFinder, ElementFinder, promise } from 'protractor';
+import { protractor } from 'protractor/built/ptor';
 
 
 export class E2eTableHandler {
@@ -9,20 +9,20 @@ export class E2eTableHandler {
 
   getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): promise.Promise<ElementFinder> {
     const headers = table.all(by.xpath('thead/tr/th'));
-    expect(headers.count()).toBeGreaterThan(0, 'Table must have headers')
-    
-    let titles = headers.getText()  as unknown as promise.Promise<string[]>;
-    
-    let combined: promise.Deferred<ElementFinder> = protractor.promise.defer();
+    expect(headers.count()).toBeGreaterThan(0, 'Table must have headers');
+
+    const titles = headers.getText()  as unknown as promise.Promise<string[]>;
+
+    const combined: promise.Deferred<ElementFinder> = protractor.promise.defer();
     titles.then(texts => {
-      let index = texts.findIndex(t => {
-        let match = t.match(key);
-        return match ? match.length > 0 : false
+      const index = texts.findIndex(t => {
+        const match = t.match(key);
+        return match ? match.length > 0 : false;
       });
       if (index >= 0) {
         combined.fulfill(this.getRowElementByIndex(row, index));
       } else {
-        combined.reject('No cell found matching header "' + key + '"')
+        combined.reject('No cell found matching header "' + key + '"');
       }
     });
     return combined.promise;
@@ -37,14 +37,14 @@ export class E2eTableHandler {
 }
 
 function log(elt: ElementFinder | ElementArrayFinder) {
-  console.log('Registered async log event')
+  console.log('Registered async log event');
   elt.getText().then(t => {
     if (Array.isArray(t)) {
-      console.log('Logging array:')
+      console.log('Logging array:');
       console.log(t);
     } else {
-      console.log('Logging item')
+      console.log('Logging item');
       console.log(t);
     }
-  })
+  });
 }

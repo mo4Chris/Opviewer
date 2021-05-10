@@ -1,11 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SovTurbineTransfersComponent } from './sov-turbine-transfers.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { FormsModule } from '@angular/forms';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
 describe('SovTurbineTransfersComponent', () => {
   let component: SovTurbineTransfersComponent;
@@ -22,7 +22,8 @@ describe('SovTurbineTransfersComponent', () => {
       ],
       declarations: [ SovTurbineTransfersComponent ],
       providers: [
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        MockedUserServiceProvider,
       ]
     })
     .compileComponents();

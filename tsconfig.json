@@ -1,13 +1,15 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "downlevelIteration": true,
+    "module": "esnext",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es2015",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -17,7 +19,12 @@
     ],
     "baseUrl": "src",
     "paths": {
-      "@app/*": ["app/*"]
+      "@app/*": ["app/*"],
+      "@reports/*": ["app/layout/reports/*"],
+      "@longterm/*": ["app/layout/reports/longterm/*"],
+      "@dpr/*": ["app/layout/reports/dpr/*"],
+      "@dashboard/*": ["app/layout/dashboard/*"]
     }
   }
 }
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild, OnChanges } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
@@ -7,7 +7,7 @@ import * as ChartAnnotation from 'chartjs-plugin-annotation';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { TokenModel } from '@app/models/tokenModel';
-import { ComprisonArrayElt, RawScatterData } from '../models/scatterInterface';
+import { ComprisonArrayElt, LongtermDataFilter, RawScatterData } from '../models/scatterInterface';
 import { WavedataModel } from '@app/models/wavedataModel';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { SettingsService } from '@app/supportModules/settings.service';
@@ -35,6 +35,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
+    RemoveFailedTransfers: LongtermDataFilter = {name: 'FailedTransferFilter', filter: (bin, hs) => hs !== 1, active: this.settings.LongtermFilterFailedTransfers};
     comparisonArray: ComprisonArrayElt[] = [
         {
             x: 'date', y: 'score', graph: 'bar', xLabel: 'Vessel', yLabel: 'Number of transfers', dataType: 'transfer', info:
@@ -54,6 +55,30 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         {
             x: 'speedInTransitAvgKMH', y: 'MSI', graph: 'scatter', xLabel: 'Speed [' + this.settings.unit_speed + ']', yLabel: 'MSI % outbound', dataType: 'transitOut', info:
                 'MSI averages in percent during transit versus speed. This graph displays the outbound MSI only. ',
+        },
+        {
+            x: 'date', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'MSI % inbound', dataType: 'transitIn', info:
+            'MSI averages in percent per day. This graph displays the inbound MSI only. ',
+        },
+        {
+            x: 'date', y: 'MSI', graph: 'scatter', xLabel: 'Time', yLabel: 'MSI % outbound', dataType: 'transitOut', info:
+            'MSI averages in percent per day. This graph displays the outbound MSI only. ',
+        },
+        {
+            x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV inbound', dataType: 'transitIn', info:
+            'WBV scores per day. This graph displays the inbound WBV only. This is a figure indicating motion induced fatigue.',
+            annotation: () => this.parser.drawMultipleHorizontalLines(
+                [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
+                {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
+                ), 
+        },
+        {
+            x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV outbound', dataType: 'transitOut', info:
+            'WBV scores per day. This graph displays the outbound WBV only. This is a figure indicating motion induced fatigue.',
+            annotation: () => this.parser.drawMultipleHorizontalLines(
+                [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
+                {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
+                ), 
         },
         {
             x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
@@ -89,7 +114,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
                 'Transfer scores drawn as 95% confidence intervals for various Hs bins. The average of each bin and outliers are drawn separately. ' +
                 'Transfers without valid transfer scores have been omitted, and transfers rated 1 are drawn as outliers but are not used for computing mean and spread.',
             annotation: () => this.parser.drawHorizontalLine(20, 'MSI threshold'),
-            filterCB: (elt) => elt === 1
+            filters: [this.RemoveFailedTransfers]
         },
         {
             x: 'date', y: 'fuelUsedTotalM3', graph: 'scatter', xLabel: 'Time', yLabel: 'Daily fuel usage [L]', dataType: 'engine', info:

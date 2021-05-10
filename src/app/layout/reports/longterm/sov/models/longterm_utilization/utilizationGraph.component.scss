@@ -12,13 +12,13 @@ table tr td{
 }
 
 @media print {
-
-    .graphClass {
-        margin-top: -2cm;
+    
+    #utilizationGraph {
+        width:270mm !important;
     }
 
-    .cardClass {
-        margin-top: 2cm;
+    .singlepage-print-port {
+        page-break-before: always;
     }
 }
 

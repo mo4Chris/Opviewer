@@ -1,11 +1,11 @@
 import { AgmCoreModule } from '@agm/core';
 import { CommonModule } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AutosizeModule } from 'ngx-autosize';
-import { env } from 'process';
 
 import { DprMapComponent } from './dpr-map.component';
 
@@ -13,7 +13,7 @@ describe('DprMapComponent', () => {
   let component: DprMapComponent;
   let fixture: ComponentFixture<DprMapComponent>;
   let consoleSpy: jasmine.Spy;
-  let vessel = {
+  const vessel = {
     trace: {
       time: linspace(738000, 738001, 100),
       lon: linspace(50, 51, 100),
@@ -22,20 +22,24 @@ describe('DprMapComponent', () => {
     turbineTransfers: [],
     platformTransfers: [],
     v2vs: [],
-  }
+  };
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
         AgmCoreModule.forRoot(),
         AutosizeModule,
-        NgbModule
+        NgbModule,
       ],
       declarations: [ DprMapComponent ],
-      providers: [MockedCommonServiceProvider, MockedMapStoreProvider]
+      providers: [
+        MockedCommonServiceProvider,
+        MockedMapStoreProvider,
+        MockedUserServiceProvider,
+      ]
     })
     .compileComponents();
-    consoleSpy = spyOn(console, 'error').and.callThrough()
+    consoleSpy = spyOn(console, 'error').and.callThrough();
   }));
 
   describe('as ctv', () => {
@@ -60,15 +64,15 @@ describe('DprMapComponent', () => {
       component.onLoaded.subscribe((map) => {
         expect(consoleSpy).toHaveBeenCalledTimes(0);
         done();
-      })
+      });
     });
   });
 });
 
-function linspace(s,e,n) {
-  let y = new Array(n);
-  for (let i = 0; i<n; i++) {
-    y[i] = s + (e - s) * i / (n-1);
+function linspace(s, e, n) {
+  const y = new Array(n);
+  for (let i = 0; i < n; i++) {
+    y[i] = s + (e - s) * i / (n - 1);
   }
   return y;
 }

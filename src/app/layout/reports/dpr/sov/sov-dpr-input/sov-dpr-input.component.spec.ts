@@ -3,13 +3,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDprInputComponent } from './sov-dpr-input.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SovDprInputReadonlyComponent } from './sov-dpr-input-readonly/sov-dpr-input-readonly.component';
-import { SovHseDprInputVesselmasterComponent } from '../sov-hse-dpr-input/sov-hse-dpr-input-vesselmaster/sov-hse-dpr-input-vesselmaster.component';
 import { CommonModule } from '@angular/common';
 import { SovDprInputVesselmasterComponent } from './sov-dpr-input-vesselmaster/sov-dpr-input-vesselmaster.component';
 import { FormsModule } from '@angular/forms';
 import { AutosizeModule } from 'ngx-autosize';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 
@@ -34,7 +32,6 @@ describe('SovDprInputComponent', () => {
       ],
       providers: [
         MockedCommonServiceProvider,
-        DatetimeService,
         MockedUserServiceProvider
       ]
     })

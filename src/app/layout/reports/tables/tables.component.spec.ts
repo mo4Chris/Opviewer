@@ -4,7 +4,6 @@ import { TablesComponent } from './tables.component';
 import { CommonService } from '@app/common.service';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '@app/shared';
-import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReportsModule } from '../reports.module';
@@ -19,11 +18,11 @@ describe('TablesComponent', () => {
         FormsModule,
         PageHeaderModule,
         ReportsModule,
-        HttpModule,
         RouterTestingModule,
         BrowserAnimationsModule],
       declarations: [ TablesComponent ],
-      providers: [CommonService]
+      providers: [
+      ]
     })
     .compileComponents();
   }));

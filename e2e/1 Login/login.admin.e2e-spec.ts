@@ -22,7 +22,7 @@ describe('Admin login page', () => {
     expect(page.pageRedirectsDashboard()).toBe(true);
   });
 
-  it('should open and close 2fa help button', ()=>{
+  it('should open and close 2fa help button', () => {
     page.navigateTo();
     const helpbtn = element(by.className('helpBtn'));
     let helpRef = element(by.className('popover-body'));
@@ -34,5 +34,5 @@ describe('Admin login page', () => {
     helpbtn.click();
     helpRef = element(by.className('popover-body'));
     expect(helpRef.isPresent()).toBe(false);
-  })
+  });
 });

@@ -6,7 +6,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageHeaderModule } from '../../shared';
-import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UsersRoutingModule } from './users-routing.module';
@@ -25,7 +24,6 @@ describe('UsersComponent', () => {
         FormsModule,
         NgbModule,
         PageHeaderModule,
-        HttpModule,
         HttpClientModule,
         RouterTestingModule,
         UsersRoutingModule,

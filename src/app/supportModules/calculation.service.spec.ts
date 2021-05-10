@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-
 import { CalculationService } from './calculation.service';
 
 describe('CalculationService', () => {
   let service: CalculationService;
   beforeEach(() => {
-    TestBed.configureTestingModule({})
-    service = TestBed.get(CalculationService);
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(CalculationService);
   });
 
   it('should be created', () => {
@@ -18,19 +17,19 @@ describe('CalculationService', () => {
     expect(service.getNanMin([3, NaN, 1])).toEqual(1, 'nanMin');
     expect(service.getNanMean([3, NaN, 1])).toEqual(2, 'nanMean');
     expect(service.getNanStd([2, NaN, 4])).toEqual(1, 'nanStd');
-  })
+  });
   it('should create correct linspaces', () => {
-    expect(service.linspace(1, 5)).toEqual([1,2,3,4,5]);
-    expect(service.linspace(1, 5, 1)).toEqual([1,2,3,4,5]);
-    expect(service.linspace(1, 4, 2)).toEqual([1,3]);
-    expect(service.linspace(1, 5, 2)).toEqual([1,3,5]);
-  })
+    expect(service.linspace(1, 5)).toEqual([1, 2, 3, 4, 5]);
+    expect(service.linspace(1, 5, 1)).toEqual([1, 2, 3, 4, 5]);
+    expect(service.linspace(1, 4, 2)).toEqual([1, 3]);
+    expect(service.linspace(1, 5, 2)).toEqual([1, 3, 5]);
+  });
   it('should count correct uniques', () => {
     expect(service.countUniques([5, 1, 5])).toEqual({1: 1, 5: 2});
-  })
+  });
   it('should perform correct 1d interpolation', () => {
-    expect(service.interp1([1,3,4], [3,4,5], [2, 4, 5])).toEqual([3.5, 5, NaN])
-  })
+    expect(service.interp1([1, 3, 4], [3, 4, 5], [2, 4, 5])).toEqual([3.5, 5, NaN]);
+  });
   // ToDo interp2 test if we ever use it
 
   describe('should correctly convert', () => {
@@ -51,7 +50,7 @@ describe('CalculationService', () => {
     it('durations', () => {
       expect(service.switchDurationUnits(600, 'mns', 'hour')).toEqual(10);
       expect(service.switchDurationUnits(600, 'mns', 'hour')).toEqual(10);
-      expect(service.switchUnits(2, 'day', 'sec')).toEqual(2*24*60*60);
+      expect(service.switchUnits(2, 'day', 'sec')).toEqual(2 * 24 * 60 * 60);
     });
     it('weights', () => {
       expect(service.switchWeightUnits(10, 'kg', 'gram')).toEqual(10000);
@@ -59,5 +58,17 @@ describe('CalculationService', () => {
     });
   });
 
+  it('should format and round numbers', () => {
+    expect(service.roundNumber(12, 10)).toEqual('12')
+    expect(service.roundNumber(1.2, 10)).toEqual('1.2')
+    expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels')
+    expect(service.roundNumber({}, 10)).toEqual('N/a')
+    expect(service.roundNumber([], 10)).toEqual('N/a')
+    expect(service.roundNumber(NaN, 10, 'berries')).toEqual('N/a')
+    expect(service.roundNumber(1.12, 10, 'm3')).toEqual('1.1 m\u00B3')
+    expect(service.roundNumber('_NaN_', 10, 'm3')).toEqual('N/a')
+    expect(service.roundNumber('10', 10)).toEqual('10')
+    expect(service.roundNumber('10', 10, '%')).toEqual('10%')
+  })
 });
 

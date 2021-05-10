@@ -19,10 +19,10 @@ export class CanDeactivateGuard implements CanDeactivate<FleetavailabilityCompon
         state: RouterStateSnapshot
     ): Observable<boolean> | boolean {
         // Get the Crisis Center ID
-        //console.log(route.paramMap.get('id'));
+        // console.log(route.paramMap.get('id'));
 
         // Get the current URL
-        //console.log(state.url);
+        // console.log(state.url);
 
         // Allow synchronous navigation (`true`) if no unsaved changes
         if (component.sailDaysChanged.length <= 0) {

@@ -652,10 +652,10 @@ function validatePermissionToViewData(req, res, callback) {
 
 function mailTo(subject, html, user) {
     // setup email data with unicode symbols
-    body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> BMO Offshore';
+    body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
     let mailOptions = {
-        from: '"BMO Dataviewer" <no-reply@bmodataviewer.com>', // sender address
+        from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
         to: user, //'bar@example.com, baz@example.com' list of receivers
         bcc: process.env.EMAIL, //'bar@example.com, baz@example.com' list of bcc receivers
         subject: subject, //'Hello ✔' Subject line
@@ -2694,6 +2694,10 @@ app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
     aggregateStatsOverModel(SovTurbineTransfersmodel, req, res);
 });
 
+app.post("/api/getTransfersForVesselByRangeForCTV", function(req, res) {
+    aggregateStatsOverModel(Transfermodel, req, res);
+});
+
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
     aggregateStatsOverModel(SovPlatformTransfersmodel, req, res, { date: 'arrivalTimePlatform' });
 });
@@ -2720,6 +2724,10 @@ app.post("/api/getPortcallsByRange", function(req, res) {
 
 app.post("/api/getDprInputsByRange", function(req, res) {
     aggregateStatsOverModel(SovDprInputmodel, req, res);
+});
+
+app.post("/api/getCtvInputsByRange", function(req, res) {
+    aggregateStatsOverModel(generalmodel, req, res);
 });
 
 app.get("/api/getUsers", function(req, res) {

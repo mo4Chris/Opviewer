@@ -2,7 +2,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FleetLogComponent } from './fleet-log.component';
-import { HttpModule } from '@angular/http';
 import { PageHeaderModule } from '../../../shared';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +20,6 @@ describe('FleetLogComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
-        HttpModule,
         HttpClientModule,
         FormsModule,
         PageHeaderModule,

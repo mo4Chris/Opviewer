@@ -1,15 +1,13 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ComprisonArrayElt, RawScatterData } from '../scatterInterface';
-import { LongtermVesselObjectModel } from '../../longterm.component';
+import { LongtermVesselObjectModel } from '@longterm/longterm.component';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
-import { SettingsService } from '@app/supportModules/settings.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import { CommonService } from '@app/common.service';
 import { catchError, map } from 'rxjs/operators';
 import { LongtermProcessingService, LongtermScatterValueArray } from '../longterm-processing-service.service';
-import { now } from 'moment';
+import { LongtermDataFilter } from '../scatterInterface';
 
 @Component({
   selector: 'app-longterm-trend-graph',
@@ -26,13 +24,13 @@ export class LongtermTrendGraphComponent implements OnChanges {
   @Input() bins = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4];
   @Input() outlierThreshold = 5;
   @Input() vesselType: 'CTV' | 'SOV' | 'OSV' = 'CTV';
-  @Input() hideFromTrend: (elt: number) => boolean;
   @Input() showHiddenAsOutlier = true;
+  @Input() filters: LongtermDataFilter[] = [];
 
   @Output() showContent: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() navigateToVesselreport: EventEmitter<{ mmsi: number, matlabDate: number }> = new EventEmitter<{ mmsi: number, matlabDate: number }>();
 
-  @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('canvas', { static: true }) canvas: ElementRef;
   private context: CanvasRenderingContext2D;
 
   hasData: boolean;
@@ -51,6 +49,9 @@ export class LongtermTrendGraphComponent implements OnChanges {
     this.context = (<HTMLCanvasElement> this.canvas.nativeElement).getContext('2d');
     if (this.chart) {
       this.reset();
+    }
+    if (this.filters === undefined) {
+      this.filters = [];
     }
 
     this.info = this.data.info || 'N/a';
@@ -117,7 +118,10 @@ export class LongtermTrendGraphComponent implements OnChanges {
         let yVals = data[this.data.y].filter((_, _idx) => idx[_idx]) as number[];
         let dates = data.date.filter((_, _idx) => idx[_idx]) as number[];
 
-
+        const keep = this.applyFilters(xVals, yVals, data._id);
+        xVals = xVals.filter((_, i) => keep[i]);
+        yVals = yVals.filter((_, i) => keep[i]);
+        dates = dates.filter((_, i) => keep[i]);
 
         if (cnt < this.outlierThreshold) {
           // Add points to scatter array
@@ -133,27 +137,6 @@ export class LongtermTrendGraphComponent implements OnChanges {
           const mean = this.calcService.getNanMean(yVals as number[]);
           const std = this.calcService.getNanStd(yVals as number[]);
           const outliers: ScatterDataElt[] = [];
-
-          // We filter any noise if required
-          if (this.hideFromTrend) {
-            const tf: boolean[] = yVals.map(this.hideFromTrend);
-            if (this.showHiddenAsOutlier) {
-              tf.forEach((_isOutlier, i) => {
-                if (_isOutlier) {
-                  outliers.push({
-                    x: xVals[i],
-                    y: yVals[i],
-                    callback: () => navToDpr({mmsi: data._id, matlabDate: Math.floor(dates[i])}),
-                    date: dates[i],
-                  });
-                }
-              });
-            }
-            xVals = xVals.filter((_, idx) => !tf[idx]);
-            yVals = yVals.filter((_, idx) => !tf[idx]);
-            dates = dates.filter((_, idx) => !tf[idx]);
-          }
-
           yVals.forEach((yVal, i) => {
             if (yVal <  mean - 2 * std || yVal > mean + 2 * std) {
               outliers.push({
@@ -190,6 +173,21 @@ export class LongtermTrendGraphComponent implements OnChanges {
         outliers: vesselDataSets,
       };
     });
+  }
+
+  applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
+    const keep: boolean[] = xVals.map(_ => true);
+    this.filters.forEach(filter => {
+      if (filter.active || filter.active === undefined) {
+        xVals.forEach((x, i) => {
+          if (keep[i]) {
+            const y = yVals[i];
+            keep[i] = filter.filter(x, y, mmsi);
+          }
+        });
+      }
+    });
+    return keep;
   }
 
   createChart(args: ScatterArguments) {

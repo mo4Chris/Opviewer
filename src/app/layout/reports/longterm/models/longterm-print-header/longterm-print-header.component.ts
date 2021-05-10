@@ -12,6 +12,7 @@ export class LongtermPrintHeaderComponent implements OnChanges {
   @Input() vesselType: String = 'test';
   @Input() fieldname: String = 'test field';
   @Input() userCompany: String = '';
+  public selectedField; // ToDo: This appears to be missing
 
   currentDateTime = moment(new Date()).format('YYYY-MM-DD');
 

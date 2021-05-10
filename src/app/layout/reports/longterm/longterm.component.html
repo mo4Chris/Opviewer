@@ -1,8 +1,14 @@
 <div class="hideOnPrint">
   <h1 class="headerContainer">
-    <h2 class="text-muted">Longterm performance:<small>
+    <h2 class="text-muted">
+      Longterm performance:
+      <small>
         {{vesselObject.dateNormalMin}} - {{vesselObject.dateNormalMax}}
-      </small></h2>
+      </small>
+      <a class="settings-icon hideOnPrint" [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']" [ngbTooltip]="helpSettings" placement="bottom">
+        <i class="fa fa-fw fa-cog"></i>
+      </a>
+    </h2>
     <hr>
   </h1>
   <div class="headerSpacer"></div>
@@ -35,15 +41,15 @@
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
               class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
               (onSelectAll)="onSelectVessel($event)" (onDeSelectAll)="onSelectVessel($event)" 
-              [placeholder]="'Select vessel'" [data]="Vessels" [(ngModel)]="dropdownValues"
-              [settings]="multiSelectSettings">
+              [placeholder]="'Select vessel'" [settings]="multiSelectSettings" [data]="Vessels" [(ngModel)]="dropdownValues"
+              >
             </ng-multiselect-dropdown>
             <!-- Wavedata is currently disabled for SOV -->
             <ng-multiselect-dropdown *ngIf="fieldsWithWavedata.length>0 && vesselType==='CTV'" name="selectField"
               (onOpen)="openVesselModal($event)" id="selectField" class="multiSelectDiv"
               (onSelect)="selectField($event)" (onDeSelect)="deselectField($event)"
-              [placeholder]="'Select field to add wavedata'" [data]="fieldsWithWavedata"
-              [settings]="fieldSelectSettings">
+              [placeholder]="'Select field to add wavedata'" [settings]="fieldSelectSettings"
+              [data]="fieldsWithWavedata" >
             </ng-multiselect-dropdown>
           </div>
           <button id="printButton" class="selectBtn btn btn-outline-primary space-right" (click)="onPrint()">
@@ -60,8 +66,8 @@
   <div *ngIf="noPermissionForData == false; else noPermission">
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
 
-      <app-longterm-print-headerbar [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
-      
+      <app-longterm-print-headerbar class="headerBarStyling" [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
+       
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
         (navigateToVesselreport)="navigateToVesselreport($event)">
@@ -119,3 +125,4 @@
   to the relevant DPR. Graphs without any data are automatically hidden, and drawn graphs only show the vessels with
   valid data.
 </ng-template>
+<ng-template #helpSettings>Certain graph settings can be edited in the settings page</ng-template>

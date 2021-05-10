@@ -1,10 +1,8 @@
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers } from '@angular/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { environment } from '../environments/environment';
-// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
-// import { WavedataModel, WaveSourceModel } from './models/wavedataModel';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { VesselModel } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
@@ -13,72 +11,59 @@ import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json',
+    'Authorization': '' + localStorage.getItem('token')
+  })
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class CommonService {
 
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
-  get(url: string) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.get(environment.DB_IP + url, {
-      headers: headers
-    });
+  get(url: string): Observable<any> {
+    return this.http.get(environment.DB_IP + url, httpOptions);
   }
 
-  post(url: string, data: any) {
-    const headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.post(environment.DB_IP + url, data, {
-      headers: headers
-    });
-  }
-
-  createAuthorizationHeader(headers: Headers) {
-    headers.append('authorization', localStorage.getItem('token'));
+  post(url: string, data: any): Observable<any> {
+    return this.http.post(environment.DB_IP + url, data, httpOptions);
   }
 
   validatePermissionToViewData(vessel: { mmsi: number}) {
-    return this.post('/api/validatePermissionToViewData/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/validatePermissionToViewData/', vessel);
   }
 
-  getActiveConnections(): Observable<string> {
-    return this.get('/api/getActiveConnections/').pipe(
-      map((response: Response) => response.json()));
+  getActiveConnections(): Observable<any> {
+    return this.get('/api/getActiveConnections/');
   }
 
   saveVessel(vessel) {
-    return this.post('/api/saveVessel/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveVessel/', vessel);
   }
 
   saveTransfer(transfer) {
-    return this.post('/api/saveTransfer/', transfer).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveTransfer/', transfer);
   }
 
   getVessel(): Observable<VesselModel[]> {
-    return this.get('/api/getVessel/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getVessel/');
   }
 
   getSov(vessel: VesselObjectModel) {
-    return this.get('/api/getSov/' + vessel.mmsi + '/' + vessel.date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getSov/' + vessel.mmsi + '/' + vessel.date);
   }
 
   getTransitsForSov(mmsi: number, date: number) {
-    return this.get('/api/getTransitsForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getTransitsForSov/' + mmsi + '/' + date);
   }
 
   getLatestGeneral(): Observable<{_id: number, date: number, vesselname: string}[]> {
     // For both CTV and SOV!
-    return this.get('/api/getLatestGeneral/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getLatestGeneral/');
   }
 
   getLatestGeneralForCompany(opts: {client: string, vesselname?: string}) {
@@ -87,16 +72,15 @@ export class CommonService {
 
   getLatestTwaUpdate(): Observable<number> {
     return this.get('/api/getLatestTwaUpdate/').pipe(
-      map((response: Response) => {
-        const res = response.json();
+      map(response => {
+        const res = response;
         return res.lastUpdate;
       }));
   }
 
   getVessel2vesselsForSov(mmsi: number, date: number): Observable<Vessel2vesselModel[]> {
     return this.get('/api/getVessel2vesselForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => {
-        const v2vs = response.json();
+      map(v2vs => {
         v2vs.forEach(v2v => {
           if (!Array.isArray(v2v.transfers)) {
             v2v.transfers = [v2v.transfers];
@@ -110,68 +94,55 @@ export class CommonService {
   }
 
   getEnginedata(mmsi: number, date: number) {
-    return this.get('/api/getEnginedata/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getEnginedata/' + mmsi + '/' + date);
   }
 
   getSovRovOperations(mmsi: number, date: number) {
-    return this.get('/api/getSovRovOperations/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getSovRovOperations/' + mmsi + '/' + date);
   }
 
   getCycleTimesForSov(mmsi: number, date: number) {
-    return this.get('/api/getCycleTimesForSov/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getCycleTimesForSov/' + mmsi + '/' + date);
   }
 
   getPlatformTransfers(mmsi: number, date: number) {
-    return this.get('/api/getPlatformTransfers/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getPlatformTransfers/' + mmsi + '/' + date);
   }
 
   getTurbineTransfers(mmsi: number, date: number) {
-    return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date);
   }
 
   getVesselsForCompany(client: { client: string, notHired?: number}[]) {
-    return this.post('/api/getVesselsForCompany/', client).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getVesselsForCompany/', client);
   }
 
   getCompanies() {
-    return this.get('/api/getCompanies/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getCompanies/');
   }
 
   getHarbourLocations() {
-    return this.get('/api/getHarbourLocations/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getHarbourLocations/');
   }
 
   checkUserActive(username: string) {
-    return this.get('/api/checkUserActive/' + username).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/checkUserActive/' + username);
   }
 
   getDistinctFieldnames(transferdata: {mmsi: number, date: number}) {
-    return this.post('/api/getDistinctFieldnames/', transferdata).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getDistinctFieldnames/', transferdata);
   }
 
   getSovDistinctFieldnames(vesselObject: VesselObjectModel) {
-    return this.get('/api/getSovDistinctFieldnames/' + vesselObject.mmsi + '/' + vesselObject.date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getSovDistinctFieldnames/' + vesselObject.mmsi + '/' + vesselObject.date);
   }
 
   getLatestBoatLocation(): Observable<AisMarkerModel[]> {
-    return this.get('/api/getLatestBoatLocation/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getLatestBoatLocation/');
   }
 
   getSpecificPark(park: {park: string[]}) {
-    return this.post('/api/getSpecificPark/', park).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSpecificPark/', park);
   }
 
   getParkByNiceName(park: string): Observable<{
@@ -180,154 +151,133 @@ export class CommonService {
     name: string[]
   } | undefined> {
     return this.get('/api/getParkByNiceName/' + park).pipe(
-      map((response: Response) => response.json()[0]));
+      map(response => response[0]));
   }
 
   getParkLocations() {
-    return this.get('/api/getParkLocations').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getParkLocations');
   }
 
   getParkLocationForCompany(company: string) {
     company = company.replace(' ', '--_--');
-    return this.get('/api/getParkLocationForCompany/' + company).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getParkLocationForCompany/' + company);
   }
 
   getPlatformLocations(src_name: string) {
     // ToDo: replace hardcoded platforms filename with dynamic links when more than 1 source becomes available
-    return this.post('/api/getPlatformLocations/', {Name: 'Northsea_offshore_oilgas_platform_coordinates'}).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getPlatformLocations/', {Name: 'Northsea_offshore_oilgas_platform_coordinates'});
   }
 
   getLatestBoatLocationForCompany(company: string): Observable<AisMarkerModel[]> {
-    return this.get('/api/getLatestBoatLocationForCompany/' + company).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getLatestBoatLocationForCompany/' + company);
   }
 
   getTransfersForVessel(mmsi: number, date: number): Observable<any[]> {
-    return this.get('/api/getTransfersForVessel/' + mmsi + '/' + date).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getTransfersForVessel/' + mmsi + '/' + date);
   }
 
   getTransfersForVesselByRange(vessel: StatsRangeRequest) {
-    return this.post('/api/getTransfersForVesselByRange/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTransfersForVesselByRange/', vessel);
   }
 
   getTransitsForVesselByRange(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getTransitsForVesselByRange/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTransitsForVesselByRange/', vessel);
+  }
+
+  getTransfersForVesselByRangeForCTV(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getTransfersForVesselByRangeForCTV/', vessel);
+  }
+
+  getCtvInputsByRange(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getCtvInputsByRange/', vessel);
   }
 
   getTurbineTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getTurbineTransfersForVesselByRangeForSOV/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTurbineTransfersForVesselByRangeForSOV/', vessel);
   }
 
   getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getPlatformTransfersForVesselByRangeForSOV/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getPlatformTransfersForVesselByRangeForSOV/', vessel);
   }
 
   getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getTransitsForVesselByRangeForSOV/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTransitsForVesselByRangeForSOV/', vessel);
   }
 
   getVessel2vesselsByRangeForSov(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getVessel2vesselsByRangeForSov/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getVessel2vesselsByRangeForSov/', vessel);
   }
 
   getPortcallsByRange(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getPortcallsByRange/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getPortcallsByRange/', vessel);
   }
 
   getDprInputsByRange(vessel: StatsRangeRequest): Observable<any[]> {
-    return this.post('/api/getDprInputsByRange/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getDprInputsByRange/', vessel);
   }
 
   getDatesWithValues(vessel: VesselObjectModel) {
-    return this.post('/api/getDatesWithValues/', vessel).pipe(
-     map((response: Response) => response.json()));
+    return this.post('/api/getDatesWithValues/', vessel);
   }
 
   getDatesWithValuesFromGeneralStats(vessel: VesselObjectModel) {
-    return this.post('/api/getHasSailedDatesCTV/', vessel).pipe(
-       map((response: Response) => response.json()));
+    return this.post('/api/getHasSailedDatesCTV/', vessel);
   }
 
   getDatesShipHasSailedForSov(vessel: VesselObjectModel) {
-    return this.get('/api/getDatesShipHasSailedForSov/' + vessel.mmsi).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getDatesShipHasSailedForSov/' + vessel.mmsi);
   }
 
   getDatesWithTransfersForSOV(vessel: VesselObjectModel) {
-    return this.get('/api/getDatesWithTransferForSov/' + vessel.mmsi).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getDatesWithTransferForSov/' + vessel.mmsi);
   }
 
   getCommentsForVessel(vessel: VesselObjectModel) {
-    return this.post('/api/getCommentsForVessel/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getCommentsForVessel/', vessel);
   }
 
   getUsers(): Observable<UserModel[]> {
-    return this.get('/api/getUsers/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getUsers/');
   }
 
   getUsersForCompany(client: {client: any}[]): Observable<UserModel[]> {
-    return this.post('/api/getUsersForCompany/', client).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getUsersForCompany/', client);
   }
 
   getUserByUsername(username: Object): Observable<UserModel> {
-    return this.post('/api/getUserByUsername/', username).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getUserByUsername/', username);
   }
 
   getUserClientById(user: any, client: any): Observable<{_id: string, client: string}> {
-    return this.get('/api/getUserClientById/' + user + '/' + client).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getUserClientById/' + user + '/' + client);
   }
 
   saveUserBoats(user) {
-    return this.post('/api/saveUserBoats/', user).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveUserBoats/', user);
   }
 
   saveFuelStatsSovDpr(sovfuelstats) {
-    return this.post('/api/saveFuelStatsSovDpr/', sovfuelstats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveFuelStatsSovDpr/', sovfuelstats);
   }
 
   saveIncidentDpr(sovincidentstats) {
-    return this.post('/api/saveIncidentDpr/', sovincidentstats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveIncidentDpr/', sovincidentstats);
   }
 
   updateSOVTurbinePaxInput(transfer) {
-    return this.post('/api/updateSOVTurbinePaxInput/', transfer).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateSOVTurbinePaxInput/', transfer);
   }
 
   updateSOVPlatformPaxInput(transfer) {
-    return this.post('/api/updateSOVPlatformPaxInput/', transfer).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateSOVPlatformPaxInput/', transfer);
   }
 
   updateSOVv2vPaxInput(transfer) {
-    return this.post('/api/updateSOVv2vPaxInput/', transfer).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateSOVv2vPaxInput/', transfer);
   }
 
   updateSovRovOperations(rovOperations: RovOperationsSaveModel) {
-    return this.post('/api/updateSovRovOperations/', rovOperations).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateSovRovOperations/', rovOperations);
   }
 
   updateSOVv2vTurbineTransfers(ctvInfo: {
@@ -336,217 +286,174 @@ export class CommonService {
     mmsi: number;
     date: number;
   }) {
-    return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo).pipe(
-      map((response) => response.json()));
+    return this.post('/api/updateSOVv2vTurbineTransfers', ctvInfo);
   }
 
   saveNonAvailabilityDpr(sovnonavailabilitystats) {
-    return this.post('/api/saveNonAvailabilityDpr/', sovnonavailabilitystats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveNonAvailabilityDpr/', sovnonavailabilitystats);
   }
 
   saveWeatherDowntimeDpr(weatherdowntime) {
-    return this.post('/api/saveWeatherDowntimeDpr/', weatherdowntime).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveWeatherDowntimeDpr/', weatherdowntime);
   }
 
   saveStandByDpr(weatherdowntime) {
-    return this.post('/api/saveStandByDpr/', weatherdowntime).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveStandByDpr/', weatherdowntime);
   }
 
   saveAccessDayType(status: {accessDayType: string}) {
-    return this.post('/api/saveAccessDayType/', status).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveAccessDayType/', status);
   }
 
   saveCateringStats(sovcateringstats) {
-    return this.post('/api/saveCateringStats/', sovcateringstats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveCateringStats/', sovcateringstats);
   }
 
   saveDPStats(dpstats) {
-    return this.post('/api/saveDPStats/', dpstats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveDPStats/', dpstats);
   }
 
   saveMissedPaxCargo(missedpaxcargo) {
-    return this.post('/api/saveMissedPaxCargo/', missedpaxcargo).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveMissedPaxCargo/', missedpaxcargo);
   }
 
   saveHelicopterPaxCargo(helicopterpaxcargo) {
-    return this.post('/api/saveHelicopterPaxCargo/', helicopterpaxcargo).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveHelicopterPaxCargo/', helicopterpaxcargo);
   }
 
   saveRemarksStats(sovremarks) {
-    return this.post('/api/saveRemarksStats/', sovremarks).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveRemarksStats/', sovremarks);
   }
 
   sendFeedback(feedback: {message: string, page: string, person: any}) {
-    return this.post('/api/sendFeedback/', feedback).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/sendFeedback/', feedback);
   }
 
   getSovInfo(vessel: VesselObjectModel) {
-    return this.post('/api/getSovInfo/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSovInfo/', vessel);
   }
 
   getSovDprInput(vessel: VesselObjectModel) {
-    return this.post('/api/getSovDprInput/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSovDprInput/', vessel);
   }
 
   getSovHseDprInput(vessel: VesselObjectModel) {
-    return this.post('/api/getSovHseDprInput/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSovHseDprInput/', vessel);
   }
 
   saveDprSigningSkipper(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/saveDprSigningSkipper/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveDprSigningSkipper/', dataObject);
   }
 
   saveDprSigningClient(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/saveDprSigningClient/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveDprSigningClient/', dataObject);
   }
 
   saveHseDprSigningSkipper(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/saveHseDprSigningSkipper/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveHseDprSigningSkipper/', dataObject);
   }
 
   saveHseDprSigningClient(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/saveHseDprSigningClient/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveHseDprSigningClient/', dataObject);
   }
 
   declineHseDprClient(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/declineHseDprClient/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/declineHseDprClient/', dataObject);
   }
 
   saveQHSERemark(dataObject) {
-    return this.post('/api/saveQHSERemark/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveQHSERemark/', dataObject);
   }
 
   declineDprClient(dataObject: SovDprSignOrRefuseModel) {
-    return this.post('/api/declineDprClient/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/declineDprClient/', dataObject);
   }
 
   updateSOVHseDpr(dataObject) {
-    return this.post('/api/updateSOVHseDpr/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateSOVHseDpr/', dataObject);
   }
 
   updateDprFieldsSOVHseDpr(dataObject) {
-    return this.post('/api/updateDprFieldsSOVHseDpr/', dataObject).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/updateDprFieldsSOVHseDpr/', dataObject);
   }
 
   resetPassword(user) {
-    return this.post('/api/resetPassword/', user).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/resetPassword/', user);
   }
 
   setActive(user) {
-    return this.post('/api/setActive/', user).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/setActive/', user);
   }
 
   setInactive(user) {
-    return this.post('/api/setInactive/', user).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/setInactive/', user);
   }
 
   getVideoRequests(vessel: VesselObjectModel) {
-    return this.post('/api/getVideoRequests/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getVideoRequests/', vessel);
   }
 
   saveVideoRequest(transfer) {
-    return this.post('/api/saveVideoRequest/', transfer).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveVideoRequest/', transfer);
   }
 
   getVideoBudgetByMmsi(vessel: VesselObjectModel) {
-    return this.post('/api/getVideoBudgetByMmsi/', {mmsi: vessel.mmsi}).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getVideoBudgetByMmsi/', {mmsi: vessel.mmsi});
   }
 
   getGeneral(vessel: VesselObjectModel) {
-    return this.post('/api/getGeneral/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getGeneral/', vessel);
   }
 
   getTurbineWarranty() {
-    return this.get('/api/getTurbineWarranty/').pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getTurbineWarranty/');
   }
 
   getTurbineWarrantyForCompany(client: {client: string}): Observable<CampaignModel[]> {
-    return this.post('/api/getTurbineWarrantyForCompany/', client).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTurbineWarrantyForCompany/', client);
   }
 
   getTurbineWarrantyOne(warrenty) {
-    return this.post('/api/getTurbineWarrantyOne/', warrenty).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getTurbineWarrantyOne/', warrenty);
   }
 
   setSaildays(warrenty) {
-    return this.post('/api/setSaildays/', warrenty).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/setSaildays/', warrenty);
   }
 
   saveCTVGeneralStats(generalStats: Object) {
-    return this.post('/api/saveCTVGeneralStats/', generalStats).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveCTVGeneralStats/', generalStats);
   }
 
   addVesselToFleet(vessel) {
-    return this.post('/api/addVesselToFleet/', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/addVesselToFleet/', vessel);
   }
 
   getActiveListingsForFleet(fleetID: string, client: string, stopDate: number) {
-    return this.get('/api/getActiveListingsForFleet/' + fleetID + '/' + client + '/' + stopDate).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getActiveListingsForFleet/' + fleetID + '/' + client + '/' + stopDate);
   }
 
   getAllActiveListingsForFleet(fleetID: string) {
-    return this.get('/api/getAllActiveListingsForFleet/' + fleetID).pipe(
-      map((response: Response) => response.json()));
+    return this.get('/api/getAllActiveListingsForFleet/' + fleetID);
   }
 
   setActiveListings(_listings: {listings: any, client: string, fleetID: string, stopDate: number}) {
-    return this.post('/api/setActiveListings/', _listings).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/setActiveListings/', _listings);
   }
 
   getVesselsToAddToFleet(fleet) {
-    return this.post('/api/getVesselsToAddToFleet/', fleet).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getVesselsToAddToFleet/', fleet);
   }
 
   get2faExistence(user: {userEmail: any}) {
-    return this.post('/api/get2faExistence', user).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/get2faExistence', user);
   }
 
   getSovWaveSpectrumAvailable(vessel: {date:  number, mmsi: number}) {
-    return this.post('/api/getSovWaveSpectrumAvailable', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSovWaveSpectrumAvailable', vessel);
   }
   getSovWaveSpectrum(vessel: {date:  number, mmsi: number}) {
-    return this.post('/api/getSovWaveSpectrum', vessel).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getSovWaveSpectrum', vessel);
   }
 
   saveFleetRequest(request: {
@@ -564,8 +471,7 @@ export class CommonService {
     limitHs: null,
     requestTime: null
 }): Observable<any> {
-    return this.post('/api/saveFleetRequest', request).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/saveFleetRequest', request);
   }
 
   getWavedataForDay(request: {
@@ -573,11 +479,11 @@ export class CommonService {
     site: string,
   }): Observable<any> {// Observable<WavedataModel> {
     return this.post('/api/getWavedataForDay', request).pipe(
-      map((response: Response) => {
+      map(response => {
         if (response.status === 204) {
           return null;
         } else {
-          return response.json(); // new WavedataModel(response.json());
+          return response; // new WavedataModel(response);
         }
       }));
   }
@@ -588,8 +494,8 @@ export class CommonService {
     source: string,
   }): Observable<any> {// Observable<WavedataModel[]> {
     return this.post('/api/getWavedataForRange', request).pipe(
-      map((response: Response) => {
-        return response.json(); // .map( wavedata => new WavedataModel(wavedata));
+      map(response => {
+        return response; // .map( wavedata => new WavedataModel(wavedata));
       }));
   }
 
@@ -600,18 +506,15 @@ export class CommonService {
     vesselType: 'CTV' | 'SOV' | 'OSV',
     projection?: any,
   }): Observable<any[]> {
-    return this.post('/api/getGeneralForRange', request).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getGeneralForRange', request);
   }
 
   getEngineStatsForRange(request: StatsRangeRequest): Observable<any> {
-    return this.post('/api/getEnginesForVesselByRange', request).pipe(
-      map((response: Response) => response.json()));
+    return this.post('/api/getEnginesForVesselByRange', request);
   }
 
   getFieldsWithWaveSourcesByCompany(): Observable<{_id: string, site: string, name: string}[]> {
-    return this.get('/api/getFieldsWithWaveSourcesByCompany').pipe(
-    map((response: Response) => response.json()));
+    return this.get('/api/getFieldsWithWaveSourcesByCompany');
   }
 
   saveUserSettings(settings: object): void {
@@ -620,7 +523,9 @@ export class CommonService {
 
   loadUserSettings(): Observable<object> {
     return this.get('/api/loadUserSettings').pipe(
-      map((response: Response) => response.json().settings));
+      map(response => {
+        return response.settings;
+      }));
   }
 
 }

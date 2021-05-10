@@ -32,7 +32,7 @@ export class VesselinfoComponent implements OnChanges, OnInit {
         }
       });
     } else {
-      let token = TokenModel.load(this.userService);
+      const token = TokenModel.load(this.userService);
       this.newService.getVesselsForCompany([{
         client: token.userCompany
       }]).subscribe(_vessels => {

@@ -6,7 +6,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonService } from '../../../common.service';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -14,7 +14,7 @@ describe('HeaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, NgbModule, RouterTestingModule, HttpModule, TranslateModule.forRoot()],
+      imports: [FormsModule, NgbModule, RouterTestingModule, HttpClientModule, TranslateModule],
       declarations: [ HeaderComponent ],
       providers: [ CommonService ]
     })

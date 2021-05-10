@@ -1,8 +1,8 @@
 <div *ngIf="hasData" class="row">
-  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+  <div class="col-xl-12 col-lg-12 singlepage-print-port">
     <div class="card mb-3">
-      <div class="card-header">
-        Engine performance
+      <div [ngbTooltip]="helpEngineTable" class="card-header">
+        Measured engine performance
       </div>
       
       <div class="card-body table-responsive">
@@ -57,4 +57,7 @@
 </ng-template>
 <ng-template #helpTotalCo2>
   Total amount of CO2 released during the month.
+</ng-template>
+<ng-template #helpEngineTable>
+  This table shows the fuel and CO2 related information gathered from the engine statistics on the vessel. Manually inputted values are not included in this table.
 </ng-template>

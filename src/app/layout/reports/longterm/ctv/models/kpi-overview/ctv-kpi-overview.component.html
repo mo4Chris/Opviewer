@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="col-xl-12 col-lg-24 singlepage-print-port">
+    <div class="card mb-3 cardPrint">
+      <div [ngbTooltip]="helpStatisticsTable" class="card-header">
+        Operational vessel statistics
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table printtable table-hover table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Month</th>
+              <th>Site</th>
+              <th><div [ngbTooltip]="helpTotalFuelConsumption">Total fuel used</div></th>
+              <th><div [ngbTooltip]="helpSailingDistance">Total distance sailed</div></th>
+              <th><div [ngbTooltip]="helpFuelUsedPerWorkingDay">Average fuel consumption</div></th>
+              <th>Number of dockings</th>
+              <th><div [ngbTooltip]="helpPaxTransfered">Total pax transfered</div></th>
+              <th><div [ngbTooltip]="helpCargoOperations">Number of cargo operations</div></th>
+              <th>Cargo incoming</th>
+              <th>Cargo outgoing</th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let _kpis of kpis; let _j = index" class="sep-row">
+            <tr><th colspan=14>
+              {{vesselNames[_j]}}
+            </th></tr>
+            <tr *ngFor="let kpi of _kpis; let _i = index">
+              <td></td>
+              <td>{{kpi.month}}</td>
+              <td>{{kpi.site}}</td>
+              <td>{{kpi.totalFuelUsed}}</td>
+              <td>{{kpi.totalDistanceSailed}}</td>
+              <td>{{kpi.fuelUsedPerWorkingDay}}</td>
+              <td>{{kpi.amountDockings}}</td>
+              <td>{{kpi.totalPaxTransfered}}</td>
+              <td>{{kpi.numCargoOps}}</td>
+              <td>{{kpi.cargoUpKg}}</td>
+              <td>{{kpi.cargoDownKg}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #helpTotalFuelConsumption>
+  Total amount of fuel used per vessel per month. Prefers user set values if fuel count was manually changed in DPR
+</ng-template>
+<ng-template #helpSailingDistance>
+  Total amount of distance traveled per working day in nautical miles. This data is automatically gathered using the on-board systems.
+</ng-template>
+<ng-template #helpFuelUsedPerWorkingDay>
+  Average fuel consumption per nautical mile. Combines both engine data and manually inputted data (manual input has priority). Does not take in field activities into account.
+</ng-template>
+<ng-template #helpPaxTransfered>
+  Total amount of pax transfered in a month. This combines ingoing and outgoing pax.
+</ng-template>
+<ng-template #helpCargoOperations>
+  Total amount of cargo operations. This does not display weight or cargo counts. Only the amount of times operations took place.
+</ng-template>
+<ng-template #helpStatisticsTable>
+  This table shows the performance of the vessel during pax and cargo operations as well as transit statistics. This is a combination of user inputted values as well as engine statistics.
+  If both sources are available, user inputted values are displayed.
+</ng-template>

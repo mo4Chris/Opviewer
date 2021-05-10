@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { routerTransition } from '@app/router.animations';
 import * as moment from 'moment-timezone';
@@ -71,7 +71,7 @@ export class LongtermComponent implements OnInit {
   Vessels: VesselModel[] = [];
   fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
   selectedField = '';
-  
+
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));

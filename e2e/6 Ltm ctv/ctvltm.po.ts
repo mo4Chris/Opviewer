@@ -49,8 +49,8 @@ export class CtvLtmPage extends E2ePageObject {
     return element(by.xpath('//ng-multiselect-dropdown[@name="selectField"]/div'));
   }
   selectWaveSourceByIndex(index = 1) {
-    let btn = this.getWaveDropdown();
-    expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!')
+    const btn = this.getWaveDropdown();
+    expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!');
     btn.click();
     btn.all(by.xpath('.//ul/li')).get(index).click();
     btn.click();

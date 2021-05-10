@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { text } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +27,7 @@ export class CalculationService {
         return number + addString;
       }
     }
-    if (!number) {
+    if (typeof(number) !== 'number' || isNaN(number)) {
       return 'N/a';
     }
     return (Math.round(number * decimal) / decimal) + addString;
@@ -83,6 +82,12 @@ export class CalculationService {
     return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
   }
 
+  getFuelEcon(fuelUsedTotalM3 = 0, sailedDistance, distance_unit_type){
+    return this.roundNumber(
+      ((fuelUsedTotalM3 * 1000) / (+sailedDistance.replace(/[a-z]/gi, '')))
+      , 10, ' liter/'+ distance_unit_type);
+  }
+
   GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
     function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
@@ -105,11 +110,11 @@ export class CalculationService {
     const lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
     // height of agm map
-    let latZoom = zoom(440, WORLD_DIM.height, latFraction);
+    const latZoom = zoom(440, WORLD_DIM.height, latFraction);
     let lngZoom = zoom(mapPixelWidth, WORLD_DIM.width, lngFraction);
-    if (lngZoom<0 || isNaN(lngZoom)) {
-      lngZoom = ZOOM_MAX
-      console.warn('Received infeasible lng map zoom!')
+    if (lngZoom < 0 || isNaN(lngZoom)) {
+      lngZoom = ZOOM_MAX;
+      console.warn('Received infeasible lng map zoom!');
     }
     const zoomLevel = Math.min(latZoom, lngZoom, ZOOM_MAX);
     const avgLatitude = (minLatitude + maxLatitude) / 2;

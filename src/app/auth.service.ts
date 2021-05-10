@@ -1,8 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Http, Headers, Response } from '@angular/http';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { Observable } from 'rxjs';
+import { UserType } from './shared/enums/UserType';
+
+const httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type':  'application/json',
+      'Authorization': '' + localStorage.getItem('token')
+    })
+  };
 
 @Injectable()
 export class AuthService {
@@ -11,30 +18,31 @@ export class AuthService {
     private _loginurl = environment.DB_IP + '/api/login/';
     private _registerurl = environment.DB_IP + '/api/registerUser/';
 
-    constructor(private http: Http, private httpClient: HttpClient) { }
+    constructor(private httpClient: HttpClient) { }
 
-    loginUser(user) {
-        return this.httpClient.post<any>(this._loginurl, user);
+    loginUser(user): Observable<{token: string}> {
+        return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions);
     }
 
     getToken() {
         return localStorage.getItem('token');
     }
 
-    registerUser(user) {
-        const headers = new Headers();
-        headers.append('authorization', localStorage.getItem('token'));
-        return this.http.post(this._registerurl, user, { headers: headers }).pipe(
-            map((response: Response) => response.json()));
+    registerUser(user): Observable<{ data: string, status: number }> {
+        return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
     }
 
-    getUserByToken(token) {
-        return this.http.post(this._getUserByTokenUrl, token).pipe(
-            map((response: Response) => response.json()));
+    getUserByToken(token): Observable<UserObject>  {
+        return this.httpClient.post<UserObject>(this._getUserByTokenUrl, token, httpOptions);
     }
 
-    setUserPassword(passwords) {
-        return this.http.post(this._setPasswordUrl, passwords).pipe(
-            map((response: Response) => response.json()));
+    setUserPassword(passwords): Observable<{token: string}>  {
+        return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, httpOptions);
     }
 }
+
+export interface UserObject {
+        username: string;
+        userCompany: string;
+        permissions: UserType;
+  }
