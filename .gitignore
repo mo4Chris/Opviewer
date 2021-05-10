@@ -54,3 +54,4 @@ src/killnode.bat
 startNodeServer.bat
 startSeleniumServer.bat
 *.bat
+src/server/spectrum.json
