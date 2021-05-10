@@ -17,6 +17,8 @@ jobs:
       matrix:
         node: [14.15.5]
 
+    timeout-minutes: 10
+
     steps:
       - name: Use node@${{ matrix.node }}
         uses: actions/setup-node@v2.1.4
@@ -35,6 +37,8 @@ jobs:
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    timeout-minutes: 10
 
     strategy:
       matrix:
@@ -57,10 +61,11 @@ jobs:
         run: node patch.js
 
       - name: Run unit tests
-        run: npm run test "--no-watch --browsers ChromeHeadless --code-coverage=true"
+        run: npm run test -- --no-watch --browsers=ChromeHeadless --code-coverage=true
   e2e:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         node: [14.15.5]
@@ -91,10 +96,12 @@ jobs:
           ADMIN_DB_PORT: 5432
 
       - name: Run unit tests for vm ctv
-        run: npm run ng e2e --configuration vm-ctv
+        run: npm run ng e2e -- --configuration vm-ctv
 
   build-prod:
     runs-on: ubuntu-latest
+
+    timeout-minutes: 10
 
     strategy:
       matrix:
