@@ -10,12 +10,13 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  strategy:
-    matrix:
-      node: [14.15.5]
-
   lint:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14.15.5]
+
     steps:
       - name: Use node@${{ matrix.node }}
         uses: actions/setup-node@v2.1.4
@@ -34,6 +35,11 @@ jobs:
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14.15.5]
+
     steps:
       - name: Use node@${{ matrix.node }}
         uses: actions/setup-node@v2.1.4
@@ -55,6 +61,9 @@ jobs:
   e2e:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14.15.5]
     steps:
       - name: Use node@${{ matrix.node }}
         uses: actions/setup-node@v2.1.4
@@ -68,12 +77,23 @@ jobs:
       - name: install node packages
         run: npm install
 
+      - name: Start API server
+        run: npm run server-dev
+        env:
+
+
       - name: Run unit tests for vm ctv
         run: npm run ng e2e --configuration vm-ctv
 
   build-prod:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14.15.5]
+
     needs: [test]
+
     steps:
       - name: Use node@${{ matrix.node }}
         uses: actions/setup-node@v2.1.4
@@ -98,6 +118,9 @@ jobs:
 
   Deploy: # We deploy the api code to azure functions but only if the earlier 2 tests are run without any errors.
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14.15.5]
     if: github.ref == 'refs/heads/master' # check if the push is on master branch, not for any other branch
     needs: [lint, test] # Only run this if the other 2 jobs have run with no error
     steps:
