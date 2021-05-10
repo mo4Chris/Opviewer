@@ -25,7 +25,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app)();
+      mock.mailer(app);
       mock.jsonWebToken(app, {
         active: 1,
         userID,
@@ -41,6 +41,7 @@ module.exports = (app, GET, POST) => {
 
     it('perform admin connection test', async () => {
       const use_authentication_header = true
+      mock.pgRequest([true]);
       const request = GET('/api/admin/connectionTest', use_authentication_header);
       request.expect(expectValidRequest)
       const response = await request;

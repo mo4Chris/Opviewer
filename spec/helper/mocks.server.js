@@ -5,18 +5,28 @@ const { Client, Pool } = require('pg');
 /**
  * Mocks an express named middleware step. Mocks the first callback matching the desired name.
  *
- * @param {object} app
- * @param {string} name
+ * @param {object} app Express application
+ * @param {string} name Name of the function to be mocked
  * @param {(req: object, res: object, next: function) => void} callback
+ * @returns {{
+ *   handle: (req: object, res: object, next: function) => void,
+ *   name: string,
+ *   params: string[],
+ *   path: string,
+ *   keys: any,
+ *   regexp: string,
+ *   route: string
+ * }} Returns an express router layer
  * @api public
  */
-function mockExpresslayer(app, name, callback) {
+function mockExpressLayer(app, name, callback) {
   const callbacks = app._router.stack;
   const middleware = callbacks.find(cb => cb.name == name)
   if (middleware == null) throw Error(`Failed to find named express layer ${name}`)
   middleware.handle = callback;
   return middleware;
 }
+
 
 /**
  * Mocks the verifyDemoAccount middleware layer
@@ -26,12 +36,11 @@ function mockExpresslayer(app, name, callback) {
  * @api public
  */
 function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
-  return mockExpresslayer(app, 'verifyDemoAccount', callback)
+  return mockExpressLayer(app, 'verifyDemoAccount', callback)
 }
 
 /**
- * Mocks the returned token which is assigned during the express middleware steps
- *
+ * Mocks the web token which is assigned to req['token'].
  * @param {object} app
  * @param {object} decoded_token
  * @api public
@@ -86,7 +95,7 @@ function mockTwoFactorAuthentication(valid = true) {
  * Mocks the mailer, causing any uncaught mails not to trigger actual email but rather an error.
  *
  * @param {object} app
- * @api public
+ * @api public {(mailOpts: object) => void}
  */
 function mockMailer(app) {
   return spyOn(app.__get__('transporter'), 'sendMail').and.callFake((mailOpts) => {

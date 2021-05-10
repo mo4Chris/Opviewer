@@ -5,7 +5,7 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
 /**
  * Performs all user creation tests
  *
- * @param {Express.Application} app
+ * @param {object} app
  * @param {(url: string, auth?: boolean) => request.Test} GET
  * @param {(url: string, data: any, auth?: boolean) => request.Test} POST
  * @api public
