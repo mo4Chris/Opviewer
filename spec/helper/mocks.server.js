@@ -47,7 +47,7 @@ function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
  *  userID?: number,
  *  username?: string,
  *  permission?: object,
- *  userPermission: string, // Depricated
+ *  userPermission?: string, // Depricated
  *  userCompany?: string,
  *  userBoats?: number[],
  *  client_id?: number,
@@ -122,5 +122,6 @@ module.exports = {
   twoFactor: mockTwoFactorAuthentication,
   mailer: mockMailer,
   mockDemoCheckerMiddelWare,
+  mockExpressLayer,
 }
 

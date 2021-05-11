@@ -102,8 +102,7 @@ module.exports = function(app, logger) {
       // ToDo: filter data by token rights
       res.send(project_output)
     }).catch(err => {
-      console.log(err)
-      onError(res, err)
+      res.onError(err)
     })
   });
 

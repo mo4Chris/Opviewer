@@ -32,7 +32,6 @@ if (SERVER_LOGGING_LEVEL != null) {
  * @param {boolean} auth
  */
 function GET(url, auth = true) {
-  console.log(`************ GET - ${url} **************`)
   const req = request(app)
     .get(url)
     .set('Content-Type', 'application/json')
