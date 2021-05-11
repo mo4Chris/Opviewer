@@ -27,7 +27,7 @@ module.exports = (app, GET, POST) => {
   })
 
   describe('Demo user', () => {
-    const DemoProjectId = 777;
+    const DemoProjectId = DEMO_PROJECT.id;
 
     beforeEach(() => {
       mock.mockDemoCheckerMiddelWare(app)
@@ -38,30 +38,31 @@ module.exports = (app, GET, POST) => {
 
     it('should GET project response', () => {
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId}`
-      mock.pgRequest(['Great success'])
+      mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
       response.expect(expectValidRequest)
     })
     it('should not GET project response that does not belong to this demo user', () => {
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId + 1}`
-      mock.pgRequest(['Great success'])
+      mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
       response.expect(expectUnAuthRequest)
     })
 
-    it('should GET project list', () => {
+    it('should GET project list', async () => {
+      // TODO: get this out of demo user
       const url = `/api/mo4light/getProjectList`
-      mock.pgRequest(['Great success'])
+      mock.mockForecastApiRequest({projects: [CLIENT_PROJECT_1, CLIENT_PROJECT_2]})
       const response = GET(url)
-      response.expect(expectValidRequest)
-    })
-    fit('should GET projects only which belong to this demo user', async () => {
-      const url = `/api/mo4light/getProjectList`
-      mock.pgRequest({projects: ['Great success']})
-      const response = GET(url)
-      // response.expect(expectUnAuthRequest.body)
       const response_data = await response;
-      expect(response_data.body.length).toBeGreaterThan(0)
+      expect(response_data.body.length).toEqual(2)
+    })
+    it('should GET projects only which belong to this demo user', async () => {
+      const url = `/api/mo4light/getProjectList`
+      mock.mockForecastApiRequest({projects: [DEMO_PROJECT, CLIENT_PROJECT_1]})
+      const response = GET(url)
+      const response_data = await response;
+      expect(response_data.body.length).toEqual(1)
     })
   })
 }
@@ -92,4 +93,47 @@ const NO_FORECAST_USER_PERMISSIONS = {
     read: true,
     write: true,
   }
+}
+
+const DEMO_PROJECT = {
+  id: 12,
+  name: 'demo_12345',
+  display_name: 'Test Project',
+  client_id: 3,
+  longitude: 1,
+  latitude: 2,
+  water_depth: 20,
+  maximum_duration: 180,
+  activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  client_preferences: {},
+  vessel_id: 1,
+}
+const CLIENT_PROJECT_1 = {
+  id: 12,
+  name: 'demo_12345',
+  display_name: 'Test Project',
+  client_id: 1,
+  longitude: 1,
+  latitude: 2,
+  water_depth: 20,
+  maximum_duration: 180,
+  activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  client_preferences: {},
+  vessel_id: 1,
+}
+const CLIENT_PROJECT_2 = {
+  id: 12,
+  name: 'demo_12345',
+  display_name: 'Test Project',
+  client_id: 1,
+  longitude: 1,
+  latitude: 2,
+  water_depth: 20,
+  maximum_duration: 180,
+  activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  client_preferences: {},
+  vessel_id: 1,
 }

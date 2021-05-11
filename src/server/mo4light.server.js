@@ -91,6 +91,7 @@ module.exports = function(app, logger, mailTo) {
     pg_get('/projects').then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return onError(res, err, err);
+      console.log('out.data', out)
       const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
@@ -136,7 +137,7 @@ module.exports = function(app, logger, mailTo) {
         water_depth: project.water_depth,
         maximum_duration: project.maximum_duration,
         activation_start_date: project.activation_start_date,
-        activation_end_date: project.activation_start_date,
+        activation_end_date: project.activation_end_date,
         client_preferences: project.client_preferences,
         vessel_id: project.vessel_id
       }]

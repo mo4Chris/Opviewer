@@ -1,5 +1,7 @@
 const twoFactor = require('node-2fa');
 const { Client, Pool } = require('pg');
+const mo4lightServer = require('../../src/server/mo4light.server')
+const ax = require('axios');
 
 
 /**
@@ -116,6 +118,27 @@ function mockMailer(app) {
   })
 }
 
+
+/**
+ * Mocks forecast requests
+ *
+ * @param {any} data Data returned by the forecast API
+ * @api public {(mailOpts: object) => void}
+ */
+function mockForecastApiRequest(data) {
+  console.log('MOCKING API REQUEST', data)
+  const dataPromise = Promise.resolve({
+    data: data,
+    statusCode: data != null ? 200 : 500,
+    status: 'MOCKED',
+    text: 'mocked'
+  });
+  // const dataPromise = new Response(data)
+  spyOn(ax.default, 'get').and.returnValue(dataPromise)
+  spyOn(ax.default, 'post').and.returnValue(dataPromise)
+  spyOn(ax.default, 'put').and.returnValue(dataPromise)
+}
+
 module.exports = {
   jsonWebToken: mockJsonWebToken,
   pgRequest: mockPostgressRequest,
@@ -123,5 +146,6 @@ module.exports = {
   mailer: mockMailer,
   mockDemoCheckerMiddelWare,
   mockExpressLayer,
+  mockForecastApiRequest,
 }
 
