@@ -20,10 +20,11 @@ const { Client, Pool } = require('pg');
  * @api public
  */
 function mockExpressLayer(app, name, callback) {
+  if (app == null) throw Error('Mocking express middleware requires app')
   const callbacks = app._router.stack;
   const middleware = callbacks.find(cb => cb.name == name)
   if (middleware == null) throw Error(`Failed to find named express layer ${name}`)
-  middleware.handle = callback;
+  spyOn(middleware, 'handle').and.callFake(callback);
   return middleware;
 }
 
@@ -42,7 +43,18 @@ function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
 /**
  * Mocks the web token which is assigned to req['token'].
  * @param {object} app
- * @param {object} decoded_token
+ * @param {{
+ *  userID?: number,
+ *  username?: string,
+ *  permission?: object,
+ *  userPermission: string, // Depricated
+ *  userCompany?: string,
+ *  userBoats?: number[],
+ *  client_id?: number,
+ *  forecast_client_id?: number,
+ *  expires?: number,
+ *  iat?: number
+ * }} decoded_token
  * @api public
  */
 function mockJsonWebToken(app, decoded_token) {

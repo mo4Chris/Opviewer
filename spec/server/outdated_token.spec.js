@@ -16,11 +16,19 @@ module.exports = (app) => {
   }
 
   describe('Expect outdated token', () => {
+    beforeEach(() => {
+      mock.mockDemoCheckerMiddelWare(app)
+    })
+
     it('should return 460 - outdated token', async () => {
       mock.pgRequest([{
         mmsi: 123,
       }])
-      const response = GET('/api/vesselList')
+      mock.jsonWebToken(app, {
+        userID: '12', // Deliberate
+        username: ''
+      })
+      const response = await GET('/api/vesselList')
       await assertOutdatedResponse(response)
     })
   })

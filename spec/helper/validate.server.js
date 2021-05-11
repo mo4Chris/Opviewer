@@ -1,7 +1,7 @@
 /**
  * Performs valid request assert. Note: this is an async function
  *
- * @param {object} response
+ * @param {import("supertest").Response} response
  * @api public
  */
 exports.expectValidRequest = async function (response) {

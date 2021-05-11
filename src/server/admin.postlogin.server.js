@@ -5,7 +5,7 @@ const { Pool } = require("pg");
  * Server file with all the secure endpoints to the admin database.
  *
  * @param {import("express").Application} app Main application
- * @param {object} logger Logger class
+ * @param {import("pino").Logger} logger Logger class
  * @param {Pool} admin_server_pool
  * @param {(subject: string, body: string, recipient: string) => void} mailTo
  * @api public

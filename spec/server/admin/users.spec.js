@@ -21,6 +21,10 @@ module.exports = (app, GET, POST) => {
     const username = 'Test admin';
     const company = 'BMO';
 
+    beforeEach(() => {
+      mock.mockDemoCheckerMiddelWare(app)
+    })
+
     it('get a user list', async () => {
       mock.pgRequest([{
         active: true,
@@ -60,7 +64,8 @@ module.exports = (app, GET, POST) => {
     const otherCompany = 'Totally not BMO'
 
     beforeEach(() => {
-      mock.mailer(app)();
+      mock.mailer(app);
+      mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,
         userCompany: company,
@@ -106,7 +111,8 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app)();
+      mock.mailer(app);
+      mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,
         userCompany: company,
