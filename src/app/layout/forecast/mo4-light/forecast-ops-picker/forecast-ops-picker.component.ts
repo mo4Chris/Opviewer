@@ -106,7 +106,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.slipValue = this.slipCoefficients[0]; //ToDo: Retrieve from settings
     this.thrustValue = this.slipThrustLevels[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
-    console.log('selectedProject', this.selectedProject)
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
     this.updateOperationTimes()

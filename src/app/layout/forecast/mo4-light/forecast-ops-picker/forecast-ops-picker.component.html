@@ -116,7 +116,7 @@
         <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
       </td>
       <td>
-        <input class="limit-small-col" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
+        <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
           [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)"
           step="0.05" [(ngModel)]="slipValue" (change)="onSlipCoefChange()" >
       </td>
@@ -127,7 +127,7 @@
         <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
       </td>
       <td>
-        <input class="limit-small-col" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
+        <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
           [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length - 1], 100)"
           step="10000" [(ngModel)]="thrustValue" (change)="onThrustIndexChange()" >
       </td>
