@@ -12,20 +12,19 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
  */
 module.exports = (app, GET, POST) => {
   // ################# Tests - administrative - non-admin login #################
-  describe('Administrative - with login - user should', () => {
+  describe('UserCreate - with login - user should', () => {
     // ToDo: This should be removed and all the auth headers should be set to false
     const username = 'Glados';
     const company = 'Aperture industries';
     const new_user_id = 666;
-    const client_id = 2;
     beforeEach(() => {
       mock.mailer(app);
       mock.jsonWebToken(app, {
         userID: 1,
-        client_id,
+        client_id: OWN_CLIENT_ID,
         username: username,
         userCompany: company,
-        userBoats: [123456789, 987654321],
+        userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
         userPermission: 'Logistic specialist',
         permission: {
           admin: false,
@@ -41,7 +40,7 @@ module.exports = (app, GET, POST) => {
     it('create new user - successfull - admin', async () => {
       mock.jsonWebToken(app, {
         userID: 1,
-        client_id: 2,
+        client_id: ADMIN_CLIENT_ID,
         username: username,
         userCompany: company,
         userBoats: null,
@@ -56,7 +55,7 @@ module.exports = (app, GET, POST) => {
       const newUser = {
         username: 'Bot',
         requires2fa: true,
-        client_id: 2,
+        client_id: OWN_CLIENT_ID,
         vessel_ids: null,
       }
       const request = POST('/api/createUser', newUser, true)
@@ -67,8 +66,8 @@ module.exports = (app, GET, POST) => {
       const newUser = {
         username: 'Bot',
         requires2fa: true,
-        client_id: 2,
-        vessel_ids: [123456789, 987654321],
+        client_id: OWN_CLIENT_ID,
+        vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
       }
       const request = POST('/api/createUser', newUser, true)
       await request.expect(expectValidRequest)
@@ -78,7 +77,7 @@ module.exports = (app, GET, POST) => {
       const newUser = {
         username: 'Bot',
         requires2fa: true,
-        client_id: 2,
+        client_id: OWN_CLIENT_ID,
         vessel_ids: null,
       }
       const request = POST('/api/createUser', newUser, true)
@@ -89,8 +88,8 @@ module.exports = (app, GET, POST) => {
       const newUser = {
         username: 'Bot',
         requires2fa: true,
-        client_id: 5,
-        vessel_ids: [123456789, 987654321],
+        client_id: OTHER_CLIENT_ID,
+        vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
       }
       const request = POST('/api/createUser', newUser, true)
       await request.expect(expectUnAuthRequest)
@@ -100,8 +99,8 @@ module.exports = (app, GET, POST) => {
       const newUser = {
         username: 'Bot',
         requires2fa: true,
-        client_id: 2,
-        vessel_ids: [123456788],
+        client_id: OWN_CLIENT_ID,
+        vessel_ids: [OTHER_VESSEL],
       }
       const request = POST('/api/createUser', newUser, true)
       await request.expect(expectUnAuthRequest)
@@ -121,10 +120,17 @@ module.exports = (app, GET, POST) => {
       const reset_username = 'forgot@my.email'
       mock.pgRequest([{
         username: reset_username,
-        client_id,
+        client_id: OWN_CLIENT_ID,
       }])
       const request = POST("/api/resetPassword", {username, reset_username})
       return request.expect(expectValidRequest)
     })
   })
 }
+
+const ADMIN_CLIENT_ID = 1;
+const OWN_CLIENT_ID = 2;
+const OTHER_CLIENT_ID = 5;
+const OWN_VESSEL_1 = 123456789;
+const OWN_VESSEL_2 = 987654321;
+const OTHER_VESSEL = 121212121;

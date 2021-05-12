@@ -1,5 +1,3 @@
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 const mock = require('../../helper/mocks.server')
 const request = require('supertest');
 const { expectUnAuthRequest, expectBadRequest, expectValidRequest, expectResponse } = require('../../helper/validate.server');
