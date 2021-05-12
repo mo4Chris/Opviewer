@@ -15,7 +15,7 @@
 .empty-row {
   height: 0.6 rem;
   padding: 0.1 rem;
-} 
+}
 
 .tight {
   padding-left: 3px;
@@ -35,4 +35,11 @@ td{
 
 .hover-35{
   line-height: 35px;
+}
+
+
+.limit-small-col{
+  width: 100%;
+  min-width: 65px;
+  max-width: 130px;
 }
