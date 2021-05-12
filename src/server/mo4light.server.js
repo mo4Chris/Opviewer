@@ -59,7 +59,7 @@ module.exports = function(app, logger, mailTo) {
   app.get('/api/mo4light/getVesselList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
-    const client_id = 2;
+    const client_id = 2; // TODO - not sure if this is already fixed
     log('Starting azure vessel request')
     pg_get('/vessels', {client_id}).then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
@@ -77,7 +77,7 @@ module.exports = function(app, logger, mailTo) {
           client_id: data.client_id
         }
       });
-      // ToDo: filter data by token rights
+      // ToDo: filter data by token rights - is this done?
       res.send(data_out)
     }).catch(err => {
       onError(res, err)

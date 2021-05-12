@@ -126,7 +126,6 @@ function mockMailer(app) {
  * @api public {(mailOpts: object) => void}
  */
 function mockForecastApiRequest(data) {
-  console.log('MOCKING API REQUEST', data)
   const dataPromise = Promise.resolve({
     data: data,
     statusCode: data != null ? 200 : 500,
