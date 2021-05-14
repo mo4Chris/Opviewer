@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
-import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 
 @Component({
   selector: 'app-surface-plot',
@@ -11,9 +10,18 @@ import * as PlotlyJS from 'plotly.js/dist/plotly.js';
 export class SurfacePlotComponent implements OnChanges {
   @Input() xLabel: string;
   @Input() yLabel: string;
+
   @Input() xData: (number | string | Date)[];
   @Input() yData: number[];
   @Input() zData: number[][];
+
+  @Input() lineStyle: Partial<Plotly.ScatterLine> = {
+    width: 1,
+    color: 'black',
+    dash: 'dash'
+  }
+  @Input() lines: PlotlyLineConfig[]; // Horizontal lines at given yHeight
+
   @Input() zMax?: number;
   @Input() title = 'Workability plot';
   @Input() useInterpolation = true;
@@ -32,7 +40,7 @@ export class SurfacePlotComponent implements OnChanges {
   }
 
   public loaded = false;
-  public parsedData: PlotlyJS.Data[];
+  public parsedData: Partial<Plotly.PlotData>[];
   public PlotLayout = {
     // General settings for the graph
     title: 'Test graph',
@@ -69,11 +77,12 @@ export class SurfacePlotComponent implements OnChanges {
   ngOnChanges() {
     if (!this.hasData) return;
     this.validateInput();
-    this.parsedData = [{
+    this.parsedData = [<any> {
       x: this.xData,
       y: this.yData,
       z: this.matService.transpose(this.zData),
       type: 'contour',
+      hoverinfo: 'x+y+z',
       zmin: 0,
       zmid: 80,
       zmax: this.zMax,
@@ -83,6 +92,8 @@ export class SurfacePlotComponent implements OnChanges {
         ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10).map(e => `${e}%`) : undefined,
       }
     }];
+    if (this.lines) this.addLines();
+
     this.PlotLayout.xaxis.title = this.xLabel;
     this.PlotLayout.yaxis.title = this.yLabel;
     this.PlotLayout.title = this.title;
@@ -92,7 +103,7 @@ export class SurfacePlotComponent implements OnChanges {
     this.loaded = true;
   }
 
-  validateInput() {
+  private validateInput() {
     const xLen = this.xData.length;
     const yLen = this.yData.length;
     assert(this.zData.length == xLen, `Length of xData should match zData.length, ${this.zData.length}/${xLen}`);
@@ -100,10 +111,36 @@ export class SurfacePlotComponent implements OnChanges {
       assert(z.length == yLen, `Length of yData should match zData[${i}].length, ${z.length}/${yLen}`);
     });
   }
+
+  private addLines() {
+    const yMax = Math.max(... this.yData)
+    this.lines.forEach(_line => {
+      switch(_line.Mode){
+        case 'Horizontal':
+          this.parsedData.push({
+            x: [this.xData[0], this.xData[this.xData.length-1]],
+            y: [_line.Value, _line.Value],
+            type: 'scatter',
+            mode: 'text+lines',
+            hoverinfo: 'skip',
+            name: _line.Name,
+            line: this.lineStyle,
+            text: [_line.Name, ''],
+            textposition: (_line.Value>yMax/2) ? 'bottom right' : 'top right'
+          })
+      }
+    })
+  }
 }
 
 function assert(condition: boolean, message= 'assertion failed') {
   if (!condition) {
     throw(new Error(message));
   }
+}
+
+export interface PlotlyLineConfig {
+  Value: number,
+  Mode: 'Horizontal',
+  Name: string
 }

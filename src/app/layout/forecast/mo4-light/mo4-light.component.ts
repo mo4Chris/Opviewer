@@ -12,6 +12,7 @@ import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-pi
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
 import { ForecastVesselRequest } from '../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
+import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
 
 @Component({
   selector: 'app-mo4-light',
@@ -32,6 +33,11 @@ export class Mo4LightComponent implements OnInit {
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
+  public headingLine: PlotlyLineConfig = {
+    Name: 'Selected heading',
+    Mode: 'Horizontal',
+    Value: 180,
+  }
 
   private ctvSlipResponse: CtvSlipResponse;
   public SlipProbability: number[][] = [];
@@ -39,7 +45,6 @@ export class Mo4LightComponent implements OnInit {
   public SlipThrustLevels: number[];
 
   public limits: ForecastMotionLimit[] = [];
-  public selectedHeading = 0;
 
   public selectedSlipCoefficient = 0;
   public selectedThrustIndex = 0
@@ -61,6 +66,15 @@ export class Mo4LightComponent implements OnInit {
     private matService: MatrixService,
     private route: ActivatedRoute,
   ) {
+  }
+
+  private __selectedHeading = 0;
+  set selectedHeading(value: number) {
+    this.headingLine.Value = value;
+    this.__selectedHeading = value;
+  }
+  get selectedHeading() {
+    return this.__selectedHeading;
   }
 
   ngOnInit() {
