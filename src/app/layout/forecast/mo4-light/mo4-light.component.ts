@@ -117,8 +117,8 @@ export class Mo4LightComponent implements OnInit {
       this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
       this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
 
-      this.parseResponse();
       this.parseCtvSlipResponse();
+      this.parseResponse();
 
       if (this.response == null) return
       // TEMPORARY WORKAROUND FOR WEATHER
@@ -221,9 +221,9 @@ export class Mo4LightComponent implements OnInit {
     if (settings?.startTime)  this.startTime  = settings.startTime;
     if (settings?.stopTime)   this.stopTime   = settings.stopTime;
     if (settings?.limits)     this.limits     = settings.limits;
+    this.parseCtvSlipResponse();
     this.computeWorkability();
     this.setWorkabilityAlongHeading();
-    this.parseCtvSlipResponse();
   }
   onTabSwitch(event: NavChangeEvent) {
     this.routeService.switchFragment(event.nextId)

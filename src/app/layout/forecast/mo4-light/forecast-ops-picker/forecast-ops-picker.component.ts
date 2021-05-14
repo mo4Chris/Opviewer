@@ -103,8 +103,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   onNewSelectedOperation() {
-    this.slipValue = this.slipCoefficients[0]; //ToDo: Retrieve from settings
-    this.thrustValue = this.slipThrustLevels[0]; //ToDo: Retrieve from settings
+    this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
+    this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
@@ -157,7 +157,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public onAddLimitsLine() {
     this.limitChanged = true;
-    this.limits.push(new ForecastMotionLimit());
+    this.limits.push(new ForecastMotionLimit({
+      Dof: 'Heave',
+      Type: 'Disp',
+      Value: 1,
+    }));
   }
   public onRemoveLimitsLine() {
     this.limitChanged = true;
