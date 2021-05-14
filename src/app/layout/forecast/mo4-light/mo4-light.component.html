@@ -50,7 +50,8 @@
                   [ngbPopover]="helpSlipProbability" popoverClass="helpPopup" container="body">?
                 </button>
                 <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip probability"
-                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left">
+                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left"
+                  [lines]="[headingLine]">
                 </app-surface-plot>
               </ng-container>
             </ng-template>

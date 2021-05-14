@@ -28,7 +28,7 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() config: Partial<Plotly.Config> = {
     displayModeBar: true,
     modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
-      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
+      'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d', 'lasso2d', 'select2d'],
     displaylogo: false
   }
 
