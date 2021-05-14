@@ -53,7 +53,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
 
-  public slipValue;
+  public slipValue: number;
   public thrustValue = this.slipThrustLevels[0];
 
   private operationTimeChanged = false;

@@ -148,10 +148,12 @@
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>Velocity</option>
           <option value='Disp'>Displacement</option>
+          <option value='Slip'>Slip prob</option>
         </select>
       </td>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
+          [disabled]="limit.Type == 'Slip'">
           <option value="Surge">Surge</option>
           <option value="Sway">Sway</option>
           <option value="Heave">Heave</option>

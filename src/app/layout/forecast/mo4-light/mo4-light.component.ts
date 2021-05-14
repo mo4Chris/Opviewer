@@ -186,7 +186,12 @@ export class Mo4LightComponent implements OnInit {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
     const limiters = this.limits.map(limit => {
-      return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
+      switch (limit.Type) {
+        case 'Slip':
+          return this.matService.scale(this.SlipProbability, 1/limit.Value);
+        default:
+          return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
+      }
     });
     this.Workability = this.matService.scale(
       this.responseService.combineWorkabilities(limiters),

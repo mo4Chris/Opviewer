@@ -1,48 +1,48 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive}">
     <div class="list-group">
-        <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" 
+        <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-dashboard"></i>
             &nbsp;{{ 'Dashboard' | translate }}
         </a>
-        
-        <a *ngIf="usertoken.dpr.read || usertoken.longterm.read" 
-        [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']" 
+
+        <a *ngIf="usertoken.dpr.read || usertoken.longterm.read"
+        [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>
-            &nbsp;{{ 'Vessels and Reports' | translate }}
+            &nbsp;{{ 'Analytics' | translate }}
         </a>
-        <a *ngIf="usertoken.twa.read" 
-        [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']" 
+        <a *ngIf="usertoken.twa.read"
+        [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-ship"></i>
             &nbsp;{{ 'Campaigns' | translate }}
         </a>
-        <a *ngIf="usertoken.user_manage" 
-        [routerLink]="['/users']" [routerLinkActive]="['router-link-active']" 
+        <a *ngIf="usertoken.user_manage"
+        [routerLink]="['/users']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-users"></i>
             &nbsp;{{ 'Users' | translate }}
         </a>
-        <a *ngIf="usertoken.user_manage" 
-        [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']" 
+        <a *ngIf="usertoken.user_manage"
+        [routerLink]="['/signup']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-user-plus"></i>
             &nbsp;{{ 'Create new user' | translate }}
         </a>
-        <a [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']" 
+        <a [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-cog"></i>
             &nbsp;{{ 'Settings' | translate }}
         </a>
         <a *ngIf="usertoken.forecast.read"
-        routerLink="/forecast" [routerLinkActive]="['router-link-active']" 
+        routerLink="/forecast" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-rss"></i>
-            &nbsp;{{ 'Forecast' | translate }}
+            &nbsp;{{ 'MO4 Light' | translate }}
         </a>
         <a [routerLink]="['/login']" (click)="onLoggedout()" class="list-group-item">
-            <span><i class="fa fa-fw fa-power-off"></i> 
+            <span><i class="fa fa-fw fa-power-off"></i>
                 {{ 'Log Out' | translate }}
             </span>
         </a>
