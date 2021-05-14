@@ -1,19 +1,19 @@
+import { browser } from 'protractor';
 import { CtvLtmPage, LtmDatePicker } from './ctvltm.po';
 
 
-describe('Ctv longterm module', () => {
+fdescribe('Ctv longterm module', () => {
   let page: CtvLtmPage;
-  beforeEach(() => {
+  beforeEach(async () => {
     page = new CtvLtmPage();
-    page.navigateTo();
-  });
-  afterEach(() => {
-    page.validateNoConsoleLogs();
+    await page.navigateTo();
+    await browser.waitForAngular();
   });
 
   describe('LTM for vessel masters', () => {
-    it('should not redirect', () => {
-      expect(page.getUrl()).toMatch('/reports/longterm');
+    it('should redirect to dashboard', async () => {
+      const new_url = await page.getUrl();
+      expect(new_url).not.toMatch('/reports/longterm');
     });
   });
 });

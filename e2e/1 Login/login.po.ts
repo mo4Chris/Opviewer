@@ -7,8 +7,8 @@ const EC = ExpectedConditions;
 export class LoginPage {
 
 
-  navigateTo() {
-    return browser.get('/login');
+  async navigateTo() {
+    await browser.get('/login');
   }
 
   getParagraphText() {

@@ -13,6 +13,7 @@ import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
 import { ForecastVesselRequest } from '../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-mo4-light',
@@ -65,6 +66,7 @@ export class Mo4LightComponent implements OnInit {
     private responseService: ForecastResponseService,
     private matService: MatrixService,
     private route: ActivatedRoute,
+    private permission: PermissionService
   ) {
   }
 
@@ -78,6 +80,7 @@ export class Mo4LightComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (!this.permission.forecastRead) return this.routeService.routeToAccessDenied();
     this.initRoute().subscribe(() => {
       this.showContent = false;
       this.loadData();
@@ -114,13 +117,7 @@ export class Mo4LightComponent implements OnInit {
       this.responseObj = responses;
       this.operations = projects;
       this.showContent = true;
-      if (!this.responseObj) {
-        this.lastUpdated = 'N/a';
-        this.responseObj = null;
-        this.Workability = null;
-        this.limits = [];
-        return;
-      }
+      if (!this.responseObj) return this.onNoResponse();
 
       this.setLastUpdateTime();
       const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
@@ -183,7 +180,6 @@ export class Mo4LightComponent implements OnInit {
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
     this.computeWorkability();
-    this.setWorkabilityAlongHeading();
   }
   parseCtvSlipResponse() {
     const POI = this.responseObj.response.Points_Of_Interest.P1;
@@ -211,13 +207,13 @@ export class Mo4LightComponent implements OnInit {
       this.responseService.combineWorkabilities(limiters),
       100
     );
-  }
-  setWorkabilityAlongHeading() {
+
     if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
+
   getHeadingIdx(headings: number[]): number {
     let d = 360;
     let hIdx = null;
@@ -231,13 +227,18 @@ export class Mo4LightComponent implements OnInit {
     return hIdx;
   }
 
+  onNoResponse() {
+    this.lastUpdated = 'N/a';
+    this.responseObj = null;
+    this.Workability = null;
+    this.limits = [];
+  }
   onProjectSettingsChange(settings: ForecastOperationSettings) {
     if (settings?.startTime)  this.startTime  = settings.startTime;
     if (settings?.stopTime)   this.stopTime   = settings.stopTime;
     if (settings?.limits)     this.limits     = settings.limits;
     this.parseCtvSlipResponse();
     this.computeWorkability();
-    this.setWorkabilityAlongHeading();
   }
   onTabSwitch(event: NavChangeEvent) {
     this.routeService.switchFragment(event.nextId)

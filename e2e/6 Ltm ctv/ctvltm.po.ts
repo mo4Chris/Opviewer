@@ -6,33 +6,33 @@ export class CtvLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get('/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
+    return browser.get('/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {
-    this.dp.setDateRange(from, to);
+    return this.dp.setDateRange(from, to);
   }
-  switchLastMonth() {
-    this.dp.getLastMonthBtn().click();
-    browser.waitForAngular();
+  async switchLastMonth() {
+    await this.dp.getLastMonthBtn().click();
+    await browser.waitForAngular();
   }
-  switchNextMonth() {
-    this.dp.getNextMonthBtn().click();
-    browser.waitForAngular();
+  async switchNextMonth() {
+    await this.dp.getNextMonthBtn().click();
+    await browser.waitForAngular();
   }
   getDateString() {
     return element(by.xpath('//h1/h2/small')).getText();
   }
 
   getVesselDropdown() {
-    const dropdown =  element(by.xpath('//ng-multiselect-dropdown[@id="selectVessel"]/div'));
+    const dropdown = element(by.xpath('//ng-multiselect-dropdown[@id="selectVessel"]/div'));
     expect(dropdown.isPresent()).toBe(true, 'Vessel dropdown not found!');
     return dropdown;
   }
-  getVesselList() {
-    const list = this.getVesselDropdown().element(by.className('dropdown-list'));
+  async getVesselList() {
+    const list = await this.getVesselDropdown().element(by.className('dropdown-list'));
     expect(list.isPresent()).toBe(true, 'Vessel list not found!');
-    return list.all(by.xpath('.//ul/li'));
+    return await list.all(by.xpath('.//ul/li'));
   }
   getSelectedVessels() {
     return this.getVesselDropdown().all(by.xpath('.//span[a]'));
@@ -48,12 +48,12 @@ export class CtvLtmPage extends E2ePageObject {
   getWaveDropdown() {
     return element(by.xpath('//ng-multiselect-dropdown[@name="selectField"]/div'));
   }
-  selectWaveSourceByIndex(index = 1) {
-    const btn = this.getWaveDropdown();
+  async selectWaveSourceByIndex(index = 1) {
+    const btn = await this.getWaveDropdown();
     expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!');
-    btn.click();
-    btn.all(by.xpath('.//ul/li')).get(index).click();
-    btn.click();
+    await btn.click();
+    await btn.all(by.xpath('.//ul/li')).get(index).click();
+    await btn.click();
   }
 
   getGraphContainers() {
