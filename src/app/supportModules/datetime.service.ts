@@ -26,7 +26,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
       dur = moment.duration(serial, 'minutes');
     }
     let format: string;
-    if (typeof serial !== 'number' || serial === NaN) {
+    if (typeof serial !== 'number' || isNaN(serial)) {
       format = 'N/a';
     } else if (serial < 60) {
       format = dur.minutes() + ' minutes';

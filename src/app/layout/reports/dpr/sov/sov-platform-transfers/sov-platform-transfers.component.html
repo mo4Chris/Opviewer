@@ -71,12 +71,11 @@
               <td colspan="6"></td>
               <td>
                 <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray(); updatePaxCargoTotal()"
-                  type="button">add missed transfer</button>
+                  type="button">Add missed transfer</button>
               </td>
               <td colspan="2">
                 <button class="btn btn-sm btn-danger"
-                  (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">remove last
-                  transfer</button>
+                  (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">Remove last</button>
               </td>
             </tr>
             <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
