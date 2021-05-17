@@ -179,6 +179,11 @@ export class CommonService {
     return this.post('/api/getSpecificPark/', park);
   }
 
+  getClientList() {
+    return this.get('/api/getClients');
+  }
+
+
   getParkByNiceName(park: string): Observable<{
     centroid: {lon: number, lat: number, radius: number},
     SiteName: string,
