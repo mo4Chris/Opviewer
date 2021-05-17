@@ -32,21 +32,6 @@ module.exports = function(app, logger, admin_server_pool) {
     logger.info(`Successfully connected to hydro API at ${baseUrl}`)
   }).catch(err => logger.fatal(err, 'Failed to connect to hydro API'))
 
-  function onError(res, err, additionalInfo = 'Internal server error') {
-    if (typeof(err) == 'object') {
-      err.debug = additionalInfo;
-    } else {
-      err = {
-        debug: additionalInfo,
-        msg: err,
-        error: err,
-      }
-    }
-    logger.error(err)
-
-    res.status(500).send(additionalInfo);
-  }
-
   app.get('/api/mo4light/getVesselList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
@@ -54,7 +39,7 @@ module.exports = function(app, logger, admin_server_pool) {
     log('Starting azure vessel request')
     pg_get('/vessels', {client_id}).then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const datas = out.data['vessels'].filter(d => checkVesselPermission(token, d));;
       const data_out = datas.map(data => {
         return {
@@ -70,22 +55,18 @@ module.exports = function(app, logger, admin_server_pool) {
       });
       // ToDo: filter data by token rights
       res.send(data_out)
-    }).catch(err => {
-      onError(res, err)
-    })
+    }).catch(res.onError)
   });
 
   app.get('/api/mo4light/getProjectList', (req, res) => {
     const token = req['token'];
-    console.log('token', token)
-    const is_admin = token.permission.admin;
     const start = Date.now()
     log('Start azure project list request')
 
     if (token.permission.demo) return getDemoProject(req, res);
     pg_get('/projects').then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
@@ -105,10 +86,7 @@ module.exports = function(app, logger, admin_server_pool) {
       })
       // ToDo: filter data by token rights
       res.send(project_output)
-    }).catch(err => {
-      console.log(err)
-      onError(res, err)
-    })
+    }).catch(res.onError)
   });
 
   app.post('/api/mo4light/getProject', (req, res) => {
@@ -121,7 +99,7 @@ module.exports = function(app, logger, admin_server_pool) {
     log('Start azure project list request')
     pg_get('/project/' + project_name).then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const project = out.data;
       if (!checkProjectPermission(token, project)) return res.onUnauthorized()
       const project_output = [{
@@ -139,9 +117,7 @@ module.exports = function(app, logger, admin_server_pool) {
         vessel_id: project.vessel_id
       }]
       res.send(project_output)
-    }).catch(err => {
-      onError(res, err)
-    })
+    }).catch(res.onError)
   });
 
   app.get('/api/mo4light/getClients', (req, res) => {
@@ -152,13 +128,10 @@ module.exports = function(app, logger, admin_server_pool) {
     log('Start azure client request')
     pg_get('/clientlist').then((out, err) => {
       log(`Receiving azure clients response after ${Date.now() - start}ms`)
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const data = out.data['clients'];
       res.send(data)
-    }).catch(err => {
-      console.log(err)
-      onError(res, err)
-    })
+    }).catch(res.onError)
   });
 
   app.get('/api/mo4light/getResponseForProject/:project_id', (req, res) => {
@@ -168,12 +141,11 @@ module.exports = function(app, logger, admin_server_pool) {
     log('Start azure response request')
     pg_get('/response/' + project_id).then((out, err) => {
       log(`Receiving azure motion response after ${Date.now() - start}ms`)
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const data = out.data;
       res.send(data)
     }).catch(err => {
-      console.log('err', err.data)
-      onError(res, err, `Failed to get response for project with id ${project_id}`)
+      res.onError(err, `Failed to get response for project with id ${project_id}`)
     })
   })
 
@@ -183,7 +155,7 @@ module.exports = function(app, logger, admin_server_pool) {
     // if (!token.permission.admin) return res.onUnauthorized('Admin only')
     // const client_id = req.params.client_id;
     // pg_get('/client/' + client_id).then((out, err) => {
-    //   if (err) return onError(res, err, err);
+    //   if (err) return res.onError(err, err);
     //   const data = out.data['projects']; // Already admin only
     //   res.send(data)
     // }).catch(err => {
@@ -194,7 +166,7 @@ module.exports = function(app, logger, admin_server_pool) {
   app.get('/api/forecastProjectLocations', async (req, res) => {
     const token = req['token'];
     pg_get('/projects').then(async (out, err) => {
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
@@ -205,7 +177,7 @@ module.exports = function(app, logger, admin_server_pool) {
       })
       // ToDo: filter data by token rights
       res.send(project_output)
-    })
+    }).catch(res.onError)
   })
 
   app.put('/api/mo4light/projectSettings', async (req, res) => {
@@ -257,7 +229,7 @@ module.exports = function(app, logger, admin_server_pool) {
   app.post('/api/mo4light/weather', (req, res) => {
     const project_id = req.params.project_id;
     const token = req['token'];
-    return onError(res, null, 'Endpoint still needs to be implemented')
+    return res.onError(null, 'Endpoint still needs to be implemented')
   })
 
   app.get('/api/mo4light/ctvForecast', async (req, res) => {
@@ -305,7 +277,7 @@ module.exports = function(app, logger, admin_server_pool) {
     const demo_project_id = user.rows[0].demo_project_id;
     logger.debug(`Getting demo project with id ${demo_project_id}`)
     pg_get('/projects').then(async (out, err) => {
-      if (err) return onError(res, err, err);
+      if (err) return res.onError(err, err);
       logger.trace('Successfully loaded projects')
       const data = out.data['projects'].filter(d => d.id == demo_project_id);
       const project_output = data.map(d => {
@@ -329,7 +301,7 @@ module.exports = function(app, logger, admin_server_pool) {
       res.send(project_output)
     }).catch(err => {
       console.log(err)
-      onError(res, err)
+      res.onError(err)
     })
   }
 };
