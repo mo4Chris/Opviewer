@@ -29,7 +29,6 @@ export class ClientOverviewComponent implements OnInit {
     ]).subscribe(([admin, forecast]: [AdminClient[], ForecastClient[]]) => {
       this.clients = admin.map(_client => {
         const fc = forecast.find(_f => _f.id == _client.forecast_client_id)
-        console.log('fc', fc)
         return {
           name: _client.client_name,
           client_id: _client.client_id,
