@@ -62,14 +62,14 @@ export class SovSummaryComponent implements OnChanges {
 
   CalculateDailySummary() {
     let _summary = new SummaryModel();
-
     // Average time vessel docking
     let totalVesselDockingDuration = 0;
     let nmrVesselTransfers = 0;
     let v2vTransfersTotal = 0;
     this.sovModel.vessel2vessels.forEach(vessel2vessel => {
       let totalDockingDurationOfVessel2vessel = 0;
-      v2vTransfersTotal += vessel2vessel.transfers.length || 1;
+      v2vTransfersTotal += vessel2vessel.transfers.length ?? 0;
+      v2vTransfersTotal += vessel2vessel.missedTransfers.length ?? 0;
       vessel2vessel.transfers.forEach(transfer => {
         if (transfer) {
           if (typeof (transfer.duration) !== 'string') {
