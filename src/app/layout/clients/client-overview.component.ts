@@ -5,7 +5,6 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { forkJoin } from 'rxjs';
 import { ForecastOperation } from '../forecast/models/forecast-response.model';
-import { type } from 'node:os';
 
 @Component({
   selector: 'app-client-overview',

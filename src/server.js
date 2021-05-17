@@ -1567,17 +1567,17 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
     // ToDo: This should be done in a asynchronous fashion - forkJoin or such
-    sovHasPlatformTransferModel.find({
+    sov.SovHasPlatformTransferModel.find({
       "mmsi": mmsi,
       active: { $ne: false }
     }, ['date']).distinct('date', function(err, platformTransferDates) {
       if (err) return onError(res, err);
-      sovHasTurbineTransferModel.find({
+      sov.SovHasTurbineTransferModel.find({
         "mmsi": mmsi,
         active: { $ne: false }
       }, ['date']).distinct('date', function(err, turbineTransferDates) {
         if (err) return onError(res, err);
-        sovHasV2VModel.find({
+        sov.SovHasV2vModel.find({
           'mmsi': mmsi,
           active: { $ne: false }
         }, ['date']).distinct('date', function(err, v2vTransferDates) {

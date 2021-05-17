@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import * as Plotly from 'plotly.js';
+import { Observable, Subscriber, TeardownLogic } from 'rxjs';
 
 @Component({
   selector: 'app-vessel-location-indicator',
@@ -8,7 +9,7 @@ import * as Plotly from 'plotly.js';
   styleUrls: ['./vessel-location-indicator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VesselLocationIndicatorComponent implements OnChanges {
+export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
   @Input() Length = 70;
   @Input() Width = 20;
   @Input() Height = 10;
@@ -20,16 +21,18 @@ export class VesselLocationIndicatorComponent implements OnChanges {
   @Input() Z = 3;
 
   public loaded = false;
-  public plotData: Plotly.Data[];
+  public plotData: Partial<Plotly.PlotData>[] = [{
+    mode: 'markers',
+    type: 'scatter3d',
+    x: [this.X],
+    y: [this.Y],
+    z: [this.Z],
+    marker: { size: 12 },
+    name: 'Point of interest'
+  }];
   public plotLayout: Partial<Plotly.Layout> = {
     // General settings for the graph
     title: 'Indication for point of interest',
-    xaxis: {
-      visible: false,
-    },
-    yaxis: {
-      visible: false,
-    },
     scene: {
       aspectmode: 'data',
       camera: {
@@ -38,9 +41,31 @@ export class VesselLocationIndicatorComponent implements OnChanges {
         },
         eye: {x: 1.5, y: 1.5, z: 1.5},
         up: {x: 0, y: 0, z: 1},
+      },
+      xaxis: {
+        fixedrange: true,
+        visible: false
+      },
+      yaxis: {
+        fixedrange: true,
+        visible: false
+      },
+      zaxis: {
+        fixedrange: true,
+        visible: false
       }
     },
-    hovermode: false
+    xaxis: {
+
+      mirror: true,
+    },
+    hovermode: false,
+    shapes: [
+      makeLine(0, 1, 0, 0),
+      makeLine(1, 1, 0, 1),
+      makeLine(1, 0, 1, 1),
+      makeLine(0, 0, 0, 1),
+    ]
   };
   public plotConfig = {
     displayModeBar: true,
@@ -48,7 +73,8 @@ export class VesselLocationIndicatorComponent implements OnChanges {
       'hoverCompareCartesian', 'resetCameraLastSave3d', 'hoverClosest3d', 'orbitRotation', 'tableRotation'],
     displaylogo: false
   }
-  private VesselTrace: Plotly.Data;
+  private VesselTrace: Plotly.PlotData;
+  private hull: Observable<Hull> = new Observable(obs => {this.initNodes(obs)});
 
   public get hasData() {
     const valid = isValidNumber(this.Length, 0, 1000)
@@ -62,11 +88,16 @@ export class VesselLocationIndicatorComponent implements OnChanges {
 
   constructor(
     private calcService: CalculationService,
+    private http: HttpClient,
+    private ref: ChangeDetectorRef,
   ) { }
 
-  ngOnChanges(change: SimpleChanges) {
+  ngOnInit() {
+    // this.initNodes();
+  }
+  async ngOnChanges(change: SimpleChanges) {
     if (change && (change['Length'] ||  change['Height'] ||  change['Width'])) {
-      this.calcVesselTrace();
+       await this.setVesselTrace();
     }
     if (this.hasData) {
       this.plotData = [{
@@ -78,34 +109,53 @@ export class VesselLocationIndicatorComponent implements OnChanges {
         marker: { size: 12 },
         name: 'Point of interest'
       }, this.VesselTrace];
-      this.plotLayout.xaxis.title = this.xLabel;
-      this.plotLayout.yaxis.title = this.yLabel;
+      this.ref.detectChanges();
     }
   }
 
-  calcVesselTrace() {
-    const x = [0, 0.7, 0.9, 0.7,  0, 0, 0, 0.7, 1, 0.7,  0, 0.7];
-    const y = [1,   1,   0,  -1, -1, 1, 1,   1, 0,  -1, -1,   0];
-    const z = [0,   0, 0.2,   0,  0, 0, 1,   1, 1,   1,  1,   0];
+  async setVesselTrace() {
+    const hull = await this.hull.toPromise();
+    let scaleX = this.Length / (Math.max(...hull.x) - Math.min(...hull.x));
+    let scaleY = this.Width / (Math.max(...hull.y) - Math.min(...hull.y));
+    let scaleZ = this.Height / (5);
+    if (isNaN(scaleX)) scaleX = 1;
+    if (isNaN(scaleY)) scaleY = 1;
+    if (isNaN(scaleZ)) scaleZ = 1;
     this.VesselTrace = <any> {
-      // text: this.calcService.linspace(0, x.length).map(e=> 'Node ' + e.toString()),
-      opacity: 0.5,
+      opacity: 0.6,
       type: 'mesh3d',
       name: 'Vessel outline',
       showlegend: true,
-
-      x: x.map(elt => elt * this.Length),
-      y: y.map(elt => elt * this.Width / 2),
-      z: z.map(elt => elt * this.Height),
-      i: [ 0, 1, 11, 11, 4, 5, 1, 1,  6,  4, 4, 2, 2, 2, 7, 7, 10],
-      j: [ 1, 2,  3,  4, 5, 6, 5, 2, 10,  9, 9, 3, 8, 8, 8, 9,  6],
-      k: [11, 3,  4,  5, 6, 7, 7, 7,  4, 10, 3, 9, 9, 7, 9, 6,  9],
+      x: hull.x.map(_x => scaleX * _x),
+      y: hull.y.map(_y => scaleY * _y),
+      z: hull.z.map(_z => scaleZ * _z),
+      i: hull.i,
+      j: hull.j,
+      k: hull.k,
       color: 'gray',
+      contour: {
+        show: true
+      }
     };
+    console.log('this.VesselTrace', this.VesselTrace)
   }
 
   public onPlotlyInit(event) {
     this.loaded = true;
+  }
+
+  private async initNodes(obs: Subscriber<Hull>) {
+    const nodes = <number[][]> await this.http.get('assets/models/hull_pts.json').toPromise();
+    const triags = <number[][]> await this.http.get('assets/models/hull_triags.json').toPromise();
+    obs.next({
+      x: nodes[0],
+      y: nodes[1],
+      z: nodes[2],
+      i: triags.map(_n => _n[0]-1),
+      j: triags.map(_n => _n[1]-1),
+      k: triags.map(_n => _n[2]-1)
+    });
+    obs.complete()
   }
 }
 
@@ -114,4 +164,26 @@ function isValidNumber(num: number, min?: number, max?: number) {
   if (min != null && num < min) return false;
   if (max != null && num > max) return false;
   return true;
+}
+function makeLine(x0: number, x1: number, y0: number, y1: number): Partial<Plotly.Shape> {
+  return {
+    type: 'line',
+    xref: 'paper',
+    x0,
+    x1,
+    y0,
+    y1,
+    line: {
+      width: 1
+    }
+  }
+}
+
+interface Hull {
+  x: number[],
+  y: number[],
+  z: number[],
+  i: number[],
+  j: number[],
+  k: number[]
 }
