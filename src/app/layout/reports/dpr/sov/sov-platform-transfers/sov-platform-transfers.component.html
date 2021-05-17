@@ -11,16 +11,15 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
-              <th [ngbTooltip]="helpExclusionZone">Enter Safety Zone</th>
-              <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
+              <th><div [ngbTooltip]="helpWaitingZone">Enter standby zone</div></th>
+              <th><div [ngbTooltip]="helpWaitingZone">Enter safety zone</div></th>
+              <th><div [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</div></th>
               <th>Departure time platform</th>
-              <th>Leave Safety Zone</th>
-              <th [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">
-                Total duration</th>
+              <th>Leave safety zone</th>
+              <th><div [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</div></th>
               <th>Pax in / out</th>
               <th>Cargo lift on / off</th>
-              <th helpPeakGust>Peak gust wind</th>
+              <th ><div [ngbTooltip]="helpPeakGust">Peak gust wind</div></th>
               <th>Hs</th>
               <th>Hmax</th>
             </tr>
@@ -64,9 +63,7 @@
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
-              <th>
-                Start time transfer
-              </th>
+              <th>Start time transfer</th>
               <th>Stop time transfer</th>
               <td colspan="6"></td>
               <td>
@@ -216,7 +213,7 @@
         <table class="table table-hover table-striped table-bordered-print">
           <thead>
             <tr>
-              <th>Location</th>
+              <!-- <th>Location</th>
               <th [ngbTooltip]="helpWaitingZone">Enter standby zone</th>
               <th [ngbTooltip]="helpExclusionZone">Enter Safety Zone</th>
               <th [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</th>
@@ -227,6 +224,18 @@
               <th>Pax in / out</th>
               <th>Cargo lift on / off</th>
               <th [ngbTooltip]="helpPeakGust">Peak gust wind</th>
+              <th>Hs</th>
+              <th>Hmax</th> -->
+              <th>Location</th>
+              <th><div [ngbTooltip]="helpWaitingZone">Enter standby zone</div></th>
+              <th><div [ngbTooltip]="helpWaitingZone">Enter safety zone</div></th>
+              <th><div [ngbTooltip]="helpArrivalTimePlatform">Arrival time platform</div></th>
+              <th>Departure time platform</th>
+              <th>Leave safety zone</th>
+              <th><div [ngbTooltip]="helpTotalTimePlatformTransfers" placement="top" container="body">Total duration</div></th>
+              <th>Pax in / out</th>
+              <th>Cargo lift on / off</th>
+              <th><div [ngbTooltip]="helpPeakGust">Peak gust wind</div></th>
               <th>Hs</th>
               <th>Hmax</th>
             </tr>
@@ -266,9 +275,7 @@
             </ng-container>
             <tr name="missedTransfer" class="tableTotal">
               <th>Missed transfers</th>
-              <th>
-                Start time transfer
-              </th>
+              <th>Start time transfer</th>
               <th>Stop time transfer</th>
               <td colspan="8"></td>
             </tr>
@@ -358,16 +365,22 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Gangway ready
-              </th>
+              <th><div [ngbTooltip]="helpGangwayReady" placement="top" container="body">
+                Gangway ready
+              </div></th>
               <th>Gangway disengaged</th>
-              <th [ngbTooltip]="helpGangwayReady" placement="top" container="body">Ready duration
-                [mns]</th>
-              <th [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
-                Deployed duration [mns]</th>
-              <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway capacity
-                [%]</th>
-              <th [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">Limiter</th>
+              <th><div [ngbTooltip]="helpGangwayReady" placement="top" container="body">
+                Ready duration [mns]
+              </div></th>
+              <th><div [ngbTooltip]="helpGangwayReadyDeployed" placement="top" container="body">
+                Deployed duration [mns]
+              </div></th>
+              <th><div [ngbTooltip]="helpGangwayUtil" placement="top" container="body">
+                Gangway capacity [%]
+              </div></th>
+              <th><div [ngbTooltip]="helpGangwayLimiter" placement="top" container="body">
+                Limiter
+              </div></th>
           </thead>
           <tbody>
             <ng-container *ngFor="let platformTransfer of platformTransfers">
