@@ -62,8 +62,6 @@ export class SovSummaryComponent implements OnChanges {
 
   CalculateDailySummary() {
     let _summary = new SummaryModel();
-
-    console.log(_summary.NrOfVesselTransfers);
     // Average time vessel docking
     let totalVesselDockingDuration = 0;
     let nmrVesselTransfers = 0;
@@ -83,7 +81,6 @@ export class SovSummaryComponent implements OnChanges {
       const averageDockingDurationOfVessel2vessel = totalDockingDurationOfVessel2vessel / nmrVesselTransfers;
       totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
     });
-    console.log(v2vTransfersTotal);
     _summary.NrOfVesselTransfers = v2vTransfersTotal;
     _summary.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
