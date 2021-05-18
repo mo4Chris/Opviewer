@@ -1,6 +1,9 @@
 <ngb-alert *ngIf="projectSettingsChanged" type="warning">
   Project settings have been changed but are not yet applied to this forecast response.
 </ngb-alert>
+<ngb-alert *ngIf="responseNotFound" type="warning">
+  Response was not loaded - please wait until the simulation container has run
+</ngb-alert>
 <div *ngIf="showContent; else loading" class="row center font-sm">
   <div class="col-lg-12 col-xl-4">
     <div class='card mb-3'>
@@ -56,7 +59,7 @@
             </ng-template>
           </li>
 
-          <li ngbNavItem="forecast-weather-overview">
+          <li *ngIf="!responseNotFound" ngbNavItem="forecast-weather-overview">
             <a ngbNavLink>Weather overview</a>
             <ng-template #weatherGraph id="tab-weather" ngbNavContent>
               <app-forecast-weather-overview [weather]="weather">
@@ -64,7 +67,7 @@
             </ng-template>
           </li>
 
-          <li ngbNavItem="forecast-wave-spectrum">
+          <li *ngIf="!responseNotFound" ngbNavItem="forecast-wave-spectrum">
             <a ngbNavLink>Wave spectrum</a>
             <ng-template #spectralGraph id="tab-weather" ngbNavContent>
               <app-wave-spectrum [k_x]="spectrum?.k_x" [k_y]="spectrum?.k_y"

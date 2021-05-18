@@ -16,8 +16,6 @@ const headers = {
 module.exports = function (
   app,
   logger,
-  onError = (res, err, additionalInfo) => console.log(err),
-  onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool,
   mailTo = (subject, body, recipient = 'webmaster@mo4.online') => { }
 ) {
@@ -46,14 +44,13 @@ module.exports = function (
         username: row.username,
         requires2fa: row.requires2fa,
       })
-    }).catch(err => onError(res, err))
+    }).catch(err => res.onError(err))
   });
 
   app.post('/api/createDemoUser', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password
     const requires2fa = req.body.requires2fa;
-    const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
     const user_type = req.body.user_type;
 
@@ -66,12 +63,14 @@ module.exports = function (
     if (typeof (username) != 'string' || username.length <= 0) return res.status(400).send('Invalid username. Should be string')
     logger.trace('Verfying 2fa format')
     if (requires2fa != 0 && requires2fa != 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
-    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
-    if (typeof (client_id) != "number") return res.status(400).send('Invalid client id: should be int')
     logger.trace(`Verfying password format ${password} (${typeof password})`)
-    if (typeof (password) != ("string" || null) || password.length <= 6) return res.status(400).send('Invalid password: should be string of at least 7 characters')
+    const is_bad_pw = typeof (password) != ("string" || null) || password.length <= 6
+    if (is_bad_pw) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
-
+    // Getting demo client information
+    const data = await admin_server_pool.query('SELECT * FROM "clientTable" WHERE "client_name" = $1', ["Demo"])
+    if (data.rowCount == 0) return res.onError(null, 'Failed to get demo client information')
+    const demo_client = data.rows[0];
 
     //turn account creation back on after other functions
     try {
@@ -82,25 +81,22 @@ module.exports = function (
       const response = await admin_server_pool.query(query, values)
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
-      throw new Error('SHOULD BE FIXED ASAP')
       const demo_project_id = await createProject() // works
       await createUser({
         username,
         requires2fa,
-        client_id,
+        client_id: demo_client.client_id,
         vessel_ids,
         user_type,
         password,
         demo_project_id,
       })
     } catch (err) {
-      if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
-      return onError(res, err, 'Error creating user')
+      if (err.constraint == 'Unique usernames') return res.onUnauthorized('User already exists')
+      return res.onError(err, 'Error creating user')
     }
     // send email
-    const html = `Dear Webmaster, <br><br>
-
-    A demo account has been created for ${req.body.username}.<br>
+    const html = `A demo account has been created for ${req.body.username}.<br>
     Please add the following details to the customer-contact excel sheet.<br>
     Username: ${req.body.username}<br>
     Full name: ${req.body.full_name}<br>
@@ -154,9 +150,7 @@ module.exports = function (
       const value2 = [hashed_password, confirm2fa, user_id]
       admin_server_pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
-      }).catch(err => {
-        onError(res, err)
-      });
+      }).catch(err => res.onError(err));
     }).catch(err => res.onError(err, 'Registration token not found!'))
   })
 
@@ -192,14 +186,22 @@ module.exports = function (
 
     localLogger.info('Received login for user: ' + username);
     admin_server_pool.query(PgQuery, values).then(async (data, err) => {
-      if (err) return onError(res, err);
-      if (data.rows.length == 0) return onUnauthorized(res, 'User does not exist');
+      if (err) return res.onError(err);
+      if (data.rows.length == 0) return res.onUnauthorized('User does not exist');
 
       let user = data.rows[0];
       localLogger.debug('Validating login')
       if (!validateLogin(req, user, res)) return null;
-      localLogger.debug('Retrieving vessels for user')
-      const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return onError(res, err) });
+      localLogger.debug('Retrieving vessels for user');
+      const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return res.onError(err) });
+
+      localLogger.debug('Retrieving client for user');
+      const query = 'SELECT "forecast_client_id" FROM "clientTable" WHERE "client_id" = $1';
+      const client_data = await admin_server_pool.query(query, [user.client_id]);
+      if (client_data.rowCount == 0) return res.onError('Issue getting client forecast id for user')
+      const forecast_client_id = client_data.rows[0].forecast_client_id;
+      localLogger.debug('Found forecast client id' + forecast_client_id)
+
       localLogger.trace(vessels);
       const expireDate = new Date();
       const payload = {
@@ -209,6 +211,7 @@ module.exports = function (
         userBoats: vessels,
         username: user.username,
         client_id: user.client_id,
+        forecast_client_id: forecast_client_id,
         permission: {
           admin: user.admin,
           user_read: user.user_read,
@@ -223,12 +226,13 @@ module.exports = function (
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };
+      localLogger.info(payload)
       localLogger.trace('Signing payload')
       token = jwt.sign(payload, 'secretKey');
       localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())
       return res.status(200).send({ token });
 
-    }).catch((err) => { return onError(res, err) })
+    }).catch((err) => { return res.onError( err) })
   });
 
   function getVesselsForUser(res, user_id) {
@@ -240,13 +244,13 @@ module.exports = function (
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
     return admin_server_pool.query(PgQuery, values).then((data, err) => {
-      if (err) return onError(res, err);
+      if (err) return res.onError( err);
       if (data.rows.length > 0) {
         return data.rows;
       } else {
         return null;
       }
-    }).catch(err => onError(res, err, 'Failed to load vessels'));
+    }).catch(err => res.onError( err, 'Failed to load vessels'));
   };
 
   async function createUser({
@@ -259,7 +263,7 @@ module.exports = function (
     demo_project_id = null
   }) {
     const expireDate = new Date();
-    const formattedExpireDate = expireDate.setMonth(expireDate.getMonth() + 1).valueOf()
+    const formattedExpireDate = toIso8601(new Date(expireDate.setMonth(expireDate.getMonth() + 1)))
     if (!(client_id > 0)) { throw Error('Invalid client id!') }
     if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
@@ -267,27 +271,29 @@ module.exports = function (
     const password_setup_token = null;
     if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
     const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
-    const query = `INSERT INTO public."userTable" (
-      "username",
-      "requires2fa",
-      "active",
-      "vessel_ids",
-      "token",
-      "client_id",
-      "password",
-      "demo_expiration_date",
-      "demo_project_id
-    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "userTable"."user_id"`
+    const query = `INSERT INTO public."userTable"(
+      username,
+      requires2fa,
+      secret2fa,
+      active,
+      vessel_ids,
+      password,
+      token,
+      client_id,
+      demo_project_id,
+      demo_expiration_date
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "userTable"."user_id"`
     const values = [
       username,
       Boolean(requires2fa) ?? true,
+      null,
       true,
       valid_vessel_ids ? vessel_ids : null,
+      password,
       password_setup_token,
       client_id,
-      password,
-      formattedExpireDate,
-      demo_project_id
+      demo_project_id,
+      formattedExpireDate
     ]
 
     const sqlresponse = await admin_server_pool.query(query, values)
@@ -295,7 +301,7 @@ module.exports = function (
 
     logger.info('New user has id ' + user_id)
     logger.debug('Init user permissions')
-    initUserPermission(user_id, user_type);
+    initUserPermission(user_id, user_type, {demo: true});
     logger.debug('Init user settings')
     initUserSettings(user_id);
     return;
@@ -311,6 +317,7 @@ module.exports = function (
     const project_preferences = initProjectPreferences();
     const project_insert = {
       "name": project_name,
+      "display_name": "Demo project",
       "consumer_id": 2,
       "client_id": client_id,
       "vessel_id": 1,
@@ -337,13 +344,13 @@ module.exports = function (
 
   function validateLogin(req, user, res) {
     const userData = req.body;
-    if (!user.active) { onUnauthorized(res, 'User is not active, please contact your supervisor'); return false }
+    if (!user.active) { res.onUnauthorized('User is not active, please contact your supervisor'); return false }
     if (!user.password || user.password == '') {
-      onUnauthorized(res, 'Account needs to be activated before loggin in, check your email for the link');
+      res.onUnauthorized('Account needs to be activated before loggin in, check your email for the link');
       return false;
     }
     if (!bcrypt.compareSync(userData.password, user.password)) {
-      onUnauthorized(res, 'Password is incorrect');
+      res.onUnauthorized('Password is incorrect');
       return false;
     }
     logger.trace(user)
@@ -353,7 +360,7 @@ module.exports = function (
     const requires2fa = (user.requires2fa == null) ? true : Boolean(user.requires2fa);
     logger.debug({ "msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost })
     if (!isLocalHost && !secret2faValid && requires2fa) {
-      onUnauthorized(res, '2fa is incorrect');
+      res.onUnauthorized('2fa is incorrect');
       return false
     }
     return true;
@@ -428,6 +435,7 @@ module.exports = function (
       case 'Logistics specialist':
         permissions.longterm.read = true;
         permissions.user_see_all_vessels_client = true;
+        permissions.user_manage = true;
         break
       case 'Client representative':
         permissions.dpr.sov_commercial = 'read';
@@ -579,6 +587,7 @@ module.exports = function (
       }
     }
   }
+
 
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
