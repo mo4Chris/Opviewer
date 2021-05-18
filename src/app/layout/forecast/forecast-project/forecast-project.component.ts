@@ -95,7 +95,7 @@ export class ForecastVesselComponent implements OnInit {
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
       this.vessels = vessels;
-      this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0
+      this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
     });

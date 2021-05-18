@@ -32,33 +32,30 @@ export class CommonService {
 
   get(url: string): Observable<any> {
     return this.http.get(environment.DB_IP + url, httpOptions).pipe(
-      catchError(this.getServerErrorMessage));
+      catchError(this.getServerErrorMessage)
+    );
   }
 
   post(url: string, data: any): Observable<any> {
     return this.http.post(environment.DB_IP + url, data, httpOptions).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.getServerErrorMessage(err);
-      }
-    ));
+      catchError(this.getServerErrorMessage)
+    );
   }
 
   put(url: string, data: any): Observable<any> {
     return this.http.put(environment.DB_IP + url, data, httpOptions).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.getServerErrorMessage(err);
-      }
-    ));
+      catchError(this.getServerErrorMessage)
+    );
   }
 
-  private getServerErrorMessage(error: HttpErrorResponse) {
+  private async getServerErrorMessage(error: HttpErrorResponse, caugth: any) {
     switch (error.status) {
         case 460: {
             localStorage.removeItem('token');
             window.location.reload();
         }
         default: {
-          return error.error;
+          throw error;
         }
     }
 }
@@ -178,6 +175,11 @@ export class CommonService {
   getSpecificPark(park: {park: string[]}) {
     return this.post('/api/getSpecificPark/', park);
   }
+
+  getClientList() {
+    return this.get('/api/getClients');
+  }
+
 
   getParkByNiceName(park: string): Observable<{
     centroid: {lon: number, lat: number, radius: number},

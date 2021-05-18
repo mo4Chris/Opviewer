@@ -107,11 +107,11 @@
       </td>
     </tr>
 
-    <tr *ngIf="slipCoefficients.length > 1">
+    <tr *ngIf="slipCoefficients?.length > 1">
       <th class="empty-row">CTV Settings</th>
       <td colspan="2"></td>
     </tr>
-    <tr *ngIf="slipCoefficients.length > 1">
+    <tr *ngIf="slipCoefficients?.length > 1">
       <td>
         <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
       </td>
@@ -122,7 +122,7 @@
       </td>
       <td>{{slipValue}}</td>
     </tr>
-    <tr *ngIf="slipCoefficients.length > 1">
+    <tr *ngIf="slipThrustLevels?.length > 1">
       <td>
         <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
       </td>

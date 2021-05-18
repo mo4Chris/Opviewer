@@ -10,7 +10,7 @@
         [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>
-            &nbsp;{{ 'Analytics' | translate }}
+            &nbsp;{{ 'Vessels and Reports' | translate }}
         </a>
         <a *ngIf="usertoken.twa.read"
         [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']"
@@ -30,6 +30,12 @@
             <i class="fa fa-fw fa-user-plus"></i>
             &nbsp;{{ 'Create new user' | translate }}
         </a>
+        <a *ngIf="usertoken.admin" class="list-group-item" routerLink="clients"
+        [routerLinkActive]="['router-link-active']"
+        (click)="this.eventService.closeLatestAgmInfoWindow();">
+            <i class="fa fa-fw fa-building"></i>
+            &nbsp;{{ 'Client overview' | translate }}
+        </a>
         <a [routerLink]="['/user-settings']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-cog"></i>
@@ -39,7 +45,7 @@
         routerLink="/forecast" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-rss"></i>
-            &nbsp;{{ 'MO4 Light' | translate }}
+            &nbsp;{{ 'Forecast' | translate }}
         </a>
         <a [routerLink]="['/login']" (click)="onLoggedout()" class="list-group-item">
             <span><i class="fa fa-fw fa-power-off"></i>

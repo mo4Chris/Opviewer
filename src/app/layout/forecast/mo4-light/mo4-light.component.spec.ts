@@ -67,6 +67,14 @@ describe('Mo4LightComponent', () => {
       await fixture.whenStable();
       expect(routerSpy).toHaveBeenCalled();
     });
+    it('should redirect without forecast read permissions', async () => {
+      const routerSpy = spyOn(RouterService.prototype, 'routeToForecast');
+      component['permission'].forecastRead = false;
+      spyOn(component, 'loadData');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(routerSpy).toHaveBeenCalled();
+    });
 
     it('should have a loading icon', async () => {
       spyOn(RouterService.prototype, 'routeToForecast');

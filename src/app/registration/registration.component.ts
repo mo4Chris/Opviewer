@@ -61,7 +61,6 @@ export class RegistrationComponent implements OnInit {
     if (this.registerUserData.agreeDataPolicy === false) return this.alert.sendAlert({ text: 'You have to agree with the Data Policy to create your account', type: 'danger'});
 
     this._auth.registerDemoUser({
-      client_id: 1,
       username: this.registerUserData.email,
       user_type: 'demo',
       requires2fa: false,
