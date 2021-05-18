@@ -68,8 +68,8 @@ export class SovSummaryComponent implements OnChanges {
     let v2vTransfersTotal = 0;
     this.sovModel.vessel2vessels.forEach(vessel2vessel => {
       let totalDockingDurationOfVessel2vessel = 0;
-      v2vTransfersTotal += vessel2vessel.transfers.length ?? 0;
-      v2vTransfersTotal += vessel2vessel.missedTransfers.length ?? 0;
+      v2vTransfersTotal += vessel2vessel?.transfers?.length ?? 0;
+      v2vTransfersTotal += vessel2vessel?.missedTransfers?.length ?? 0;
       vessel2vessel.transfers.forEach(transfer => {
         if (transfer) {
           if (typeof (transfer.duration) !== 'string') {
@@ -111,6 +111,7 @@ export class SovSummaryComponent implements OnChanges {
 
   // ToDo: Common used by platform and turbine
   private GetDailySummary(model: SummaryModel, transfers: any[]) {
+    console.log(model);
     const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
     model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
     const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
