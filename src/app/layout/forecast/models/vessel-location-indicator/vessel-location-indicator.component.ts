@@ -87,7 +87,6 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
   }
 
   constructor(
-    private calcService: CalculationService,
     private http: HttpClient,
     private ref: ChangeDetectorRef,
   ) { }
@@ -137,7 +136,6 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
         show: true
       }
     };
-    console.log('this.VesselTrace', this.VesselTrace)
   }
 
   public onPlotlyInit(event) {

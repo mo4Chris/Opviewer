@@ -9,7 +9,7 @@ import { CommonService } from '../../common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserService } from '../../shared/services/user.service';
-import { UserTestService } from '../../shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '../../shared/services/test.user.service';
 import { mockedObservable } from '../../models/testObservable';
 import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
@@ -30,7 +30,10 @@ describe('UsermanagementComponent', () => {
         HttpClientModule
       ],
         declarations: [UserManagementComponent ],
-        providers: [MockedCommonServiceProvider],
+        providers: [
+          MockedCommonServiceProvider,
+          MockedUserServiceProvider,
+        ],
     })
     .compileComponents();
   }));

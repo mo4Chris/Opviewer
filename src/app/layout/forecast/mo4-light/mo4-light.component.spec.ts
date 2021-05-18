@@ -87,19 +87,19 @@ describe('Mo4LightComponent', () => {
 
     it('should update on init w/out data', async () => {
       const updateSpy1 = spyOn(component, 'computeWorkability')
-      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
+      // const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
       component['route'].params = mockedObservable({project_id: '3'});
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).not.toHaveBeenCalled();
-      expect(updateSpy2).not.toHaveBeenCalled();
+      // expect(updateSpy2).not.toHaveBeenCalled();
       // expect(updateSpy3).toHaveBeenCalled(); // TEMP DISABLED - apr21
     });
 
     it('should update on init w/ data', async () => {
       const updateSpy1 = spyOn(component, 'computeWorkability')
-      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
+      // const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
         new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 1.5, 'Unit': 'm'})
@@ -108,7 +108,7 @@ describe('Mo4LightComponent', () => {
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).toHaveBeenCalled();
-      expect(updateSpy2).toHaveBeenCalled();
+      // expect(updateSpy2).toHaveBeenCalled();
       // expect(updateSpy3).toHaveBeenCalled(); // TEMP DISABLED - apr21
     });
   });
@@ -151,11 +151,9 @@ describe('Mo4LightComponent', () => {
 
     it('should update on change project configuration', () => {
       const updateSpy1 = spyOn(component, 'computeWorkability')
-      const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
       component.onProjectSettingsChange(null);
       expect(updateSpy1).toHaveBeenCalled();
-      expect(updateSpy2).toHaveBeenCalled();
       expect(updateSpy3).not.toHaveBeenCalled();
     });
 
