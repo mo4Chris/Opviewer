@@ -111,7 +111,6 @@ export class SovSummaryComponent implements OnChanges {
 
   // ToDo: Common used by platform and turbine
   private GetDailySummary(model: SummaryModel, transfers: any[]) {
-    console.log(model);
     const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
     model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
     const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
