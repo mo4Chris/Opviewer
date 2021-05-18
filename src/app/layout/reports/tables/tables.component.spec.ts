@@ -32,10 +32,16 @@ describe('TablesComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TablesComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
+  it('should render without vessels', () => {
+    spyOn(component['newService'], 'getVessel').and.returnValue(null)
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 });
