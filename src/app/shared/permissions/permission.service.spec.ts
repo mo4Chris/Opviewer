@@ -54,7 +54,7 @@ describe('PermissionService', () => {
     expect(service).toBeTruthy();
     expect(service.admin).toBe(false);
     expect(service.userRead).toBe(true);
-    expect(service.userCreate).toBe(true);
+    expect(service.userCreate).toBe(false);
     expect(service.userManage).toBe(false);
     expect(service.ctvVideoRequest).toBe(true);
     expect(service.longterm).toBe(true);
@@ -65,7 +65,7 @@ describe('PermissionService', () => {
     service = TestBed.inject(PermissionService);
     expect(service).toBeTruthy();
     expect(service.admin).toBe(false);
-    expect(service.userRead).toBe(true);
+    expect(service.userRead).toBe(false);
     expect(service.userCreate).toBe(false);
     expect(service.userManage).toBe(false);
     expect(service.ctvVideoRequest).toBe(false);

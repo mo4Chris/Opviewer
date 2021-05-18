@@ -56,7 +56,9 @@ export const MockedUserServiceProvider = {
 
 interface UserTokenOptions {
     userPermission?: UserType;
+    userCompany?: string,
     hasCampaigns?: boolean;
     userBoats?: {mmsi: number, nicename: string}[];
+    permission?: any,
 }
 
