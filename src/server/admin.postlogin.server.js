@@ -178,6 +178,22 @@ module.exports = function (
     })
   });
 
+  app.post("/api/saveUserBoats", function(req, res) {
+
+    //console.log(req.body);
+
+
+    // Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { boats: req.body.boats },
+    //     function(err, data) {
+    //         if (err) {
+    //             logger.error(err);
+    //             res.send(err);
+    //         } else {
+    //             res.send({ data: "Succesfully saved the permissions" });
+    //         }
+    //     });
+});
+
   app.post("/api/setUserActive", function(req, res) {
     const token = req['token']
     const permission = token['permission'];

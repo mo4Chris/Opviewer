@@ -537,6 +537,10 @@ export class CommonService {
     return this.post('/api/saveUserSettings/', settings);
   }
 
+  saveUserBoats(user) {
+    return this.post('/api/saveUserBoats/', user);
+  }
+
   loadUserSettings(): Observable<storedSettings> {
     return this.get('/api/loadUserSettings');
   }

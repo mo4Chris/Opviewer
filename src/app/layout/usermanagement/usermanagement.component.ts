@@ -80,6 +80,26 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  saveUserBoats() {
+    this.newService.saveUserBoats(this.user).pipe(
+        map(
+            (res) => {
+                this.alert.sendAlert({
+                    text: res.data,
+                    type: 'success'
+                });
+            }
+        ),
+        catchError(error => {
+            this.alert.sendAlert({
+                text: error,
+                type: 'danger'
+            });
+            throw error;
+        })
+    ).subscribe();
+}
+
   updateUserPermissions() {
     this.newService.updateUserPermissions(
       this.user

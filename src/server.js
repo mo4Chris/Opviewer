@@ -491,14 +491,34 @@ async function getVesselsForUser (req, res) {
 
 async function getVesselsForAdmin(token, res) {
   if (!token.permission.admin) throw new Error('Unauthorized user, Admin only');
-  return Vesselmodel.find({
-    active: { $ne: false }
-  }, null, {
-    sort: {
-      client: 'asc',
-      nicename: 'asc'
-    }
-  });
+  // return Vesselmodel.find({
+  //   active: { $ne: false }
+  // }, null, {
+  //   sort: {
+  //     client: 'asc',
+  //     nicename: 'asc'
+  //   }
+  // });
+
+  let PgQuery = `SELECT 
+  "mmsi",
+  "client_ids",
+  "active",
+  "operations_class",
+  "vessel_id" 
+  FROM "vesselTable"`;
+
+  const data = await admin_server_pool.query(PgQuery)
+  if (data.rowCount == 0) return null;
+
+  //console.log(data.rows);
+
+    // mmsi: { type: Number },
+  // nicename: { type: String },
+  // client: { type: Array },
+  // active: { type: Boolean },
+  // operationsClass: { type: String },
+
 
 }
 
@@ -515,12 +535,16 @@ async function getAllVesselsForClient(token, res) {
       nicename: 'asc'
     }
   });
+
+
 }
 
 async function getAssignedVessels(token, res) {
   logger.debug('Getting assigned vessels')
+  console.log(token);
   let PgQuery = `
-  SELECT "vesselTable"."mmsi"
+  SELECT 
+  "vesselTable"."mmsi"
     FROM "vesselTable"
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
