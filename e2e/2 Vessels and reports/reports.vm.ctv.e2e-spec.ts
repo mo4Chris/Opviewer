@@ -62,7 +62,9 @@ describe('vm-ctv: Vessels and Reports page', () => {
     browser.waitForAngular();
     vessels = await page.getActiveVesselNames();
     expect(vessels.length).toBeGreaterThan(0, 'Expect at least 1 vessel after clearing filter');
-    expect(vessels[0].getText()).toEqual(original);
+    if (vessels.length > 0) {
+      expect(vessels[0].getText()).toEqual(original);
+    }
   });
 
   it('Should successfully click the dpr button', async () => {

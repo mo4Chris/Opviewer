@@ -1,7 +1,5 @@
-import { browser, element, by, ExpectedConditions, ElementFinder } from 'protractor';
+import { element, by, ElementFinder } from 'protractor';
 import { CtvDprPage } from './ctvdpr.po';
-import { env } from 'process';
-import { callbackify } from 'util';
 import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
 import { E2eRandomTools } from '../SupportFunctions/e2eRandom.support';
 
@@ -145,7 +143,7 @@ describe('CTV dpr', () => {
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(otherInput.isDisplayed()).toBe(true);
             expect(otherInput.getAttribute('value')).toBe(str);
-            await page.validateNoConsoleLogs();
+            return page.validateNoConsoleLogs();
         });
 
     });

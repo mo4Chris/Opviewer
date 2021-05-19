@@ -11,28 +11,28 @@ export class SovDprPage extends E2ePageObject {
     transfer = new SovDprTransferTab();
     dprinput = new SovDprInputTab();
 
-    navigateTo(tab?: string) {
-        browser.get('/reports/dpr;mmsi=987654321;date=737700');
+    async navigateTo(tab?: string) {
+        await browser.get('/reports/dpr;mmsi=987654321;date=737700');
         if (tab) {
-            this.clickTabByName(tab);
+            await this.clickTabByName(tab);
         }
     }
-    navigateToEmpty(tab?: string) {
-        browser.get('/reports/dpr;mmsi=987654321;date=737701');
+    async navigateToEmpty(tab?: string) {
+        await browser.get('/reports/dpr;mmsi=987654321;date=737701');
         if (tab) {
-            this.clickTabByName(tab);
+            await this.clickTabByName(tab);
         }
     }
-    navigateToLatest(tab?: string) {
-        browser.get('/reports/dpr;mmsi=987654321');
+    async navigateToLatest(tab?: string) {
+        await browser.get('/reports/dpr;mmsi=987654321');
         if (tab) {
-            this.clickTabByName(tab);
+            await this.clickTabByName(tab);
         }
     }
-    navigateToPlatform(tab?: string) {
-        browser.get('/reports/dpr;mmsi=987654321;date=737622');
+    async navigateToPlatform(tab?: string) {
+        await browser.get('/reports/dpr;mmsi=987654321;date=737622');
         if (tab) {
-            this.clickTabByName(tab);
+            await this.clickTabByName(tab);
         }
     }
 
@@ -74,9 +74,9 @@ export class SovDprPage extends E2ePageObject {
     getTabByName(name: string) {
         return element(by.xpath('//li/a[contains(text(),\'' + name + '\')]'));
     }
-    clickTab(tab: ElementFinder) {
-        tab.click();
-        browser.waitForAngular();
+    async clickTab(tab: ElementFinder) {
+        await tab.click();
+        await browser.waitForAngular();
     }
     getActiveTab() {
         return element(by.xpath('//li/a[contains(@class, \'active\')]'));
@@ -87,7 +87,7 @@ export class SovDprPage extends E2ePageObject {
         });
     }
     clickTabByName(name: string) {
-        this.clickTab(this.getTabByName(name));
+        return this.clickTab(this.getTabByName(name));
     }
 
     getPrevDayButton() {
@@ -207,13 +207,13 @@ class SovDprTransferTab {
     getMissedTransferRows(table: ElementFinder) {
         return table.all(by.name('missedTransfer'));
     }
-    saveTurbineTransfers() {
-        this.getTurbineTable().element(by.buttonText('Save all transfers')).click();
-        browser.waitForAngular();
+    async saveTurbineTransfers() {
+        await this.getTurbineTable().element(by.buttonText('Save all transfers')).click();
+        await browser.waitForAngular();
     }
-    savePlatformTransfers() {
-        this.getPlatformTable().all(by.buttonText('Save all transfers')).last().click();
-        browser.waitForAngular();
+    async savePlatformTransfers() {
+        await this.getPlatformTable().all(by.buttonText('Save all transfers')).last().click();
+        await browser.waitForAngular();
     }
 }
 
