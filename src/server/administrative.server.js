@@ -150,7 +150,7 @@ module.exports = function (
       if (requires2fa && !valid2fa) return res.onBadRequest('2FA code is required but not provided!')
       const usableSecret2fa = data.secret2fa ?? secret2fa;
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(usableSecret2fa, confirm2fa) != null)
-      if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
+      if (!secret2faValid && requires2fa) return res.onBadRequest('2FA code is not correct!')
 
       const user_id = data.user_id;
       const query2 = `UPDATE "userTable"
