@@ -140,14 +140,18 @@ module.exports = function (
     const values = [token];
     admin_server_pool.query(query, values).then((sqlresponse) => {
       localLogger.debug('Got sql response')
-      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      if (sqlresponse.rowCount == 0) return res.onBadRequest('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
       if (!requires2fa) localLogger.info('User does not require 2FA')
       const valid2fa = (typeof(confirm2fa) == 'string') && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.onBadRequest('2FA code is required but not provided!')
+
+      const twoFactorIsSet = data.secret2fa != null;
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
-      if (!secret2faValid && requires2fa) return res.onBadRequest('2FA code is not correct!')
+      if (twoFactorIsSet && !secret2faValid && requires2fa) return res.onBadRequest('2FA code is not correct!')
+
+
 
       const user_id = data.user_id;
       const query2 = `UPDATE "userTable"
@@ -158,6 +162,7 @@ module.exports = function (
       `
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
       const value2 = [hashed_password, confirm2fa, user_id]
+      logger.debug('Performing password update')
       admin_server_pool.query(query2, value2).then(() => {
         logger.info('Updated password for user with id ' + user_id)
         res.send({ data: 'Password set successfully!' })

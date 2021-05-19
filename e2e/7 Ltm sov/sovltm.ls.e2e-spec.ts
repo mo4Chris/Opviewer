@@ -9,9 +9,9 @@ describe('Sov longterm module', () => {
     page = new SovLtmPage();
     page.navigateTo();
   });
-  afterEach(() => {
-    page.validateNoConsoleLogs();
-  });
+  // afterEach(() => {
+  //   page.validateNoConsoleLogs();
+  // });
 
   it('should initialize correctly', () => {
     expect(page.getNanCount()).toBe(0);

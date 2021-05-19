@@ -52,18 +52,14 @@ export abstract class E2ePageObject {
   async validateNoConsoleLogs() {
     const logs = await browser.manage().logs().get('browser')
 
-    expect(logs || Array.isArray(logs)).not.toBeTruthy('Failed to get logs from browser');
+    expect(Array.isArray(logs)).toBeTruthy('Failed to get logs from browser');
     const errorLogs = logs.filter(log => {
-      let tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
-      if (tf) {
-        const match = log.message.match('maps\.googleapis');
-        if (match && match.length > 0) {
-          tf = false;
-        } else {
-          console.log(log);
-        }
+      const match = log.message.match('maps\.googleapis');
+      if (match && match.length > 0) {
+        return false;
       }
-      return tf;
+      console.log(log)
+      return true;
     });
     expect(errorLogs.length).toBe(0, 'Console errors were detected!');
   }

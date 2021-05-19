@@ -10,9 +10,6 @@ const dropdownHandler = new E2eDropdownHandler();
 const e2eRng = new E2eRandomTools();
 describe('CTV dpr', () => {
     let page: CtvDprPage;
-    afterEach(() => {
-      page.validateNoConsoleLogs();
-    });
 
     describe('should not fail without data', () => {
         beforeEach(() => {
@@ -22,12 +19,14 @@ describe('CTV dpr', () => {
 
         it('and should not redirect', () => {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi');
+            page.validateNoConsoleLogs();
         });
 
         it('and should display no data message', () => {
             const noDataMsg = element(by.tagName('h3'));
             expect(noDataMsg.isDisplayed()).toBe(true);
             expect(noDataMsg.getText()).toMatch('There is no');
+            page.validateNoConsoleLogs();
         });
     });
 
@@ -35,10 +34,12 @@ describe('CTV dpr', () => {
         beforeEach(() => {
             page = new CtvDprPage();
             page.navigateTo();
+            page.validateNoConsoleLogs();
         });
 
         it('Should load a map', () => {
             expect(page.getMap().isPresent()).toBe(true);
+            page.validateNoConsoleLogs();
         });
 
         // Check if route is drawn
@@ -56,6 +57,7 @@ describe('CTV dpr', () => {
             const printButton = page.getPrintFullButton();
             const result = page.clickPrintButton(printButton);
             expect(result).toBe(true);
+            page.validateNoConsoleLogs();
         });
     });
 
@@ -67,6 +69,7 @@ describe('CTV dpr', () => {
 
         it('Should not redirect', () => {
             expect(page.getUrl()).toMatch('reports/dpr;mmsi');
+            page.validateNoConsoleLogs();
         });
 
     });
@@ -82,6 +85,7 @@ describe('CTV dpr', () => {
             expect(nanElts.count()).toBe(0);
             nanElts = page.getEltsWithText('_NaN_');
             expect(nanElts.count()).toBe(0);
+            page.validateNoConsoleLogs();
         });
 
     });
@@ -95,11 +99,13 @@ describe('CTV dpr', () => {
             page.navigateTo();
             dockingRow = page.getFirstDockingEntry();
             saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
+            page.validateNoConsoleLogs();
         });
 
         it('and have multiple dockings', () => {
             const dockings = page.getAllDockings();
             expect(dockings.count()).toBeGreaterThan(0);
+            return page.validateNoConsoleLogs();
         });
 
         it('and set normal values for docking table', async () => {
@@ -120,6 +126,7 @@ describe('CTV dpr', () => {
             expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
             target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
             expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
+            await page.validateNoConsoleLogs();
         });
 
         it('and save other comments', () => {
@@ -138,6 +145,7 @@ describe('CTV dpr', () => {
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(otherInput.isDisplayed()).toBe(true);
             expect(otherInput.getAttribute('value')).toBe(str);
+            await page.validateNoConsoleLogs();
         });
 
     });
@@ -154,7 +162,7 @@ describe('CTV dpr', () => {
             saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('should request video from docking', async (done) => {
+        it('should request video from docking', async () => {
             let videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
             expect(await videoRequestBtn.getText()).toBe('Not requested');
             videoRequestBtn.click();
@@ -168,7 +176,7 @@ describe('CTV dpr', () => {
 
             page.navigateTo();
             expect(await videoRequestBtn.getText()).toBe('Not requested');
-            done();
+            await page.validateNoConsoleLogs();
         }, 60000);
     });
 
@@ -183,11 +191,12 @@ describe('CTV dpr', () => {
             expect(page.getSlipGraphs().count()).toBeGreaterThan(0);
             const slip = page.getSlipGraph(0);
             expect(slip.isDisplayed()).toBe(true);
+            page.validateNoConsoleLogs();
         });
 
-        it('and have formatted slip graphs', () => {
+        it('and have formatted slip graphs', async () => {
             const slips = page.getSlipGraphs();
-            slips.each(_slip => {
+            await slips.each(_slip => {
                 expect(_slip.isDisplayed()).toBe(true);
                 const title = page.getTitleFromSlipGraph(_slip);
                 expect(title.isDisplayed()).toBe(true);
@@ -195,6 +204,7 @@ describe('CTV dpr', () => {
                 const canvas = page.getCanvasFromSlipGraph(_slip);
                 expect(canvas.isDisplayed()).toBe(true);
             });
+            await page.validateNoConsoleLogs();
         });
     });
 });

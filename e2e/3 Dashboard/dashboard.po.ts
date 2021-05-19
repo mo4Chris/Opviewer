@@ -8,9 +8,11 @@ export class DashboardPage extends E2ePageObject {
         return browser.get('/dashboard');
     }
 
-    checkDashboardHeader() {
-        // return element(by.id('DashboardHeader')).getText();
-        return element.all(by.css('h2')).first().getText();
+    async checkDashboardHeader() {
+        const headerElt = await element(by.id('DashboardHeader'))
+        const isPresent = await headerElt.isPresent();
+        expect(isPresent).toBeTruthy();
+        return headerElt.getText();
     }
 
     checkDashboardMapExists() {

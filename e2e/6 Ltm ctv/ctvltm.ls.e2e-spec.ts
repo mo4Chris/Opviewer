@@ -8,9 +8,9 @@ describe('Ctv longterm module', () => {
     page = new CtvLtmPage();
     page.navigateTo();
   });
-  afterEach(() => {
-    page.validateNoConsoleLogs();
-  });
+  // afterEach(() => {
+  //   page.validateNoConsoleLogs();
+  // });
 
   it('should initialize correctly', () => {
     expect(page.getNanCount()).toBe(0);

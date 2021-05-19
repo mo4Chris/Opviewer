@@ -7,13 +7,14 @@ describe('Ctv longterm module', () => {
     page = new CtvLtmPage();
     page.navigateTo();
   });
-  afterEach(() => {
-    page.validateNoConsoleLogs();
-  });
+  // afterEach(() => {
+  //   page.validateNoConsoleLogs();
+  // });
 
   describe('LTM for marine controllers', () => {
-    it('should not redirect', () => {
+    it('should not redirect', async () => {
       expect(page.getUrl()).toMatch('/reports/longterm');
+      await page.validateNoConsoleLogs();
     });
   });
 });
