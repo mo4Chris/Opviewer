@@ -923,7 +923,7 @@ app.post("/api/getSovDprInput", function(req, res) {
             "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
           };
         }
-        let sovDprData = new sov.sov.SovDprInputModel(dprData);
+        let sovDprData = new sov.SovDprInputModel(dprData);
 
         sovDprData.save((error, dprData) => {
           if (err) return onError(res, err);
