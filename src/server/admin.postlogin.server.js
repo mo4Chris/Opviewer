@@ -1,5 +1,15 @@
 var bcrypt = require("bcryptjs");
+const { Pool } = require("pg");
 
+/**
+ * Server file with all the secure endpoints to the admin database.
+ *
+ * @param {import("express").Application} app Main application
+ * @param {import("pino").Logger} logger Logger class
+ * @param {Pool} admin_server_pool
+ * @param {(subject: string, body: string, recipient: string) => void} mailTo
+ * @api public
+ */
 module.exports = function (
   app,
   logger,
@@ -595,6 +605,13 @@ module.exports = function (
     })
   }
 
+  /**
+   *
+   * @param {string} table Name of table
+   * @param {string | array} fields Fields to be loaded
+   * @param {function} filter Optional filter callback
+   * @returns {(req: import("express").Request, res: import("express").Response) => void}
+   */
   function defaultPgLoader(table, fields = '*', filter = null) {
     let PgQuery = '';
     if (fields == '*') {
