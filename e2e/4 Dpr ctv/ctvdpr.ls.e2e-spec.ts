@@ -12,32 +12,31 @@ describe('CTV dpr', () => {
     describe('should not fail without data', () => {
         beforeEach(() => {
             page = new CtvDprPage();
-            page.navigateToEmpty();
+            return page.navigateToEmpty();
         });
 
-        it('and should not redirect', () => {
-            expect(page.getUrl()).toMatch('reports/dpr;mmsi');
-            page.validateNoConsoleLogs();
+        it('and should not redirect', async () => {
+            expect(await page.getUrl()).toMatch('reports/dpr;mmsi');
+            await page.validateNoConsoleLogs();
         });
 
-        it('and should display no data message', () => {
+        it('and should display no data message', async () => {
             const noDataMsg = element(by.tagName('h3'));
-            expect(noDataMsg.isDisplayed()).toBe(true);
-            expect(noDataMsg.getText()).toMatch('There is no');
-            page.validateNoConsoleLogs();
+            expect(await noDataMsg.isDisplayed()).toBe(true);
+            expect(await noDataMsg.getText()).toMatch('There is no');
+            await page.validateNoConsoleLogs();
         });
     });
 
     describe('Should create a map', () => {
         beforeEach(() => {
             page = new CtvDprPage();
-            page.navigateTo();
-            page.validateNoConsoleLogs();
+            return page.navigateTo();
         });
 
-        it('Should load a map', () => {
-            expect(page.getMap().isPresent()).toBe(true);
-            page.validateNoConsoleLogs();
+        it('Should load a map', async () => {
+            expect(await page.getMap().isPresent()).toBe(true);
+            await page.validateNoConsoleLogs();
         });
 
         // Check if route is drawn
@@ -48,26 +47,26 @@ describe('CTV dpr', () => {
     describe('Should generate print preview', () => {
         beforeEach(() => {
             page = new CtvDprPage();
-            page.navigateTo();
+            return page.navigateTo();
         });
 
-        it('Should have working print all button', () => {
+        it('Should have working print all button', async () => {
             const printButton = page.getPrintFullButton();
             const result = page.clickPrintButton(printButton);
-            expect(result).toBe(true);
-            page.validateNoConsoleLogs();
+            expect(await result).toBe(true);
+            await page.validateNoConsoleLogs();
         });
     });
 
     describe('Should switch dates', () => {
         beforeEach(() => {
             page = new CtvDprPage();
-            page.navigateTo();
+            return page.navigateTo();
         });
 
-        it('Should not redirect', () => {
-            expect(page.getUrl()).toMatch('reports/dpr;mmsi');
-            page.validateNoConsoleLogs();
+        it('Should not redirect', async () => {
+            expect(await page.getUrl()).toMatch('reports/dpr;mmsi');
+            await page.validateNoConsoleLogs();
         });
 
     });
@@ -75,15 +74,15 @@ describe('CTV dpr', () => {
     describe('Should generate statistics', () => {
         beforeEach(() => {
             page = new CtvDprPage();
-            page.navigateTo();
+            return page.navigateTo();
         });
 
-        it('Should not contain any NaNs', () => {
+        it('Should not contain any NaNs', async () => {
             let nanElts = page.getEltsWithText('NaN');
-            expect(nanElts.count()).toBe(0);
+            expect(await nanElts.count()).toBe(0);
             nanElts = page.getEltsWithText('_NaN_');
-            expect(nanElts.count()).toBe(0);
-            page.validateNoConsoleLogs();
+            expect(await nanElts.count()).toBe(0);
+            await page.validateNoConsoleLogs();
         });
 
     });
@@ -92,18 +91,17 @@ describe('CTV dpr', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
-        beforeEach(() => {
+        beforeEach(async () => {
             page = new CtvDprPage();
-            page.navigateTo();
-            dockingRow = page.getFirstDockingEntry();
-            saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
-            page.validateNoConsoleLogs();
+            await page.navigateTo();
+            dockingRow = await page.getFirstDockingEntry();
+            saveBtn = await page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('and have multiple dockings', () => {
+        it('and have multiple dockings', async () => {
             const dockings = page.getAllDockings();
-            expect(dockings.count()).toBeGreaterThan(0);
-            return page.validateNoConsoleLogs();
+            expect(await dockings.count()).toBeGreaterThan(0);
+            await  page.validateNoConsoleLogs();
         });
 
         it('and set normal values for docking table', async () => {
@@ -127,23 +125,23 @@ describe('CTV dpr', () => {
             await page.validateNoConsoleLogs();
         });
 
-        it('and save other comments', () => {
+        it('and save other comments', async () => {
             const commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
             dropdownHandler.setValue(commentBtn, 'Other');
             let otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
-            expect(otherInput.isDisplayed()).toBe(true);
+            expect(await otherInput.isDisplayed()).toBe(true);
 
             const str = e2eRng.getRandomString();
-            otherInput.clear();
-            otherInput.sendKeys(str);
-            saveBtn.click();
+            await otherInput.clear();
+            await otherInput.sendKeys(str);
+            await saveBtn.click();
 
-            page.navigateTo();
+            await page.navigateTo();
             dockingRow = page.getFirstDockingEntry();
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
-            expect(otherInput.isDisplayed()).toBe(true);
-            expect(otherInput.getAttribute('value')).toBe(str);
-            return page.validateNoConsoleLogs();
+            expect(await otherInput.isDisplayed()).toBe(true);
+            expect(await otherInput.getAttribute('value')).toBe(str);
+            await page.validateNoConsoleLogs();
         });
 
     });
@@ -153,11 +151,11 @@ describe('CTV dpr', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
-        beforeEach(() => {
+        beforeEach( async () => {
             page = new CtvDprPage();
-            page.navigateTo();
-            dockingRow = page.getFirstDockingEntry();
-            saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
+            await page.navigateTo();
+            dockingRow = await page.getFirstDockingEntry();
+            saveBtn = await page.getSaveButtonFromDockingRow(dockingRow);
         });
 
         it('should request video from docking', async () => {
@@ -185,11 +183,11 @@ describe('CTV dpr', () => {
             page.navigateTo();
         });
 
-        it('and loaded slip graphs', () => {
-            expect(page.getSlipGraphs().count()).toBeGreaterThan(0);
+        it('and loaded slip graphs', async () => {
+            expect(await page.getSlipGraphs().count()).toBeGreaterThan(0);
             const slip = page.getSlipGraph(0);
-            expect(slip.isDisplayed()).toBe(true);
-            page.validateNoConsoleLogs();
+            expect(await slip.isDisplayed()).toBe(true);
+            await page.validateNoConsoleLogs();
         });
 
         it('and have formatted slip graphs', async () => {
