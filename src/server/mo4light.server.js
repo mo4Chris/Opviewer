@@ -1,12 +1,14 @@
 const ax = require('axios');
 const fs = require('fs');
+var { Pool } = require('pg')
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
 // as appearantly these variables are available inside the the module.exports callback.
 
 // const baseUrl = 'http://localhost:5000';
-const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+let baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+let backupUrl = process.env.AZURE_BACKUP_URL ?? 'https://mo4-light.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
 const timeout = +process.env.TIMEOUT || 60000;
 const http    = ax.default;
@@ -21,6 +23,14 @@ function log(message) {
   console.log(`${ts}: ${message}`)
 }
 
+/**
+ * Server file with all the secure endpoints to the azure hydro API
+ *
+ * @param {import("express").Application} app Main application
+ * @param {import("pino").Logger} logger Logger class
+ * @param {Pool} admin_server_pool
+ * @api public
+ */
 module.exports = function(app, logger, admin_server_pool) {
   if (bearer == null) {
     logger.fatal('Azure connection token not found!')
@@ -28,14 +38,14 @@ module.exports = function(app, logger, admin_server_pool) {
   }
   logger.info(`Connecting to hydro database at ${baseUrl}`)
   pg_get('').then((data, err) => {
-    if (err) return logger.fatal('Failed to connect to hydro API')
+    if (err) return useBackupUrl(err);
     logger.info(`Successfully connected to hydro API at ${baseUrl}`)
-  }).catch(err => logger.fatal(err, 'Failed to connect to hydro API'))
+  }).catch(useBackupUrl)
 
   app.get('/api/mo4light/getVesselList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
-    const client_id = 2;
+    const client_id = 2; // TODO - not sure if this is already fixed
     log('Starting azure vessel request')
     pg_get('/vessels', {client_id}).then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
@@ -53,7 +63,7 @@ module.exports = function(app, logger, admin_server_pool) {
           client_id: data.client_id
         }
       });
-      // ToDo: filter data by token rights
+      // ToDo: filter data by token rights - is this done?
       res.send(data_out)
     }).catch(res.onError)
   });
@@ -112,7 +122,7 @@ module.exports = function(app, logger, admin_server_pool) {
         water_depth: project.water_depth,
         maximum_duration: project.maximum_duration,
         activation_start_date: project.activation_start_date,
-        activation_end_date: project.activation_start_date,
+        activation_end_date: project.activation_end_date,
         client_preferences: project.client_preferences,
         vessel_id: project.vessel_id
       }]
@@ -254,18 +264,57 @@ module.exports = function(app, logger, admin_server_pool) {
     return perm?.forecast.read && (client_match || generic_match)
   }
 
+
+  /**
+   * Server file with all the secure endpoints to the azure hydro API
+   *
+   * @param {string} endpoint Main application
+   * @param {any} data
+   * @api public
+   */
   function pg_get(endpoint, data) {
+    logger.debug('Performing GET request:' + endpoint)
     const url = baseUrl + endpoint;
     if (!data) return http.get(url, {headers});
     return http.get(url, {data, headers, timeout});
   }
+  /**
+   * Server file with all the secure endpoints to the azure hydro API
+   *
+   * @param {string} endpoint Main application
+   * @param {any} data
+   * @api public
+   */
   function pg_post(endpoint, data) {
+    logger.debug('Performing POST request:' + endpoint)
     const url = baseUrl + endpoint;
     return http.post(url, data, {headers, timeout})
   }
+  /**
+   * Server file with all the secure endpoints to the azure hydro API
+   *
+   * @param {string} endpoint Main application
+   * @param {any} data
+   * @api public
+   */
   function pg_put(endpoint, data) {
+    logger.debug('Performing PUT request:' + endpoint)
     const url = baseUrl + endpoint;
     return http.put(url, data, {headers, timeout})
+  }
+  /**
+   * Server file with all the secure endpoints to the azure hydro API
+   *
+   * @param {Error} err Error triggering the use of the backup url
+   * @api public
+   */
+  function useBackupUrl(err) {
+    logger.warn(err, 'Failed to connect to hydro API - using backup')
+    baseUrl = backupUrl;
+    pg_get('').then((data, err) => {
+      if (err) return logger.fatal('Failed to connect to backup API')
+      logger.info(`Successfully connected to backup API at ${baseUrl}`)
+    }).catch(err => logger.fatal('Failed to connect to backup API'))
   }
 
   async function getDemoProject(req, res) {

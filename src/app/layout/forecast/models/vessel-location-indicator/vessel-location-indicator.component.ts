@@ -137,7 +137,6 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
         show: true
       }
     };
-    console.log('this.VesselTrace', this.VesselTrace)
   }
 
   public onPlotlyInit(event) {

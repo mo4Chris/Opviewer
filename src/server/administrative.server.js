@@ -2,6 +2,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 var ax = require('axios');
+const { Pool } = require("pg");
 
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer = process.env.AZURE_TOKEN;
@@ -13,6 +14,15 @@ const headers = {
 }
 
 
+/**
+ * Server file with all the secure endpoints to the admin database.
+ *
+ * @param {import("express").Application} app Main application
+ * @param {import("pino").Logger} logger Logger class
+ * @param {Pool} admin_server_pool
+ * @param {(subject: string, body: string, recipient: string) => void} mailTo
+ * @api public
+ */
 module.exports = function (
   app,
   logger,
@@ -122,8 +132,8 @@ module.exports = function (
     })
     localLogger.info('Receiving set password request')
 
-    if (!(token?.length > 0)) return res.status(400).send('Missing token')
-    if (password != confirm) return res.status(400).send('Password does not match confirmation code')
+    if (!(token?.length > 0)) return res.onBadRequest('Missing token')
+    if (password != confirm) return res.onBadRequest('Password does not match confirmation code')
     const query = `SELECT user_id, secret2fa, requires2fa
       FROM "userTable"
       WHERE "token"=$1`
@@ -137,7 +147,7 @@ module.exports = function (
       const valid2fa = (typeof(confirm2fa) == 'string') && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.onBadRequest('2FA code is required but not provided!')
       const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
-      if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
+      if (!secret2faValid && requires2fa) return res.onBadRequest('2FA code is not correct!')
 
       const user_id = data.user_id;
       const query2 = `UPDATE "userTable"
@@ -149,6 +159,7 @@ module.exports = function (
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
       const value2 = [hashed_password, confirm2fa, user_id]
       admin_server_pool.query(query2, value2).then(() => {
+        logger.info('Updated password for user with id ' + user_id)
         res.send({ data: 'Password set successfully!' })
       }).catch(err => res.onError(err));
     }).catch(err => res.onError(err, 'Registration token not found!'))

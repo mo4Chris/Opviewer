@@ -141,6 +141,7 @@ var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
 //#################  Support functions  ######################
 //############################################################
 function onUnauthorized(res, cause = 'unknown') {
+  logger.trace('Performing onUnauthorized')
   const req = res.req;
   logger.warn({
     msg: `Bad request: ${cause}`,
@@ -157,20 +158,22 @@ function onUnauthorized(res, cause = 'unknown') {
 }
 
 function onOutdatedToken(res, token, cause = 'Outdated token, please log in again') {
+  logger.trace('Performing onOutdatedToken')
   const req = res.req;
-  if(token != undefined){
-    logger.warn({
-      msg: `Outdated request: ${cause}`,
-      type: 'OUTDATED_REQUEST',
-      cause,
-      username: token?.username,
-      url: req?.url,
-    })
-    res.status(460).send(cause);
-  }
+  if (token == undefined) return;
+  logger.warn({
+    msg: `Outdated request: ${cause}`,
+    type: 'OUTDATED_REQUEST',
+    cause,
+    username: token?.username,
+    url: req?.url,
+  })
+
+  res.status(460).send(cause);
 }
 
 function onError(res, err, additionalInfo = 'Internal server error') {
+  logger.trace('Performing onError')
   try {
     const response_message = err?.response?.data?.message;
     if (response_message) {
@@ -192,6 +195,7 @@ function onError(res, err, additionalInfo = 'Internal server error') {
 }
 
 function onBadRequest(res, cause = 'Bad request') {
+  logger.trace('Performing onBadRequest')
   const req = res.req;
   logger.warn({
     msg: `Bad request: ${cause}`,
@@ -208,6 +212,7 @@ function onBadRequest(res, cause = 'Bad request') {
 }
 
 function verifyToken(req, res) {
+  logger.trace('Verifing token')
   // TODO: fix this
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
@@ -218,7 +223,7 @@ function verifyToken(req, res) {
     const payload = jwt.verify(token, 'secretKey');
     if (payload == null || payload == 'null') return onUnauthorized(res, 'Token corrupted!');
 
-    if(typeof payload?.['userID'] !== 'number') return onOutdatedToken(res, payload)
+    if(typeof(payload?.['userID']) !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
     admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
@@ -233,6 +238,7 @@ function verifyToken(req, res) {
 }
 
 function validatePermissionToViewVesselData(req, res, callback) {
+  logger.trace('Validating permission to view vessel data')
   const token = req['token'];
   const mmsi = req.body.mmsi ?? req.params.mmsi
   let filter;
@@ -250,6 +256,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
 
 function mailTo(subject, html, user) {
   // setup email data with unicode symbols
+  logger.trace('Sending mail')
   const maillogger = logger.child({ recipient: user, subject: subject }); // Attach email to the logs
   const body = 'Dear ' + user + ', <br><br>' + html + '<br><br>' + 'Kind regards, <br> MO4';
 
@@ -271,8 +278,8 @@ function mailTo(subject, html, user) {
 
 function sendUpstream(content, type, user, confirmFcn = function(){}) {
   // Assumes the token has been validated
-  const date = getUTCstring();
   logger.trace('Upstream save')
+  const date = getUTCstring();
   upstreamModel.create({
     dateUTC: date,
     user: user,
@@ -286,20 +293,15 @@ function sendUpstream(content, type, user, confirmFcn = function(){}) {
 //#################   Endpoints - no login   #########################
 //####################################################################
 app.use((req, res, next) => {
-  // console.log(` - ${req.method.padEnd(8, ' ')} | ${req.url}`);
   logger.debug({
     msg: `${req.method}: ${req.url}`,
     method: req.method,
     url: req.url
   });
-  next();
-})
 
-app.use((req, res, next) => {
   res['onError'] = (err, additionalInfo) => onError(res, err, additionalInfo);
   res['onUnauthorized'] = (cause) => onUnauthorized(res, cause);
   res['onBadRequest'] = (cause) => onBadRequest(res, cause);
-  res['onOutdatedToken'] = (cause) => onOutdatedToken(res, cause);
   next();
 })
 
@@ -309,11 +311,12 @@ mo4AdminServer(app, logger, admin_server_pool, mailTo)
 // #### Every method below this block requires a valid token ####
 // ##############################################################
 app.use((req, res, next) => {
+  logger.trace('Assigning token')
   try {
     const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
     if (!isSecureMethod) return next();
-    // console.log(` - ${req.method} ${req.url}`);
     const token = verifyToken(req, res);
+
     if (!token) return; // Error already thrown in verifyToken
     req['token'] = token;
     next();
@@ -322,42 +325,7 @@ app.use((req, res, next) => {
   }
 })
 
-app.use((req,res, next) => {
-  const token = req['token'];
-  const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
-  if (!isSecureMethod) return next();
-  if(typeof token?.userID !== 'number') return onOutdatedToken(res, token)
-
-  const query = `SELECT userType."active", userType."demo_expiration_date", userPerm."user_type"
-  FROM "userTable" userType
-  LEFT JOIN "userPermissionTable" userPerm
-  ON userType."user_id" = userperm."user_id"
-  where userType."user_id"=$1`;
-  const values = [token.userID]
-
-  admin_server_pool.query(query, values).then(sql_response => {
-    const data = sql_response.rows[0];
-    let currentDate = new Date();
-    if(!data.active) return onUnauthorized(res, 'Your account is inactive');
-
-    if (data.demo_expiration_date != null && data.demo_expiration_date <= currentDate.valueOf()) {
-
-      const data_type = resp.rows[0].user_type;
-
-      if (data_type == 'demo'){
-        const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-        admin_server_pool.query(setUserInactiveQuery, values);
-        res.send(false);
-      } else {
-        const setDemoToFalseQuery = 'UPDATE "userPermissionTable" SET "demo"=false where "user_id"=$1';
-        admin_server_pool.query(setDemoToFalseQuery, values);
-        res.send(data);
-      }
-    } else {
-      next();
-    }
-  })
-});
+app.use(verifyDemoAccount);
 
 mo4lightServer(app, logger, admin_server_pool)
 fileUploadServer(app, logger)
@@ -2407,3 +2375,51 @@ Number.prototype['padLeft'] = function(base, chr) {
 }
 
 module.exports = app;
+
+
+/**
+ * Verifies if a demo account is still active
+ *
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @api public
+ */
+function verifyDemoAccount(req, res, next) {
+  // Checks for user demo permissions
+  logger.trace('Verifying demo account')
+  const token = req['token'];
+  const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
+  if (!isSecureMethod) return next();
+
+  const query = `SELECT u."active", u."demo_expiration_date", p."user_type", p."demo"
+    FROM "userTable" u
+    LEFT JOIN "userPermissionTable" p
+    ON "u"."user_id" = "p"."user_id"
+    where u."user_id"=$1`;
+  const values = [token.userID]
+
+  admin_server_pool.query(query, values).then(sql_response => {
+    const data = sql_response.rows[0];
+    let currentDate = new Date();
+    if(!data.active) return onUnauthorized(res, 'Your account is inactive');
+
+    if (!data.demo) return next();
+    if (data.demo_expiration_date == null) return next();
+    if (data.demo_expiration_date > currentDate.valueOf()) return next();
+
+    const user_type = data.user_type;
+    if (user_type == 'demo'){
+      const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
+      admin_server_pool.query(setUserInactiveQuery, values).catch(res.onError);
+      return onUnauthorized(res, 'Demo account expired!');
+    } else {
+      const setDemoToFalseQuery = `UPDATE "userPermissionTable"
+        SET "demo"=false
+            "demo_expiration_date"=null
+        WHERE "user_id"=$1`;
+      admin_server_pool.query(setDemoToFalseQuery, values).catch(res.onError);
+      res.send(data);
+    }
+  }).catch(err => res.onError(err, 'Error querying admin DB'))
+}
