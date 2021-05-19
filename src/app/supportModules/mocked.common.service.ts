@@ -244,8 +244,8 @@ export class MockedCommonService extends CommonService {
     }]);
   }
   getVessel(): Observable<VesselModel[]> {
-    const mock = mockedObservable(this.getVesselDefault());
-    return mock;
+    const def = this.getVesselDefault();
+    return mockedObservable(def);
   }
   getVesselDefault(): VesselModel[] {
     return [{

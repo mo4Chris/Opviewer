@@ -6,6 +6,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { ForecastVesselRequest } from '../../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
 import { ForecastOperation, ForecastExpectedResponsePreference, ForecastResponseObject } from '../../models/forecast-response.model';
 
@@ -24,7 +25,7 @@ const DEFAULT_SLIP_OPTIONS = {
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
   @Input() lastUpdated: string;
-  @Input() vessels: any[];
+  @Input() vessels: ForecastVesselRequest[];
   @Input() response: ForecastResponseObject; // Used for readonly settings
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
@@ -66,7 +67,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
       || this.limitChanged;
   }
   public get ctvSlipSettings() {
-    return this.selectedProject.client_preferences.Ctv_Slip_Options;
+    return this.selectedProject?.client_preferences?.Ctv_Slip_Options;
   }
 
   constructor(

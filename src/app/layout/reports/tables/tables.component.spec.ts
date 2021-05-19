@@ -7,12 +7,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReportsModule } from '../reports.module';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { RouterService } from '@app/supportModules/router.service';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('TablesComponent', () => {
   let component: TablesComponent;
   let fixture: ComponentFixture<TablesComponent>;
+  let routingSpy: jasmine.Spy;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -27,20 +30,23 @@ describe('TablesComponent', () => {
       ]
     })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
+    routingSpy = spyOn(RouterService.prototype, 'route')
     fixture = TestBed.createComponent(TablesComponent);
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
+  it('should create', async () => {
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(component).toBeTruthy();
+    expect(routingSpy).not.toHaveBeenCalled();
   });
 
   it('should render without vessels', () => {
-    spyOn(component['newService'], 'getVessel').and.returnValue(null)
+    spyOn(component['newService'], 'getVessel').and.returnValue(mockedObservable(null))
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });

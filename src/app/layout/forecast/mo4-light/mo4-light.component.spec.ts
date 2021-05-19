@@ -68,7 +68,7 @@ describe('Mo4LightComponent', () => {
       expect(routerSpy).toHaveBeenCalled();
     });
     it('should redirect without forecast read permissions', async () => {
-      const routerSpy = spyOn(RouterService.prototype, 'routeToForecast');
+      const routerSpy = spyOn(RouterService.prototype, 'routeToAccessDenied');
       component['permission'].forecastRead = false;
       spyOn(component, 'loadData');
       fixture.detectChanges();

@@ -7,6 +7,8 @@ import { TokenModel } from '../../models/tokenModel';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { UserModel } from '@app/models/userModel';
+import { VesselModel } from '@app/models/vesselModel';
 
 @Component({
   selector: 'app-usermanagement',
@@ -25,9 +27,9 @@ export class UserManagementComponent implements OnInit {
   ) { }
 
   username = this.getUsernameFromParameter();
-  user;
-  tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  boats;
+  user: UserModel;
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  boats: VesselModel[];
 
   multiSelectSettings = {
     idField: 'mmsi',
@@ -40,20 +42,16 @@ export class UserManagementComponent implements OnInit {
 
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive !== true) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.router.routeToLogin();
-      } else {
-        this.getUser();
-      }
+      if (userIsActive == true) return this.getUser();
+      localStorage.removeItem('isLoggedin');
+      localStorage.removeItem('token');
+      this.router.routeToLogin();
     });
   }
 
-  getUsernameFromParameter() {
-    let username;
-    this.route.params.subscribe(params => username = String(params.username));
-    return username;
+  async getUsernameFromParameter() {
+    const params = await this.route.params.toPromise();
+    return String(params.username);
   }
 
   getUser() {
@@ -69,7 +67,8 @@ export class UserManagementComponent implements OnInit {
         }
       }
       this.user = userdata[0];
-      this.multiSelectSettings.singleSelection = (userdata[0].permission.user_type == 'Vessel master');
+      const isVesselMaster = userdata[0].permission.user_type == 'Vessel master'
+      this.multiSelectSettings.singleSelection = isVesselMaster;
       // this.newService.getVesselsForCompany([{
       //   client: userdata[0].client_name,
       //   notHired: 1
