@@ -735,6 +735,9 @@ export class MockedCommonService extends CommonService {
       consumer_id: 123
     }]);
   }
+  getClientList() {
+    return mockedObservable([]);
+  }
   getForecastClientList() {
     return mockedObservable([]);
   }
@@ -954,7 +957,7 @@ function mockForecastProjectPreferences(): ForecastExpectedResponsePreference {
             "Dof": "Roll",
             "Type": "Acc",
             "Value": 3.0,
-            "Unit": "m"
+            "Unit": "deg/s2"
         })
     ],
     "Ctv_Slip_Options": {

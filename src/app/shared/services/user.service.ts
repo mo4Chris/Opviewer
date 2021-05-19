@@ -14,6 +14,7 @@ export class UserService {
   ) { }
 
   getDecodedAccessToken(token: string): TokenModel {
+    console.log('DECODING ACCESS TOKEN')
     const decoded: TokenModel = jwt_decode(token);
     if (typeof decoded.expires != 'number') return null;
     if (moment().valueOf() > decoded.expires) {

@@ -248,6 +248,10 @@ export class CalculationService {
         return this.switchVolumeUnits(vals, from, to);
       case 'N': case 'kN':
         return this.switchForceUnits(vals, from, to);
+      case 'deg/s':
+        return vals;
+      case 'deg/s2': case 'deg/s²': case 'deg\/s2':
+        return vals;
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;

@@ -39,15 +39,20 @@ describe('UsermanagementComponent', () => {
 
   beforeEach(() => {
     // spyOn(UserService.prototype, 'getDecodedAccessToken').and.returnValue(UserTestService.getMockedAccessToken());
-    spyOn(CommonService.prototype, 'getVessel').and.returnValue(mockedObservable(user.userBoats));
-    spyOn(UserManagementComponent.prototype, 'getUsernameFromParameter').and.returnValue(user.username);
-
+    spyOn(CommonService.prototype, 'getVessel').and.returnValue(
+      mockedObservable(user.userBoats)
+    );
     fixture = TestBed.createComponent(UserManagementComponent);
     component = fixture.componentInstance;
+    spyOn(component['route'], 'params').and.returnValue(
+      mockedObservable(user.username)
+    );
+
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    return fixture.whenStable();
   });
 });
