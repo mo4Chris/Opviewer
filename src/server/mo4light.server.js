@@ -275,9 +275,6 @@ module.exports = function(app, logger, admin_server_pool) {
   function pg_get(endpoint, data) {
     logger.debug('Performing GET request:' + endpoint)
     const url = baseUrl + endpoint;
-    // console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-    // // console.log(http)
-    // console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
     if (!data) return http.get(url, {headers});
     return http.get(url, {data, headers, timeout});
   }

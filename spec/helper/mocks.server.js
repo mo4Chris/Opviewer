@@ -64,7 +64,7 @@ function mockJsonWebToken(app, decoded_token) {
     userID: 1,
     active: 1,
   }
-  const returned_token = {... default_token, ...decoded_token};
+  const returned_token = {...default_token, ...decoded_token};
   const jwtMock = {
     sign: (token, keyType) => 'test_token',
     verify: (token, keyType) => returned_token

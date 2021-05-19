@@ -61,7 +61,6 @@ module.exports = (app, GET, POST) => {
   describe('Logistic specialist should', () => {
     const username = 'Test logistics specialist';
     const company = 'BMO';
-    const otherCompany = 'Totally not BMO'
 
     beforeEach(() => {
       mock.mailer(app);

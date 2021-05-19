@@ -34,7 +34,6 @@ module.exports = function (
     admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
       return res.send({ status: 1 })
     }).catch((err) => {
-      console.log('err', err)
       logger.warn(err, 'Connection test failed')
       return res.send({ status: 0 })
     })
