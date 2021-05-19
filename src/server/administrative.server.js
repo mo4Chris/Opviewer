@@ -43,6 +43,7 @@ module.exports = function (
       res.send({
         username: row.username,
         requires2fa: row.requires2fa,
+        secret2fa: row.secret2fa
       })
     }).catch(err => res.onError(err))
   });
@@ -114,7 +115,8 @@ module.exports = function (
     const token = req.body.passwordToken;
     const password = req.body.password;
     const confirm = req.body.confirmPassword;
-    const confirm2fa = req.body.secret2fa;
+    const secret2fa = req.body.secret2fa;
+    const confirm2fa = req.body.confirm2fa
     const localLogger = logger.child({
       token,
       hasPassword: password != null,
@@ -136,7 +138,10 @@ module.exports = function (
       if (!requires2fa) localLogger.info('User does not require 2FA')
       const valid2fa = (typeof(confirm2fa) == 'string') && (confirm2fa.length > 0);
       if (requires2fa && !valid2fa) return res.onBadRequest('2FA code is required but not provided!')
-      const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(data.secret2fa, confirm2fa) != null)
+      
+      const usableSecret2fa = data.secret2fa ?? secret2fa;
+      const secret2faValid = (confirm2fa?.length > 0) && (twoFactor.verifyToken(usableSecret2fa, confirm2fa) != null)
+     
       if (!secret2faValid && requires2fa) return res.status(400).send('2FA code is not correct!')
 
       const user_id = data.user_id;
@@ -147,7 +152,7 @@ module.exports = function (
       WHERE "userTable"."user_id"=$3
       `
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
-      const value2 = [hashed_password, confirm2fa, user_id]
+      const value2 = [hashed_password, usableSecret2fa, user_id]
       admin_server_pool.query(query2, value2).then(() => {
         res.send({ data: 'Password set successfully!' })
       }).catch(err => res.onError(err));

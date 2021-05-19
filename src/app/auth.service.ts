@@ -81,6 +81,7 @@ interface PasswordInfo {
   password: string;
   confirmPassword: string;
   secret2fa: string;
+  confirm2fa: string;
 }
 
 interface SetPasswordData {

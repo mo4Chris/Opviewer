@@ -110,7 +110,8 @@ export class SetPasswordComponent implements OnInit {
       });
     }
 
-    if (!this.requires2fa) this._setPassword(null);
+    if (!this.requires2fa) this._setPassword(null, null);
+    if (!this.initiate2fa) this._setPassword(null, this.passwords.confirm2fa);
 
     if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) == null) {
       return this.alert.sendAlert({
@@ -119,15 +120,16 @@ export class SetPasswordComponent implements OnInit {
       });
     }
 
-    this._setPassword(this.secretAsBase32);
+    this._setPassword(this.secretAsBase32, this.passwords.confirm2fa);
   }
 
-  private _setPassword(secret2fa: string) {
+  private _setPassword(secret2fa: string, confirm2fa: string) {
     this._auth.setUserPassword({
       passwordToken: this.token,
       password: this.passwords.password,
       confirmPassword: this.passwords.confirmPassword,
       secret2fa: secret2fa,
+      confirm2fa: confirm2fa
     }).subscribe(() => {
       this.showAfterscreen = true;
       setTimeout(() => this.router.navigate(['/login']), 3000);
