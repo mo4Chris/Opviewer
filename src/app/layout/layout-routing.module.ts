@@ -10,6 +10,7 @@ const routes: Routes = [
             { path: '', redirectTo: 'dashboard' },
             { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
             { path: 'reports', loadChildren: () => import('./reports/reports.module').then(m => m.ReportsModule)},
+            { path: 'clients', loadChildren: () => import('./clients/client-overview.module').then(m => m.ClientOverviewModule)},
             { path: 'forecast', loadChildren: () => import('./forecast/forecast.module').then(m => m.ForecastModule)},
             { path: 'campaigns', loadChildren: () => import('./TWA/fleets/fleets.module').then(m => m.FleetsModule) },
             { path: 'fleet-log', loadChildren: () => import('./TWA/fleet-log/fleet-log.module').then(m => m.FleetLogModule) },

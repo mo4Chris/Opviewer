@@ -1,0 +1,19 @@
+<div [@routerTransition] *ngIf="true">
+  <app-page-header heading="Clients" icon="fa-building"></app-page-header>
+  <table class="table table-hover table-striped">
+    <thead>
+      <tr>
+        <th>Clients</th>
+        <th>Admin</th>
+        <th>Forecast</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of clients">
+        <td>{{client.name}}</td>
+        <td>{{client.client_id}}</td>
+        <td>{{client.forecast_client_id}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

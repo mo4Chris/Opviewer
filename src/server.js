@@ -12,8 +12,12 @@ var mongo = require("mongoose");
 var { Pool } = require('pg')
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
-
-
+var ctv = require('./server/models/ctv.js')
+var sov = require('./server/models/sov.js')
+var geo = require('./server/models/geo.js')
+var twa = require('./server/models/twa.js')
+var videoRequests = require('./server/models/video_requests.js')
+var weather = require('./server/models/weather.js')
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -108,15 +112,6 @@ admin_server_pool.on('error', (err) => {
 //##################   Models   ###########################
 //#########################################################
 var Schema = mongo.Schema;
-
-var userActivitySchema = new Schema({
-  username: { type: String },
-  changedUser: Schema.Types.ObjectId,
-  newValue: { type: String },
-  date: { type: Number }
-}, { versionKey: false });
-var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
-
 var VesselsSchema = new Schema({
   mmsi: { type: Number },
   nicename: { type: String },
@@ -126,458 +121,13 @@ var VesselsSchema = new Schema({
 }, { versionKey: false });
 var Vesselmodel = mongo.model('vessels', VesselsSchema, 'vessels');
 
-var SovInfoSchema = new Schema({
-  vesselname: { type: String },
-  nicename: { type: String },
-  client: { type: Array },
-  mmsi: { type: Number },
-  active: { type: Boolean },
-  operationsClass: { type: String },
-  daughtercraft_mmsi: { type: Number },
-}, { versionKey: false });
-var SovInfomodel = mongo.model('sovInfo', SovInfoSchema, 'sovInfo');
-
-var TransferSchema = new Schema({
-  mmsi: { type: Number },
-  vesselname: { type: String },
-  date: { type: Number },
-  startTime: { type: Number },
-  stopTime: { type: Number },
-  duration: { type: Number },
-  location: { type: String },
-  fieldname: { type: String },
-  paxUp: { type: Number },
-  paxDown: { type: Number },
-  cargoUp: { type: Number },
-  cargoDown: { type: Number },
-  comment: { type: String },
-  commentChanged: { type: Object },
-  detector: { type: String },
-  videoAvailable: { type: Number },
-  videoPath: { type: String },
-  videoDurationMinutes: { type: Number }
-}, { versionKey: false });
-var Transfermodel = mongo.model('transfers', TransferSchema, 'transfers');
-
-var LatLonSchema = new Schema({
-  filename: { type: String },
-  SiteName: { type: String },
-  centroid: { type: Object },
-  outlineLonCoordinates: { type: Array },
-  outlineLatCoordinates: { type: Array },
-}, { versionKey: false });
-var LatLonmodel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
-
-var PlatformLocationSchema = new Schema({
-  filename: { type: String },
-  SiteName: { type: String }
-}, { versionKey: false });
-var PlatformLocationmodel = mongo.model('platformLocations', PlatformLocationSchema, 'platformLocations');
-
-var boatCrewLocationSchema = new Schema({
-  vesselname: { type: String },
-  nicename: { type: String },
-  client: { type: String },
-  mmsi: { type: Number }
-}, { versionKey: false });
-var boatCrewLocationmodel = mongo.model('crew', boatCrewLocationSchema, 'crew');
-
-var transitSchema = new Schema({
-  vesselname: { type: String },
-  nicename: { type: String },
-  client: { type: String },
-  mmsi: { type: Number },
-  lat: { type: Array },
-  lon: { type: Array }
-}, { versionKey: false });
-var transitsmodel = mongo.model('transits', transitSchema, 'transits');
-
-var boatLocationSchema = new Schema({
-  vesselname: { type: String },
-  nicename: { type: String },
-  client: { type: String },
-  mmsi: { type: Number }
-}, { versionKey: false });
-var boatLocationmodel = mongo.model('AISdata', boatLocationSchema, 'AISdata');
-
-var CommentsChangedSchema = new Schema({
-  mmsi: { type: Number },
-  oldComment: { type: String },
-  newComment: { type: String },
-  idTransfer: { type: String },
-  otherComment: { type: String },
-  commentChanged: { type: Object },
-  userID: { type: String },
-  processed: { type: String },
-  paxUp: { type: Number },
-  paxDown: { type: Number },
-  cargoUp: { type: Number },
-  cargoDown: { type: Number },
-  date: { type: Number }
-}, { versionKey: false });
-var CommentsChangedmodel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
-
-var videoRequestedSchema = new Schema({
-  requestID: Schema.Types.ObjectId,
+var userActivitySchema = new Schema({
   username: { type: String },
-  mmsi: { type: Number },
-  videoPath: { type: String },
-  vesselname: { type: String },
-  date: { type: Number },
-  active: { type: Boolean },
-  status: { type: String }
-}, { versionKey: false });
-var videoRequestedmodel = mongo.model('videoRequests', videoRequestedSchema, 'videoRequests');
-
-var videoBudgetSchema = new Schema({
-  mmsi: { type: Number },
-  currentBudget: { type: Number },
-  maxBudget: { type: Number },
-  resetDate: { type: Number }
-}, { versionKey: false });
-var videoBudgetmodel = mongo.model('videoBudget', videoBudgetSchema, 'videoBudget');
-
-var SovModel = new Schema({
-  day: { type: String },
-  dayNum: { type: Number },
-  vesselname: { type: String },
-  mmsi: { Type: Number },
-  weatherConditions: { type: Object },
-  timeBreakdown: { type: Object },
-  seCoverageHours: { type: String },
-  distancekm: { type: String },
-  arrivalAtHarbour: { type: String },
-  departureFromHarbour: { type: String },
-  lon: { type: Array },
-  lat: { type: Array },
-  time: { type: Array }
-}, { versionKey: false });
-var SovModelmodel = mongo.model('SOV_general', SovModel, 'SOV_general');
-
-var SovPlatformTransfers = new Schema({
-  vesselname: { type: String },
-  mmsi: { type: Number },
-  locationname: { type: String },
-  Tentry1000mWaitingRange: { type: Number },
-  TentryExclusionZone: { type: Number },
-  arrivalTimePlatform: { type: Number },
-  departureTimePlatform: { type: Number },
-  timeInWaitingZone: { type: Number },
-  approachTime: { type: Number },
-  visitDuration: { type: Number },
-  totalDuration: { type: Number },
-  gangwayDeployedDuration: { type: String },
-  gangwayReadyDuration: { type: String },
-  timeGangwayDeployed: { type: String },
-  timeGangwayReady: { type: String },
-  timeGangwayRetracted: { type: String },
-  timeGangwayStowed: { type: String },
-  peakWindGust: { type: String },
-  peakWindAvg: { type: String },
-  windArray: { type: Object },
-  gangwayUtilisation: { type: String },
-  gangwayUtilisationTrace: { type: Object },
-  gangwayUtilisationLimiter: { type: String },
-  alarmsPresent: { type: String },
-  motionsEnvelope: { type: String },
-  peakHeave: { type: String },
-  DPutilisation: { type: String },
-  positionalStability: { type: String },
-  positionalStabilityRadius: { type: String },
-  current: { type: String },
-  Hs: { type: String },
-  angleToAsset: { type: Number },
-  distanceToAsset: { type: Number },
-  lon: { type: Number },
-  lat: { type: Number },
-  paxCntEstimate: { type: String },
-  TexitExclusionZone: { type: Number },
-  date: { type: Number },
-  paxIn: { type: Number },
-  paxOut: { type: Number },
-  cargoIn: { type: Number },
-  cargoOut: { type: Number }
-}, { versionKey: false });
-var SovPlatformTransfersmodel = mongo.model('SOV_platformTransfers', SovPlatformTransfers, 'SOV_platformTransfers');
-
-var SovTurbineTransfers = new Schema({
-  vesselname: { type: String },
-  mmsi: { type: Number },
-  location: { type: String },
-  startTime: { type: Number },
-  stopTime: { type: Number },
-  duration: { type: Number },
-  fieldname: { type: String },
-  gangwayDeployedDuration: { type: Number },
-  gangwayReadyDuration: { type: String },
-  timeGangwayDeployed: { type: Number },
-  timeGangwayReady: { type: String },
-  timeGangwayRetracted: { type: String },
-  timeGangwayStowed: { type: Number },
-  peakWindGust: { type: Number },
-  peakWindAvg: { type: String },
-  gangwayUtilisation: { type: String },
-  gangwayUtilisationLimiter: { type: String },
-  alarmsPresent: { type: String },
-  motionsEnvelope: { type: String },
-  peakHeave: { type: String },
-  angleToAsset: { type: Number },
-  DPutilisation: { type: String },
-  positionalStabilityRadius: { type: String },
-  current: { type: String },
-  approachTime: { type: String },
-  Hs: { type: String },
-  Ts: { type: String },
-  lon: { type: Number },
-  lat: { type: Number },
-  paxCntEstimate: { type: String },
-  detector: { type: String },
-  gangwayUtilisationTrace: { type: String },
-  positionalStability: { type: String },
-  windArray: { type: Object },
-  date: { type: Number },
-  paxIn: { type: Number },
-  paxOut: { type: Number },
-  cargoIn: { type: Number },
-  cargoOut: { type: Number }
-});
-var SovTurbineTransfersmodel = mongo.model('SOV_turbineTransfers', SovTurbineTransfers, 'SOV_turbineTransfers');
-
-var SovTransits = new Schema({
-  from: { type: String },
-  fromName: { type: String },
-  to: { type: String },
-  toName: { type: String },
-  day: { type: String },
-  timeString: { type: String },
-  dayNum: { type: Number },
-  vesselname: { type: String },
-  mmsi: { type: Number },
-  combineId: { type: Number },
-  speedInTransitAvg: { type: Number },
-  speedInTransitAvgUnrestricted: { type: String },
-  distancekm: { type: Number },
-  transitTimeMinutes: { type: Number },
-  avHeading: { type: Number },
-  date: { type: Number }
-});
-var SovTransitsmodel = mongo.model('SOV_transits', SovTransits, 'SOV_transits');
-
-var SovVessel2vesselTransfers = new Schema({
-  date: { type: Number },
-  mmsi: { type: Number },
-  transfers: { type: Object },
-  CTVactivity: { type: Object },
-  missedTransfers: { type: Object },
-});
-var SovVessel2vesselTransfersmodel = mongo.model('SOV_vessel2vesselTransfers', SovVessel2vesselTransfers, 'SOV_vessel2vesselTransfers');
-
-var engineData = new Schema({
-  date: { type: Number },
-  mmsi: { type: Number },
-  c02TotalKg: { type: Number },
-  fuelPerHour: { type: Array },
-  fuelPerHourDepart: { type: Number },
-  fuelPerHourReturn: { type: Number },
-  fuelPerHourTotal: { type: Number },
-  fuelPerHourTransfer: { type: Number },
-  fuelUsedDepartM3: { type: Number },
-  fuelUsedReturnM3: { type: Number },
-  fuelUsedTotalM3: { type: Number },
-  fuelUsedTransferM3: { type: Number },
-  speed: { type: Array },
-  timeStamp: { type: Array },
-});
-var engineDatamodel = mongo.model('engine', engineData, 'engine');
-
-var SovDprInput = new Schema({
-  liquids: { type: Object },
-  toolbox: { type: Array },
-  hoc: { type: Array },
-  vesselNonAvailability: { type: Array },
-  weatherDowntime: { type: Array },
-  standBy: { type: Array },
-  accessDayType: { type: Object },
-  remarks: { type: String },
-  catering: { type: Object },
-  date: { type: Number },
-  mmsi: { type: Number },
-  ToolboxAmountOld: { type: Number },
-  ToolboxAmountNew: { type: Number },
-  HOCAmountOld: { type: Number },
-  HOCAmountNew: { type: Number },
-  missedPaxCargo: { type: Array },
-  helicopterPaxCargo: { type: Array },
-  PoB: { type: Object },
-  dp: { type: Array },
-  signedOff: { type: Object }
-});
-var SovDprInputmodel = mongo.model('SOV_dprInput', SovDprInput, 'SOV_dprInput');
-
-var SovHseDprInput = new Schema({
-  date: { type: Number },
-  mmsi: { type: Number },
-  dprFields: { type: Object },
-  hseFields: { type: Object },
-  signedOff: { type: Object }
-
-});
-var SovHseDprInputmodel = mongo.model('SOV_hseDprInput', SovHseDprInput, 'SOV_hseDprInput');
-
-var SovRovOperations = new Schema({
-  date: { type: Number },
-  mmsi: { type: Number },
-  transfers: { type: Array }
-});
-var SovRovOperationsmodel = mongo.model('SOV_rovOperations', SovRovOperations, 'SOV_rovOperations');
-
-var SovCycleTimes = new Schema({
-  startTime: { type: String },
-  durationMinutes: { type: Number },
-  fieldname: { type: String },
-  fromTurbine: { type: String },
-  toTurbine: { type: String },
-  sailedDistanceNM: { type: Number },
-  turbineDistanceNM: { type: Number },
-  avgSpeedKts: { type: Number },
-  avgMovingSpeedKts: { type: Number },
-  maxSpeedKts: { type: Number },
-  transferTimeMins: { type: Number },
-  movingSpeedAbove5ktsPerc: { type: Number },
-  date: { type: Number },
-  mmsi: { type: Number }
-})
-var SovCycleTimesmodel = mongo.model('SOV_cycleTimes', SovCycleTimes, 'SOV_cycleTimes');
-
-var portcallSchema = new Schema({
-  mmsi: { type: Number },
-  date: { type: Number },
-  startTime: { type: Number },
-  stopTime: { type: Number },
-  durationHr: { type: Number },
-  multidayEventFlag: { type: Boolean },
-  location: { type: String },
-  plannedUnplannedStatus: { type: String },
-  active: { type: Boolean },
-})
-var portcallModel = mongo.model('portcalls', portcallSchema, 'portCalls');
-
-var generalSchema = new Schema({
-  mmsi: { type: Number },
-  vesselname: { type: String },
-  date: { type: Number },
-  minutesFloating: { type: Number },
-  minutesInField: { type: Number },
-  distancekm: { type: Number },
-  DPRstats: { type: Object },
-  inputStats: { type: Object }
-}, { versionKey: false });
-var generalmodel = mongo.model('general', generalSchema, 'general');
-
-var turbineWarrantySchema = new Schema({
-  activeFleet: { type: Array },
-  fullFleet: { type: Array },
-  validFields: { type: Array },
-  startDate: { type: Number },
-  stopDate: { type: Number },
-  windfield: { type: String },
-  numContractedVessels: { type: Number },
-  campaignName: { type: String },
-  weatherDayTarget: { type: Number },
-  weatherDayForecast: { type: Array },
-  Dates: { type: Array },
-  sailMatrix: { type: Array },
-  currentlyActive: { type: Array },
-  client: { type: String },
-  lastUpdated: { type: Number }
-}, { versionKey: false });
-var turbineWarrantymodel = mongo.model('TurbineWarranty_Historic', turbineWarrantySchema, 'TurbineWarranty_Historic');
-
-var turbineWarrantyRequestSchema = new Schema({
-  fullFleet: { type: Array },
-  activeFleet: { type: Array },
-  client: { type: String },
-  windfield: { type: String },
-  startDate: { type: Number },
-  stopDate: { type: Number },
-  numContractedVessels: { type: Number },
-  campaignName: { type: String },
-  weatherDayTarget: { type: Number },
-  weatherDayTargetType: { type: String },
-  limitHs: { type: Number },
-  user: { type: String },
-  requestTime: { type: Number }
-}, { versionKey: false });
-var turbineWarrantyRequestmodel = mongo.model('TurbineWarranty_Request', turbineWarrantyRequestSchema, 'TurbineWarranty_Request');
-
-var sailDayChangedSchema = new Schema({
-  vessel: { type: String },
-  date: { type: Number },
-  changeDate: { type: Number },
-  fleetID: { type: String },
-  oldValue: { type: String },
+  changedUser: Schema.Types.ObjectId,
   newValue: { type: String },
-  userID: { type: String }
-}, { versionKey: false });
-var sailDayChangedmodel = mongo.model('sailDayChanged', sailDayChangedSchema, 'sailDayChanged');
-
-var vesselsToAddToFleetSchema = new Schema({
-  mmsi: { type: Number },
-  vesselname: { type: String },
-  dateAdded: { type: Number },
-  campaignName: { type: String },
-  windfield: { type: String },
-  startDate: { type: Number },
-  status: { type: String },
-  username: { type: String },
-  client: { type: String }
-}, { versionKey: false });
-var vesselsToAddToFleetmodel = mongo.model('vesselsToAddToFleet', vesselsToAddToFleetSchema, 'vesselsToAddToFleet');
-
-var activeListingsSchema = new Schema({
-  vesselname: { type: String },
-  dateStart: { type: Object },
-  dateEnd: { type: Object },
-  fleetID: { type: String },
-  listingID: { type: String },
-  deleted: { type: Boolean },
-  dateChanged: { type: Number },
-  user: { type: String }
-}, { versionKey: false });
-var activeListingsModel = mongo.model('activeListings', activeListingsSchema, 'activeListings');
-
-var harbourSchema = new Schema({
-  name: { type: String },
-  centroid: { type: Object },
-  lon: { type: Array },
-  lat: { type: Array },
-}, { versionKey: false });
-var harbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocations');
-
-var hasSailedSchemaCTV = new Schema({
-  mmsi: { type: Number },
-  date: { type: Number },
-  distancekm: { type: Number },
-}, { versionKey: false, strictQuery: true, strict: true });
-var hasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general');
-
-var sovHasPlatformTransfersSchema = new Schema({
-  mmsi: { type: Number },
   date: { type: Number }
-})
-var sovHasPlatformTransferModel = mongo.model('sovHasPlatformModel', sovHasPlatformTransfersSchema, 'SOV_platformTransfers');
-
-var sovHasTurbineTransfersSchema = new Schema({
-  mmsi: { type: Number },
-  date: { type: Number }
-})
-var sovHasTurbineTransferModel = mongo.model('sovHasTurbineModel', sovHasTurbineTransfersSchema, 'SOV_turbineTransfers');
-
-var sovHasV2VTransfersSchema = new Schema({
-  mmsi: { type: Number },
-  date: { type: Number }
-})
-var sovHasV2VModel = mongo.model('sovHasV2VModel', sovHasV2VTransfersSchema, 'SOV_vessel2vesselTransfers');
+}, { versionKey: false });
+var UserActivitymodel = mongo.model('userActivityChanges', userActivitySchema, 'userActivityChanges');
 
 var upstreamSchema = new Schema({
   type: String,
@@ -586,51 +136,6 @@ var upstreamSchema = new Schema({
   content: Object,
 }, { versionKey: false });
 var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
-
-var wavedataSchema = new Schema({
-  site: String,
-  source: String,
-  active: Boolean,
-  date: Number,
-  wavedata: {
-    timeStamp: Array,
-    Hs: Array,
-    Tp: Array,
-    waveDir: Array,
-    wind: Array,
-    windDir: Array
-  },
-  meta: Object,
-}, { versionKey: false })
-var wavedataModel = mongo.model('wavedata', wavedataSchema, 'waveData');
-
-var waveSourceSchema = new Schema({
-  site: String,
-  name: String,
-  active: Boolean,
-  lon: Number,
-  lat: Number,
-  info: String,
-  clients: Array,
-  provider: String,
-  source: {
-    Hs: String,
-    Tp: String,
-    waveDir: String,
-    wind: String,
-    windDir: String
-  }
-}, { versionKey: false })
-var waveSourceModel = mongo.model('waveSource', waveSourceSchema, 'waveSources');
-
-var sovWaveSpectrumSchema = new Schema({
-  date: Number,
-  time: Array,
-  spectrum: Array,
-  active: Boolean,
-}, { versionKey: false });
-var sovWaveSpectrumModel = mongo.model('sovWaveSpectrum', sovWaveSpectrumSchema, 'SOV_waveSpectrum');
-
 
 //############################################################
 //#################  Support functions  ######################
@@ -800,7 +305,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminServer(app, logger, admin_server_pool, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -822,7 +327,7 @@ app.use((req, res, next) => {
 
 app.use(verifyDemoAccount);
 
-mo4lightServer(app, logger, mailTo)
+mo4lightServer(app, logger, admin_server_pool)
 fileUploadServer(app, logger)
 mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
 
@@ -864,7 +369,7 @@ app.post("/api/saveVessel", function (req, res) {
 
 app.post("/api/saveTransfer", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    var comment = new CommentsChangedmodel();
+    var comment = new ctv.CommentsChangedModel();
     comment.oldComment = req.body.oldComment;
     comment.newComment = req.body.comment;
     comment.commentChanged = req.body.commentChanged;
@@ -882,7 +387,7 @@ app.post("/api/saveTransfer", function(req, res) {
     sendUpstream(comment, 'DPR_comment_change', req.body.userID);
     comment.save(function(err, data) {
       if (err) return onError(res, err);
-      Transfermodel.findOneAndUpdate({
+      ctv.TransferModel.findOneAndUpdate({
         _id: req.body._id,
         active: { $ne: false }
       }, {
@@ -902,7 +407,7 @@ app.post("/api/saveTransfer", function(req, res) {
 
 app.post("/api/saveCTVGeneralStats", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    generalmodel.findOneAndUpdate({
+    ctv.GeneralModel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -917,7 +422,7 @@ app.post("/api/saveCTVGeneralStats", function(req, res) {
 
 app.post("/api/getSovWaveSpectrum", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    sovWaveSpectrumModel.find({
+    sov.SovWaveSpectrumModel.find({
       date: req.body.date,
       mmsi: req.body.mmsi,
       active: { $ne: false }
@@ -929,7 +434,7 @@ app.post("/api/getSovWaveSpectrum", function(req, res) {
 });
 app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    sovWaveSpectrumModel.find({
+    sov.SovWaveSpectrumModel.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
     }, {
@@ -946,7 +451,7 @@ app.post("/api/getSovWaveSpectrumAvailable", function(req, res) {
 
 app.post("/api/getCommentsForVessel", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    CommentsChangedmodel.aggregate([{
+    ctv.CommentsChangedModel.aggregate([{
         "$match": {
           mmsi: { $in: [req.body.mmsi] },
           active: { $ne: false }
@@ -1037,7 +542,7 @@ async function getAssignedVessels(token, res) {
 }
 
 app.get("/api/getHarbourLocations", function(req, res) {
-  harbourModel.find({
+  geo.HarbourModel.find({
     active: { $ne: false }
   }, function(err, data) {
     if (err) return onError(res, err);
@@ -1050,7 +555,7 @@ app.get("/api/getSov/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovModelmodel.find({ "mmsi": mmsi, "dayNum": date, active: { $ne: false } }, function(err, data) {
+    sov.SovGeneralModel.find({ "mmsi": mmsi, "dayNum": date, active: { $ne: false } }, function(err, data) {
       if (err) return onError(res, err);
       res.send(data)
     });
@@ -1062,7 +567,7 @@ app.get("/api/getTransitsForSov/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovTransitsmodel.find({
+    sov.SovTransitsModel.find({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1078,7 +583,7 @@ app.get("/api/getVessel2vesselForSov/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovVessel2vesselTransfersmodel.find({
+    sov.SovVessel2vesselTransfersModel.find({
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
@@ -1094,8 +599,7 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-
-    SovRovOperationsmodel.findOne({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
+    sov.SovRovOperationsModel.findOne({ "mmsi": mmsi, "date": date, active: { $ne: false } }, function(err, data) {
       if (err) return onError(res, err);
       if (data == null) {
         res.send({ rovOperations: [] })
@@ -1109,7 +613,7 @@ app.get("/api/getSovRovOperations/:mmsi/:date", function(req, res) {
 app.post("/api/updateSovRovOperations", function(req, res) {
   // Updates ROV Operations
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovRovOperationsmodel.findOneAndUpdate({
+    sov.SovRovOperationsModel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1130,7 +634,7 @@ app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    engineDatamodel.find({
+    ctv.EngineDataModel.find({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1145,7 +649,7 @@ app.get("/api/getCycleTimesForSov/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = parseInt(req.params.date);
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovCycleTimesmodel.find({
+    sov.SovCycleTimesModel.find({
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
@@ -1160,7 +664,7 @@ app.get("/api/getPlatformTransfers/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovPlatformTransfersmodel.find({
+    sov.SovPlatformTransfersModel.find({
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
@@ -1177,7 +681,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovTurbineTransfersmodel.find({
+    sov.SovTurbineTransfersModel.find({
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
@@ -1192,7 +696,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
 
 app.post("/api/getDistinctFieldnames", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    Transfermodel.find({
+    ctv.TransferModel.find({
       "mmsi": req.body.mmsi,
       "date": req.body.date,
       active: { $ne: false }
@@ -1211,7 +715,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovTurbineTransfersmodel.find({
+    sov.SovTurbineTransfersModel.find({
       "mmsi": mmsi,
       "date": date,
       active: { $ne: false }
@@ -1226,7 +730,7 @@ app.get("/api/getSovDistinctFieldnames/:mmsi/:date", function(req, res) {
 });
 
 app.post("/api/getPlatformLocations", function(req, res) {
-  PlatformLocationmodel.find({
+  geo.PlatformLocationModel.find({
     filename: req.body.Name,
     active: { $ne: false }
   }, function(err, data) {
@@ -1236,7 +740,7 @@ app.post("/api/getPlatformLocations", function(req, res) {
 });
 
 app.post("/api/getSpecificPark", function(req, res) {
-  LatLonmodel.find({
+  geo.LatLonModel.find({
     filename: { $in: req.body.park },
     active: { $ne: false }
   }, function(err, data) {
@@ -1247,7 +751,7 @@ app.post("/api/getSpecificPark", function(req, res) {
 
 app.get("/api/getParkByNiceName/:parkName", function(req, res) {
   const parkName = req.params.parkName;
-  LatLonmodel.find({
+  geo.LatLonModel.find({
     SiteName: parkName,
     active: { $ne: false }
   }, function(err, data) {
@@ -1264,7 +768,7 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
     companyMmsi.push(uservessels[i].mmsi);
   }
 
-  boatLocationmodel.aggregate([{
+  geo.VesselLocationModel.aggregate([{
       "$match": {
         MMSI: { $in: companyMmsi },
         active: { $ne: false }
@@ -1306,7 +810,7 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
 
 app.post("/api/getDatesWithValues", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    Transfermodel.find({
+    ctv.TransferModel.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
     }).distinct('date', null,  (err, data) =>{
@@ -1322,14 +826,14 @@ app.post("/api/getDatesWithValues", function(req, res) {
 
 app.post("/api/getSovDprInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.find({
+    sov.SovDprInputModel.find({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
     }, function(err, data) {
       if (err) return onError(res, err);
       if (data.length > 0) return res.send(data);
-      SovDprInputmodel.findOne({
+      sov.SovDprInputModel.findOne({
         mmsi: req.body.mmsi,
         date: { $lt: req.body.date }
       }).sort({
@@ -1419,7 +923,7 @@ app.post("/api/getSovDprInput", function(req, res) {
             "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
           };
         }
-        let sovDprData = new SovDprInputmodel(dprData);
+        let sovDprData = new sov.sov.SovDprInputModel(dprData);
 
         sovDprData.save((error, dprData) => {
           if (err) return onError(res, err);
@@ -1432,7 +936,7 @@ app.post("/api/getSovDprInput", function(req, res) {
 
 app.post("/api/getSovHseDprInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.find({
+    sov.SovHseDprInputModel.find({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1487,7 +991,7 @@ app.post("/api/getSovHseDprInput", function(req, res) {
           signedOffHse: ''
         }
       };
-      let sovHseDprData = new SovHseDprInputmodel(hseData);
+      let sovHseDprData = new sov.SovHseDprInputModel(hseData);
 
       sovHseDprData.save((err, hseData) => {
         if (err) return onError(res, err);
@@ -1499,7 +1003,7 @@ app.post("/api/getSovHseDprInput", function(req, res) {
 
 app.post("/api/updateSOVHseDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.findOneAndUpdate({
+    sov.SovHseDprInputModel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1514,7 +1018,7 @@ app.post("/api/updateSOVHseDpr", function(req, res) {
 
 app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.findOneAndUpdate({
+    sov.SovHseDprInputModel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1528,7 +1032,7 @@ app.post("/api/updateDprFieldsSOVHseDpr", function(req, res) {
 
 app.post("/api/saveFuelStatsSovDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-      SovDprInputmodel.updateOne({
+      sov.SovDprInputModel.updateOne({
         mmsi: req.body.mmsi,
         date: req.body.date,
         active: { $ne: false }
@@ -1542,7 +1046,7 @@ app.post("/api/saveFuelStatsSovDpr", function(req, res) {
 
 app.post("/api/saveIncidentDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1560,7 +1064,7 @@ app.post("/api/saveIncidentDpr", function(req, res) {
 
 app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovTurbineTransfersmodel.findOneAndUpdate({
+    sov.SovTurbineTransfersModel.findOneAndUpdate({
       _id: req.body._id,
       active: { $ne: false }
     }, {
@@ -1580,7 +1084,7 @@ app.post("/api/updateSOVTurbinePaxInput", function(req, res) {
 app.post("/api/updateSOVv2vPaxInput", function(req, res) {
   // Updates transfer info between SOV and other vessels
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovVessel2vesselTransfersmodel.findOneAndUpdate({
+    sov.SovVessel2vesselTransfersModel.findOneAndUpdate({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1597,7 +1101,7 @@ app.post("/api/updateSOVv2vPaxInput", function(req, res) {
 app.post("/api/getSovInfo/", function(req, res) {
   // Updates transfer info turbine transfers by DC craft.
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovInfomodel.find({
+    sov.SovInfoModel.find({
       mmsi: req.body.mmsi
     }, function(err, data) {
       if (err) return onError(res, err);
@@ -1612,7 +1116,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
     let info = req.body.update;
     let missed = req.body.missedTransfers || [];
     logger.info('Updating v2v transfers for mmsi: ' + req.body.mmsi + ', date: ' + req.body.date)
-    SovVessel2vesselTransfersmodel.findOne({
+    sov.SovVessel2vesselTransfersModel.findOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1630,7 +1134,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
           CTVactivity: v2v.CTVactivity,
           missedTransfers: missed
         }
-        SovVessel2vesselTransfersmodel.findOneAndUpdate({
+        sov.SovVessel2vesselTransfersModel.findOneAndUpdate({
           mmsi: req.body.mmsi,
           date: req.body.date,
           active: { $ne: false }
@@ -1639,7 +1143,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
           res.send({ data: "Succesfully saved the v2v transfer stats" });
         });
       } else { // v2v does not yet exist
-        new SovVessel2vesselTransfersmodel({
+        new sov.SovVessel2vesselTransfersModel({
           mmsi: req.body.mmsi,
           date: req.body.date,
           CTVactivity: [info],
@@ -1656,7 +1160,7 @@ app.post("/api/updateSOVv2vTurbineTransfers", function(req, res) {
 
 app.post("/api/updateSOVPlatformPaxInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovPlatformTransfersmodel.findOneAndUpdate({
+    sov.SovPlatformTransfersModel.findOneAndUpdate({
       _id: req.body._id,
       active: { $ne: false }
     }, {
@@ -1673,7 +1177,7 @@ app.post("/api/updateSOVPlatformPaxInput", function(req, res) {
 
 app.post("/api/saveNonAvailabilityDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1693,7 +1197,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
   let dateString = req.body.dateString || '<invalid date>';
   validatePermissionToViewVesselData(req, res, function(validated) {
     const token = req['token']
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
         mmsi: mmsi,
         date: date,
         active: { $ne: false }
@@ -1725,7 +1229,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
 app.post("/api/saveDprSigningClient", function(req, res) {
   const token = req['token']
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1751,7 +1255,7 @@ app.post("/api/declineDprClient", function(req, res) {
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1766,7 +1270,7 @@ app.post("/api/declineDprClient", function(req, res) {
       res.send({ data: "Succesfully declined the DPR" });
     });
 
-    SovDprInputmodel.findOne({
+    sov.SovDprInputModel.findOne({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1804,7 +1308,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
   const token = req['token']
 
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.updateOne({
+    sov.SovHseDprInputModel.updateOne({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1817,7 +1321,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
       if (err) return onError(res, err);
       res.send({ data: "Succesfully declined the HSE DPR" });
     });
-    SovHseDprInputmodel.findOne({
+    sov.SovHseDprInputModel.findOne({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1846,7 +1350,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
 
 app.post("/api/saveQHSERemark", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.updateOne({
+    sov.SovHseDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1868,7 +1372,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
   let date = req.body.date;
   const token = req['token']
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.updateOne({
+    sov.SovHseDprInputModel.updateOne({
       mmsi: mmsi,
       date: date,
       active: { $ne: false }
@@ -1887,7 +1391,7 @@ app.post("/api/saveHseDprSigningSkipper", function(req, res) {
 app.post("/api/saveHseDprSigningClient", function(req, res) {
   const token = req['token']
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovHseDprInputmodel.updateOne({
+    sov.SovHseDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1906,7 +1410,7 @@ app.post("/api/saveHseDprSigningClient", function(req, res) {
 
 app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1922,7 +1426,7 @@ app.post("/api/saveWeatherDowntimeDpr", function(req, res) {
 
 app.post("/api/saveAccessDayType", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1938,7 +1442,7 @@ app.post("/api/saveAccessDayType", function(req, res) {
 
 app.post("/api/saveStandByDpr", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1953,7 +1457,7 @@ app.post("/api/saveStandByDpr", function(req, res) {
 
 app.post("/api/saveRemarksStats", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1968,7 +1472,7 @@ app.post("/api/saveRemarksStats", function(req, res) {
 
 app.post("/api/saveCateringStats", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1983,7 +1487,7 @@ app.post("/api/saveCateringStats", function(req, res) {
 
 app.post("/api/saveDPStats", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -1998,7 +1502,7 @@ app.post("/api/saveDPStats", function(req, res) {
 
 app.post("/api/saveMissedPaxCargo", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -2013,7 +1517,7 @@ app.post("/api/saveMissedPaxCargo", function(req, res) {
 
 app.post("/api/saveHelicopterPaxCargo", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovDprInputmodel.updateOne({
+    sov.SovDprInputModel.updateOne({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -2031,17 +1535,17 @@ app.get("/api/getDatesWithTransferForSov/:mmsi", function(req, res) {
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
     // ToDo: This should be done in a asynchronous fashion - forkJoin or such
-    sovHasPlatformTransferModel.find({
+    sov.SovHasPlatformTransferModel.find({
       "mmsi": mmsi,
       active: { $ne: false }
     }, ['date']).distinct('date', function(err, platformTransferDates) {
       if (err) return onError(res, err);
-      sovHasTurbineTransferModel.find({
+      sov.SovHasTurbineTransferModel.find({
         "mmsi": mmsi,
         active: { $ne: false }
       }, ['date']).distinct('date', function(err, turbineTransferDates) {
         if (err) return onError(res, err);
-        sovHasV2VModel.find({
+        sov.SovHasV2vModel.find({
           'mmsi': mmsi,
           active: { $ne: false }
         }, ['date']).distinct('date', function(err, v2vTransferDates) {
@@ -2062,7 +1566,7 @@ app.get("/api/getDatesShipHasSailedForSov/:mmsi", function(req, res) {
   const mmsi = parseInt(req.params.mmsi);
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    SovModelmodel.find({
+    sov.SovGeneralModel.find({
       mmsi: mmsi,
       active: { $ne: false },
       distancekm: { $not: /_NaN_/ }
@@ -2078,7 +1582,7 @@ app.get("/api/getTransfersForVessel/:mmsi/:date", function(req, res) {
   let date = req.params.date;
   req.body.mmsi = mmsi;
   validatePermissionToViewVesselData(req, res, function(validated) {
-    Transfermodel.find({
+    ctv.TransferModel.find({
       mmsi: mmsi,
       date: date,
       active: { $ne: false },
@@ -2120,7 +1624,7 @@ function getCtvForRange(mmsi, startDate, stopDate, projection, res) {
       $lte: stopDate
     }
   };
-  return generalmodel.aggregate([
+  return ctv.GeneralModel.aggregate([
     { $match: query },
     { "$sort": { date: -1 } },
     { $project: projection },
@@ -2141,7 +1645,7 @@ function getSovForRange(mmsi, startDate, stopDate, projection, res) {
       $lte: stopDate
     }
   };
-  return SovModelmodel.aggregate([
+  return sov.SovGeneralModel.aggregate([
     { $match: query },
     { $project: projection },
     { "$sort": { date: -1 } },
@@ -2156,39 +1660,39 @@ function getSovForRange(mmsi, startDate, stopDate, projection, res) {
 }
 
 app.post("/api/getTransfersForVesselByRange", function(req, res) {
-  aggregateStatsOverModel(Transfermodel, req, res);
+  aggregateStatsOverModel(ctv.TransferModel, req, res);
 });
 
 app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
-  aggregateStatsOverModel(SovTurbineTransfersmodel, req, res);
+  aggregateStatsOverModel(sov.SovTurbineTransfersModel, req, res);
 });
 
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
-  aggregateStatsOverModel(SovPlatformTransfersmodel, req, res, { date: 'arrivalTimePlatform' });
+  aggregateStatsOverModel(sov.SovPlatformTransfersModel, req, res, { date: 'arrivalTimePlatform' });
 });
 
 app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
-  aggregateStatsOverModel(SovVessel2vesselTransfersmodel, req, res);
+  aggregateStatsOverModel(sov.SovVessel2vesselTransfersModel, req, res);
 });
 
 app.post("/api/getTransitsForVesselByRange", function(req, res) {
-  aggregateStatsOverModel(transitsmodel, req, res);
+  aggregateStatsOverModel(ctv.TransitsModel, req, res);
 });
 
 app.post("/api/getTransitsForVesselByRangeForSOV", function(req, res) {
-  aggregateStatsOverModel(SovTransitsmodel, req, res);
+  aggregateStatsOverModel(sov.SovTransitsModel, req, res);
 });
 
 app.post("/api/getEnginesForVesselByRange", function(req, res) {
-  aggregateStatsOverModel(engineDatamodel, req, res, { date: 'date' });
+  aggregateStatsOverModel(ctv.EngineDataModel, req, res, { date: 'date' });
 });
 
 app.post("/api/getPortcallsByRange", function(req, res) {
-  aggregateStatsOverModel(portcallModel, req, res);
+  aggregateStatsOverModel(sov.PortcallModel, req, res);
 });
 
 app.post("/api/getDprInputsByRange", function(req, res) {
-  aggregateStatsOverModel(SovDprInputmodel, req, res);
+  aggregateStatsOverModel(sov.SovDprInputModel, req, res);
 });
 
 app.post("/api/validatePermissionToViewData", function(req, res) {
@@ -2216,7 +1720,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
   }
 
   if (!token.permission.admin) return onUnauthorized(res);
-  generalmodel.aggregate([{
+  ctv.GeneralModel.aggregate([{
     $group: {
       _id: '$mmsi',
       'date': { $max: '$date' },
@@ -2227,7 +1731,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
     ctvData = data;
     cb();
   });
-  SovModelmodel.aggregate([{
+  sov.SovGeneralModel.aggregate([{
     $group: {
       _id: '$mmsi',
       'date': { $max: '$date' },
@@ -2242,7 +1746,7 @@ app.get('/api/getLatestGeneral', function(req, res) {
 
 app.post("/api/getVideoRequests", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    videoRequestedmodel.aggregate([{
+    videoRequests.VideoRequestedModel.aggregate([{
       "$match": {
         mmsi: { $in: [req.body.mmsi] },
         active: { $ne: false }
@@ -2266,7 +1770,7 @@ app.post("/api/getVideoRequests", function(req, res) {
 
 app.post("/api/getVideoBudgetByMmsi", function (req, res) {
   validatePermissionToViewVesselData(req, res, function (validated) {
-    videoBudgetmodel.find({
+    videoRequests.VideoBudgetModel.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
     }, function (err, data) {
@@ -2295,7 +1799,7 @@ app.post("/api/getVideoBudgetByMmsi", function (req, res) {
 app.post("/api/saveVideoRequest", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
     const token = req['token']
-    var videoRequest = new videoRequestedmodel();
+    var videoRequest = new videoRequests.VideoRequestedModel();
     videoRequest.mmsi = req.body.mmsi;
     videoRequest.requestID = req.body._id;
     videoRequest.videoPath = req.body.videoPath;
@@ -2305,7 +1809,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
     videoRequest.status = '';
     videoRequest.username = token.username;
 
-    videoRequestedmodel.findOneAndUpdate({
+    videoRequests.VideoRequestedModel.findOneAndUpdate({
       "requestID": mongo.Types.ObjectId(videoRequest.requestID)
     }, {
       mmsi: videoRequest.mmsi,
@@ -2319,14 +1823,14 @@ app.post("/api/saveVideoRequest", function(req, res) {
       upsert: true,
     }, function(err, data) {
       if (err) return onError(res, err);
-      videoBudgetmodel.findOne({
+      videoRequests.VideoBudgetModel.findOne({
         mmsi: req.body.mmsi,
         active: { $ne: false }
       }, function(err, data) {
         if (err) return onError(res, err);
 
         if (data) {
-          videoBudgetmodel.findOneAndUpdate({
+          videoRequests.VideoBudgetModel.findOneAndUpdate({
             mmsi: req.body.mmsi,
             date: req.body.date,
           }, {
@@ -2337,7 +1841,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
             return res.send({ data: "Succesfully saved the video request" });
           });
         } else {
-          const budget = new videoBudgetmodel();
+          const budget = new videoRequests.VideoBudgetModel;
           budget.mmsi = req.body.mmsi;
           budget.maxBudget = req.body.maxBudget;
           budget.currentBudget = req.body.currentBudget;
@@ -2355,7 +1859,7 @@ app.post("/api/saveVideoRequest", function(req, res) {
 
 app.post("/api/getGeneral", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    generalmodel.find({
+    ctv.GeneralModel.find({
       mmsi: req.body.mmsi,
       date: req.body.date,
       active: { $ne: false }
@@ -2369,7 +1873,7 @@ app.post("/api/getGeneral", function(req, res) {
 app.get("/api/getTurbineWarranty", function(req, res) {
   const token = req['token']
   if (!token.permission.admin) return onUnauthorized(res);
-  turbineWarrantymodel.find({
+  twa.TurbineWarrantyModel.find({
     active: { $ne: false }
   }, function(err, data) {
     if (err) return onError(res, err);
@@ -2379,7 +1883,7 @@ app.get("/api/getTurbineWarranty", function(req, res) {
 
 app.post("/api/getTurbineWarrantyOne", function(req, res) {
   const token = req['token']
-  turbineWarrantymodel.findOne({
+  twa.TurbineWarrantyModel.findOne({
     campaignName: req.body.campaignName,
     active: { $ne: false },
     windfield: req.body.windfield,
@@ -2391,7 +1895,7 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
       return res.send({ err: "No TWA found" });
     }
     if (!token.permission.admin && token.userCompany !== data.client) return onUnauthorized(res);
-    sailDayChangedmodel.find({
+    twa.SailDayChangedModel.find({
       fleetID: data._id,
       active: { $ne: false }
     }, function(err, _data) {
@@ -2404,7 +1908,7 @@ app.post("/api/getTurbineWarrantyOne", function(req, res) {
 app.post("/api/getTurbineWarrantyForCompany", function(req, res) {
   const token = req['token']
   if (!token.permission.admin && token.userCompany !== req.body.client && token.permission.twa.read) return onUnauthorized(res);
-  turbineWarrantymodel.find({
+  twa.TurbineWarrantyModel.find({
     client: req.body.client,
     active: { $ne: false }
   }, function(err, data) {
@@ -2420,7 +1924,7 @@ app.post("/api/setSaildays", function(req, res) {
     if (req.body[i].newValue + '' === req.body[i].oldValue + '') {
       continue;
     }
-    var sailDayChanged = new sailDayChangedmodel();
+    var sailDayChanged = new twa.SailDayChangedModel();
     sailDayChanged.vessel = req.body[i].vessel;
     sailDayChanged.date = req.body[i].date;
     sailDayChanged.fleetID = req.body[i].fleetID;
@@ -2450,10 +1954,10 @@ app.post("/api/addVesselToFleet", function(req, res) {
   } else {
     return res.status(400).send('No vessel entered');
   }
-  vesselsToAddToFleetmodel.find(filter, function(err, data) {
+  twa.VesselsToAddToFleetModel.find(filter, function(err, data) {
     if (err) return onError(res, err);
     if (data.length === 0) {
-      var vesselToAdd = new vesselsToAddToFleetmodel();
+      var vesselToAdd = new twa.VesselsToAddToFleetModel();
       vesselToAdd.campaignName = req.body.campaignName;
       vesselToAdd.startDate = req.body.startDate;
       vesselToAdd.windfield = req.body.windfield;
@@ -2478,7 +1982,7 @@ app.post("/api/addVesselToFleet", function(req, res) {
 });
 
 app.get("/api/getParkLocations", function(req, res) {
-  LatLonmodel.find({ active: { $ne: false } }, function(err, data) {
+  geo.LatLonModel.find({ active: { $ne: false } }, function(err, data) {
     if (err) return onError(res, err);
     res.send(data);
   });
@@ -2490,7 +1994,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(re
   let client = req.params.client;
   let stopDate = +req.params.stopDate;
   if (!token.permission.admin && token.userCompany !== client) return onUnauthorized(res);
-  activeListingsModel.aggregate([{
+  twa.ActiveListingsModel.aggregate([{
     $match: {
       fleetID: fleetID,
       active: { $ne: false }
@@ -2551,7 +2055,7 @@ app.get("/api/getActiveListingsForFleet/:fleetID/:client/:stopDate", function(re
         }
       }
     }
-    turbineWarrantymodel.findByIdAndUpdate(fleetID, {
+    twa.TurbineWarrantyModel.findByIdAndUpdate(fleetID, {
       $set: { activeFleet: activeVessels }
     }, {
       new: true
@@ -2566,7 +2070,7 @@ app.get("/api/getAllActiveListingsForFleet/:fleetID", function(req, res) {
   const token = req['token']
   let fleetID = req.params.fleetID;
   if (!token.permission.admin) return onUnauthorized(res);
-  activeListingsModel.find({
+  twa.ActiveListingsModel.find({
     fleetID: fleetID,
     active: { $ne: false }
   }, function(err, data) {
@@ -2593,7 +2097,7 @@ app.post("/api/setActiveListings", function(req, res) {
       startDate.setDate(startDate.getDate() - 1);
       var endDate = new Date(listing.dateEnd);
       endDate.setDate(endDate.getDate() + 1);
-      let activeListing = new activeListingsModel();
+      let activeListing = new twa.ActiveListingsModel();
       activeListing.vesselname = listing.vesselname;
       activeListing.fleetID = listing.fleetID;
       activeListing.dateChanged = Date.now();
@@ -2632,7 +2136,7 @@ app.post("/api/setActiveListings", function(req, res) {
       });
     }
   }
-  turbineWarrantymodel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function(err, data) {
+  twa.TurbineWarrantyModel.findByIdAndUpdate(fleetID, { $set: { activeFleet: activeVessels } }, { new: true }, function(err, data) {
     if (err) return onError(res, err);
     res.send({ data: "Active listings edited", twa: data });
   });
@@ -2640,7 +2144,7 @@ app.post("/api/setActiveListings", function(req, res) {
 
 app.post("/api/getHasSailedDatesCTV", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
-    hasSailedModelCTV.find({
+    ctv.HasSailedModelCTV.find({
       mmsi: req.body.mmsi,
       active: { $ne: false }
     }, ['date', 'distancekm'], function(err, data) {
@@ -2653,7 +2157,7 @@ app.post("/api/getHasSailedDatesCTV", function(req, res) {
 app.post("/api/getVesselsToAddToFleet", function(req, res) {
   const token = req['token']
   if (!token.permission.admin) return onUnauthorized(res);
-  vesselsToAddToFleetmodel.find({
+  twa.VesselsToAddToFleetModel.find({
     campaignName: req.body.campaignName,
     active: { $ne: false },
     windfield: req.body.windfield,
@@ -2667,7 +2171,7 @@ app.post("/api/getVesselsToAddToFleet", function(req, res) {
 app.post("/api/saveFleetRequest", function(req, res) {
   const token = req['token']
   if (!token.permission.admin && !token.permission.user_manage) return onUnauthorized(res);
-  const request = new turbineWarrantyRequestmodel();
+  const request = new twa.TurbineWarrantyRequestModel();
   request.fullFleet = req.body.boats;
   request.activeFleet = req.body.boats;
   request.client = req.body.client;
@@ -2709,7 +2213,7 @@ app.post("/api/getWavedataForDay", function(req, res) {
   let date = req.body.date ?? 0;
   let site = req.body.site ?? 'NONE';
 
-  wavedataModel.findOne({
+  weather.WavedataModel.findOne({
     date,
     site,
     active: { $ne: false }
@@ -2717,7 +2221,7 @@ app.post("/api/getWavedataForDay", function(req, res) {
     if (err) return onError(res, err);
     if (data?.source == null) return res.status(204).send({data: 'Not found'});
 
-    waveSourceModel.findById(data.source, (err, meta) => {
+    weather.WaveSourceModel.findById(data.source, (err, meta) => {
       if (err) return onError(res, err);
       let company = token.userCompany;
       let hasAccessRights = token.permission.admin|| (typeof(meta.clients) == 'string' ?
@@ -2735,7 +2239,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
   let stopDate = req.body.stopDate;
   let source = req.body.source;
 
-  wavedataModel.find({
+  weather.WavedataModel.find({
     date: { $gte: startDate, $lte: stopDate },
     source: source,
     active: { $ne: false }
@@ -2744,7 +2248,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
     if (datas === null) return res.status(204).send('Not found');
 
     datas.forEach(data =>
-      waveSourceModel.findById(data.source, (err, meta) => {
+      weather.WaveSourceModel.findById(data.source, (err, meta) => {
         if (err) return onError(res, err);
         let company = token.userCompany;
         let hasAccessRights = token.permission.admin || (typeof(meta.clients) == 'string' ?
@@ -2763,7 +2267,7 @@ app.post("/api/getWavedataForRange", function(req, res) {
 app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
   const token = req['token']
   if (token.permission.admin) {
-    waveSourceModel.find({}, {
+    weather.WaveSourceModel.find({}, {
         site: 1,
         name: 1
       }, {
@@ -2774,7 +2278,7 @@ app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
       }
     )
   } else {
-    waveSourceModel.find({
+    weather.WaveSourceModel.find({
         clients: { $in: [token.userCompany] },
       }, {
         site: 1,
@@ -2793,7 +2297,7 @@ app.get('/api/getLatestTwaUpdate/', function(req, res) {
   const token = req['token']
   if (token.permission.admin) {
     // let currMatlabDate = Math.floor((moment() / 864e5) + 719529 - 3);
-    turbineWarrantymodel.find({}, {
+    twa.TurbineWarrantyModel.find({}, {
       lastUpdated: 1
     }, (err, data) => {
       if (err) return onError(res, err);
