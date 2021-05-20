@@ -61,6 +61,9 @@ export abstract class E2ePageObject {
     const logs = await browser.manage().logs().get('browser')
 
     expect(Array.isArray(logs)).toBeTruthy('Failed to get logs from browser');
+    if (logs.length == 0) return;
+
+    console.log('Warnings found!')
     const errorLogs = logs.filter(log => {
       if (log.level.value < 1000) return false
       const match = log.message.match('maps\.googleapis');
@@ -70,6 +73,7 @@ export abstract class E2ePageObject {
       console.log(log)
       return true;
     });
+    console.log('Done testing logs')
     expect(errorLogs.length).toBe(0, 'Console errors were detected!');
   }
 
