@@ -13,7 +13,7 @@ export class ForecastResponsePage extends E2ePageObject {
 
   async getSettingsCard() {
     // return this.getCardByTitle('overview');
-    const cards = await element.all(by.className('card-header'));
+    const cards: ElementFinder[] = await element.all(by.className('card-header'));
     const is_match = await this.asyncForEach(cards, async e => {
       const txt = await e.getText();
       const match = txt.match('Project overview');
@@ -25,7 +25,13 @@ export class ForecastResponsePage extends E2ePageObject {
   async getProjectSettingsRow(txt: string): Promise<ElementFinder> {
     const card = await this.getSettingsCard();
     expect(await card.isPresent()).toBeTruthy('Card not found!')
-    return card.element(by.xpath('./tr[contains(text(),\'' + txt + '\')]'))
+    const rows = await card.all(by.css('tr'));
+    const row = this.asyncFind(rows, async (e) => {
+      const _txt = await e.getText();
+      const is_match = _txt.match(txt);
+      return is_match == null
+    });
+    return row;
   }
 
   // Tabs

@@ -241,17 +241,29 @@ function validatePermissionToViewVesselData(req, res, callback) {
   logger.trace('Validating permission to view vessel data')
   const token = req['token'];
   const mmsi = req.body.mmsi ?? req.params.mmsi
-  let filter;
-  if (token.permission.admin) {
-    filter = { mmsi };
-  } else {
-      filter = { mmsi, client: token.userCompany };
+  if (token.permission.admin) return callback(true)
+
+  if (!token.permission.user_see_all_vessels_client) {
+    logger.debug('Verifying vessel are included in token')
+    const user_vessels = token.userBoats;
+    const mmsi_in_token = user_vessels.some(v => v.mmsi == mmsi);
+    if (!mmsi_in_token) return res.onUnauthorized(`User not authorized for vessel ${mmsi}`);
   }
-  Vesselmodel.find(filter, ['_id'], function(err, isValid) {
-    if (err) return onError(res, err);
-    if (isValid.length < 1) return onUnauthorized(res, `User not authorized for vessel ${mmsi}`);
-    return callback(isValid);
-  });
+
+  const client_id = token.client_id;
+  const query = `SELECT v."mmsi"
+  FROM "vesselTable" v
+  where $1=ANY(v."client_ids")
+  `
+  logger.debug('Getting client vessels from admin db')
+  admin_server_pool.query(query, [client_id]).then(sqlresponse => {
+    logger.trace('Got sql response!')
+    const client_vessel_mmsi = sqlresponse.rows.map(r => r.mmsi);
+    const mmsi_in_token = client_vessel_mmsi.some(_mmsi => _mmsi == mmsi);
+    logger.debug('Getting client vessels from admin db')
+    if (!mmsi_in_token) return res.onUnauthorized(`User not authorized for vessel ${mmsi}`);
+    callback(true);
+  }).catch(res.onError)
 }
 
 function mailTo(subject, html, user) {

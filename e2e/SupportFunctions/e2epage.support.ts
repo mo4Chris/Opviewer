@@ -82,4 +82,10 @@ export abstract class E2ePageObject {
     }
     return out;
   }
+  async asyncFind(objects: ElementFinder[], callback: (e: ElementFinder) => Promise<boolean>): Promise<any> {
+    const valid = await this.asyncForEach(objects, callback);
+    const idx = valid.findIndex(v => v!= null);
+    if (idx == -1) return null;
+    return objects[idx];
+  }
 }
