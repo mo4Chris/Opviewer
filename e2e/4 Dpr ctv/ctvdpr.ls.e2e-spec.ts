@@ -17,14 +17,14 @@ describe('CTV dpr', () => {
 
         it('and should not redirect', async () => {
             expect(await page.getUrl()).toMatch('reports/dpr;mmsi');
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
         it('and should display no data message', async () => {
             const noDataMsg = element(by.tagName('h3'));
             expect(await noDataMsg.isDisplayed()).toBe(true);
             expect(await noDataMsg.getText()).toMatch('There is no');
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
     });
 
@@ -36,7 +36,7 @@ describe('CTV dpr', () => {
 
         it('Should load a map', async () => {
             expect(await page.getMap().isPresent()).toBe(true);
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
         // Check if route is drawn
@@ -54,7 +54,7 @@ describe('CTV dpr', () => {
             const printButton = page.getPrintFullButton();
             const result = page.clickPrintButton(printButton);
             expect(await result).toBe(true);
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
     });
 
@@ -66,7 +66,7 @@ describe('CTV dpr', () => {
 
         it('Should not redirect', async () => {
             expect(await page.getUrl()).toMatch('reports/dpr;mmsi');
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
     });
@@ -82,7 +82,7 @@ describe('CTV dpr', () => {
             expect(await nanElts.count()).toBe(0);
             nanElts = page.getEltsWithText('_NaN_');
             expect(await nanElts.count()).toBe(0);
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
     });
@@ -101,7 +101,7 @@ describe('CTV dpr', () => {
         it('and have multiple dockings', async () => {
             const dockings = page.getAllDockings();
             expect(await dockings.count()).toBeGreaterThan(0);
-            await  page.validateNoConsoleLogs();
+            await  page.validateNoConsoleErrors();
         });
 
         it('and set normal values for docking table', async () => {
@@ -122,7 +122,7 @@ describe('CTV dpr', () => {
             expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
             target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
             expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
         it('and save other comments', async () => {
@@ -141,7 +141,7 @@ describe('CTV dpr', () => {
             otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(await otherInput.isDisplayed()).toBe(true);
             expect(await otherInput.getAttribute('value')).toBe(str);
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
     });
@@ -172,7 +172,7 @@ describe('CTV dpr', () => {
 
             page.navigateTo();
             expect(await videoRequestBtn.getText()).toBe('Not requested');
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         }, 60000);
     });
 
@@ -187,7 +187,7 @@ describe('CTV dpr', () => {
             expect(await page.getSlipGraphs().count()).toBeGreaterThan(0);
             const slip = page.getSlipGraph(0);
             expect(await slip.isDisplayed()).toBe(true);
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
 
         it('and have formatted slip graphs', async () => {
@@ -200,7 +200,7 @@ describe('CTV dpr', () => {
                 const canvas = page.getCanvasFromSlipGraph(_slip);
                 expect(canvas.isDisplayed()).toBe(true);
             });
-            await page.validateNoConsoleLogs();
+            await page.validateNoConsoleErrors();
         });
     });
 });

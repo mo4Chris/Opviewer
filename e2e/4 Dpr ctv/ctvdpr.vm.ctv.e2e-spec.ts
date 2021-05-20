@@ -140,7 +140,7 @@ describe('CTV dpr', () => {
         it('should have loaded correctly', async () => {
             expect(await dockingRow.isPresent()).toBe(true, 'Docking row should be present')
             expect(await saveBtn.isPresent()).toBe(true, 'Docking row should be present')
-            await page.validateNoConsoleLogs()
+            await page.validateNoConsoleErrors()
         })
 
         it('should have multiple dockings', () => {
@@ -169,7 +169,7 @@ describe('CTV dpr', () => {
             expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
             target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
             expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
-            await page.validateNoConsoleLogs()
+            await page.validateNoConsoleErrors()
         });
 
         it('and allow users to input pax in / out', () => {
@@ -212,7 +212,7 @@ describe('CTV dpr', () => {
             expect(cargoInput.getValue()).toBe('0');
             cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
             expect(cargoOutput.getValue()).toBe('0');
-            return page.validateNoConsoleLogs()
+            return page.validateNoConsoleErrors()
         });
 
         it('Should save default comments', () => {
@@ -252,7 +252,7 @@ describe('CTV dpr', () => {
             otherInput = await page.getOtherCommentInputFromDockingRow(dockingRow);
             expect(await otherInput.isDisplayed()).toBe(true);
             expect(await otherInput.getAttribute('value')).toBe(str);
-            await page.validateNoConsoleLogs()
+            await page.validateNoConsoleErrors()
         });
 
     });
