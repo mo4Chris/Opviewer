@@ -194,14 +194,14 @@ describe('CTV dpr', () => {
     });
 
     it('and have formatted slip graphs', async () => {
-      const slips = page.getSlipGraphs();
-      await slips.each(_slip => {
-        expect(_slip.isDisplayed()).toBe(true);
+      const slips = await page.getSlipGraphs();
+      page.asyncForEach(slips, async _slip => {
+        expect(await _slip.isDisplayed()).toBe(true);
         const title = page.getTitleFromSlipGraph(_slip);
-        expect(title.isDisplayed()).toBe(true);
-        expect(title.getText()).toMatch(/Transfer: #\d+ - location: \w+ - Score: \d/);
+        expect(await title.isDisplayed()).toBe(true);
+        expect(await title.getText()).toMatch(/Transfer: #\d+ - location: \w+ - Score: \d/);
         const canvas = page.getCanvasFromSlipGraph(_slip);
-        expect(canvas.isDisplayed()).toBe(true);
+        expect(await canvas.isDisplayed()).toBe(true);
       });
       await page.validateNoConsoleErrors();
     });

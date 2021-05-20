@@ -45,14 +45,16 @@ describe('Ctv longterm module', () => {
 
   it('should allow adding vessels', async () => {
     const info = page.getVesselInfoTable();
-    expect(info.all(by.css('tbody>tr')).count()).toEqual(1);
+    const rows = info.all(by.css('tbody>tr'));
+    expect(await rows.count()).toEqual(1);
     const btn = await page.getVesselDropdown();
     await btn.click();
     const list = await page.getVesselList();
     list[0].$('div').click(); // Selects all vessels
     await browser.waitForAngular();
     expect(await page.getActiveVesselCount()).toBeGreaterThan(1, 'No more active vessels');
-    expect(await info.all(by.css('tbody>tr')).count()).toBeGreaterThan(1, 'Select all button not working properly');
+    expect(await rows.count()).toBeGreaterThan(1, 'Select all button not working properly');
+    await page.validateNoConsoleErrors()
   });
 
   it('should not fail without any selected vessels', async () => {
