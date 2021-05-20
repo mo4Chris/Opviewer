@@ -42,14 +42,14 @@ export class SignupComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this.permission.admin && !this.permission.userCreate) {
-      this.routerService.routeToAccessDenied();
-    } else {
-      this.createPermissions = this.createPermissions.concat(['admin', 'Logistics specialist']);
+    if (this.permission.admin) {
+      this.createPermissions = this.createPermissions.concat(['admin']);
       this.newService.getCompanies().subscribe(clients => {
         this.clients = clients;
         this.businessNames = clients.map(client => client.client_name);
       });
+    } else if (!this.permission.userCreate) {
+      this.routerService.routeToAccessDenied();
     }
   }
 
