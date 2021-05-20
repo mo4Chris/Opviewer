@@ -158,7 +158,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   }
   public onMapReady(googleMap: google.maps.Map) {
     this.googleMap = googleMap;
-    // this.addWaveFeaturesToMap();
+    this.addWaveFeaturesToMap();
   }
   public onVideoRequest(transfer: any) {
     // Callback when a new video is requested

@@ -45,22 +45,17 @@ describe('CTV dpr', () => {
     // Check if zoom is ok
   });
 
-  fdescribe('should generate print preview', () => {
+  describe('should generate print preview', () => {
     beforeEach(() => {
       page = new CtvDprPage();
       return page.navigateTo();
     });
 
     it('and have working print all button', async () => {
-      log('Starting test')
       const printButton = page.getPrintFullButton();
-      log('Wait for print button')
       expect(await printButton.isPresent()).toBeTruthy('Print button not found!')
-      log('Clicking print button')
       const result = await page.clickPrintButton(printButton);
       expect(await result).toBe(true);
-
-      log('Verify no errors')
       await page.validateNoConsoleErrors();
     });
   });
@@ -101,8 +96,8 @@ describe('CTV dpr', () => {
     beforeEach(async () => {
       page = new CtvDprPage();
       await page.navigateTo();
-      dockingRow = await page.getFirstDockingEntry();
-      saveBtn = await page.getSaveButtonFromDockingRow(dockingRow);
+      dockingRow = page.getFirstDockingEntry();
+      saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
     });
 
     it('and have multiple dockings', async () => {
@@ -112,23 +107,23 @@ describe('CTV dpr', () => {
     });
 
     it('and set normal values for docking table', async () => {
-      expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
+      expect(await dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
       let target = await page.getElementInDockingRowByTitle(dockingRow, '#');
-      expect(target.getText()).toBe('1');
+      expect(await target.getText()).toBe('1');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Location');
-      expect(target.getText()).toMatch(/\w+/, 'Location should be formatted');
+      expect(await target.getText()).toMatch(/\w+/, 'Location should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Start time');
-      expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
+      expect(await target.getText()).toMatch(/\d{2}:\d{2}/, 'Start time should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Stop time');
-      expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
+      expect(await target.getText()).toMatch(/\d{2}:\d{2}/, 'Stop time should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Duration');
-      expect(target.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
+      expect(await target.getText()).toMatch(/\d{2}:\d{2}/, 'Duration should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Max impact');
-      expect(target.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
+      expect(await target.getText()).toMatch(/\dKN/, 'Map impact should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Score');
-      expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
+      expect(await target.getText()).toMatch(/\d/, 'Score should be formatted');
       target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
-      expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
+      expect(await target.getText()).toMatch(/\w+/, 'Detector should be formatted');
       await page.validateNoConsoleErrors();
     });
 
@@ -167,17 +162,18 @@ describe('CTV dpr', () => {
 
     it('should request video from docking', async () => {
       let videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
-      expect(await videoRequestBtn.getText()).toBe('Not requested');
-      videoRequestBtn.click();
+
+      const initial_request_status = await videoRequestBtn.getText();
+      if (initial_request_status ==  'Not requested') await videoRequestBtn.click();
       expect(await videoRequestBtn.getText()).toBe('Requested');
 
-      page.navigateTo();
+      await page.navigateTo();
       videoRequestBtn = page.getVideoRequestButtonFromDockingRow(dockingRow);
       expect(await videoRequestBtn.getText()).toBe('Requested');
-      videoRequestBtn.click();
+      await videoRequestBtn.click();
       expect(await videoRequestBtn.getText()).toBe('Not requested');
 
-      page.navigateTo();
+      await page.navigateTo();
       expect(await videoRequestBtn.getText()).toBe('Not requested');
       await page.validateNoConsoleErrors();
     }, 60000);
