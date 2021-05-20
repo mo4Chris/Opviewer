@@ -142,7 +142,7 @@ export class DashboardComponent implements OnInit {
           }
         }
         this.eventService.closeLatestAgmInfoWindow();
-      }, 1000);
+      }, 100);
       // We need to tell angular that the 10 minute dashboard update
       // should not be waited for with regards to change detection.
       setTimeout(() => {

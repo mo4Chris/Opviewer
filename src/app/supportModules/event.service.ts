@@ -24,17 +24,13 @@ export class EventService {
   }
 
   closeAgmInfoWindow(infoWindow) {
-    if (infoWindow !== undefined) {
-      infoWindow.close();
-      infoWindow = undefined;
-    }
+    infoWindow.close();
+    infoWindow = undefined;
   }
 
   closeLatestAgmInfoWindow() {
-    if (this.Previous !== undefined) {
-      this.Previous.close();
-      this.Previous = undefined;
-    }
+    this.Previous?.close();
+    this.Previous = undefined;
   }
 }
 

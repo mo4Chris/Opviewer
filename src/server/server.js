@@ -3,21 +3,21 @@ var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 var pino = require('pino');
 
-var mo4lightServer = require('./server/mo4light.server.js')
-var fileUploadServer = require('./server/file-upload.server.js')
-var mo4AdminServer = require('./server/administrative.server.js')
-var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
+var mo4lightServer = require('./mo4light.server.js')
+var fileUploadServer = require('./file-upload.server.js')
+var mo4AdminServer = require('./administrative.server.js')
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
 
 var mongo = require("mongoose");
 var { Pool } = require('pg')
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
-var ctv = require('./server/models/ctv.js')
-var sov = require('./server/models/sov.js')
-var geo = require('./server/models/geo.js')
-var twa = require('./server/models/twa.js')
-var videoRequests = require('./server/models/video_requests.js')
-var weather = require('./server/models/weather.js')
+var ctv = require('./models/ctv.js')
+var sov = require('./models/sov.js')
+var geo = require('./models/geo.js')
+var twa = require('./models/twa.js')
+var videoRequests = require('./models/video_requests.js')
+var weather = require('./models/weather.js')
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -761,13 +761,10 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
 });
 
 app.get("/api/getLatestBoatLocation/", async function(req, res) {
-  let companyMmsi = [];
   const uservessels = await getVesselsForUser(req);
-  if (!Array.isArray(uservessels)) return null
-  for (let i = 0; i < uservessels.length; i++) {
-    companyMmsi.push(uservessels[i].mmsi);
-  }
+  if (!Array.isArray(uservessels)) return null;
 
+  const companyMmsi = uservessels.map(v => v['mmsi'])
   geo.VesselLocationModel.aggregate([{
       "$match": {
         MMSI: { $in: companyMmsi },
@@ -777,15 +774,9 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
     {
       $group: {
         _id: "$MMSI",
-        "LON": {
-          "$last": "$LON"
-        },
-        "LAT": {
-          "$last": "$LAT"
-        },
-        "TIMESTAMP": {
-          "$last": "$TIMESTAMP"
-        }
+        "LON": { "$last": "$LON" },
+        "LAT": { "$last": "$LAT" },
+        "TIMESTAMP": { "$last": "$TIMESTAMP" }
       }
     },
     // This code runs every 30 seconds if left in place

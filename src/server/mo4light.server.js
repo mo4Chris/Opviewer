@@ -180,7 +180,7 @@ module.exports = function(app, logger, admin_server_pool) {
       const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
       const project_output = data.map(d => {
         return {
-          name: d.name,
+          nicename: d.nicename,
           lon: d.longitude,
           lat: d.latitude
         }

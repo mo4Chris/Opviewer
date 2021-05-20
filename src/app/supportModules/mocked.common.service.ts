@@ -649,9 +649,9 @@ export class MockedCommonService extends CommonService {
       lat: [1]
     }]);
   }
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, name: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
     return mockedObservable([{
-      name: 'Test harbour',
+      nicename: 'Test harbour',
       lon: 50,
       lat: 1
     }]);
