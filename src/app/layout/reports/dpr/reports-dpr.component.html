@@ -39,11 +39,11 @@
 <div *ngIf="noPermissionForData == false; else noPermission"  [hidden]="!loaded" style="width: 100%">
     <!-- This builds the CTV / SOV subpages -->
     <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
-      [tokenInfo]="tokenInfo" (sailDates)="getDatesHasSailed($event)"
+      [tokenInfo]="tokenInfo" (sailDates)="setDatesHasSailed($event)"
       >
     </app-ctvreport>
     <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
-      [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (sailDates)="getDatesHasSailed($event)"
+      [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (sailDates)="setDatesHasSailed($event)"
       [printMode]="printMode" (loaded)="isLoaded($event)">
     </app-sovreport>
 </div>
