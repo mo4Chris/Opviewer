@@ -46,20 +46,20 @@ describe('vm-ctv: Vessels and Reports page', () => {
 
   it('Should allow for filtering', async () => {
     const searchField = page.getSearchField();
+    expect(await searchField.isPresent()).toBeTruthy('Filter field not found!')
+
     let vessels = await page.getActiveVesselNames();
     let original: string;
 
     expect(vessels.length).toBeGreaterThan(0, 'Expect at least one vessel before filtering');
     original = await vessels[0].getText()
 
-    searchField.sendKeys('nonExiSTentVesselName');
-    await browser.waitForAngular();
+    await searchField.sendKeys('nonExiSTentVesselName');
     vessels = await page.getActiveVesselNames();
-    expect(vessels.length).toBe(0);
+    expect(vessels.length).toBe(0, 'No vessels should match bad filter');
 
-    searchField.sendKeys(Key.chord(Key.CONTROL, 'a'));
-    searchField.sendKeys(Key.DELETE);
-    browser.waitForAngular();
+    await searchField.sendKeys(Key.chord(Key.CONTROL, 'a'));
+    await searchField.sendKeys(Key.DELETE);
     vessels = await page.getActiveVesselNames();
     expect(vessels.length).toBeGreaterThan(0, 'Expect at least 1 vessel after clearing filter');
     if (vessels.length > 0) {
