@@ -240,7 +240,7 @@ function verifyToken(req, res) {
 /**
  * Verifies whether or not a user has permission to view data based on mmsi
  *
- * @param {{body: {mmsi: number | number[]}, params: {mmsi: number | number[]}}} req Request
+ * @param {Request} req Request
  * @param {Response} res
  * @param {(tf) => void} callback
  * @returns {void};
@@ -2289,31 +2289,28 @@ app.post("/api/getWavedataForRange", function(req, res) {
 
 app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
   const token = req['token']
-  if (token.permission.admin) {
-    weather.WaveSourceModel.find({}, {
-        site: 1,
-        name: 1
-      }, {
-        sort: { site: 1 }
-      }, (err, data) => {
-        if (err) return onError(res, err);
-        res.send(data);
-      }
-    )
-  } else {
-    weather.WaveSourceModel.find({
-        clients: { $in: [token.userCompany] },
-      }, {
-        site: 1,
-        name: 1,
-      }, {
-        sort: { site: 1 }
-      }, (err, data) => {
-        if (err) return onError(res, err);
-        res.send(data);
-      }
-    )
-  }
+  if (token.permission.admin) return weather.WaveSourceModel.find({}, {
+      site: 1,
+      name: 1
+    }, {
+      sort: { site: 1 }
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data);
+    }
+  )
+  weather.WaveSourceModel.find({
+      clients: { $in: [token.userCompany] },
+    }, {
+      site: 1,
+      name: 1,
+    }, {
+      sort: { site: 1 }
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data);
+    }
+  )
 })
 
 app.get('/api/getLatestTwaUpdate/', function(req, res) {

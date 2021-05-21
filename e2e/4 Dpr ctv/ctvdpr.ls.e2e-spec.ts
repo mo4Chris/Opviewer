@@ -195,7 +195,7 @@ describe('CTV dpr', () => {
 
     it('and have formatted slip graphs', async () => {
       const slips = await page.getSlipGraphs();
-      page.asyncForEach(slips, async _slip => {
+      await page.asyncForEach(slips, async _slip => {
         expect(await _slip.isDisplayed()).toBe(true);
         const title = page.getTitleFromSlipGraph(_slip);
         expect(await title.isDisplayed()).toBe(true);

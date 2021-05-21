@@ -67,10 +67,10 @@ export class CtvDprPage extends E2ePageObject {
   getEltInDockingRow(row: ElementFinder, index: number) {
     return tableHandler.getRowElementByIndex(row, index);
   }
-  getElementInDockingRowByTitle(row: ElementFinder, title: string) {
+  async getElementInDockingRowByTitle(row: ElementFinder, title: string) {
     const table = element(by.xpath('//app-ctv-turbine-transfer/table'));
-    expect(table.isPresent()).toBeTruthy('CTV turbine table must be present');
-    return tableHandler.getElementInRowByTitle(table, row, title);
+    expect(await table.isPresent()).toBeTruthy('CTV turbine table must be present');
+    return await tableHandler.getElementInRowByTitle(table, row, title);
   }
 
   getPaxInputFromDockingRow(row: ElementFinder) {
@@ -117,10 +117,10 @@ export class CtvDprPage extends E2ePageObject {
     return this.getSlipGraphs().get(index);
   }
   getTitleFromSlipGraph(graph: ElementFinder) {
-    return graph.element(by.tagName('h3'));
+    return graph.element(by.css('h3'));
   }
   getCanvasFromSlipGraph(graph: ElementFinder) {
-    return graph.element(by.tagName('canvas'));
+    return graph.element(by.css('canvas'));
   }
 
   private addGetValue(btn: ElementFinder) {

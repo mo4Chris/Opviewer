@@ -9,7 +9,7 @@ export class E2eTableHandler {
 
   async getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): Promise<ElementFinder> {
     const headers = table.all(by.xpath('thead/tr/th'));
-    expect(headers.count()).toBeGreaterThan(0, 'Table must have headers');
+    expect(await headers.count()).toBeGreaterThan(0, 'Table must have headers');
 
     const titles = await headers.getText()  as unknown as string[];
     const index = titles.findIndex(t => {

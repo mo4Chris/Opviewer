@@ -6,7 +6,7 @@ export class CtvLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    return browser.get('/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
+    return browser.get('/reports/longterm;mmsi=123456789;vesselName=TEST%20BMO');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {
@@ -45,11 +45,10 @@ export class CtvLtmPage extends E2ePageObject {
   }
 
   getVesselInfoTable() {
-    return element(by.xpath('//app-vesselinfo/table'));
+    return element(by.css('app-vesselinfo')).element(by.css('table'));
   }
-
   getWaveDropdown() {
-    return element(by.xpath('//ng-multiselect-dropdown[@name="selectField"]/div'));
+    return element(by.xpath('//*[@id="selectField"]/div'));
   }
   async selectWaveSourceByIndex(index = 1) {
     const btn = await this.getWaveDropdown();
@@ -71,38 +70,41 @@ export class LtmDatePicker {
   cancelBtn = this.pickerDiv.element(by.buttonText('Close without changing date'));
   private y = this.pickerDiv.element(by.xpath('//select[@title="Select year"]'));
   private m = this.pickerDiv.element(by.xpath('//select[@title="Select month"]'));
-  private leftMonth = this.pickerDiv.all(by.tagName('ngb-datepicker-month-view')).first();
+  private leftMonth = this.pickerDiv.all(by.css('ngb-datepicker-month')).first();
 
-  async open() {
-    await this.openBtn.click();
-    await browser.waitForAngular();
-  }
   isOpen() {
     return this.pickerDiv.isPresent();
   }
   getYear() {
-      return getValue(this.y);
-  }
-  async setYear(year: number) {
-      await this.y.click();
-      const btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
-      await btn.click();
+    return getValue(this.y);
   }
   getMonth() {
-      return getValue(this.m);
-  }
-  async setMonth(month: number) {
-      await this.m.click();
-      const btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
-      await btn.click();
+    return getValue(this.m);
   }
   getDay() {
-      const btn = this.leftMonth.element(by.className('custom-day'));
-      return btn.getText();
+    const btn = this.leftMonth.element(by.className('custom-day'));
+    return btn.getText();
   }
-  setDay(day: number) {
-      return this.getDayCell(day).click();
+  async open() {
+    await this.openBtn.click();
+    await browser.waitForAngular();
   }
+  async setYear(year: number) {
+    await this.y.click();
+    const btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
+    await btn.click();
+  }
+  async setMonth(month: number) {
+    await this.m.click();
+    const btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
+    await btn.click();
+  }
+  async setDay(day: number) {
+    const cell = await this.getDayCell(day);
+    expect(await cell.isPresent()).toBeTruthy(`Could not find day cell ${day}`)
+    await cell.click();
+  }
+
   async setDate(ymd: DateYMD) {
     await this.setYear(ymd.year);
     await this.setMonth(ymd.month);
@@ -111,7 +113,7 @@ export class LtmDatePicker {
   async setDateRange(from: DateYMD, to: DateYMD) {
     const _open = await this.isOpen()
     if (!_open) {
-      this.open();
+      await this.open();
     }
     await this.setDate(from);
     await this.setDate(to);
@@ -126,8 +128,10 @@ export class LtmDatePicker {
     return element(by.id('nextMonthButton'));
   }
 
-  private getDayCell(day: number) {
-      return this.leftMonth.element(by.xpath('.//span[text()=" ' + day + ' "]'));
+  private async getDayCell(day: number) {
+    const left = await this.leftMonth;
+    expect(await left.isPresent()).toBeTruthy('Left month div not found!')
+    return left.element(by.xpath(`.//span[text()=" ${day} "]`));
   }
 }
 

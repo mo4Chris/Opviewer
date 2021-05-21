@@ -112,6 +112,7 @@ export class LongtermComponent implements OnInit {
         this.newService.getVessel(),
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
       ]).subscribe(([fields, vessels, validatedValue]) => {
+        console.log('[fields, vessels, validatedValue]', [fields, vessels, validatedValue])
         if (validatedValue.length != 1) return this.noPermissionForData = true;
         this.vesselType = validatedValue[0]?.operationsClass;
         this.fieldsWithWavedata = fields;
