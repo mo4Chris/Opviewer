@@ -62,18 +62,10 @@
 
           <li ngbNavItem="forecast-motion-overview">
             <a ngbNavLink>Motion overview</a>
-            <ng-template #weatherGraph id="tab-motion" ngbNavContent>
-              <!-- <app-forecast-workability-plot class="left"
-                [time]="reponseTime" [workabilityAlongHeading]="WorkabilityAlongSelectedHeading"
-                [startTime]="startTime" [stopTime]="stopTime">
-              </app-forecast-workability-plot> -->
+            <ng-template #motionGraph id="tab-motion" ngbNavContent>
               <app-forecast-motion-overview [time]="reponseTime" [headings]="WorkabilityHeadings"
                 [startTime]="startTime" [stopTime]="stopTime" [response]="response?.Response">
               </app-forecast-motion-overview>
-              <!-- <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
-                [yData]="WorkabilityHeadings" [zData]="matService.transpose(response['Response']['Acc'])"
-                zMax="125" class=left>
-              </app-surface-plot> -->
             </ng-template>
           </li>
 
