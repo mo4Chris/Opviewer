@@ -63,7 +63,7 @@ export class PermissionService extends PermissionModel {
 
     // Copy all the permission properties to this class
     Object.keys(permission).forEach(key => {
-      if (this[key] !== undefined) {
+      if (this[key] != null) {
 
         this[key] = permission[key];
       }
@@ -144,8 +144,10 @@ class MarineController extends PermissionModel {
   sovDprInputSign = true;
   sovHseWrite = true;
   longterm = true;
+  userRead = true;
 
   sovWaveSpectrum = true;
+  ctvVideoRequest = true;
 }
 
 class LogisticSpecialist extends PermissionModel {

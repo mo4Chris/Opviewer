@@ -4,35 +4,37 @@ import { browser, element, by, ExpectedConditions, Key } from 'protractor';
 describe('vm-ctv: Vessels and Reports page', () => {
   let page: ReportsPage;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     page = new ReportsPage();
-    page.navigateTo();
+    await page.navigateTo();
   });
 
-  it('Should not be redirected', () => {
+  it('Should not be redirected', async () => {
     const isRedirected = browser.wait(ExpectedConditions.urlContains('/reports'), 2000);
-    expect(isRedirected).toBe(true);
+    expect(await isRedirected).toBe(true);
   });
 
-  it('should have correct header', () => {
-    expect(page.checkVesselsHeader()).toContain('Vessel overview');
+  it('should have correct header', async () => {
+    expect(await page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
-  it('should display vessel list', () => {
-    const vessels = element.all(by.binding('nicename')).first();
-    expect(page.checkVesselsHeader()).toContain('Vessel overview');
+  it('should display vessel list', async () => {
+    const vessels = await element.all(by.id('vesselnameValue'));
+    expect(vessels.length).toBeGreaterThan(0);
+    const header = await page.checkVesselsHeader();
+    expect( header ).toContain('Vessel overview');
   });
 
-  it('should allow sorting on vessel name', () => {
-    page.clickSortButton('vesselname');
-    browser.waitForAngular();
-    expect(page.checkVesselsHeader()).toContain('Vessel overview');
+  it('should allow sorting on vessel name', async () => {
+    await page.clickSortButton('vesselname');
+    await browser.waitForAngular();
+    expect(await page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
-  it('should allow sorting on mmsi', () => {
-    page.clickSortButton('mmsi');
-    browser.waitForAngular();
-    expect(page.checkVesselsHeader()).toContain('Vessel overview');
+  it('should allow sorting on mmsi', async () => {
+    await page.clickSortButton('mmsi');
+    await browser.waitForAngular();
+    expect(await page.checkVesselsHeader()).toContain('Vessel overview');
   });
 
   // it('should allow sorting on clients', () => {
@@ -42,36 +44,33 @@ describe('vm-ctv: Vessels and Reports page', () => {
   //   expect(page.checkVesselsHeader()).toContain('Vessel overview');
   // });
 
-  it('Should allow for filtering', (done) => {
+  it('Should allow for filtering', async () => {
     const searchField = page.getSearchField();
-    let vessels = page.getActiveVesselNames();
+    let vessels = await page.getActiveVesselNames();
     let original: string;
 
-    expect(vessels.count()).toBeGreaterThan(0, 'Expect at least one vessel before filtering');
-    vessels.first().getText().then(txt => {
-      original = txt;
-    });
+    expect(vessels.length).toBeGreaterThan(0, 'Expect at least one vessel before filtering');
+    original = await vessels[0].getText()
 
     searchField.sendKeys('nonExiSTentVesselName');
-    browser.waitForAngular();
-    vessels = page.getActiveVesselNames();
-    expect(vessels.count()).toBe(0);
+    await browser.waitForAngular();
+    vessels = await page.getActiveVesselNames();
+    expect(vessels.length).toBe(0);
 
     searchField.sendKeys(Key.chord(Key.CONTROL, 'a'));
     searchField.sendKeys(Key.DELETE);
     browser.waitForAngular();
-    vessels = page.getActiveVesselNames();
-    expect(vessels.count()).toBeGreaterThan(0, 'Expect at least 1 vessel after clearing filter');
-    vessels.first().getText().then(txt => {
-      expect(txt).toEqual(original);
-      done();
-    });
+    vessels = await page.getActiveVesselNames();
+    expect(vessels.length).toBeGreaterThan(0, 'Expect at least 1 vessel after clearing filter');
+    if (vessels.length > 0) {
+      expect(vessels[0].getText()).toEqual(original);
+    }
   });
 
-  it('Should successfully click the dpr button', () => {
-    element.all(by.id('routeToDpr')).first().click();
-    browser.waitForAngular();
-    expect(browser.getCurrentUrl()).toMatch('/reports/dpr');
+  it('Should successfully click the dpr button', async () => {
+    await element.all(by.id('routeToDpr')).first().click();
+    await browser.waitForAngular();
+    expect(await browser.getCurrentUrl()).toMatch('/reports/dpr');
   });
 
   // it('Should successfully click the ltm button', () => {

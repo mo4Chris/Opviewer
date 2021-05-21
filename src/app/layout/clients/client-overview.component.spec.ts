@@ -1,16 +1,15 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientOverviewComponent } from './client-overview.component';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderModule } from '../../shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { UserTestService } from '../../shared/services/test.user.service';
+import { MockedUserServiceProvider, UserTestService } from '../../shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
-describe('UsermanagementComponent', () => {
+describe('ClientOverviewComponent', () => {
   let component: ClientOverviewComponent;
   let fixture: ComponentFixture<ClientOverviewComponent>;
   const user = UserTestService.getMockedAccessToken();
@@ -26,7 +25,10 @@ describe('UsermanagementComponent', () => {
         BrowserAnimationsModule,
       ],
         declarations: [ClientOverviewComponent ],
-        providers: [MockedCommonServiceProvider],
+        providers: [
+          MockedCommonServiceProvider,
+          MockedUserServiceProvider,
+        ],
     })
     .compileComponents();
   }));

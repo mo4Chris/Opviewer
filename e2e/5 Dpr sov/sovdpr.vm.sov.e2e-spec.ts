@@ -4,14 +4,14 @@ import { E2eSelectHandler } from '../SupportFunctions/e2eDropdown.support';
 
 describe('Sov dpr', () => {
     let page: SovDprPage;
-    afterEach(() => {
-      page.validateNoConsoleLogs();
-    });
+    // afterEach(() => {
+    //   page.validateNoConsoleLogs();
+    // });
 
     describe('in case of no data', () => {
         beforeEach(() => {
             page = new SovDprPage();
-            page.navigateToEmpty();
+            return page.navigateToEmpty();
         });
 
         it('should not redirect', () => {
@@ -32,7 +32,7 @@ describe('Sov dpr', () => {
     describe('should always', () => {
         beforeEach(() => {
             page = new SovDprPage();
-            page.navigateTo();
+            return page.navigateTo();
         });
 
         it('load a map', () => {
@@ -86,7 +86,7 @@ describe('Sov dpr', () => {
     describe('summary tab', () => {
         beforeEach(() => {
             page = new SovDprPage();
-            page.navigateTo();
+            return page.navigateTo();
         });
 
         it('should be selected on intialization', () => {

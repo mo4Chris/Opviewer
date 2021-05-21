@@ -1,7 +1,5 @@
-import { browser, element, by, ExpectedConditions, ElementFinder } from 'protractor';
+import { element, by, ElementFinder } from 'protractor';
 import { CtvDprPage } from './ctvdpr.po';
-import { env } from 'process';
-import { callbackify } from 'util';
 import { E2eDropdownHandler } from '../SupportFunctions/e2eDropdown.support';
 import { E2eRandomTools } from '../SupportFunctions/e2eRandom.support';
 
@@ -10,9 +8,9 @@ const dropdownHandler = new E2eDropdownHandler();
 const e2eRng = new E2eRandomTools();
 describe('CTV dpr', () => {
     let page: CtvDprPage;
-    afterEach(() => {
-      page.validateNoConsoleLogs();
-    });
+    // afterEach(() => {
+    //   page.validateNoConsoleLogs();
+    // });
 
     describe('Should not fail without data', () => {
         beforeEach(() => {
@@ -132,21 +130,28 @@ describe('CTV dpr', () => {
         let dockingRow: ElementFinder;
         let saveBtn: ElementFinder;
 
-        beforeEach(() => {
+        beforeEach(async () => {
             page = new CtvDprPage();
-            page.navigateTo();
-            dockingRow = page.getFirstDockingEntry();
-            saveBtn = page.getSaveButtonFromDockingRow(dockingRow);
+            await page.navigateTo();
+            dockingRow = await page.getFirstDockingEntry();
+            saveBtn = await page.getSaveButtonFromDockingRow(dockingRow);
         });
 
-        it('Should have multiple dockings', () => {
+        it('should have loaded correctly', async () => {
+            expect(await dockingRow.isPresent()).toBe(true, 'Docking row should be present')
+            expect(await saveBtn.isPresent()).toBe(true, 'Docking row should be present')
+            await page.validateNoConsoleLogs()
+        })
+
+        it('should have multiple dockings', () => {
             const dockings = page.getAllDockings();
             expect(dockings.count()).toBeGreaterThan(0);
         });
 
         it('should set normal values for docking table', async () => {
             expect(dockingRow.isPresent()).toBe(true, 'Page should contain docking row');
-            expect(page.getEltInDockingRow(dockingRow, 0).getText()).toBe('1');
+            const elt = await page.getEltInDockingRow(dockingRow, 0);
+            expect(elt.getText()).toBe('1');
 
             let target = await page.getElementInDockingRowByTitle(dockingRow, '#');
             expect(target.getText()).toBe('1');
@@ -164,6 +169,7 @@ describe('CTV dpr', () => {
             expect(target.getText()).toMatch(/\d/, 'Score should be formatted');
             target = await page.getElementInDockingRowByTitle(dockingRow, 'Detector');
             expect(target.getText()).toMatch(/\w+/, 'Detector should be formatted');
+            await page.validateNoConsoleLogs()
         });
 
         it('and allow users to input pax in / out', () => {
@@ -206,6 +212,7 @@ describe('CTV dpr', () => {
             expect(cargoInput.getValue()).toBe('0');
             cargoOutput = page.getCargoOutputFromDockingRow(dockingRow);
             expect(cargoOutput.getValue()).toBe('0');
+            return page.validateNoConsoleLogs()
         });
 
         it('Should save default comments', () => {
@@ -229,22 +236,23 @@ describe('CTV dpr', () => {
             expect(dropdownHandler.getValue(commentBtn)).toBe(oldValue);
         });
 
-        it('should save other comments', () => {
-            const commentBtn = page.getCommentButtonFromDockingRow(dockingRow);
+        it('should save other comments', async () => {
+            const commentBtn = await page.getCommentButtonFromDockingRow(dockingRow);
             dropdownHandler.setValue(commentBtn, 'Other');
-            let otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
-            expect(otherInput.isDisplayed()).toBe(true);
+            let otherInput = await page.getOtherCommentInputFromDockingRow(dockingRow);
+            expect(await otherInput.isDisplayed()).toBe(true);
 
             const str = e2eRng.getRandomString();
-            otherInput.clear();
-            otherInput.sendKeys(str);
-            saveBtn.click();
+            await otherInput.clear();
+            await otherInput.sendKeys(str);
+            await saveBtn.click();
 
-            page.navigateTo();
-            dockingRow = page.getFirstDockingEntry();
-            otherInput = page.getOtherCommentInputFromDockingRow(dockingRow);
-            expect(otherInput.isDisplayed()).toBe(true);
-            expect(otherInput.getAttribute('value')).toBe(str);
+            await page.navigateTo();
+            dockingRow = await page.getFirstDockingEntry();
+            otherInput = await page.getOtherCommentInputFromDockingRow(dockingRow);
+            expect(await otherInput.isDisplayed()).toBe(true);
+            expect(await otherInput.getAttribute('value')).toBe(str);
+            await page.validateNoConsoleLogs()
         });
 
     });
@@ -262,9 +270,8 @@ describe('CTV dpr', () => {
         });
 
         it('and video request should not be displayed', () => {
-
-            expect(element(by.name('videoRequest')).isPresent()).toBe(false);
-
+            const videoRequest = element(by.name('videoRequest'))
+            expect(videoRequest.isPresent()).toBe(false);
         });
     });
 

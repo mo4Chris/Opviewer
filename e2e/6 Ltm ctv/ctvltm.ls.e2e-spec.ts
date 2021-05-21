@@ -6,74 +6,80 @@ describe('Ctv longterm module', () => {
   let page: CtvLtmPage;
   beforeEach(() => {
     page = new CtvLtmPage();
-    page.navigateTo();
+    return page.navigateTo();
   });
-  afterEach(() => {
-    page.validateNoConsoleLogs();
-  });
+  // afterEach(() => {
+  //   page.validateNoConsoleLogs();
+  // });
 
-  it('should initialize correctly', () => {
-    expect(page.getNanCount()).toBe(0);
+  it('should initialize correctly', async () => {
+    expect(await page.getNanCount()).toBe(0);
     expect(page.dp.getLastMonthBtn().isEnabled()).toBe(true);
     expect(page.dp.getNextMonthBtn().isEnabled()).toBe(false);
-    expect(page.getVesselList().count()).toBeGreaterThan(0);
-    expect(page.dp.isOpen()).toBe(false);
-    expect(page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-\d{2}/);
+    const vessels = await page.getVesselList();
+    expect(vessels.length).toBeGreaterThan(0);
+    expect(await page.dp.isOpen()).toBe(false);
+    expect(await page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-\d{2}/);
   });
 
-  it('should switch dates via buttons', () => {
-    page.switchLastMonth();
+  it('should switch dates via buttons', async () => {
+    await page.switchLastMonth();
     expect(page.getNanCount()).toBe(0);
-    expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
-    expect(page.getVesselList().count()).toBeGreaterThan(0);
-    expect(page.dp.isOpen()).toBe(false, 'Date picker should be closed');
-    expect(page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-01/);
+    expect(await page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
+    const vessels = await page.getVesselList();
+    expect(vessels.length).toBeGreaterThan(0);
+    expect(await page.dp.isOpen()).toBe(false, 'Date picker should be closed');
+    expect(await page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-01/);
   });
 
-  it('should only load new data when confirming the new date selection', () => {
+  it('should only load new data when confirming the new date selection', async () => {
     const dp = page.dp;
-    dp.open();
-    dp.setDate({year: 2020, month: 1, day: 1});
-    dp.setDate({year: 2020, month: 2, day: 1});
-    const oldDateString = page.getDateString();
-    expect(page.dp.getNextMonthBtn().isEnabled()).toBe(false, 'Next day button should only enable on confirm');
-    dp.cancelBtn.click();
-    expect(page.getDateString()).toBe(oldDateString);
+    await dp.open();
+    await dp.setDate({year: 2020, month: 1, day: 1});
+    await dp.setDate({year: 2020, month: 2, day: 1});
+    const oldDateString = await page.getDateString();
+    expect(await page.dp.getNextMonthBtn().isEnabled()).toBe(false, 'Next day button should only enable on confirm');
+    await dp.cancelBtn.click();
+    expect(await page.getDateString()).toBe(oldDateString);
   });
 
-  it('should allow adding vessels', () => {
+  it('should allow adding vessels', async () => {
     const info = page.getVesselInfoTable();
     expect(info.all(by.css('tbody>tr')).count()).toEqual(1);
-    const btn = page.getVesselDropdown();
-    btn.click();
-    const list = page.getVesselList();
-    list.first().$('div').click(); // Selects all vessels
-    browser.waitForAngular();
-    expect(page.getActiveVesselCount()).toBeGreaterThan(1, 'No more active vessels');
-    expect(info.all(by.css('tbody>tr')).count()).toBeGreaterThan(1, 'Select all button not working properly');
+    const btn = await page.getVesselDropdown();
+    await btn.click();
+    const list = await page.getVesselList();
+    list[0].$('div').click(); // Selects all vessels
+    await browser.waitForAngular();
+    expect(await page.getActiveVesselCount()).toBeGreaterThan(1, 'No more active vessels');
+    expect(await info.all(by.css('tbody>tr')).count()).toBeGreaterThan(1, 'Select all button not working properly');
   });
 
-  it('should not fail without any selected vessels', () => {
-    const active = page.getSelectedVessels();
-    expect(active.count()).toEqual(1, 'Should have 1 selected vessel');
-    active.each(e => {
-      return e.$('a').click();
-    });
-    browser.waitForAngular();
-    expect(active.count()).toEqual(0, 'Should have no selected vessels');
+  it('should not fail without any selected vessels', async () => {
+    const active = await page.getSelectedVessels();
+    expect(active.length).toEqual(1, 'Should have 1 selected vessel');
+    const btns = await active;
+    for (let i = 0; i < btns.length; i++) {
+      let e = btns[i];
+      await e.$('a').click();
+    };
+    await browser.waitForAngular();
+    const new_active = await page.getSelectedVessels();
+    expect(new_active.length).toEqual(0, 'Should have no selected vessels');
   });
 
-  it('should initialize correctly when data is present', () => {
-    page.setDateRange({year: 2020, month: 1, day: 1}, {year: 2020, month: 2, day: 1});
-    expect(page.getNanCount()).toBe(0, 'Can be no nans!');
-    expect(page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');    expect(page.getGraphContainers().count()).toBeGreaterThan(3);
+  it('should initialize correctly when data is present', async () => {
+    await page.setDateRange({year: 2020, month: 1, day: 1}, {year: 2020, month: 2, day: 1});
+    expect(await page.getNanCount()).toBe(0, 'Can be no nans!');
+    expect(await page.dp.getNextMonthBtn().isEnabled()).toBe(true, 'Next month button should be enabled');
+    expect(await page.getGraphContainers().count()).toBeGreaterThan(3);
   });
 
-  it('should load wave data', () => {
-    page.selectWaveSourceByIndex(1);
+  it('should load wave data', async () => {
+    await page.selectWaveSourceByIndex(1);
     expect(page).toBeTruthy();
-    const vesselActivityChart = element(by.id('deploymentGraph'));
-    expect(vesselActivityChart.isPresent()).toBe(true);
+    const vesselActivityChart = await element(by.id('deploymentGraph'));
+    expect(await vesselActivityChart.isPresent()).toBe(true);
   });
 });
 

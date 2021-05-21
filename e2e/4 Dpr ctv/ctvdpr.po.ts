@@ -8,15 +8,15 @@ const dropdownHandler = new E2eDropdownHandler();
 const tableHandler = new E2eTableHandler();
 export class CtvDprPage extends E2ePageObject {
     navigateTo() {
-        browser.get('/reports/dpr;mmsi=123456789;date=737700');
+        return browser.get('/reports/dpr;mmsi=123456789;date=737700');
     }
 
     navigateToEmpty() {
-        browser.get('/reports/dpr;mmsi=123456789;date=737701');
+        return browser.get('/reports/dpr;mmsi=123456789;date=737701');
     }
 
     navigateToLatest() {
-        browser.get('/reports/dpr;mmsi=123456789');
+        return browser.get('/reports/dpr;mmsi=123456789');
     }
 
     getUrl() {

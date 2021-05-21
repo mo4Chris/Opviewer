@@ -25,6 +25,28 @@
       <td>Location</td>
       <td colspan="2">{{gps.formatLat(response?.latitude)}}, {{gps.formatLng(response?.longitude)}}</td>
     </tr>
+    <tr>
+      <td>Slip window length</td>
+      <td colspan="2">
+        <div class="input-group">
+          <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Window_Length_Seconds" disabled>
+          <div class="input-group-append tight">
+            <span class="input-group-text">s</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Max allowed slip</td>
+      <td colspan="2">
+        <div class="input-group">
+          <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Max_Allowed_Slip_Meter" disabled>
+          <div class="input-group-append tight">
+            <span class="input-group-text">m</span>
+          </div>
+        </div>
+      </td>
+    </tr>
     <tr><td colspan="3" class="empty-row"></td></tr>
 
     <tr>
@@ -93,18 +115,22 @@
       <td>
         <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
       </td>
-      <td> <input type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
-        [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)"
-        step="0.05" [(ngModel)]="slipValue" (change)="onSlipCoefChange()" > </td>
+      <td>
+        <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
+          [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)"
+          step="0.05" [(ngModel)]="slipValue" (change)="onSlipCoefChange()" >
+      </td>
       <td>{{slipValue}}</td>
     </tr>
     <tr *ngIf="slipThrustLevels?.length > 1">
       <td>
         <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
       </td>
-      <td> <input type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
-        [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length - 1], 100)"
-        step="10000" [(ngModel)]="thrustValue" (change)="onThrustIndexChange()" > </td>
+      <td>
+        <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
+          [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length - 1], 100)"
+          step="10000" [(ngModel)]="thrustValue" (change)="onThrustIndexChange()" >
+      </td>
       <td>{{formatThrust(thrustValue)}}</td>
     </tr>
 
@@ -122,10 +148,12 @@
           <option value='Acc'>Acceleration</option>
           <option value='Vel'>Velocity</option>
           <option value='Disp'>Displacement</option>
+          <option value='Slip'>Slip prob</option>
         </select>
       </td>
       <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
+          [disabled]="limit.Type == 'Slip'">
           <option value="Surge">Surge</option>
           <option value="Sway">Sway</option>
           <option value="Heave">Heave</option>
@@ -140,7 +168,7 @@
           <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"
             [min]="0"  (change)="onLimitsChange()">
           <div class="input-group-append tight">
-            <span class="input-group-text">{{limit.Unit}}</span>
+            <span class="input-group-text">{{limit.Unit || '-'}}</span>
           </div>
         </div>
       </td>
@@ -148,11 +176,11 @@
     <tr>
       <td colspan=3 *ngIf="permission.forecastChangeLimits">
         <div [ngbTooltip]="currentlyDisabled">
-        <button class="btn btn-sm btn-danger float-right" [disabled]="true || !(limits?.length)"
+        <button class="btn btn-sm btn-danger float-right" [disabled]="(limits==null) || (limits?.length<=0)"
           (click)="onRemoveLimitsLine();" type="button">
           Remove last
         </button>
-        <button class="btn btn-sm btn-success float-right" [disabled]="true"
+        <button class="btn btn-sm btn-success float-right" [disabled]="(limits==null) || (limits?.length>=3)"
           (click)="onAddLimitsLine();" type="button">
           Add line
         </button>

@@ -136,14 +136,16 @@ export class SovWaveSpectrumComponent implements OnChanges {
         title: 'Tx [1/s]',
         showgrid: false,
         zeroline: false,
-        range: [-1.15 * this.Kmax, 1.15*this.Kmax]
+        range: [-1.15 * this.Kmax, 1.15*this.Kmax],
+        fixedrange: true,
       },
       yaxis: {
         visible: false,
         title: 'Ty [1/s]',
         showgrid: false,
         zeroline: false,
-        range: [-1.15 * this.Kmax, 1.15*this.Kmax]
+        range: [-1.15 * this.Kmax, 1.15*this.Kmax],
+        fixedrange: true,
       },
       radialaxis: {
         'visible': false,

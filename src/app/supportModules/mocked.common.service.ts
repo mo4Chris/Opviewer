@@ -244,8 +244,8 @@ export class MockedCommonService extends CommonService {
     }]);
   }
   getVessel(): Observable<VesselModel[]> {
-    const mock = mockedObservable(this.getVesselDefault());
-    return mock;
+    const def = this.getVesselDefault();
+    return mockedObservable(def);
   }
   getVesselDefault(): VesselModel[] {
     return [{
@@ -735,6 +735,9 @@ export class MockedCommonService extends CommonService {
       consumer_id: 123
     }]);
   }
+  getClientList() {
+    return mockedObservable([]);
+  }
   getForecastClientList() {
     return mockedObservable([]);
   }
@@ -954,7 +957,7 @@ function mockForecastProjectPreferences(): ForecastExpectedResponsePreference {
             "Dof": "Roll",
             "Type": "Acc",
             "Value": 3.0,
-            "Unit": "m"
+            "Unit": "deg/s2"
         })
     ],
     "Ctv_Slip_Options": {

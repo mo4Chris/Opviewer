@@ -140,9 +140,10 @@ module.exports = function (
       FROM "userTable"
       WHERE "token"=$1`
     const values = [token];
+    localLogger.debug('Getting user info from admin db')
     admin_server_pool.query(query, values).then((sqlresponse) => {
       localLogger.debug('Got sql response')
-      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      if (sqlresponse.rowCount == 0) return res.onBadRequest('User not found / token invalid')
       const data = sqlresponse.rows[0];
       const requires2fa = data.requires2fa ?? true;
       if (!requires2fa) localLogger.info('User does not require 2FA')
@@ -161,6 +162,7 @@ module.exports = function (
       `
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
       const value2 = [hashed_password, usableSecret2fa, user_id]
+      localLogger.debug('Performing password update')
       admin_server_pool.query(query2, value2).then(() => {
         logger.info('Updated password for user with id ' + user_id)
         res.send({ data: 'Password set successfully!' })

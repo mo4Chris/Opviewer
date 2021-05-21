@@ -5,36 +5,36 @@ import { DashboardPage } from './dashboard.po';
 describe('VM CTV: Dashboard', () => {
   let page: DashboardPage;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     page = new DashboardPage();
-    page.navigateTo();
+    await page.navigateTo();
   });
 
   describe('should load general info', () => {
-    it('and not redirect', () => {
-        expect(page.pageRedirectsDashboard()).toBe(true);
+    it('and not redirect', async () => {
+        expect(await page.pageRedirectsDashboard()).toBe(true);
     });
 
-    it('and have correct title', () => {
-        expect(page.checkDashboardHeader()).toMatch('Dashboard');
+    it('and have correct title', async () => {
+        expect(await page.checkDashboardHeader()).toMatch('Dashboard');
     });
 
-    it('and have correctly loaded the legend', () => {
-        const legend = element(by.id('mapLegendID'));
+    it('and have correctly loaded the legend', async () => {
+        const legend = await element(by.id('mapLegendID'));
         expect(legend.isPresent()).toBe(true, 'Legend failed to load');
-        const entries = element.all(by.xpath('//div[@id=\'mapLegendID\']/div/span'));
-        expect(entries.count()).toBeGreaterThan(1, 'Legend has no entries');
+        const entries = await element.all(by.xpath('//div[@id=\'mapLegendID\']/div/span'));
+        expect(entries.length).toBeGreaterThan(1, 'Legend has no entries');
     });
 
-    it('and correctly load the map', () => {
-        expect(page.checkDashboardMapExists()).toBe(true);
+    it('and correctly load the map', async () => {
+        expect(await page.checkDashboardMapExists()).toBe(true);
     });
   });
 
-  describe('should load ctv vm feature', () => {
-    it('table', () => {
+  describe('should load ctv vm feature', async () => {
+    it('table', async () => {
       // At given date, all transfers are assigned
-      expect(element(by.className('table')).isPresent()).toBe(false);
+      expect(await element(by.className('table')).isPresent()).toBe(false);
     });
   });
 });

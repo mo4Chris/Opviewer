@@ -87,7 +87,6 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
   }
 
   constructor(
-    private calcService: CalculationService,
     private http: HttpClient,
     private ref: ChangeDetectorRef,
   ) { }

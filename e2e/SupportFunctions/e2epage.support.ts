@@ -49,25 +49,18 @@ export abstract class E2ePageObject {
     }
   }
 
-  validateNoConsoleLogs() {
-    browser.manage().logs().get('browser').then(logs => {
-      if (logs && Array.isArray(logs)) {
-        const errorLogs = logs.filter(log => {
-          let tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
-          if (tf) {
-            const match = log.message.match('maps\.googleapis');
-            if (match && match.length > 0) {
-              tf = false;
-            } else {
-              console.log(log);
-            }
-          }
-          return tf;
-        });
-        expect(errorLogs.length).toBe(0, 'Console errors were detected!');
-      } else {
-        throw(new Error('Failed to get logs from browser'));
+  async validateNoConsoleLogs() {
+    const logs = await browser.manage().logs().get('browser')
+
+    expect(Array.isArray(logs)).toBeTruthy('Failed to get logs from browser');
+    const errorLogs = logs.filter(log => {
+      const match = log.message.match('maps\.googleapis');
+      if (match && match.length > 0) {
+        return false;
       }
+      console.log(log)
+      return true;
     });
+    expect(errorLogs.length).toBe(0, 'Console errors were detected!');
   }
 }
