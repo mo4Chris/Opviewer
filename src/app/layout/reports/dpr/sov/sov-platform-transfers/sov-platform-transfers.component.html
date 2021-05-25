@@ -109,8 +109,7 @@
                   (ngModelChange)="updatePaxCargoTotal()">
                 lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="5"></td>
             </tr>
             <tr name="helicopter">
               <th>Helicopter transfers</th>
@@ -164,7 +163,7 @@
                   (ngModelChange)="updatePaxCargoTotal()">
                 lift off
               </td>
-              <td colspan="2"></td>
+              <td colspan="5"></td>
             </tr>
             <tr *ngIf="v2vPaxCargoTotals" class="tableTotal">
               <th>V2V transfers</th>
@@ -177,7 +176,7 @@
                 {{v2vPaxCargoTotals.cargoIn}} lift on <br>
                 {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
-              <td colspan="3"></td>
+              <td colspan="5"></td>
 
             </tr>
             <tr class="tableTotal">
