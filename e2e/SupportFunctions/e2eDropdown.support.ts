@@ -56,7 +56,7 @@ export class E2eSelectHandler {
     }
     open(elt: ElementFinder) {
         // this._getButton(elt).click();
-        elt.click();
+        return elt.click();
     }
     setValue(elt: ElementFinder, s: string) {
         this.open(elt);
@@ -70,9 +70,9 @@ export class E2eSelectHandler {
             }
         });
     }
-    setValueByIndex(elt: ElementFinder, idx: number) {
-        this.open(elt);
-        this._getOptions(elt).get(idx).click();
+    async setValueByIndex(elt: ElementFinder, idx: number) {
+        await this.open(elt);
+        await this._getOptions(elt).get(idx).click();
     }
     setNewOption(elt: ElementFinder) {
         this.open(elt);

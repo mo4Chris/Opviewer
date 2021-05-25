@@ -36,9 +36,9 @@ export abstract class E2ePageObject {
   getActiveTooltips() {
     return element.all(by.xpath('//ngb-tooltip-window/div[contains(@class, "tooltip-inner")]'));
   }
-  getTooltipForElt(elt: ElementFinder) {
-    browser.actions().mouseMove(elt).perform();
-    browser.waitForAngular();
+  async getTooltipForElt(elt: ElementFinder) {
+    await browser.actions().mouseMove(elt).perform();
+    await browser.waitForAngular();
     return this.getActiveTooltips().first();
   }
   getInputByPlaceholder(txt: string, elt?: ElementFinder) {
