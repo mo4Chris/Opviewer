@@ -7,9 +7,6 @@ describe('Ctv longterm module', () => {
     page = new CtvLtmPage();
     page.navigateTo();
   });
-  // afterEach(() => {
-  //   page.validateNoConsoleLogs();
-  // });
 
   describe('LTM for marine controllers', () => {
     it('should not redirect', async () => {
