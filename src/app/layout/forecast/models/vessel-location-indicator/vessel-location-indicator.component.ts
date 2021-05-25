@@ -89,15 +89,9 @@ export class VesselLocationIndicatorComponent implements OnChanges {
     private ref: ChangeDetectorRef,
     private zone: NgZone
   ) {
-    // this.zone.onStable.subscribe(() => {
-    //   this.zone.runOutsideAngular(() => {
-    //     console.log('ZONE STABALIZED!')
-    //   })
-    // })
   }
 
   async ngOnChanges(change: SimpleChanges) {
-    console.log('ON CHANGE')
     if (change && (change['Length'] ||  change['Height'] ||  change['Width'])) {
       await this.setVesselTrace();
     }
