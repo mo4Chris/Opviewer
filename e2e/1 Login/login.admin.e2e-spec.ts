@@ -1,8 +1,7 @@
 import { LoginPage } from './login.po';
-import { browser, element, by, ExpectedConditions } from 'protractor';
-import { env } from 'process';
+import { element, by } from 'protractor';
 
-describe('Admin login page', () => {
+describe('Admin - login page', () => {
   let page: LoginPage;
 
   beforeEach(() => {
@@ -27,11 +26,11 @@ describe('Admin login page', () => {
     const helpbtn = element(by.className('helpBtn'));
     let helpRef = element(by.className('popover-body'));
     expect(await helpRef.isPresent()).toBe(false);
-    helpbtn.click();
+    await helpbtn.click();
     helpRef = element(by.className('popover-body'));
     expect(await helpRef.isPresent()).toBe(true);
     expect(await helpRef.getText()).toMatch('2FA');
-    helpbtn.click();
+    await helpbtn.click();
     helpRef = element(by.className('popover-body'));
     expect(await helpRef.isPresent()).toBe(false);
   });
