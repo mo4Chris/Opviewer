@@ -6,7 +6,7 @@ describe('Dashboard', () => {
 
     beforeEach(() => {
         page = new DashboardPage();
-        page.navigateTo();
+        return page.navigateTo();
     });
 
     describe('should load general info', () => {
@@ -14,15 +14,16 @@ describe('Dashboard', () => {
             expect(page.pageRedirectsDashboard()).toBe(true);
         });
 
-        it('and have correct title', () => {
-            expect(page.checkDashboardHeader()).toMatch('Dashboard');
+        it('and have correct title', async () => {
+            const header = await page.checkDashboardHeader();
+            expect(header).toMatch('Dashboard');
         });
 
-        it('and have correctly loaded the legend', () => {
+        it('and have correctly loaded the legend', async () => {
             const legend = element(by.id('mapLegendID'));
-            expect(legend.isPresent()).toBe(true, 'Legend failed to load');
+            expect(await legend.isPresent()).toBe(true, 'Legend failed to load');
             const entries = element.all(by.xpath('//div[@id=\'mapLegendID\']/div/span'));
-            expect(entries.count()).toBeGreaterThan(1, 'Legend has no entries');
+            expect(await entries.count()).toBeGreaterThan(1, 'Legend has no entries');
         });
 
         it('and correctly load the map', () => {
@@ -30,11 +31,11 @@ describe('Dashboard', () => {
         });
     });
 
-    // describe('Should have admin-specific features', () => {
-    //     it('Should show number of active account', () => {
-    //         page.navigateTo();
-    //         let numAccounts = element(by.binding('num_active_accounts')).getText();
-    //         expect(+numAccounts).toBeGreaterThan(5);
-    //     })
-    // })
+    describe('Should have admin-specific features', () => {
+        it('Should show number of active account', async () => {
+            await page.navigateTo();
+            let numAccounts = await element(by.id('num_active_accounts')).getText();
+            expect(+numAccounts).toBeGreaterThan(5);
+        })
+    })
 });
