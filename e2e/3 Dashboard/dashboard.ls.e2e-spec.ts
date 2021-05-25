@@ -7,7 +7,7 @@ describe('LS: Dashboard', () => {
 
   beforeEach(() => {
     page = new DashboardPage();
-    page.navigateTo();
+    return page.navigateTo();
   });
 
   describe('should load general info', () => {
@@ -15,15 +15,16 @@ describe('LS: Dashboard', () => {
         expect(page.pageRedirectsDashboard()).toBe(true);
     });
 
-    it('and have correct title', () => {
-        expect(page.checkDashboardHeader()).toMatch('Dashboard');
+    it('and have correct title', async () => {
+      const header = await page.checkDashboardHeader()
+      expect(header).toMatch('Dashboard');
     });
 
-    it('and have correctly loaded the legend', () => {
+    it('and have correctly loaded the legend', async () => {
         const legend = element(by.id('mapLegendID'));
-        expect(legend.isPresent()).toBe(true, 'Legend failed to load');
+        expect(await legend.isPresent()).toBe(true, 'Legend failed to load');
         const entries = element.all(by.xpath('//div[@id=\'mapLegendID\']/div/span'));
-        expect(entries.count()).toBeGreaterThan(1, 'Legend has no entries');
+        expect(await entries.count()).toBeGreaterThan(1, 'Legend has no entries');
     });
 
     it('and correctly load the map', () => {

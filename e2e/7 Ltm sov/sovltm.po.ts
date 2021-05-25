@@ -1,7 +1,5 @@
 import { E2ePageObject } from '../SupportFunctions/e2epage.support';
 import { browser, element, by, ElementFinder } from 'protractor';
-import { env } from 'process';
-import { E2eDatePicker } from '../SupportFunctions/e2eDatepicker.support';
 import { LtmDatePicker } from '../6 Ltm ctv/ctvltm.po';
 
 
@@ -9,19 +7,19 @@ export class SovLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get('/reports/longterm;mmsi=987654321;vesselName=SOV%20example');
+    return browser.get('/reports/longterm;mmsi=987654321;vesselName=SOV%20example');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {
-    this.dp.setDateRange(from, to);
+    return this.dp.setDateRange(from, to);
   }
-  switchLastMonth() {
-    this.dp.getLastMonthBtn().click();
-    browser.waitForAngular();
+  async switchLastMonth() {
+    await this.dp.getLastMonthBtn().click();
+    await browser.waitForAngular();
   }
-  switchNextMonth() {
-    this.dp.getNextMonthBtn().click();
-    browser.waitForAngular();
+  async switchNextMonth() {
+    await this.dp.getNextMonthBtn().click();
+    await browser.waitForAngular();
   }
   getDateString() {
     return element(by.xpath('//h1/h2/small')).getText();
@@ -29,16 +27,16 @@ export class SovLtmPage extends E2ePageObject {
 
   getVesselDropdown() {
     const dropdown =  element(by.xpath('//ng-multiselect-dropdown[@id="selectVessel"]/div'));
-    expect(dropdown.isPresent()).toBe(true, 'Vessel dropdown not found!');
+    // expect(dropdown.isPresent()).toBe(true, 'Vessel dropdown not found!');
     return dropdown;
   }
   getVesselList() {
     const list = this.getVesselDropdown().element(by.className('dropdown-list'));
-    expect(list.isPresent()).toBe(true, 'Vessel list not found!');
+    // expect(list.isPresent()).toBe(true, 'Vessel list not found!');
     return list.all(by.xpath('.//ul/li'));
   }
   getSelectedVessels() {
-    this.getVesselList().filter((elt, cnt) => {
+    return this.getVesselList().filter((elt, cnt) => {
       return true;
     });
   }

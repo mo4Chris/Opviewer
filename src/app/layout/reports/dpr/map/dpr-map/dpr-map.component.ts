@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { GmapService } from '@app/supportModules/gmap.service';
 import { MapStore, TurbinePark, OffshorePlatform, HarbourLocation } from '@app/stores/map.store';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -9,6 +9,7 @@ import { MapZoomLayer } from '@app/models/mapZoomLayer';
   selector: 'app-dpr-map',
   templateUrl: './dpr-map.component.html',
   styleUrls: ['./dpr-map.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DprMapComponent implements OnChanges {
   @Input() vesselTrace: GeoTrace;
@@ -24,6 +25,7 @@ export class DprMapComponent implements OnChanges {
     private calcService: CalculationService,
     private geoService: LonlatService,
     private ref: ChangeDetectorRef,
+    private zone: NgZone,
   ) {
   }
 
@@ -65,40 +67,40 @@ export class DprMapComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    if (this.hasValidVesselTrace) {
-      if (!this.googleMap) {
-        this.initMapPromise();
-      }
-      this.routeFound = true;
-      this.ref.detectChanges();
-      this.setMapProperties();
-      Promise.all([
-        this.getPlatformsNearVesselTrace(),
-        this.getParksNearVesselTrace(),
-        this.mapIsReady,
-        this.mapStore.harbours,
-      ]).then(([_platforms, _parks, _map, _harbours]) => {
-        this.platforms = _platforms;
-        this.parks = _parks;
-        this.googleMap = _map;
-        this.harbours = _harbours;
-        this.onAllReady();
-      });
-    } else {
+    if (!this.hasValidVesselTrace) {
       this.routeFound = false;
-      this.ref.detectChanges();
+      return this.ref.detectChanges();
     }
+    if (!this.googleMap) this.initMapPromise();
+
+    this.routeFound = true;
+    this.ref.detectChanges();
+    this.setMapProperties();
+    Promise.all([
+      this.getPlatformsNearVesselTrace(),
+      this.getParksNearVesselTrace(),
+      this.mapIsReady,
+      this.mapStore.harbours,
+    ]).then(([_platforms, _parks, _map, _harbours]) => {
+      this.platforms = _platforms;
+      this.parks = _parks;
+      this.googleMap = _map;
+      this.harbours = _harbours;
+      this.onAllReady();
+    });
   }
 
   // Init
   initMapPromise() {
     this.mapIsReady = new Promise((resolve, reject) => {
       this.triggerMapPromise = resolve;
-      setTimeout(() => {
-        if (this.hasValidVesselTrace) {
-          reject('Error initializing google map!');
-        }
-      }, 30000);
+      this.zone.runOutsideAngular(() => {
+        setTimeout(() => {
+          if (this.hasValidVesselTrace) {
+            reject('Error initializing google map!');
+          }
+        }, 30000);
+      })
     });
   }
   setMapProperties() {

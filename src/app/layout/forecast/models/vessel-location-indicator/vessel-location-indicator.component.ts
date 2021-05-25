@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
-import { CalculationService } from '@app/supportModules/calculation.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, NgZone, OnChanges, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { Observable, Subscriber, TeardownLogic } from 'rxjs';
 
 @Component({
@@ -9,7 +8,7 @@ import { Observable, Subscriber, TeardownLogic } from 'rxjs';
   styleUrls: ['./vessel-location-indicator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
+export class VesselLocationIndicatorComponent implements OnChanges {
   @Input() Length = 70;
   @Input() Width = 20;
   @Input() Height = 10;
@@ -56,7 +55,6 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
       }
     },
     xaxis: {
-
       mirror: true,
     },
     hovermode: false,
@@ -89,14 +87,13 @@ export class VesselLocationIndicatorComponent implements OnInit, OnChanges {
   constructor(
     private http: HttpClient,
     private ref: ChangeDetectorRef,
-  ) { }
-
-  ngOnInit() {
-    // this.initNodes();
+    private zone: NgZone
+  ) {
   }
+
   async ngOnChanges(change: SimpleChanges) {
     if (change && (change['Length'] ||  change['Height'] ||  change['Width'])) {
-       await this.setVesselTrace();
+      await this.setVesselTrace();
     }
     if (this.hasData) {
       this.plotData = [{

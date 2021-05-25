@@ -242,7 +242,6 @@ module.exports = function (
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),
       };
-      localLogger.info(payload)
       localLogger.trace('Signing payload')
       token = jwt.sign(payload, 'secretKey');
       localLogger.debug('Login succesful for user: ' + user.username.toLowerCase())

@@ -7,25 +7,18 @@ export class E2eTableHandler {
     return row.all(by.tagName('td')).get(index);
   }
 
-  getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): promise.Promise<ElementFinder> {
+  async getElementInRowByTitle(table: ElementFinder, row: ElementFinder, key: string): Promise<ElementFinder> {
     const headers = table.all(by.xpath('thead/tr/th'));
-    expect(headers.count()).toBeGreaterThan(0, 'Table must have headers');
+    expect(await headers.count()).toBeGreaterThan(0, 'Table must have headers');
 
-    const titles = headers.getText()  as unknown as promise.Promise<string[]>;
-
-    const combined: promise.Deferred<ElementFinder> = protractor.promise.defer();
-    titles.then(texts => {
-      const index = texts.findIndex(t => {
-        const match = t.match(key);
-        return match ? match.length > 0 : false;
-      });
-      if (index >= 0) {
-        combined.fulfill(this.getRowElementByIndex(row, index));
-      } else {
-        combined.reject('No cell found matching header "' + key + '"');
-      }
+    const titles = await headers.getText()  as unknown as string[];
+    const index = titles.findIndex(t => {
+      const match = t.match(key);
+      return match ? match.length > 0 : false;
     });
-    return combined.promise;
+
+    if (index >= 0) return this.getRowElementByIndex(row, index);
+    throw new Error('No cell found matching header "' + key + '"');
   }
 
   getRowCount(table: ElementFinder) {

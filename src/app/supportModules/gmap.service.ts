@@ -413,7 +413,7 @@ export class GmapService {
         });
     }
 
-    plotForecastLocations(googleMap: google.maps.Map, forecastLocations: Observable<{name: string, lon: number, lat: number}[]>, minZoom = 5, maxZoom = 30) {
+    plotForecastLocations(googleMap: google.maps.Map, forecastLocations: Observable<{nicename: string, lon: number, lat: number}[]>, minZoom = 5, maxZoom = 30) {
         const forecastLocationLayer = new MapZoomLayer(googleMap, minZoom, maxZoom);
         forecastLocations.subscribe(_locs => {
             _locs.forEach(_loc => {
@@ -422,7 +422,7 @@ export class GmapService {
                     _loc.lat,
                     GmapService.iconForecastLocation,
                     GmapService.iconForecastLocation.description,
-                    _loc.name,
+                    _loc.nicename,
                 ));
             });
         });

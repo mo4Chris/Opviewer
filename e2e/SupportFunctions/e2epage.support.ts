@@ -49,11 +49,22 @@ export abstract class E2ePageObject {
     }
   }
 
-  async validateNoConsoleLogs() {
+  async getButtonByName(rootObj: ElementFinder, name: string) {
+    const btns = await rootObj.all(by.css('button'));
+    const names = await this.asyncForEach(btns, async (e) => await e.getText());
+    const idx = names.findIndex(n => n == name);
+    if (idx == -1) return null;
+    return btns[idx];
+  }
+
+  async validateNoConsoleErrors() {
     const logs = await browser.manage().logs().get('browser')
 
     expect(Array.isArray(logs)).toBeTruthy('Failed to get logs from browser');
+    if (logs.length == 0) return;
+
     const errorLogs = logs.filter(log => {
+      if (log.level.value < 1000) return false
       const match = log.message.match('maps\.googleapis');
       if (match && match.length > 0) {
         return false;
@@ -62,5 +73,21 @@ export abstract class E2ePageObject {
       return true;
     });
     expect(errorLogs.length).toBe(0, 'Console errors were detected!');
+  }
+
+  async asyncForEach(objects: ElementFinder[], callback: (e: ElementFinder) => any): Promise<any[]> {
+    const n = objects.length;
+    const out = [];
+    for (let i=0; i<n; i++) {
+      const data = await callback(objects[i]);
+      out.push(data);
+    }
+    return out;
+  }
+  async asyncFind(objects: ElementFinder[], callback: (e: ElementFinder) => Promise<boolean>): Promise<any> {
+    const valid = await this.asyncForEach(objects, callback);
+    const idx = valid.findIndex(v => v!= null);
+    if (idx == -1) return null;
+    return objects[idx];
   }
 }

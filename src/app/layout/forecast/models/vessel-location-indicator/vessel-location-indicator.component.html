@@ -1,8 +1,9 @@
 <div *ngIf="hasData" class="row flex flex-container" [hidden]="!loaded">
   <plotly-plot divId="surface-plot" [data]="plotData" className="plotly-canvas"
-     [layout]="plotLayout" [config]="plotConfig" (initialized)="onPlotlyInit($event)">
+    [layout]="plotLayout" [config]="plotConfig" (initialized)="onPlotlyInit($event)">
+    <!-- This element messes up the ngZone -->
   </plotly-plot>
-  <div [hidden]="loaded">
+  <div *ngIf="!loaded">
     <app-ng-loading></app-ng-loading>
   </div>
 </div>
