@@ -37,7 +37,7 @@ describe('Sov dpr', () => {
     });
 
     it('default to DPR input tab', async () => {
-      expect(await page.getActiveTab().getText()).toMatch('Workability');
+      expect(await page.getActiveTab().getText()).toMatch('DPR input');
     })
     it('load a map', async () => {
       expect(await page.getMap().isPresent()).toBe(true);
@@ -207,11 +207,11 @@ describe('Sov dpr', () => {
       it('should allow adding heli transfers', async () => {
         const turb = page.transfer;
         const helirows = turb.getHeliRows(table);
-        await helirows.each((_, index) => {
+        await page.asyncForEach(await helirows, async (_, index) => {
           if (index > 0 ) {
-            helirows.first().element(by.buttonText('remove last transfer')).click();
+            await helirows.first().element(by.buttonText('remove last transfer')).click();
           }
-        });
+        })
         expect(await helirows.count()).toBeGreaterThan(0);
         await helirows.first().element(by.buttonText('add helicopter transfer')).click();
         const rndPaxCargo = turb.getRndpaxCargo();
@@ -346,83 +346,85 @@ describe('Sov dpr', () => {
   describe('DPR input tab', () => {
     beforeEach(() => {
       page = new SovDprPage();
-      page.navigateToEmpty('DPR input');
+      return page.navigateToEmpty('DPR input');
     });
 
     it('should load both tables', async () => {
       const io = page.dprinput;
-      expect(io.dprInput.isDisplayed()).toBe(true);
-      expect(io.hseInput.isDisplayed()).toBe(true);
+      expect(await io.dprInput.isDisplayed()).toBe(true);
+      expect(await io.hseInput.isDisplayed()).toBe(true);
       await page.validateNoConsoleErrors();
     });
-    it('should correctly enter the first table', async (done) => {
+    it('should correctly enter the first table', async () => {
       const io = page.dprinput;
       const selectHelper = new E2eSelectHandler();
-      const clearArray = (elt: {rows: ElementArrayFinder, addline: ElementFinder}) => {
-        elt.rows.each(e =>  io.removeLine(elt.addline));
+      const clearArray = async (elt: {rows: ElementArrayFinder, addline: ElementFinder}) => {
+        page.asyncForEach(await elt.rows, async _ => await io.removeLine(elt.addline));
       };
       const standby = io.getStandby();
       const techdt = io.getTechnicalDowntime();
       const weatherdt = io.getWeatherDowntime();
       const accessDayType = io.getAccessDayType();
-      clearArray(standby);
-      clearArray(techdt);
-      clearArray(weatherdt);
-      expect(standby.rows.count()).toBe(0);
-      expect(techdt.rows.count()).toBe(0);
-      expect(weatherdt.rows.count()).toBe(0);
-      expect(accessDayType.isPresent()).toBe(true);
-      io.addLine(standby.addline);
-      io.addLine(techdt.addline);
-      io.addLine(weatherdt.addline);
+      await clearArray(standby);
+      await clearArray(techdt);
+      await clearArray(weatherdt);
+      expect(await standby.rows.count()).toBe(0);
+      expect(await techdt.rows.count()).toBe(0);
+      expect(await weatherdt.rows.count()).toBe(0);
+      expect(await accessDayType.isPresent()).toBe(true);
+      await io.addLine(standby.addline);
+      await io.addLine(techdt.addline);
+      await io.addLine(weatherdt.addline);
 
-      browser.waitForAngular();
-      expect(standby.rows.count()).toBe(1);
-      expect(techdt.rows.count()).toBe(1);
-      expect(weatherdt.rows.count()).toBe(1);
+      await browser.waitForAngular();
+      expect(await standby.rows.count()).toBe(1);
+      expect(await techdt.rows.count()).toBe(1);
+      expect(await weatherdt.rows.count()).toBe(1);
 
-      const standbyTimes = io.setRandomTime(standby.rows.first());
-      const techTimes = io.setRandomTime(techdt.rows.first());
-      const weatherTimes = io.setRandomTime(weatherdt.rows.first());
-      const selectedAccessType = selectHelper.setNewOption(accessDayType);
-      io.dprInput.click(); // Required to trigger change detection on closing the window
-      browser.waitForAngular();
-      io.saveDprTableByIndex(0);
-      browser.waitForAngular();
+      const standbyTimes = await io.setRandomTime(standby.rows.first());
+      const techTimes = await io.setRandomTime(techdt.rows.first());
+      const weatherTimes = await io.setRandomTime(weatherdt.rows.first());
+      const selectedAccessType = await selectHelper.setNewOption(accessDayType);
+      await io.dprInput.click(); // Required to trigger change detection on closing the window
+      await browser.waitForAngular();
+      await io.saveDprTableByIndex(0);
+      await browser.waitForAngular();
 
-      page.navigateToEmpty('DPR input');
-      expect(standby.rows.count()).toBe(1);
-      expect(techdt.rows.count()).toBe(1);
-      expect(weatherdt.rows.count()).toBe(1);
-      io.checkRowTimes(standby.rows.first(), await standbyTimes);
-      io.checkRowTimes(techdt.rows.first(), await techTimes);
-      io.checkRowTimes(weatherdt.rows.first(), await weatherTimes);
-      expect(selectHelper.getValue(accessDayType)).toBe(selectedAccessType);
-      done();
+      await page.navigateToEmpty('DPR input');
+      expect(await standby.rows.count()).toBe(1);
+      expect(await techdt.rows.count()).toBe(1);
+      expect(await weatherdt.rows.count()).toBe(1);
+      await io.checkRowTimes(standby.rows.first(), standbyTimes);
+      await io.checkRowTimes(techdt.rows.first(), techTimes);
+      await io.checkRowTimes(weatherdt.rows.first(), weatherTimes);
+      const newDayType = await selectHelper.getValue(accessDayType)
+      expect(newDayType).toBe(selectedAccessType);
     }, 60000);
     it('should have a functioning reports & toolbox talks table', async () => {
       const io = page.dprinput;
-      io.getSocCards().each(() => io.rmSocCard());
-      io.getToolboxTalks().each(() => io.rmToolboxTalk());
-      expect(io.getSocCards().count()).toBe(0);
-      expect(io.getToolboxTalks().count()).toBe(0);
-      io.addSocCard();
-      io.addToolboxTalk();
+      const socCards = await io.getSocCards();
+      page.asyncForEach(socCards, () => io.rmSocCard());
+      const tbTalks = await io.getToolboxTalks()
+      page.asyncForEach(tbTalks, async () => await io.rmToolboxTalk());
+      expect(await io.getSocCards().count()).toBe(0);
+      expect(await io.getToolboxTalks().count()).toBe(0);
+      await io.addSocCard();
+      await io.addToolboxTalk();
       const socText = page.rng.getRandomString();
       const tbText = page.rng.getRandomString();
       const socArea = io.getSocCards().first().element(by.tagName('textarea'));
-      expect(socArea.isPresent()).toBe(true);
-      socArea.sendKeys(socText);
+      expect(await socArea.isPresent()).toBe(true);
+      await socArea.sendKeys(socText);
       const tbArea = io.getToolboxTalks().first().element(by.tagName('textarea'));
-      expect(tbArea.isPresent()).toBe(true);
-      tbArea.sendKeys(tbText);
-      io.saveSocToolbox();
+      expect(await tbArea.isPresent()).toBe(true);
+      await tbArea.sendKeys(tbText);
+      await io.saveSocToolbox();
 
-      page.navigateToEmpty('DPR input');
-      expect(io.getSocCards().count()).toBe(1);
-      expect(io.getToolboxTalks().count()).toBe(1);
-      expect(socArea.getAttribute('value')).toBe(socText);
-      expect(tbArea.getAttribute('value')).toBe(tbText);
+      await page.navigateToEmpty('DPR input');
+      expect(await io.getSocCards().count()).toBe(1);
+      expect(await io.getToolboxTalks().count()).toBe(1);
+      expect(await socArea.getAttribute('value')).toBe(socText);
+      expect(await tbArea.getAttribute('value')).toBe(tbText);
     });
     it('should have a functioning fuel input', async () => {
       const io = page.dprinput;
@@ -430,27 +432,27 @@ describe('Sov dpr', () => {
       const fuelTable = io.getDprInputTable(2);
       const fuelIn = fuelTable.all(by.tagName('input')).get(index);
       const rndFuel = page.rng.getRandomInt(20, 1000).toString();
-      fuelIn.clear();
-      fuelIn.sendKeys(rndFuel);
-      fuelIn.sendKeys(Key.TAB);
-      fuelTable.element(by.buttonText('Save')).click();
-      browser.waitForAngular();
+      await fuelIn.clear();
+      await fuelIn.sendKeys(rndFuel);
+      await fuelIn.sendKeys(Key.TAB);
+      await fuelTable.element(by.buttonText('Save')).click();
+      await browser.waitForAngular();
 
-      page.navigateToEmpty('DPR input');
-      expect(fuelIn.getAttribute('value')).toBe(rndFuel);
+      await page.navigateToEmpty('DPR input');
+      expect(await fuelIn.getAttribute('value')).toBe(rndFuel);
     });
     it('should have a functioning catering', async () => {
       const io = page.dprinput;
       const table = io.getDprInputTable(3);
       const rndMeals = page.rng.getRandomInt(1, 100).toString();
       const cateringInput = table.all(by.tagName('input')).get(2);
-      cateringInput.clear();
-      cateringInput.sendKeys(rndMeals);
-      table.element(by.buttonText('Save')).click();
-      browser.waitForAngular();
+      await cateringInput.clear();
+      await cateringInput.sendKeys(rndMeals);
+      await table.element(by.buttonText('Save')).click();
+      await browser.waitForAngular();
 
-      page.navigateToEmpty('DPR input');
-      expect(cateringInput.getAttribute('value')).toBe(rndMeals);
+      await page.navigateToEmpty('DPR input');
+      expect(await cateringInput.getAttribute('value')).toBe(rndMeals);
     });
     it('should have a functioning dp usage', async () => {
       const io = page.dprinput;
@@ -460,58 +462,59 @@ describe('Sov dpr', () => {
       const lines = table.all(by.name('dpRow'));
       const addLine = table.element(by.buttonText('add line'));
       const rmLine = table.element(by.buttonText('remove last'));
-      lines.each(() => {
-        rmLine.click();
-      });
-      expect(lines.count()).toBe(0);
-      addLine.click();
-      expect(lines.count()).toBe(1);
+      await page.asyncForEach(await lines, async () => await rmLine.click())
+      expect(await lines.count()).toBe(0);
+      await addLine.click();
+      expect(await lines.count()).toBe(1);
 
       const start = rng.getRandomInt(11, 15);
       const stop = rng.getRandomInt(16, 23);
       const inputs = lines.first().all(by.tagName('select'));
       // Technically these are select elements - might break
-      inputs.get(0).sendKeys(start);
-      inputs.get(2).sendKeys(stop);
-      table.element(by.buttonText('Save')).click();
-      browser.waitForAngular();
+      await inputs.get(0).sendKeys(start);
+      await inputs.get(2).sendKeys(stop);
+      await table.element(by.buttonText('Save')).click();
+      await browser.waitForAngular();
+      await page.validateNoConsoleErrors();
 
-      page.navigateToEmpty('DPR input');
-      expect(lines.count()).toBe(1);
-      expect(inputs.get(0).getAttribute('value')).toBe(start.toString());
-      expect(inputs.get(2).getAttribute('value')).toBe(stop.toString());
+      await page.navigateToEmpty('DPR input');
+      expect(await lines.count()).toBe(1);
+      expect(await inputs.get(0).getAttribute('value')).toBe(start.toString());
+      expect(await inputs.get(2).getAttribute('value')).toBe(stop.toString());
+      await page.validateNoConsoleErrors();
     });
     it('should have proper remarks', async () => {
       const io = page.dprinput;
       const table = io.getDprInputTable(5);
       const remark = page.rng.getRandomString();
       const remarkField = table.element(by.tagName('textarea'));
-      remarkField.clear();
-      remarkField.sendKeys(remark);
-      table.element(by.buttonText('Save remarks')).click();
-      browser.waitForAngular();
+      await remarkField.clear();
+      await remarkField.sendKeys(remark);
+      await table.element(by.buttonText('Save remarks')).click();
+      await browser.waitForAngular();
 
-      page.navigateToEmpty('DPR input');
-      expect(remarkField.getAttribute('value')).toBe(remark);
+      await page.navigateToEmpty('DPR input');
+      const new_remark = await remarkField.getAttribute('value')
+      expect(new_remark).toBe(remark);
     });
     it('should save at least 1 hse input value', async () => {
       const hse = page.dprinput.hseInput;
-      expect(hse.isDisplayed()).toBe(true);
+      expect(await hse.isDisplayed()).toBe(true);
       const testFieldIndex = page.rng.getRandomInt(0, 21);
       const cnt = hse.all(by.tagName('input')).get(testFieldIndex);
       const txt = hse.all(by.tagName('textarea')).get(testFieldIndex);
       const rndTxt = page.rng.getRandomString();
       const rndCnt = page.rng.getRandomInt(1, 20);
-      cnt.clear();
-      cnt.sendKeys(rndCnt);
-      txt.clear();
-      txt.sendKeys(rndTxt);
-      hse.element(by.buttonText('Save HSE input')).click();
-      browser.waitForAngular();
+      await cnt.clear();
+      await cnt.sendKeys(rndCnt);
+      await txt.clear();
+      await txt.sendKeys(rndTxt);
+      await hse.element(by.buttonText('Save HSE input')).click();
+      await browser.waitForAngular();
 
-      page.navigateToEmpty('DPR input');
-      const newCnt = cnt.getAttribute('value');
-      const newTxt = txt.getAttribute('value');
+      await page.navigateToEmpty('DPR input');
+      const newCnt = await cnt.getAttribute('value');
+      const newTxt = await txt.getAttribute('value');
       expect(newCnt).toBe(rndCnt.toString(), 'Count does not match');
       expect(newTxt).toBe(rndTxt, 'Text does not match');
     });
@@ -520,14 +523,14 @@ describe('Sov dpr', () => {
   describe('Commercial overview tab', () => {
     beforeEach(() => {
       page = new SovDprPage();
-      page.navigateTo('Commercial overview');
+      return page.navigateTo('Commercial overview');
     });
 
     it('should have proper data', async () => {
       const io = page.dprinput;
-      expect(io.getStandby().rows.count()).toBeGreaterThan(0);
-      expect(io.getTechnicalDowntime().rows.count()).toBeGreaterThan(0);
-      expect(io.getWeatherDowntime().rows.count()).toBeGreaterThan(0);
+      expect(await io.getStandby().rows.count()).toBeGreaterThan(0);
+      expect(await io.getTechnicalDowntime().rows.count()).toBeGreaterThan(0);
+      expect(await io.getWeatherDowntime().rows.count()).toBeGreaterThan(0);
       await page.validateNoConsoleErrors();
     });
   });
@@ -535,11 +538,11 @@ describe('Sov dpr', () => {
   describe('HSE overview', () => {
     beforeEach(() => {
       page = new SovDprPage();
-      page.navigateTo('HSE overview');
+      return page.navigateTo('HSE overview');
     });
 
     it('Should have proper data', async () => {
-      expect(page.getNanCount()).toBe(0);
+      expect(await page.getNanCount()).toBe(0);
       await page.validateNoConsoleErrors();
     });
   });

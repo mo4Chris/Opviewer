@@ -306,11 +306,11 @@ class SovDprInputTab {
     expect(await table.isPresent()).toBe(true, 'Cannot find dpr table');
     await this.saveTable(table);
   }
-  checkRowTimes(row: ElementFinder, t: {start: string, stop: string}) {
+  async checkRowTimes(row: ElementFinder, t: {start: string, stop: string}) {
     const inputs = row.all(by.xpath('./td/select'));
-    expect(inputs.count()).toBeGreaterThanOrEqual(3);
-    expect(inputs.get(1).getAttribute('value')).toBe(t.start);
-    expect(inputs.get(2).getAttribute('value')).toBe(t.stop);
+    expect(await inputs.count()).toBeGreaterThanOrEqual(3);
+    expect(await inputs.get(1).getAttribute('value')).toBe(t.start);
+    expect(await inputs.get(2).getAttribute('value')).toBe(t.stop);
   }
 
   private getSocRow() {

@@ -75,11 +75,11 @@ export abstract class E2ePageObject {
     expect(errorLogs.length).toBe(0, 'Console errors were detected!');
   }
 
-  async asyncForEach(objects: ElementFinder[], callback: (e: ElementFinder) => any): Promise<any[]> {
+  async asyncForEach(objects: ElementFinder[], callback: (e: ElementFinder, index?: number) => any): Promise<any[]> {
     const n = objects.length;
     const out = [];
     for (let i=0; i<n; i++) {
-      const data = await callback(objects[i]);
+      const data = await callback(objects[i], i);
       out.push(data);
     }
     return out;
