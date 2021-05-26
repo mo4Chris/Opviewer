@@ -218,26 +218,17 @@ export class SovreportComponent implements OnInit, OnChanges {
               });
               // Loading wind farm name content
               this.hasDcEvents = false;
-              if (this.sovModel.vessel2vessels.length > 0) {
-                this.sovModel.vessel2vessels[0].CTVactivity.forEach(
-                  v2v => {
-                    if (Array.isArray(v2v.turbineVisits)) {
-                      v2v.turbineVisits.forEach(visit => {
-                        if (
-                          !sovFieldNames.some(
-                            elt =>
-                              elt ===
-                              visit.fieldname
-                          )
-                        ) {
-                          sovFieldNames.push(
-                            visit.fieldname
-                          );
-                        }
-                      });
-                    }
+              if (this.sovModel.vessel2vessels?.length > 0) {
+                this.sovModel.vessel2vessels[0].CTVactivity.forEach( v2v => {
+                  if (Array.isArray(v2v.turbineVisits)) {
+                    v2v.turbineVisits.forEach(visit => {
+                      const is_unique_field = !sovFieldNames.some(elt => elt === visit.fieldname)
+                      if (is_unique_field ) {
+                        sovFieldNames.push( visit.fieldname );
+                      }
+                    });
                   }
-                );
+                });
                 this.hasDcEvents = this.sovModel.vessel2vessels[0].transfers.some(_transfer => {
                   return _transfer.type === 'Daughter-craft departure' || _transfer.type === 'Daughter-craft return';
                 });
@@ -293,26 +284,25 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.commonService.getSpecificPark({
       park: data
     }).subscribe(locdata => {
-      if (locdata.length !== 0) {
-        let transfers: Array<any>;
-        let sovType = 'Unknown';
-        if (this.sovModel.sovType === SovType.Platform) {
-          transfers = this.sovModel.platformTransfers;
-          sovType = 'Platform';
-        } else if (this.sovModel.sovType === SovType.Turbine) {
-          transfers = this.sovModel.turbineTransfers;
-          sovType = 'Turbine';
-        }
-        const locationData = {
-          turbineLocations: locdata,
-          transfers: transfers,
-          type: sovType,
-          vesselType: 'SOV'
-        };
-        this.turbineLocations = locationData.turbineLocations;
-        if (this.turbineLocations[0].SiteName) {
-          this.fieldName = this.turbineLocations[0].SiteName;
-        }
+      if (locdata.length == 0) return;
+      let transfers: Array<any>;
+      let sovType = 'Unknown';
+      if (this.sovModel.sovType === SovType.Platform) {
+        transfers = this.sovModel.platformTransfers;
+        sovType = 'Platform';
+      } else if (this.sovModel.sovType === SovType.Turbine) {
+        transfers = this.sovModel.turbineTransfers;
+        sovType = 'Turbine';
+      }
+      const locationData = {
+        turbineLocations: locdata,
+        transfers: transfers,
+        type: sovType,
+        vesselType: 'SOV'
+      };
+      this.turbineLocations = locationData.turbineLocations;
+      if (this.turbineLocations[0].SiteName) {
+        this.fieldName = this.turbineLocations[0].SiteName;
       }
     });
   }
@@ -342,10 +332,10 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   GetAvailableRouteDatesForVessel() {
-    forkJoin(
+    forkJoin([
       this.commonService.getDatesShipHasSailedForSov(this.vesselObject),
       this.commonService.getDatesWithTransfersForSOV(this.vesselObject),
-    ).subscribe(([genData, transferDates]) => {
+    ]).subscribe(([genData, transferDates]) => {
       this.dateData.general = genData;
       this.dateData.transfer = transferDates;
       this.pushSailingDates();
@@ -357,37 +347,36 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   pushSailingDates() {
-    if (this.dateData.transfer && this.dateData.general) {
-      const transferDates = [];
-      const transitDates = [];
-      const otherDates = [];
-      let formattedDate;
-      let hasTransfers: boolean;
-      this.dateData.general.forEach(generalDataInstance => {
-        formattedDate = this.datetimeService.ymdStringToYMD(
-          this.datetimeService.matlabDatenumToYmdString(
-            generalDataInstance.dayNum
-          )
-        );
-        hasTransfers = this.dateData.transfer.reduce(
-          (acc, val) => acc || val === generalDataInstance.dayNum,
-          false
-        );
-        if (generalDataInstance.distancekm && hasTransfers) {
-          transferDates.push(formattedDate);
-        } else if (generalDataInstance.distancekm) {
-          transitDates.push(formattedDate);
-        } else {
-          otherDates.push(formattedDate);
-        }
-      });
-      const sailInfo = {
-        transfer: transferDates,
-        transit: transitDates,
-        other: otherDates
-      };
-      this.sailDates.emit(sailInfo);
-    }
+    if (!(this.dateData.transfer && this.dateData.general)) return;
+    const transferDates = [];
+    const transitDates = [];
+    const otherDates = [];
+    let formattedDate;
+    let hasTransfers: boolean;
+    this.dateData.general.forEach(generalDataInstance => {
+      formattedDate = this.datetimeService.ymdStringToYMD(
+        this.datetimeService.matlabDatenumToYmdString(
+          generalDataInstance.dayNum
+        )
+      );
+      hasTransfers = this.dateData.transfer.reduce(
+        (acc, val) => acc || val === generalDataInstance.dayNum,
+        false
+      );
+      if (generalDataInstance.distancekm && hasTransfers) {
+        transferDates.push(formattedDate);
+      } else if (generalDataInstance.distancekm) {
+        transitDates.push(formattedDate);
+      } else {
+        otherDates.push(formattedDate);
+      }
+    });
+    const sailInfo = {
+      transfer: transferDates,
+      transit: transitDates,
+      other: otherDates
+    };
+    this.sailDates.emit(sailInfo);
   }
 
   private switchUnit(
@@ -504,6 +493,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           )
         );
         transfer.Hs = this.GetDecimalValueForNumber(transfer.Hs, ' m');
+        transfer.Hmax = this.GetDecimalValueForNumber(transfer.Hmax, ' m');
         transfer.gangwayUtilisationLimiter = this.formatGangwayLimiter(
           transfer.gangwayUtilisationLimiter
         );

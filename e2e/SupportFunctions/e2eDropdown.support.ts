@@ -14,23 +14,23 @@ export class E2eDropdownHandler {
         return this._getOptions(elt).getText() as unknown as promise.Promise<string[]>;
     }
     open(elt: ElementFinder) {
-        this._getButton(elt).click();
+        return this._getButton(elt).click();
     }
-    setValue(elt: ElementFinder, s: string) {
-        this.open(elt);
-        this.getOptions(elt).then(_opts => {
-            const idx = _opts.findIndex(_s => _s === s);
-            if (idx >= 0) {
-                this._getOptions(elt).get(idx).click();
-            } else {
-                fail('Could not select dropdown option "' + s + '" - it does not exist');
-            }
-        });
+    async setValue(elt: ElementFinder, s: string) {
+        await this.open(elt);
+        const opts = await this.getOptions(elt)
+
+        const idx = opts.findIndex(_s => _s === s);
+        if (idx >= 0) {
+            await this._getOptions(elt).get(idx).click();
+        } else {
+            fail('Could not select dropdown option "' + s + '" - it does not exist');
+        }
 
     }
-    setValueByIndex(elt: ElementFinder, idx: number) {
-        this.open(elt);
-        this._getOptions(elt).get(idx).click();
+    async setValueByIndex(elt: ElementFinder, idx: number) {
+        await this.open(elt);
+        await this._getOptions(elt).get(idx).click();
     }
 
     private _getButton(elt: ElementFinder) {
@@ -56,7 +56,7 @@ export class E2eSelectHandler {
     }
     open(elt: ElementFinder) {
         // this._getButton(elt).click();
-        elt.click();
+        return elt.click();
     }
     setValue(elt: ElementFinder, s: string) {
         this.open(elt);
@@ -70,9 +70,9 @@ export class E2eSelectHandler {
             }
         });
     }
-    setValueByIndex(elt: ElementFinder, idx: number) {
-        this.open(elt);
-        this._getOptions(elt).get(idx).click();
+    async setValueByIndex(elt: ElementFinder, idx: number) {
+        await this.open(elt);
+        await this._getOptions(elt).get(idx).click();
     }
     setNewOption(elt: ElementFinder) {
         this.open(elt);
