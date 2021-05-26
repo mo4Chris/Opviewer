@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TokenModel } from '../../models/tokenModel';
+import { TokenModel, UserPermissions } from '../../models/tokenModel';
 import { UserService } from './user.service';
 import { UserType } from '../enums/UserType';
 
@@ -34,6 +34,8 @@ export class UserTestService extends UserService {
         longterm: null,
         forecast: {
           read: true,
+          changeLimits: true,
+          createProject: false,
         },
         user_read: true,
         user_manage: true,
@@ -59,6 +61,6 @@ interface UserTokenOptions {
   userCompany?: string,
   hasCampaigns?: boolean;
   userBoats?: {mmsi: number, nicename: string}[];
-  permission?: any,
+  permission?: UserPermissions,
 }
 

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { TokenModel } from '@app/models/tokenModel';
+import { TokenModel, UserPermissions } from '@app/models/tokenModel';
 import { UserService } from '../services/user.service';
 
 abstract class PermissionModel {
   admin = false;
 
   hasCampaigns = undefined; // True iff organization has campaigns
+  dprRead = true;
 
   // Ctv dpr
   ctvVideoRequest = false;
@@ -59,12 +60,13 @@ export class PermissionService extends PermissionModel {
     }
 
     // We construct this class based on the permissions associated with your account type
-    const permission = PermissionService.getDefaultPermission(token.userPermission);
+    const defaultPermission = PermissionService.getDefaultPermission(token.userPermission);
+    const tokenPermission = token.permission;
+    const permission = setPermissionFromToken(defaultPermission, tokenPermission)
 
     // Copy all the permission properties to this class
     Object.keys(permission).forEach(key => {
       if (this[key] != null) {
-
         this[key] = permission[key];
       }
     });
@@ -79,6 +81,8 @@ export class PermissionService extends PermissionModel {
     if (token.userCompany === 'Bibby Marine') {
       this.sovSiemensMonthlyKpis = true;
     }
+
+    console.log(this)
   }
 
 
@@ -105,6 +109,18 @@ export class PermissionService extends PermissionModel {
   }
 }
 
+function setPermissionFromToken(base: PermissionModel, permission: UserPermissions) {
+  if (permission?.longterm?.read != null) base.longterm = permission.longterm.read;
+
+  if (permission?.forecast?.read != null) base.forecastRead = permission.forecast.read ?? false;
+  if (permission?.forecast?.createProject != null) base.forecastCreateProject = true;
+  if (permission?.forecast?.changeLimits != null) base.forecastChangeLimits = true;
+
+  if (permission?.user_manage != null) base.userManage = true;
+  if (permission?.user_manage != null) base.userCreate = true;
+
+  return base;
+}
 
 
 class AdminPermission extends PermissionModel {
