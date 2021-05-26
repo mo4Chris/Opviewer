@@ -29,8 +29,10 @@ export class UserTestService extends UserService {
       iat: 1234,
       permission: {
         admin: true,
+        demo: false,
         dpr: null,
         twa: null,
+        user_see_all_vessels_client: true,
         longterm: null,
         forecast: {
           read: true,
