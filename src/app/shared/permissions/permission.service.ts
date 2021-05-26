@@ -110,12 +110,12 @@ export class PermissionService extends PermissionModel {
 function setPermissionFromToken(base: PermissionModel, permission: UserPermissions) {
   if (permission?.longterm?.read != null) base.longterm = permission.longterm.read;
 
-  if (permission?.forecast?.read != null) base.forecastRead = permission.forecast.read ?? false;
-  if (permission?.forecast?.createProject != null) base.forecastCreateProject = true;
-  if (permission?.forecast?.changeLimits != null) base.forecastChangeLimits = true;
+  if (permission?.forecast?.read != null) base.forecastRead = permission.forecast.read;
+  if (permission?.forecast?.createProject != null) base.forecastCreateProject = permission?.forecast?.createProject;
+  if (permission?.forecast?.changeLimits != null) base.forecastChangeLimits = permission?.forecast?.changeLimits;
 
-  if (permission?.user_manage != null) base.userManage = true;
-  if (permission?.user_manage != null) base.userCreate = true;
+  if (permission?.user_manage != null) base.userManage = permission?.user_manage;
+  if (permission?.user_manage != null) base.userCreate = permission?.user_manage;
 
   return base;
 }
