@@ -81,8 +81,6 @@ export class PermissionService extends PermissionModel {
     if (token.userCompany === 'Bibby Marine') {
       this.sovSiemensMonthlyKpis = true;
     }
-
-    console.log(this)
   }
 
 
