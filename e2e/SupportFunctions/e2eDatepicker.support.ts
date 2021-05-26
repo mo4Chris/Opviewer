@@ -11,38 +11,38 @@ export class E2eDatePicker {
         this.m = this.picker.element(by.xpath('//select[@title="Select month"]'));
     }
 
-    static open() {
+    static async open() {
         // Finds the datepicker button on the website, opens the picker, and returns instance of E2eDatePicker
         const pickerBtn = element(by.id('datePickBtn'));
-        pickerBtn.click();
+        await pickerBtn.click();
         const picker = element(by.tagName('ngb-datepicker'));
         return new E2eDatePicker(picker);
     }
     getYear() {
         return getValue(this.y);
     }
-    setYear(year: number) {
-        this.y.click();
+    async setYear(year: number) {
+        await this.y.click();
         const btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
-        btn.click();
+        await btn.click();
     }
     getMonth() {
         return getValue(this.m);
     }
-    setMonth(month: number) {
-        this.m.click();
+    async setMonth(month: number) {
+        await this.m.click();
         const btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
-        btn.click();
+        await btn.click();
     }
     getDay() {
         const btn = this.picker.element(by.className('ngb-dp-day ng-star-inserted'));
         // return getValue(btn);
         return btn.getText();
     }
-    setDay(day: number) {
+    async setDay(day: number) {
         // Warning: this will cause the datepicker to close and start navigation
-        this.getDayCell(day).click();
-        browser.waitForAngular();
+        await this.getDayCell(day).click();
+        await browser.waitForAngular();
     }
 
     getDayCell(day: number) {
@@ -56,11 +56,11 @@ export class E2eDatePicker {
             day: this.getDay(),
         };
     }
-    setDate(date: {year: number, month: number, day: number}) {
+    async setDate(date: {year: number, month: number, day: number}) {
         // Warning: this will cause the datepicker to close and start navigation
-        this.setYear(date.year);
-        this.setMonth(date.month);
-        this.setDay(date.day); // Triggers navigation
+        await this.setYear(date.year);
+        await this.setMonth(date.month);
+        await this.setDay(date.day); // Triggers navigation
     }
 }
 

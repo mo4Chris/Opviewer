@@ -98,5 +98,9 @@ describe('CalculationService', () => {
     expect(m5).toBe(1);
     expect(isNaN(m6)).toBe(true);
   });
+
+  it('getDecimalValueForNumber', () => {
+    expect(service.getDecimalValueForNumber('N/a', '%')).toEqual('N/a')
+  })
 });
 

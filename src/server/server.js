@@ -248,14 +248,14 @@ function verifyToken(req, res) {
 function validatePermissionToViewVesselData(req, res, callback) {
   logger.trace('Validating permission to view vessel data')
   const token = req['token'];
-  const mmsi = req.body.mmsi ?? req.params.mmsi
+  const mmsi = req.body.mmsi ?? req.params.mmsi;
   if (token.permission.admin) return callback(true)
 
   if (!token.permission.user_see_all_vessels_client) {
     logger.debug('Verifying vessel are included in token')
     const user_vessels = token.userBoats;
-    const mmsi_in_token = checkPermission(user_vessels);
-    if (!mmsi_in_token) return res.onUnauthorized(`User not authorized for vessel ${mmsi}`);
+    const mmsi_in_token = checkPermission(user_vessels.map(v => v.mmsi));
+    if (!mmsi_in_token) return res.onUnauthorized(`Usertoken error: unauthorized for vessel ${mmsi}`);
   }
 
   const client_id = token.client_id;
