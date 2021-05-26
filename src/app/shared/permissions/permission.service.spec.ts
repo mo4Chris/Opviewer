@@ -79,13 +79,28 @@ describe('PermissionService', () => {
     expect(service.sovSiemensMonthlyKpis).toBe(true);
   })
 
+
+  it('should not enable forecast for VM be default', () => {
+    mockUserModel('Vessel master');
+    service = TestBed.inject(PermissionService);
+    expect(service).toBeTruthy();
+    expect(service.forecastRead).toBe(false);
+  })
+  it('should enable forecast for VM if enabled in server', () => {
+    mockUserModel('Vessel master', 'Tester', true);
+    service = TestBed.inject(PermissionService);
+    expect(service).toBeTruthy();
+    expect(service.forecastRead).toBe(true);
+  })
 });
 
-function mockUserModel(userType: UserType, company='Test_Company') {
-  spyOn(UserTestService.prototype, 'getDecodedAccessToken').and.returnValue(
-    UserTestService.getMockedAccessToken({
-      userPermission: userType,
-      userCompany: company,
-    })
-  )
+function mockUserModel(userType: UserType, company='Test_Company', enableForecast = false) {
+  const token = UserTestService.getMockedAccessToken({
+    userPermission: userType,
+    userCompany: company,
+  })
+  token.permission.admin = userType == 'admin';
+  token.permission.demo = userType == 'demo';
+  token.permission.forecast.read = enableForecast;
+  spyOn(UserTestService.prototype, 'getDecodedAccessToken').and.returnValue(token)
 }

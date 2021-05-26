@@ -5,4 +5,4 @@ export enum UserTypeEnum {
     Admin = 'admin'
 }
 
-export type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist' | 'Qhse specialist' | 'Client representative';
+export type UserType = 'admin' | 'Vessel master' | 'Marine controller' | 'Logistics specialist' | 'Qhse specialist' | 'Client representative' | 'demo';
