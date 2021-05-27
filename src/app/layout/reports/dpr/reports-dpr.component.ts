@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ElementRef, NgZone, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 
@@ -34,6 +34,7 @@ export class ReportsDprComponent implements OnInit {
     private eventService: EventService,
     private permission: PermissionService,
     private hotkeys: Hotkeys,
+    private ref: ChangeDetectorRef,
     ) {
 
   }
@@ -145,15 +146,17 @@ export class ReportsDprComponent implements OnInit {
   }
 
   private _doPrint(resetPrint?: boolean) {
+    const component = this;
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
-      container.style.width = '225mm';
+      container.style.width = '210mm';
     }
     setTimeout(function() {
       window.print();
       if (resetPrint) {
-        this.printMode = 0;
+        component.printMode = 0;
+        component.ref.detectChanges();
       }
     });
   }

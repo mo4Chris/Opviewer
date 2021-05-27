@@ -2,7 +2,7 @@
 <div class="row">
   <div class="col-xl-12 col-lg-24 singlepage-print-port">
     <div *ngIf="!readonly" class="card mb-3">
-      <div class="card-header">Platform docking list
+      <div class="card-header">Docking list
         <span style="float:right"> <button class="btn btn-primary submitBtnDate" (click)="saveAllPlatformTransfers()"
             type="button">Save all transfers</button></span>
       </div>
@@ -170,7 +170,7 @@
             </tr>
             <tr *ngIf="v2vPaxCargoTotals" class="tableTotal">
               <th>V2V transfers</th>
-              <td colspan="5"></td>
+              <td colspan="6"></td>
               <td>
                 {{v2vPaxCargoTotals.paxIn}} incoming <br>
                 {{v2vPaxCargoTotals.paxOut}} outgoing
@@ -207,10 +207,10 @@
 </div>
 
 <!-- Platform transfers without input-->
-<div class="row single-block-print col">
+<div class="row single-block-print">
   <div class="col-xl-12 col-lg-24">
     <div *ngIf="readonly" class="card mb-3">
-      <div class="card-header">Platform docking list</div>
+      <div class="card-header">Docking list</div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">
           <thead>
@@ -269,7 +269,7 @@
                 Start time transfer
               </th>
               <th>Stop time transfer</th>
-              <td colspan="8"></td>
+              <td colspan="9"></td>
             </tr>
             <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
               <td>{{transfer.location}}</td>
@@ -293,7 +293,7 @@
                 Start time transfer
               </th>
               <th>Stop time transfer</th>
-              <td colspan="8"></td>
+              <td colspan="9"></td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
               <th></th>
@@ -335,8 +335,7 @@
                 {{totalCargoIn}} lift on <br>
                 {{totalCargoOut}} lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
           </tbody>
         </table>
@@ -346,7 +345,7 @@
 </div>
 
 <!-- gangway stats-->
-<div class="row single-block-print table-bordered-print">
+<div class="row single-block-print">
   <div class="col-xl-12 col-lg-24" *ngIf="gangwayActive">
     <div class="card mb-3">
       <div class="card-header">
