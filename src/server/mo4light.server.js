@@ -73,7 +73,12 @@ module.exports = function(app, logger, admin_server_pool) {
     const start = Date.now()
     log('Start azure project list request')
 
-    if (token.permission.demo) return getDemoProject(req, res);
+    if (token.permission.demo) {
+      return getDemoProject(req, res).then(project_output => {
+        logger.trace('Sending demo project')
+        res.send(project_output)
+      }).catch(res.onError);
+    }
     pg_get('/projects').then(async (out, err) => {
       log(`Receiving azure project list after ${Date.now() - start}ms`)
       if (err) return res.onError(err, err);
@@ -102,9 +107,16 @@ module.exports = function(app, logger, admin_server_pool) {
   app.post('/api/mo4light/getProject', (req, res) => {
     const token = req['token'];
     const project_name = req.body.project_name;
+
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
-    if (token.permission.demo) return getDemoProject(req, res);
+    if (token.permission.demo) {
+      return getDemoProject(req, res).then((projects) => {
+        const project = projects.find(p => p.name == project_name);
+        if (project == null) return res.onUnauthorized()
+        res.send([project])
+      }).catch(res.onError)
+    }
 
     log('Start azure project list request')
     pg_get('/project/' + project_name).then(async (out, err) => {
@@ -202,7 +214,13 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name must be string')
 
     const token = req['token'];
+    console.log('token', token)
     const is_admin = token.permission.admin;
+    const is_demo = token.permission.demo;
+
+    if (project_name == 'Sample_Project' && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
+    if (is_demo && token)
+
     // TODO: verify project belongs to client
     localLogger.info('Getting project')
     const html_response = await pg_get('/project/' + project_name);
@@ -319,6 +337,8 @@ module.exports = function(app, logger, admin_server_pool) {
   }
 
   async function getDemoProject(req, res) {
+    const GENERIC_PROJECT_ID = 5;
+
     logger.debug('Getting demo project')
     const token = req['token'];
     const query = `SELECT "demo_project_id" FROM "userTable" WHERE "user_id"=$1`
@@ -326,33 +346,29 @@ module.exports = function(app, logger, admin_server_pool) {
     if (user.rowCount == 0) return res.onError('User not found')
     const demo_project_id = user.rows[0].demo_project_id;
     logger.debug(`Getting demo project with id ${demo_project_id}`)
-    pg_get('/projects').then(async (out, err) => {
-      if (err) return res.onError(err, err);
-      logger.trace('Successfully loaded projects')
-      const data = out.data['projects'].filter(d => d.id == demo_project_id);
-      const project_output = data.map(d => {
-        return {
-          id: d.id,
-          name: d.name,
-          nicename: d.display_name,
-          client_id: d.client_id,
-          longitude: d.longitude,
-          latitude: d.latitude,
-          water_depth: d.water_depth,
-          maximum_duration: d.maximum_duration,
-          activation_start_date: d.activation_start_date,
-          activation_end_date: d.activation_start_date,
-          client_preferences: d.client_preferences,
-          vessel_id: d.vessel_id
-        }
-      })
-      // ToDo: filter data by token rights
-      logger.trace('Sending demo project')
-      res.send(project_output)
-    }).catch(err => {
-      console.log(err)
-      res.onError(err)
+    const out = await pg_get('/projects')
+
+    logger.trace('Successfully loaded projects')
+    const data = out.data['projects'].filter(d => {
+      return d.id == demo_project_id || d.id == GENERIC_PROJECT_ID
+    });
+    const project_output = data.map(d => {
+      return {
+        id: d.id,
+        name: d.name,
+        nicename: d.display_name,
+        client_id: d.client_id,
+        longitude: d.longitude,
+        latitude: d.latitude,
+        water_depth: d.water_depth,
+        maximum_duration: d.maximum_duration,
+        activation_start_date: d.activation_start_date,
+        activation_end_date: d.activation_start_date,
+        client_preferences: d.client_preferences,
+        vessel_id: d.vessel_id
+      }
     })
+    return project_output;
   }
 };
 

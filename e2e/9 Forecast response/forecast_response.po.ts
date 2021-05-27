@@ -4,8 +4,11 @@ import { browser, element, by, ElementFinder, ElementArrayFinder} from 'protract
 
 export class ForecastResponsePage extends E2ePageObject {
 
-  navigateTo(project_id = 1) {
+  navigateTo(project_id = 17) {
     return browser.get(`/forecast/project;project_id=${project_id}`);
+  }
+  navigateToEmpty() {
+    return this.navigateTo(-1);
   }
   navigateToTab(tab = 'Workability') {
     return this.clickTab(this.getTabByName(tab));
@@ -60,6 +63,10 @@ export class ForecastResponsePage extends E2ePageObject {
   async tabIsEnabled(tab: ElementFinder) {
     const attribute = await tab.getAttribute('ariaDisabled');
     return attribute == 'false';
+  }
+
+  getAlertBanner() {
+    return element(by.css('ngb-alert'))
   }
 
   // Plotly

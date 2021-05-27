@@ -16,7 +16,7 @@ describe('Forecast-Dashboard', () => {
 
   it('should load multiple projects', async () => {
     const project = await page.getActiveOpsRows();
-    expect(project.length).toBeGreaterThan(0);
+    expect(project.length).toBeGreaterThanOrEqual(2); // 1 user specific + 1 generic project
   })
   it('should redirect to response page', async () => {
     const rows = await page.getActiveOpsRows();
