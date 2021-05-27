@@ -60,7 +60,7 @@
             </ng-template>
           </li>
 
-          <li ngbNavItem="forecast-motion-overview">
+          <li *ngIf="!responseNotFound" ngbNavItem="forecast-motion-overview">
             <a ngbNavLink>Motion overview</a>
             <ng-template #motionGraph id="tab-motion" ngbNavContent>
               <app-forecast-motion-overview [time]="reponseTime" [headings]="WorkabilityHeadings"
