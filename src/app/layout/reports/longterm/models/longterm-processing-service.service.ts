@@ -9,7 +9,7 @@ import { Observable, forkJoin } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { map } from 'rxjs/operators';
-import { now } from 'moment';
+import { now } from 'moment-timezone';
 
 @Injectable({
   providedIn: 'root'
