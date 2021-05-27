@@ -54,8 +54,8 @@ describe('PermissionService', () => {
     expect(service).toBeTruthy();
     expect(service.admin).toBe(false);
     expect(service.userRead).toBe(true);
-    expect(service.userCreate).toBe(false);
-    expect(service.userManage).toBe(false);
+    expect(service.userCreate).toBe(true);
+    expect(service.userManage).toBe(true);
     expect(service.ctvVideoRequest).toBe(true);
     expect(service.longterm).toBe(true);
   })
@@ -102,5 +102,6 @@ function mockUserModel(userType: UserType, company='Test_Company', enableForecas
   token.permission.admin = userType == 'admin';
   token.permission.demo = userType == 'demo';
   token.permission.forecast.read = enableForecast;
+  token.permission.user_manage = ['admin', 'Marine controller', 'Logistics specialist'].some(u=> u==userType)
   spyOn(UserTestService.prototype, 'getDecodedAccessToken').and.returnValue(token)
 }
