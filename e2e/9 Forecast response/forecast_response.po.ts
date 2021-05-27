@@ -3,8 +3,9 @@ import { browser, element, by, ElementFinder, ElementArrayFinder} from 'protract
 
 
 export class ForecastResponsePage extends E2ePageObject {
+  GENERIC_PROJECT_ID = 5;
 
-  navigateTo(project_id = 17) {
+  navigateTo(project_id = this.GENERIC_PROJECT_ID) {
     return browser.get(`/forecast/project;project_id=${project_id}`);
   }
   navigateToEmpty() {
@@ -17,19 +18,21 @@ export class ForecastResponsePage extends E2ePageObject {
   async getSettingsCard() {
     // return this.getCardByTitle('overview');
     const cards: ElementFinder[] = await element.all(by.className('card-header'));
-    const is_match = await this.asyncForEach(cards, async e => {
+    const card = await this.asyncFind(cards, async e => {
       const txt = await e.getText();
       const match = txt.match('Project overview');
       return match == null;
     });
-    const idx = is_match.findIndex(i => i != null);
-    return cards[idx];
+    if (card == null) throw new Error('Project overview not found!')
+    return card.element(by.xpath('../..'));
   }
   async getProjectSettingsRow(txt: string): Promise<ElementFinder> {
     const card = await this.getSettingsCard();
     expect(await card.isPresent()).toBeTruthy('Card not found!')
     const rows = await card.all(by.css('tr'));
-    const row = this.asyncFind(rows, async (e) => {
+    // console.log(`${rows.length} rows were found!`)
+
+    const row = await this.asyncFind(rows, async (e) => {
       const _txt = await e.getText();
       const is_match = _txt.match(txt);
       return is_match == null

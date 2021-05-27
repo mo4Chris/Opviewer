@@ -36,7 +36,7 @@ describe('Forecast - response page', () => {
 
   it('should load multiple projects', async () => {
       const projectSelectRow = await page.getProjectSettingsRow('Selected project');
-      expect(await projectSelectRow?.isPresent()).toBeTruthy();
+      expect(await projectSelectRow?.isPresent()).toBeTruthy('Project select row not found!');
       const select = await projectSelectRow.element(by.css('select'));
       const dp = new E2eSelectHandler()
       dp.open(select);
