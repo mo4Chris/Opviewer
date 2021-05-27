@@ -148,7 +148,7 @@ export class ReportsDprComponent implements OnInit {
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
-      container.style.width = '225mm';
+      container.style.width = '210mm';
     }
     setTimeout(function() {
       window.print();
