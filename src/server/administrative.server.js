@@ -4,7 +4,8 @@ var twoFactor = require('node-2fa');
 var ax = require('axios');
 const { Pool } = require("pg");
 
-const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+const baseUrl = 'http://localhost:5000';
+// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer = process.env.AZURE_TOKEN;
 const timeout = +process.env.TIMEOUT || 60000;
 const http = ax.default;
@@ -342,18 +343,18 @@ module.exports = function (
       "latitude": 52,
       "longitude": 3,
       "water_depth": 20,
-      "client_preferences": JSON.stringify(project_preferences)
+      "client_preferences": project_preferences
     }
     const project = await pg_post('/project/' + project_name, project_insert).catch(err => {
-      logger.error(err.response.data.message)
+      logger.error(err?.response?.data?.message ?? `Unspecified error: status code ${err?.response?.status}`)
       throw err
     });
-    if (project?.data?.code != 201) {
-      logger.error(project.data.message)
+    if (project?.status != 201) {
+      logger.error(project.data)
       throw new Error('Issue creating new project')
     }
     logger.info('Created project with id ' + project?.data?.id)
-    return project.data.message.id;
+    return project.data.id;
   }
 
 
@@ -479,57 +480,6 @@ module.exports = function (
   }
   function initProjectPreferences() {
     return {
-      "Points_Of_Interest": {
-        "P1": {
-          "Coordinates": {
-            "X": {
-              "Data": 0.0,
-              "String_Value": "Midship"
-            },
-            "Y": {
-              "Data": 0.0,
-              "String_Value": "Starboard_Center"
-            },
-            "Z": {
-              "Data": 0.0,
-              "String_Value": "Keel_Plus_10"
-            }
-          },
-          "Max_Type": "MPM",
-          "Degrees_Of_Freedom": {
-            "Roll": {
-              "Disp": true,
-              "Vel": false,
-              "Acc": false
-            },
-            "Pitch": {
-              "Disp": false,
-              "Vel": false,
-              "Acc": true
-            },
-            "Yaw": {
-              "Disp": false,
-              "Vel": true,
-              "Acc": false
-            },
-            "Surge": {
-              "Disp": false,
-              "Vel": false,
-              "Acc": false
-            },
-            "Sway": {
-              "Disp": false,
-              "Vel": true,
-              "Acc": false
-            },
-            "Heave": {
-              "Disp": true,
-              "Vel": true,
-              "Acc": false
-            }
-          }
-        }
-      },
       "Points": [
         {
           "Name": "Crane",
@@ -606,6 +556,7 @@ module.exports = function (
 
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
+    logger.debug(`Performing POST request: ${url}`)
     return http.post(url, data, { headers, timeout })
   }
 };

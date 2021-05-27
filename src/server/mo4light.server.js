@@ -155,6 +155,7 @@ module.exports = function(app, logger, admin_server_pool) {
       const data = out.data;
       res.send(data)
     }).catch(err => {
+      if (err.response.status == 404) return res.status(404).send('Response not found')
       res.onError(err, `Failed to get response for project with id ${project_id}`)
     })
   })

@@ -160,6 +160,9 @@
             },
             "vm-sov": {
               "protractorConfig": "e2e/conf.vm.sov.js"
+            },
+            "demo": {
+              "protractorConfig": "e2e/conf.demo.js"
             }
           }
         },

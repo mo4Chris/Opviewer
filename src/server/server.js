@@ -2426,7 +2426,8 @@ function verifyDemoAccount(req, res, next) {
 
     if (!data.demo) return next();
     if (data.demo_expiration_date == null) return next();
-    if (data.demo_expiration_date > currentDate.valueOf()) return next();
+    const expiration_date = new Date(data.demo_expiration_date)
+    if (expiration_date.valueOf() > currentDate.valueOf()) return next();
 
     const user_type = data.user_type;
     if (user_type == 'demo'){
