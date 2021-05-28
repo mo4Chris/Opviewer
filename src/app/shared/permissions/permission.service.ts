@@ -23,7 +23,6 @@ abstract class PermissionModel {
   sovHseRead = false;
   sovHseWrite = false;
   sovHseSign = false;
-
   sovWaveSpectrum = false;
 
   longterm = false;

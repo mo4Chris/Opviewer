@@ -5,7 +5,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef, OnChanges, ChangeDetectionStrategy } from '@angular/core';
-import { now } from 'moment';
+import { now } from 'moment-timezone';
 import { LongtermParsedWavedata } from '../../../models/longterm-processing-service.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 
