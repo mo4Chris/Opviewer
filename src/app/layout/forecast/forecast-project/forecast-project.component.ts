@@ -96,7 +96,6 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastProjectByName(this.project_name),
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
-      console.log('_project', _project)
       this.project = _project[0];
       this.vessels = vessels;
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;

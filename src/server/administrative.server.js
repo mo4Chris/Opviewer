@@ -4,8 +4,8 @@ var twoFactor = require('node-2fa');
 var ax = require('axios');
 const { Pool } = require("pg");
 
-const baseUrl = 'http://localhost:5000';
-// const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
+// const baseUrl = 'http://localhost:5000';
+const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 const bearer = process.env.AZURE_TOKEN;
 const timeout = +process.env.TIMEOUT || 60000;
 const http = ax.default;

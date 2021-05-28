@@ -214,7 +214,6 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name must be string')
 
     const token = req['token'];
-    console.log('token', token)
     const is_admin = token.permission.admin;
     const is_demo = token.permission.demo;
 
