@@ -5,8 +5,8 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { TokenModel } from '@app/models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as Chart from 'chart.js';
-import { now } from 'moment';
 import { LongtermColorScheme } from '../../../models/color_scheme';
+import { now } from 'moment-timezone';
 
 
 @Component({

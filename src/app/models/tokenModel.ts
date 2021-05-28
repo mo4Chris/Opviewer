@@ -25,14 +25,17 @@ export class TokenModel {
     }
 }
 
+type DprInputType = 'read' | 'write' | 'sign';
 export interface UserPermissions {
     admin: boolean,
+    demo: boolean,
     user_read: boolean,
     user_manage: boolean,
-    dpr: any,
-    longterm: any,
-    twa: any,
-    forecast: any,
+    dpr: {read: boolean, sov_input: DprInputType, sov_commercial: DprInputType, sov_hse: DprInputType},
+    longterm: {read: boolean},
+    twa: {read: boolean},
+    forecast: {read: boolean, changeLimits: boolean, createProject: boolean},
     user_type: UserType,
+    user_see_all_vessels_client: boolean,
 }
 

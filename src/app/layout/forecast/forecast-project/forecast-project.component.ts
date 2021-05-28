@@ -72,6 +72,9 @@ export class ForecastVesselComponent implements OnInit {
   public get ctv_slip_settings() {
     return this.project?.client_preferences?.Ctv_Slip_Options;
   }
+  public get is_sample_project() {
+    return !this.permission.admin && (this.project_name == 'Sample_Project')
+  }
 
   ngOnInit() {
     this.initParameter().subscribe(() => {

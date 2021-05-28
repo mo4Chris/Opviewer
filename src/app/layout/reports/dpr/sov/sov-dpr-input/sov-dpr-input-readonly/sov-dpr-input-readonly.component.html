@@ -48,7 +48,7 @@
             </div>
           </th>
         </tr>
-        
+
         <tr>
           <th>Reason</th>
           <th>From</th>
@@ -101,7 +101,7 @@
             {{_weatherDowntime.vesselsystem}}
           </td>
         </tr>
-          
+
         <tr *ngIf="weatherDowntime.Array.length==0">
           <td colspan="4"><i>No weather downtime entered</i></td>
         </tr>
@@ -111,7 +111,7 @@
           </th>
         </tr>
         <tr *ngIf="accessDayType && accessDayType.status">
-          <td colspan="4"> 
+          <td colspan="4">
             {{accessDayType.status}}
           </td>
         </tr>
@@ -220,58 +220,61 @@
 
     <div class="col-xl-6 single-block-print">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="3">
-            <h4>Catering</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>
-            <div [ngbTooltip]="tooltipCateringPob">People on board</div>
-          </th>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Project</td>
-          <td>{{catering.project}}</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine</td>
-          <td>{{catering.marine}}</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine contractors</td>
-          <td>{{catering.marineContractors}}</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Total people on board</td>
-          <td>{{catering.totalPob}}</td>
-        </tr>
-        <tr>
-          <th>Extra meals</th>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Project</td>
-          <td>{{catering.extraMeals}}</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine + marine contractors</td>
-          <td>{{catering.extraMealsMarineContractors}}</td>
-        </tr>
-        <tr>
-          <th>Packed meals</th>
-          <td>Ordered</td>
-          <td>{{catering.packedLunches}}</td>
-        </tr>
+        <thead colspan="3">
+          <tr>
+            <th colspan="3">
+              <h4>Catering</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>
+              <div [ngbTooltip]="tooltipCateringPob">People on board</div>
+            </th>
+            <th colspan="2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td>Project</td>
+            <td>{{catering.project}}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine</td>
+            <td>{{catering.marine}}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine contractors</td>
+            <td>{{catering.marineContractors}}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Total people on board</td>
+            <td>{{catering.totalPob}}</td>
+          </tr>
+          <tr>
+            <th>Extra meals</th>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Project</td>
+            <td>{{catering.extraMeals}}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine + marine contractors</td>
+            <td>{{catering.extraMealsMarineContractors}}</td>
+          </tr>
+          <tr>
+            <th>Packed meals</th>
+            <td>Ordered</td>
+            <td>{{catering.packedLunches}}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>

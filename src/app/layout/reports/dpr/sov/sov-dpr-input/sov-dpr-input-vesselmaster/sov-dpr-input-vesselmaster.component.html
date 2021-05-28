@@ -1,8 +1,6 @@
 <div class="card-header">
   DPR input
-  <button class="btn btn-sm btn-primary" 
-    style="float:right; "
-    (click)="confirmSignoff(confirmSignoffModal)"
+  <button class="btn btn-sm btn-primary" style="float:right; " (click)="confirmSignoff(confirmSignoffModal)"
     type="button">
     Sign off DPR
   </button>
@@ -11,269 +9,280 @@
   <div class="row">
     <div class="col-xl-6">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="4">
-            <h4 [ngbTooltip]="tooltipStandby">Stand by</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Reason</th>
-          <th>From</th>
-          <th>To</th>
-          <th></th>
-        </tr>
-        <tr name="standby-array" *ngFor="let _standby of standby.Array">
-          <td>
-            <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
-              <option value="No work planned">No work planned</option>
-              <option value="EHS issues">EHS issues</option>
-              <option value="Delay Siemens">Delay charterer</option>
-              <option value="Delay vessel">Delay vessel</option>
-            </select></td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.from" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.to" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <tr name="standby-addrow" class="plsdonotprintthisforfsake">
-          <td colspan="4">
-            <button class="btn btn-sm btn-success" (click)="addStandByToArray(); weatherDowntimeChanged = true;"
-              type="button">add
-              line</button>
-            <button class="btn btn-sm btn-danger" (click)="removeLastFromStandByArray(); weatherDowntimeChanged = true;"
-              type="button">remove last</button>
-          </td>
-        </tr>
-        <!-- split between -->
-        <tr>
-          <th colspan="4">
-            <h4 [ngbTooltip]="tooltipTechnicalDowntime">Technical downtime</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Reason</th>
-          <th>From</th>
-          <th>To</th>
-          <th></th>
-        </tr>
-        <tr name="tdt-array" *ngFor="let nonavailability of vesselNonAvailability.Array">
-          <td>
-            <select [(ngModel)]="nonavailability.reason" (change)="weatherDowntimeChanged = true;"
-              class="form-control">
-              <option value="DC small breakdown">DC small breakdown</option>
-              <option value="Boatlanding breakdown">Boatlanding breakdown</option>
-              <option value="DP breakdown">DP breakdown</option>
-              <option value="Minor vessel breakdown - other">Minor vessel breakdown -
-                other</option>
-              <option value="Major vessel breakdown - other">Major vessel breakdown -
-                other</option>
-            </select></td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.from" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.to" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <tr name="tdt-addrow" class="plsdonotprintthisforfsake">
-          <td colspan="4">
-            <button class="btn btn-sm btn-success"
-              (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;" type="button">add
-              line</button>
-            <button class="btn btn-sm btn-danger"
-              (click)="removeLastFromVesselNonAvailabilityArray(); weatherDowntimeChanged = true;" type="button">remove
-              last</button>
-          </td>
-        </tr>
-        <!-- Split between weather and technical downtime -->
+        <thead>
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipStandby">Stand by</h4>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Reason</th>
+            <th>From</th>
+            <th>To</th>
+            <th></th>
+          </tr>
+          <tr name="standby-array" *ngFor="let _standby of standby.Array">
+            <td>
+              <select [(ngModel)]="_standby.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
+                <option value="No work planned">No work planned</option>
+                <option value="EHS issues">EHS issues</option>
+                <option value="Delay Siemens">Delay charterer</option>
+                <option value="Delay vessel">Delay vessel</option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.from" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_standby.to" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td></td>
+          </tr>
+          <tr name="standby-addrow" class="plsdonotprintthisforfsake">
+            <td colspan="4">
+              <button class="btn btn-sm btn-success" (click)="addStandByToArray(); weatherDowntimeChanged = true;"
+                type="button">add
+                line</button>
+              <button class="btn btn-sm btn-danger" (click)="removeLastFromStandByArray(); weatherDowntimeChanged = true;"
+                type="button">remove last</button>
+            </td>
+          </tr>
+          <!-- split between -->
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipTechnicalDowntime">Technical downtime</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>Reason</th>
+            <th>From</th>
+            <th>To</th>
+            <th></th>
+          </tr>
+          <tr name="tdt-array" *ngFor="let nonavailability of vesselNonAvailability.Array">
+            <td>
+              <select [(ngModel)]="nonavailability.reason" (change)="weatherDowntimeChanged = true;" class="form-control">
+                <option value="DC small breakdown">DC small breakdown</option>
+                <option value="Boatlanding breakdown">Boatlanding breakdown</option>
+                <option value="DP breakdown">DP breakdown</option>
+                <option value="Minor vessel breakdown - other">Minor vessel breakdown -
+                  other</option>
+                <option value="Major vessel breakdown - other">Major vessel breakdown -
+                  other</option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.from" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="nonavailability.to" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td></td>
+          </tr>
+          <tr name="tdt-addrow" class="plsdonotprintthisforfsake">
+            <td colspan="4">
+              <button class="btn btn-sm btn-success"
+                (click)="addVesselNonAvailabilityToArray(); weatherDowntimeChanged = true;" type="button">add
+                line</button>
+              <button class="btn btn-sm btn-danger"
+                (click)="removeLastFromVesselNonAvailabilityArray(); weatherDowntimeChanged = true;" type="button">remove
+                last</button>
+            </td>
+          </tr>
+          <!-- Split between weather and technical downtime -->
 
-        <tr>
-          <th colspan="4">
-            <h4 [ngbTooltip]="tooltipWeatherDowntime">Weather downtime</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>Decided by</th>
-          <th>From</th>
-          <th>To</th>
-          <th>vessel / subsystem</th>
-        </tr>
-        <tr name="wdt-array" *ngFor="let _weatherDowntime of weatherDowntime.Array">
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.decidedBy"
-              class="form-control">
-              <option value="Charterer">Charterer</option>
-              <option value="Vessel Master">Vessel Master</option>
-              <option value="Joint Decision">Joint decision</option>
-            </select></td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.from" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.to" class="form-control">
-              <option *ngFor="let time of times" [value]="time">
-                {{time}}
-              </option>
-            </select>
-          </td>
-          <td>
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.vesselsystem"
-              class="form-control">
-              <option value="Gangway">Gangway</option>
-              <option value="Crane">Crane</option>
-              <option value="CTV boatlanding">CTV boatlanding</option>
-              <option value="DC big">DC big</option>
-              <option value="DC small">DC small</option>
-              <option value="Whole vessel">Whole vessel</option>
-            </select>
-          </td>
-        </tr>
-        <tr name="wdt-addrow" class="plsdonotprintthisforfsake">
-          <td colspan="4">
-            <button class="btn btn-sm btn-success" (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
-              type="button">add line</button>
-            <button class="btn btn-sm btn-danger"
-              (click)="removeLastFromWeatherDowntimeArray(); weatherDowntimeChanged = true;" type="button">remove
-              last</button>
-          </td>
-        </tr>
-        
-        <tr>
-          <th colspan="4">
-            <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
-          </th>
-        </tr>
-        <tr id="accessDayType">
-          <td colspan="4">
-            <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="accessDayType.status"
-              class="form-control">
-              <option [value]="undefined" disabled selected hidden>Please select...</option>
-              <option value="Full access day">Full access day</option>
-              <option value="Half access day">Half access day</option>
-              <option value="No access day">No access day</option>
-              <option value="Adverse weather below 2.5m Hs">Adverse weather below 2.5m Hs</option>
-              <option value="Adverse weather">Adverse weather</option>
-              <option value="Partial access day due to weather">Partial access day due to weather</option>
-              <option value="Off hire event">Off hire event</option>
-              <option value="Port call day">Port call day (Full day only)</option>
-              <option value="Excluded day">Excluded day</option>
-            </select>
-          </td>
-        </tr>
-        <tr *ngIf="weatherDowntimeChanged">
-          <td colspan="4">
-            <button class="btn btn-lg btn-primary" style="float:right"
-              (click)="saveWeatherDowntimeStats();" type="button">Save</button>
-          </td>
-        </tr>
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipWeatherDowntime">Weather downtime</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>Decided by</th>
+            <th>From</th>
+            <th>To</th>
+            <th>vessel / subsystem</th>
+          </tr>
+          <tr name="wdt-array" *ngFor="let _weatherDowntime of weatherDowntime.Array">
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.decidedBy"
+                class="form-control">
+                <option value="Charterer">Charterer</option>
+                <option value="Vessel Master">Vessel Master</option>
+                <option value="Joint Decision">Joint decision</option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.from" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.to" class="form-control">
+                <option *ngFor="let time of times" [value]="time">
+                  {{time}}
+                </option>
+              </select>
+            </td>
+            <td>
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="_weatherDowntime.vesselsystem"
+                class="form-control">
+                <option value="Gangway">Gangway</option>
+                <option value="Crane">Crane</option>
+                <option value="CTV boatlanding">CTV boatlanding</option>
+                <option value="DC big">DC big</option>
+                <option value="DC small">DC small</option>
+                <option value="Whole vessel">Whole vessel</option>
+              </select>
+            </td>
+          </tr>
+          <tr name="wdt-addrow" class="plsdonotprintthisforfsake">
+            <td colspan="4">
+              <button class="btn btn-sm btn-success" (click)="addWeatherDowntimeToArray(); weatherDowntimeChanged = true;"
+                type="button">add line</button>
+              <button class="btn btn-sm btn-danger"
+                (click)="removeLastFromWeatherDowntimeArray(); weatherDowntimeChanged = true;" type="button">remove
+                last</button>
+            </td>
+          </tr>
+
+          <tr>
+            <th colspan="4">
+              <h4 [ngbTooltip]="tooltipAccessDayType">Access day type</h4>
+            </th>
+          </tr>
+          <tr id="accessDayType">
+            <td colspan="4">
+              <select (change)="weatherDowntimeChanged = true;" [(ngModel)]="accessDayType.status" class="form-control">
+                <option [value]="undefined" disabled selected hidden>Please select...</option>
+                <option value="Full access day">Full access day</option>
+                <option value="Half access day">Half access day</option>
+                <option value="No access day">No access day</option>
+                <option value="Adverse weather below 2.5m Hs">Adverse weather below 2.5m Hs</option>
+                <option value="Adverse weather">Adverse weather</option>
+                <option value="Partial access day due to weather">Partial access day due to weather</option>
+                <option value="Off hire event">Off hire event</option>
+                <option value="Port call day">Port call day (Full day only)</option>
+                <option value="Excluded day">Excluded day</option>
+              </select>
+            </td>
+          </tr>
+          <tr *ngIf="weatherDowntimeChanged">
+            <td colspan="4">
+              <button class="btn btn-lg btn-primary" style="float:right" (click)="saveWeatherDowntimeStats();"
+                type="button">Save</button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="4">
-            <h4>Proactive reports & toolbox talks</h4>
-          </th>
-        </tr>
-        <tr id="socCards">
-          <th><div [ngbTooltip]="tooltipHocCards">SOC cards: {{hoc.Total}}</div></th>
-          <td colspan="3">
-            <ng-container *ngFor="let HoC of hoc.Array">
-              <div class="tableRow">
-                <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
-                  (change)="incidentsChanged = true;" placeholder="input reason" [(ngModel)]="HoC.value"
-                  [value]="HoC.value"> </textarea>
-                <select [(ngModel)]="HoC.amount" (change)="incidentsChanged = true; updateHOCTotal();"
-                  class="form-control col-xl-5 col-print-5">
-                  <option value=0>0 (remove)</option>
-                  <option value=1>1 times</option>
-                  <option value=2>2 times</option>
-                  <option value=3>3 times</option>
-                  <option value=4>4 times</option>
-                  <option value=5>5 times</option>
-                </select>
-              </div>
-              <hr>
-            </ng-container>
-            <br>
-            <button class="btn btn-sm btn-success" (click)="addHoCToArray(); incidentsChanged = true; updateHOCTotal()"
-              type="button">add line</button>
-            <button class="btn btn-sm btn-danger"
-              (click)="removeLastFromHOCArray(); incidentsChanged = true; updateHOCTotal()" type="button">remove
-              last</button>
-          </td>
-        </tr>
-        <tr>
-          <th>SOC total Previous</th>
-          <td>{{hoc.TotalOld}}</td>
-          <th>New total</th>
-          <td>{{hoc.TotalNew}}</td>
-        </tr>
-        <tr id="toolboxTalks">
-          <th>Toolbox talks: {{toolbox.Total}}</th>
-          <td colspan="3">
-            <ng-container *ngFor="let _toolbox of toolbox.Array">
-              <div class="tableRow">
-                <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
-                  (change)="incidentsChanged = true;" [(ngModel)]="_toolbox.value" placeholder="input reason"
-                  [minRows]="1" [value]="_toolbox.value"> </textarea>
-                <select [(ngModel)]="_toolbox.amount" (change)="incidentsChanged = true; updateToolboxTotal();"
-                  class="form-control col-xl-5 col-print-5">
-                  <option value=0>0 times</option>
-                  <option value=1>1 times</option>
-                  <option value=2>2 times</option>
-                  <option value=3>3 times</option>
-                  <option value=4>4 times</option>
-                  <option value=5>5 times</option>
-                </select>
+        <thead>
+          <tr>
+            <th colspan="4">
+              <h4>Proactive reports & toolbox talks</h4>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="socCards">
+            <th>
+              <div [ngbTooltip]="tooltipHocCards">SOC cards: {{hoc.Total}}</div>
+            </th>
+            <td colspan="3">
+              <ng-container *ngFor="let HoC of hoc.Array">
+                <div class="tableRow">
+                  <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
+                    (change)="incidentsChanged = true;" placeholder="input reason" [(ngModel)]="HoC.value"
+                    [value]="HoC.value"> </textarea>
+                  <select [(ngModel)]="HoC.amount" (change)="incidentsChanged = true; updateHOCTotal();"
+                    class="form-control col-xl-5 col-print-5">
+                    <option value=0>0 (remove)</option>
+                    <option value=1>1 times</option>
+                    <option value=2>2 times</option>
+                    <option value=3>3 times</option>
+                    <option value=4>4 times</option>
+                    <option value=5>5 times</option>
+                  </select>
+                </div>
+                <hr>
+              </ng-container>
+              <br>
+              <button class="btn btn-sm btn-success"
+                (click)="addHoCToArray(); incidentsChanged = true; updateHOCTotal()" type="button">add line</button>
+              <button class="btn btn-sm btn-danger"
+                (click)="removeLastFromHOCArray(); incidentsChanged = true; updateHOCTotal()" type="button">remove
+                last</button>
+            </td>
+          </tr>
+          <tr>
+            <th>SOC total Previous</th>
+            <td>{{hoc.TotalOld}}</td>
+            <th>New total</th>
+            <td>{{hoc.TotalNew}}</td>
+          </tr>
+          <tr id="toolboxTalks">
+            <th>Toolbox talks: {{toolbox.Total}}</th>
+            <td colspan="3">
+              <ng-container *ngFor="let _toolbox of toolbox.Array">
+                <div class="tableRow">
+                  <textarea autosize class="form-control col-xl-7 col-print-7" type="text"
+                    (change)="incidentsChanged = true;" [(ngModel)]="_toolbox.value" placeholder="input reason"
+                    [minRows]="1" [value]="_toolbox.value"> </textarea>
+                  <select [(ngModel)]="_toolbox.amount" (change)="incidentsChanged = true; updateToolboxTotal();"
+                    class="form-control col-xl-5 col-print-5">
+                    <option value=0>0 times</option>
+                    <option value=1>1 times</option>
+                    <option value=2>2 times</option>
+                    <option value=3>3 times</option>
+                    <option value=4>4 times</option>
+                    <option value=5>5 times</option>
+                  </select>
 
-              </div>
-              <hr>
-            </ng-container><br>
-            <button class="btn btn-sm btn-success"
-              (click)="addToolboxToArray(); incidentsChanged = true; updateToolboxTotal();" type="button">add
-              line</button>
-            <button class="btn btn-sm btn-danger"
-              (click)="removeLastFromToolboxArray(); incidentsChanged = true;  updateToolboxTotal();"
-              type="button">remove last</button>
-          </td>
+                </div>
+                <hr>
+              </ng-container><br>
+              <button class="btn btn-sm btn-success"
+                (click)="addToolboxToArray(); incidentsChanged = true; updateToolboxTotal();" type="button">add
+                line</button>
+              <button class="btn btn-sm btn-danger"
+                (click)="removeLastFromToolboxArray(); incidentsChanged = true;  updateToolboxTotal();"
+                type="button">remove last</button>
+            </td>
 
-        <tr>
-          <th>Toolbox total previous</th>
-          <td>{{toolbox.TotalOld}}</td>
-          <th>New total</th>
-          <td>{{toolbox.TotalNew}}</td>
-        </tr>
-        <tr *ngIf="incidentsChanged == true">
-          <td colspan="4" class="submitbtnclass"> <button *ngIf="incidentsChanged == true"
-              class="btn btn-lg btn-primary" (click)="saveIncidentStats();" style="float:right"
-              type="button">Save</button></td>
-        </tr>
+          <tr>
+            <th>Toolbox total previous</th>
+            <td>{{toolbox.TotalOld}}</td>
+            <th>New total</th>
+            <td>{{toolbox.TotalNew}}</td>
+          </tr>
+          <tr *ngIf="incidentsChanged == true">
+            <td colspan="4" class="submitbtnclass"> <button *ngIf="incidentsChanged == true"
+                class="btn btn-lg btn-primary" (click)="saveIncidentStats();" style="float:right"
+                type="button">Save</button></td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -284,157 +293,166 @@
   <div class="row ">
     <div class="col-xl-6">
       <table class="table table-bordered">
-        <tr>
-          <th colspan="5">
-            <h4>Mid-day fuel, lub oil & fresh water</h4>
-          </th>
-        </tr>
-        <tr>
-          <td></td>
-          <th>FUEL OIL (m<sup>3</sup>)</th>
-          <th>LUB OIL (litres)</th>
-          <th>Dom. Pot Water (m<sup>3</sup>)</th>
-          <th>Cargo Pot Water (m<sup>3</sup>)</th>
-        </tr>
-        <tr>
-          <th>Start of day</th>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.oldValue"
-              [(value)]="liquids.fuel.oldValue"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateLuboil(); fuelChanged = true; " [(ngModel)]="liquids.luboil.oldValue"
-              [(value)]="liquids.luboil.oldValue"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.oldValue"
-              [(value)]="liquids.domwater.oldValue"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.oldValue"
-              [(value)]="liquids.potwater.oldValue"></td>
-        </tr>
-        <tr>
-          <th>Loaded / made</th>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.loaded"
-              [(value)]="liquids.fuel.loaded">
-          </td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.loaded"
-              [(value)]="liquids.luboil.loaded"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.loaded"
-              [(value)]="liquids.domwater.loaded"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.loaded"
-              [(value)]="liquids.potwater.loaded"></td>
-        </tr>
-        <tr>
-          <th>Consumed</th>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.consumed"
-              [(value)]="liquids.fuel.consumed"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.consumed"
-              [(value)]="liquids.luboil.consumed"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.consumed"
-              [(value)]="liquids.domwater.consumed"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.consumed"
-              [(value)]="liquids.potwater.consumed"></td>
-        </tr>
-        <tr>
-          <th>Discharged to client</th>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.discharged"
-              [(value)]="liquids.fuel.discharged"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.discharged"
-              [(value)]="liquids.luboil.discharged"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.discharged"
-              [(value)]="liquids.domwater.discharged"></td>
-          <td><input class="form-control" type="double" min="0" max="100000"
-              (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.discharged"
-              [(value)]="liquids.potwater.discharged"></td>
-        </tr>
-        <tr>
-          <th>Remaining on board</th>
-          <td>{{liquids.fuel.newValue}}</td>
-          <td>{{liquids.luboil.newValue}}</td>
-          <td>{{liquids.domwater.newValue}}</td>
-          <td>{{liquids.potwater.newValue}}</td>
-        </tr>
-        <tr *ngIf="fuelChanged == true">
-          <td colspan="5" class="submitbtnclass"> <button *ngIf="fuelChanged == true" (click)="saveFuelStats();"
-              class="btn btn-lg btn-primary" style="float:right" type="button">Save</button></td>
-        </tr>
+        <thead>
+          <tr>
+            <th colspan="5">
+              <h4>Mid-day fuel, lub oil & fresh water</h4>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <th>FUEL OIL (m<sup>3</sup>)</th>
+            <th>LUB OIL (litres)</th>
+            <th>Dom. Pot Water (m<sup>3</sup>)</th>
+            <th>Cargo Pot Water (m<sup>3</sup>)</th>
+          </tr>
+          <tr>
+            <th>Start of day</th>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.oldValue"
+                [(value)]="liquids.fuel.oldValue"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateLuboil(); fuelChanged = true; " [(ngModel)]="liquids.luboil.oldValue"
+                [(value)]="liquids.luboil.oldValue"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.oldValue"
+                [(value)]="liquids.domwater.oldValue"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.oldValue"
+                [(value)]="liquids.potwater.oldValue"></td>
+          </tr>
+          <tr>
+            <th>Loaded / made</th>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.loaded"
+                [(value)]="liquids.fuel.loaded">
+            </td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.loaded"
+                [(value)]="liquids.luboil.loaded"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.loaded"
+                [(value)]="liquids.domwater.loaded"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.loaded"
+                [(value)]="liquids.potwater.loaded"></td>
+          </tr>
+          <tr>
+            <th>Consumed</th>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.consumed"
+                [(value)]="liquids.fuel.consumed"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.consumed"
+                [(value)]="liquids.luboil.consumed"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.consumed"
+                [(value)]="liquids.domwater.consumed"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.consumed"
+                [(value)]="liquids.potwater.consumed"></td>
+          </tr>
+          <tr>
+            <th>Discharged to client</th>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateFuel(); fuelChanged = true;" [(ngModel)]="liquids.fuel.discharged"
+                [(value)]="liquids.fuel.discharged"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateLuboil(); fuelChanged = true;" [(ngModel)]="liquids.luboil.discharged"
+                [(value)]="liquids.luboil.discharged"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updateDomwater(); fuelChanged = true;" [(ngModel)]="liquids.domwater.discharged"
+                [(value)]="liquids.domwater.discharged"></td>
+            <td><input class="form-control" type="double" min="0" max="100000"
+                (change)="updatePotwater(); fuelChanged = true;" [(ngModel)]="liquids.potwater.discharged"
+                [(value)]="liquids.potwater.discharged"></td>
+          </tr>
+          <tr>
+            <th>Remaining on board</th>
+            <td>{{liquids.fuel.newValue}}</td>
+            <td>{{liquids.luboil.newValue}}</td>
+            <td>{{liquids.domwater.newValue}}</td>
+            <td>{{liquids.potwater.newValue}}</td>
+          </tr>
+          <tr *ngIf="fuelChanged == true">
+            <td colspan="5" class="submitbtnclass"> <button *ngIf="fuelChanged == true" (click)="saveFuelStats();"
+                class="btn btn-lg btn-primary" style="float:right" type="button">Save</button></td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div class="col-xl-6">
       <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th colspan="3">
+              <h4>Catering</h4>
+            </th>
+          </tr>
+          <tr>
+            <th>
+              <div [ngbTooltip]="tooltipPOB">People on board</div>
+            </th>
+            <td colspan="5"></td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td>Project</td>
+            <td><input (change)="cateringChanged = true; updatePoB();" class="form-control form-number" type="number"
+                min="0" max="100" [(ngModel)]="catering.project" [(value)]="catering.project"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine</td>
+            <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number"
+                min="0" max="100" [(ngModel)]="catering.marine" [(value)]="catering.marine"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine contractors</td>
+            <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number"
+                min="0" max="100" [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Total people on board</td>
+            <td>{{catering.totalPob}}</td>
+          </tr>
+          <tr>
+            <th>Extra meals</th>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Project</td>
+            <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0"
+                max="100" [(ngModel)]="catering.extraMeals" [(value)]="catering.extraMeals"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Marine + marine contractors</td>
+            <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0"
+                max="100" [(ngModel)]="catering.extraMealsMarineContractors"
+                [(value)]="catering.extraMealsMarineContractors"></td>
+          </tr>
 
-        <tr>
-          <th colspan="3">
-            <h4>Catering</h4>
-          </th>
-        </tr>
-        <tr>
-          <th [ngbTooltip]="tooltipPOB"> People on board</th>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Project</td>
-          <td><input (change)="cateringChanged = true; updatePoB();" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.project" [(value)]="catering.project"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine</td>
-          <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.marine" [(value)]="catering.marine"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine contractors</td>
-          <td><input (change)="cateringChanged = true;  updatePoB();" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.marineContractors" [(value)]="catering.marineContractors"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Total people on board</td>
-          <td>{{catering.totalPob}}</td>
-        </tr>
-        <tr>
-          <th>Extra meals</th>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Project</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.extraMeals" [(value)]="catering.extraMeals"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>Marine + marine contractors</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.extraMealsMarineContractors" [(value)]="catering.extraMealsMarineContractors"></td>
-        </tr>
-
-        <tr>
-          <th>Packed meals</th>
-          <td>Ordered</td>
-          <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0" max="100"
-              [(ngModel)]="catering.packedLunches" [(value)]="catering.packedLunches"></td>
-        </tr>
-        <tr *ngIf="cateringChanged == true">
-          <td colspan="3" class="submitbtnclass"> <button (click)="saveCateringStats();" class="btn btn-lg btn-primary"
-              style="float:right" type="button">Save</button>
-          </td>
-        </tr>
+          <tr>
+            <th>Packed meals</th>
+            <td>Ordered</td>
+            <td><input (change)="cateringChanged = true;" class="form-control form-number" type="number" min="0"
+                max="100" [(ngModel)]="catering.packedLunches" [(value)]="catering.packedLunches"></td>
+          </tr>
+          <tr *ngIf="cateringChanged == true">
+            <td colspan="3" class="submitbtnclass"> <button (click)="saveCateringStats();"
+                class="btn btn-lg btn-primary" style="float:right" type="button">Save</button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -443,86 +461,92 @@
   <div class="row ">
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
-        <tr>
-          <td colspan="2">
-            <h4 [ngbTooltip]="tooltipDpUsage">DP usage</h4>
-          </td>
-        </tr>
-        <tr>
-          <th>Start DP</th>
-          <th>Stop DP</th>
-        </tr>
-        <tr name="dpRow" *ngFor="let _dp of dp.Array">
-          <td>
-            <div class="tableRow">
-              HH:
-              <!-- ToDo: This does not allow the 24:00 option-->
-              <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
-                class="form-control col-xl-4 col-print-4">
-                <option *ngFor="let hour of allHours" [value]="hour">
-                  {{hour}}
-                </option>
-              </select>
-              MM:
-              <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
-                class="form-control col-xl-4 col-print-4">
-                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                  {{minutes}}
-                </option>
-              </select>
-            </div>
-          </td>
-          <td>
-            <div class="tableRow">
-              HH:
-              <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
-                <option *ngFor="let hour of allHours" [value]="hour">
-                  {{hour}}
-                </option>
-              </select>
-              MM:
-              <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
-                class="form-control col-xl-4 col-print-4">
-                <option *ngFor="let minutes of all5Minutes" [value]="minutes">
-                  {{minutes}}
-                </option>
-              </select>
-            </div>
-          </td>
-        </tr>
-        <tr class="plsdonotprintthisforfsake">
-          <td colspan="2">
-            <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;" type="button">add
-              line</button>
-            <button class="btn btn-sm btn-danger" (click)="removeLastFromDPArray(); dpChanged = true;"
-              type="button">remove
-              last</button>
-            <button *ngIf="dpChanged == true" class="btn btn-lg btn-primary" style="float:right"
-              (click)="saveDPStats();" type="button">Save</button>
-          </td>
-        </tr>
+        <thead>
+          <tr>
+            <td colspan="2">
+              <h4 [ngbTooltip]="tooltipDpUsage">DP usage</h4>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Start DP</th>
+            <th>Stop DP</th>
+          </tr>
+          <tr name="dpRow" *ngFor="let _dp of dp.Array">
+            <td>
+              <div class="tableRow">
+                HH:
+                <!-- ToDo: This does not allow the 24:00 option-->
+                <select [(ngModel)]="_dp.from.hour" (change)="dpChanged = true;"
+                  class="form-control col-xl-4 col-print-4">
+                  <option *ngFor="let hour of allHours" [value]="hour">
+                    {{hour}}
+                  </option>
+                </select>
+                MM:
+                <select [(ngModel)]="_dp.from.minutes" (change)="dpChanged = true;"
+                  class="form-control col-xl-4 col-print-4">
+                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                    {{minutes}}
+                  </option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <div class="tableRow">
+                HH:
+                <select [(ngModel)]="_dp.to.hour" (change)="dpChanged = true;" class="form-control col-xl-4 col-print-4">
+                  <option *ngFor="let hour of allHours" [value]="hour">
+                    {{hour}}
+                  </option>
+                </select>
+                MM:
+                <select [(ngModel)]="_dp.to.minutes" (change)="dpChanged = true;"
+                  class="form-control col-xl-4 col-print-4">
+                  <option *ngFor="let minutes of all5Minutes" [value]="minutes">
+                    {{minutes}}
+                  </option>
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr class="plsdonotprintthisforfsake">
+            <td colspan="2">
+              <button class="btn btn-sm btn-success" (click)="addDPToArray(); dpChanged = true;" type="button">add
+                line</button>
+              <button class="btn btn-sm btn-danger" (click)="removeLastFromDPArray(); dpChanged = true;"
+                type="button">remove
+                last</button>
+              <button *ngIf="dpChanged == true" class="btn btn-lg btn-primary" style="float:right"
+                (click)="saveDPStats();" type="button">Save</button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div class="col-xl-6 dailySummary">
       <table class="table table-bordered">
-        <tr>
-          <td>
-            <h4>Vessel operations / remarks</h4>
-          </td>
-        </tr>
-        <tr>
-          <td><textarea autosize (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control"
-              cols="70"></textarea></td>
-        </tr>
-        <tr >
-          <td><button *ngIf="remarksChanged == true;" class="btn btn-lg btn-primary" style="float:right"
-              (click)="saveRemarksStats();" type="button">Save remarks</button>
-              <button
-              class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
-              style="float:right; margin-right: 10px;"
-              type="button">Sign off DPR</button>
-          </td>
-        </tr>
+        <thead>
+          <tr>
+            <td>
+              <h4>Vessel operations / remarks</h4>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><textarea autosize (ngModelChange)="remarksChanged = true;" [(ngModel)]="remarks" class="form-control"
+                cols="70"></textarea></td>
+          </tr>
+          <tr>
+            <td><button *ngIf="remarksChanged == true;" class="btn btn-lg btn-primary" style="float:right"
+                (click)="saveRemarksStats();" type="button">Save remarks</button>
+              <button class="btn btn-lg btn-primary" (click)="confirmSignoff(confirmSignoffModal)"
+                style="float:right; margin-right: 10px;" type="button">Sign off DPR</button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -530,17 +554,17 @@
 
 <ng-template #confirmSignoffModal let-modal>
   <app-confirm title="Sign off DPR?" body="This will make it impossible to make further changes
-    to the DPR Input table for this day." [modal]="modal" (onConfirm)="signOffDpr()"
-    ></app-confirm>
+    to the DPR Input table for this day." [modal]="modal" (onConfirm)="signOffDpr()"></app-confirm>
 </ng-template>
 
 <ng-template #tooltipStandby>Time the vessel was standby waiting on client</ng-template>
 <ng-template #tooltipTechnicalDowntime>Time vessel was not available to the client due to
-technical issues with the vessel. Provide further details in the hse DPR and remark section
+  technical issues with the vessel. Provide further details in the hse DPR and remark section
 </ng-template>
 <ng-template #tooltipWeatherDowntime>Time vessel was not available to client due to bad weather</ng-template>
 <ng-template #tooltipHocCards>Health and safety observation cards</ng-template>
 <ng-template #tooltipDpUsage>Time the vessel was sailing with dynamic positioning (dp) active</ng-template>
-<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, select any of the more specific options if relevant.</ng-template>
+<ng-template #tooltipAccessDayType>Type of access achieved this day. In case of no access, select any of the more
+  specific options if relevant.</ng-template>
 <ng-template #tooltipPOB>Number of people on board of the vessel at the end of day. By default, yesterdays
-values are auto-filled.</ng-template>
+  values are auto-filled.</ng-template>

@@ -54,8 +54,8 @@ describe('PermissionService', () => {
     expect(service).toBeTruthy();
     expect(service.admin).toBe(false);
     expect(service.userRead).toBe(true);
-    expect(service.userCreate).toBe(false);
-    expect(service.userManage).toBe(false);
+    expect(service.userCreate).toBe(true);
+    expect(service.userManage).toBe(true);
     expect(service.ctvVideoRequest).toBe(true);
     expect(service.longterm).toBe(true);
   })
@@ -79,13 +79,29 @@ describe('PermissionService', () => {
     expect(service.sovSiemensMonthlyKpis).toBe(true);
   })
 
+
+  it('should not enable forecast for VM be default', () => {
+    mockUserModel('Vessel master');
+    service = TestBed.inject(PermissionService);
+    expect(service).toBeTruthy();
+    expect(service.forecastRead).toBe(false);
+  })
+  it('should enable forecast for VM if enabled in server', () => {
+    mockUserModel('Vessel master', 'Tester', true);
+    service = TestBed.inject(PermissionService);
+    expect(service).toBeTruthy();
+    expect(service.forecastRead).toBe(true);
+  })
 });
 
-function mockUserModel(userType: UserType, company='Test_Company') {
-  spyOn(UserTestService.prototype, 'getDecodedAccessToken').and.returnValue(
-    UserTestService.getMockedAccessToken({
-      userPermission: userType,
-      userCompany: company,
-    })
-  )
+function mockUserModel(userType: UserType, company='Test_Company', enableForecast = false) {
+  const token = UserTestService.getMockedAccessToken({
+    userPermission: userType,
+    userCompany: company,
+  })
+  token.permission.admin = userType == 'admin';
+  token.permission.demo = userType == 'demo';
+  token.permission.forecast.read = enableForecast;
+  token.permission.user_manage = ['admin', 'Marine controller', 'Logistics specialist'].some(u=> u==userType)
+  spyOn(UserTestService.prototype, 'getDecodedAccessToken').and.returnValue(token)
 }

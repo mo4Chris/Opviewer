@@ -18,14 +18,14 @@ export class E2eDropdownHandler {
     }
     async setValue(elt: ElementFinder, s: string) {
         await this.open(elt);
-        await this.getOptions(elt).then(_opts => {
-            const idx = _opts.findIndex(_s => _s === s);
-            if (idx >= 0) {
-                this._getOptions(elt).get(idx).click();
-            } else {
-                fail('Could not select dropdown option "' + s + '" - it does not exist');
-            }
-        });
+        const opts = await this.getOptions(elt)
+
+        const idx = opts.findIndex(_s => _s === s);
+        if (idx >= 0) {
+            await this._getOptions(elt).get(idx).click();
+        } else {
+            fail('Could not select dropdown option "' + s + '" - it does not exist');
+        }
 
     }
     async setValueByIndex(elt: ElementFinder, idx: number) {
@@ -70,9 +70,9 @@ export class E2eSelectHandler {
             }
         });
     }
-    setValueByIndex(elt: ElementFinder, idx: number) {
-        this.open(elt);
-        this._getOptions(elt).get(idx).click();
+    async setValueByIndex(elt: ElementFinder, idx: number) {
+        await this.open(elt);
+        await this._getOptions(elt).get(idx).click();
     }
     setNewOption(elt: ElementFinder) {
         this.open(elt);
