@@ -1,6 +1,6 @@
-const mock = require('../../helper/mocks.server')
+const mock = require('../helper/mocks.server')
 const request = require('supertest');
-const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../../helper/validate.server');
+const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../helper/validate.server');
 
 // #####################################################################
 // ################# Tests - administrative - no login #################

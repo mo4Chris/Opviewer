@@ -1,6 +1,6 @@
 const request = require('supertest');
 const rewire = require('rewire');
-const mock = require('../helper/mocks.server')
+const mock = require('./helper/mocks.server')
 
 module.exports = (app) => {
   function GET(url, auth = true) {
