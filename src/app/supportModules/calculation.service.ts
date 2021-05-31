@@ -31,6 +31,7 @@ export class CalculationService {
 
   getDecimalValueForNumber(value: any, endpoint: string = null): string {
       const type = typeof (value);
+      if (value == null) return 'N/a';
       if (type === 'number' && !isNaN(value)) {
           value = Math.round(value * 10) / 10;
           if (value - Math.floor(value) === 0 ) {
@@ -45,8 +46,6 @@ export class CalculationService {
           if (endpoint != null) {
               value = value + endpoint;
           }
-      } else if (type === 'undefined') {
-          value = 'N/a';
       } else {
         value = 'N/a';
       }
@@ -248,6 +247,10 @@ export class CalculationService {
         return this.switchVolumeUnits(vals, from, to);
       case 'N': case 'kN':
         return this.switchForceUnits(vals, from, to);
+      case 'deg/s':
+        return vals;
+      case 'deg/s2': case 'deg/s²': case 'deg\/s2':
+        return vals;
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;

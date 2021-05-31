@@ -46,16 +46,26 @@
                   [ngbPopover]="helpWorkabilitySpectrum" popoverClass="helpPopup" container="body">?
                 </button>
                 <app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Workability" [xData]="reponseTime"
-                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125" class=left>
+                  [yData]="WorkabilityHeadings" [zData]="Workability" zMax="125" class=left [lines]="[headingLine]">
                 </app-surface-plot>
 
                 <button type="button" class="btn btn-outline-secondary helpBtn right" [autoClose]="true" placement="left-top"
                   [ngbPopover]="helpSlipProbability" popoverClass="helpPopup" container="body">?
                 </button>
                 <app-surface-plot *ngIf="SlipProbability" [xLabel]="" yLabel="Heading (deg)" title="Slip probability"
-                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left">
+                  [xData]="reponseTime" [yData]="WorkabilityHeadings" [zData]="SlipProbability" zMax="100" class="left"
+                  [lines]="[headingLine]">
                 </app-surface-plot>
               </ng-container>
+            </ng-template>
+          </li>
+
+          <li *ngIf="!responseNotFound" ngbNavItem="forecast-motion-overview">
+            <a ngbNavLink>Motion overview</a>
+            <ng-template #motionGraph id="tab-motion" ngbNavContent>
+              <app-forecast-motion-overview [time]="reponseTime" [headings]="WorkabilityHeadings"
+                [startTime]="startTime" [stopTime]="stopTime" [response]="response?.Response">
+              </app-forecast-motion-overview>
             </ng-template>
           </li>
 
@@ -116,6 +126,10 @@
   Workability is defined as the maximum over all the limits. Hence, 100% workability
   corresponds to at least one of the limits being reached. If workability exceeds 100%,
   the conditions are expected to be unsafe to perform the selected operation at that time.
+
+  <ng-container *ngIf="SlipProbability?.length > 0">
+    The slip probability is included in the workability if it is selected as a limit (0-100%).
+  </ng-container>
 </ng-template>
 <ng-template #helpSlipProbability>
   Shows the expected slip probabilty for CTVs during push on transfer with a stationary

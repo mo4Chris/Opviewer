@@ -22,6 +22,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { SovWaveSpectrumComponent } from './models/wave-spectrum/wave-spectrum.component';
 import { WeatherOverviewComponent } from './models/weather-overview/weather-overview.component';
 import { ForecastWeatherOverviewComponent } from './mo4-light/forecast-weather-overview/forecast-weather-overview.component';
+import { ForecastMotionOverviewComponent } from './mo4-light/forecast-motion-overview/forecast-motion-overview.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -53,7 +54,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     Mo4LightComponent,
     ForecastWeatherOverviewComponent,
     SovWaveSpectrumComponent,
-    WeatherOverviewComponent
+    WeatherOverviewComponent,
+    ForecastMotionOverviewComponent
   ],
   bootstrap: [
     Mo4LightComponent

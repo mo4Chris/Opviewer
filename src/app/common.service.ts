@@ -152,7 +152,7 @@ export class CommonService {
     return this.get('/api/getHarbourLocations/');
   }
 
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, name: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
     return this.get('/api/forecastProjectLocations')
   }
 

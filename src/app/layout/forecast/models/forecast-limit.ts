@@ -6,7 +6,7 @@ import { Dof6, DofType } from './forecast-response.model';
   providedIn: 'root'
 })
 export class ForecastMotionLimit {
-  Type: DofType;
+  Type: DofType | 'Slip';
   Dof: Dof6;
   Value: number;
 
@@ -16,7 +16,7 @@ export class ForecastMotionLimit {
     if (!inputs) return;
     this.Type = inputs.Type ?? null;
     this.Dof = inputs.Dof ?? null;
-    if (!inputs.Unit) {
+    if (inputs.Unit) {
       const calcService = new CalculationService;
       this.Value = calcService.switchUnits(inputs.Value, inputs.Unit, this.SimpleUnit);
     } else {
@@ -25,6 +25,7 @@ export class ForecastMotionLimit {
   }
 
   public get Unit() {
+    if (!this.Type) return '-';
     switch (this.Type) {
       case null:
         return '-';
@@ -55,6 +56,8 @@ export class ForecastMotionLimit {
           case 'Roll': case 'Pitch': case 'Yaw':
             return 'deg';
         }
+      case 'Slip':
+        return '%'
       default:
         console.error(`Unsupported unit for type ${this.Type} and dof ${this.Dof}`);
         return '';
@@ -85,7 +88,7 @@ export class ForecastMotionLimit {
 }
 
 interface ForecastLimitInputs {
-  Type: DofType;
+  Type: DofType | 'Slip';
   Dof: Dof6;
   Value: number;
   Unit?: string;

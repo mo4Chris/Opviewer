@@ -14,6 +14,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
 // tslint:disable-next-line:import-blacklist
 import { forkJoin } from 'rxjs';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -32,6 +33,7 @@ export class LongtermComponent implements OnInit {
     private userService: UserService,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
+    private alertService: AlertService,
     private permission: PermissionService,
   ) {}
 
@@ -82,6 +84,14 @@ export class LongtermComponent implements OnInit {
 
   // onInit
   ngOnInit() {
+    if (!this.permission.longterm) {
+      this.alertService.sendAlert({
+        text: 'User not autorized to view longterm module!',
+        type: 'danger'
+      })
+      this.routerService.routeToDashboard();
+      return
+    }
     this.route.params.subscribe(params => {
       if (Object.keys(params).length === 0 || params.mmsi === undefined || params.vesselName === undefined) {
         this.routerService.route(['reports']);

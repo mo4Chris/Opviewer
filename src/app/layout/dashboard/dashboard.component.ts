@@ -109,41 +109,40 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        this.getAlert();
-        this.makeLegend();
-        this.getLocations();
-      } else {
+      if (!userIsActive) {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        this.router.navigate(['login']);
+        return this.router.navigate(['login']);
       }
+      this.getAlert();
+      this.makeLegend();
+      this.getLocations();
     });
   }
 
   getLocations() {
-    setTimeout(() => {
-      switch (this.tokenInfo.userPermission) {
-        case this.userType.Admin: {
-          this.adminComponent.getLocations();
-          break;
-        }
-        case this.userType.LogisticsSpecialist: {
-          this.logisticsSpecialistComponent.getLocations();
-          break;
-        }
-        case this.userType.MarineController: {
-          this.marineControllerComponent.getLocations();
-          break;
-        }
-        case this.userType.Vesselmaster: {
-          this.vesselMasterComponent.getLocations();
-          break;
-        }
-      }
-      this.eventService.closeLatestAgmInfoWindow();
-    }, 1000);
     this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        switch (this.tokenInfo.userPermission) {
+          case this.userType.Admin: {
+            this.adminComponent.getLocations();
+            break;
+          }
+          case this.userType.LogisticsSpecialist: {
+            this.logisticsSpecialistComponent.getLocations();
+            break;
+          }
+          case this.userType.MarineController: {
+            this.marineControllerComponent.getLocations();
+            break;
+          }
+          case this.userType.Vesselmaster: {
+            this.vesselMasterComponent.getLocations();
+            break;
+          }
+        }
+        this.eventService.closeLatestAgmInfoWindow();
+      }, 100);
       // We need to tell angular that the 10 minute dashboard update
       // should not be waited for with regards to change detection.
       setTimeout(() => {

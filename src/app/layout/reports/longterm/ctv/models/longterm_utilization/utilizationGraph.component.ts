@@ -2,11 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { TokenModel } from '@app/models/tokenModel';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import * as Chart from 'chart.js';
-import { map } from 'rxjs/operators';
-import { now } from 'moment';
 import { LongtermColorScheme } from '../../../models/color_scheme';
 import { CtvDprStatsModel } from '@app/layout/reports/dpr/models/generalstats.model';
 import { LongtermVesselObjectModel } from '../../../longterm.component';

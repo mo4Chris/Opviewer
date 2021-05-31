@@ -50,43 +50,56 @@ describe('ForecastNewVesselComponent', () => {
 });
 
 
-export function testBrokenHelpButtons(getFixture: () => ComponentFixture<any>) {
+export function testBrokenHelpButtons(getFixture: () => ComponentFixture<any>, mustHaveHelpButtons = false) {
   return async () => {
     const fixture = getFixture();
     await fixture.whenStable();
     const elt: HTMLElement = fixture.nativeElement;
-    const helpbtns: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button[popoverClass="helpPopup"]');
-    helpbtns.forEach(helper => {
+    const helpbtns: NodeListOf<HTMLButtonElement> = await elt.querySelectorAll('button[popoverClass="helpPopup"]');
+
+    const noButtons = helpbtns == null || helpbtns.length == 0;
+    if (noButtons) return expect(mustHaveHelpButtons).toBe(false, 'Missing help buttons');
+
+    helpbtns.forEach(async helper => {
       helper.click();
-      const window = elt.querySelector('ngb-popover-window');
+      fixture.detectChanges()
+      await fixture.whenStable();
+      const window: HTMLCollection = document.getElementsByClassName('ngb-popover-window');
       expect(window).toBeTruthy(helper.parentElement.textContent);
-      if (window) {
-        expect(window.textContent.length).toBeGreaterThan(0, helper.parentElement.textContent);
+      if (window.length > 0) {
+        expect(window[0].innerHTML.length).toBeGreaterThan(0,
+          `Missing help btn context: ${helper.parentElement.textContent}`
+          );
       }
       helper.click(); // Close the window
     });
   };
 }
 
-export function testEmptyTooltips(getFixture: () => ComponentFixture<any>) {
+export function testEmptyTooltips(getFixture: () => ComponentFixture<any>, mustHaveTooltips=false) {
   // ToDo: get all elements with a broken reference
   return async () => {
     const fixture = getFixture();
     await fixture.whenStable();
     const elt: HTMLElement = fixture.nativeElement;
-    const hoverDivs: NodeListOf<HTMLDivElement> = elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
+    const hoverDivs: NodeListOf<HTMLDivElement> = await elt.querySelectorAll('div[ng-reflect-ngb-tooltip]');
 
-    if (hoverDivs == null || hoverDivs.length == 0) { expect(true).toBe(true); } // Hide warnings about no spec
+    const noButtons = hoverDivs == null || hoverDivs.length == 0;
+    if (noButtons) return expect(mustHaveTooltips).toBe(false, 'Missing tooltips!');
 
-    hoverDivs.forEach(helper => {
-      helper.dispatchEvent(new MouseEvent('mouseenter'));
-      const window = elt.querySelector('ngb-tooltip-window div.tooltip-inner');
-      expect(window).toBeTruthy(helper.textContent);
-      if (window) {
-        expect(window.textContent.length).toBeGreaterThan(0, helper.textContent);
+    for (let _i =0; _i<hoverDivs.length; _i++) {
+      const helper = hoverDivs[_i];
+      const is_send = helper.dispatchEvent(new MouseEvent('mouseenter'));
+      expect(is_send).toBe(true, 'Event dispatch failed')
+      fixture.detectChanges()
+      await fixture.whenStable();
+      const window = await document.getElementsByClassName('tooltip-inner');
+      expect(window.length).toBe(1, `Missing tooltip window: ${helper.textContent}`);
+      if (window.length > 0) {
+        expect(window[0].innerHTML.length).toBeGreaterThan(0, `Missing tooltip: ${helper.textContent}`);
       }
       helper.dispatchEvent(new MouseEvent('mouseleave'));
-    });
+    }
   };
 }
 

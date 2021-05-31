@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { CommonService } from '../../common.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../../shared/services/user.service';
 import { TokenModel } from '../../models/tokenModel';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { RouterService } from '@app/supportModules/router.service';
+import { UserModel } from '@app/models/userModel';
+import { VesselModel } from '@app/models/vesselModel';
 
 @Component({
   selector: 'app-usermanagement',
@@ -16,7 +18,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 })
 export class UserManagementComponent implements OnInit {
   constructor(
-    public router: Router,
+    public router: RouterService,
     private newService: CommonService,
     private route: ActivatedRoute,
     private userService: UserService,
@@ -25,9 +27,9 @@ export class UserManagementComponent implements OnInit {
   ) { }
 
   username = this.getUsernameFromParameter();
-  user;
-  tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  boats;
+  user: UserModel;
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  boats: VesselModel[];
 
   multiSelectSettings = {
     idField: 'mmsi',
@@ -40,20 +42,16 @@ export class UserManagementComponent implements OnInit {
 
   ngOnInit() {
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive !== true) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.router.navigate(['login']);
-      } else {
-        this.getUser();
-      }
+      if (userIsActive == true) return this.getUser();
+      localStorage.removeItem('isLoggedin');
+      localStorage.removeItem('token');
+      this.router.routeToLogin();
     });
   }
 
-  getUsernameFromParameter() {
-    let username;
-    this.route.params.subscribe(params => username = String(params.username));
-    return username;
+  async getUsernameFromParameter() {
+    const params = await this.route.params.toPromise();
+    return String(params.username);
   }
 
   getUser() {
@@ -63,13 +61,14 @@ export class UserManagementComponent implements OnInit {
       // Loads the users this person is allowed to edit
       if (!this.permission.admin) {
         if (!this.permission.userRead) {
-          this.router.navigate(['/access-denied']);
+          this.router.routeToAccessDenied();
         } else if (this.tokenInfo.userCompany !== userdata[0].client) {
-          this.router.navigate(['/access-denied']);
+          this.router.routeToAccessDenied();
         }
       }
       this.user = userdata[0];
-      this.multiSelectSettings.singleSelection = (userdata[0].permission.user_type == 'Vessel master');
+      const isVesselMaster = userdata[0].permission.user_type == 'Vessel master'
+      this.multiSelectSettings.singleSelection = isVesselMaster;
       // this.newService.getVesselsForCompany([{
       //   client: userdata[0].client_name,
       //   notHired: 1

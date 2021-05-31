@@ -1,4 +1,4 @@
-import { Injectable, Component } from '@angular/core';
+import { Injectable, Component, NgZone } from '@angular/core';
 
 
 const DEFAULT_TIMEOUT = 7000;
@@ -15,7 +15,9 @@ export class AlertService {
 
     private timeoutRef: NodeJS.Timeout = null;
 
-    constructor() {
+    constructor(
+      private ngZone: NgZone
+    ) {
     }
 
     sendAlert(opts: AlertOptions = {}) {
@@ -51,9 +53,11 @@ export class AlertService {
       this.type = type;
       this.timeout = timeout;
       if (timeout) {
-        this.timeoutRef = setTimeout(() => {
-          this.active = false;
-        }, this.timeout);
+        this.ngZone.runOutsideAngular(() => {
+          this.timeoutRef = setTimeout(() => {
+            this.active = false;
+          }, this.timeout);
+        })
       }
     }
 }

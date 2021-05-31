@@ -49,7 +49,7 @@ export class ReportsDprComponent implements OnInit {
   };
 
   datePickerValue = this.startDate;
-  sailDates: {transfer: object[], transit: object[], other: object[]};
+  sailDates: SailDates;
   vessels: VesselModel[];
 
   tokenInfo: TokenModel = TokenModel.load(this.userService);
@@ -63,29 +63,28 @@ export class ReportsDprComponent implements OnInit {
   };
   printMode = 0;
 
+  private get isMaxDate() {
+    const day_matched = this.datePickerValue.day === this.maxDate.day;
+    const month_matched = this.datePickerValue.month === this.maxDate.month
+    const year_matched = this.datePickerValue.year === this.maxDate.year
+    return year_matched && month_matched && day_matched;
+  }
+
   // Initial load
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
       this.printPage(1);
     });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        if (this.permission.admin) {
-          this.newService.getVessel().subscribe(_vessels => {
-            this.vessels = _vessels;
-            this.buildPageWithCurrentInformation();
-          });
-        } else {
-          this.newService.getVessel().subscribe(data => {
-            this.vessels = data;
-            this.buildPageWithCurrentInformation();
-          });
-        }
-      } else {
+      if (!userIsActive) {
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        this.routeService.routeToLogin();
+        return this.routeService.routeToLogin();
       }
+      this.newService.getVessel().subscribe(_vessels => {
+        this.vessels = _vessels;
+        this.buildPageWithCurrentInformation();
+      });
     });
   }
 
@@ -108,11 +107,8 @@ export class ReportsDprComponent implements OnInit {
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
     const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
-    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
-      htmlButton.disabled = true;
-    } else {
-      htmlButton.disabled = false;
-    }
+    htmlButton.disabled = this.isMaxDate;
+
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({
       mmsi: this.vesselObject.mmsi
@@ -144,27 +140,31 @@ export class ReportsDprComponent implements OnInit {
   }
 
   private _doPrint(resetPrint?: boolean) {
+    const component = this;
     const containers = <HTMLCollection> document.getElementsByClassName('chartContainer');
     for (let _i = 0; _i < containers.length; _i++) {
       const container = <HTMLDivElement> containers[_i];
-      container.style.width = '225mm';
+      container.style.width = '210mm';
     }
     setTimeout(function() {
       window.print();
       if (resetPrint) {
-        this.printMode = 0;
+        component.printMode = 0;
       }
     });
   }
 
   ///////////////////////////////////////////////////
   hasSailedTransfer(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
   }
   hasSailedTransit(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
   }
   hasSailedOther(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
   }
   getMatlabDateToJSDate(serial) {
@@ -173,7 +173,7 @@ export class ReportsDprComponent implements OnInit {
   getMMSIFromParameter() {
     let mmsi: number;
     this.route.params.subscribe(params => mmsi = parseFloat(params.mmsi));
-    return mmsi;
+    return mmsi; // This is so not ok...
   }
   getDateFromParameter() {
     let matlabDate: number;
@@ -221,7 +221,7 @@ export class ReportsDprComponent implements OnInit {
     this.datePickerValue = this.dateTimeService.momentToYMD(newDate, false);
     this.onChange();
   }
-  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
+  public setDatesHasSailed(sailDates: SailDates): void {
     this.sailDates = sailDates;
   }
   getMatlabDateToCustomJSTime(serial: number, format: string) {
@@ -230,4 +230,11 @@ export class ReportsDprComponent implements OnInit {
   GetDecimalValueForNumber(value: any, endpoint: string): string {
     return this.calculationService.getDecimalValueForNumber(value, endpoint);
   }
+
+}
+
+interface SailDates {
+  transfer: object[],
+  transit: object[],
+  other: object[]
 }

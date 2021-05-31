@@ -3,21 +3,21 @@ var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 var pino = require('pino');
 
-var mo4lightServer = require('./server/mo4light.server.js')
-var fileUploadServer = require('./server/file-upload.server.js')
-var mo4AdminServer = require('./server/administrative.server.js')
-var mo4AdminPostLoginServer = require('./server/admin.postlogin.server.js')
+var mo4lightServer = require('./mo4light.server.js')
+var fileUploadServer = require('./file-upload.server.js')
+var mo4AdminServer = require('./administrative.server.js')
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
 
 var mongo = require("mongoose");
 var { Pool } = require('pg')
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
-var ctv = require('./server/models/ctv.js')
-var sov = require('./server/models/sov.js')
-var geo = require('./server/models/geo.js')
-var twa = require('./server/models/twa.js')
-var videoRequests = require('./server/models/video_requests.js')
-var weather = require('./server/models/weather.js')
+var ctv = require('./models/ctv.js')
+var sov = require('./models/sov.js')
+var geo = require('./models/geo.js')
+var twa = require('./models/twa.js')
+var videoRequests = require('./models/video_requests.js')
+var weather = require('./models/weather.js')
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -237,21 +237,53 @@ function verifyToken(req, res) {
   }
 }
 
+/**
+ * Verifies whether or not a user has permission to view data based on mmsi
+ *
+ * @param {Request} req Request
+ * @param {Response} res
+ * @param {(tf) => void} callback
+ * @returns {void};
+ */
 function validatePermissionToViewVesselData(req, res, callback) {
   logger.trace('Validating permission to view vessel data')
   const token = req['token'];
-  const mmsi = req.body.mmsi ?? req.params.mmsi
-  let filter;
-  if (token.permission.admin) {
-    filter = { mmsi };
-  } else {
-      filter = { mmsi, client: token.userCompany };
+  const mmsi = req.body.mmsi ?? req.params.mmsi;
+  if (token.permission.admin) return callback(true)
+
+  if (!token.permission.user_see_all_vessels_client) {
+    logger.debug('Verifying vessel are included in token')
+    const user_vessels = token.userBoats;
+    const mmsi_in_token = checkPermission(user_vessels.map(v => v.mmsi));
+    if (!mmsi_in_token) return res.onUnauthorized(`Usertoken error: unauthorized for vessel ${mmsi}`);
   }
-  Vesselmodel.find(filter, ['_id'], function(err, isValid) {
-    if (err) return onError(res, err);
-    if (isValid.length < 1) return onUnauthorized(res, `User not authorized for vessel ${mmsi}`);
-    return callback(isValid);
-  });
+
+  const client_id = token.client_id;
+  const query = `SELECT v."mmsi"
+  FROM "vesselTable" v
+  where $1=ANY(v."client_ids")
+  `
+  logger.debug('Getting client vessels from admin db')
+  admin_server_pool.query(query, [client_id]).then(sqlresponse => {
+    logger.trace('Got sql response!')
+    const client_vessel_mmsi = sqlresponse.rows.map(r => r.mmsi);
+    const mmsi_in_token = checkPermission(client_vessel_mmsi);
+    logger.debug('Getting client vessels from admin db')
+    if (!mmsi_in_token) return res.onUnauthorized(`User not authorized for vessel ${mmsi}`);
+    callback(true);
+  }).catch(res.onError)
+
+  function checkPermission(verified_mmsi_list = [0]) {
+    if (Array.isArray(mmsi)) {
+      const some_mmsi_not_valid = mmsi.some((body_mmsi) => {
+        const has_match = verified_mmsi_list.some(_mmsi => _mmsi == body_mmsi)
+        return !has_match; // true iff no match found
+      })
+      return !some_mmsi_not_valid;
+    } else {
+      return verified_mmsi_list.some(_mmsi => _mmsi == mmsi);
+    }
+  }
 }
 
 function mailTo(subject, html, user) {
@@ -785,13 +817,10 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
 });
 
 app.get("/api/getLatestBoatLocation/", async function(req, res) {
-  let companyMmsi = [];
   const uservessels = await getVesselsForUser(req);
-  if (!Array.isArray(uservessels)) return null
-  for (let i = 0; i < uservessels.length; i++) {
-    companyMmsi.push(uservessels[i].mmsi);
-  }
+  if (!Array.isArray(uservessels)) return null;
 
+  const companyMmsi = uservessels.map(v => v['mmsi'])
   geo.VesselLocationModel.aggregate([{
       "$match": {
         MMSI: { $in: companyMmsi },
@@ -801,15 +830,9 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
     {
       $group: {
         _id: "$MMSI",
-        "LON": {
-          "$last": "$LON"
-        },
-        "LAT": {
-          "$last": "$LAT"
-        },
-        "TIMESTAMP": {
-          "$last": "$TIMESTAMP"
-        }
+        "LON": { "$last": "$LON" },
+        "LAT": { "$last": "$LAT" },
+        "TIMESTAMP": { "$last": "$TIMESTAMP" }
       }
     },
     // This code runs every 30 seconds if left in place
@@ -947,7 +970,7 @@ app.post("/api/getSovDprInput", function(req, res) {
             "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
           };
         }
-        let sovDprData = new sov.sov.SovDprInputModel(dprData);
+        let sovDprData = new sov.SovDprInputModel(dprData);
 
         sovDprData.save((error, dprData) => {
           if (err) return onError(res, err);
@@ -2290,31 +2313,28 @@ app.post("/api/getWavedataForRange", function(req, res) {
 
 app.get("/api/getFieldsWithWaveSourcesByCompany", function(req, res) {
   const token = req['token']
-  if (token.permission.admin) {
-    weather.WaveSourceModel.find({}, {
-        site: 1,
-        name: 1
-      }, {
-        sort: { site: 1 }
-      }, (err, data) => {
-        if (err) return onError(res, err);
-        res.send(data);
-      }
-    )
-  } else {
-    weather.WaveSourceModel.find({
-        clients: { $in: [token.userCompany] },
-      }, {
-        site: 1,
-        name: 1,
-      }, {
-        sort: { site: 1 }
-      }, (err, data) => {
-        if (err) return onError(res, err);
-        res.send(data);
-      }
-    )
-  }
+  if (token.permission.admin) return weather.WaveSourceModel.find({}, {
+      site: 1,
+      name: 1
+    }, {
+      sort: { site: 1 }
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data);
+    }
+  )
+  weather.WaveSourceModel.find({
+      clients: { $in: [token.userCompany] },
+    }, {
+      site: 1,
+      name: 1,
+    }, {
+      sort: { site: 1 }
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data);
+    }
+  )
 })
 
 app.get('/api/getLatestTwaUpdate/', function(req, res) {
@@ -2430,7 +2450,8 @@ function verifyDemoAccount(req, res, next) {
 
     if (!data.demo) return next();
     if (data.demo_expiration_date == null) return next();
-    if (data.demo_expiration_date > currentDate.valueOf()) return next();
+    const expiration_date = new Date(data.demo_expiration_date)
+    if (expiration_date.valueOf() > currentDate.valueOf()) return next();
 
     const user_type = data.user_type;
     if (user_type == 'demo'){

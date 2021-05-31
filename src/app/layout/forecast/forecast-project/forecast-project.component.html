@@ -1,4 +1,8 @@
 <div class="row default-margin">
+  <ngb-alert *ngIf="is_sample_project" type="warning">
+    This is a sample project aimed at showing a working version of MO4-light before any simulation has run.
+    Use the other, newly created, project to experiment with all the settings yourself!
+  </ngb-alert>
   <div class="col-lg-12 col-xl-6 max-card">
     <div class='card mb-3'>
       <div class='card-header'>
@@ -219,7 +223,7 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+    <button *ngIf="!is_sample_project" class="btn btn-primary" (click)="onConfirm()">Confirm</button>
   </div>
 </div>
 

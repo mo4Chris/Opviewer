@@ -6,6 +6,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { ForecastVesselRequest } from '../../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
 import { ForecastOperation, ForecastExpectedResponsePreference, ForecastResponseObject } from '../../models/forecast-response.model';
 
@@ -24,7 +25,7 @@ const DEFAULT_SLIP_OPTIONS = {
 export class ForecastOpsPickerComponent implements OnChanges {
   @Input() projects: ForecastOperation[] = [];
   @Input() lastUpdated: string;
-  @Input() vessels: any[];
+  @Input() vessels: ForecastVesselRequest[];
   @Input() response: ForecastResponseObject; // Used for readonly settings
   @Input() selectedProjectId: number;
   @Input() minForecastDate: YMD; // From Response
@@ -53,7 +54,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public stopTimeInput = {hour: null, mns: <any> '00'};
   public formattedDuration: string;
 
-  public slipValue;
+  public slipValue: number;
   public thrustValue = this.slipThrustLevels[0];
 
   private operationTimeChanged = false;
@@ -64,6 +65,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
     return this.operationTimeChanged
       || this.headingChanged
       || this.limitChanged;
+  }
+  public get ctvSlipSettings() {
+    return this.selectedProject?.client_preferences?.Ctv_Slip_Options;
   }
 
   constructor(
@@ -90,7 +94,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges = {}) {
-
     if (changes.minForecastDate) this.date = this.minForecastDate;
     if (changes.selectedProjectId) this.onNewSelectedOperation();
   }
@@ -125,6 +128,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     });
     const closestIndex = this.slipCoefficients.indexOf(closest)
     this.slipCoefficientChange.emit(closestIndex);
+    this.onChange.emit();
   }
   public onThrustIndexChange() {
     let thrustValue = this.thrustValue;
@@ -134,6 +138,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     });
     const closestIndex = this.slipThrustLevels.indexOf(closest)
     this.thrustIndexChange.emit(closestIndex);
+    this.onChange.emit();
   }
   public onOpsChange() {
     this.routerService.routeToForecast(this.selectedProjectId);
@@ -153,7 +158,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public onAddLimitsLine() {
     this.limitChanged = true;
-    this.limits.push(new ForecastMotionLimit());
+    this.limits.push(new ForecastMotionLimit({
+      Dof: 'Heave',
+      Type: 'Disp',
+      Value: 1,
+    }));
   }
   public onRemoveLimitsLine() {
     this.limitChanged = true;

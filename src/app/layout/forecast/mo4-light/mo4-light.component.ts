@@ -12,6 +12,8 @@ import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-pi
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
 import { ForecastVesselRequest } from '../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../models/forecast-limit';
+import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 
 @Component({
   selector: 'app-mo4-light',
@@ -34,6 +36,11 @@ export class Mo4LightComponent implements OnInit {
   public Workability: number[][];
   public WorkabilityHeadings: number[];
   public WorkabilityAlongSelectedHeading: number[];
+  public headingLine: PlotlyLineConfig = {
+    Name: 'Selected heading',
+    Mode: 'Horizontal',
+    Value: 180,
+  }
 
   private ctvSlipResponse: CtvSlipResponse;
   public SlipProbability: number[][] = [];
@@ -41,7 +48,6 @@ export class Mo4LightComponent implements OnInit {
   public SlipThrustLevels: number[];
 
   public limits: ForecastMotionLimit[] = [];
-  public selectedHeading = 0;
 
   public selectedSlipCoefficient = 0;
   public selectedThrustIndex = 0
@@ -62,11 +68,23 @@ export class Mo4LightComponent implements OnInit {
     private responseService: ForecastResponseService,
     private matService: MatrixService,
     private route: ActivatedRoute,
+    private permission: PermissionService
   ) {
   }
 
+  private __selectedHeading = 0;
+  set selectedHeading(value: number) {
+    this.headingLine.Value = value;
+    this.__selectedHeading = value;
+  }
+  get selectedHeading() {
+    return this.__selectedHeading;
+  }
+
   ngOnInit() {
+    if (!this.permission.forecastRead) return this.routeService.routeToAccessDenied();
     this.initRoute().subscribe(() => {
+      this.showContent = false;
       this.loadData();
     });
   }
@@ -109,26 +127,19 @@ export class Mo4LightComponent implements OnInit {
         this.responseObj = responses;
         this.operations = projects;
         this.showContent = true;
-
-        const currentOperation = this.operations.find(op => op.id === this.project_id);
-        this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
-        this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
-
-        if (!this.responseObj) {
-          this.lastUpdated = 'N/a';
-          this.responseObj = null;
-          this.Workability = null;
-          this.limits = [];
-          return;
-        }
+        if (!this.responseObj) return this.onNoResponse();
 
         this.setLastUpdateTime();
         const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
         this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
         this.maxForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[responseTimes.length - 1]);
 
-        this.parseResponse();
+        const currentOperation = this.operations.find(op => op.id === this.project_id);
+        this.limits = this.responseService.setLimitsFromOpsPreference(currentOperation);
+        this.selectedHeading = currentOperation?.client_preferences?.Ops_Heading ?? 0;
+
         this.parseCtvSlipResponse();
+        this.parseResponse();
 
         if (this.response == null) return
         // TEMPORARY WORKAROUND FOR WEATHER
@@ -182,7 +193,6 @@ export class Mo4LightComponent implements OnInit {
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
     this.WorkabilityHeadings = POI.Heading;
     this.computeWorkability();
-    this.setWorkabilityAlongHeading();
   }
   parseCtvSlipResponse() {
     const POI = this.responseObj?.response?.Points_Of_Interest?.P1;
@@ -201,19 +211,24 @@ export class Mo4LightComponent implements OnInit {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
     const limiters = this.limits.map(limit => {
-      return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
+      switch (limit.Type) {
+        case 'Slip':
+          return this.matService.scale(this.SlipProbability, 1/limit.Value);
+        default:
+          return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
+      }
     });
     this.Workability = this.matService.scale(
       this.responseService.combineWorkabilities(limiters),
       100
     );
-  }
-  setWorkabilityAlongHeading() {
+
     if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
     this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
+
   getHeadingIdx(headings: number[]): number {
     let d = 360;
     let hIdx = null;
@@ -227,13 +242,18 @@ export class Mo4LightComponent implements OnInit {
     return hIdx;
   }
 
+  onNoResponse() {
+    this.lastUpdated = 'N/a';
+    this.responseObj = null;
+    this.Workability = null;
+    this.limits = [];
+  }
   onProjectSettingsChange(settings: ForecastOperationSettings) {
     if (settings?.startTime)  this.startTime  = settings.startTime;
     if (settings?.stopTime)   this.stopTime   = settings.stopTime;
     if (settings?.limits)     this.limits     = settings.limits;
-    this.computeWorkability();
-    this.setWorkabilityAlongHeading();
     this.parseCtvSlipResponse();
+    this.computeWorkability();
   }
   onTabSwitch(event: NavChangeEvent) {
     this.routeService.switchFragment(event.nextId)
