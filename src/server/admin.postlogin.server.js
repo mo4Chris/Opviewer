@@ -399,6 +399,7 @@ module.exports = function (
     "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
+    console.log(req.body);
     if (is_admin) {
       query = `SELECT ${selectedFields}
         FROM "userTable"

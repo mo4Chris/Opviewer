@@ -49,9 +49,14 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  async getUsernameFromParameter() {
-    const params = await this.route.params.toPromise();
-    return String(params.username);
+  getUsernameFromParameter() {
+    let username = '';
+    this.route.params.subscribe(params => {
+      console.log(params.username);
+      username =  String(params.username);
+    });
+    console.log(username);
+    return username;
   }
 
   getUser() {
@@ -67,6 +72,7 @@ export class UserManagementComponent implements OnInit {
         }
       }
       this.user = userdata[0];
+      console.log(userdata);
       const isVesselMaster = userdata[0].permission.user_type == 'Vessel master'
       this.multiSelectSettings.singleSelection = isVesselMaster;
       // this.newService.getVesselsForCompany([{
