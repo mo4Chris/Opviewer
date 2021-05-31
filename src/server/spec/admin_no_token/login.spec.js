@@ -55,6 +55,7 @@ module.exports = (app, GET, POST) => {
         password: 'val1dP@ssw0rd',
         confirmPassword: 'val1dP@ssw0rd',
         secret2fa: 'some_valid_2fa_code',
+        confirm2fa: 'some_valid_2fa_verification',
       }
       mock.twoFactor(true);
       mock.pgRequest([{

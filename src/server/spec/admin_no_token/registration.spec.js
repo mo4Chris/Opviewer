@@ -15,8 +15,29 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
  * @api public
  */
 module.exports = (app, GET, POST) => {
-  xdescribe('On registration', () => {
+  fdescribe('On registration', () => {
     // These are unsecured methods - we do NOT mock the demoUserCheck
+    const demo_client_id = 4;
+    const client_info_vals = [{client_id: demo_client_id}]; // Returns demo client
+    const user_exists_vals = []; // User does not exist
+    const create_project_response = {id: 3};
+    const create_user_vals = [{user_id: 2}]
+    const create_user_permission_vals = []
+    const create_user_settings_vals = []
+
+    let mailSpy;
+
+    beforeEach(() => {
+      mock.pgRequests([
+        client_info_vals,
+        user_exists_vals,
+        create_user_vals,
+        create_user_permission_vals,
+        create_user_settings_vals
+      ])
+      mock.mockForecastApiRequest(create_project_response, 201)
+      mailSpy = mock.mailer(app, () => {})
+    })
 
     it('it should register', async () => {
       const response = registerDemoUser({})
@@ -115,15 +136,21 @@ module.exports = (app, GET, POST) => {
     full_name = 'Demo Test User',
     company = 'Testables',
     job_title = 'Tester',
-    phone_number = '06-1236456789'
+    phone_number = '06-1236456789',
+    requires2fa = 1,
+    vessel_ids = [],
   }) {
-    return POST('/api/createDemoUser', {username, password, full_name, company, job_title, phone_number})
+    const out = {username, password, full_name, company, job_title, vessel_ids,
+      requires2fa, phoneNumber: phone_number,
+    }
+    return POST('/api/createDemoUser', out)
   }
   function doSetPassword({
     token = 'Test',
     password = 'test123',
     confirmPassword = 'test123',
     secret2fa = 'Testables',
+    confirm2fa = 'Great success',
   }) {
     return POST('/api/setPassword', {passwordToken: token, password, confirmPassword, secret2fa})
   }

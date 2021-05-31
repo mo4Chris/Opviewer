@@ -46,6 +46,7 @@ function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
  * Mocks the web token which is assigned to req['token'].
  * @param {object} app
  * @param {{
+ *  active?: number,
  *  userID?: number,
  *  username?: string,
  *  permission?: object,
@@ -79,7 +80,7 @@ function mockJsonWebToken(app, decoded_token) {
  * @param {array} return_values
  * @api public
  */
-function mockPostgressRequest(return_values = []) {
+ function mockPostgressRequest(return_values = []) {
   const sqlresponse = {
     rowCount: return_values.length,
     rows: return_values,
@@ -90,6 +91,25 @@ function mockPostgressRequest(return_values = []) {
   spyOn(Client.prototype, 'query').and.returnValue(
     Promise.resolve(sqlresponse)
   )
+}
+
+/**
+ * Mocks the returned token which is assigned during the express middleware steps,
+ * but for multiple (different) responses.
+ *
+ * @param {array} return_values
+ * @api public
+ */
+function mockPostgressRequests(return_values = [[]]) {
+  const sqlresponse = (return_value) => {
+    return {
+      rowCount: return_value.length,
+      rows: return_value,
+    }
+  }
+  const responses = return_values.map(val => Promise.resolve(sqlresponse(val)))
+  spyOn(Pool.prototype, 'query').and.returnValues(...responses)
+  spyOn(Client.prototype, 'query').and.returnValues(...responses)
 }
 
 
@@ -111,25 +131,27 @@ function mockTwoFactorAuthentication(valid = true) {
  * @param {object} app
  * @api public {(mailOpts: object) => void}
  */
-function mockMailer(app) {
-  return spyOn(app.__get__('transporter'), 'sendMail').and.callFake((mailOpts) => {
-    console.log('mailOpts', mailOpts)
-    console.log(`Uncaught mail ${mailOpts.subject} to ${mailOpts.to}`)
-  })
+function mockMailer(app, callback = UncaughtMailCallback) {
+  return spyOn(app.__get__('transporter'), 'sendMail').and.callFake(callback);
 }
-
+function UncaughtMailCallback(mailOpts)  {
+  console.log('mailOpts', mailOpts)
+  console.log(`Uncaught mail ${mailOpts.subject} to ${mailOpts.to}`)
+}
 
 /**
  * Mocks forecast requests
  *
  * @param {any} data Data returned by the forecast API
+ * @param {number} response_code Response code returned by the forecast API
  * @api public {(mailOpts: object) => void}
  */
-function mockForecastApiRequest(data) {
+function mockForecastApiRequest(data, response_code) {
+  const default_response_code = data != null ? 200 : 500;
   const dataPromise = Promise.resolve({
     data: data,
-    statusCode: data != null ? 200 : 500,
-    status: 'MOCKED',
+    statusCode: response_code ?? default_response_code,
+    status: response_code ?? default_response_code,
     text: 'mocked'
   });
   // const dataPromise = new Response(data)
@@ -141,6 +163,7 @@ function mockForecastApiRequest(data) {
 module.exports = {
   jsonWebToken: mockJsonWebToken,
   pgRequest: mockPostgressRequest,
+  pgRequests: mockPostgressRequests,
   twoFactor: mockTwoFactorAuthentication,
   mailer: mockMailer,
   mockDemoCheckerMiddelWare,
