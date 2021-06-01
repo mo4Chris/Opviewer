@@ -9,6 +9,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { UserModel } from '@app/models/userModel';
 import { VesselModel } from '@app/models/vesselModel';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-usermanagement',
