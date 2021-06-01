@@ -3,6 +3,7 @@ var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 var ax = require('axios');
 const { Pool } = require("pg");
+const { body, validationResult } = require('express-validator')
 
 // const baseUrl = 'http://localhost:5000';
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
@@ -59,7 +60,19 @@ module.exports = function (
     }).catch(err => res.onError(err))
   });
 
-  app.post('/api/createDemoUser', async (req, res) => {
+  app.post('/api/createDemoUser',
+    body('username').isEmail(),
+    body('password').isLength({min: 6}),
+    body('requires2fa').isBoolean(),
+    body('user_type').equals('demo'),
+    body('phoneNumber').isLength({min: 8}).isString(),
+    body('full_name').isString(),
+    body('job_title').isString(),
+    body('company').isString(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
     const username = req.body.username;
     const password = req.body.password
     const requires2fa = req.body.requires2fa;

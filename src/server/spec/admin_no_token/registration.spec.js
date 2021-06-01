@@ -131,7 +131,8 @@ module.exports = (app, GET, POST) => {
   })
 
   function registerDemoUser({
-    username = 'Test',
+    username = 'Test@test.com',
+    user_type = 'demo',
     password = 'test123',
     full_name = 'Demo Test User',
     company = 'Testables',
@@ -140,7 +141,7 @@ module.exports = (app, GET, POST) => {
     requires2fa = 1,
     vessel_ids = [],
   }) {
-    const out = {username, password, full_name, company, job_title, vessel_ids,
+    const out = {username, user_type, password, full_name, company, job_title, vessel_ids,
       requires2fa, phoneNumber: phone_number,
     }
     return POST('/api/createDemoUser', out)
