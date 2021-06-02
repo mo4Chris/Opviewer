@@ -2,7 +2,7 @@
 
 export interface UserModel {
     active: boolean;
-    boats: {mmsi: number, nicename: string}[];
+    boats: {vessel_id: number, nicename: string}[];
     client: string;
     password: string;
     permissions: string;

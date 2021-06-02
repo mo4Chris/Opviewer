@@ -88,8 +88,12 @@ export class CommonService {
     return this.get('/api/getVessel/');
   }
 
-  getVesselForUser(): Observable<VesselModel[]> {
-    return this.get('/api/getVesselForUser/');
+  getVesselForUser(username: string): Observable<VesselModel[]>  {
+    return this.get('/api/getVesselForUser/'+ username);
+  }
+
+  getVesselNameAndIDById(vesselIds) {
+    return this.post('/api/getVesselNameAndIDById', vesselIds);
   }
 
   getSov(vessel: VesselObjectModel) {

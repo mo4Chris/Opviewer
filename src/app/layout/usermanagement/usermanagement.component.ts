@@ -33,7 +33,7 @@ export class UserManagementComponent implements OnInit {
   boats: VesselModel[];
 
   multiSelectSettings = {
-    idField: 'mmsi',
+    idField: 'vessel_id',
     textField: 'nicename',
     allowSearchFilter: true,
     selectAllText: 'Select All',
@@ -53,10 +53,8 @@ export class UserManagementComponent implements OnInit {
   getUsernameFromParameter() {
     let username = '';
     this.route.params.subscribe(params => {
-      console.log(params.username);
       username =  String(params.username);
     });
-    console.log(username);
     return username;
   }
 
@@ -73,14 +71,17 @@ export class UserManagementComponent implements OnInit {
         }
       }
       this.user = userdata[0];
-      console.log(userdata);
       const isVesselMaster = userdata[0].permission.user_type == 'Vessel master'
       this.multiSelectSettings.singleSelection = isVesselMaster;
       // this.newService.getVesselsForCompany([{
       //   client: userdata[0].client_name,
       //   notHired: 1
       // }])
-      this.newService.getVessel().subscribe(vessels => {
+      this.newService.getVesselNameAndIDById({vessel_ids: userdata[0]?.vessel_ids}).subscribe(vessels => {
+        this.user.boats = vessels;
+      });
+      
+      this.newService.getVesselForUser(userdata[0].username).subscribe(vessels => {
         this.boats = vessels;
       });
     });

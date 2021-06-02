@@ -179,19 +179,18 @@ module.exports = function (
   });
 
   app.post("/api/saveUserBoats", function(req, res) {
+    const user_id = req.body.userID;
+    const vessel_ids = req.body.boats.map(vessel => vessel.vessel_id);
 
-    //console.log(req.body);
+    const query = `UPDATE "userTable"
+        SET "vessel_ids"=$1
+        WHERE "user_id"=$2`;
+    
+    const values = [vessel_ids, user_id];
+    admin_server_pool.query(query, values).then(() => {
 
-
-    // Usermodel.findOneAndUpdate({ _id: req.body._id, active: { $ne: false } }, { boats: req.body.boats },
-    //     function(err, data) {
-    //         if (err) {
-    //             logger.error(err);
-    //             res.send(err);
-    //         } else {
-    //             res.send({ data: "Succesfully saved the permissions" });
-    //         }
-    //     });
+      res.send({ data: "Succesfully saved the vessels"});
+     });
 });
 
   app.post("/api/setUserActive", function(req, res) {
@@ -399,7 +398,6 @@ module.exports = function (
     "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
     "user_type", "forecast", "client_name"`
     let query, value;
-    console.log(req.body);
     if (is_admin) {
       query = `SELECT ${selectedFields}
         FROM "userTable"

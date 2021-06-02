@@ -33,7 +33,6 @@ export class TablesComponent implements OnInit {
   sort = { active: 'Client', isAsc: true };
 
   ngOnInit() {
-    console.log(this.permission);
     this.hotkeys.addShortcut({ keys: 'control.f' }).subscribe(_ => {
       const searchRef = <HTMLInputElement>document.getElementById('searchBox');
       searchRef.select();

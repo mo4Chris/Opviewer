@@ -513,6 +513,7 @@ app.get("/api/getVessel", function(req, res) {
     ).catch(err => onError(res,err));
 });
 
+
 async function getVesselsForUser (req, res) {
   const token = req['token'];
 
@@ -577,13 +578,10 @@ async function getAllVesselsForClient(token, res) {
   return admin_server_pool.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   });
-
-
 }
-
+  
 async function getAssignedVessels(token, res) {
   logger.debug('Getting assigned vessels')
-  console.log(token);
   let PgQuery = `
   SELECT "vesselTable"."mmsi",
   "vesselTable"."mmsi", 
@@ -599,6 +597,63 @@ async function getAssignedVessels(token, res) {
   return await admin_server_pool.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   })
+}
+
+app.get("/api/getVesselForUser/:username", function(req, res) {
+  const username = req.params.username;
+  getAllVesselsForClientByUsername(req, res, username).then(response => {
+    res.send(response)
+  }
+    ).catch(err => onError(res,err));
+});
+
+app.post("/api/getVesselNameAndIDById/", function(req, res) {
+  vessel_ids = req.body.vessel_ids;
+
+  PgQuery = `SELECT vessel_id, nicename
+  FROM "vesselTable"
+  WHERE "vesselTable"."vessel_id" =ANY($1)`;
+
+  values = [vessel_ids];
+
+  admin_server_pool.query(PgQuery, values).then(sql_response => {
+    res.send(sql_response.rows);
+  });
+});
+
+async function getAllVesselsForClientByUsername(req, res, username) {
+  token = req['token'];
+
+  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
+  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
+  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
+
+  let PgQueryClientID = `
+  SELECT "client_id"
+  FROM "userTable"
+  WHERE "username"= $1
+  `;
+
+  const clientIDValues = [username];
+
+  clientID = await admin_server_pool.query(PgQueryClientID, clientIDValues).then(sql_response => {
+    return sql_response.rows[0].client_id;
+  });
+
+  let PgQuery = `
+  SELECT 
+    "vesselTable"."mmsi", 
+    "vesselTable".nicename, 
+    "vesselTable"."vessel_id", 
+    "vesselTable"."active", 
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+
+  const values = [clientID];
+  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows;
+  });
 }
 
 app.get("/api/getHarbourLocations", function(req, res) {
@@ -693,6 +748,7 @@ app.post("/api/updateSovRovOperations", function(req, res) {
 app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
+
   validatePermissionToViewVesselData(req, res, function(validated) {
     ctv.EngineDataModel.find({
       mmsi: mmsi,
