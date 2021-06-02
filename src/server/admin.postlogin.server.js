@@ -188,9 +188,8 @@ module.exports = function (
     
     const values = [vessel_ids, user_id];
     admin_server_pool.query(query, values).then(() => {
-
       res.send({ data: "Succesfully saved the vessels"});
-     });
+     }).catch(err => onError(res, err));
 });
 
   app.post("/api/setUserActive", function(req, res) {
