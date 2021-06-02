@@ -71,7 +71,7 @@ export class UserManagementComponent implements OnInit {
         }
       }
       this.user = userdata[0];
-      const isVesselMaster = userdata[0].permission.user_type == 'Vessel master'
+      const isVesselMaster = userdata[0].permission.user_type == 'vessel master'
       this.multiSelectSettings.singleSelection = isVesselMaster;
       // this.newService.getVesselsForCompany([{
       //   client: userdata[0].client_name,
