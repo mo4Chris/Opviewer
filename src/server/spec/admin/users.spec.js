@@ -22,6 +22,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
+      mock.jsonWebToken(app, {username, permission: {admin: true}})
       mock.mockDemoCheckerMiddelWare(app)
     })
 
@@ -33,7 +34,9 @@ module.exports = (app, GET, POST) => {
         client_name: company,
         client_id: 1,
         vessel_ids: [1],
-        permission: {}
+        permission: {
+          admin: true
+        }
       }])
       const response = GET('/api/getUsers')
       await response.expect(expectValidRequest)

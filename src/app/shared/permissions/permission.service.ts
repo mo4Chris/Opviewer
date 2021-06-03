@@ -52,6 +52,7 @@ export class PermissionService extends PermissionModel {
     let token: TokenModel;
     try {
       token = TokenModel.load(this.userService);
+      console.log('token', token)
       this.hasCampaigns = token.hasCampaigns;
     } catch (error) {
       console.error('Failed to retrieve permission from token!');

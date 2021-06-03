@@ -2,7 +2,7 @@ const ax = require('axios');
 const fs = require('fs');
 const forecastModel = require('./models/forecast')
 var { Pool } = require('pg');
-const { validationResult } = require('express-validator');
+const { validationResult, param } = require('express-validator');
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
@@ -65,7 +65,6 @@ module.exports = function(app, logger, admin_server_pool) {
           client_id: data.client_id
         }
       });
-      // ToDo: filter data by token rights - is this done?
       res.send(data_out)
     }).catch(res.onError)
   });
@@ -74,7 +73,9 @@ module.exports = function(app, logger, admin_server_pool) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.onBadRequest(errors)
 
-    getProjectList().then(projects => {
+    const token = req['token'];
+    getProjectList(token).then(projects => {
+      logger.trace(`Query returned ${projects?.lenght ?? 0} projects`)
       res.send(projects)
     }).catch(res.onError)
   });
@@ -131,21 +132,35 @@ module.exports = function(app, logger, admin_server_pool) {
     }).catch(res.onError)
   });
 
-  app.get('/api/mo4light/getResponseForProject/:project_id', (req, res) => {
-    const project_id = req.params.project_id;
-    const token = req['token'];
-    const start = Date.now()
-    log('Start azure response request')
+  app.get('/api/mo4light/getResponseForProject/:project_id',
+    forecastModel.checkForecastRead,
+    param('project_id').isInt(),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors)
 
-    pg_get('/response/' + project_id).then((out, err) => {
-      log(`Receiving azure motion response after ${Date.now() - start}ms`)
-      if (err) return res.onError(err, err);
-      const data = out.data;
-      res.send(data)
-    }).catch(err => {
-      if (err.response.status == 404) return res.status(404).send('Response not found')
-      res.onError(err, `Failed to get response for project with id ${project_id}`)
-    })
+      const project_id = req.params.project_id;
+      const token = req['token'];
+      const start = Date.now()
+      log('Start azure response request')
+
+      const is_admin = token.permission?.admin;
+      if (!is_admin) {
+        const projects = await getProjectList(token);
+        const has_permission = projects.some(p => p.id == project_id)
+        if (!has_permission) return res.onUnauthorized()
+      }
+
+      // At this point we are confident the client is authorized to access the resource
+      pg_get('/response/' + project_id).then((out, err) => {
+        log(`Receiving azure motion response after ${Date.now() - start}ms`)
+        if (err) return res.onError(err, err);
+        const data = out.data;
+        res.send(data)
+      }).catch(err => {
+        if (err.response.status == 404) return res.status(404).send('Response not found')
+        res.onError(err, `Failed to get response for project with id ${project_id}`)
+      })
   })
 
   app.get('/api/mo4light/getProjectsForClient/:client_name', (req, res) => {
@@ -164,9 +179,7 @@ module.exports = function(app, logger, admin_server_pool) {
 
   app.get('/api/forecastProjectLocations', async (req, res) => {
     const token = req['token'];
-    pg_get('/projects').then(async (out, err) => {
-      if (err) return res.onError(err, err);
-      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
+    getProjectList(token).then(data => {
       const project_output = data.map(d => {
         return {
           nicename: d.nicename,
@@ -174,7 +187,6 @@ module.exports = function(app, logger, admin_server_pool) {
           lat: d.latitude
         }
       })
-      // ToDo: filter data by token rights
       res.send(project_output)
     }).catch(res.onError)
   })
@@ -196,10 +208,10 @@ module.exports = function(app, logger, admin_server_pool) {
     if (project_name == 'Sample_Project' && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
     if (is_demo && token)
 
-    // TODO: verify project belongs to client
     localLogger.info('Getting project')
     const html_response = await pg_get('/project/' + project_name);
     const updated_project = html_response.data;
+    if (!checkProjectPermission(token, updated_project)) return res.onUnauthorized()
 
     localLogger.info('Done getting project - performing update')
     const update_if_not_null = (fld) => {
@@ -244,7 +256,7 @@ module.exports = function(app, logger, admin_server_pool) {
 
   /**
    * @param {object} token
-   * @returns any[]
+   * @returns object[]
    */
   async function getProjectList(token) {
     const start = Date.now()
@@ -257,7 +269,8 @@ module.exports = function(app, logger, admin_server_pool) {
       return project_output;
     }
 
-    const out = await pg_get('/projects')
+    const endpoint = token.permission.admin ? '/projects': `/projects/${token.client_id}`
+    const out = await pg_get(endpoint)
     log(`Receiving azure project list after ${Date.now() - start}ms`)
     const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
     const project_output = data.map(d => {
@@ -287,6 +300,7 @@ module.exports = function(app, logger, admin_server_pool) {
   }
   function checkVesselPermission(userToken, vessel) {
     const GENERIC_VESSEL_CLIENT_ID = 1;
+
     const perm = userToken?.permission
     if (perm.admin) return true;
     const client_match = vessel.client_id == userToken.client_id;

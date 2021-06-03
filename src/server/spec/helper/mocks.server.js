@@ -132,9 +132,15 @@ function mockPostgressRequests(return_values = [[]]) {
       rows: return_value,
     }
   }
-  const responses = return_values.map(val => Promise.resolve(sqlresponse(val)))
-  spyOn(Pool.prototype, 'query').and.returnValues(...responses)
-  spyOn(Client.prototype, 'query').and.returnValues(...responses)
+  let index = 0;
+  const returnData = () => {
+    const N = return_values.length;
+    const input = index >= N ? return_values[N-1] : return_values[index]
+    index++;
+    return Promise.resolve(sqlresponse(input));
+  }
+  spyOn(Pool.prototype, 'query').and.callFake(returnData)
+  spyOn(Client.prototype, 'query').and.callFake(returnData)
 }
 
 
@@ -184,6 +190,24 @@ function mockForecastApiRequest(data, response_code=null) {
   spyOn(ax.default, 'post').and.returnValue(dataPromise)
   spyOn(ax.default, 'put').and.returnValue(dataPromise)
 }
+function mockForecastApiRequests(datas = [{data: null, response_code:500}]) {
+  const default_response_code = 200;
+  let index = 0;
+
+  const returnData = () => {
+    const input = index >= datas.length ? datas[datas.length-1] : datas[index]
+    index++;
+    return Promise.resolve({
+      data: input.data,
+      statusCode: input.response_code ?? default_response_code,
+      status: input.response_code ?? default_response_code,
+      text: 'mocked'
+    });
+  }
+  spyOn(ax.default, 'get').and.callFake(returnData)
+  spyOn(ax.default, 'post').and.callFake(returnData)
+  spyOn(ax.default, 'put').and.callFake(returnData)
+}
 
 
 module.exports = {
@@ -195,5 +219,6 @@ module.exports = {
   mockDemoCheckerMiddelWare,
   mockExpressLayer,
   mockForecastApiRequest,
+  mockForecastApiRequests,
 }
 
