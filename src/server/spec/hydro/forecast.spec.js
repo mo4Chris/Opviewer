@@ -17,23 +17,30 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest, expectRespons
  */
 module.exports = (app, GET, POST, PUT) => {
   describe('User without forecast permission', () => {
-    it('should return an error when loading projects', () => {
+    beforeEach(() => {
       mock.mockDemoCheckerMiddelWare(app)
-      mock.jsonWebToken(app, {
-        permission: NO_FORECAST_USER_PERMISSIONS,
-      })
+    })
+
+    // it('should return an error when loading projects', () => {
+    //   mock.mockDemoCheckerMiddelWare(app)
+      // mock.jsonWebToken(app, {
+      //   permission: NO_FORECAST_USER_PERMISSIONS,
+      // })
+    // })
 
     it('should not GET project list', async () => {
       // TODO: get this out of demo user
       const url = `/api/mo4light/getProjectList`
-      mock.mockForecastApiRequest({projects: [CLIENT_PROJECT_1, CLIENT_PROJECT_2]})
+      mock.mockForecastApiRequest({projects: [CLIENT_PROJECT_1, CLIENT_PROJECT_2]});
+      mock.jsonWebToken(app, {
+        permission: NO_FORECAST_USER_PERMISSIONS,
+      });
       const response = GET(url)
       await response.expect(expectUnAuthRequest);
     })
-    })
   })
 
-  describe('Demo user', () => {
+  fdescribe('Demo user', () => {
     const DemoProjectId = DEMO_PROJECT.id;
 
     beforeEach(() => {
@@ -41,12 +48,13 @@ module.exports = (app, GET, POST, PUT) => {
       mock.jsonWebToken(app, {
         permission: DEMO_USER_PERMISSIONS,
       })
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
     })
 
     it('should GET project', () => {
       const url = `/api/mo4light/getProject`
       const payload = {project_name: DEMO_PROJECT.name}
-      mock.mockForecastApiRequest(DEMO_PROJECT)
+      mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = POST(url, payload)
       return response.expect(expectValidRequest)
     })
@@ -56,11 +64,13 @@ module.exports = (app, GET, POST, PUT) => {
       const response = GET(url)
       return response.expect(expectValidRequest)
     })
-    it('should not GET project response that does not belong to this demo user', () => {
+    it('should not GET project response that does not belong to this demo user', async () => {
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId + 1}`
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
-      return response.expect(expectUnAuthRequest)
+
+      console.log('response_data', (await response).body)
+      await response.expect(expectUnAuthRequest)
     })
     it('should GET projects only which belong to this demo user', async () => {
       const url = `/api/mo4light/getProjectList`
@@ -199,6 +209,7 @@ const DEMO_USER_PERMISSIONS = {
   admin: false,
   user_read: true,
   user_manage: false,
+  demo: true,
   dpr: {
     read: false
   },
@@ -250,7 +261,7 @@ const DEMO_PROJECT = {
   vessel_id: 1,
 }
 const CLIENT_PROJECT_1 = {
-  id: 12,
+  id: 13,
   name: 'project_client_1',
   display_name: 'Test Project',
   client_id: CLIENT_CLIENT_ID,
@@ -264,7 +275,7 @@ const CLIENT_PROJECT_1 = {
   vessel_id: 1,
 }
 const CLIENT_PROJECT_2 = {
-  id: 12,
+  id: 14,
   name: 'project_client_2',
   display_name: 'Test Project',
   client_id: CLIENT_CLIENT_ID,
@@ -278,7 +289,7 @@ const CLIENT_PROJECT_2 = {
   vessel_id: 1,
 }
 const OTHER_CLIENT_PROJECT = {
-  id: 12,
+  id: 15,
   name: 'project_other_client',
   display_name: 'Test Project',
   client_id: OTHER_CLIENT_ID,

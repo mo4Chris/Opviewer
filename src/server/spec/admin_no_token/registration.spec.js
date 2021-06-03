@@ -15,7 +15,7 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
  * @api public
  */
 module.exports = (app, GET, POST) => {
-  fdescribe('On registration', () => {
+  describe('On registration', () => {
     // These are unsecured methods - we do NOT mock the demoUserCheck
     const demo_client_id = 4;
     const client_info_vals = [{client_id: demo_client_id}]; // Returns demo client
@@ -86,7 +86,7 @@ module.exports = (app, GET, POST) => {
     it('it should successfully complete the registration', async () => {
       mock.pgRequest([{
         requires2fa: true,
-        user_id: 123,
+        user_id: 123
       }])
       const response = doSetPassword({})
       await response.expect(expectValidRequest)
@@ -133,11 +133,11 @@ module.exports = (app, GET, POST) => {
   function registerDemoUser({
     username = 'Test@test.com',
     user_type = 'demo',
-    password = 'test123',
+    password = 'teSt#123',
     full_name = 'Demo Test User',
     company = 'Testables',
     job_title = 'Tester',
-    phone_number = '06-1236456789',
+    phone_number = '061236456789',
     requires2fa = 1,
     vessel_ids = [],
   }) {
@@ -148,12 +148,18 @@ module.exports = (app, GET, POST) => {
   }
   function doSetPassword({
     token = 'Test',
-    password = 'test123',
-    confirmPassword = 'test123',
-    secret2fa = 'Testables',
-    confirm2fa = 'Great success',
+    password = 'Test123!',
+    confirmPassword = 'Test123!',
+    secret2fa = 'Testablesforever',
+    confirm2fa = '123456',
   }) {
-    return POST('/api/setPassword', {passwordToken: token, password, confirmPassword, secret2fa})
+    return POST('/api/setPassword', {
+      passwordToken: token,
+      password,
+      confirmPassword,
+      secret2fa,
+      confirm2fa
+    });
   }
 }
 

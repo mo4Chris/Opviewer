@@ -195,6 +195,10 @@ function onError(res, err, additionalInfo = 'Internal server error') {
 }
 
 function onBadRequest(res, cause = 'Bad request') {
+  if (typeof cause == 'object' && cause['errors'] != null) {
+    cause = `Invalid param '${cause['errors']?.[0]?.['param'] ?? 'unknown'}'`
+  }
+
   logger.trace('Performing onBadRequest')
   const req = res.req;
   logger.warn({
@@ -211,7 +215,22 @@ function onBadRequest(res, cause = 'Bad request') {
   }
 }
 
-function verifyToken(req, res) {
+
+function verifyToken(req, res, next) {
+  logger.trace('Assigning token')
+  try {
+    const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
+    if (!isSecureMethod) return next();
+    const token = _verifyToken(req, res);
+
+    if (!token) return; // Error already thrown in verifyToken
+    req['token'] = token;
+    next();
+  } catch (err) {
+    return onError(res, err);
+  }
+}
+function _verifyToken(req, res) {
   logger.trace('Verifing token')
   // TODO: fix this
   try {
@@ -230,7 +249,6 @@ function verifyToken(req, res) {
       lastActive,
       payload['userID']
     ])
-
     return payload;
   } catch (err) {
     return onError(res, err, 'Failed to parse jwt token')
@@ -342,20 +360,7 @@ mo4AdminServer(app, logger, admin_server_pool, mailTo)
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
 // ##############################################################
-app.use((req, res, next) => {
-  logger.trace('Assigning token')
-  try {
-    const isSecureMethod = SECURE_METHODS.some(method => method == req.method);
-    if (!isSecureMethod) return next();
-    const token = verifyToken(req, res);
-
-    if (!token) return; // Error already thrown in verifyToken
-    req['token'] = token;
-    next();
-  } catch (err) {
-    return onError(res, err);
-  }
-})
+app.use(verifyToken)
 
 app.use(verifyDemoAccount);
 

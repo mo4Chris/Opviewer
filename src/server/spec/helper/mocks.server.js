@@ -2,6 +2,7 @@ const twoFactor = require('node-2fa');
 const { Client, Pool } = require('pg');
 // const mo4lightServer = require('../../mo4light.server')
 const ax = require('axios');
+const { ThrowStmt } = require('@angular/compiler');
 
 
 /**
@@ -61,16 +62,40 @@ function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
  * @api public
  */
 function mockJsonWebToken(app, decoded_token) {
-  const default_token = {
+  const base_token = {
+    active: true,
     userID: 1,
-    active: 1,
+    username: 'test@user.nl',
+    client_name: 'McTestable',
+    client_id: 2,
+    vessel_ids: [3]
   }
-  const returned_token = {...default_token, ...decoded_token};
-  const jwtMock = {
-    sign: (token, keyType) => 'test_token',
-    verify: (token, keyType) => returned_token
+  const base_permissions = {
+    user_type: 'demo',
+    admin: false,
+    user_read: true,
+    demo: false,
+    user_manage: true,
+    twa: true,
+    dpr: {
+      read: true,
+
+    },
+    longterm: {
+      read: true
+    },
+    forecast: {
+      read: true,
+      changeLimits: true,
+      createProject: true,
+    }
   }
-  app.__set__('jwt', jwtMock)
+  const token = {...base_token, ...decoded_token};
+  token['permission'] = {...base_permissions, ...decoded_token.permission};
+  return mockExpressLayer(app, 'verifyToken', (req, res, next) => {
+    req['token'] = token;
+    next();
+  })
 }
 
 
@@ -146,7 +171,7 @@ function UncaughtMailCallback(mailOpts)  {
  * @param {number} response_code Response code returned by the forecast API
  * @api public {(mailOpts: object) => void}
  */
-function mockForecastApiRequest(data, response_code) {
+function mockForecastApiRequest(data, response_code=null) {
   const default_response_code = data != null ? 200 : 500;
   const dataPromise = Promise.resolve({
     data: data,
@@ -159,6 +184,7 @@ function mockForecastApiRequest(data, response_code) {
   spyOn(ax.default, 'post').and.returnValue(dataPromise)
   spyOn(ax.default, 'put').and.returnValue(dataPromise)
 }
+
 
 module.exports = {
   jsonWebToken: mockJsonWebToken,
