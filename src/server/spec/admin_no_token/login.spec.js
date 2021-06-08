@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const mock = require('../../helper/mocks.server')
+const mock = require('../helper/mocks.server')
 const request = require('supertest');
-const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../../helper/validate.server');
+const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../helper/validate.server');
 
 // #####################################################################
 // ################# Tests - administrative - no login #################
@@ -19,7 +19,7 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('.
 module.exports = (app, GET, POST) => {
   describe('Administrative - no login - user should', () => {
     // ToDo: This should be removed and all the auth headers should be set to false
-    const username = 'Test vesselmaster';
+    const username = 'test@test123.com';
     const userID = 1;
     const password = 'test123';
     const company = 'BMO';
@@ -48,6 +48,8 @@ module.exports = (app, GET, POST) => {
       expect(response.status).toBe(200, 'Failed admin connection test!')
       await expect(response.body['status']).toBe(1, 'Connection test not returning true!')
     })
+
+    // ================= SET PASSWORD ==================
     it('set password for user', async () => {
       const user_requires_2fa = true;
       const valid_user_registration_form = {
@@ -55,6 +57,7 @@ module.exports = (app, GET, POST) => {
         password: 'val1dP@ssw0rd',
         confirmPassword: 'val1dP@ssw0rd',
         secret2fa: 'some_valid_2fa_code',
+        confirm2fa: 'some_valid_2fa_verification',
       }
       mock.twoFactor(true);
       mock.pgRequest([{
@@ -65,23 +68,7 @@ module.exports = (app, GET, POST) => {
       const request = POST("/api/setPassword", valid_user_registration_form, false)
       await request.expect(expectValidRequest)
     })
-    it('register user - no 2fa', async () => {
-      const user_requires_2fa = false;
-      const valid_user_registration_form = {
-        passwordToken: "some_valid_token",
-        password: 'val1dP@ssw0rd',
-        confirmPassword: 'val1dP@ssw0rd',
-        secret2fa: null,
-      }
-      mock.pgRequest([{
-        username: 'test123',
-        requires2fa: user_requires_2fa,
-        secret2fa: ''
-      }])
-      const request = POST("/api/setPassword", valid_user_registration_form, false)
-      await request.expect(expectValidRequest)
-    })
-    it('not register user with missing 2fa', async () => {
+    it('not set password with missing 2fa', async () => {
       const user_requires_2fa = true;
       const invalid_user_registration_form = {
         passwordToken: "some_valid_token",
@@ -97,7 +84,7 @@ module.exports = (app, GET, POST) => {
       const request = POST("/api/setPassword", invalid_user_registration_form, false)
       await request.expect(expectBadRequest);
     })
-    it('not register user with bad / used token', async () => {
+    it('not set password with bad / used token', async () => {
       const valid_user_registration_form = {
         passwordToken: "some_valid_token",
         password: 'val1dP@ssw0rd',
@@ -109,6 +96,7 @@ module.exports = (app, GET, POST) => {
       await request.expect(expectBadRequest);
     })
 
+    // ============= REGISTRATION ==================
     it('get registration information for a valid token', async () => {
       const registration_token = 'valid_token';
       const request_data = {
@@ -116,7 +104,7 @@ module.exports = (app, GET, POST) => {
         registration_token,
       }
       mock.pgRequest([{
-        username: 'test@test.test',
+        username: username,
         requires2fa: true
       }])
       const response = POST('/api/getRegistrationInformation', request_data, false)

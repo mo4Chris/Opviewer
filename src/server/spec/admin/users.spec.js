@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const mock = require('../../helper/mocks.server')
+const mock = require('../helper/mocks.server')
 const request = require('supertest');
-const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../../helper/validate.server');
+const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../helper/validate.server');
 
 // #####################################################################
 // ################# Tests - administrative - no login #################
@@ -22,6 +22,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
+      mock.jsonWebToken(app, {username, permission: {admin: true}})
       mock.mockDemoCheckerMiddelWare(app)
     })
 
@@ -33,7 +34,9 @@ module.exports = (app, GET, POST) => {
         client_name: company,
         client_id: 1,
         vessel_ids: [1],
-        permission: {}
+        permission: {
+          admin: true
+        }
       }])
       const response = GET('/api/getUsers')
       await response.expect(expectValidRequest)
