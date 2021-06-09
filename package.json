@@ -16,7 +16,7 @@
     "pree2e": "webdriver-manager update",
     "e2e": "protractor",
     "server-dev": "nodemon src/server/server.js",
-    "server-test": "jasmine",
+    "server-test": "jasmine --config=server_jasmine.json",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points && node patch.js"
   },
   "config": {},

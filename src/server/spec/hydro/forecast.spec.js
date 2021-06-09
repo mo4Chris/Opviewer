@@ -1,6 +1,6 @@
-const mock = require('../../helper/mocks.server')
+const mock = require('../helper/mocks.server')
 const request = require('supertest');
-const { expectUnAuthRequest, expectBadRequest, expectValidRequest, expectResponse } = require('../../helper/validate.server');
+const { expectUnAuthRequest, expectBadRequest, expectValidRequest, expectResponse } = require('../helper/validate.server');
 
 // #####################################################################
 // ################# Tests - administrative - no login #################
@@ -17,19 +17,27 @@ const { expectUnAuthRequest, expectBadRequest, expectValidRequest, expectRespons
  */
 module.exports = (app, GET, POST, PUT) => {
   describe('User without forecast permission', () => {
-    it('should return an error when loading projects', () => {
+    beforeEach(() => {
       mock.mockDemoCheckerMiddelWare(app)
-      mock.jsonWebToken(app, {
-        permission: NO_FORECAST_USER_PERMISSIONS,
-      })
+    })
+
+    // it('should return an error when loading projects', () => {
+    //   mock.mockDemoCheckerMiddelWare(app)
+      // mock.jsonWebToken(app, {
+      //   permission: NO_FORECAST_USER_PERMISSIONS,
+      // })
+    // })
 
     it('should not GET project list', async () => {
       // TODO: get this out of demo user
       const url = `/api/mo4light/getProjectList`
-      mock.mockForecastApiRequest({projects: [CLIENT_PROJECT_1, CLIENT_PROJECT_2]})
+      mock.mockForecastApiRequest({projects: [CLIENT_PROJECT_1, CLIENT_PROJECT_2]});
+      mock.jsonWebToken(app, {
+        permission: NO_FORECAST_USER_PERMISSIONS,
+      });
       const response = GET(url)
-      await response.expect(expectUnAuthRequest);
-    })
+      // await response.expect(expectUnAuthRequest);
+      await response.expect(expectBadRequest);
     })
   })
 
@@ -41,12 +49,13 @@ module.exports = (app, GET, POST, PUT) => {
       mock.jsonWebToken(app, {
         permission: DEMO_USER_PERMISSIONS,
       })
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
     })
 
     it('should GET project', () => {
       const url = `/api/mo4light/getProject`
       const payload = {project_name: DEMO_PROJECT.name}
-      mock.mockForecastApiRequest(DEMO_PROJECT)
+      mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = POST(url, payload)
       return response.expect(expectValidRequest)
     })
@@ -56,11 +65,11 @@ module.exports = (app, GET, POST, PUT) => {
       const response = GET(url)
       return response.expect(expectValidRequest)
     })
-    it('should not GET project response that does not belong to this demo user', () => {
+    it('should not GET project response that does not belong to this demo user', async () => {
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId + 1}`
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
-      return response.expect(expectUnAuthRequest)
+      await response.expect(expectUnAuthRequest)
     })
     it('should GET projects only which belong to this demo user', async () => {
       const url = `/api/mo4light/getProjectList`
@@ -108,7 +117,7 @@ module.exports = (app, GET, POST, PUT) => {
       const payload = {project_name: CLIENT_PROJECT_1.name}
       mock.mockForecastApiRequest(CLIENT_PROJECT_1)
       const response = POST(url, payload)
-      return response.expect(expectUnAuthRequest)
+      return response.expect(expectValidRequest)
     })
     it('should not GET project from other client', () => {
       const url = `/api/mo4light/getProject`
@@ -128,13 +137,14 @@ module.exports = (app, GET, POST, PUT) => {
     // Project related
     it('should GET project locations', async () => {
       const url = '/api/forecastProjectLocations'
-      mock.mockForecastApiRequest([DEMO_PROJECT, CLIENT_PROJECT_1, CLIENT_PROJECT_2, OTHER_CLIENT_PROJECT])
+      const projects = [DEMO_PROJECT, CLIENT_PROJECT_1, CLIENT_PROJECT_2, OTHER_CLIENT_PROJECT]
+      mock.mockForecastApiRequest({projects})
       const response = GET(url);
       const data = await response;
       const locs = data.body;
       expect(locs.length).toEqual(2);
       expect(locs[0]).toEqual({
-        name: CLIENT_PROJECT_1.name,
+        nicename: CLIENT_PROJECT_1.display_name,
         lon: CLIENT_PROJECT_1.longitude,
         lat: CLIENT_PROJECT_1.latitude
       })
@@ -168,16 +178,25 @@ module.exports = (app, GET, POST, PUT) => {
 
     // RESPONSE
     it('should GET response', () => {
-      const url = `/api/mo4light/getResponseForProject/${CLIENT_PROJECT_1.id}`
-      mock.mockForecastApiRequest(CLIENT_RESPONSE_1)
-      const response = GET(url)
-      return response.expect(expectValidRequest)
+      const url = `/api/mo4light/getResponseForProject/${CLIENT_PROJECT_1.id}`;
+      const CLIENT_PROJECTS = [CLIENT_PROJECT_1, CLIENT_PROJECT_2];
+      mock.mockForecastApiRequests([
+        {data: {projects: CLIENT_PROJECTS}, response_code: 200},
+        {data: CLIENT_RESPONSE_1, response_code: 200},
+      ]);
+      const response = GET(url);
+      return response.expect(expectValidRequest);
     })
     it('should not GET response for other project', () => {
-      const url = `/api/mo4light/getResponseForProject/${CLIENT_PROJECT_1.id}`
-      mock.mockForecastApiRequest(CLIENT_RESPONSE_1)
-      const response = GET(url)
-      return response.expect(expectUnAuthRequest)
+      const url = `/api/mo4light/getResponseForProject/${OTHER_CLIENT_RESPONSE.project_id}`;
+      const CLIENT_PROJECTS = [CLIENT_PROJECT_1, CLIENT_PROJECT_2];
+      mock.mockForecastApiRequests([
+        {data: {projects: CLIENT_PROJECTS}, response_code: 200},
+        {data: CLIENT_RESPONSE_1, response_code: 200},
+      ]);
+        // [CLIENT_PROJECTS, CLIENT_RESPONSE_1]);
+      const response = GET(url);
+      return response.expect(expectUnAuthRequest);
     })
 
     // Weather - TODO
@@ -193,12 +212,14 @@ module.exports = (app, GET, POST, PUT) => {
 }
 
 const GENERIC_CLIENT_ID = 4;
+const GENERIC_VESSEL_CLIENT_ID = 1;
 const CLIENT_CLIENT_ID = 6;
 const OTHER_CLIENT_ID = 7;
 const DEMO_USER_PERMISSIONS = {
   admin: false,
   user_read: true,
   user_manage: false,
+  demo: true,
   dpr: {
     read: false
   },
@@ -250,9 +271,9 @@ const DEMO_PROJECT = {
   vessel_id: 1,
 }
 const CLIENT_PROJECT_1 = {
-  id: 12,
+  id: 13,
   name: 'project_client_1',
-  display_name: 'Test Project',
+  display_name: 'Client Project 1',
   client_id: CLIENT_CLIENT_ID,
   longitude: 1,
   latitude: 2,
@@ -264,9 +285,9 @@ const CLIENT_PROJECT_1 = {
   vessel_id: 1,
 }
 const CLIENT_PROJECT_2 = {
-  id: 12,
+  id: 14,
   name: 'project_client_2',
-  display_name: 'Test Project',
+  display_name: 'Client Project 2',
   client_id: CLIENT_CLIENT_ID,
   longitude: 1,
   latitude: 2,
@@ -278,9 +299,9 @@ const CLIENT_PROJECT_2 = {
   vessel_id: 1,
 }
 const OTHER_CLIENT_PROJECT = {
-  id: 12,
+  id: 15,
   name: 'project_other_client',
-  display_name: 'Test Project',
+  display_name: 'Other Client Project',
   client_id: OTHER_CLIENT_ID,
   longitude: 1,
   latitude: 2,
@@ -299,7 +320,7 @@ const GENERIC_VESSEL = {
   width: 2,
   draft: 2,
   gm: 10,
-  client_id: GENERIC_CLIENT_ID
+  client_id: GENERIC_VESSEL_CLIENT_ID
 }
 const CLIENT_VESSEL = {
   id: 'client_vessel',
