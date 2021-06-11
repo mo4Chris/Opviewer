@@ -589,7 +589,7 @@ app.get("/api/getVesselsForClientByUser/:username", function(req, res) {
   }).catch(err => onError(res,err));
 });
 
-app.post("/api/getVesselNameAndIDById/", function(req, res) {
+app.post("/api/getVesselNameAndIDById", function(req, res) {
   const vessel_ids = req.body.vessel_ids;
   const PgQuery = `SELECT vessel_id, nicename
   FROM "vesselTable"
