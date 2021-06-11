@@ -23,8 +23,8 @@ var weather = require('./models/weather.js')
 //########## These can be configured via stdin ############
 //#########################################################
 const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
-const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
+const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online';
+const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT            ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
 
@@ -582,12 +582,11 @@ async function getAssignedVessels(token, res) {
   })
 }
 
-app.get("/api/getVesselForUser/:username", function(req, res) {
+app.get("/api/getVesselsForClientByUser/:username", function(req, res) {
   const username = req.params.username;
   getAllVesselsForClientByUsername(req, res, username).then(response => {
     res.send(response)
-  }
-    ).catch(err => onError(res,err));
+  }).catch(err => onError(res,err));
 });
 
 app.post("/api/getVesselNameAndIDById/", function(req, res) {
@@ -605,14 +604,14 @@ app.post("/api/getVesselNameAndIDById/", function(req, res) {
 async function getAllVesselsForClientByUsername(req, res, username) {
   const token = req['token'];
 
-  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
+  if (!token.permission.user_see_all_vessels_client) throw new Error('Unauthorized user, not allowed to see all vessels');
   //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
   if (token.userCompany == 'MO4') token.userCompany = 'BMO'
 
   let PgQueryClientID = `
-  SELECT "client_id"
-  FROM "userTable"
-  WHERE "username"= $1
+    SELECT "client_id"
+    FROM "userTable"
+    WHERE "username"= $1
   `;
 
   const clientIDValues = [username];
@@ -629,7 +628,6 @@ async function getAllVesselsForClientByUsername(req, res, username) {
     "vesselTable"."operations_class"
   FROM "vesselTable"
   WHERE $1=ANY("vesselTable"."client_ids")`;
-
   const values = [clientID];
   return admin_server_pool.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;

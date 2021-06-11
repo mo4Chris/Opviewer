@@ -4,7 +4,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { environment } from '../environments/environment';
 import { Observable,  } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
-import { VesselModel } from './models/vesselModel';
+import { VesselModel, VesselOperationsClass } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
 import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
@@ -16,6 +16,7 @@ import { RawWaveData } from './models/wavedataModel';
 import { storedSettings } from './supportModules/settings.service';
 import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 import { TwaSaveFleetModel } from './layout/TWA/models/requests';
+import { UsermanagementVesselModel } from './layout/usermanagement/usermanagement.component';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -116,14 +117,14 @@ export class CommonService {
   getVessel(): Observable<VesselModel[]> {
     return this.get('/api/getVessel/');
   }
-  getVesselForUser(username: string): Observable<VesselModel[]>  {
-    return this.get('/api/getVesselForUser/'+ username);
+  getVesselsForClientByUser(username: string): Observable<UsermanagementVesselModel[]>  {
+    return this.get('/api/getVesselsForClientByUser/'+ username);
   }
   getVesselNameAndIDById(info: {vessel_ids: number[]}): Observable<{vessel_id: number, nicename: string}[]> {
     return this.post('/api/getVesselNameAndIDById', info);
   }
-  saveUserBoats(user) {
-    return this.post('/api/saveUserBoats/', user);
+  saveUserVessels(username: string, vessel_ids: number[]): Observable<{data: string}> {
+    return this.post('/api/saveUserVessels/', {username, vessel_ids});
   }
 
 

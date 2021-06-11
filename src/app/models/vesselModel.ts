@@ -10,7 +10,7 @@ export class VesselModel {
     mmsi: number;
     onHire: boolean;
 
-    operationsClass: 'CTV' | 'OSV' | 'SOV';
+    operationsClass: VesselOperationsClass;
     vessel_length: number;
     displacement: number;
     dist2bow?: number;
@@ -24,6 +24,7 @@ export class VesselModel {
     videobudget: MongoNumber;
 }
 
+export type VesselOperationsClass = 'CTV' | 'OSV' | 'SOV';
 type MongoString = string | EmptyMatlabObject;
 type MongoNumber = number | EmptyMatlabObject;
 

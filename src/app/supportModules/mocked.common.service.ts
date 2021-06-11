@@ -721,8 +721,14 @@ export class MockedCommonService extends CommonService {
       }
     }));
   }
-  getVesselForUser() {
-    return mockedObservable([demo_vessel])
+  getVesselsForClientByUser() {
+    return mockedObservable([{
+      vessel_id: 1,
+      mmsi: demo_vessel.mmsi,
+      nicename: demo_vessel.nicename,
+      active: true,
+      operations_class: demo_vessel.operationsClass
+    }])
   }
 
   // Mo4-light

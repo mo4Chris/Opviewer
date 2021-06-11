@@ -5,7 +5,7 @@ const request = require('supertest');
 // This test suite runs unit tests for the server file. Since we use
 // rewire to mock token verification, there is no need for user
 // credentials. Supertest automatically configures the server connection
-// for us (to a random port).
+// for us (to a random port) [This is not working as intended].
 //
 // Usage:
 // npm run server-test
@@ -17,6 +17,7 @@ const request = require('supertest');
 
 
 // ################# Setup #################
+process.env.SERVER_PORT = '8079'; // Avoid conflicts with default port
 const app = rewire('../server.js')
 const SERVER_LOGGING_LEVEL = 'debug';
 if (SERVER_LOGGING_LEVEL != null) {

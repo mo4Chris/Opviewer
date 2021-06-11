@@ -2,15 +2,15 @@ import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { UserManagementComponent } from './usermanagement.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { PageHeaderModule } from '../../shared';
+import { PageHeaderModule } from '@app/shared';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { CommonService } from '../../common.service';
+import { CommonService } from '@app/common.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MockedUserServiceProvider, UserTestService } from '../../shared/services/test.user.service';
-import { mockedObservable } from '../../models/testObservable';
-import { MockedCommonService, MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
+import { mockedObservable } from '@app/models/testObservable';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
 describe('UsermanagementComponent', () => {
   let component: UserManagementComponent;
@@ -53,12 +53,12 @@ describe('UsermanagementComponent', () => {
   it('should create', async () => {
     expect(component).toBeTruthy();
     await fixture.whenStable();
-    expect(component.boats?.length).toBeGreaterThan(0);
+    expect(component.allowed_vessels?.length).toBeGreaterThan(0);
   });
 
   it('should save on click', () => {
     const ret_val = mockedObservable({data: 'Great success'});
-    const saveSpy = spyOn(MockedCommonService.prototype, 'saveUserBoats').and.returnValue(ret_val)
+    const saveSpy = spyOn(MockedCommonService.prototype, 'saveUserVessels').and.returnValue(ret_val)
     const btn = <HTMLButtonElement> locate('button')
     btn.click()
     expect(saveSpy).toHaveBeenCalled();

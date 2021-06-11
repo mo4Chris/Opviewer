@@ -9,5 +9,5 @@ export interface UserModel {
     client_id: number,
     vessel_ids: number[],
     permission: UserPermissions,
-    boats: any[],
+    boats: {mmsi: number, nicename: string}[],
 }

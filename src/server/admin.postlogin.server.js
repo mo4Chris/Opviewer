@@ -1,4 +1,5 @@
 var bcrypt = require("bcryptjs");
+const { body, validationResult } = require("express-validator");
 const { Pool } = require("pg");
 
 /**
@@ -179,28 +180,42 @@ module.exports = function (
     })
   });
 
-  app.post("/api/saveUserBoats", function(req, res) {
-    const user_id = req.body.userID;
-    const vessel_ids = req.body.boats.map(vessel => vessel.vessel_id);
+  app.post("/api/saveUserVessels",
+    body('username').isEmail().normalizeEmail(),
+    body('vessel_ids').isArray(),
+    function(req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors);
 
-    const query = `UPDATE "userTable"
-        SET "vessel_ids"=$1
-        WHERE "user_id"=$2`;
+      const username = req.body.username;
+      const vessel_ids = req.body.vessel_ids;
+      const token = req['token'];
 
-    const values = [vessel_ids, user_id];
-    admin_server_pool.query(query, values).then(() => {
-      res.send({ data: "Succesfully saved the vessels"});
-     }).catch(err => onError(res, err));
-});
+      testPermissionToManageUser(token, username).catch(err => {
+        if (err.message == 'User not found') return res.status(400).send('User not found');
+        return onError(res, err)
+      }).then((has_rights) => {
+        if (!has_rights) return res.onUnauthorized()
+        const query = `UPDATE "userTable"
+            SET "vessel_ids"=$1
+            WHERE "username"=$2`;
 
-  app.post("/api/setUserActive", function(req, res) {
+        const values = [vessel_ids, username];
+        admin_server_pool.query(query, values).then(() => {
+          res.send({ data: "Succesfully saved the vessels"});
+        }).catch(err => onError(res, err));
+      })
+    }
+  );
+
+  app.post("/api/setUserActive", body('username').isEmail(), function(req, res) {
     const token = req['token']
     const permission = token['permission'];
     const is_admin = permission.admin
     if (!is_admin && !permission.user_manage) return onUnauthorized(res);
-    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
     const username = req.body.username;
+    // ToDo use testPermissionToManageUser instead
+
     let query, values;
     if (is_admin) {
       query = `UPDATE "userTable"
@@ -228,9 +243,7 @@ module.exports = function (
     const permission = token['permission'];
     const is_admin = permission.admin
     if (!is_admin && !permission.user_manage) return onUnauthorized(res);
-    // if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist") return onUnauthorized(res);
-    if (token.userPermission === "Logistics specialist" && req.body.client !== token.userCompany) return onUnauthorized(res);
-    // TODO: verify company
+
     const username = req.body.username;
     let query, values;
     if (is_admin) {
@@ -362,9 +375,11 @@ module.exports = function (
       value = [token['client_id']]
     }
     admin_server_pool.query(query, value).then(async sqldata => {
-      const vessels = await getVesselsForUser();
-      const users = sqldata.rows.map(row => {
-        return {
+      const users = [];
+      for (let _row = 0; _row<sqldata.rowCount; _row++) {
+        const row = sqldata.rows[_row];
+        const vessels = await getVesselsForUser(row.user_id);
+        users.push({
           active: row.active,
           userID: row.user_id,
           username: row.username,
@@ -383,17 +398,22 @@ module.exports = function (
             forecast: row.forecast,
           },
           boats: vessels
-        }
-      })
+        });
+      }
       return res.send(users)
     }).catch(err => onError(res, err))
   });
 
-  app.post("/api/getUserByUsername", function(req, res) {
+  app.post("/api/getUserByUsername", body('username').isEmail(), function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors);
+
     const token = req['token'];
     const permission = token.permission;
     const is_admin = token?.permission?.admin ?? false;
     const client_id = token.client_id;
+    const username    = req.body.username;
+
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
@@ -406,19 +426,21 @@ module.exports = function (
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
         WHERE "userTable"."username" = $1`;
-      value = [req.body.username]
+      value = [username]
     } else {
       query = `SELECT ${selectedFields}
         FROM "userTable"
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
         where "username" = $1 AND "client_id"=$2`;
-      value = [req.body.username, client_id]
+      value = [username, client_id]
     }
     admin_server_pool.query(query, value).then(async sqldata => {
-      const vessels = await getVesselsForUser();
-      const users = sqldata.rows.map(row => {
-        return {
+      const users = [];
+      for (let _row = 0; _row<sqldata.rowCount; _row++) {
+        const row = sqldata.rows[_row];
+        const vessels = await getVesselsForUser(row.user_id);
+        users.push({
           active: row.active,
           userID: row.user_id,
           username: row.username,
@@ -436,9 +458,9 @@ module.exports = function (
             longterm: row.longterm,
             forecast: row.forecast,
           },
-          boats: vessels,
-        }
-      })
+          boats: vessels
+        });
+      }
       return res.send(users)
     }).catch(err => {
       onError(res, err)
@@ -528,7 +550,7 @@ module.exports = function (
   }
 
 
-  async function getVesselsForUser(res, user_id) {
+  async function getVesselsForUser(user_id = 0) {
     let PgQuery = `
     SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
       FROM "vesselTable"
@@ -537,6 +559,7 @@ module.exports = function (
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
     const data = await admin_server_pool.query(PgQuery, values);
+    logger.info(data)
     if (data.rows.length > 0) {
       return data.rows;
     } else {
