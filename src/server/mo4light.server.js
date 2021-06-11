@@ -191,7 +191,10 @@ module.exports = function(app, logger, admin_server_pool) {
     }).catch(res.onError)
   })
 
-  app.put('/api/mo4light/projectSettings', async (req, res) => {
+  app.put('/api/mo4light/projectSettings', forecastModel.checkForecastRead, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors)
+
     const project_name = req.body.project_name;
     const received_settings = req.body.project_settings;
     const localLogger = logger.child({
@@ -201,9 +204,9 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(received_settings) != 'object') return res.onBadRequest('Invalid settings')
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name must be string')
 
-    const token = req['token'];
-    const is_admin = token.permission.admin;
-    const is_demo = token.permission.demo;
+    const token     = req['token'];
+    const is_admin  = token.permission.admin;
+    const is_demo   = token.permission.demo;
 
     if (project_name == 'Sample_Project' && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
     if (is_demo && token)
@@ -246,12 +249,6 @@ module.exports = function(app, logger, admin_server_pool) {
     const project_id = req.params.project_id;
     const token = req['token'];
     return res.onError(null, 'Endpoint still needs to be implemented')
-  })
-
-  app.get('/api/mo4light/ctvForecast', async (req, res) => {
-    const token = req['token'];
-    const forecast = loadLocalJson('src/server/spectrum.json')
-    res.send(forecast)
   })
 
   /**

@@ -30,20 +30,17 @@ const setPasswordModel = {
   password: passwordValidator,
   confirmPassword: passwordValidator,
   secret2fa: {
-    // in: ['body'],
-    // errorMessage: 'Invalid secret2fa string',
-    // isString: true,
-    // isLength: {
-    //   options: {min: 10}
-    // }
+    in: ['body'],
+    errorMessage: 'Invalid secret2fa string',
+    isString: true,
   },
   confirm2fa: {
-    // in: ['body'],
-    // isString: true,
-    // isLength: {
-    //   errorMessage: 'Confirmation code should be of length 6',
-    //   options: {min: 6, max: 6}
-    // }
+    in: ['body'],
+    isString: true,
+    isLength: {
+      errorMessage: 'Confirmation code should be of length 6',
+      options: {min: 6, max: 6}
+    }
   }
 }
 
@@ -59,8 +56,11 @@ const createDemoUserModel = {
   user_type: {
     optional: true,
     equals: {
-      options: 'demo'
+      options: ['demo']
     }
+  },
+  vessel_ids: {
+    optional: true,
   },
   phoneNumber: {
     isString: true
@@ -82,6 +82,7 @@ const loginModel = {
   username: {
     isEmail: true,
     trim: true,
+    normalizeEmail: true,
     in: ['body'],
   },
   password: {
@@ -90,15 +91,66 @@ const loginModel = {
   },
   confirm2fa: {
     in: ['body'],
-    optional: true
+    optional: true,
+    isLength: {
+      errorMessage: 'Confirmation code should be of length 6',
+      options: {min: 6, max: 6}
+    }
   }
 }
 // body('username').trim().isString(),
 //     body('password').trim().isString(),
 //     body('confirm2fa')
 
+
+/** @type{Schema} */
+const updateUserSettingsModel = {
+  unit: {
+    errorMessage: 'Unit must provided as object',
+    isObject: true
+  },
+  dpr: {
+    errorMessage: 'DPR must provided as object',
+    // isObject: true // Can currently be null
+  },
+  longterm: {
+    errorMessage: 'Longterm must provided as object',
+    isObject: true
+  },
+  weather_chart: {
+    errorMessage: 'Weather chart settings must provided as object',
+    isObject: true
+  },
+  "timezone.type": {
+    isString: true,
+  },
+  "timezone.fixedTimeZoneOffset": {
+    isNumeric: true,
+  },
+  "timezone.fixedTimeZoneLoc": {
+    isString: true,
+  },
+}
+
+
+/** @type{Schema} */
+const updateUserPermissionsModel = {
+  permission: {
+    isObject: true,
+  },
+  userCompany: {
+    isString: true,
+  },
+  boats: {
+    isArray: true,
+  }
+}
+
+
 module.exports = {
   setPasswordModel,
   createDemoUserModel,
   loginModel,
+  updateUserSettingsModel,
+  updateUserPermissionsModel,
 }
