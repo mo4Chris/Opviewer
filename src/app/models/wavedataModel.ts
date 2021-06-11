@@ -1,4 +1,3 @@
-import { isArray } from 'util';
 import { MapZoomData } from './mapZoomLayer';
 import { GmapService } from '../supportModules/gmap.service';
 import { CalculationService } from '../supportModules/calculation.service';
@@ -78,12 +77,12 @@ export class WavedataModel {
     }
 
     cleanArray(arr: any) {
-        if (!isArray(arr)) {
+        if (!Array.isArray(arr)) {
             return [arr];
         } else if (arr.length === 1) {
             // We dont allow wavedata consisting of only 1 point
             return null;
-        } else if (isArray(arr[0])) {
+        } else if (Array.isArray(arr[0])) {
             return arr.map( elt => elt[0] );
         } else {
             return arr;

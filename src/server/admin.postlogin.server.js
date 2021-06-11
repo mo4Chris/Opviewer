@@ -186,7 +186,7 @@ module.exports = function (
     const query = `UPDATE "userTable"
         SET "vessel_ids"=$1
         WHERE "user_id"=$2`;
-    
+
     const values = [vessel_ids, user_id];
     admin_server_pool.query(query, values).then(() => {
       res.send({ data: "Succesfully saved the vessels"});
@@ -338,7 +338,7 @@ module.exports = function (
   });
 
   app.get("/api/getUsers", function(req, res) {
-    const token = req.token;
+    const token = req['token'];
     const permission = token.permission;
     const is_admin = token?.permission?.admin ?? false;
     if (!is_admin && !permission.user_read) return onUnauthorized(res)
@@ -361,7 +361,8 @@ module.exports = function (
         where "client_id"=$1`;
       value = [token['client_id']]
     }
-   admin_server_pool.query(query, value).then(sqldata => {
+    admin_server_pool.query(query, value).then(async sqldata => {
+      const vessels = await getVesselsForUser();
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -380,7 +381,8 @@ module.exports = function (
             dpr: row.dpr,
             longterm: row.longterm,
             forecast: row.forecast,
-          }
+          },
+          boats: vessels
         }
       })
       return res.send(users)
@@ -388,7 +390,7 @@ module.exports = function (
   });
 
   app.post("/api/getUserByUsername", function(req, res) {
-    const token = req.token;
+    const token = req['token'];
     const permission = token.permission;
     const is_admin = token?.permission?.admin ?? false;
     const client_id = token.client_id;
@@ -413,7 +415,8 @@ module.exports = function (
         where "username" = $1 AND "client_id"=$2`;
       value = [req.body.username, client_id]
     }
-   admin_server_pool.query(query, value).then(sqldata => {
+    admin_server_pool.query(query, value).then(async sqldata => {
+      const vessels = await getVesselsForUser();
       const users = sqldata.rows.map(row => {
         return {
           active: row.active,
@@ -433,7 +436,7 @@ module.exports = function (
             longterm: row.longterm,
             forecast: row.forecast,
           },
-          boats: [], // TODO
+          boats: vessels,
         }
       })
       return res.send(users)
@@ -443,7 +446,7 @@ module.exports = function (
   });
 
   app.get("/api/getCompanies", function(req, res) {
-    const token = req.token;
+    const token = req['token'];
     if (!token.permission.admin) return onUnauthorized(res);
     const query = `SELECT "client_id", "client_name", "client_permissions"
       FROM "clientTable"`
@@ -454,7 +457,7 @@ module.exports = function (
 
   app.post("/api/updateUserPermissions", function(req, res) {
     // TODO: verify working as intended
-    const token = req.token;
+    const token = req['token'];
     const permission = token['permission'];
     if (!permission.admin && !permission.user_manage) return onUnauthorized(res);
 
@@ -524,6 +527,22 @@ module.exports = function (
     return password_setup_token;
   }
 
+
+  async function getVesselsForUser(res, user_id) {
+    let PgQuery = `
+    SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
+      FROM "vesselTable"
+      INNER JOIN "userTable"
+      ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
+      WHERE "userTable"."user_id"=$1`;
+    const values = [user_id]
+    const data = await admin_server_pool.query(PgQuery, values);
+    if (data.rows.length > 0) {
+      return data.rows;
+    } else {
+      return null;
+    }
+  };
 
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
