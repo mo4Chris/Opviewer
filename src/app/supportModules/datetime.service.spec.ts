@@ -20,6 +20,7 @@ describe('DatetimeService', () => {
     service = TestBed.inject(DatetimeService);
     service.vesselOffsetHours = 1; // For consistent tests
     settings = TestBed.inject(SettingsService);
+    settings.Timezone = 'vessel';
   });
 
   it('should be created', () => {
@@ -76,8 +77,8 @@ describe('DatetimeService', () => {
   });
 
   it('should format dates', () => {
-    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 1, 1, 1))).toEqual('Jan 1, 01:01');
-    expect(service.dateToDayTimeString(new Date(2020, 0, 1, 13, 53, 1))).toEqual('Jan 1, 13:53');
+    expect(service.dateToDayTimeString(initIsoDate(2020, 0, 1, 1, 7, 3))).toEqual('Jan 1, 02:07');
+    expect(service.dateToDayTimeString(initIsoDate(2020, 0, 1, 13, 53, 1))).toEqual('Jan 1, 14:53');
   });
 
   it('should correct format date as ymdString', () => {
@@ -119,3 +120,8 @@ describe('DatetimeService', () => {
   });
 
 });
+
+function initIsoDate(year, month, day, hh, mm, ss) {
+  const ts = Date.UTC(year, month, day, hh, mm, ss);
+  return new Date(ts);
+}

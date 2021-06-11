@@ -77,35 +77,36 @@ export class UserManagementComponent implements OnInit {
       //   client: userdata[0].client_name,
       //   notHired: 1
       // }])
-      this.newService.getVesselNameAndIDById({vessel_ids: userdata[0]?.vessel_ids}).subscribe(vessels => {
+      this.newService.getVesselNameAndIDById({
+        vessel_ids: userdata[0]?.vessel_ids
+      }).subscribe(vessels => {
         this.user.boats = vessels;
       });
-      
+
       this.newService.getVesselForUser(userdata[0].username).subscribe(vessels => {
+        // ToDo get rid of this after updates to user import routines
         this.boats = vessels;
       });
     });
   }
 
   saveUserBoats() {
-    this.newService.saveUserBoats(this.user).pipe(
-        map(
-            (res) => {
-                this.alert.sendAlert({
-                    text: res.data,
-                    type: 'success'
-                });
-            }
-        ),
-        catchError(error => {
-            this.alert.sendAlert({
-                text: error,
-                type: 'danger'
-            });
-            throw error;
-        })
-    ).subscribe();
-}
+    this.newService.saveUserBoats(this.user).subscribe({
+      next: (res) => {
+        this.alert.sendAlert({
+          text: res.data,
+          type: 'success'
+        });
+      },
+      error: error => {
+        this.alert.sendAlert({
+          text: error,
+          type: 'danger'
+        });
+        throw error;
+      }
+    });
+  }
 
   updateUserPermissions() {
     this.newService.updateUserPermissions(

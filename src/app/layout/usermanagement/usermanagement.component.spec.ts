@@ -10,7 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MockedUserServiceProvider, UserTestService } from '../../shared/services/test.user.service';
 import { mockedObservable } from '../../models/testObservable';
-import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
 describe('UsermanagementComponent', () => {
   let component: UserManagementComponent;
@@ -47,12 +47,26 @@ describe('UsermanagementComponent', () => {
     spyOn(component['route'], 'params').and.returnValue(
       mockedObservable(user.username)
     );
-
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create', async () => {
     expect(component).toBeTruthy();
-    return fixture.whenStable();
+    await fixture.whenStable();
+    expect(component.boats?.length).toBeGreaterThan(0);
   });
+
+  it('should save on click', () => {
+    const ret_val = mockedObservable({data: 'Great success'});
+    const saveSpy = spyOn(MockedCommonService.prototype, 'saveUserBoats').and.returnValue(ret_val)
+    const btn = <HTMLButtonElement> locate('button')
+    btn.click()
+    expect(saveSpy).toHaveBeenCalled();
+  })
+
+
+  function locate(locator: string) {
+    const nativeElt = <HTMLElement> fixture.nativeElement;
+    return nativeElt.querySelector(locator);
+  }
 });
