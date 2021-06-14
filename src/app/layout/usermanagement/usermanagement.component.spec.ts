@@ -44,19 +44,39 @@ describe('UsermanagementComponent', () => {
     );
     fixture = TestBed.createComponent(UserManagementComponent);
     component = fixture.componentInstance;
-    spyOn(component['route'], 'params').and.returnValue(
-      mockedObservable(user.username)
-    );
-    fixture.detectChanges();
+    spyOn(component['route'].params, 'subscribe').and.callFake((fn: Function) => fn({username: 'MyUser'}))
   });
 
   it('should create', async () => {
+    fixture.detectChanges();
     expect(component).toBeTruthy();
+    expect(component.username).toEqual('MyUser');
     await fixture.whenStable();
     expect(component.allowed_vessels?.length).toBeGreaterThan(0);
+    expect(component.selected_vessels.length).toEqual(1);
+  });
+
+  it('should create - invalid vessel', async () => {
+    spyOn(MockedCommonService.prototype, 'getUserByUsername').and.returnValue(mockedObservable([{
+      userID: '1',
+      username: 'Test user',
+      active: true,
+      boats: [{mmsi: 0, 'vesselname': 'Bad vessel'}],
+      client_id: 1,
+      client_name: 'Test',
+      vessel_ids: [-1],
+      permission: {},
+    }]))
+
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+    await fixture.whenStable();
+    expect(component.allowed_vessels.length).toBeGreaterThanOrEqual(0);
+    expect(component.selected_vessels.length).toEqual(0, 'Invalid vessels should not be eligible for selection!');
   });
 
   it('should save on click', () => {
+    fixture.detectChanges();
     const ret_val = mockedObservable({data: 'Great success'});
     const saveSpy = spyOn(MockedCommonService.prototype, 'saveUserVessels').and.returnValue(ret_val)
     const btn = <HTMLButtonElement> locate('button')

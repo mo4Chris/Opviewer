@@ -146,7 +146,7 @@ module.exports = function (
   });
 
   app.post("/api/resetPassword",
-    body('username').isEmail().trim(),
+    body('username').isString().trim(),
     async function(req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.onBadRequest(errors);
@@ -190,7 +190,7 @@ module.exports = function (
   );
 
   app.post("/api/saveUserVessels",
-    body('username').isEmail().normalizeEmail(),
+    body('username').isString().normalizeEmail(),
     body('vessel_ids').isArray(),
     function(req, res) {
       const errors = validationResult(req);
@@ -218,7 +218,7 @@ module.exports = function (
   );
 
   app.post("/api/setUserActive",
-    body('username').isEmail().trim(),
+    body('username').isString().trim(),
     body('client').isString(),
     function (req, res) {
       const errors = validationResult(req);
@@ -256,7 +256,7 @@ module.exports = function (
   );
 
   app.post("/api/setUserInactive",
-    body('username').isEmail().trim(),
+    body('username').isString().trim(),
     body('client').isString(),
     function (req, res) {
       const errors = validationResult(req);
@@ -424,7 +424,7 @@ module.exports = function (
     }).catch(err => onError(res, err))
   });
 
-  app.post("/api/getUserByUsername", body('username').isEmail(), function(req, res) {
+  app.post("/api/getUserByUsername", body('username').isString(), function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.onBadRequest(errors);
 
@@ -581,7 +581,6 @@ module.exports = function (
       WHERE "userTable"."user_id"=$1`;
     const values = [user_id]
     const data = await admin_server_pool.query(PgQuery, values);
-    logger.info(data)
     if (data.rows.length > 0) {
       return data.rows;
     } else {

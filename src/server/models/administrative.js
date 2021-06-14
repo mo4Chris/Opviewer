@@ -47,7 +47,7 @@ const setPasswordModel = {
 /** @type{Schema} */
 const createDemoUserModel = {
   username: {
-    isEmail: true,
+    isString: true,
   },
   password: passwordValidator,
   requires2fa: {
@@ -80,7 +80,7 @@ const createDemoUserModel = {
 /** @type{Schema} */
 const loginModel = {
   username: {
-    isEmail: true,
+    isString: true,
     trim: true,
     normalizeEmail: true,
     in: ['body'],
@@ -88,13 +88,22 @@ const loginModel = {
   password: {
     isString: true,
     in: ['body'],
+    isLength: {
+      options: {
+        min: 6
+      }
+    }
   },
   confirm2fa: {
     in: ['body'],
     optional: true,
-    isLength: {
-      errorMessage: 'Confirmation code should be of length 6',
-      options: {min: 6, max: 6}
+    errorMessage: 'Confirm 2fa message should be of length 6',
+    custom: {
+      options: (value) => {
+        const is_null = value == null || value == '';
+        const is_valid = typeof(value) == 'string' && value.length == 6;
+        return is_null || is_valid;
+      }
     }
   }
 }

@@ -9,7 +9,6 @@ import { MapZoomLayer } from '@app/models/mapZoomLayer';
   selector: 'app-dpr-map',
   templateUrl: './dpr-map.component.html',
   styleUrls: ['./dpr-map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DprMapComponent implements OnChanges {
   @Input() vesselTrace: GeoTrace;

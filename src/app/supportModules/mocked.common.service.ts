@@ -11,6 +11,7 @@ import { Injectable } from '@angular/core';
 import { ForecastExpectedResponsePreference, ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
 import { ForecastMotionLimit } from '@app/layout/forecast/models/forecast-limit';
 import { UserModel } from '@app/models/userModel';
+import { ActivatedRoute } from '@angular/router';
 
 
 const emptyMatlabObject = {
@@ -291,10 +292,19 @@ export class MockedCommonService extends CommonService {
     }));
   }
 
-  getUserByUsername(username: any): Observable<any> {
-    return mockedObservable([
-      UserTestService.getMockedAccessToken()
-    ]);
+  getUserByUsername(username: string) {
+    const user = UserTestService.getMockedAccessToken();
+    const out: UserModel = {
+      userID: '1',
+      username: username ?? user.username,
+      active: true,
+      boats: user.userBoats,
+      client_id: 1,
+      client_name: 'Test',
+      vessel_ids: user.userBoats.map((_, i) => i+1),
+      permission: user.permission,
+    }
+    return mockedObservable([out]);
   }
   checkUserActive(username: string) {
     return mockedObservable(true);
@@ -876,6 +886,25 @@ export const MockedCommonServiceProvider = {
   provide: CommonService,
   useClass: MockedCommonService,
 };
+
+
+// // Mocks the activatedRoute - This does not yet work (unreachable error). I assume the route itself needs to be mocked to.
+// export function mockActivatedRoute({params={}, queryParams={}, snapshot={}}) {
+//   return {
+//     // params: mockedObservable(params),
+//     params: mockedObservable({
+//       get: () => params
+//     })
+//   }
+// }
+
+// export function getMockedActivatedRouteProvider(opts = {}) {
+//   const mock = mockActivatedRoute(opts)
+//   return {
+//     provide: ActivatedRoute,
+//     useClass: mock
+//   }
+// }
 
 
 // Standard html response messages as received from server

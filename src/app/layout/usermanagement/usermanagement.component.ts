@@ -28,7 +28,7 @@ export class UserManagementComponent implements OnInit {
   username: string;
   user: UserModel;
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-  allowed_vessels: UsermanagementVesselModel[];
+  allowed_vessels: UsermanagementVesselModel[] = [];
   selected_vessels: UsermanagementVesselModel[];
 
   multiSelectSettings = {
@@ -54,16 +54,14 @@ export class UserManagementComponent implements OnInit {
   }
 
   getUser() {
-    this.newService.getUserByUsername({
-      username: this.username
-    }).subscribe(userdata => {
+    this.newService.getUserByUsername(this.username).subscribe(userdata => {
       // Loads the users this person is allowed to edit
+      this.user = userdata[0];
       const is_admin = this.permission.admin;
-      const is_same_client = this.tokenInfo.userCompany == userdata[0].client;
+      const is_same_client = this.tokenInfo.userCompany == this.user.client_name;
       if (!is_admin && !this.permission.userRead) return this.router.routeToAccessDenied();
       if (!is_admin && !is_same_client) return this.router.routeToAccessDenied();
 
-      this.user = userdata[0];
       const isVesselMaster = this.user.permission.user_type == 'Vessel master';
       this.multiSelectSettings.singleSelection = isVesselMaster;
 
@@ -74,6 +72,7 @@ export class UserManagementComponent implements OnInit {
         this.selected_vessels = this.user.vessel_ids.map(_id => {
           return this.allowed_vessels.find(v => v.vessel_id == _id)
         })
+        this.selected_vessels = this.selected_vessels.filter(v => v!= null)
       });
     });
   }

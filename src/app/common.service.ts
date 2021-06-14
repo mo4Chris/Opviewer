@@ -87,8 +87,8 @@ export class CommonService {
 
 
   // ============= User management =============
-  getUserByUsername(username: Object): Observable<UserModel> {
-    return this.post('/api/getUserByUsername/', username);
+  getUserByUsername(username: string): Observable<UserModel[]> {
+    return this.post('/api/getUserByUsername/', {username});
   }
   getUsers(): Observable<UserModel[]> {
     return this.get('/api/getUsers/');
