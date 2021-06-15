@@ -1,7 +1,7 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockComponents } from 'ng-mocks';
 import { AgmMap } from '@agm/core';
-import { ForecastVesselComponent } from './forecast-project.component';
+import { ForecastVesselComponent, ForecastVesselRequest } from './forecast-project.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { VesselLocationIndicatorComponent } from '../models/vessel-location-indicator/vessel-location-indicator.component';
@@ -14,6 +14,7 @@ import { testBrokenHelpButtons, testEmptyTooltips } from '../forecast-new-vessel
 import { AlertService } from '@app/supportModules/alert.service';
 import { ActivatedRoute } from '@angular/router';
 import { RouterService } from '@app/supportModules/router.service';
+import { ForecastOperation } from '../models/forecast-response.model';
 
 describe('ForecastProjectComponent', () => {
   let component: ForecastVesselComponent;
@@ -146,6 +147,39 @@ describe('ForecastProjectComponent', () => {
     await fixture.whenStable();
     expect(saveSpy).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalled();
+  })
+
+  it('should have CTV slip options if CTV is enabled', () => {
+    const op: ForecastOperation = {
+      id: 123,
+      name: 'test_project',
+      nicename: 'Nice name',
+      client_id: 1,
+      latitude: 2,
+      longitude: 3,
+      water_depth: 4,
+      maximum_duration: 5,
+      vessel_id: 123,
+      activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+      activation_end_date: "2023-02-10T09:44:17.881913+00:00",
+      client_preferences: null,
+      consumer_id: 123,
+      weather_provider: {name: 'a', id: 1, display_name: 'b', is_active: true},
+      analysis_types: ['Standard', 'CTV']
+    }
+    const vessel: ForecastVesselRequest = {
+      id: 123,
+      nicename: 'demo vessel',
+      type: 'CTV',
+      length: 20,
+      width: 2,
+      draft: 10,
+      gm: null,
+      client_id: 1,
+      analysis_types: ['Standard', 'CTV']
+    }
+    spyOn(MockedCommonService.prototype, 'getForecastProjectByName').and.returnValue(mockedObservable([op]));
+    spyOn(MockedCommonService.prototype, 'getForecastVesselList').and.returnValue(mockedObservable([vessel]));
   })
 
   function locate(locator: string) {

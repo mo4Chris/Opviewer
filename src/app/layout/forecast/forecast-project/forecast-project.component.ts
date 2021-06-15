@@ -9,7 +9,7 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastOperation, PointOfInterest } from '../models/forecast-response.model';
+import { ForecastAnlysisType, ForecastOperation, PointOfInterest } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-project',
@@ -25,7 +25,8 @@ export class ForecastVesselComponent implements OnInit {
     width: 12.4,
     draft: 3.01,
     gm: 4.56789,
-    rao: null
+    rao: null,
+    analysis_types: ['Standard']
   }];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
@@ -52,6 +53,7 @@ export class ForecastVesselComponent implements OnInit {
     draft: NaN,
     gm: NaN,
     rao: null,
+    analysis_types: ['Standard']
   }
 
   constructor(
@@ -98,6 +100,7 @@ export class ForecastVesselComponent implements OnInit {
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
       this.vessels = vessels;
+      console.log('vessels', vessels)
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
@@ -141,7 +144,13 @@ export class ForecastVesselComponent implements OnInit {
         client_id: null,
         client_preferences: null,
         consumer_id: null,
-        analysis_types: [],
+        analysis_types: ['Standard'],
+        weather_provider: {
+          id: 1,
+          name: 'test',
+          display_name: 'Test 1',
+          is_active: true,
+        }
       };
     });
   }
@@ -191,6 +200,10 @@ export class ForecastVesselComponent implements OnInit {
       lng: this.project.longitude,
     });
   }
+  public onSelectedVesselChange() {
+    this.project.analysis_types = this.project.analysis_types.filter(t => (this.SelectedVessel as ForecastVesselRequest).analysis_types.some(__t => __t == t));
+    console.log('this.project.analysis_types', this.project.analysis_types)
+  }
 
   public roundNumber(num: number, dec = 10000, addString?: string) {
     return this.calcService.roundNumber(num, dec, addString);
@@ -206,5 +219,6 @@ export interface ForecastVesselRequest {
   width: number;
   draft: number;
   gm: number;
-  rao: any;
+  rao?: any;
+  analysis_types: ForecastAnlysisType[];
 }

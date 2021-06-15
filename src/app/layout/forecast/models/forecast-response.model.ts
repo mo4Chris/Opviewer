@@ -16,6 +16,7 @@ export interface ForecastOperation {
   activation_end_date: string;
   client_preferences: ForecastExpectedResponsePreference;
   analysis_types: ForecastAnlysisType[],
+  weather_provider: MetoceanProvider,
   consumer_id: number;
 }
 
@@ -31,6 +32,13 @@ export interface ForecastResponseObject {
       P1: ForecastResponse
     }
   };
+}
+
+export interface MetoceanProvider {
+  id: number;
+  is_active: boolean;
+  display_name: string;
+  name: string;
 }
 
 interface ForecastResponse {

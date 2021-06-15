@@ -62,6 +62,7 @@
                 </div>
               </td>
             </tr>
+
             <tr *ngIf="ctv_slip_settings">
               <td><div [ngbTooltip]="helpCtvSlipDuration">Push on duration</div></td>
               <td colspan="2">
@@ -113,12 +114,21 @@
               <th>Vessel type</th>
               <th>
                 <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select"
-                  class="form-control form-control-md" [disabled]="!projectLoaded">
+                  class="form-control form-control-md" [disabled]="!projectLoaded" (change)="onSelectedVesselChange($event)">
                   <option disabled  selected [value]="0">Please select a vessel</option>
                   <option disabled  [ngValue]="NewVessel">Request a new vessel</option>
                   <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.nicename}}</option>
                 </select>
               </th>
+            </tr>
+            <tr *ngIf="SelectedVessel?.analysis_types" >
+              <td>Analysis types</td>
+              <td colspan="3">
+                <ng-multiselect-dropdown name="selectAnlysisTypes" class="multiSelectDiv"
+                  placeholder="Select analysis types" [settings]="selectAnalysisTypeSettings"
+                  [data]="SelectedVessel.analysis_types" [(ngModel)]="project.analysis_types">
+                </ng-multiselect-dropdown>
+              </td>
             </tr>
           </thead>
           <tbody class='sep-row'>

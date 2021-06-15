@@ -59,6 +59,13 @@ describe('ForecastOpsPickerComponent', () => {
       activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }];
     component.selectedProjectId = 0;
     component.ngOnChanges({selectedProjectId: new SimpleChange(null, 0, true)});
@@ -89,6 +96,13 @@ describe('ForecastOpsPickerComponent', () => {
       activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }];
     component.selectedProjectId = 0;
     component.ngOnChanges();
@@ -118,6 +132,13 @@ describe('ForecastOpsPickerComponent', () => {
       activation_end_date: '7',
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }
     component.onConfirm();
     expect(saveSpy).toHaveBeenCalled();
@@ -138,6 +159,13 @@ describe('ForecastOpsPickerComponent', () => {
       activation_end_date: '7',
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }]
     component.selectedProjectId = 0;
     component.ngOnChanges({
@@ -170,6 +198,13 @@ describe('ForecastOpsPickerComponent', () => {
       activation_end_date: '7',
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }]
     component.vessels = [{
       id: 123,
@@ -180,7 +215,8 @@ describe('ForecastOpsPickerComponent', () => {
       gm: 1,
       nicename: 'Cool vessel name',
       type: 'Typo',
-      rao: null
+      rao: null,
+      analysis_types: ['Standard']
     }]
     component.selectedProjectId = 0;
     expect(component.selectedVesselName).toEqual('N/a')

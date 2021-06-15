@@ -16,6 +16,13 @@ const headers = {
   'Authorization': `Bearer ${bearer}`
 }
 
+// #################### Default values ####################
+const DEFAULT_WEATHER_PROVIDER_ID = 1;
+const DEFAULT_CLIENT_ID           = 4;
+
+
+
+// #################### Actual API ####################
 
 /**
  * Server file with all the secure endpoints to the admin database.
@@ -205,7 +212,6 @@ module.exports = function (
     const data = matchedData(req);
     let username = data.username;
     // let password = data.password;
-
     const localLogger = logger.child({
       username
     })
@@ -222,13 +228,13 @@ module.exports = function (
     const values = [username];
 
     localLogger.info('Received login for user: ' + username);
-    admin_server_pool.query(PgQuery, values).then(async (data, err) => {
+    admin_server_pool.query(PgQuery, values).then(async (admin_data, err) => {
       if (err) return res.onError(err);
-      if (data.rows.length == 0) return res.onUnauthorized('User does not exist');
+      if (admin_data.rows.length == 0) return res.onUnauthorized('User does not exist');
 
-      let user = data.rows[0];
+      let user = admin_data.rows[0];
       localLogger.debug('Validating login')
-      if (!validateLogin(req, user, res)) return null;
+      if (!validateLogin(req, user, res)) return null; // Password validation happens here
       localLogger.debug('Retrieving vessels for user');
       const vessels = await getVesselsForUser(res, user.user_id).catch(err => { return res.onError(err) });
 
@@ -271,6 +277,9 @@ module.exports = function (
     }).catch((err) => { return res.onError( err) })
   });
 
+
+  // #################### Support code ####################
+
   function getVesselsForUser(res, user_id) {
     let PgQuery = `
     SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
@@ -288,6 +297,7 @@ module.exports = function (
       }
     }).catch(err => res.onError( err, 'Failed to load vessels'));
   };
+
 
   async function createDemoUser({
     username = '',
@@ -342,7 +352,9 @@ module.exports = function (
     initUserSettings(user_id);
     return;
   }
-  async function createProject(client_id = 4) {
+
+
+  async function createProject(client_id = DEFAULT_CLIENT_ID, metocean_provider_id = DEFAULT_WEATHER_PROVIDER_ID) {
     logger.info(`Creating new project with client id = ${client_id}`)
     const currentTime = Date.now()
     const currentDate = new Date(currentTime);
@@ -363,7 +375,9 @@ module.exports = function (
       "latitude": 52,
       "longitude": 3,
       "water_depth": 20,
-      "client_preferences": project_preferences
+      "client_preferences": project_preferences,
+      "analysis_types": ["Standard"],
+      "metocean_provider_id": metocean_provider_id,
     }
     const project = await pg_post('/project/' + project_name, project_insert).catch(err => {
       logger.error(err?.response?.data?.message ?? `Unspecified error: status code ${err?.response?.status}`)
@@ -376,6 +390,7 @@ module.exports = function (
     logger.info('Created project with id ' + project?.data?.id)
     return project.data.id;
   }
+
 
   function validateLogin(req, user, res) {
     const userData = req.body;
@@ -401,6 +416,7 @@ module.exports = function (
     return true;
   }
 
+
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
       user_id,
@@ -416,6 +432,7 @@ module.exports = function (
       localLogger.error(err.message)
     })
   }
+
 
   function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
     const localLogger = logger.child({
@@ -497,6 +514,8 @@ module.exports = function (
       localLogger.error(err)
     })
   }
+
+
   function getDefaultProjectPreferences() {
     return {
       "Points": [
@@ -580,6 +599,7 @@ module.exports = function (
   }
 };
 
+// #################### Support code non-dependent on server state ####################
 function toIso8601(d) {
   return d.toISOString().slice(0, 23) + '+00:00';
 }

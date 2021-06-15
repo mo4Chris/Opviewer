@@ -54,6 +54,13 @@ describe('ForecastDashboardComponent', () => {
       activation_end_date: '7',
       client_preferences: null,
       consumer_id: 8,
+      analysis_types: ['Standard'],
+      weather_provider: {
+        id: 1,
+        name: 'test',
+        display_name: 'Test 1',
+        is_active: true,
+      }
     }];
     const routerSpyProjectOverview = spyOn(RouterService.prototype, 'routeToForecastProjectOverview');
     const routerSpyForecast = spyOn(RouterService.prototype, 'routeToForecast');
