@@ -11,7 +11,7 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() xLabel: string;
   @Input() yLabel: string;
 
-  @Input() xData: (number | string | Date)[];
+  @Input() xData: number[] | string[] | Date[];
   @Input() yData: number[];
   @Input() zData: number[][];
 
@@ -77,6 +77,7 @@ export class SurfacePlotComponent implements OnChanges {
   ngOnChanges() {
     if (!this.hasData) return;
     this.validateInput();
+    this.setXLimits()
     this.parsedData = [<any> {
       x: this.xData,
       y: this.yData,
@@ -130,6 +131,12 @@ export class SurfacePlotComponent implements OnChanges {
           })
       }
     })
+  }
+
+  private setXLimits() {
+    const xmin = Math.min(...(<number[]> this.xData));
+    const xmax = Math.max(...(<number[]> this.xData));
+    this.PlotLayout.xaxis['range'] = [xmin, xmax];
   }
 }
 

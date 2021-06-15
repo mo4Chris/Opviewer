@@ -62,6 +62,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     if (this.hasData) {
       this.computeMaxWorkability();
       this.computeGraphData();
+      this.setXLimits();
     } else {
       this.MaxWorkability = 'N/a';
     }
@@ -177,6 +178,12 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       green: datas.map((d, i) => greens[i] ? d : NaN),
       red: datas.map((d, i) => reds[i] ? d : NaN),
     };
+  }
+
+  private setXLimits() {
+    const xmin = Math.min(... <any> this.time);
+    const xmax = Math.max(... <any> this.time);
+    this.PlotLayout.xaxis['range'] = [xmin, xmax];
   }
 }
 
