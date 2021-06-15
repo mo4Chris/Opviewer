@@ -12,7 +12,7 @@ import { MockedUserServiceProvider, UserTestService } from '../../shared/service
 import { mockedObservable } from '../../models/testObservable';
 import { MockedCommonServiceProvider } from '../../supportModules/mocked.common.service';
 
-describe('UsermanagementComponent', () => {
+fdescribe('UsermanagementComponent', () => {
   let component: UserManagementComponent;
   let fixture: ComponentFixture<UserManagementComponent>;
   const user = UserTestService.getMockedAccessToken();

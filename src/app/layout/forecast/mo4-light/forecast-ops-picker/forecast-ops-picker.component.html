@@ -113,7 +113,7 @@
     </tr>
     <tr *ngIf="slipCoefficients?.length > 1">
       <td>
-        <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
+        <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
       </td>
       <td>
         <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
@@ -225,7 +225,7 @@
 </ng-template>
 
 <ng-template #helpCtvSlipCoeff>
-  Last time the forecast was updated. By default, this occurs every 6 hours.
+  
 </ng-template>
 <ng-template #helpCtvThrustLevel>
   Amount of force applied by the engine during the push on.

@@ -52,6 +52,10 @@ export class HeaderComponent implements OnInit {
     this.feedback = {message: '', page: ''};
   }
 
+  openRequestFullAccessAccountModal(content) {
+    this.modalReference = this.modalService.open(content);
+  }
+
   openModal(content) {
     if (this.router.url.includes(';')) {
       const mySubString = this.router.url.substring(

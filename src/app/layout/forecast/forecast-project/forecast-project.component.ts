@@ -70,6 +70,7 @@ export class ForecastVesselComponent implements OnInit {
     return Boolean(this.SelectedVessel);
   }
   public get ctv_slip_settings() {
+    console.log(this.project?.client_preferences?.Ctv_Slip_Options);
     return this.project?.client_preferences?.Ctv_Slip_Options;
   }
   public get is_sample_project() {
