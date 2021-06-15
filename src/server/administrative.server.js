@@ -3,6 +3,8 @@ var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 var ax = require('axios');
 const { Pool } = require("pg");
+const { body, validationResult, checkSchema, matchedData } = require('express-validator');
+const models = require('./models/administrative.js');
 
 // const baseUrl = 'http://localhost:5000';
 const baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
@@ -40,31 +42,53 @@ module.exports = function (
     })
   })
 
-  app.post("/api/getRegistrationInformation", function (req, res) {
-    const username = req.body.user;
-    const registration_token = req.body.registration_token;
-    // NOT SURE WHAT TO MAKE OF THIS FUNCTION
-    const query = `SELECT username, requires2fa, secret2fa
-      FROM "userTable"
-      WHERE "token"=$1`
-    const values = [registration_token]
-    admin_server_pool.query(query, values).then(sqlresponse => {
-      if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
-      const row = sqlresponse.rows[0];
-      res.send({
-        username: row.username,
-        requires2fa: row.requires2fa,
-        secret2fa: row.secret2fa
-      })
-    }).catch(err => res.onError(err))
+  app.post("/api/getRegistrationInformation",
+    body('username').isString(),
+    body('registration_token').isString(),
+    function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors);
+
+      const username = req.body.username;
+      const registration_token = req.body.registration_token;
+      // NOT SURE WHAT TO MAKE OF THIS FUNCTION
+      const query = `SELECT username, requires2fa, secret2fa
+        FROM "userTable"
+        WHERE "token"=$1`
+      const values = [registration_token]
+      admin_server_pool.query(query, values).then(sqlresponse => {
+        if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+        const row = sqlresponse.rows[0];
+        if (row.username != username) return res.onBadRequest('Registration token does not match requested user!')
+        res.send({
+          username: row.username,
+          requires2fa: row.requires2fa,
+          secret2fa: row.secret2fa
+        })
+      }).catch(err => res.onError(err))
   });
 
-  app.post('/api/createDemoUser', async (req, res) => {
+  app.post('/api/createDemoUser',
+    checkSchema(models.createDemoUserModel),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors);
+
     const username = req.body.username;
-    const password = req.body.password
+    const password = req.body.password;
     const requires2fa = req.body.requires2fa;
-    const vessel_ids = req.body.vessel_ids;
-    const user_type = req.body.user_type;
+    const vessel_ids = req.body.vessel_ids; // Always empty?
+    const user_type = req.body.user_type ?? 'demo'; // Shouldn't this always be demo?
+
+    const phoneNumber = req.body.phoneNumber;
+    const full_name = req.body.full_name;
+    const job_title = req.body.job_title;
+    const company = req.body.company;
+
+    // Need to check on this in the future
+    const bad_vessel_list = Array.isArray(vessel_ids) && vessel_ids.length>0;
+    if (bad_vessel_list) return res.onUnauthorized('Vessel ids is not supported when creating a demo account!');
+    if (user_type != 'demo') return res.onUnauthorized(`User type must be demo - actual ${user_type}`);
 
     logger.debug('Validating incoming request')
     if (vessel_ids != null && !Array.isArray(vessel_ids)) {
@@ -94,7 +118,7 @@ module.exports = function (
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await createProject() // works
-      await createUser({
+      await createDemoUser({
         username,
         requires2fa,
         client_id: demo_client.client_id,
@@ -108,13 +132,13 @@ module.exports = function (
       return res.onError(err, 'Error creating user')
     }
     // send email
-    const html = `A demo account has been created for ${req.body.username}.<br>
+    const html = `A demo account has been created for ${username}.<br>
     Please add the following details to the customer-contact excel sheet.<br>
-    Username: ${req.body.username}<br>
-    Full name: ${req.body.full_name}<br>
-    Company: ${req.body.company}<br>
-    Function: ${req.body.job_title}<br>
-    Phone number: ${req.body?.phoneNumber}
+    Username: ${username}<br>
+    Full name: ${full_name}<br>
+    Company: ${company}<br>
+    Function: ${job_title}<br>
+    Phone number: ${phoneNumber}
     `;
 
     mailTo('Registered demo user', html, 'webmaster@mo4.online');
@@ -122,25 +146,28 @@ module.exports = function (
     return res.send({ data: `User ${username} succesfully added!` });
   });
 
-  app.post('/api/setPassword', function (req, res) {
-    const token = req.body.passwordToken;
-    const password = req.body.password;
-    const confirm = req.body.confirmPassword;
-    const secret2fa = req.body.secret2fa;
-    const confirm2fa = req.body.confirm2fa
+  app.post('/api/setPassword', checkSchema(models.setPasswordModel), function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors);
+
+    const data = matchedData(req);
+    const passwordToken = data.passwordToken;
+    const password = data.password;
+    const confirm = data.confirmPassword;
+    const secret2fa = data.secret2fa;
+    const confirm2fa = data.confirm2fa
     const localLogger = logger.child({
-      token,
+      token: passwordToken,
       hasPassword: password != null,
       has2Fa: confirm2fa != null
     })
     localLogger.info('Receiving set password request')
 
-    if (!(token?.length > 0)) return res.onBadRequest('Missing token')
     if (password != confirm) return res.onBadRequest('Password does not match confirmation code')
     const query = `SELECT user_id, secret2fa, requires2fa
       FROM "userTable"
       WHERE "token"=$1`
-    const values = [token];
+    const values = [passwordToken];
     localLogger.debug('Getting user info from admin db')
     admin_server_pool.query(query, values).then((sqlresponse) => {
       localLogger.debug('Got sql response')
@@ -171,24 +198,17 @@ module.exports = function (
     }).catch(err => res.onError(err, 'Registration token not found!'))
   })
 
-  app.post("/api/login", async function (req, res) {
-    let username = req.body.username;
-    let password = req.body.password;
+  app.post("/api/login", checkSchema(models.loginModel), async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors)
+
+    const data = matchedData(req);
+    let username = data.username;
+    // let password = data.password;
 
     const localLogger = logger.child({
       username
     })
-    if (!username) {
-      localLogger.info('Login failed: missing username')
-      return res.status(400).send('Missing username')
-    }
-    if (!password) {
-      localLogger.info({
-        msg: 'Login failed: missing password',
-        username: username,
-      })
-      return res.status(400).send('Missing password')
-    }
 
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
@@ -269,7 +289,7 @@ module.exports = function (
     }).catch(err => res.onError( err, 'Failed to load vessels'));
   };
 
-  async function createUser({
+  async function createDemoUser({
     username = '',
     requires2fa = false,
     client_id = null,
@@ -330,7 +350,7 @@ module.exports = function (
     const nextMonth = new Date(currentDate.setMonth(currentDate.getMonth() + 1))
     const activation_end_date = toIso8601(nextMonth);
     const project_name = `demo_${currentTime}`
-    const project_preferences = initProjectPreferences();
+    const project_preferences = getDefaultProjectPreferences();
     const project_insert = {
       "name": project_name,
       "display_name": "Demo project",
@@ -356,7 +376,6 @@ module.exports = function (
     logger.info('Created project with id ' + project?.data?.id)
     return project.data.id;
   }
-
 
   function validateLogin(req, user, res) {
     const userData = req.body;
@@ -478,7 +497,7 @@ module.exports = function (
       localLogger.error(err)
     })
   }
-  function initProjectPreferences() {
+  function getDefaultProjectPreferences() {
     return {
       "Points": [
         {

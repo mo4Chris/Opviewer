@@ -2,6 +2,9 @@
   "name": "dataviewer-server",
   "version": "2.0.0",
   "private": true,
+  "scripts": {
+    "server-test": "jasmine --config=jasmine.json"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
@@ -10,6 +13,7 @@
     "express": "4.16.3",
     "express-fileupload": "^1.2.1",
     "express-pino-logger": "^6.0.0",
+    "express-validator": "^6.11.1",
     "jsonwebtoken": "^8.4.0",
     "minimist": "^1.2.5",
     "mongoose": "^5.12.5",
@@ -18,5 +22,8 @@
     "pg": "^8.6.0",
     "pino": "6.5.0",
     "pm2": "^4.5.6"
+  },
+  "devDependencies": {
+    "jasmine": "^3.7.0"
   }
 }

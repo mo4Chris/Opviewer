@@ -17,7 +17,7 @@ const request = require('supertest');
 
 
 // ################# Setup #################
-const app = rewire('../../src/server.js')
+const app = rewire('../server.js')
 const SERVER_LOGGING_LEVEL = 'debug';
 if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL

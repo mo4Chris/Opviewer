@@ -1,6 +1,8 @@
 const ax = require('axios');
 const fs = require('fs');
-var { Pool } = require('pg')
+const forecastModel = require('./models/forecast')
+var { Pool } = require('pg');
+const { validationResult, param } = require('express-validator');
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
@@ -63,44 +65,18 @@ module.exports = function(app, logger, admin_server_pool) {
           client_id: data.client_id
         }
       });
-      // ToDo: filter data by token rights - is this done?
       res.send(data_out)
     }).catch(res.onError)
   });
 
-  app.get('/api/mo4light/getProjectList', (req, res) => {
-    const token = req['token'];
-    const start = Date.now()
-    log('Start azure project list request')
+  app.get('/api/mo4light/getProjectList', forecastModel.checkForecastRead, (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors)
 
-    if (token.permission.demo) {
-      return getDemoProject(req, res).then(project_output => {
-        logger.trace('Sending demo project')
-        res.send(project_output)
-      }).catch(res.onError);
-    }
-    pg_get('/projects').then(async (out, err) => {
-      log(`Receiving azure project list after ${Date.now() - start}ms`)
-      if (err) return res.onError(err, err);
-      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
-      const project_output = data.map(d => {
-        return {
-          id: d.id,
-          name: d.name,
-          nicename: d.display_name,
-          client_id: d.client_id,
-          longitude: d.longitude,
-          latitude: d.latitude,
-          water_depth: d.water_depth,
-          maximum_duration: d.maximum_duration,
-          activation_start_date: d.activation_start_date,
-          activation_end_date: d.activation_start_date,
-          client_preferences: d.client_preferences,
-          vessel_id: d.vessel_id
-        }
-      })
-      // ToDo: filter data by token rights
-      res.send(project_output)
+    const token = req['token'];
+    getProjectList(token).then(projects => {
+      logger.trace(`Query returned ${projects?.lenght ?? 0} projects`)
+      res.send(projects)
     }).catch(res.onError)
   });
 
@@ -111,7 +87,7 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     if (token.permission.demo) {
-      return getDemoProject(req, res).then((projects) => {
+      return getDemoProject(token).then((projects) => {
         const project = projects.find(p => p.name == project_name);
         if (project == null) return res.onUnauthorized()
         res.send([project])
@@ -156,20 +132,35 @@ module.exports = function(app, logger, admin_server_pool) {
     }).catch(res.onError)
   });
 
-  app.get('/api/mo4light/getResponseForProject/:project_id', (req, res) => {
-    const project_id = req.params.project_id;
-    const token = req['token'];
-    const start = Date.now()
-    log('Start azure response request')
-    pg_get('/response/' + project_id).then((out, err) => {
-      log(`Receiving azure motion response after ${Date.now() - start}ms`)
-      if (err) return res.onError(err, err);
-      const data = out.data;
-      res.send(data)
-    }).catch(err => {
-      if (err.response.status == 404) return res.status(404).send('Response not found')
-      res.onError(err, `Failed to get response for project with id ${project_id}`)
-    })
+  app.get('/api/mo4light/getResponseForProject/:project_id',
+    forecastModel.checkForecastRead,
+    param('project_id').isInt(),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors)
+
+      const project_id = req.params.project_id;
+      const token = req['token'];
+      const start = Date.now()
+      log('Start azure response request')
+
+      const is_admin = token.permission?.admin;
+      if (!is_admin) {
+        const projects = await getProjectList(token);
+        const has_permission = projects.some(p => p.id == project_id)
+        if (!has_permission) return res.onUnauthorized()
+      }
+
+      // At this point we are confident the client is authorized to access the resource
+      pg_get('/response/' + project_id).then((out, err) => {
+        log(`Receiving azure motion response after ${Date.now() - start}ms`)
+        if (err) return res.onError(err, err);
+        const data = out.data;
+        res.send(data)
+      }).catch(err => {
+        if (err.response.status == 404) return res.status(404).send('Response not found')
+        res.onError(err, `Failed to get response for project with id ${project_id}`)
+      })
   })
 
   app.get('/api/mo4light/getProjectsForClient/:client_name', (req, res) => {
@@ -188,9 +179,7 @@ module.exports = function(app, logger, admin_server_pool) {
 
   app.get('/api/forecastProjectLocations', async (req, res) => {
     const token = req['token'];
-    pg_get('/projects').then(async (out, err) => {
-      if (err) return res.onError(err, err);
-      const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
+    getProjectList(token).then(data => {
       const project_output = data.map(d => {
         return {
           nicename: d.nicename,
@@ -198,7 +187,6 @@ module.exports = function(app, logger, admin_server_pool) {
           lat: d.latitude
         }
       })
-      // ToDo: filter data by token rights
       res.send(project_output)
     }).catch(res.onError)
   })
@@ -220,10 +208,10 @@ module.exports = function(app, logger, admin_server_pool) {
     if (project_name == 'Sample_Project' && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
     if (is_demo && token)
 
-    // TODO: verify project belongs to client
     localLogger.info('Getting project')
     const html_response = await pg_get('/project/' + project_name);
     const updated_project = html_response.data;
+    if (!checkProjectPermission(token, updated_project)) return res.onUnauthorized()
 
     localLogger.info('Done getting project - performing update')
     const update_if_not_null = (fld) => {
@@ -266,6 +254,43 @@ module.exports = function(app, logger, admin_server_pool) {
     res.send(forecast)
   })
 
+  /**
+   * @param {object} token
+   * @returns object[]
+   */
+  async function getProjectList(token) {
+    const start = Date.now()
+    log('Start azure project list request')
+
+    if (token.permission.demo) {
+      const project_output = await getDemoProject(token);
+      log(`Receiving azure demo project after ${Date.now() - start}ms`)
+      logger.trace('Sending demo project')
+      return project_output;
+    }
+
+    const endpoint = token.permission.admin ? '/projects': `/projects/${token.client_id}`
+    const out = await pg_get(endpoint)
+    log(`Receiving azure project list after ${Date.now() - start}ms`)
+    const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
+    const project_output = data.map(d => {
+      return {
+        id: d.id,
+        name: d.name,
+        nicename: d.display_name,
+        client_id: d.client_id,
+        longitude: d.longitude,
+        latitude: d.latitude,
+        water_depth: d.water_depth,
+        maximum_duration: d.maximum_duration,
+        activation_start_date: d.activation_start_date,
+        activation_end_date: d.activation_start_date,
+        client_preferences: d.client_preferences,
+        vessel_id: d.vessel_id
+      }
+    })
+    return project_output;
+  }
 
   function checkProjectPermission(userToken, project) {
     const perm = userToken?.permission
@@ -275,6 +300,7 @@ module.exports = function(app, logger, admin_server_pool) {
   }
   function checkVesselPermission(userToken, vessel) {
     const GENERIC_VESSEL_CLIENT_ID = 1;
+
     const perm = userToken?.permission
     if (perm.admin) return true;
     const client_match = vessel.client_id == userToken.client_id;
@@ -335,17 +361,19 @@ module.exports = function(app, logger, admin_server_pool) {
     }).catch(err => logger.fatal('Failed to connect to backup API'))
   }
 
-  async function getDemoProject(req, res) {
+  async function getDemoProject(token) {
     const GENERIC_PROJECT_ID = 5;
 
     logger.debug('Getting demo project')
-    const token = req['token'];
     const query = `SELECT "demo_project_id" FROM "userTable" WHERE "user_id"=$1`
     const user = await admin_server_pool.query(query, [token.userID])
-    if (user.rowCount == 0) return res.onError('User not found')
+    if (user.rowCount == 0) throw new Error('User not found')
     const demo_project_id = user.rows[0].demo_project_id;
-    logger.debug(`Getting demo project with id ${demo_project_id}`)
+    if (demo_project_id == null) throw new Error('Invalid project id');
+
+    logger.info(`Getting demo project with id ${demo_project_id}`)
     const out = await pg_get('/projects')
+    if (!Array.isArray(out.data['projects'])) throw new Error('Received invalid projects list')
 
     logger.trace('Successfully loaded projects')
     const data = out.data['projects'].filter(d => {

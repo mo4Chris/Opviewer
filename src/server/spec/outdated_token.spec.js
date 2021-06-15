@@ -1,6 +1,7 @@
 const request = require('supertest');
 const rewire = require('rewire');
-const mock = require('../helper/mocks.server')
+const mock = require('./helper/mocks.server')
+const jwt = require('jsonwebtoken')
 
 module.exports = (app) => {
   function GET(url, auth = true) {
@@ -24,10 +25,9 @@ module.exports = (app) => {
       mock.pgRequest([{
         mmsi: 123,
       }])
-      mock.jsonWebToken(app, {
-        userID: '12', // Deliberate
-        username: ''
-      })
+      spyOn(jwt, 'verify').and.returnValue({
+        'userID': '12',
+      });
       const response = await GET('/api/vesselList')
       await assertOutdatedResponse(response)
     })

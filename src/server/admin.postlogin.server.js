@@ -33,10 +33,11 @@ module.exports = function (
   });
 
   app.get('/api/vesselList', (req, res) => {
-    const token = req.token;
+    const token = req['token'];
     const is_admin = token?.permission?.admin ?? false;
     const client_id = token?.client_id;
     let query, values;
+    logger.warn('This is broken!')
     if (is_admin) {
       query = `SELECT *
         FROM "vesselTable"`
