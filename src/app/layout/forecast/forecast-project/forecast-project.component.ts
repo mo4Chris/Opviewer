@@ -141,6 +141,7 @@ export class ForecastVesselComponent implements OnInit {
         client_id: null,
         client_preferences: null,
         consumer_id: null,
+        analysis_types: [],
       };
     });
   }

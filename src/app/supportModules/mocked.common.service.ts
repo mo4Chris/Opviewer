@@ -719,7 +719,7 @@ export class MockedCommonService extends CommonService {
     }]);
   }
   getForecastProjectByName(name: string): Observable<ForecastOperation[]> {
-    return mockedObservable([{
+    return mockedObservable([<ForecastOperation> {
       id: 123,
       name,
       nicename: 'Nice name',
@@ -732,7 +732,8 @@ export class MockedCommonService extends CommonService {
       activation_start_date: "2020-02-10T09:44:17.881913+00:00",
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
       client_preferences: mockForecastProjectPreferences(),
-      consumer_id: 123
+      consumer_id: 123,
+      analysis_types: ['Standard']
     }]);
   }
   getClientList() {

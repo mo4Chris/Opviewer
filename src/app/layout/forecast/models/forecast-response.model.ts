@@ -1,5 +1,7 @@
 import { ForecastMotionLimit } from "./forecast-limit";
 
+export type ForecastAnlysisType = "Standard" | "CTV";
+
 export interface ForecastOperation {
   id: number;
   name: string;
@@ -13,6 +15,7 @@ export interface ForecastOperation {
   activation_start_date: string;
   activation_end_date: string;
   client_preferences: ForecastExpectedResponsePreference;
+  analysis_types: ForecastAnlysisType[],
   consumer_id: number;
 }
 

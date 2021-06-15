@@ -92,6 +92,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const vessel = this?.vessels?.find(vessel => vessel.id === vessel_id);
     return vessel?.nicename || 'N/a';
   }
+  public get hasCtvSlipSettings() {
+    return this.selectedProject?.analysis_types?.some(type => type == 'CTV')
+  }
 
   ngOnChanges(changes: SimpleChanges = {}) {
     if (changes.minForecastDate) this.date = this.minForecastDate;

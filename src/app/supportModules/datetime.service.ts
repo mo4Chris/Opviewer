@@ -324,7 +324,7 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     }
   }
 
-  ngbDateToMatlabDatenum(dateObj: NgbDate) {
+  ngbDateToMatlabDatenum(dateObj: NgbDate | {year: number, month: number, day: number}) {
     // Moment.utc can handles year/month/day object, but requires months to start at 0
     const _dateObj = {
       year: dateObj.year,

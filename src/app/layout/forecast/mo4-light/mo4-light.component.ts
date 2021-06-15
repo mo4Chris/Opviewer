@@ -167,7 +167,9 @@ export class Mo4LightComponent implements OnInit {
       },
       error: err => {
         console.error('error', err)
+        if (err.status == 401) {
         this.routeService.routeToAccessDenied();
+      }
       }
     });
   }

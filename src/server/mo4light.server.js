@@ -57,6 +57,7 @@ module.exports = function(app, logger, admin_server_pool) {
         return {
           id: data.id,
           nicename: data.display_name,
+          analysis_types: data.analysis_types,
           type: data.type,
           length: data.length,
           width: data.width,
@@ -74,7 +75,7 @@ module.exports = function(app, logger, admin_server_pool) {
     if (!errors.isEmpty()) return res.onBadRequest(errors)
 
     const token = req['token'];
-    getProjectList(token).then(projects => {
+    getProjectList(token).then(async projects => {
       logger.trace(`Query returned ${projects?.lenght ?? 0} projects`)
       res.send(projects)
     }).catch(res.onError)
@@ -87,9 +88,13 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     if (token.permission.demo) {
-      return getDemoProject(token).then((projects) => {
+      return getDemoProject(token).then(async (projects) => {
         const project = projects.find(p => p.name == project_name);
         if (project == null) return res.onUnauthorized()
+        logger.info(project)
+        const weather_provider = await getWeatherProvider(project['weather_provider_id'])
+        project['provider'] = weather_provider;
+        console.log('weather_provider', weather_provider)
         res.send([project])
       }).catch(res.onError)
     }
@@ -273,22 +278,28 @@ module.exports = function(app, logger, admin_server_pool) {
     const out = await pg_get(endpoint)
     log(`Receiving azure project list after ${Date.now() - start}ms`)
     const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
-    const project_output = data.map(d => {
-      return {
-        id: d.id,
-        name: d.name,
-        nicename: d.display_name,
-        client_id: d.client_id,
-        longitude: d.longitude,
-        latitude: d.latitude,
-        water_depth: d.water_depth,
-        maximum_duration: d.maximum_duration,
-        activation_start_date: d.activation_start_date,
-        activation_end_date: d.activation_start_date,
-        client_preferences: d.client_preferences,
-        vessel_id: d.vessel_id
-      }
-    })
+    const project_output = []
+
+    for (let pidx in data) {
+      const _project = data[pidx];
+      const weather_provider = await getWeatherProvider(_project.metocean_provider_id);
+      project_output.push({
+        id: _project.id,
+        name: _project.name,
+        nicename: _project.display_name,
+        client_id: _project.client_id,
+        longitude: _project.longitude,
+        latitude: _project.latitude,
+        water_depth: _project.water_depth,
+        vessel_id: _project.vessel_id,
+        maximum_duration: _project.maximum_duration,
+        activation_start_date: _project.activation_start_date,
+        activation_end_date: _project.activation_start_date,
+        client_preferences: _project.client_preferences,
+        analysis_types: _project.analysis_types,
+        weather_provider: weather_provider,
+      })
+    }
     return project_output;
   }
 
@@ -396,6 +407,20 @@ module.exports = function(app, logger, admin_server_pool) {
       }
     })
     return project_output;
+  }
+
+  /**
+   * Loads in weather provider information corresponding to a provider id
+   *
+   * @param {number} provider_id Id of the provider
+   * @api public
+   * @returns {Promise<{id: number, name: string, display_name: string}>}
+   */
+  async function getWeatherProvider(provider_id) {
+    logger.debug({provider_id}, 'Loading weather provided')
+    const out = await pg_get('/metocean_providers')
+    const providers = out.data['metocean_providers'];
+    return providers.find(provider => provider.id == provider_id)
   }
 };
 
