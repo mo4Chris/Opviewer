@@ -105,6 +105,7 @@ module.exports = function(app, logger, admin_server_pool) {
       if (err) return res.onError(err, err);
       const project = out.data;
       if (!checkProjectPermission(token, project)) return res.onUnauthorized()
+      const weather_provider = await getWeatherProvider(project.metocean_provider_id);
       const project_output = [{
         id: project.id,
         name: project.name,
@@ -117,7 +118,9 @@ module.exports = function(app, logger, admin_server_pool) {
         activation_start_date: project.activation_start_date,
         activation_end_date: project.activation_end_date,
         client_preferences: project.client_preferences,
-        vessel_id: project.vessel_id
+        analysis_types: project.analysis_types,
+        vessel_id: project.vessel_id,
+        weather_provider: weather_provider,
       }]
       res.send(project_output)
     }).catch(res.onError)

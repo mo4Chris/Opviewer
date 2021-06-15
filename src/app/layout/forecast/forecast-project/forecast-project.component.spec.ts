@@ -180,6 +180,10 @@ describe('ForecastProjectComponent', () => {
     }
     spyOn(MockedCommonService.prototype, 'getForecastProjectByName').and.returnValue(mockedObservable([op]));
     spyOn(MockedCommonService.prototype, 'getForecastVesselList').and.returnValue(mockedObservable([vessel]));
+    fixture.detectChanges();
+    expect(component.hasCtvSlipSettings).toBeTruthy();
+    const SetMaxSlipRow = locate('setMaxSlip');
+    expect(SetMaxSlipRow).toBeTruthy();
   })
 
   function locate(locator: string) {

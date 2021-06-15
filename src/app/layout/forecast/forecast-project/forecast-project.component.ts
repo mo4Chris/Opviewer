@@ -71,6 +71,9 @@ export class ForecastVesselComponent implements OnInit {
   public get projectReady() {
     return Boolean(this.SelectedVessel);
   }
+  public get hasCtvSlipSettings() {
+    return this.project?.analysis_types?.some(t => t == 'CTV') != null
+  }
   public get ctv_slip_settings() {
     return this.project?.client_preferences?.Ctv_Slip_Options;
   }
@@ -99,13 +102,16 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
+      if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
+
       this.vessels = vessels;
-      console.log('vessels', vessels)
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
     });
   }
+
+  // ####################
   private onLoaded() {
     this.contractStartDateString = this.dateService.isoStringToDmyString(this.project.activation_start_date);
     this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
@@ -128,6 +134,7 @@ export class ForecastVesselComponent implements OnInit {
       this.alert.sendAlert({text: 'You do not have permission to create projects', 'type': 'danger'})
       return this.routeService.routeToForecast();
     }
+    throw Error('Not yet implemented!')
     this.newService.getForecastVesselList().subscribe(vessels => {
       this.vessels = vessels;
       this.project = {
@@ -154,7 +161,16 @@ export class ForecastVesselComponent implements OnInit {
       };
     });
   }
+  private initCtvSlipSettings() {
+    this.project.client_preferences.Ctv_Slip_Options = {
+      Max_Allowed_Slip_Meter: 0.60,
+      Window_Length_Seconds: 180,
+      Slip_Coefficient: 0.6,
+      Thrust_Level_N: 100000,
+    }
+  }
 
+  // ######################
   public onMapReady(map: google.maps.Map) {
     this.Marker = new google.maps.Marker({
       position: {
