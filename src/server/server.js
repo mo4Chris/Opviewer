@@ -26,7 +26,7 @@ const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]
 const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
 const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'info'
+const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'debug'
 
 
 //#########################################################
@@ -176,6 +176,7 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   logger.trace('Performing onError')
   try {
     const response_message = err?.response?.data?.message;
+    logger.debug(response_message, 'Issue handling API request')
     if (response_message) {
       err['message'] = response_message;
     }
