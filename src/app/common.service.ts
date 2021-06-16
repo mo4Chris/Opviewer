@@ -10,7 +10,7 @@ import { UserModel } from './models/userModel';
 import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
-import { ForecastOperation, ForecastResponseObject } from './layout/forecast/models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject, MetoceanProvider } from './layout/forecast/models/forecast-response.model';
 import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { storedSettings } from './supportModules/settings.service';
@@ -601,6 +601,10 @@ export class CommonService {
 
   getCtvForecast() {
     return this.get('/api/mo4light/ctvForecast')
+  }
+
+  getForecastMetoceanProviders(): Observable<MetoceanProvider[]> {
+    return this.get('/api/mo4light/metoceanProviders')
   }
 }
 

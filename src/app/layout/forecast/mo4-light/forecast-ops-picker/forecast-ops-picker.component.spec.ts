@@ -60,7 +60,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
       analysis_types: ['Standard'],
-      weather_provider: {
+      metocean_provider: {
         id: 1,
         name: 'test',
         display_name: 'Test 1',
@@ -97,7 +97,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: null,
       consumer_id: 8,
       analysis_types: ['Standard'],
-      weather_provider: {
+      metocean_provider: {
         id: 1,
         name: 'test',
         display_name: 'Test 1',
@@ -133,7 +133,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
       analysis_types: ['Standard'],
-      weather_provider: {
+      metocean_provider: {
         id: 1,
         name: 'test',
         display_name: 'Test 1',
@@ -160,7 +160,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
       analysis_types: ['Standard'],
-      weather_provider: {
+      metocean_provider: {
         id: 1,
         name: 'test',
         display_name: 'Test 1',
@@ -199,7 +199,7 @@ describe('ForecastOpsPickerComponent', () => {
       client_preferences: mockClientPreferences(),
       consumer_id: 8,
       analysis_types: ['Standard'],
-      weather_provider: {
+      metocean_provider: {
         id: 1,
         name: 'test',
         display_name: 'Test 1',

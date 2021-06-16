@@ -12,7 +12,7 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 let baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 let backupUrl = process.env.AZURE_BACKUP_URL ?? 'https://mo4-light.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
-const timeout = +process.env.TIMEOUT || 60000;
+const timeout = +process.env.TIMEOUT || 30000;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
@@ -92,9 +92,6 @@ module.exports = function(app, logger, admin_server_pool) {
         const project = projects.find(p => p.name == project_name);
         if (project == null) return res.onUnauthorized()
         logger.info(project)
-        const weather_provider = await getWeatherProvider(project['weather_provider_id'])
-        project['provider'] = weather_provider;
-        console.log('weather_provider', weather_provider)
         res.send([project])
       }).catch(res.onError)
     }
@@ -105,7 +102,6 @@ module.exports = function(app, logger, admin_server_pool) {
       if (err) return res.onError(err, err);
       const project = out.data;
       if (!checkProjectPermission(token, project)) return res.onUnauthorized()
-      const weather_provider = await getWeatherProvider(project.metocean_provider_id);
       const project_output = [{
         id: project.id,
         name: project.name,
@@ -120,7 +116,7 @@ module.exports = function(app, logger, admin_server_pool) {
         client_preferences: project.client_preferences,
         analysis_types: project.analysis_types,
         vessel_id: project.vessel_id,
-        weather_provider: weather_provider,
+        metocean_provider: project.metocean_provider,
       }]
       res.send(project_output)
     }).catch(res.onError)
@@ -234,6 +230,7 @@ module.exports = function(app, logger, admin_server_pool) {
     update_if_not_null('water_depth')
     update_if_not_null('vessel_id')
     update_if_not_null('client_preferences')
+    update_if_not_null('analysis_types')
     if (is_admin) {
       update_if_not_null('name')
       update_if_not_null('activation_start_date')
@@ -241,6 +238,8 @@ module.exports = function(app, logger, admin_server_pool) {
     }
     localLogger.debug('Double encrypting client preference')
     updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
+    updated_project['metocean_provider_id'] = received_settings?.metocean_provider?.id ?? updated_project?.metocean_provider?.id;
+    updated_project['metocean_provider'] = null;
 
     localLogger.debug('Forwarding request to hydro API')
     pg_put('/project/' + project_name, updated_project).then((out, err) => {
@@ -248,6 +247,15 @@ module.exports = function(app, logger, admin_server_pool) {
       localLogger.info('Save succesfull')
       return res.send({data: 'Successfully saved project!'})
     }).catch(res.onError)
+  })
+
+  app.get('/api/mo4light/metoceanProviders', (req, res) => {
+    const permission = req['token'].permission;
+    if (!permission.forecast.read) return res['onUnauthorized']()
+    pg_get('/metocean_providers').then(out => {
+      const providers = out.data.metocean_providers;
+      res.send(providers)
+    })
   })
 
   app.post('/api/mo4light/weather', (req, res) => {
@@ -285,7 +293,6 @@ module.exports = function(app, logger, admin_server_pool) {
 
     for (let pidx in data) {
       const _project = data[pidx];
-      const weather_provider = await getWeatherProvider(_project.metocean_provider_id);
       project_output.push({
         id: _project.id,
         name: _project.name,
@@ -300,7 +307,7 @@ module.exports = function(app, logger, admin_server_pool) {
         activation_end_date: _project.activation_start_date,
         client_preferences: _project.client_preferences,
         analysis_types: _project.analysis_types,
-        weather_provider: weather_provider,
+        metocean_provider: _project.metocean_provider,
       })
     }
     return project_output;
@@ -406,6 +413,8 @@ module.exports = function(app, logger, admin_server_pool) {
         activation_start_date: d.activation_start_date,
         activation_end_date: d.activation_start_date,
         client_preferences: d.client_preferences,
+        metocean_provider: d.metocean_provider,
+        analysis_types: d.analysis_types,
         vessel_id: d.vessel_id
       }
     })

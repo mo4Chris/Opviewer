@@ -150,6 +150,10 @@ describe('ForecastProjectComponent', () => {
   })
 
   it('should have CTV slip options if CTV is enabled', () => {
+    expect(component.hasCtvSlipSettings).toBeTruthy();
+    const SetMaxSlipRow = locate('setMaxSlip');
+    expect(SetMaxSlipRow).toBeTruthy();
+
     const op: ForecastOperation = {
       id: 123,
       name: 'test_project',
@@ -164,7 +168,7 @@ describe('ForecastProjectComponent', () => {
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
       client_preferences: null,
       consumer_id: 123,
-      weather_provider: {name: 'a', id: 1, display_name: 'b', is_active: true},
+      metocean_provider: {name: 'a', id: 1, display_name: 'b', is_active: true},
       analysis_types: ['Standard', 'CTV']
     }
     const vessel: ForecastVesselRequest = {
@@ -182,8 +186,8 @@ describe('ForecastProjectComponent', () => {
     spyOn(MockedCommonService.prototype, 'getForecastVesselList').and.returnValue(mockedObservable([vessel]));
     fixture.detectChanges();
     expect(component.hasCtvSlipSettings).toBeTruthy();
-    const SetMaxSlipRow = locate('setMaxSlip');
-    expect(SetMaxSlipRow).toBeTruthy();
+    const SetMaxSlipRowAfter = locate('setMaxSlip');
+    expect(SetMaxSlipRowAfter).toBeTruthy();
   })
 
   function locate(locator: string) {

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
@@ -9,12 +9,13 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastAnlysisType, ForecastOperation, PointOfInterest } from '../models/forecast-response.model';
+import { ForecastAnlysisType, ForecastCtvSlipSettings, ForecastOperation, MetoceanProvider, PointOfInterest } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-project',
   templateUrl: './forecast-project.component.html',
-  styleUrls: ['./forecast-project.component.scss']
+  styleUrls: ['./forecast-project.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ForecastVesselComponent implements OnInit {
   public project_name: string;
@@ -28,6 +29,7 @@ export class ForecastVesselComponent implements OnInit {
     rao: null,
     analysis_types: ['Standard']
   }];
+  public providers: MetoceanProvider[];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
@@ -44,6 +46,8 @@ export class ForecastVesselComponent implements OnInit {
   public Marker: google.maps.Marker;
   public Longitude = 'N/a';
   public Lattitude = 'N/a';
+  public is_sample_project = false;
+  public ctv_slip_settings: ForecastCtvSlipSettings;
 
   public NewVessel: ForecastVesselRequest = {
     type: 'NEW',
@@ -54,6 +58,13 @@ export class ForecastVesselComponent implements OnInit {
     gm: NaN,
     rao: null,
     analysis_types: ['Standard']
+  }
+
+  public selectMetoceanSettings = {
+    idField: 'id',
+    textField: 'display_name',
+    singleSelection: true,
+    closeDropDownOnSelection: true,
   }
 
   constructor(
@@ -74,18 +85,16 @@ export class ForecastVesselComponent implements OnInit {
   public get hasCtvSlipSettings() {
     return this.project?.analysis_types?.some(t => t == 'CTV') != null
   }
-  public get ctv_slip_settings() {
-    return this.project?.client_preferences?.Ctv_Slip_Options;
-  }
-  public get is_sample_project() {
-    return !this.permission.admin && (this.project_name == 'Sample_Project')
-  }
 
   ngOnInit() {
     this.initParameter().subscribe(() => {
       if (this.project_name == 'new') return;
       this.loadData();
     });
+    this.newService.getForecastMetoceanProviders().subscribe(_providers => {
+      console.log('provs', _providers)
+      this.providers = _providers;
+    })
   }
   initParameter(): Observable<void> {
     return this.route.params.pipe(
@@ -102,6 +111,12 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
+
+      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project');
+      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project')
+      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project')
+      console.log('this.project', this.project)
+      this.ctv_slip_settings =  this.project?.client_preferences?.Ctv_Slip_Options;
       if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
 
       this.vessels = vessels;
@@ -152,7 +167,7 @@ export class ForecastVesselComponent implements OnInit {
         client_preferences: null,
         consumer_id: null,
         analysis_types: ['Standard'],
-        weather_provider: {
+        metocean_provider: {
           id: 1,
           name: 'test',
           display_name: 'Test 1',
@@ -168,6 +183,7 @@ export class ForecastVesselComponent implements OnInit {
       Slip_Coefficient: 0.6,
       Thrust_Level_N: 100000,
     }
+    this.ctv_slip_settings = this.project.client_preferences.Ctv_Slip_Options;
   }
 
   // ######################

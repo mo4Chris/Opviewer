@@ -16,7 +16,7 @@ export interface ForecastOperation {
   activation_end_date: string;
   client_preferences: ForecastExpectedResponsePreference;
   analysis_types: ForecastAnlysisType[],
-  weather_provider: MetoceanProvider,
+  metocean_provider: MetoceanProvider,
   consumer_id: number;
 }
 
@@ -101,12 +101,13 @@ export interface ForecastExpectedResponsePreference {
   Ops_Heading: number;
   Limits: ForecastMotionLimit[];
   Max_Type: MAX_TYPE;
-  Ctv_Slip_Options: {
-    Window_Length_Seconds: number,
-    Max_Allowed_Slip_Meter: number,
-    Thrust_Level_N: number,
-    Slip_Coefficient: number
-  }
+  Ctv_Slip_Options: ForecastCtvSlipSettings
+}
+export interface ForecastCtvSlipSettings {
+  Window_Length_Seconds: number,
+  Max_Allowed_Slip_Meter: number,
+  Thrust_Level_N: number,
+  Slip_Coefficient: number
 }
 export interface PointOfInterest {
   Name: string;

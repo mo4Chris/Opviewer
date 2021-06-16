@@ -50,6 +50,7 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'xLabel',
       showgrid: false,
       zeroline: false,
+
     },
     yaxis: {
       visible: true,
