@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
+import { intersect } from '@app/models/arrays';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -69,6 +70,24 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get ctvSlipSettings() {
     return this.selectedProject?.client_preferences?.Ctv_Slip_Options;
   }
+  public get weather() {
+    return this?.response?.response?.Points_Of_Interest?.P1?.['MetoceanData'];
+  }
+  public get validWaveTypes () {
+    const ts_len = this.weather?.Time?.length ?? 0;
+    if (ts_len == 0) return [];
+    const wave = this.weather.Wave.Parametric;
+    const validWaveKeys = ['Hs', 'Tp', 'Hmax', 'Tz']
+    return Object.keys(wave).filter(k => wave[k].length == ts_len).filter(intersect(validWaveKeys))
+  }
+  public get validWindTypes () {
+    const ts_len = this.weather?.Time?.length ?? 0;
+    if (ts_len == 0) return [];
+    const wind = this.weather.Wind;
+    console.log('wind', wind)
+    const validWindKeys = ['Speed', 'Gust']
+    return Object.keys(wind).filter(k => wind[k].length == ts_len).filter(intersect(validWindKeys))
+  }
 
   constructor(
     private dateService: DatetimeService,
@@ -96,6 +115,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     return this.selectedProject?.analysis_types?.some(type => type == 'CTV')
   }
 
+  // ##################### Methods #####################
   ngOnChanges(changes: SimpleChanges = {}) {
     if (changes.minForecastDate) this.date = this.minForecastDate;
     if (changes.selectedProjectId) this.onNewSelectedOperation();
@@ -111,7 +131,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
     this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
-
     if (this.hasCtvSlipSettings) {
       const opts = this.ctvSlipSettings;
       if (opts == null) {
@@ -126,7 +145,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
         opts.Window_Length_Seconds = opts.Window_Length_Seconds ?? 60;
       }
     }
-
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
     this.updateOperationTimes()

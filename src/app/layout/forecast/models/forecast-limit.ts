@@ -6,8 +6,8 @@ import { Dof6, DofType } from './forecast-response.model';
   providedIn: 'root'
 })
 export class ForecastMotionLimit {
-  Type: DofType | 'Slip';
-  Dof: Dof6;
+  Type: DofType | 'Slip' | 'Wave' | 'Wind';
+  Dof: Dof6 | WaveType | WindType;
   Value: number;
 
   constructor(
@@ -57,11 +57,32 @@ export class ForecastMotionLimit {
             return 'deg';
         }
       case 'Slip':
-        return '%'
+        return '%';
+      case 'Wave':
+        switch (this.Dof) {
+          case 'Hs':
+            return 'm';
+          case 'Hmax':
+            return 'm';
+          case 'Tp':
+            return 's';
+          case 'Tz':
+            return 's';
+        }
+      case 'Wind':
+        switch (this.Dof) {
+          case 'Speed':
+            return 'm/s';
+          case 'Gust':
+            return 'm/s';
+        }
       default:
         console.error(`Unsupported unit for type ${this.Type} and dof ${this.Dof}`);
         return '';
     }
+  }
+  public get isDofType() {
+    return this.Type == 'Acc' || this.Type == 'Vel' || this.Type == 'Disp';
   }
   private get SimpleUnit() {
     const NiceUnit = this.Unit
@@ -93,3 +114,6 @@ interface ForecastLimitInputs {
   Value: number;
   Unit?: string;
 }
+
+export type WaveType = 'Hs' | 'Hmax' | 'Tp' | 'Tz';
+export type WindType = 'Speed' | 'Gust';
