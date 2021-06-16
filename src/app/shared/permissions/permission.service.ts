@@ -4,8 +4,9 @@ import { UserService } from '../services/user.service';
 
 abstract class PermissionModel {
   admin = false;
-
-  hasCampaigns = undefined; // True iff organization has campaigns
+  demo = false; 
+  
+  hasCampaigns = undefined; // True if organization has campaigns
   dprRead = true;
 
   // Ctv dpr
@@ -99,6 +100,8 @@ export class PermissionService extends PermissionModel {
         return new HseSpecialist();
       case 'Client representative':
         return new ClientRepresentative();
+      case 'demo':
+        return new DemoUser();
       default:
         // If unknown user type, only basic access is provided
         return <any> {};
@@ -149,6 +152,10 @@ class VesselMaster extends PermissionModel {
   sovDprInputWrite = true;
   sovDprInputSign = true;
   sovHseWrite = true;
+}
+
+class DemoUser extends PermissionModel {
+  demo = true;
 }
 
 class MarineController extends PermissionModel {
