@@ -120,7 +120,6 @@ export class Mo4LightComponent implements OnInit {
         }
         throw err;
       })),
-      // this.newService.getCtvForecast()
     ]).subscribe({
       next: ([projects, vessels, responses]) => {
         this.vessels = vessels;

@@ -114,7 +114,7 @@ export class FleetLogComponent implements OnInit {
 
     getUsername(id) {
         if (this.users) {
-            const user = this.users.find(x => x._id === id);
+            const user = this.users.find(x => x.userID === id);
             return user.username;
         } else {
             return id;

@@ -39,7 +39,7 @@
                 <td id=vesselnameValue>{{rd.nicename}}</td>
                 <td *ngIf="permission.admin">{{rd.client}}</td>
                 <td>{{rd.mmsi}}</td>
-                <td *ngIf="permission.admin">{{rd.onHire}}</td>
+                <td *ngIf="permission.admin">{{rd.active}}</td>
                 <td><a id=routeToDpr class="btn rounded-btn" (click)="redirectDailyVesselReport(rd.mmsi)"> Daily Vessel Report </a>
                 </td>
                 <td *ngIf="permission.longterm">

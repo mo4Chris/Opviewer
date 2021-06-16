@@ -140,16 +140,16 @@ export class FleetavailabilityComponent implements OnInit {
                         }
                     }
                 }
-                this.newService.getUserClientById(this.changedUsers, this.turbineWarrenty.client).subscribe((_data: ExtendedUserModel) => {
-                    const changed = [];
-                    this.changedUsers.forEach(function(items, index) {
-                        changed[index] = [];
-                        items.forEach(function(item, ind) {
-                            changed[index][ind] = _data[_data.findIndex(x => x._id === item)];
-                        });
-                    });
-                    this.changedUsers = changed;
-                });
+                // this.newService.getUserClientById(this.changedUsers, this.turbineWarrenty.client).subscribe((_data: ExtendedUserModel) => {
+                //     const changed = [];
+                //     this.changedUsers.forEach(function(items, index) {
+                //         changed[index] = [];
+                //         items.forEach(function(item, ind) {
+                //             changed[index][ind] = _data[_data.findIndex(x => x._id === item)];
+                //         });
+                //     });
+                //     this.changedUsers = changed;
+                // });
             }
             if (init) {
                 this.getAvailableMonths();
