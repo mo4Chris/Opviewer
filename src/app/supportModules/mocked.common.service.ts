@@ -10,6 +10,8 @@ import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 import { Injectable } from '@angular/core';
 import { ForecastExpectedResponsePreference, ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
 import { ForecastMotionLimit } from '@app/layout/forecast/models/forecast-limit';
+import { UserModel } from '@app/models/userModel';
+import { ActivatedRoute } from '@angular/router';
 
 
 const emptyMatlabObject = {
@@ -290,10 +292,19 @@ export class MockedCommonService extends CommonService {
     }));
   }
 
-  getUserByUsername(username: any): Observable<any> {
-    return mockedObservable([
-      UserTestService.getMockedAccessToken()
-    ]);
+  getUserByUsername(username: string) {
+    const user = UserTestService.getMockedAccessToken();
+    const out: UserModel = {
+      userID: '1',
+      username: username ?? user.username,
+      active: true,
+      boats: user.userBoats,
+      client_id: 1,
+      client_name: 'Test',
+      vessel_ids: user.userBoats.map((_, i) => i+1),
+      permission: user.permission,
+    }
+    return mockedObservable([out]);
   }
   checkUserActive(username: string) {
     return mockedObservable(true);
@@ -705,6 +716,31 @@ export class MockedCommonService extends CommonService {
     return mockedObservable('Great Success');
   }
 
+  // User management
+  getVesselNameAndIDById(info: {vessel_ids: number[]} = {vessel_ids: [1]}): Observable<{vessel_id: number, nicename: string}[]> {
+    if (info == null || !Array.isArray(info?.vessel_ids) ) {
+      return mockedObservable([{
+        vessel_id: 1,
+        nicename: 'Test Vessel'
+      }])
+    }
+    return mockedObservable(info.vessel_ids.map(_id => {
+      return {
+        vessel_id: _id,
+        nicename: 'Test Vessel'
+      }
+    }));
+  }
+  getVesselsForClientByUser() {
+    return mockedObservable([{
+      vessel_id: 1,
+      mmsi: demo_vessel.mmsi,
+      nicename: demo_vessel.nicename,
+      active: true,
+      operations_class: demo_vessel.operationsClass
+    }])
+  }
+
   // Mo4-light
   getForecastProjectList(): Observable<any[]> {
     return mockedObservable([{
@@ -817,11 +853,11 @@ export class MockedCommonService extends CommonService {
     };
     //
     const responseObj: ForecastResponseObject = {
+      metocean_id: '2020-11-14T00:55:31.82Z',
       consumer_id: 1,
       id: 1,
       longitude: 10,
       latitude: 20,
-      metocean_id: '2',
       project_id: project_id,
       response: {
         Points_Of_Interest: {
@@ -851,6 +887,25 @@ export const MockedCommonServiceProvider = {
   provide: CommonService,
   useClass: MockedCommonService,
 };
+
+
+// // Mocks the activatedRoute - This does not yet work (unreachable error). I assume the route itself needs to be mocked to.
+// export function mockActivatedRoute({params={}, queryParams={}, snapshot={}}) {
+//   return {
+//     // params: mockedObservable(params),
+//     params: mockedObservable({
+//       get: () => params
+//     })
+//   }
+// }
+
+// export function getMockedActivatedRouteProvider(opts = {}) {
+//   const mock = mockActivatedRoute(opts)
+//   return {
+//     provide: ActivatedRoute,
+//     useClass: mock
+//   }
+// }
 
 
 // Standard html response messages as received from server
@@ -988,4 +1043,25 @@ export interface GeneralForRangeInput {
   mmsi: number | number[];
   vesselType: VesselType;
   projection?: any;
+}
+
+const demo_vessel: VesselModel = {
+  Site: 'Test site',
+  client: ['Client 1'],
+  Operator: 'Dark_Magic_BV',
+  vesselname: 'Dark_magician_boat',
+  nicename: 'Magic boat',
+  mmsi: 123456789,
+  onHire: true,
+  operationsClass: 'CTV',
+  vessel_length: 40,
+  displacement: 20000,
+  dist2bow: 10,
+  isDaughterCraft: false,
+  mothercraft_mmsi: null,
+  Propulsion_type: 'Jets',
+  speednotifylimit: 40,
+  impactnotifylimit: 80000,
+  videoResetDay: 10,
+  videobudget: 100
 }

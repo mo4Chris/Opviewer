@@ -30,27 +30,24 @@ const setPasswordModel = {
   password: passwordValidator,
   confirmPassword: passwordValidator,
   secret2fa: {
-    // in: ['body'],
-    // errorMessage: 'Invalid secret2fa string',
-    // isString: true,
-    // isLength: {
-    //   options: {min: 10}
-    // }
+    in: ['body'],
+    errorMessage: 'Invalid secret2fa string',
+    isString: true,
   },
   confirm2fa: {
-    // in: ['body'],
-    // isString: true,
-    // isLength: {
-    //   errorMessage: 'Confirmation code should be of length 6',
-    //   options: {min: 6, max: 6}
-    // }
+    in: ['body'],
+    isString: true,
+    isLength: {
+      errorMessage: 'Confirmation code should be of length 6',
+      options: {min: 6, max: 6}
+    }
   }
 }
 
 /** @type{Schema} */
 const createDemoUserModel = {
   username: {
-    isEmail: true,
+    isString: true,
   },
   password: passwordValidator,
   requires2fa: {
@@ -59,8 +56,11 @@ const createDemoUserModel = {
   user_type: {
     optional: true,
     equals: {
-      options: 'demo'
+      options: ['demo']
     }
+  },
+  vessel_ids: {
+    optional: true,
   },
   phoneNumber: {
     isString: true
@@ -80,25 +80,86 @@ const createDemoUserModel = {
 /** @type{Schema} */
 const loginModel = {
   username: {
-    isEmail: true,
+    isString: true,
     trim: true,
+    normalizeEmail: true,
     in: ['body'],
   },
   password: {
     isString: true,
     in: ['body'],
+    isLength: {
+      options: {
+        min: 6
+      }
+    }
   },
   confirm2fa: {
     in: ['body'],
-    optional: true
+    optional: true,
+    errorMessage: 'Confirm 2fa message should be of length 6',
+    custom: {
+      options: (value) => {
+        const is_null = value == null || value == '';
+        const is_valid = typeof(value) == 'string' && value.length == 6;
+        return is_null || is_valid;
+      }
+    }
   }
 }
 // body('username').trim().isString(),
 //     body('password').trim().isString(),
 //     body('confirm2fa')
 
+
+/** @type{Schema} */
+const updateUserSettingsModel = {
+  unit: {
+    errorMessage: 'Unit must provided as object',
+    isObject: true
+  },
+  dpr: {
+    errorMessage: 'DPR must provided as object',
+    // isObject: true // Can currently be null
+  },
+  longterm: {
+    errorMessage: 'Longterm must provided as object',
+    isObject: true
+  },
+  weather_chart: {
+    errorMessage: 'Weather chart settings must provided as object',
+    isObject: true
+  },
+  "timezone.type": {
+    isString: true,
+  },
+  "timezone.fixedTimeZoneOffset": {
+    isNumeric: true,
+  },
+  "timezone.fixedTimeZoneLoc": {
+    isString: true,
+  },
+}
+
+
+/** @type{Schema} */
+const updateUserPermissionsModel = {
+  permission: {
+    isObject: true,
+  },
+  userCompany: {
+    isString: true,
+  },
+  boats: {
+    isArray: true,
+  }
+}
+
+
 module.exports = {
   setPasswordModel,
   createDemoUserModel,
   loginModel,
+  updateUserSettingsModel,
+  updateUserPermissionsModel,
 }
