@@ -357,6 +357,10 @@ export class CommonService {
     return this.post('/api/sendFeedback/', feedback);
   }
 
+  requestFullAccount() {
+    return this.get('/api/requestFullAccount/');
+  }
+
   getSovInfo(vessel: VesselObjectModel) {
     return this.post('/api/getSovInfo/', vessel);
   }

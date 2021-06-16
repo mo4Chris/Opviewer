@@ -274,6 +274,20 @@ module.exports = function (
     res.send({ data: 'Feedback has been sent', status: 200 });
   });
 
+  app.get("/api/requestFullAccount", function(req, res) {
+    const token = req['token'];
+    const user = token['username'];
+    logger.info({
+      msg: 'Full account requested',
+      user: user,
+    })
+    const html = `A full account has been requested by demo user: ${user} <br><br>
+      Please contact this user to help set up a full account.`;
+    const WEBMASTER_MAIL = process.env.WEBMASTER_MAIL;
+    mailTo('Full account request', html, WEBMASTER_MAIL);
+    res.send({ data: 'Full account has been requested', status: 200 });
+  });
+
   app.get('/api/loadUserSettings', function(req, res) {
     const token = req['token']
     const user_id = token['userID']

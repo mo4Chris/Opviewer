@@ -90,6 +90,24 @@ export class HeaderComponent implements OnInit {
     this.closeModal();
   }
 
+  requestFullAccount() {
+    this.newService.requestFullAccount().subscribe(data =>  {
+      if (data.status === 200) {
+        this.alert.sendAlert({
+          text: 'Full account requested!',
+          type: 'success'
+        });
+      } else {
+        this.alert.sendAlert({
+          text: 'Request has not been sent, please try again later',
+          type: 'danger'
+        });
+      }
+    });
+
+    this.closeModal();
+  }
+
   closeModal() {
     this.modalReference.close();
   }

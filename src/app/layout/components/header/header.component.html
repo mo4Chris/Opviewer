@@ -36,16 +36,19 @@
 
     <ng-template #requestUser let-modal>
         <div class="modal-header">
-            <h4 class="modal-title">Feedback form</h4>
+            <h4 class="modal-title">Request full account</h4>
             <button type="button" class="close" aria-label="Close" (click)="closeModal()">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
-            
+            <b>Are you sure you want to request a full account?</b> <br><br>
+            When you request a full account, a MO4 employee will contact you on the email address or phone number used to register your demo account.
+            The employee will then discuss all possibilities MO4 has to offer.
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" (click)="sendFeedback()">Submit feedback</button>
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Dismiss</button>
+            <button type="button" class="btn btn-success" (click)="requestFullAccount()">Request full account</button>
         </div>
     </ng-template>
 
