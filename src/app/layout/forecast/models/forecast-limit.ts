@@ -108,9 +108,9 @@ export class ForecastMotionLimit {
   }
 }
 
-interface ForecastLimitInputs {
-  Type: DofType | 'Slip';
-  Dof: Dof6;
+export interface ForecastLimitInputs {
+  Type: DofType | 'Slip' | 'Wave' | 'Wind';
+  Dof: Dof6 | WaveType | WindType;
   Value: number;
   Unit?: string;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
-import { ForecastMotionLimit } from './forecast-limit';
+import { ForecastMotionLimit, WaveType, WindType } from './forecast-limit';
 import { Dof6, Dof6Array, DofType, ForecastOperation } from './forecast-response.model';
 
 
@@ -18,7 +18,7 @@ export class ForecastResponseService {
   ) {
   }
 
-  computeLimit(response: Dof6Array, limiter: Dof6, limitValue: number): Matrix {
+  computeLimit(response: Dof6Array, limiter: Dof6 | WaveType | WindType, limitValue: number): Matrix {
     const dofIndex = DOF_INDICES[limiter];
     return response.map(row => {
       return row.map(elt => {
