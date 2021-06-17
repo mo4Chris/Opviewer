@@ -30,6 +30,7 @@ export class ForecastVesselComponent implements OnInit {
     rao: null,
     analysis_types: ['Standard']
   }];
+
   public providers: MetoceanProvider[];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
@@ -85,7 +86,8 @@ export class ForecastVesselComponent implements OnInit {
     return Boolean(this.SelectedVessel);
   }
   public get hasCtvSlipSettings() {
-    return this.project?.analysis_types?.some(t => t == 'CTV') != null
+    const types = this.project?.analysis_types;
+    return Array.isArray(types) && types.some(t => t == 'CTV');
   }
 
   ngOnInit() {
@@ -112,7 +114,6 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
-
       this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project');
       this.ctv_slip_settings =  this.project?.client_preferences?.Ctv_Slip_Options;
       if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
@@ -121,6 +122,7 @@ export class ForecastVesselComponent implements OnInit {
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
+      this.ref.detectChanges()
     });
   }
 
