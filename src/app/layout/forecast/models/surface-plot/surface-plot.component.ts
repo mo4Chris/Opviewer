@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
+import { PlotlySupportService } from '@app/supportModules/plotly.support.service';
 
 @Component({
   selector: 'app-surface-plot',
@@ -34,7 +35,8 @@ export class SurfacePlotComponent implements OnChanges {
 
   constructor(
     private calcService: CalculationService,
-    private matService: MatrixService
+    private matService: MatrixService,
+    private plotlyService: PlotlySupportService
   ) {
     // this.initTestData();
   }
@@ -134,10 +136,9 @@ export class SurfacePlotComponent implements OnChanges {
     })
   }
 
+
   private setXLimits() {
-    const xmin = Math.min(...(<number[]> this.xData));
-    const xmax = Math.max(...(<number[]> this.xData));
-    this.PlotLayout.xaxis['range'] = [xmin, xmax];
+    this.plotlyService.setXLimits(this.xData, this.PlotLayout);
   }
 }
 

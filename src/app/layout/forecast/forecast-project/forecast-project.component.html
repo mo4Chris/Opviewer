@@ -130,11 +130,11 @@
                 </select>
               </th>
             </tr>
-            <tr *ngIf="SelectedVessel?.analysis_types" >
+            <tr *ngIf="SelectedVessel?.analysis_types && project?.analysis_types" >
               <td>Analysis types</td>
               <td colspan="3">
                 <ng-multiselect-dropdown name="selectAnlysisTypes" class="multiSelectDiv"
-                  placeholder="Select analysis types" [settings]="selectAnalysisTypeSettings"
+                  placeholder="Select analysis types" [settings]="thisNeedsToBeHere"
                   [data]="SelectedVessel.analysis_types" [(ngModel)]="project.analysis_types">
                 </ng-multiselect-dropdown>
               </td>

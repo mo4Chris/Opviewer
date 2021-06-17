@@ -228,7 +228,8 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     const hours = date.getUTCHours().toString().padStart(2, '0');
     const mins  = date.getUTCMinutes().toString().padStart(2, '0');
     const month = DatetimeService.shortMonths[date.getUTCMonth()];
-    return `${month} ${date.getUTCDate()}, ${hours}:${mins}`;
+    const utc_date = date.getUTCDate()
+    return `${month} ${utc_date}, ${hours}:${mins}`;
   }
 
   dateToDateString(date: Date) {

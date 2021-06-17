@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
+import { intersect } from '@app/models/arrays';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -9,7 +10,7 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastAnlysisType, ForecastCtvSlipSettings, ForecastOperation, MetoceanProvider, PointOfInterest } from '../models/forecast-response.model';
+import { ForecastAnalysisType, ForecastCtvSlipSettings, ForecastOperation, MetoceanProvider, PointOfInterest } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-project',
@@ -29,6 +30,7 @@ export class ForecastVesselComponent implements OnInit {
     rao: null,
     analysis_types: ['Standard']
   }];
+
   public providers: MetoceanProvider[];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
@@ -76,6 +78,7 @@ export class ForecastVesselComponent implements OnInit {
     private dateService: DatetimeService,
     public permission: PermissionService,
     public gps: GpsService,
+    private ref: ChangeDetectorRef
   ) {
   }
 
@@ -83,7 +86,8 @@ export class ForecastVesselComponent implements OnInit {
     return Boolean(this.SelectedVessel);
   }
   public get hasCtvSlipSettings() {
-    return this.project?.analysis_types?.some(t => t == 'CTV') != null
+    const types = this.project?.analysis_types;
+    return Array.isArray(types) && types.some(t => t == 'CTV');
   }
 
   ngOnInit() {
@@ -92,7 +96,6 @@ export class ForecastVesselComponent implements OnInit {
       this.loadData();
     });
     this.newService.getForecastMetoceanProviders().subscribe(_providers => {
-      console.log('provs', _providers)
       this.providers = _providers;
     })
   }
@@ -111,11 +114,7 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
-
       this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project');
-      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project')
-      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project')
-      console.log('this.project', this.project)
       this.ctv_slip_settings =  this.project?.client_preferences?.Ctv_Slip_Options;
       if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
 
@@ -123,6 +122,7 @@ export class ForecastVesselComponent implements OnInit {
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
+      this.ref.detectChanges()
     });
   }
 
@@ -143,6 +143,7 @@ export class ForecastVesselComponent implements OnInit {
       this.POI.Z.Unit = 'm';
     }
     this.updateMarker();
+    this.ref.detectChanges()
   }
   private initNewProject() {
     if (!this.permission.forecastCreateProject) {
@@ -233,8 +234,8 @@ export class ForecastVesselComponent implements OnInit {
     });
   }
   public onSelectedVesselChange() {
-    this.project.analysis_types = this.project.analysis_types.filter(t => (this.SelectedVessel as ForecastVesselRequest).analysis_types.some(__t => __t == t));
-    console.log('this.project.analysis_types', this.project.analysis_types)
+    const supported_analysis_types = (this.SelectedVessel as ForecastVesselRequest).analysis_types;
+    this.project.analysis_types = this.project.analysis_types.filter(intersect(supported_analysis_types));
   }
 
   public roundNumber(num: number, dec = 10000, addString?: string) {
@@ -252,5 +253,5 @@ export interface ForecastVesselRequest {
   draft: number;
   gm: number;
   rao?: any;
-  analysis_types: ForecastAnlysisType[];
+  analysis_types: ForecastAnalysisType[];
 }

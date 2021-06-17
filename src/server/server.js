@@ -23,8 +23,8 @@ var weather = require('./models/weather.js')
 //########## These can be configured via stdin ############
 //#########################################################
 const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online'
-const SERVER_PORT     = args.SERVER_PORT    ?? 8080;
+const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online';
+const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT            ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
 const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'debug'
 
@@ -384,28 +384,6 @@ app.get("/api/getActiveConnections", function(req, res) {
   });
 })
 
-app.post("/api/saveVessel", function (req, res) {
-  return onError(res, new Error('Not supported'), 'Function not supported')
-  // var vessel = new model(req.body);
-  // const token = req['token']
-  // if (req.body.mode === "Save") {
-  //   const is_admin = token.permission.admin;
-  //   const is_
-  //   if (token.userPermission !== "admin" && token.userPermission !== "Logistics specialist")  return onUnauthorized(res);
-
-  //   vessel.save(function (err, data) {
-  //     if (err) return onError(res, err);
-  //     res.send({ data: "Record has been Inserted..!!" });
-  //   });
-  // } else {
-  //   if (token.userPermission !== "admin") return onUnauthorized(res);
-  //   Vesselmodel.findByIdAndUpdate(req.body.id, { name: req.body.name, address: req.body.address }, function (err, data) {
-  //     if (err) return onError(res, err);
-  //     res.send({ data: "Record has been Updated..!!" });
-  //   });
-  // }
-});
-
 
 app.post("/api/saveTransfer", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -521,6 +499,7 @@ app.get("/api/getVessel", function(req, res) {
     ).catch(err => onError(res,err));
 });
 
+
 async function getVesselsForUser (req, res) {
   const token = req['token'];
 
@@ -531,53 +510,130 @@ async function getVesselsForUser (req, res) {
 
 async function getVesselsForAdmin(token, res) {
   if (!token.permission.admin) throw new Error('Unauthorized user, Admin only');
-  return Vesselmodel.find({
-    active: { $ne: false }
-  }, null, {
-    sort: {
-      client: 'asc',
-      nicename: 'asc'
-    }
+  let vessels = [];
+  let PgQuery = `
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."client_ids",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"`;
+
+  vessels = await admin_server_pool.query(PgQuery).then(sql_response => {
+    const response =  sql_response.rows;
+    return response;
   });
 
+  const PgQueryClients = `select  u."mmsi", array_agg(c."client_name")
+  from (
+    select "vesselTable"."mmsi" mmsi, unnest("vesselTable"."client_ids") id
+    from "vesselTable"
+  ) u
+  join "clientTable" c on c."client_id" = u.id
+  group by 1`
+
+  return await admin_server_pool.query(PgQueryClients).then(sql_client_response => {
+    let vesselList = [];
+    vessels.forEach(vessel => {
+      const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
+      vessel.client = clientsArray.array_agg;
+      vesselList.push(vessel);
+    });
+    return vesselList;
+  });
 }
 
 async function getAllVesselsForClient(token, res) {
   if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
   //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
   if (token.userCompany == 'MO4') token.userCompany = 'BMO'
-  return Vesselmodel.find({
-    active: { $ne: false },
-    client: token.userCompany
-  },null,{
-    sort: {
-      client: 'asc',
-      nicename: 'asc'
-    }
+
+  let PgQuery = `
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."client_ids",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+
+  const values = [token.client_id];
+
+  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows;
   });
 }
 
 async function getAssignedVessels(token, res) {
   logger.debug('Getting assigned vessels')
   let PgQuery = `
-  SELECT "vesselTable"."mmsi"
+  SELECT "vesselTable"."mmsi",
+  "vesselTable"."mmsi",
+  "vesselTable".nicename,
+  "vesselTable"."client_ids",
+  "vesselTable"."active",
+  "vesselTable"."operations_class"
     FROM "vesselTable"
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
-  const data = await admin_server_pool.query(PgQuery, values)
-  if (data.rowCount == 0) return null;
-  const finalArray = data.rows.map(obj => obj.mmsi);
+  return await admin_server_pool.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows;
+  })
+}
 
-  return Vesselmodel.find({
-    active: { $ne: false },
-    mmsi: {$in: finalArray}
-  }, null, {
-    sort: {
-      client: 'asc',
-      nicename: 'asc'
-    }
+app.get("/api/getVesselsForClientByUser/:username", function(req, res) {
+  const username = req.params.username;
+  getAllVesselsForClientByUsername(req, res, username).then(response => {
+    res.send(response)
+  }).catch(err => onError(res,err));
+});
+
+app.post("/api/getVesselNameAndIDById", function(req, res) {
+  const vessel_ids = req.body.vessel_ids;
+  const PgQuery = `SELECT vessel_id, nicename
+  FROM "vesselTable"
+  WHERE "vesselTable"."vessel_id" =ANY($1)`;
+  const values = [vessel_ids];
+
+  admin_server_pool.query(PgQuery, values).then(sql_response => {
+    res.send(sql_response.rows);
+  });
+});
+
+async function getAllVesselsForClientByUsername(req, res, username) {
+  const token = req['token'];
+
+  if (!token.permission.user_see_all_vessels_client) throw new Error('Unauthorized user, not allowed to see all vessels');
+  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
+  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
+
+  let PgQueryClientID = `
+    SELECT "client_id"
+    FROM "userTable"
+    WHERE "username"= $1
+  `;
+
+  const clientIDValues = [username];
+  const clientID = await admin_server_pool.query(PgQueryClientID, clientIDValues).then(sql_response => {
+    return sql_response.rows[0].client_id;
+  });
+
+  let PgQuery = `
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."vessel_id",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+  const values = [clientID];
+  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows;
   });
 }
 
@@ -673,6 +729,7 @@ app.post("/api/updateSovRovOperations", function(req, res) {
 app.get("/api/getEnginedata/:mmsi/:date", function(req, res) {
   let mmsi = parseInt(req.params.mmsi);
   let date = req.params.date;
+
   validatePermissionToViewVesselData(req, res, function(validated) {
     ctv.EngineDataModel.find({
       mmsi: mmsi,
