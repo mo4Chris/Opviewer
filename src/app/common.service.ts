@@ -490,7 +490,9 @@ export class CommonService {
         water_depth: project.water_depth,
         vessel_id: project.vessel_id,
         client_preferences: project.client_preferences,
-        maximum_duration: project.maximum_duration
+        maximum_duration: project.maximum_duration,
+        analysis_types: project.analysis_types,
+        metocean_provider: project.metocean_provider,
       }
     });
   }
