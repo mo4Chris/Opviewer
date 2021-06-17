@@ -23,7 +23,6 @@ module.exports = (app, GET, POST) => {
     })
 
     describe('create new user', () => {
-
       it('successfully - admin', async () => {
         mock.jsonWebToken(app, {
           userID: 1,

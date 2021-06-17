@@ -197,7 +197,9 @@ function onError(res, err, additionalInfo = 'Internal server error') {
 
 function onBadRequest(res, cause = 'Bad request') {
   if (typeof cause == 'object' && cause['errors'] != null) {
-    cause = `Invalid param '${cause['errors']?.[0]?.['param'] ?? 'unknown'}'`
+    const param = cause['errors']?.[0]?.['param'] ?? 'unknown';
+    const msg = cause['errors']?.[0]?.['msg'] ?? 'unknown issue';
+    cause = `Invalid value for "${param}": ${msg}`;
   }
 
   logger.trace('Performing onBadRequest')
@@ -212,7 +214,7 @@ function onBadRequest(res, cause = 'Bad request') {
   if (cause == 'Bad request') {
     res.status(400).send('Bad request')
   } else {
-    res.status(400).send(`Bad request: ${cause}`)
+    res.status(400).send(cause)
   }
 }
 

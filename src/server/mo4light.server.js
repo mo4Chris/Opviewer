@@ -25,6 +25,13 @@ function log(message) {
   console.log(`${ts}: ${message}`)
 }
 
+// ################### Constants #######################
+const SHARED_DEMO_PROJECT_NAME = 'Sample_Project'
+
+
+
+
+// ################### API endpoints ###################
 /**
  * Server file with all the secure endpoints to the azure hydro API
  *
@@ -207,13 +214,14 @@ module.exports = function(app, logger, admin_server_pool) {
 
     const token = req['token'];
     const is_admin = token.permission.admin;
-    const is_demo = token.permission.demo;
+    console.log('is_admin', is_admin)
+    console.log('project_name == SHARED_DEMO_PROJECT_NAME', project_name == SHARED_DEMO_PROJECT_NAME)
 
-    if (project_name == 'Sample_Project' && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
-    if (is_demo && token)
+    if (project_name == SHARED_DEMO_PROJECT_NAME && !is_admin) return res.onUnauthorized('Only admin can make changes sample project')
 
     localLogger.info('Getting project')
     const html_response = await pg_get('/project/' + project_name);
+    localLogger.debug('Received HTML response')
     const updated_project = html_response.data;
     if (!checkProjectPermission(token, updated_project)) return res.onUnauthorized()
 
@@ -314,8 +322,10 @@ module.exports = function(app, logger, admin_server_pool) {
   }
 
   function checkProjectPermission(userToken, project) {
+    logger.debug('Checking user permissions')
     const perm = userToken?.permission
     if (perm.admin) return true;
+    if (perm.demo && project.id == userToken.demo_project_id) return true;
     return perm?.forecast.read
       && project.client_id == userToken.client_id
   }

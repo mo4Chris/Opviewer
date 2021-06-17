@@ -79,7 +79,7 @@ module.exports = function (
     checkSchema(models.createDemoUserModel),
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.onBadRequest(errors);
+    if (!errors.isEmpty()) return res['onBadRequest'](errors);
 
     const username = req.body.username;
     const password = req.body.password;
@@ -220,7 +220,8 @@ module.exports = function (
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
     "clientTable"."client_name", "user_type", "admin", "user_read", "demo",
-    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client", "userTable"."client_id"
+    "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client",
+    "userTable"."client_id", "userTable"."demo_project_id"
     FROM "userTable"
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
@@ -255,6 +256,7 @@ module.exports = function (
         username: user.username,
         client_id: user.client_id,
         forecast_client_id: forecast_client_id,
+        demo_project_id: user.demo_project_id,
         permission: {
           admin: user.admin,
           user_read: user.user_read,
