@@ -84,7 +84,6 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const ts_len = this.weather?.Time?.length ?? 0;
     if (ts_len == 0) return [];
     const wind = this.weather.Wind;
-    console.log('wind', wind)
     const validWindKeys = ['Speed', 'Gust']
     return Object.keys(wind).filter(k => wind[k].length == ts_len).filter(intersect(validWindKeys))
   }
@@ -212,6 +211,11 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public onConfirm () {
     // if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
+
+    if (this.limits.some(_limit => !_limit.isValid)) return this.alert.sendAlert({
+      text: 'At least one limit is wrongly configured!',
+      type: 'warning',
+    });
     this.heading = Math.max(Math.min(this.heading, 360), 0);
     this.onChange.emit({
       startTime: this.startTime,

@@ -6,7 +6,7 @@ import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse } from '../models/forecast-response.model';
+import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse, Dof6 } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
 import { RawSpectralData, RawWaveData } from '@app/models/wavedataModel';
@@ -211,12 +211,19 @@ export class Mo4LightComponent implements OnInit {
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
     const response = this.response['Response']
+    const metocean = this.response['MetoceanData'];
     const limiters = this.limits.map(limit => {
       switch (limit.Type) {
         case 'Slip':
           return this.matService.scale(this.SlipProbability, 1/limit.Value);
+        case 'Wave':
+          const wave: number[] = metocean.Wave.Parametric[limit.Dof];
+          return wave.map(w => this.WorkabilityHeadings.map(_ => w / limit.Value));
+        case 'Wind':
+          const wind: number[] = metocean.Wind[limit.Dof];
+          return wind.map(w => this.WorkabilityHeadings.map(_ => w / limit.Value));
         default:
-          return this.responseService.computeLimit(response[limit.Type], limit.Dof, limit.Value);
+          return this.responseService.computeLimit(response[limit.Type], limit.Dof as Dof6, limit.Value);
       }
     });
     this.Workability = this.matService.scale(

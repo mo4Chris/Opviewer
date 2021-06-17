@@ -18,7 +18,7 @@ export class ForecastResponseService {
   ) {
   }
 
-  computeLimit(response: Dof6Array, limiter: Dof6 | WaveType | WindType, limitValue: number): Matrix {
+  computeLimit(response: Dof6Array, limiter: Dof6, limitValue: number): Matrix {
     const dofIndex = DOF_INDICES[limiter];
     return response.map(row => {
       return row.map(elt => {

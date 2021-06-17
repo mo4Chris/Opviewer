@@ -175,18 +175,24 @@
             </select>
           </td>
           <td class="tight">
-            <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
-              [disabled]="limit.Type == 'Slip'">
-              <option *ngIf="limit.isDofType" value="Surge">Surge</option>
-              <option *ngIf="limit.isDofType" value="Sway">Sway</option>
-              <option *ngIf="limit.isDofType" value="Heave">Heave</option>
-              <option *ngIf="limit.isDofType" value="Roll">Roll</option>
-              <option *ngIf="limit.isDofType" value="Pitch">Pitch</option>
-              <option *ngIf="limit.isDofType" value="Yaw">Yaw</option>
+            <select *ngIf="limit.isDofType" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+              <option value="Surge">Surge</option>
+              <option value="Sway">Sway</option>
+              <option value="Heave">Heave</option>
+              <option value="Roll">Roll</option>
+              <option value="Pitch">Pitch</option>
+              <option value="Yaw">Yaw</option>
+            </select>
 
-              <ng-container *ngIf="limit.Type == 'Wave'">
-                <option *ngFor="let _wave of validWaveTypes" value="_wave">_wave</option>
-              </ng-container>
+            <select *ngIf="limit.Type == 'Wave'" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+              <option *ngFor="let _wave of validWaveTypes" [value]="_wave">{{_wave}}</option>
+            </select>
+
+            <select *ngIf="limit.Type == 'Wind'" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+              <option *ngFor="let _wave of validWindTypes" [value]="_wind">{{_wind}}</option>
             </select>
           </td>
           <td class="tight">
@@ -199,8 +205,6 @@
             </div>
           </td>
         </tr>
-        <tr><td colspan="3">{{validWaveTypes}}</td></tr>
-        <tr><td colspan="3">{{validWindTypes}}</td></tr>
         <tr>
           <td colspan=3 *ngIf="permission.forecastChangeLimits">
             <div [ngbTooltip]="addLimitsTooltip">

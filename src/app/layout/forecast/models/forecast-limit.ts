@@ -84,6 +84,21 @@ export class ForecastMotionLimit {
   public get isDofType() {
     return this.Type == 'Acc' || this.Type == 'Vel' || this.Type == 'Disp';
   }
+  public get isValid() {
+    if (!(this.Value > 0)) return false;
+    switch (this.Type) {
+      case 'Acc': case 'Disp': case 'Vel':
+        return ['Heave', 'Roll', 'Pitch', 'Yaw', 'Sway', 'Surge'].some(o => o == this.Dof)
+      case 'Wave':
+        return ['Hs', 'Tp', 'Tz', 'Hmax'].some(o => o == this.Dof)
+      case 'Wind':
+        return ['Speed', 'Gust'].some(o => o == this.Dof)
+      case 'Slip':
+        return true;
+      default:
+        return false;
+    }
+  }
   private get SimpleUnit() {
     const NiceUnit = this.Unit
     switch (NiceUnit) {
