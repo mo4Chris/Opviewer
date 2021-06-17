@@ -1,6 +1,7 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
+import { intersect } from '@app/models/arrays';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -9,12 +10,13 @@ import { GpsService } from '@app/supportModules/gps.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ForecastOperation, PointOfInterest } from '../models/forecast-response.model';
+import { ForecastAnalysisType, ForecastCtvSlipSettings, ForecastOperation, MetoceanProvider, PointOfInterest } from '../models/forecast-response.model';
 
 @Component({
   selector: 'app-forecast-project',
   templateUrl: './forecast-project.component.html',
-  styleUrls: ['./forecast-project.component.scss']
+  styleUrls: ['./forecast-project.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ForecastVesselComponent implements OnInit {
   public project_name: string;
@@ -25,8 +27,11 @@ export class ForecastVesselComponent implements OnInit {
     width: 12.4,
     draft: 3.01,
     gm: 4.56789,
-    rao: null
+    rao: null,
+    analysis_types: ['Standard']
   }];
+
+  public providers: MetoceanProvider[];
   public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
@@ -43,6 +48,8 @@ export class ForecastVesselComponent implements OnInit {
   public Marker: google.maps.Marker;
   public Longitude = 'N/a';
   public Lattitude = 'N/a';
+  public is_sample_project = false;
+  public ctv_slip_settings: ForecastCtvSlipSettings;
 
   public NewVessel: ForecastVesselRequest = {
     type: 'NEW',
@@ -52,6 +59,14 @@ export class ForecastVesselComponent implements OnInit {
     draft: NaN,
     gm: NaN,
     rao: null,
+    analysis_types: ['Standard']
+  }
+
+  public selectMetoceanSettings = {
+    idField: 'id',
+    textField: 'display_name',
+    singleSelection: true,
+    closeDropDownOnSelection: true,
   }
 
   constructor(
@@ -63,17 +78,16 @@ export class ForecastVesselComponent implements OnInit {
     private dateService: DatetimeService,
     public permission: PermissionService,
     public gps: GpsService,
+    private ref: ChangeDetectorRef
   ) {
   }
 
   public get projectReady() {
     return Boolean(this.SelectedVessel);
   }
-  public get ctv_slip_settings() {
-    return this.project?.client_preferences?.Ctv_Slip_Options;
-  }
-  public get is_sample_project() {
-    return !this.permission.admin && (this.project_name == 'Sample_Project')
+  public get hasCtvSlipSettings() {
+    const types = this.project?.analysis_types;
+    return Array.isArray(types) && types.some(t => t == 'CTV');
   }
 
   ngOnInit() {
@@ -81,6 +95,9 @@ export class ForecastVesselComponent implements OnInit {
       if (this.project_name == 'new') return;
       this.loadData();
     });
+    this.newService.getForecastMetoceanProviders().subscribe(_providers => {
+      this.providers = _providers;
+    })
   }
   initParameter(): Observable<void> {
     return this.route.params.pipe(
@@ -97,12 +114,19 @@ export class ForecastVesselComponent implements OnInit {
       this.newService.getForecastVesselList(),
     ]).subscribe(([_project, vessels]) => {
       this.project = _project[0];
+      this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project');
+      this.ctv_slip_settings =  this.project?.client_preferences?.Ctv_Slip_Options;
+      if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
+
       this.vessels = vessels;
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
+      this.ref.detectChanges()
     });
   }
+
+  // ####################
   private onLoaded() {
     this.contractStartDateString = this.dateService.isoStringToDmyString(this.project.activation_start_date);
     this.contractEndDateString = this.dateService.isoStringToDmyString(this.project.activation_end_date);
@@ -119,12 +143,14 @@ export class ForecastVesselComponent implements OnInit {
       this.POI.Z.Unit = 'm';
     }
     this.updateMarker();
+    this.ref.detectChanges()
   }
   private initNewProject() {
     if (!this.permission.forecastCreateProject) {
       this.alert.sendAlert({text: 'You do not have permission to create projects', 'type': 'danger'})
       return this.routeService.routeToForecast();
     }
+    throw Error('Not yet implemented!')
     this.newService.getForecastVesselList().subscribe(vessels => {
       this.vessels = vessels;
       this.project = {
@@ -141,10 +167,27 @@ export class ForecastVesselComponent implements OnInit {
         client_id: null,
         client_preferences: null,
         consumer_id: null,
+        analysis_types: ['Standard'],
+        metocean_provider: {
+          id: 1,
+          name: 'test',
+          display_name: 'Test 1',
+          is_active: true,
+        }
       };
     });
   }
+  private initCtvSlipSettings() {
+    this.project.client_preferences.Ctv_Slip_Options = {
+      Max_Allowed_Slip_Meter: 0.60,
+      Window_Length_Seconds: 180,
+      Slip_Coefficient: 0.6,
+      Thrust_Level_N: 100000,
+    }
+    this.ctv_slip_settings = this.project.client_preferences.Ctv_Slip_Options;
+  }
 
+  // ######################
   public onMapReady(map: google.maps.Map) {
     this.Marker = new google.maps.Marker({
       position: {
@@ -190,6 +233,10 @@ export class ForecastVesselComponent implements OnInit {
       lng: this.project.longitude,
     });
   }
+  public onSelectedVesselChange() {
+    const supported_analysis_types = (this.SelectedVessel as ForecastVesselRequest).analysis_types;
+    this.project.analysis_types = this.project.analysis_types.filter(intersect(supported_analysis_types));
+  }
 
   public roundNumber(num: number, dec = 10000, addString?: string) {
     return this.calcService.roundNumber(num, dec, addString);
@@ -205,5 +252,6 @@ export interface ForecastVesselRequest {
   width: number;
   draft: number;
   gm: number;
-  rao: any;
+  rao?: any;
+  analysis_types: ForecastAnalysisType[];
 }

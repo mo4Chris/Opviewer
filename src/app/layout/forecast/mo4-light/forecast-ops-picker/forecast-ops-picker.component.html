@@ -1,202 +1,231 @@
-<table *ngIf="hasSelectedOperation" class="table table-hover table-striped">
-  <thead>
-    <tr>
-      <th class="hover-35">
-        Selected project:
-      </th>
-      <th colspan="2">
-        <select id="selectOperation" [(ngModel)]="selectedProjectId" (change)="onOpsChange()"
-        class="input form-control form-control-md">
-          <option [ngValue]="op.id" *ngFor="let op of projects">{{op.nicename}}</option>
-        </select>
-      </th>
-    </tr>
-  </thead>
+<table class="table table-hover table-striped" width="100%">
   <tbody>
-    <tr>
-      <td>Vessel</td>
-        <td colspan="2">{{selectedVesselName}}</td>
-    </tr>
-    <tr>
-      <td><div [ngbTooltip]="helpLastUpdate">Last update</div></td>
-      <td colspan="2">{{lastUpdated}}</td>
-    </tr>
-    <tr>
-      <td>Location</td>
-      <td colspan="2">{{gps.formatLat(response?.latitude)}}, {{gps.formatLng(response?.longitude)}}</td>
-    </tr>
-    <tr>
-      <td>Slip window length</td>
-      <td colspan="2">
-        <div class="input-group">
-          <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Window_Length_Seconds" disabled>
-          <div class="input-group-append tight">
-            <span class="input-group-text">s</span>
+  <ngb-accordion *ngIf="hasSelectedOperation" [closeOthers]="true" activeIds="project-overview" width="100%" height="1000px">
+    <ngb-panel title="Project overview" id="project-overview">
+      <ng-template ngbPanelContent>
+        <tr>
+          <td class="hover-35">
+            Selected project:
+          </td>
+          <td colspan="2">
+            <select id="selectOperation" [(ngModel)]="selectedProjectId" (change)="onOpsChange()"
+            class="input form-control form-control-md">
+              <option [ngValue]="op.id" *ngFor="let op of projects">{{op.nicename}}</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Vessel</td>
+            <td colspan="2">{{selectedVesselName}}</td>
+        </tr>
+        <tr>
+          <td>Location</td>
+          <td colspan="2">{{gps.formatLat(response?.latitude)}}, {{gps.formatLng(response?.longitude)}}</td>
+        </tr>
+      </ng-template>
+    </ngb-panel>
+
+    <ngb-panel title="Response details" id="response-overview">
+      <ng-template ngbPanelContent>
+          <tr>
+            <td><div>Metocean provider</div></td>
+            <td colspan="2">{{selectedProject.metocean_provider.display_name}}</td>
+          </tr>
+          <tr>
+            <td><div [ngbTooltip]="helpLastUpdate">Simulation time</div></td>
+            <td colspan="2">{{lastUpdated}}</td>
+          </tr>
+      </ng-template>
+    </ngb-panel>
+
+    <ngb-panel *ngIf="hasCtvSlipSettings" title="Ctv slip settings" id="ctv-settings">
+      <ng-template ngbPanelContent width="100%">
+        <tr>
+          <td>
+            <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
+          </td>
+          <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
+            <td>
+              <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
+                [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)"
+                step="0.05" [(ngModel)]="slipValue" (change)="onSlipCoefChange()" >
+            </td>
+            <td>{{slipValue}}</td>
+          </ng-container>
+        </tr>
+        <tr>
+          <td>
+            <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
+          </td>
+          <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
+            <td>
+              <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
+                [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length-1], 100)"
+                step="10000" [(ngModel)]="thrustValue" (change)="onThrustIndexChange()" >
+            </td>
+            <td *ngIf="slipThrustLevels?.length > 0">{{formatThrust(thrustValue)}}</td>
+          </ng-container>
+        </tr>
+
+        <tr>
+          <td>Slip window length</td>
+          <td colspan="2">
+            <div class="input-group">
+              <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Window_Length_Seconds" disabled>
+              <div class="input-group-append tight">
+                <span class="input-group-text">s</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Max allowed slip</td>
+          <td colspan="2">
+            <div class="input-group">
+              <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Max_Allowed_Slip_Meter" disabled>
+              <div class="input-group-append tight">
+                <span class="input-group-text">m</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </ngb-panel>
+
+    <ngb-panel title="Operation date and time" id="ops-date-time">
+      <ng-template ngbPanelContent>
+        <tr>
+          <td><div [ngbTooltip]="helpDate">Operation date</div></td>
+          <td colspan="2">
+            <div class="flex-container" container="body">
+              <input class="form-control form-control-md" ngbDatepicker #dp="ngbDatepicker" [(ngModel)]="date"
+                [minDate]="minForecastDate" [displayMonths]='1' (ngModelChange)="onTimeChange()" placement="bottom-left"
+                [maxDate]="maxForecastDate">
+              <button id="datePickBtn" class="input-group-addon date-picker ng-touched"
+                (click)="dp.toggle()" type="button">
+                <span class="fa fa-calendar"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><div [ngbTooltip]="helpTime">Start time</div></td>
+          <td colspan="2">
+            <div class="flex-container">
+              <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)" [(ngModel)]="startTimeInput.hour"
+                type="number" min="0" max="24" placeholder="HH">
+              <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event);"
+                [(ngModel)]="startTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM"/>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><div [ngbTooltip]="helpTime">Stop time</div></td>
+          <td colspan="2">
+            <div class="flex-container">
+              <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
+                [(ngModel)]="stopTimeInput.hour" type="number" min="0" max="24" placeholder="HH">
+              <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
+                [(ngModel)]="stopTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM">
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Operational duration</td>
+          <td colspan="2">
+            {{formattedDuration || 'N/a'}}
+          </td>
+        </tr>
+      </ng-template>
+    </ngb-panel>
+
+    <ngb-panel title="Operation heading" id="ops-heading">
+      <ng-template ngbPanelContent>
+        <tr>
+          <td><div [ngbTooltip]="helpHeading">Operational heading</div></td>
+          <td colspan="2">
+            <div class="input-group">
+              <input type="number" class="form-control form-control-md" [(ngModel)]="heading" [step]="22.5"
+              type="number" [min]="0" [max]="360" placeholder="degrees" (change)="onHeadingChange()">
+              <div class="input-group-append">
+                  <span class="input-group-text"> deg </span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </ngb-panel>
+
+    <ngb-panel title="Operation limits" id="ops-limits">
+      <ng-template ngbPanelContent>
+        <tr colspan="3" [ngbTooltip]="helpLimits" class='sep-row' container="body">
+          <th>Limit type</th>
+          <th>DOF</th>
+          <th>Value</th>
+        </tr>
+        <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
+          <td class="tight">
+            <select class="form-control form-control-md" [(ngModel)]="limit.Type" (change)="onLimitsChange()">
+              <option value='Acc'>Acceleration</option>
+              <option value='Vel'>Velocity</option>
+              <option value='Disp'>Displacement</option>
+              <option value='Slip'>Slip prob</option>
+            </select>
+          </td>
+          <td class="tight">
+            <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
+              [disabled]="limit.Type == 'Slip'">
+              <option value="Surge">Surge</option>
+              <option value="Sway">Sway</option>
+              <option value="Heave">Heave</option>
+              <option value="Roll">Roll</option>
+              <option value="Pitch">Pitch</option>
+              <option value="Yaw">Yaw</option>
+            </select>
+          </td>
+          <td class="tight">
+            <div class="input-group">
+              <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"
+                [min]="0"  (change)="onLimitsChange()">
+              <div class="input-group-append tight">
+                <span class="input-group-text">{{limit.Unit || '-'}}</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan=3 *ngIf="permission.forecastChangeLimits">
+            <div [ngbTooltip]="addLimitsTooltip">
+            <button class="btn btn-sm btn-danger float-right" [disabled]="(limits==null) || (limits?.length<=0)"
+              (click)="onRemoveLimitsLine();" type="button">
+              Remove last
+            </button>
+            <button class="btn btn-sm btn-success float-right" [disabled]="(limits==null) || (limits?.length>=3)"
+              (click)="onAddLimitsLine();" type="button">
+              Add line
+            </button>
           </div>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td>Max allowed slip</td>
-      <td colspan="2">
-        <div class="input-group">
-          <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Max_Allowed_Slip_Meter" disabled>
-          <div class="input-group-append tight">
-            <span class="input-group-text">m</span>
-          </div>
-        </div>
-      </td>
-    </tr>
-    <tr><td colspan="3" class="empty-row"></td></tr>
-
-    <tr>
-      <td><div [ngbTooltip]="helpDate">Operation date</div></td>
-      <td colspan="2">
-        <div class="flex-container">
-          <input class="form-control form-control-md" ngbDatepicker #dp="ngbDatepicker" [(ngModel)]="date"
-            [minDate]="minForecastDate" [displayMonths]='1' (ngModelChange)="onTimeChange()"
-            [maxDate]="maxForecastDate" >
-          <button id="datePickBtn" class="input-group-addon date-picker ng-touched"
-            (click)="dp.toggle()" type="button">
-            <span class="fa fa-calendar"></span>
-          </button>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td><div [ngbTooltip]="helpTime">Start time</div></td>
-      <td colspan="2">
-        <div class="flex-container">
-          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)" [(ngModel)]="startTimeInput.hour"
-            type="number" min="0" max="24" placeholder="HH">
-          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event);"
-            [(ngModel)]="startTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM"/>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td><div [ngbTooltip]="helpTime">Stop time</div></td>
-      <td colspan="2">
-        <div class="flex-container">
-          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
-            [(ngModel)]="stopTimeInput.hour" type="number" min="0" max="24" placeholder="HH">
-          <input class="form-control form-control-md" (change)="onTimeChange();appendLeadingZeros($event)"
-            [(ngModel)]="stopTimeInput.mns" type="number" min="0" max="59" step="5" placeholder="MM">
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td>Operational duration</td>
-      <td colspan="2">
-        {{formattedDuration || 'N/a'}}
-      </td>
-    </tr>
-
-    <tr><td colspan="3" class="empty-row"></td></tr>
-
-    <tr>
-      <td><div [ngbTooltip]="helpHeading">Operational heading</div></td>
-      <td colspan="2">
-        <div class="input-group">
-          <input type="number" class="form-control form-control-md" [(ngModel)]="heading" [step]="22.5"
-          type="number" [min]="0" [max]="360" placeholder="degrees" (change)="onHeadingChange()">
-          <div class="input-group-append">
-              <span class="input-group-text"> deg </span>
-          </div>
-        </div>
-      </td>
-    </tr>
-
-    <tr *ngIf="slipCoefficients?.length > 1">
-      <th class="empty-row">CTV Settings</th>
-      <td colspan="2"></td>
-    </tr>
-    <tr *ngIf="slipCoefficients?.length > 1">
-      <td>
-        <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
-      </td>
-      <td>
-        <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
-          [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)"
-          step="0.05" [(ngModel)]="slipValue" (change)="onSlipCoefChange()" >
-      </td>
-      <td>{{slipValue}}</td>
-    </tr>
-    <tr *ngIf="slipThrustLevels?.length > 1">
-      <td>
-        <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
-      </td>
-      <td>
-        <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
-          [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length - 1], 100)"
-          step="10000" [(ngModel)]="thrustValue" (change)="onThrustIndexChange()" >
-      </td>
-      <td>{{formatThrust(thrustValue)}}</td>
-    </tr>
-
-    <tr></tr>
-
-
-    <tr colspan="3" [ngbTooltip]="helpLimits">
-      <th>Limit type</th>
-      <th>DOF</th>
-      <th>Value</th>
-    </tr>
-    <tr *ngFor='let limit of limits; let _index = index' class='sep-row'>
-      <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.Type" (change)="onLimitsChange()">
-          <option value='Acc'>Acceleration</option>
-          <option value='Vel'>Velocity</option>
-          <option value='Disp'>Displacement</option>
-          <option value='Slip'>Slip prob</option>
-        </select>
-      </td>
-      <td class="tight">
-        <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
-          [disabled]="limit.Type == 'Slip'">
-          <option value="Surge">Surge</option>
-          <option value="Sway">Sway</option>
-          <option value="Heave">Heave</option>
-          <option value="Roll">Roll</option>
-          <option value="Pitch">Pitch</option>
-          <option value="Yaw">Yaw</option>
-        </select>
-      </td>
-      <td class="tight">
-        <!-- <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"> -->
-        <div class="input-group">
-          <input class="form-control form-control-md" type="number" step=0.1 [(ngModel)]="limit.Value"
-            [min]="0"  (change)="onLimitsChange()">
-          <div class="input-group-append tight">
-            <span class="input-group-text">{{limit.Unit || '-'}}</span>
-          </div>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td colspan=3 *ngIf="permission.forecastChangeLimits">
-        <div [ngbTooltip]="currentlyDisabled">
-        <button class="btn btn-sm btn-danger float-right" [disabled]="(limits==null) || (limits?.length<=0)"
-          (click)="onRemoveLimitsLine();" type="button">
-          Remove last
-        </button>
-        <button class="btn btn-sm btn-success float-right" [disabled]="(limits==null) || (limits?.length>=3)"
-          (click)="onAddLimitsLine();" type="button">
-          Add line
-        </button>
-      </div>
-      </td>
-    </tr>
-    <tr *ngIf="settingsChanged">
-      <td colspan=3>
-        <button class="btn btn-md btn-primary float-right" (click)="onConfirm();" type="button">
-          Update config
-        </button>
-      </td>
-    </tr>
-  </tbody>
+          </td>
+        </tr>
+      </ng-template>
+    </ngb-panel>
+  </ngb-accordion>
+  <tr *ngIf="settingsChanged">
+    <td colspan=3>
+      <button class="btn btn-md btn-primary float-right" (click)="onConfirm();" type="button">
+        Update config
+      </button>
+    </td>
+  </tr>
+</tbody>
 </table>
 
+
+<ng-template #nan>
+  <td colspan="2">
+    N/a
+  </td>
+</ng-template>
 <ng-template #helpStart>
   Start date of project.
 </ng-template>
@@ -216,6 +245,10 @@
 <ng-template #helpLimits>
   Select limits to compute workability, by specifying the Limit motion type, the
   degree of freedom which you are interested in, and finally the limit value.
+</ng-template>
+<ng-template #addLimitsTooltip>
+  MO4 light allows up to 3 selected limits simultaneously at any given time.
+  If you need access to a greater number of limits, please contact us directly.
 </ng-template>
 <ng-template #currentlyDisabled>
   This feature will be available soon.
