@@ -284,9 +284,6 @@ export class CommonService {
     return this.get('/api/requestFullAccount/');
   }
 
-  getSovInfo(vessel: VesselObjectModel) {
-    return this.post('/api/getSovInfo/', vessel);
-  }
 
   getSovHseDprInput(vessel: VesselObjectModel) {
     return this.post('/api/getSovHseDprInput/', vessel);

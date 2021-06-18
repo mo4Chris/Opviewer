@@ -29,7 +29,7 @@
       <ng-template ngbPanelContent>
           <tr>
             <td><div>Metocean provider</div></td>
-            <td colspan="2">{{selectedProject.metocean_provider.display_name}}</td>
+            <td colspan="2">{{selectedProject?.metocean_provider?.display_name || 'N/a'}}</td>
           </tr>
           <tr>
             <td><div [ngbTooltip]="helpLastUpdate">Simulation time</div></td>
@@ -42,7 +42,7 @@
       <ng-template ngbPanelContent width="100%">
         <tr>
           <td>
-            <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
+            <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
           </td>
           <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
             <td>
