@@ -261,12 +261,13 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   private updateOperationTimes() {
+    // Computes the startTime and stopTime parameters
     let currentTimeStamp = this.dateService.getCurrentMatlabDatenum();
     let matlabDate = Math.floor(currentTimeStamp);
     const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
     if (matlabDate >= maxResponseDate) {
       currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.minForecastDate)
-      matlabDate = maxResponseDate;
+      matlabDate = Math.floor(currentTimeStamp);
     }
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;

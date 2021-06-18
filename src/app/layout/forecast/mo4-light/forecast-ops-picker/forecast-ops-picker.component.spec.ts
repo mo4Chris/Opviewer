@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { mockedObservable } from '@app/models/testObservable';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
@@ -242,8 +243,53 @@ describe('ForecastOpsPickerComponent', () => {
 
 
   describe('updateOperationsTime', () => {
-    it('should render with good data', () => {
+    // 737700 is 02-10-2019
+    it('should correctly compute start / stop time for up-to-date data', () => {
+      spyOn(DatetimeService.prototype, 'getCurrentMatlabDatenum').and.returnValue(737700 + 4/24);
+      component.minForecastDate = {year: 2019, month: 10, day: 2};
+      component.maxForecastDate = {year: 2019, month: 10, day: 7};
+      component.startTimeInput = {hour: 3, mns: 0};
+      component.stopTimeInput = {hour: 8, mns: 0};
+      component['updateOperationTimes']();
+      expect(component.formattedDuration).toEqual('05:00:00')
+      expect(component.startTime).toBeCloseTo(737700 + 3/24, 4);
+      expect(component.stopTime).toBeCloseTo(737700 + 8/24, 4);
+    })
 
+    it('should correctly compute start / stop time for up-to-date data (next day)', () => {
+      spyOn(DatetimeService.prototype, 'getCurrentMatlabDatenum').and.returnValue(737700 + 10/24);
+      component.minForecastDate = {year: 2019, month: 10, day: 2};
+      component.maxForecastDate = {year: 2019, month: 10, day: 7};
+      component.startTimeInput = {hour: 3, mns: 0};
+      component.stopTimeInput = {hour: 8, mns: 0};
+      component['updateOperationTimes']();
+      expect(component.formattedDuration).toEqual('05:00:00')
+      expect(component.startTime).toBeCloseTo(737701+ 3/24, 4);
+      expect(component.stopTime).toBeCloseTo(737701 + 8/24, 4);
+    })
+
+    it('should correctly compute start / stop time for outdated data', () => {
+      spyOn(DatetimeService.prototype, 'getCurrentMatlabDatenum').and.returnValue(737709 + 10/24);
+      component.minForecastDate = {year: 2019, month: 10, day: 2}; // 737700
+      component.maxForecastDate = {year: 2019, month: 10, day: 7}; // 737705
+      component.startTimeInput = {hour: 3, mns: 0};
+      component.stopTimeInput = {hour: 8, mns: 0};
+      component['updateOperationTimes']();
+      expect(component.formattedDuration).toEqual('05:00:00')
+      expect(component.startTime).toBeCloseTo(737700 + 3/24, 4);
+      expect(component.stopTime).toBeCloseTo(737700 + 8/24, 4);
+    })
+
+    it('should correctly compute start / stop time for stop < start time', () => {
+      spyOn(DatetimeService.prototype, 'getCurrentMatlabDatenum').and.returnValue(737700 + 10/24);
+      component.minForecastDate = {year: 2019, month: 10, day: 2};
+      component.maxForecastDate = {year: 2019, month: 10, day: 7}; // 737705
+      component.startTimeInput = {hour: 9, mns: 30};
+      component.stopTimeInput = {hour: 8, mns: 0};
+      component['updateOperationTimes']();
+      expect(component.formattedDuration).toEqual('22:30:00')
+      expect(component.startTime).toBeCloseTo(737700 + 9.5/24, 4);
+      expect(component.stopTime).toBeCloseTo(737701 + 8/24, 4);
     })
   })
 });
