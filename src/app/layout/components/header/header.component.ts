@@ -91,26 +91,26 @@ export class HeaderComponent implements OnInit {
   }
 
   requestFullAccount() {
-    if(!this.permission.demo) {
+    if(!this.permission?.demo) {
       this.alert.sendAlert({
         text: 'Request has not been sent, you already have a full account',
         type: 'warning'
       });
-    }
-    this.newService.requestFullAccount().subscribe(data =>  {
-      if (data.status === 200) {
-        this.alert.sendAlert({
-          text: 'Full account requested!',
-          type: 'success'
-        });
-      } else {
-        this.alert.sendAlert({
-          text: 'Request has not been sent, please try again later',
-          type: 'danger'
-        });
-      }
-    });
-
+    } else {
+      this.newService.requestFullAccount().subscribe(data =>  {
+        if (data.status === 200) {
+          this.alert.sendAlert({
+            text: 'Full account requested!',
+            type: 'success'
+          });
+        } else {
+          this.alert.sendAlert({
+            text: 'Request has not been sent, please try again later',
+            type: 'danger'
+          });
+        }
+      });
+    } 
     this.closeModal();
   }
 
