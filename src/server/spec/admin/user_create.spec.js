@@ -14,7 +14,7 @@ module.exports = (app, GET, POST) => {
   // ################# Tests - administrative - non-admin login #################
   describe('UserCreate - with login - user should', () => {
     // ToDo: This should be removed and all the auth headers should be set to false
-    const username = 'Glados';
+    const username = 'Glados@aperture.com';
     const company = 'Aperture industries';
     const new_user_id = 666;
     beforeEach(() => {
@@ -37,7 +37,7 @@ module.exports = (app, GET, POST) => {
         })
         mock.pgRequest([new_user_id])
         const newUser = {
-          username: 'Bot',
+          username: 'Bot@bot.com',
           requires2fa: true,
           client_id: OWN_CLIENT_ID,
           vessel_ids: null,
@@ -62,9 +62,10 @@ module.exports = (app, GET, POST) => {
             user_see_all_vessels_client: true,
           }
         })
+
         mock.pgRequest([new_user_id])
         const newUser = {
-          username: 'Bot',
+          username: 'Bot@bot.com',
           requires2fa: true,
           client_id: OWN_CLIENT_ID,
           vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
@@ -91,7 +92,7 @@ module.exports = (app, GET, POST) => {
         })
         mock.pgRequest([new_user_id])
         const newUser = {
-          username: 'Bot',
+          username: 'Bot@bot.com',
           requires2fa: true,
           client_id: OWN_CLIENT_ID,
           vessel_ids: null,
@@ -118,7 +119,7 @@ module.exports = (app, GET, POST) => {
         })
         mock.pgRequest([new_user_id])
         const newUser = {
-          username: 'Bot',
+          username: 'Bot@bot.com',
           requires2fa: true,
           client_id: OTHER_CLIENT_ID,
           vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
@@ -145,7 +146,7 @@ module.exports = (app, GET, POST) => {
         })
         mock.pgRequest([new_user_id])
         const newUser = {
-          username: 'Bot',
+          username: 'Bot@bot.com',
           requires2fa: true,
           client_id: OWN_CLIENT_ID,
           vessel_ids: [OTHER_VESSEL],
