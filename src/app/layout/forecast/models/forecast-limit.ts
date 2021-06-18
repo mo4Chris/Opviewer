@@ -22,6 +22,7 @@ export class ForecastMotionLimit {
     } else {
       this.Value = inputs.Value;
     }
+    if (!this.isValid) throw new Error('Invalid limit config')
   }
 
   public get Unit() {

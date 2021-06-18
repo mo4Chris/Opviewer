@@ -1,8 +1,7 @@
 import {ForecastMotionLimit, ForecastLimitInputs, WaveType, WindType} from './forecast-limit'
 import { Dof6, DofType } from './forecast-response.model'
 
-fdescribe('Forecast-limit class', () => {
-
+describe('Forecast-limit class', () => {
   it('should instantiate', () => {
     assertValidInstantiation({
       Type: 'Acc',
@@ -87,12 +86,51 @@ fdescribe('Forecast-limit class', () => {
       })
     })
   })
+
+  it('should correctly cast to object', () => {
+    const input: ForecastLimitInputs = {
+      Type: 'Acc',
+      Dof: 'Roll',
+      Value: 2.5,
+    };
+    const limit = new ForecastMotionLimit(input);
+    expect(limit.toObject()).toEqual({
+      Type: 'Acc',
+      Dof: 'Roll',
+      Value: 2.5,
+      Unit: 'deg\/s2'
+    })
+  })
+
+  it('should not instantiate in invalid config', () => {
+    expect( function(){
+      const limit = new ForecastMotionLimit(INVALID_LIMIT_CONFIG);
+    }).toThrow(new Error("Invalid limit config"));
+  })
+
+  it('should not show valid in invalid config', () => {
+    const limit = new ForecastMotionLimit(VALID_LIMIT_CONFIG);
+    limit.Dof = 'Hs';
+    expect(limit.isValid).toBe(false);
+  })
 })
 
 function assertValidInstantiation(inputs: ForecastLimitInputs) {
   const instance = new ForecastMotionLimit(inputs);
   expect(instance).toBeTruthy();
+  expect(instance.isValid).toBe(true);
   expect(instance.Unit).toBeTruthy();
   expect(instance.toObject()).toBeTruthy();
   return instance;
+}
+
+const INVALID_LIMIT_CONFIG: ForecastLimitInputs = {
+  Type: 'Acc',
+  Dof: 'Hs',
+  Value: 0.5
+}
+const VALID_LIMIT_CONFIG: ForecastLimitInputs = {
+  Type: 'Acc',
+  Dof: 'Heave',
+  Value: 20.345
 }
