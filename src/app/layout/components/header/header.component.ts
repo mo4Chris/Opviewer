@@ -91,6 +91,12 @@ export class HeaderComponent implements OnInit {
   }
 
   requestFullAccount() {
+    if(!this.permission.demo) {
+      this.alert.sendAlert({
+        text: 'Request has not been sent, you already have a full account',
+        type: 'warning'
+      });
+    }
     this.newService.requestFullAccount().subscribe(data =>  {
       if (data.status === 200) {
         this.alert.sendAlert({

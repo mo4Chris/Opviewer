@@ -10,7 +10,7 @@ import { MockedUserServiceProvider } from '@app/shared/services/test.user.servic
 import { RouterService } from '@app/supportModules/router.service';
 import { mockedObservable } from '@app/models/testObservable';
 
-fdescribe('TablesComponent', () => {
+describe('TablesComponent', () => {
   let component: TablesComponent;
   let fixture: ComponentFixture<TablesComponent>;
   let routingSpy: jasmine.Spy;
