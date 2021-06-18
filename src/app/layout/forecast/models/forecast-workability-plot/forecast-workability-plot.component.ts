@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { PlotlySupportService } from '@app/supportModules/plotly.support.service';
 import * as Plotly from 'plotly.js';
 
 @Component({
@@ -49,6 +50,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
   constructor(
     private calcService: CalculationService,
     private dateService: DatetimeService,
+    private plotlyService: PlotlySupportService
   ) { }
 
   public get hasData() {
@@ -62,6 +64,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     if (this.hasData) {
       this.computeMaxWorkability();
       this.computeGraphData();
+      this.setXLimits();
     } else {
       this.MaxWorkability = 'N/a';
     }
@@ -78,21 +81,16 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     this.MaxWorkability = this.calcService.roundNumber(Math.max(...workabilityDuringOperation), 1, '%');
   }
 
-  private parseTime(t: number) {
-    return this.dateService.matlabDatenumToDate(t);
-  }
-
   computeGraphData() {
     const yLimit = 100;
-    const limits = this.getStartAndEndPoints(this.workabilityAlongHeading, yLimit);
-    const areas = createPlotyAreaLines(
+    const areas = this.plotlyService.createAreaLines(
       this.time,
       this.workabilityAlongHeading,
-      this.workabilityAlongHeading.map(y => y < yLimit)
+      (_, y) => y < yLimit
     );
     this.parsedData = [{
-      x: this.time,
-      y: limits.green,
+      x: areas.green.map(g => g.x),
+      y: areas.green.map(g => g.y>0 ? g.y : null),
       type: 'scatter', // This is a line
       name: 'Workability - under limit',
       connectgaps: false,
@@ -100,11 +98,10 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
         color: 'green',
       },
     }, {
-      x: this.time,
-      y: limits.red,
+      x: areas.red.map(g => g.x),
+      y: areas.red.map(g => g.y>0 ? g.y : null),
       type: 'scatter', // This is a line
       name: 'Workability - over limit',
-      // showlegend: false,
       connectgaps: false,
       line: {
         color: 'red',
@@ -158,100 +155,16 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
     }
   }
 
+
+  private parseTime(t: number) {
+    return this.dateService.matlabDatenumToDate(t);
+  }
   onPlotlyInit() {
     this.loaded = true;
   }
 
-  getStartAndEndPoints(datas: number[], limit: number) {
-    const valid = datas.map(e => e <= limit);
-    const greens = valid;
-    const reds = valid.map(v => !v);
-    for (let i = valid.length - 1; i > 0; i--) {
-      if (greens[i] && reds[i - 1]) {
-        reds[i] = true;
-      } else if (reds[i] && greens[i - 1]) {
-        greens[i] = true;
-      }
-    }
-    return {
-      green: datas.map((d, i) => greens[i] ? d : NaN),
-      red: datas.map((d, i) => reds[i] ? d : NaN),
-    };
+  private setXLimits() {
+    this.plotlyService.setXLimits(this.time, this.PlotLayout);
   }
 }
 
-function createPlotyAreaLines(xVals: any[], yVals: number[], condition: boolean[]) {
-  let prev = condition[0];
-  const greens: { x: any, y: number }[] = [];
-  const reds: { x: any, y: number }[] = [];
-  if (condition[0]) {
-    greens.push({
-      x: xVals[0],
-      y: yVals[0]
-    });
-  } else {
-    reds.push({
-      x: xVals[0],
-      y: yVals[0]
-    });
-  }
-
-  const maxLength = Math.min(xVals.length, yVals.length);
-  for (let i = 1; i < maxLength; i++) {
-    const curr = condition[i];
-    if (curr == prev) {
-      if (curr) {
-        greens.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-      } else {
-        reds.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-      }
-    } else {
-      if (curr) {
-        reds.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-        reds.push({
-          x: xVals[i],
-          y: 0,
-        });
-        greens.push({
-          x: xVals[i],
-          y: 0,
-        });
-        greens.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-      } else {
-        greens.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-        greens.push({
-          x: xVals[i],
-          y: 0,
-        });
-        reds.push({
-          x: xVals[i],
-          y: 0,
-        });
-        reds.push({
-          x: xVals[i],
-          y: yVals[i],
-        });
-      }
-    }
-    prev = curr;
-  }
-  return {
-    green: greens,
-    red: reds,
-  };
-}

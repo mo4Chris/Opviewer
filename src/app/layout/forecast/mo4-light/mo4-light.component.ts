@@ -108,7 +108,6 @@ export class Mo4LightComponent implements OnInit {
   }
 
   loadData(): void {
-    // ToDo: only rerout if no permission to forecasting module
     this.responseNotFound = false;
     forkJoin([
       this.newService.getForecastProjectList(),
@@ -165,8 +164,11 @@ export class Mo4LightComponent implements OnInit {
         // this.loadWeather();
       },
       error: err => {
+        this.showContent = true;
         console.error('error', err)
-        this.routeService.routeToAccessDenied();
+        if (err?.status == 401) {
+          this.routeService.routeToAccessDenied();
+        }
       }
     });
   }

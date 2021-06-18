@@ -269,6 +269,7 @@ const DEMO_PROJECT = {
   activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
+  analysis_types: ['Standard'],
 }
 const CLIENT_PROJECT_1 = {
   id: 13,
@@ -283,6 +284,7 @@ const CLIENT_PROJECT_1 = {
   activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
+  analysis_types: ['Standard']
 }
 const CLIENT_PROJECT_2 = {
   id: 14,
@@ -297,6 +299,7 @@ const CLIENT_PROJECT_2 = {
   activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
+  analysis_types: ['Standard']
 }
 const OTHER_CLIENT_PROJECT = {
   id: 15,
@@ -311,6 +314,7 @@ const OTHER_CLIENT_PROJECT = {
   activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
+  analysis_types: ['Standard']
 }
 const GENERIC_VESSEL = {
   id: 'generic_vessel',
@@ -320,7 +324,8 @@ const GENERIC_VESSEL = {
   width: 2,
   draft: 2,
   gm: 10,
-  client_id: GENERIC_VESSEL_CLIENT_ID
+  client_id: GENERIC_VESSEL_CLIENT_ID,
+  analysis_types: ['Standard']
 }
 const CLIENT_VESSEL = {
   id: 'client_vessel',
@@ -330,7 +335,8 @@ const CLIENT_VESSEL = {
   width: 20,
   draft: 20,
   gm: 100,
-  client_id: CLIENT_CLIENT_ID
+  client_id: CLIENT_CLIENT_ID,
+  analysis_types: ['Standard']
 }
 const OTHER_CLIENT_VESSEL = {
   id: 'client_vessel',
@@ -340,7 +346,8 @@ const OTHER_CLIENT_VESSEL = {
   width: 20,
   draft: 20,
   gm: 100,
-  client_id: OTHER_CLIENT_ID
+  client_id: OTHER_CLIENT_ID,
+  analysis_types: ['Standard']
 }
 
 const CLIENT_RESPONSE_1 = {

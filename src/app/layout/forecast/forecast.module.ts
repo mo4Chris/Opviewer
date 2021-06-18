@@ -23,6 +23,7 @@ import { SovWaveSpectrumComponent } from './models/wave-spectrum/wave-spectrum.c
 import { WeatherOverviewComponent } from './models/weather-overview/weather-overview.component';
 import { ForecastWeatherOverviewComponent } from './mo4-light/forecast-weather-overview/forecast-weather-overview.component';
 import { ForecastMotionOverviewComponent } from './mo4-light/forecast-motion-overview/forecast-motion-overview.component';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -36,7 +37,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     SupportModelModule,
     AgmCoreModule,
     NgbDatepickerModule,
-    NgxUploaderDirectiveModule
+    NgxUploaderDirectiveModule,
+    NgMultiSelectDropDownModule
   ],
   providers: [
     CommonService

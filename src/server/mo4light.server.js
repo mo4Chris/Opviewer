@@ -12,7 +12,7 @@ require('dotenv').config({ path: __dirname + '/../../.env' });
 let baseUrl = process.env.AZURE_URL ?? 'http://mo4-hydro-api.azurewebsites.net';
 let backupUrl = process.env.AZURE_BACKUP_URL ?? 'https://mo4-light.azurewebsites.net';
 const bearer  = process.env.AZURE_TOKEN;
-const timeout = +process.env.TIMEOUT || 60000;
+const timeout = +process.env.TIMEOUT || 30000;
 const http    = ax.default;
 const headers = {
   "content-type": "application/json",
@@ -57,6 +57,7 @@ module.exports = function(app, logger, admin_server_pool) {
         return {
           id: data.id,
           nicename: data.display_name,
+          analysis_types: data.analysis_types,
           type: data.type,
           length: data.length,
           width: data.width,
@@ -74,7 +75,7 @@ module.exports = function(app, logger, admin_server_pool) {
     if (!errors.isEmpty()) return res.onBadRequest(errors)
 
     const token = req['token'];
-    getProjectList(token).then(projects => {
+    getProjectList(token).then(async projects => {
       logger.trace(`Query returned ${projects?.lenght ?? 0} projects`)
       res.send(projects)
     }).catch(res.onError)
@@ -87,9 +88,10 @@ module.exports = function(app, logger, admin_server_pool) {
     if (typeof(project_name) != 'string') return res.onBadRequest('project_name missing')
     const start = Date.now()
     if (token.permission.demo) {
-      return getDemoProject(token).then((projects) => {
+      return getDemoProject(token).then(async (projects) => {
         const project = projects.find(p => p.name == project_name);
         if (project == null) return res.onUnauthorized()
+        logger.info(project)
         res.send([project])
       }).catch(res.onError)
     }
@@ -112,7 +114,9 @@ module.exports = function(app, logger, admin_server_pool) {
         activation_start_date: project.activation_start_date,
         activation_end_date: project.activation_end_date,
         client_preferences: project.client_preferences,
-        vessel_id: project.vessel_id
+        analysis_types: project.analysis_types,
+        vessel_id: project.vessel_id,
+        metocean_provider: project.metocean_provider,
       }]
       res.send(project_output)
     }).catch(res.onError)
@@ -229,6 +233,7 @@ module.exports = function(app, logger, admin_server_pool) {
     update_if_not_null('water_depth')
     update_if_not_null('vessel_id')
     update_if_not_null('client_preferences')
+    update_if_not_null('analysis_types')
     if (is_admin) {
       update_if_not_null('name')
       update_if_not_null('activation_start_date')
@@ -236,6 +241,8 @@ module.exports = function(app, logger, admin_server_pool) {
     }
     localLogger.debug('Double encrypting client preference')
     updated_project['client_preferences'] = JSON.stringify(updated_project['client_preferences'])
+    updated_project['metocean_provider_id'] = received_settings?.metocean_provider?.id ?? updated_project?.metocean_provider?.id;
+    updated_project['metocean_provider'] = null;
 
     localLogger.debug('Forwarding request to hydro API')
     pg_put('/project/' + project_name, updated_project).then((out, err) => {
@@ -243,6 +250,15 @@ module.exports = function(app, logger, admin_server_pool) {
       localLogger.info('Save succesfull')
       return res.send({data: 'Successfully saved project!'})
     }).catch(res.onError)
+  })
+
+  app.get('/api/mo4light/metoceanProviders', (req, res) => {
+    const permission = req['token'].permission;
+    if (!permission.forecast.read) return res['onUnauthorized']()
+    pg_get('/metocean_providers').then(out => {
+      const providers = out.data.metocean_providers;
+      res.send(providers)
+    })
   })
 
   app.post('/api/mo4light/weather', (req, res) => {
@@ -270,22 +286,27 @@ module.exports = function(app, logger, admin_server_pool) {
     const out = await pg_get(endpoint)
     log(`Receiving azure project list after ${Date.now() - start}ms`)
     const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
-    const project_output = data.map(d => {
-      return {
-        id: d.id,
-        name: d.name,
-        nicename: d.display_name,
-        client_id: d.client_id,
-        longitude: d.longitude,
-        latitude: d.latitude,
-        water_depth: d.water_depth,
-        maximum_duration: d.maximum_duration,
-        activation_start_date: d.activation_start_date,
-        activation_end_date: d.activation_start_date,
-        client_preferences: d.client_preferences,
-        vessel_id: d.vessel_id
-      }
-    })
+    const project_output = []
+
+    for (let pidx in data) {
+      const _project = data[pidx];
+      project_output.push({
+        id: _project.id,
+        name: _project.name,
+        nicename: _project.display_name,
+        client_id: _project.client_id,
+        longitude: _project.longitude,
+        latitude: _project.latitude,
+        water_depth: _project.water_depth,
+        vessel_id: _project.vessel_id,
+        maximum_duration: _project.maximum_duration,
+        activation_start_date: _project.activation_start_date,
+        activation_end_date: _project.activation_start_date,
+        client_preferences: _project.client_preferences,
+        analysis_types: _project.analysis_types,
+        metocean_provider: _project.metocean_provider,
+      })
+    }
     return project_output;
   }
 
@@ -389,10 +410,26 @@ module.exports = function(app, logger, admin_server_pool) {
         activation_start_date: d.activation_start_date,
         activation_end_date: d.activation_start_date,
         client_preferences: d.client_preferences,
+        metocean_provider: d.metocean_provider,
+        analysis_types: d.analysis_types,
         vessel_id: d.vessel_id
       }
     })
     return project_output;
+  }
+
+  /**
+   * Loads in weather provider information corresponding to a provider id
+   *
+   * @param {number} provider_id Id of the provider
+   * @api public
+   * @returns {Promise<{id: number, name: string, display_name: string}>}
+   */
+  async function getWeatherProvider(provider_id) {
+    logger.debug({provider_id}, 'Loading weather provided')
+    const out = await pg_get('/metocean_providers')
+    const providers = out.data['metocean_providers'];
+    return providers.find(provider => provider.id == provider_id)
   }
 };
 

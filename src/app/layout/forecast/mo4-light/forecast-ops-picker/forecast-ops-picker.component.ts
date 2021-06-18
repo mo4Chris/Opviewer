@@ -92,6 +92,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
     const vessel = this?.vessels?.find(vessel => vessel.id === vessel_id);
     return vessel?.nicename || 'N/a';
   }
+  public get hasCtvSlipSettings() {
+    return this.selectedProject?.analysis_types?.some(type => type == 'CTV')
+  }
 
   ngOnChanges(changes: SimpleChanges = {}) {
     if (changes.minForecastDate) this.date = this.minForecastDate;
@@ -100,6 +103,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
 
   public formatThrust(thrust: number): string {
     const newValue = this.calcService.switchForceUnits(thrust, 'N', 'kN');
+    if (!(newValue > 0)) return 'N/a'
     return newValue.toFixed(0) + 'kN';
   }
 
@@ -107,6 +111,22 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
     this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
+
+    if (this.hasCtvSlipSettings) {
+      const opts = this.ctvSlipSettings;
+      if (opts == null) {
+        this.selectedProject.client_preferences.Ctv_Slip_Options = {
+          Max_Allowed_Slip_Meter: 0.6,
+          Window_Length_Seconds: 60,
+          Slip_Coefficient: 0.6,
+          Thrust_Level_N: 100000,
+        }
+      } else {
+        opts.Max_Allowed_Slip_Meter = opts.Max_Allowed_Slip_Meter ?? 0.6;
+        opts.Window_Length_Seconds = opts.Window_Length_Seconds ?? 60;
+      }
+    }
+
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
     this.updateOperationTimes()
@@ -152,6 +172,10 @@ export class ForecastOpsPickerComponent implements OnChanges {
       || !inRange(+this.stopTimeInput.mns, 0, 59)
     ) return;
     this.updateOperationTimes();
+    this.onChange.emit({
+      startTime: this.startTime,
+      stopTime: this.stopTime,
+    });
   }
   public onLimitsChange() {
     this.limitChanged = true;
@@ -215,8 +239,12 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   private updateOperationTimes() {
-    const currentTimeStamp = this.dateService.getCurrentMatlabDatenum();
-    const matlabDate = Math.floor(currentTimeStamp);
+    const currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.date) ?? this.dateService.getCurrentMatlabDatenum();
+    let matlabDate = Math.floor(currentTimeStamp);
+    const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
+    if (matlabDate >= maxResponseDate) {
+      matlabDate = maxResponseDate;
+    }
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
     if (this.stopTime < this.startTime) this.stopTime += 1;

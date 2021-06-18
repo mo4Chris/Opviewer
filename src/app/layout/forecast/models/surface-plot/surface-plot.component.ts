@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
+import { PlotlySupportService } from '@app/supportModules/plotly.support.service';
 
 @Component({
   selector: 'app-surface-plot',
@@ -11,7 +12,7 @@ export class SurfacePlotComponent implements OnChanges {
   @Input() xLabel: string;
   @Input() yLabel: string;
 
-  @Input() xData: (number | string | Date)[];
+  @Input() xData: number[] | string[] | Date[];
   @Input() yData: number[];
   @Input() zData: number[][];
 
@@ -34,7 +35,8 @@ export class SurfacePlotComponent implements OnChanges {
 
   constructor(
     private calcService: CalculationService,
-    private matService: MatrixService
+    private matService: MatrixService,
+    private plotlyService: PlotlySupportService
   ) {
     // this.initTestData();
   }
@@ -50,6 +52,7 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'xLabel',
       showgrid: false,
       zeroline: false,
+
     },
     yaxis: {
       visible: true,
@@ -77,6 +80,7 @@ export class SurfacePlotComponent implements OnChanges {
   ngOnChanges() {
     if (!this.hasData) return;
     this.validateInput();
+    this.setXLimits()
     this.parsedData = [<any> {
       x: this.xData,
       y: this.yData,
@@ -130,6 +134,11 @@ export class SurfacePlotComponent implements OnChanges {
           })
       }
     })
+  }
+
+
+  private setXLimits() {
+    this.plotlyService.setXLimits(this.xData, this.PlotLayout);
   }
 }
 

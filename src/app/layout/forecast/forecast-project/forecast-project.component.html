@@ -62,19 +62,29 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="ctv_slip_settings">
+            <tr>
+              <td><div [ngbTooltip]="helpWaterDepth">Weather provider</div></td>
+              <td colspan="2">
+                <select name="metocean-select" [(ngModel)]="project.metocean_provider" required placeholder="Please select"
+                  class="form-control form-control-md" >
+                  <option *ngFor="let _provider of providers" [value]="_provider">{{_provider.display_name}}</option>
+                </select>
+              </td>
+            </tr>
+
+            <tr *ngIf="hasCtvSlipSettings && ctv_slip_settings" id="setPushDuration">
               <td><div [ngbTooltip]="helpCtvSlipDuration">Push on duration</div></td>
               <td colspan="2">
                 <div class="input-group">
                   <input class="form-control form-control-sm" type="number" [(ngModel)]="ctv_slip_settings.Window_Length_Seconds"
-                    [min]="0" placeholder="Slip window">
+                    [min]="0" placeholder="Slip window" [max]="180">
                   <div class="input-group-append">
                     <span class="input-group-text">s</span>
                   </div>
                 </div>
               </td>
             </tr>
-            <tr *ngIf="ctv_slip_settings">
+            <tr *ngIf="hasCtvSlipSettings && ctv_slip_settings" id="setMaxSlip">
               <td><div [ngbTooltip]="helpCtvMaxSlip">Max allowed slip</div></td>
               <td colspan="2">
                 <div class="input-group">
@@ -113,12 +123,21 @@
               <th>Vessel type</th>
               <th>
                 <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select"
-                  class="form-control form-control-md" [disabled]="!projectLoaded">
+                  class="form-control form-control-md" [disabled]="!projectLoaded" (change)="onSelectedVesselChange($event)">
                   <option disabled  selected [value]="0">Please select a vessel</option>
                   <option disabled  [ngValue]="NewVessel">Request a new vessel</option>
                   <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.nicename}}</option>
                 </select>
               </th>
+            </tr>
+            <tr *ngIf="SelectedVessel?.analysis_types && project?.analysis_types" >
+              <td>Analysis types</td>
+              <td colspan="3">
+                <ng-multiselect-dropdown name="selectAnlysisTypes" class="multiSelectDiv"
+                  placeholder="Select analysis types" [settings]="thisNeedsToBeHere"
+                  [data]="SelectedVessel.analysis_types" [(ngModel)]="project.analysis_types">
+                </ng-multiselect-dropdown>
+              </td>
             </tr>
           </thead>
           <tbody class='sep-row'>

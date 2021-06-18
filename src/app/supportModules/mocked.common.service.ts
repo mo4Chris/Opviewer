@@ -8,10 +8,11 @@ import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
 import { SovData } from '@app/layout/reports/dpr/sov/models/SovData';
 import { Injectable } from '@angular/core';
-import { ForecastExpectedResponsePreference, ForecastOperation, ForecastResponseObject } from '@app/layout/forecast/models/forecast-response.model';
+import { ForecastExpectedResponsePreference, ForecastOperation, ForecastResponseObject, MetoceanProvider } from '@app/layout/forecast/models/forecast-response.model';
 import { ForecastMotionLimit } from '@app/layout/forecast/models/forecast-limit';
 import { UserModel } from '@app/models/userModel';
 import { ActivatedRoute } from '@angular/router';
+import { ForecastVesselRequest } from '@app/layout/forecast/forecast-project/forecast-project.component';
 
 
 const emptyMatlabObject = {
@@ -755,7 +756,7 @@ export class MockedCommonService extends CommonService {
     }]);
   }
   getForecastProjectByName(name: string): Observable<ForecastOperation[]> {
-    return mockedObservable([{
+    return mockedObservable([<ForecastOperation> {
       id: 123,
       name,
       nicename: 'Nice name',
@@ -768,7 +769,8 @@ export class MockedCommonService extends CommonService {
       activation_start_date: "2020-02-10T09:44:17.881913+00:00",
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
       client_preferences: mockForecastProjectPreferences(),
-      consumer_id: 123
+      consumer_id: 123,
+      analysis_types: ['Standard']
     }]);
   }
   getClientList() {
@@ -781,7 +783,18 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
   getForecastVesselList() {
-    return mockedObservable([]);
+    const demo_vessel: ForecastVesselRequest = {
+      id: 1,
+      gm: 1,
+      client_id: 1,
+      nicename: 'Very nice vessel',
+      length: 20,
+      type: 'Test_vessel',
+      width: 10,
+      draft: 5,
+      analysis_types: ['Standard']
+    }
+    return mockedObservable([demo_vessel]);
   }
   getForecastWeatherForResponse(id: number) {
     const dateMin = 737700;
@@ -878,6 +891,15 @@ export class MockedCommonService extends CommonService {
       vessel_id: 'fakeID',
     }]);
   }
+  getForecastMetoceanProviders() {
+    const providers: MetoceanProvider[] = [{
+      id: 1,
+      name: 'test_provider',
+      display_name: 'Test provider',
+      is_active: true,
+    }]
+    return mockedObservable(providers);
+  }
 }
 
 // Replace the CommonService propvider with this provider to completely mock the common service!
@@ -943,7 +965,7 @@ function mockWeatherConditions(date: number) {
   };
 }
 
-function mockForecastProjectPreferences(): ForecastExpectedResponsePreference {
+export function mockForecastProjectPreferences(): ForecastExpectedResponsePreference {
   return {
     "Points": [
         {
