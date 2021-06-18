@@ -239,6 +239,13 @@ describe('ForecastOpsPickerComponent', () => {
     const formatted = component.formatThrust(10000);
     expect(formatted).toEqual('10kN')
   })
+
+
+  describe('updateOperationsTime', () => {
+    it('should render with good data', () => {
+
+    })
+  })
 });
 
 
