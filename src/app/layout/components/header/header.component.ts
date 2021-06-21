@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit {
     private newService: CommonService,
     private modalService: NgbModal,
     private userService: UserService,
-    private permission: PermissionService,
+    public permission: PermissionService,
     public alert: AlertService,
   ) {
     this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de', 'zh-CHS']);
@@ -50,6 +50,10 @@ export class HeaderComponent implements OnInit {
   ngOnInit() {
     this.userCreatePermission = this.permission.userCreate;
     this.feedback = {message: '', page: ''};
+  }
+
+  openRequestFullAccessAccountModal(content) {
+    this.modalReference = this.modalService.open(content);
   }
 
   openModal(content) {
@@ -83,6 +87,30 @@ export class HeaderComponent implements OnInit {
       }
     });
 
+    this.closeModal();
+  }
+
+  requestFullAccount() {
+    if(!this.permission?.demo) {
+      this.alert.sendAlert({
+        text: 'Request has not been sent, you already have a full account',
+        type: 'warning'
+      });
+    } else {
+      this.newService.requestFullAccount().subscribe(data =>  {
+        if (data.status === 200) {
+          this.alert.sendAlert({
+            text: 'Full account requested!',
+            type: 'success'
+          });
+        } else {
+          this.alert.sendAlert({
+            text: 'Request has not been sent, please try again later',
+            type: 'danger'
+          });
+        }
+      });
+    } 
     this.closeModal();
   }
 

@@ -10,7 +10,13 @@
         [routerLink]="['/reports']" [routerLinkActive]="['router-link-active']"
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>
-            &nbsp;{{ 'Vessels and Reports' | translate }}
+            &nbsp;{{ 'Analytics' | translate }}
+        </a>
+        <a *ngIf="usertoken.forecast.read"
+        routerLink="/forecast" [routerLinkActive]="['router-link-active']"
+        (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
+            <i class="fa fa-fw fa-rss"></i>
+            &nbsp;{{ 'Forecast' | translate }}
         </a>
         <a *ngIf="usertoken.twa.read"
         [routerLink]="['/campaigns']" [routerLinkActive]="['router-link-active']"
@@ -40,12 +46,6 @@
         (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
             <i class="fa fa-fw fa-cog"></i>
             &nbsp;{{ 'Settings' | translate }}
-        </a>
-        <a *ngIf="usertoken.forecast.read"
-        routerLink="/forecast" [routerLinkActive]="['router-link-active']"
-        (click)="this.eventService.closeLatestAgmInfoWindow();" class="list-group-item">
-            <i class="fa fa-fw fa-rss"></i>
-            &nbsp;{{ 'Forecast' | translate }}
         </a>
         <a [routerLink]="['/login']" (click)="onLoggedout()" class="list-group-item">
             <span><i class="fa fa-fw fa-power-off"></i>

@@ -280,6 +280,10 @@ export class CommonService {
   saveDprSigningClient(dataObject: SovDprSignOrRefuseModel) {
     return this.post('/api/saveDprSigningClient/', dataObject);
   }
+  requestFullAccount() {
+    return this.get('/api/requestFullAccount/');
+  }
+
 
   getSovHseDprInput(vessel: VesselObjectModel) {
     return this.post('/api/getSovHseDprInput/', vessel);

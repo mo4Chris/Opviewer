@@ -1,7 +1,7 @@
 import { ReportsPage } from './reports.po';
 import { browser, element, by, ExpectedConditions, Key } from 'protractor';
 
-describe('vm-ctv: Vessels and Reports page', () => {
+describe('vm-ctv: Analytics & MO4 Light page', () => {
   let page: ReportsPage;
 
   beforeEach(async () => {

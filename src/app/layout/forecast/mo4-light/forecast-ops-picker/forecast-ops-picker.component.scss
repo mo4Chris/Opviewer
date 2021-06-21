@@ -25,6 +25,21 @@
   }
 }
 
+::ng-deep .accordion {
+  button
+  {
+    text-decoration: none;
+    color:white;
+    
+    &:hover, 
+    &:focus,
+    &:active {
+      text-decoration: none;
+      color:white;
+    }
+  }
+}
+
 
 td{
   min-width: 75px;
