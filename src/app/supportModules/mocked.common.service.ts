@@ -410,6 +410,9 @@ export class MockedCommonService extends CommonService {
   getSovDistinctFieldnames(vesselObject: VesselObjectModel) {
     return mockedObservable([]);
   }
+  requestFullAccount() {
+    return mockedObservable([]);
+  }
 
   getSpecificPark(park: { park: string[] }) {
     const Names = [];

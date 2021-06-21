@@ -61,7 +61,7 @@
           </li>
 
           <li *ngIf="!responseNotFound" ngbNavItem="forecast-motion-overview">
-            <a ngbNavLink>Motion overview</a>
+            <a ngbNavLink>Motion</a>
             <ng-template #motionGraph id="tab-motion" ngbNavContent>
               <app-forecast-motion-overview [time]="reponseTime" [headings]="WorkabilityHeadings"
                 [startTime]="startTime" [stopTime]="stopTime" [response]="response?.Response">
@@ -70,7 +70,7 @@
           </li>
 
           <li *ngIf="!responseNotFound" ngbNavItem="forecast-weather-overview">
-            <a ngbNavLink>Weather overview</a>
+            <a ngbNavLink>Weather</a>
             <ng-template #weatherGraph id="tab-weather" ngbNavContent>
               <app-forecast-weather-overview [weather]="weather">
               </app-forecast-weather-overview>

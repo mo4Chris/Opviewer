@@ -34,11 +34,33 @@
         </div>
     </ng-template>
 
+    <ng-template #requestUser let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Request full account</h4>
+            <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <b>Are you sure you want to request a full account?</b> <br><br>
+            When you request a full account, a MO4 employee will contact you on the email address or phone number used to register your demo account.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Dismiss</button>
+            <button type="button" class="btn btn-success" id="requestFullAccountButton" (click)="requestFullAccount()">Request full account</button>
+        </div>
+    </ng-template>
+
     <div class="collapse navbar-collapse">
         <!-- <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
+            <li *ngIf="permission.demo" class="nav-item dropdown">
+                <a (click)="openRequestFullAccessAccountModal(requestUser)" id="requestFullAccountModal" href="javascript:void(0)" class="nav-link">
+                    <i class="fa fa-user-plus"></i> Request full account <b class="caret"></b>
+                </a>
+            </li>
                 <li class="nav-item dropdown">
                     <a (click)="openModal(content)" href="javascript:void(0)" class="nav-link">
                         <i class="fa fa-comment"></i> Give feedback <b class="caret"></b>

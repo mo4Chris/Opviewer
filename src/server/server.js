@@ -2485,7 +2485,7 @@ function verifyDemoAccount(req, res, next) {
   admin_server_pool.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
-    if(!data.active) return onUnauthorized(res, 'Your account is inactive');
+    if(!data.active) return onOutdatedToken(res, 'Your account is inactive');
 
     if (!data.demo) return next();
     if (data.demo_expiration_date == null) return next();

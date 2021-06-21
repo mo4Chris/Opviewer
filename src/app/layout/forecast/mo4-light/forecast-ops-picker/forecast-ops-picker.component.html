@@ -29,7 +29,7 @@
       <ng-template ngbPanelContent>
           <tr>
             <td><div>Metocean provider</div></td>
-            <td colspan="2">{{selectedProject.metocean_provider.display_name}}</td>
+            <td colspan="2">{{selectedProject?.metocean_provider?.display_name || 'N/a'}}</td>
           </tr>
           <tr>
             <td><div [ngbTooltip]="helpLastUpdate">Simulation time</div></td>
@@ -42,7 +42,7 @@
       <ng-template ngbPanelContent width="100%">
         <tr>
           <td>
-            <div [ngbTooltip]="helpCtvSlipCoeff">Slip Coefficient</div>
+            <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
           </td>
           <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
             <td>
@@ -258,7 +258,10 @@
 </ng-template>
 
 <ng-template #helpCtvSlipCoeff>
-  Last time the forecast was updated. By default, this occurs every 6 hours.
+  MO4 uses Coulomb's law of friction to model the interaction of the fender and the boat landing. 
+  When the vertical hydrodynamic force due to waves on the bow exceeds horizontal force 
+  (the thrust and hydrodynamic loads) times the friction coefficient, the fender will start sliding. 
+  The coefficient is a dimensionless parameter. On average the value is around 0.6/0.7
 </ng-template>
 <ng-template #helpCtvThrustLevel>
   Amount of force applied by the engine during the push on.
