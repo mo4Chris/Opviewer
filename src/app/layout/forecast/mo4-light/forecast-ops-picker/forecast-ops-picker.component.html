@@ -192,7 +192,7 @@
 
             <select *ngIf="limit.Type == 'Wind'" class="form-control form-control-md"
               [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
-              <option *ngFor="let _wave of validWindTypes" [value]="_wind">{{_wind}}</option>
+              <option *ngFor="let _wind of validWindTypes" [value]="_wind">{{_wind}}</option>
             </select>
           </td>
           <td class="tight">
@@ -270,9 +270,9 @@
 </ng-template>
 
 <ng-template #helpCtvSlipCoeff>
-  MO4 uses Coulomb's law of friction to model the interaction of the fender and the boat landing. 
-  When the vertical hydrodynamic force due to waves on the bow exceeds horizontal force 
-  (the thrust and hydrodynamic loads) times the friction coefficient, the fender will start sliding. 
+  MO4 uses Coulomb's law of friction to model the interaction of the fender and the boat landing.
+  When the vertical hydrodynamic force due to waves on the bow exceeds horizontal force
+  (the thrust and hydrodynamic loads) times the friction coefficient, the fender will start sliding.
   The coefficient is a dimensionless parameter. On average the value is around 0.6/0.7
 </ng-template>
 <ng-template #helpCtvThrustLevel>

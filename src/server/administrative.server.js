@@ -17,8 +17,8 @@ const headers = {
 }
 
 // #################### Default values ####################
-const DEFAULT_WEATHER_PROVIDER_ID = 1;
-const DEFAULT_CLIENT_ID           = 4;
+const DEFAULT_WEATHER_PROVIDER_NAME = 'infoplaza';
+const DEFAULT_CLIENT_NAME           = 'Demo';
 
 
 
@@ -111,9 +111,7 @@ module.exports = function (
     if (is_bad_pw) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
     // Getting demo client information
-    const data = await admin_server_pool.query('SELECT * FROM "clientTable" WHERE "client_name" = $1', ["Demo"])
-    if (data.rowCount == 0) return res.onError(null, 'Failed to get demo client information')
-    const demo_client = data.rows[0];
+    const demo_client_id = await getDefaultClientId();
 
     //turn account creation back on after other functions
     try {
@@ -128,7 +126,7 @@ module.exports = function (
       await createDemoUser({
         username,
         requires2fa,
-        client_id: demo_client.client_id,
+        client_id: demo_client_id,
         vessel_ids,
         user_type,
         password,
@@ -356,7 +354,9 @@ module.exports = function (
   }
 
 
-  async function createProject(client_id = DEFAULT_CLIENT_ID, metocean_provider_id = DEFAULT_WEATHER_PROVIDER_ID) {
+  async function createProject(client_id = -1, metocean_provider_id = -1) {
+    if (client_id < 1) client_id = await getDefaultForecastClientId();
+    if (metocean_provider_id < 1) metocean_provider_id = await getDefaultMetoceanProviderId();
     logger.info(`Creating new project with client id = ${client_id}`)
     const currentTime = Date.now()
     const currentDate = new Date(currentTime);
@@ -391,6 +391,32 @@ module.exports = function (
     }
     logger.info('Created project with id ' + project?.data?.id)
     return project.data.id;
+  }
+
+
+  async function getDefaultClientId() {
+    const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`
+    const values = [DEFAULT_CLIENT_NAME];
+    const out = await admin_server_pool.query(query, values)
+    const default_client_id = out.rows[0]?.client_id;
+    if (default_client_id == null) throw new Error('Failed to find default client id')
+    return default_client_id;
+  }
+
+  async function getDefaultForecastClientId() {
+    const query = `SELECT "forecast_client_id" FROM "clientTable" WHERE "client_name"=$1`
+    const values = [DEFAULT_CLIENT_NAME];
+    const out = await admin_server_pool.query(query, values)
+    const default_client_id = out.rows[0]?.forecast_client_id;
+    if (default_client_id == null) throw new Error('Failed to find default client id')
+    return default_client_id;
+  }
+
+  async function getDefaultMetoceanProviderId() {
+    const out = await pg_get('/metocean_providers');
+    const providers = out.data.metocean_providers;
+    const demo_provider = providers.find(p => p?.name == DEFAULT_WEATHER_PROVIDER_NAME) ?? providers[0];
+    return demo_provider.id;
   }
 
 
@@ -594,6 +620,11 @@ module.exports = function (
   }
 
 
+  function pg_get(endpoint) {
+    const url = baseUrl + endpoint;
+    logger.debug(`Performing POST request: ${url}`)
+    return http.get(url, { headers, timeout })
+  }
   function pg_post(endpoint, data) {
     const url = baseUrl + endpoint;
     logger.debug(`Performing POST request: ${url}`)
