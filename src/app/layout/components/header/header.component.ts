@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit {
     private newService: CommonService,
     private modalService: NgbModal,
     private userService: UserService,
-    private permission: PermissionService,
+    public permission: PermissionService,
     public alert: AlertService,
   ) {
     this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de', 'zh-CHS']);

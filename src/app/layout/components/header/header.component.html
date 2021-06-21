@@ -47,7 +47,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Dismiss</button>
-            <button type="button" class="btn btn-success" (click)="requestFullAccount()">Request full account</button>
+            <button type="button" class="btn btn-success" id="requestFullAccountButton" (click)="requestFullAccount()">Request full account</button>
         </div>
     </ng-template>
 
@@ -57,7 +57,7 @@
         </form> -->
         <ul class="navbar-nav ml-auto">
             <li *ngIf="permission.demo" class="nav-item dropdown">
-                <a (click)="openRequestFullAccessAccountModal(requestUser)" href="javascript:void(0)" class="nav-link">
+                <a (click)="openRequestFullAccessAccountModal(requestUser)" id="requestFullAccountModal" href="javascript:void(0)" class="nav-link">
                     <i class="fa fa-user-plus"></i> Request full account <b class="caret"></b>
                 </a>
             </li>
