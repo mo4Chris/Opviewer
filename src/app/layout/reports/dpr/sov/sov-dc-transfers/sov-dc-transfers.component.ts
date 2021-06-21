@@ -6,7 +6,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { CommonService } from '@app/common.service';
 import { map, catchError } from 'rxjs/operators';
 import { AlertService } from '@app/supportModules/alert.service';
-import { isObject, isNumber } from 'util';
+import { v2vTurbineTransfer } from '../models/Transfers/vessel2vessel/V2vCtvActivity';
 
 @Component({
   selector: 'app-sov-dc-transfers',
@@ -34,8 +34,8 @@ export class SovDcTransfersComponent implements OnChanges {
     private ref: ChangeDetectorRef,
   ) { }
 
-  map = [];
-  transfers = [];
+  private map = [];
+  transfers: v2vTurbineTransfer[] = [];
   missedTransfers: MissedDcTransfer[] = [];
   hasChanges = false;
   vesselName = '';
@@ -44,23 +44,22 @@ export class SovDcTransfersComponent implements OnChanges {
     this.transfers = [];
     this.missedTransfers = [];
     this.hasChanges = false;
-    if (this.dcInfo && this.dcInfo.mmsi) {
-      this.vessel2vessels.forEach(v2v => {
-        v2v.CTVactivity.forEach(_activity => {
-          if (_activity.mmsi === this.dcInfo.mmsi) {
-            this.map = _activity.map;
-            if (Array.isArray(_activity.turbineVisits)) {
-              this.transfers = _activity.turbineVisits;
-            } else if (typeof(_activity.turbineVisits) == 'object' && typeof(_activity.turbineVisits['startTime']) == 'number') {
-              this.transfers = [_activity.turbineVisits];
-            }
-          }
-        });
-        if (v2v.missedTransfers) {
-          this.missedTransfers = v2v.missedTransfers;
+    if (!(this.dcInfo && this.dcInfo.mmsi)) return;
+
+    this.vessel2vessels.forEach(v2v => {
+      v2v.CTVactivity.forEach(_activity => {
+        if (_activity.mmsi != this.dcInfo.mmsi) return;
+        this.map = _activity.map;
+        if (Array.isArray(_activity.turbineVisits)) {
+          this.transfers = _activity.turbineVisits;
+        } else if (typeof(_activity.turbineVisits) == 'object' && typeof(_activity.turbineVisits['startTime']) == 'number') {
+          this.transfers = [_activity.turbineVisits];
         }
       });
-    }
+      if (v2v.missedTransfers) {
+        this.missedTransfers = v2v.missedTransfers;
+      }
+    });
   }
 
   addMissedTransferToArray() {

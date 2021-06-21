@@ -15,6 +15,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { ActivatedRoute } from '@angular/router';
 import { RouterService } from '@app/supportModules/router.service';
 import { ForecastOperation } from '../models/forecast-response.model';
+import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 
 describe('ForecastProjectComponent', () => {
@@ -194,6 +195,11 @@ describe('ForecastProjectComponent', () => {
     const SetMaxSlipRowAfter = locate('#setMaxSlip');
     expect(SetMaxSlipRowAfter).toBeTruthy('Should now be enabled');
     expect(consoleSpy).not.toHaveBeenCalled();
+  })
+
+  it('should have equal row length', () => {
+    const table = locate('table');
+    assertTableEqualRowLength(table as HTMLElement)
   })
 
   function locate(locator: string) {

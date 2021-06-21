@@ -94,6 +94,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       type: 'scatter', // This is a line
       name: 'Workability - under limit',
       connectgaps: false,
+      mode: 'lines',
       line: {
         color: 'green',
       },
@@ -102,6 +103,7 @@ export class ForecastWorkabilityPlotComponent implements OnChanges {
       y: areas.red.map(g => g.y>0 ? g.y : null),
       type: 'scatter', // This is a line
       name: 'Workability - over limit',
+      mode: 'lines',
       connectgaps: false,
       line: {
         color: 'red',

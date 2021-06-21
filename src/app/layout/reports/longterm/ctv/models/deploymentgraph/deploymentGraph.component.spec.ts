@@ -3,6 +3,7 @@ import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportMo
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './deploymentGraph.component';
+import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 describe('DeploymentGraphComponent', () => {
   let component: DeploymentGraphComponent;
@@ -57,6 +58,12 @@ describe('DeploymentGraphComponent', () => {
     expect(component).toBeTruthy();
     expect(dataSpy).toHaveBeenCalled();
   });
+
+
+  it('should have equal row length', () => {
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
 });
 
 

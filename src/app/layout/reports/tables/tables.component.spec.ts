@@ -9,6 +9,7 @@ import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.s
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { mockedObservable } from '@app/models/testObservable';
+import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 describe('TablesComponent', () => {
   let component: TablesComponent;
@@ -50,4 +51,28 @@ describe('TablesComponent', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
+
+  it('should have equal row length as admin', () => {
+    component.permission.admin = true;
+    component.permission.longterm = true;
+    fixture.detectChanges()
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
+
+  it('should have equal row length as user w/ longterm', () => {
+    component.permission.admin = false;
+    component.permission.longterm = true;
+    fixture.detectChanges()
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
+
+  it('should have equal row length as user w/out longterm', () => {
+    component.permission.admin = false;
+    component.permission.longterm = false;
+    fixture.detectChanges()
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
 });

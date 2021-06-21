@@ -19,7 +19,7 @@
           </thead>
           <tbody>
             <tr *ngIf="transfers.length==0">
-              <td colspan="10">
+              <td colspan="5">
                 No DC transfers were detected
               </td>
             </tr>
@@ -29,14 +29,14 @@
                 <td>{{getMatlabDateToCustomJSTime(turbineTransfer.startTime, 'HH:mm')}}</td>
                 <td>{{getMatlabDateToCustomJSTime(turbineTransfer.stopTime, 'HH:mm')}}</td>
                 <td>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" 
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
                   [(ngModel)]="turbineTransfer.paxIn" (ngModelChange)="updatePaxCargoTotal()">
                   incoming <br>
-                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0" 
+                  <input type="number" min="0" class="form-control-sm col-sm-5" placeholder="0"
                   [(ngModel)]="turbineTransfer.paxOut" (ngModelChange)="updatePaxCargoTotal()">
                   outgoing
                 </td>
-                <td>
+                <td colspan="3">
                   <input type="number" min="0" class="form-control-sm col-sm-5 form-number" placeholder="0"
                   [(ngModel)]="turbineTransfer.cargoIn" (ngModelChange)="updatePaxCargoTotal()">
                   kg incoming <br>
@@ -124,7 +124,7 @@
           </thead>
           <tbody>
             <tr *ngIf="transfers.length==0">
-              <td colspan="10">
+              <td colspan="5">
                 No DC transfers were detected
               </td>
             </tr>

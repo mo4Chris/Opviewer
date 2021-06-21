@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { mockedObservable } from '@app/models/testObservable';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { assertTableEqualRowLength } from "@app/layout/layout.component.spec";
 
 describe('UsermanagementComponent', () => {
   let component: UserManagementComponent;
@@ -84,9 +85,16 @@ describe('UsermanagementComponent', () => {
     expect(saveSpy).toHaveBeenCalled();
   })
 
+  it('should have equal row lenght', () => {
+    fixture.detectChanges();
+    const table = locate('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
 
   function locate(locator: string) {
     const nativeElt = <HTMLElement> fixture.nativeElement;
     return nativeElt.querySelector(locator);
   }
 });
+
+
