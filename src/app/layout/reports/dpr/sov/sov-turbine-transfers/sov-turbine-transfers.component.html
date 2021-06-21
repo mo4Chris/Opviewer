@@ -99,8 +99,7 @@
                   (ngModelChange)="updatePaxCargoTotal()">
                lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
 
             <tr name='helicopter'>
@@ -163,7 +162,7 @@
                 {{v2vPaxCargoTotals.cargoIn}} lift on <br>
                 {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
-              <td colspan="3"></td>
+              <td colspan="5"></td>
             </tr>
             <tr class="tableTotal">
               <th>Total amount</th>
@@ -248,7 +247,7 @@
               <td>{{transfer.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
-              <td colspan="4"></td>
+              <td colspan="2"></td>
               <td>
                 {{transfer.paxIn || 0}} incoming <br>
                 {{transfer.paxOut || 0}} outgoing
@@ -257,8 +256,7 @@
                 {{transfer.cargoIn || 0}} lift on <br>
                 {{transfer.cargoOut || 0}} lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
             <tr name="helicopter">
               <th>Helicopter transfers</th>
@@ -308,8 +306,7 @@
                 {{totalCargoIn}} lift on <br>
                 {{totalCargoOut}} lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
           </tbody>
         </table>
