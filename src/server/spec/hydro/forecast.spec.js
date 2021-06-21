@@ -49,10 +49,10 @@ module.exports = (app, GET, POST, PUT) => {
       mock.jsonWebToken(app, {
         permission: DEMO_USER_PERMISSIONS,
       })
-      mock.pgRequest([{demo_project_id: DemoProjectId}])
     })
 
     it('should GET project', () => {
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = `/api/mo4light/getProject`
       const payload = {project_name: DEMO_PROJECT.name}
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
@@ -60,18 +60,21 @@ module.exports = (app, GET, POST, PUT) => {
       return response.expect(expectValidRequest)
     })
     it('should GET project response', () => {
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId}`
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
       return response.expect(expectValidRequest)
     })
     it('should not GET project response that does not belong to this demo user', async () => {
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = `/api/mo4light/getResponseForProject/${DemoProjectId + 1}`
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT]})
       const response = GET(url)
       await response.expect(expectUnAuthRequest)
     })
     it('should GET projects only which belong to this demo user', async () => {
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = `/api/mo4light/getProjectList`
       mock.mockForecastApiRequest({projects: [DEMO_PROJECT, CLIENT_PROJECT_1]})
       const response = GET(url)
@@ -80,12 +83,43 @@ module.exports = (app, GET, POST, PUT) => {
     })
 
     it('should GET generic vessels', async () => {
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = `/api/mo4light/getVesselList`
       mock.mockForecastApiRequest({vessels: [GENERIC_VESSEL, CLIENT_VESSEL, OTHER_CLIENT_VESSEL]})
       const response = GET(url)
       const response_data = await response;
       expect(response_data.body.length).toEqual(1)
     })
+    it('should PUT projects', async () => {
+      mock.mockForecastApiRequest({display_name: 'Good little project'})
+      mock.pgRequest([{demo_project_id: DemoProjectId}])
+      const url = '/api/mo4light/projectSettings';
+      const project_name = 'test_project_1'
+      const response = await PUT(url, {
+        project_name,
+        project_settings: {
+          display_name: 'New fancy name'
+        }
+      })
+      expect(response.status).toBe(200)
+      const output = response.body.data;
+      expect(output).toBe('Successfully saved project!')
+    });
+    it('should not PUT generic demo project', async () => {
+      mock.mockForecastApiRequest({display_name: 'Good little project'})
+      mock.pgRequests([
+        [{demo_project_id: DemoProjectId}]
+      ])
+      const url = '/api/mo4light/projectSettings';
+      const project_name = 'Sample_Project'
+      const response = await PUT(url, {
+        project_name,
+        project_settings: {}
+      }).catch(err => {
+        console.log('err', err)
+      })
+      expectUnAuthRequest(response)
+    });
   })
 
   describe('Client user', () => {
@@ -208,6 +242,22 @@ module.exports = (app, GET, POST, PUT) => {
       const response = GET(url)
       return response.expect(expectUnAuthRequest)
     })
+
+    it('should not PUT generic demo project', async () => {
+      mock.mockForecastApiRequest({display_name: 'Good little project'})
+      mock.pgRequests([
+        [{demo_project_id: CLIENT_PROJECT_1.id}]
+      ])
+      const url = '/api/mo4light/projectSettings';
+      const project_name = 'Sample_Project'
+      const response = await PUT(url, {
+        project_name,
+        project_settings: {}
+      }).catch(err => {
+        console.log('err', err)
+      })
+      expectUnAuthRequest(response)
+    });
   })
 }
 

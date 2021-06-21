@@ -52,7 +52,6 @@ export class SurfacePlotComponent implements OnChanges {
       title: 'xLabel',
       showgrid: false,
       zeroline: false,
-
     },
     yaxis: {
       visible: true,
@@ -90,7 +89,7 @@ export class SurfacePlotComponent implements OnChanges {
       zmin: 0,
       zmid: 80,
       zmax: this.zMax,
-      colorscale: [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']],
+      colorscale: this.plotlyService.SPECTRAL_COLOR_SCHEME,
       colorbar: {
         tickvals: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10) : undefined,
         ticktext: this.zMax ? this.calcService.linspace(0, this.zMax, this.zMax / 10).map(e => `${e}%`) : undefined,

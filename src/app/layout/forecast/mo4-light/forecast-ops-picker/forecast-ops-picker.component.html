@@ -170,17 +170,29 @@
               <option value='Vel'>Velocity</option>
               <option value='Disp'>Displacement</option>
               <option value='Slip'>Slip prob</option>
+              <option value='Wave'>Wave</option>
+              <option value='Wind'>Wind</option>
             </select>
           </td>
           <td class="tight">
-            <select class="form-control form-control-md" [(ngModel)]="limit.Dof" (change)="onLimitsChange()"
-              [disabled]="limit.Type == 'Slip'">
+            <select *ngIf="limit.isDofType" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
               <option value="Surge">Surge</option>
               <option value="Sway">Sway</option>
               <option value="Heave">Heave</option>
               <option value="Roll">Roll</option>
               <option value="Pitch">Pitch</option>
               <option value="Yaw">Yaw</option>
+            </select>
+
+            <select *ngIf="limit.Type == 'Wave'" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+              <option *ngFor="let _wave of validWaveTypes" [value]="_wave">{{_wave}}</option>
+            </select>
+
+            <select *ngIf="limit.Type == 'Wind'" class="form-control form-control-md"
+              [(ngModel)]="limit.Dof" (change)="onLimitsChange()">
+              <option *ngFor="let _wave of validWindTypes" [value]="_wind">{{_wind}}</option>
             </select>
           </td>
           <td class="tight">

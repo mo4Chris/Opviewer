@@ -71,11 +71,11 @@ module.exports = function (
     })
   })
 
-  app.post('/api/createUser',  async (req, res) => {
-    // TODO: verify client ID
-    // TODO: verify if vessels belong to client
-    // TODO: verify if token is acceptable)
-    // TODO: assert user_can_see_all_vessels_client OR subset of own vessels
+  app.post('/api/createUser', checkSchema(models.createUserModel), async (req, res) => {
+    // Existing user creates a new user
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.onBadRequest(errors);
+
     const own_token = req['token'];
     const own_user_id = +own_token.user_id;
     const own_vessel_ids = own_token.userBoats;
@@ -86,22 +86,10 @@ module.exports = function (
     const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
     const user_type = req.body.user_type;
+    const is_admin = own_permissions?.['admin'] ?? false;
 
-
-    logger.debug('Validating incoming request')
-    if (vessel_ids != null && !Array.isArray(vessel_ids)) {
-      logger.info('Vessel is not in valid format')
-      return res.status(400).send('Invalid vessel id format');
-    }
-    logger.trace('Verfying username format')
-    if (typeof(username)!='string' || username.length<=0) return res.status(400).send('Invalid username. Should be string')
-    logger.trace('Verfying 2fa format')
-    if (requires2fa!=0 && requires2fa!= 1) return res.status(400).send('Invalid requires2fa: should be 0 or 1')
-    logger.trace(`Verfying client_id format ${client_id} (${typeof client_id})`)
-    if (typeof(client_id) != "number") return res.status(400).send('Invalid client id: should be int')
-
-    // Check if user is admin
-    const is_admin = own_permissions?.['admin'] ?? false
+    // Check if user authorized to create users
+    if (!is_admin && !own_permissions.user_manage) return res.onUnauthorized('User not authorized to create new users')
     logger.trace('Verfying client')
     // TODO: If a user is associated with multiple clients this wont do
     if (!is_admin && (client_id != own_client_id)) return onUnauthorized(res, 'Target client does not match own client')
@@ -109,8 +97,9 @@ module.exports = function (
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
       // Valid - do nothing
     } else if (own_vessel_ids == null) {
-      // TODO: Check if vessel belongs to client
-      // const own_vessel_list = loadVesselList(own_user_id);
+      const own_vessel_list = await getVesselsForUser(own_user_id);
+      const own_vessel_ids = own_vessel_list.map(v => v.vesse_id);
+      if (vessel_ids.some(_vessel_id => !own_vessel_ids.some(_id => _vessel_id == _id))) res.onUnauthorized();
     } else {
       if (vessel_ids == null) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
       const illegal = vessel_ids.some(id => {
@@ -588,7 +577,7 @@ module.exports = function (
 
   async function getVesselsForUser(user_id = 0) {
     let PgQuery = `
-    SELECT "vesselTable"."mmsi", "vesselTable"."nicename"
+    SELECT "vesselTable"."vessel_id", "vesselTable"."mmsi", "vesselTable"."nicename"
       FROM "vesselTable"
       INNER JOIN "userTable"
       ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")

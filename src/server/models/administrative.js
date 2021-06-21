@@ -76,6 +76,40 @@ const createDemoUserModel = {
   }
 }
 
+/** @type{Schema} */
+const createUserModel = {
+  username: {
+    isString: true,
+    isLength: {
+      options: {
+        min: 5
+      }
+    }
+  },
+  requires2fa: {
+    isBoolean: true
+  },
+  user_type: {
+    optional: true,
+    equals: {
+      options: ['demo']
+    }
+  },
+  vessel_ids: {
+    optional: true,
+    custom: {
+      options: (vessels) => {
+        const is_null = vessels == null;
+        const is_int_array = Array.isArray(vessels) && !vessels.some(v => typeof(v) != 'number');
+        return is_null || is_int_array;
+      }
+    }
+  },
+  client_id: {
+    isNumeric: true
+  }
+}
+
 
 /** @type{Schema} */
 const loginModel = {
@@ -158,6 +192,7 @@ const updateUserPermissionsModel = {
 
 module.exports = {
   setPasswordModel,
+  createUserModel,
   createDemoUserModel,
   loginModel,
   updateUserSettingsModel,

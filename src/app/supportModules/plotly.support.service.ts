@@ -7,6 +7,8 @@ export class PlotlySupportService {
 
   constructor() { }
 
+  SPECTRAL_COLOR_SCHEME = [[0, 'rgb(0,130,0)'], [0.25, 'rgb(130,255,0)'], [0.45, 'rgb(255,255,0)'], [0.65, 'rgb(255,130,0)'], [0.85, 'rgb(255,50,50)'], [1, 'rgb(220,0,0)']];
+
   setXLimits(xVals: any[], plotLayout: Partial<Plotly.Layout>): void {
     const xmin = Math.min(... xVals);
     const xmax = Math.max(... xVals);

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
-import { ForecastMotionLimit } from './forecast-limit';
+import { ForecastMotionLimit, WaveType, WindType } from './forecast-limit';
 import { Dof6, Dof6Array, DofType, ForecastOperation } from './forecast-response.model';
 
 

@@ -204,7 +204,6 @@ export class ForecastVesselComponent implements OnInit {
     this.routeService.routeToForecastNewVesselRequest();
   }
   public onConfirm() {
-    // ToDo: send the values back to the database
     this.project.vessel_id = this.SelectedVessel == 0 ? null : this.SelectedVessel.id;
     this.newService.saveForecastProjectSettings(this.project).subscribe(msg => {
       this.alert.sendAlert({

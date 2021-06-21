@@ -104,7 +104,8 @@ describe('DatetimeService', () => {
   });
 
   it('should correctly parse iso strings', () => {
-    expect(service.isoStringToMoment('2021-01-18T10:20:31.902Z').toString()).toEqual('Mon Jan 18 2021 11:20:31 GMT+0100');
+    const mom = service.isoStringToMoment('2021-01-18T10:20:31.902Z')
+    expect(mom.tz('utc').toString()).toEqual('Mon Jan 18 2021 10:20:31 GMT+0000');
   });
 
   it('should correctly format matlab duration', () => {

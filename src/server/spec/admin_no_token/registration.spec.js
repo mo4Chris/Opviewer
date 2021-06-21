@@ -97,7 +97,7 @@ module.exports = (app, GET, POST) => {
         user_id: 123,
       }])
       const response = doSetPassword({
-        secret2fa: null
+        secret2fa: undefined
       })
       await response.expect(expectValidRequest)
     })
