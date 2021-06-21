@@ -9,7 +9,7 @@ import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportMo
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { mockedObservable } from '@app/models/testObservable';
 
-fdescribe('HeaderComponent', () => {
+describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
 
