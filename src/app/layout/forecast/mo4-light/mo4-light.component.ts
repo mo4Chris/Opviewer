@@ -145,7 +145,9 @@ export class Mo4LightComponent implements OnInit {
         raw_weather.Time = this.dateService.roundToMinutes(raw_weather.Time, 2)
         const param = raw_weather.Wave.Parametric;
 
-        const provider = this.operations.find(op => op.id == this.project_id).metocean_provider.display_name;
+        const provider = this.operations?.find(op => {
+          return op.id == this.project_id
+        })?.metocean_provider?.display_name ?? 'N/a';
 
         this.weather = {
           timeStamp: raw_weather.Time,
