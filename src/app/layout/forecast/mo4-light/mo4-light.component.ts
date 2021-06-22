@@ -143,7 +143,12 @@ export class Mo4LightComponent implements OnInit {
         // TEMPORARY WORKAROUND FOR WEATHER
         const raw_weather = this.response['MetoceanData'];
         raw_weather.Time = this.dateService.roundToMinutes(raw_weather.Time, 2)
-        const param = raw_weather.Wave.Parametric
+        const param = raw_weather.Wave.Parametric;
+
+        const provider = this.operations?.find(op => {
+          return op.id == this.project_id
+        })?.metocean_provider?.display_name ?? 'N/a';
+
         this.weather = {
           timeStamp: raw_weather.Time,
           Hs: param.Hs,
@@ -151,11 +156,11 @@ export class Mo4LightComponent implements OnInit {
           Tp: param.Tp,
           waveDir: param.MeanDirection,
           wavePeakDir: param.PeakDirection,
-          source: 'Infoplaza'
+          source: provider
         }
         const spectral = raw_weather.Wave.Spectral
         this.spectrum = {
-          source: 'Infoplaza',
+          source: provider,
           k_x: spectral.Kx, //.map(x => x[0]),
           k_y: spectral.Ky, //.map(x => x[0]),
           density: spectral.Density,
