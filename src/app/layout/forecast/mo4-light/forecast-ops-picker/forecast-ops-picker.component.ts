@@ -127,19 +127,21 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   onNewSelectedOperation() {
-    this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
-    this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
     if (this.hasCtvSlipSettings) {
       const opts = this.ctvSlipSettings;
       if (opts == null) {
+        this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
+        this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
         this.selectedProject.client_preferences.Ctv_Slip_Options = {
-          Max_Allowed_Slip_Meter: 0.6,
+          Max_Allowed_Slip_Meter: this.slipValue,
           Window_Length_Seconds: 60,
           Slip_Coefficient: 0.6,
-          Thrust_Level_N: 100000,
+          Thrust_Level_N: this.thrustValue,
         }
       } else {
+        this.slipValue = this.calcService.findNearest(this.slipCoefficients, opts.Slip_Coefficient);
+        this.thrustValue = this.calcService.findNearest(this.slipThrustLevels, opts.Thrust_Level_N)
         opts.Max_Allowed_Slip_Meter = opts.Max_Allowed_Slip_Meter ?? 0.6;
         opts.Window_Length_Seconds = opts.Window_Length_Seconds ?? 60;
       }

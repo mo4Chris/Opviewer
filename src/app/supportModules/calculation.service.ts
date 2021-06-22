@@ -124,6 +124,19 @@ export class CalculationService {
     };
   }
 
+  findNearest(arr: number[], val: number) {
+    const d = arr.map(_v => Math.abs(_v - val));
+    let min_dist  = d[0];
+    let min_idx   = 0;
+    d.forEach((_d, _i) => {
+      if (_d < min_dist) {
+        min_dist = _d;
+        min_idx = _i;
+      }
+    })
+    return arr[min_idx];
+  }
+
   nanMean(X: number[], removeNaNs = true) {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
