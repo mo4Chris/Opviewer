@@ -283,7 +283,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
     if (this.stopTime < this.startTime) this.stopTime += 1;
     const currentPastStopTime = currentTimeStamp > this.stopTime;
-    if (currentPastStopTime) {
+    if (init && currentPastStopTime) {
+      this.date = this.dateService.matlabDatenumToYMD(matlabDate + 1);
       this.startTime += 1;
       this.stopTime += 1;
     }

@@ -16,11 +16,11 @@
             </td>
           </tr>
           <tr>
-            <td>Vessel</td>
+            <td><div [ngbTooltip]="helpVessel">Vessel</div></td>
             <td colspan="2">{{selectedVesselName}}</td>
           </tr>
           <tr>
-            <td>Location</td>
+            <td><div [ngbTooltip]="helpLocation">Location</div></td>
             <td colspan="2">{{gps.formatLat(response?.latitude)}}, {{gps.formatLng(response?.longitude)}}</td>
           </tr>
         </ng-template>
@@ -30,7 +30,7 @@
         <ng-template ngbPanelContent class="panel-header">
           <tr>
             <td>
-              <div>Metocean provider</div>
+              <div [ngbTooltip]="helpMetoceanProvider">Metocean provider</div>
             </td>
             <td colspan="2">{{selectedProject?.metocean_provider?.display_name || 'N/a'}}</td>
           </tr>
@@ -39,61 +39,6 @@
               <div [ngbTooltip]="helpLastUpdate">Simulation time</div>
             </td>
             <td colspan="2">{{lastUpdated}}</td>
-          </tr>
-        </ng-template>
-      </ngb-panel>
-
-      <ngb-panel *ngIf="hasCtvSlipSettings" title="Ctv slip settings" id="ctv-settings">
-        <ng-template ngbPanelContent>
-          <tr>
-            <td>
-              <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
-            </td>
-            <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
-              <td>
-                <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
-                  [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)" step="0.05"
-                  [(ngModel)]="slipValue" (change)="onSlipCoefChange()">
-              </td>
-              <td>{{slipValue}}</td>
-            </ng-container>
-          </tr>
-          <tr>
-            <td>
-              <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
-            </td>
-            <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
-              <td>
-                <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
-                  [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length-1], 100)" step="10000"
-                  [(ngModel)]="thrustValue" (change)="onThrustIndexChange()">
-              </td>
-              <td *ngIf="slipThrustLevels?.length > 0">{{formatThrust(thrustValue)}}</td>
-            </ng-container>
-          </tr>
-
-          <tr>
-            <td>Slip window length</td>
-            <td colspan="2">
-              <div class="input-group">
-                <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Window_Length_Seconds" disabled>
-                <div class="input-group-append tight">
-                  <span class="input-group-text">s</span>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Max allowed slip</td>
-            <td colspan="2">
-              <div class="input-group">
-                <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Max_Allowed_Slip_Meter"
-                  disabled>
-                <div class="input-group-append tight">
-                  <span class="input-group-text">m</span>
-                </div>
-              </div>
-            </td>
           </tr>
         </ng-template>
       </ngb-panel>
@@ -172,6 +117,61 @@
         </ng-template>
       </ngb-panel>
 
+      <ngb-panel *ngIf="hasCtvSlipSettings" title="Ctv slip settings" id="ctv-settings">
+        <ng-template ngbPanelContent>
+          <tr>
+            <td>
+              <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
+            </td>
+            <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
+              <td>
+                <input class="dynamic-slider" type="range" [value]="slipCoefficients[0]" [min]="slipCoefficients[0]"
+                  [max]="calcService.roundNumber(slipCoefficients[slipCoefficients.length - 1], 100)" step="0.05"
+                  [(ngModel)]="slipValue" (change)="onSlipCoefChange()">
+              </td>
+              <td>{{slipValue}}</td>
+            </ng-container>
+          </tr>
+          <tr>
+            <td>
+              <div [ngbTooltip]="helpCtvThrustLevel">Thrust level</div>
+            </td>
+            <ng-container *ngIf="slipThrustLevels?.length > 0; else nan">
+              <td>
+                <input class="dynamic-slider" type="range" [value]="slipThrustLevels[0]" [min]="slipThrustLevels[0]"
+                  [max]="calcService.roundNumber(slipThrustLevels[slipThrustLevels.length-1], 100)" step="10000"
+                  [(ngModel)]="thrustValue" (change)="onThrustIndexChange()">
+              </td>
+              <td *ngIf="slipThrustLevels?.length > 0">{{formatThrust(thrustValue)}}</td>
+            </ng-container>
+          </tr>
+
+          <tr>
+            <td [ngbTooltip]="helpSlipWindowLength">Slip window length</td>
+            <td colspan="2">
+              <div class="input-group">
+                <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Window_Length_Seconds" disabled>
+                <div class="input-group-append tight">
+                  <span class="input-group-text">s</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td [ngbTooltip]="helpMaxAllowedSlip">Max allowed slip</td>
+            <td colspan="2">
+              <div class="input-group">
+                <input class="form-control form-control-md" [ngModel]="ctvSlipSettings?.Max_Allowed_Slip_Meter"
+                  disabled>
+                <div class="input-group-append tight">
+                  <span class="input-group-text">m</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </ngb-panel>
+
       <ngb-panel title="Operation limits" id="ops-limits">
         <ng-template ngbPanelContent>
           <tr colspan="3" [ngbTooltip]="helpLimits" class='sep-row' container="body">
@@ -238,6 +238,7 @@
         </ng-template>
       </ngb-panel>
     </ngb-accordion>
+
     <tr *ngIf="settingsChanged">
       <td colspan=3>
         <button class="btn btn-md btn-primary float-right" (click)="onConfirm();" type="button">
@@ -253,6 +254,15 @@
   <td colspan="2">
     N/a
   </td>
+</ng-template>
+<ng-template #helpVessel>
+  Name of the vessel for which the forecast was made. This can be changed in the project overview page.
+</ng-template>
+<ng-template #helpLocation>
+  Location for which the forecast was made. This can be changed in the project overview page.
+</ng-template>
+<ng-template #helpMetoceanProvider>
+  Metocean weather provider with which the forecast was made. This can be changed in the project overview page.
 </ng-template>
 <ng-template #helpStart>
   Start date of project.
@@ -286,11 +296,19 @@
 </ng-template>
 
 <ng-template #helpCtvSlipCoeff>
-  MO4 uses Coulomb's law of friction to model the interaction of the fender and the boat landing.
-  When the vertical hydrodynamic force due to waves on the bow exceeds horizontal force
-  (the thrust and hydrodynamic loads) times the friction coefficient, the fender will start sliding.
-  The coefficient is a dimensionless parameter. On average the value is around 0.6/0.7
+  MO4 uses Coulomb's law of friction to model the interaction of the fender with the boat landing.
+  When the vertical hydrodynamic force due to waves on the bow exceeds the horizontal force
+  (thrust and hydrodynamic load) times the friction coefficient, the fender will start sliding.
+  This coefficient is a dimensionless parameter. On average the value is around 0.6/0.7, and will
+  decrease as the fender wears out.
 </ng-template>
 <ng-template #helpCtvThrustLevel>
   Amount of force applied by the engine during the push on.
+</ng-template>
+<ng-template #helpSlipWindowLength>
+  Length of the window. The computed slip probability equals the likelyhood of a slip
+  event during the given window. This can be changed on the project settings page.
+</ng-template>
+<ng-template #helpMaxAllowedSlip>
+  The maximum allowed slip before we consider such a slip problematic (slip event).
 </ng-template>

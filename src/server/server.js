@@ -891,7 +891,7 @@ app.get("/api/getLatestBoatLocation/", async function(req, res) {
       }
     }
   ]).exec(function(err, data) {
-    if (err) return onError(res, err);
+    if (err) return onError(res, err, 'Failed to query vessel locations');
     res.send(data);
   });
 });
