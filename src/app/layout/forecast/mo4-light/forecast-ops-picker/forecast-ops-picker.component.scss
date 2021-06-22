@@ -43,14 +43,33 @@ ngb-accordion {
       color:white;
     }
   }
+
   .card {
+    border-radius: 0;
+    border-bottom-width: 0;
     .card-header {
       padding: 0;
+      border-radius: 0px;
     };
     div > .card-body {
       padding-left: 0.50rem;
       padding-right: 0.50rem;
     }
+  }
+
+  :first-child {
+    border-top-left-radius: 0.25em;
+    border-top-right-radius: 0.25em;
+    .card-header {
+      border-top-left-radius: 0.25em;
+      border-top-right-radius: 0.25em;
+    }
+  }
+
+  :last-child {
+    border-bottom-left-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+    border-bottom-width: 1px;
   }
 }
 
