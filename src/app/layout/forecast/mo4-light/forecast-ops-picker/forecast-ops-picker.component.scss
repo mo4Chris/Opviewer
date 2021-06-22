@@ -67,9 +67,13 @@ ngb-accordion {
   }
 
   :last-child {
+    :last-child {
+      border-bottom-left-radius: 0.25em;
+      border-bottom-right-radius: 0.25em;
+    }
+    border-bottom-width: 1px;
     border-bottom-left-radius: 0.25em;
     border-bottom-right-radius: 0.25em;
-    border-bottom-width: 1px;
   }
 }
 
