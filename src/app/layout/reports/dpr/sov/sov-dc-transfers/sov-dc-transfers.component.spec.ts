@@ -147,7 +147,6 @@ describe('SovDcTransfersComponent', () => {
   it('should have equal row length - edit', () => {
     component.readonly = false;
     component.ngOnChanges();
-    console.log('component.transfers', component.transfers)
     fixture.detectChanges();
     const table = document.querySelector('table');
     assertTableEqualRowLength(table as HTMLElement)

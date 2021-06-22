@@ -148,7 +148,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     }
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
-    this.updateOperationTimes()
+    this.updateOperationTimes(true)
     this.onChange.emit({
       startTime: this.startTime,
       stopTime: this.stopTime,
@@ -262,15 +262,23 @@ export class ForecastOpsPickerComponent implements OnChanges {
     });
   }
 
-  private updateOperationTimes() {
+  private updateOperationTimes(init = false) {
     // Computes the startTime and stopTime parameters
+    let matlabDate: number;
     let currentTimeStamp = this.dateService.getCurrentMatlabDatenum();
-    let matlabDate = Math.floor(currentTimeStamp);
-    const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
-    if (matlabDate >= maxResponseDate) {
-      currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.minForecastDate)
+
+    if (init) {
       matlabDate = Math.floor(currentTimeStamp);
+      const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
+      if (matlabDate >= maxResponseDate) {
+        currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.minForecastDate)
+        matlabDate = Math.floor(currentTimeStamp);
+      }
+      this.date = this.dateService.matlabDatenumToYMD(matlabDate);
+    } else {
+      matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
     }
+
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
     if (this.stopTime < this.startTime) this.stopTime += 1;

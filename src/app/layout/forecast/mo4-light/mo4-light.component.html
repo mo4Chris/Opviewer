@@ -13,15 +13,13 @@
           [ngbPopover]="helpProjectOverview" placement="bottom" popoverClass="helpPopup">?
         </button>
       </div>
-      <div class='card-body table-responsive'>
+      <div class="card-body forecast-margin">
         <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
           [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
           (onChange)="onProjectSettingsChange($event)" [limits]="limits" [lastUpdated]="lastUpdated"
           [(slipCoefficient)]="selectedSlipCoefficient" [(thrustIndex)]="selectedThrustIndex"  [vessels]='vessels'
           [slipCoefficients]="SlipCoefficients" [slipThrustLevels]="SlipThrustLevels" [response]="responseObj">
         </app-forecast-ops-picker>
-        <app-heading-picker class="center" [heading]="selectedHeading">
-        </app-heading-picker>
       </div>
     </div>
   </div>

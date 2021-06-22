@@ -53,7 +53,6 @@ export function assertTableEqualRowLength(table: HTMLElement) {
     expect(row_len).toBeGreaterThan(0, 'Row length should be positive!')
     rows.forEach((_row, row_index) => {
       const num_cells = get_num_cells_from_row(_row);
-      console.log(`Row ${row_index} has length ${num_cells} != ${row_len}`)
       expect(num_cells).toEqual(row_len, `Row ${row_index} has length ${num_cells} != ${row_len}`);
     })
 

@@ -250,7 +250,7 @@ describe('ForecastOpsPickerComponent', () => {
       component.maxForecastDate = {year: 2019, month: 10, day: 7};
       component.startTimeInput = {hour: 3, mns: 0};
       component.stopTimeInput = {hour: 8, mns: 0};
-      component['updateOperationTimes']();
+      component['updateOperationTimes'](true);
       expect(component.formattedDuration).toEqual('05:00:00')
       expect(component.startTime).toBeCloseTo(737700 + 3/24, 4);
       expect(component.stopTime).toBeCloseTo(737700 + 8/24, 4);
@@ -262,7 +262,7 @@ describe('ForecastOpsPickerComponent', () => {
       component.maxForecastDate = {year: 2019, month: 10, day: 7};
       component.startTimeInput = {hour: 3, mns: 0};
       component.stopTimeInput = {hour: 8, mns: 0};
-      component['updateOperationTimes']();
+      component['updateOperationTimes'](true);
       expect(component.formattedDuration).toEqual('05:00:00')
       expect(component.startTime).toBeCloseTo(737701+ 3/24, 4);
       expect(component.stopTime).toBeCloseTo(737701 + 8/24, 4);
@@ -274,7 +274,7 @@ describe('ForecastOpsPickerComponent', () => {
       component.maxForecastDate = {year: 2019, month: 10, day: 7}; // 737705
       component.startTimeInput = {hour: 3, mns: 0};
       component.stopTimeInput = {hour: 8, mns: 0};
-      component['updateOperationTimes']();
+      component['updateOperationTimes'](true);
       expect(component.formattedDuration).toEqual('05:00:00')
       expect(component.startTime).toBeCloseTo(737700 + 3/24, 4);
       expect(component.stopTime).toBeCloseTo(737700 + 8/24, 4);
@@ -286,10 +286,27 @@ describe('ForecastOpsPickerComponent', () => {
       component.maxForecastDate = {year: 2019, month: 10, day: 7}; // 737705
       component.startTimeInput = {hour: 9, mns: 30};
       component.stopTimeInput = {hour: 8, mns: 0};
-      component['updateOperationTimes']();
+      component['updateOperationTimes'](true);
       expect(component.formattedDuration).toEqual('22:30:00')
       expect(component.startTime).toBeCloseTo(737700 + 9.5/24, 4);
       expect(component.stopTime).toBeCloseTo(737701 + 8/24, 4);
+    })
+
+    it('should correctly compute start / stop time when a different date is selected', () => {
+      spyOn(DatetimeService.prototype, 'getCurrentMatlabDatenum').and.returnValue(737700 + 10/24);
+      component.minForecastDate = {year: 2019, month: 10, day: 2};
+      component.maxForecastDate = {year: 2019, month: 10, day: 7}; // 737705
+      component.startTimeInput = {hour: 9, mns: 30};
+      component.stopTimeInput = {hour: 8, mns: 0};
+      component.date = {
+        year: 2019,
+        month: 10,
+        day: 5,
+      }
+      component['updateOperationTimes'](false);
+      expect(component.formattedDuration).toEqual('22:30:00')
+      expect(component.startTime).toBeCloseTo(737703 + 9.5/24, 4);
+      expect(component.stopTime).toBeCloseTo(737704 + 8/24, 4);
     })
   })
 });
