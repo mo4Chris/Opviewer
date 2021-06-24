@@ -176,7 +176,7 @@ function onError(res, err, additionalInfo = 'Internal server error') {
   logger.trace('Performing onError')
   try {
     const response_message = err?.response?.data?.message;
-    logger.debug(response_message, 'Issue handling API request')
+    logger.debug(`Issue handling external API request: ${response_message}`)
     if (response_message) {
       err['message'] = response_message;
     }
@@ -580,9 +580,8 @@ async function getAssignedVessels(token, res) {
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
-  return await admin_server_pool.query(PgQuery, values).then(sql_response => {
-    return sql_response.rows;
-  })
+  const sql_response = await admin_server_pool.query(PgQuery, values);
+  return sql_response.rows;
 }
 
 app.get("/api/getVesselsForClientByUser/:username", function(req, res) {

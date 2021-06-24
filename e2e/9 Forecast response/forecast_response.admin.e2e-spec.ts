@@ -107,4 +107,23 @@ describe('Forecast - response page', () => {
       await page.validateNoConsoleErrors();
     })
   })
+
+  describe('ops settings', () => {
+    beforeEach(async () => {
+      page = new ForecastResponsePage();
+      await page.navigateTo();
+    });
+
+    it('should open all the tabs', async () => {
+      const tabs = await page.getOpsTabs();
+      await page.asyncForEach(tabs, async tab => {
+        await page.openOpsTab(tab);
+      })
+      // Check all the tabs are open
+      await page.asyncForEach(tabs, async tab => {
+        expect(await page.checkOpsTabIsOpen(tab)).toBeTruthy();
+      })
+      await page.validateNoConsoleErrors()
+    })
+  })
 })

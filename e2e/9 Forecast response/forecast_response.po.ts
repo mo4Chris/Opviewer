@@ -30,7 +30,6 @@ export class ForecastResponsePage extends E2ePageObject {
     const card = await this.getSettingsCard();
     expect(await card.isPresent()).toBeTruthy('Card not found!')
     const rows = await card.all(by.css('tr'));
-    // console.log(`${rows.length} rows were found!`)
 
     const row = await this.asyncFind(rows, async (e) => {
       const _txt = await e.getText();
@@ -38,6 +37,21 @@ export class ForecastResponsePage extends E2ePageObject {
       return is_match == null
     });
     return row;
+  }
+
+  // Ops settings
+  getOpsTabs() {
+    return element.all(by.css('ngb-accordion > .card'));
+  }
+  async checkOpsTabIsOpen(tab: ElementFinder) {
+    const elt = await tab.element(by.css('div[role="tabpanel]'));
+    return elt != null;
+  }
+  async openOpsTab(tab: ElementFinder) {
+    const is_open = await this.checkOpsTabIsOpen(tab);
+    if (!is_open) {
+      await tab.click();
+    }
   }
 
   // Tabs
