@@ -26,8 +26,8 @@ function log(message) {
 }
 
 // ################### Constants #######################
-const SHARED_DEMO_PROJECT_NAME = 'Sample_Project'
-
+const SHARED_DEMO_PROJECT_NAME = process.env.SHARED_DEMO_PROJECT_NAME ?? 'Sample_Project';
+const GENERIC_VESSEL_CLIENT_ID = process.env.GENERIC_VESSEL_CLIENT_ID ?? 1; // ToDo: replace this!
 
 
 
@@ -59,7 +59,7 @@ module.exports = function(app, logger, admin_server_pool) {
     pg_get('/vessels', {client_id}).then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
       if (err) return res.onError(err, err);
-      const datas = out.data['vessels'].filter(d => checkVesselPermission(token, d));;
+      const datas = out.data['vessels'].filter(d => checkForecastVesselPermission(token, d));;
       const data_out = datas.map(data => {
         return {
           id: data.id,
@@ -189,6 +189,7 @@ module.exports = function(app, logger, admin_server_pool) {
   });
 
   app.get('/api/forecastProjectLocations', async (req, res) => {
+    logger.debug('Getting project forecast locations')
     const token = req['token'];
     getProjectList(token).then(data => {
       const project_output = data.map(d => {
@@ -278,18 +279,22 @@ module.exports = function(app, logger, admin_server_pool) {
    * @returns object[]
    */
   async function getProjectList(token) {
+    logger.debug('Getting project list')
     const start = Date.now()
     log('Start azure project list request')
 
     if (token.permission.demo) {
+      logger.info('Demo user -> getting demo project')
       const project_output = await getDemoProject(token);
       log(`Receiving azure demo project after ${Date.now() - start}ms`)
       logger.trace('Sending demo project')
       return project_output;
     }
 
+    logger.debug('User is not demo')
     const endpoint = token.permission.admin ? '/projects': `/projects/${token.client_id}`
-    const out = await pg_get(endpoint)
+    logger.debug(`Using endpoint ${endpoint}`)
+    const out = await pg_get(endpoint);
     log(`Receiving azure project list after ${Date.now() - start}ms`)
     const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
     const project_output = []
@@ -317,21 +322,20 @@ module.exports = function(app, logger, admin_server_pool) {
   }
 
   function checkProjectPermission(userToken, project) {
-    logger.debug('Checking user permissions')
-    const perm = userToken?.permission
+    const perm = userToken?.permission;
     if (perm.admin) return true;
     if (perm.demo && project.id == userToken.demo_project_id) return true;
-    return perm?.forecast.read
-      && project.client_id == userToken.client_id
+    if (!perm.forecast.read) return false;
+    if (project.name == SHARED_DEMO_PROJECT_NAME) return true;
+    return project.client_id == userToken.client_id;
   }
-  function checkVesselPermission(userToken, vessel) {
-    const GENERIC_VESSEL_CLIENT_ID = 1;
-
+  function checkForecastVesselPermission(userToken, vessel) {
     const perm = userToken?.permission
     if (perm.admin) return true;
+    if (!perm.forecast.read) return false;
     const client_match = vessel.client_id == userToken.client_id;
     const generic_match = vessel.client_id == GENERIC_VESSEL_CLIENT_ID;
-    return perm?.forecast.read && (client_match || generic_match)
+    return client_match || generic_match;
   }
 
 
@@ -388,7 +392,6 @@ module.exports = function(app, logger, admin_server_pool) {
   }
 
   async function getDemoProject(token) {
-    const GENERIC_PROJECT_ID = 5;
 
     logger.debug('Getting demo project')
     const query = `SELECT "demo_project_id" FROM "userTable" WHERE "user_id"=$1`
@@ -402,25 +405,26 @@ module.exports = function(app, logger, admin_server_pool) {
     if (!Array.isArray(out.data['projects'])) throw new Error('Received invalid projects list')
 
     logger.trace('Successfully loaded projects')
-    const data = out.data['projects'].filter(d => {
-      return d.id == demo_project_id || d.id == GENERIC_PROJECT_ID
+    const data = out.data['projects'].filter(_project => {
+      return checkProjectPermission(token, _project)
     });
-    const project_output = data.map(d => {
+
+    const project_output = data.map(_project => {
       return {
-        id: d.id,
-        name: d.name,
-        nicename: d.display_name,
-        client_id: d.client_id,
-        longitude: d.longitude,
-        latitude: d.latitude,
-        water_depth: d.water_depth,
-        maximum_duration: d.maximum_duration,
-        activation_start_date: d.activation_start_date,
-        activation_end_date: d.activation_start_date,
-        client_preferences: d.client_preferences,
-        metocean_provider: d.metocean_provider,
-        analysis_types: d.analysis_types,
-        vessel_id: d.vessel_id
+        id: _project.id,
+        name: _project.name,
+        nicename: _project.display_name,
+        client_id: _project.client_id,
+        longitude: _project.longitude,
+        latitude: _project.latitude,
+        water_depth: _project.water_depth,
+        maximum_duration: _project.maximum_duration,
+        activation_start_date: _project.activation_start_date,
+        activation_end_date: _project.activation_start_date,
+        client_preferences: _project.client_preferences,
+        metocean_provider: _project.metocean_provider,
+        analysis_types: _project.analysis_types,
+        vessel_id: _project.vessel_id
       }
     })
     return project_output;

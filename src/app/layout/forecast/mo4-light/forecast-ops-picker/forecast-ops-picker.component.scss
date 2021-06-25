@@ -25,18 +25,55 @@
   }
 }
 
+ngb-accordion {
+  padding-left: 0.50rem;
+  padding-right: 0.50rem;
+}
 ::ng-deep .accordion {
   button
   {
+    width: 100%;
     text-decoration: none;
     color:white;
-    
-    &:hover, 
+
+    &:hover,
     &:focus,
     &:active {
       text-decoration: none;
       color:white;
     }
+  }
+
+  .card {
+    border-radius: 0;
+    border-bottom-width: 0;
+    .card-header {
+      padding: 0;
+      border-radius: 0px;
+    };
+    div > .card-body {
+      padding-left: 0.50rem;
+      padding-right: 0.50rem;
+    }
+  }
+
+  :first-child {
+    border-top-left-radius: 0.25em;
+    border-top-right-radius: 0.25em;
+    .card-header {
+      border-top-left-radius: 0.25em;
+      border-top-right-radius: 0.25em;
+    }
+  }
+
+  :last-child {
+    :last-child {
+      border-bottom-left-radius: 0.25em;
+      border-bottom-right-radius: 0.25em;
+    }
+    border-bottom-width: 1px;
+    border-bottom-left-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
   }
 }
 
@@ -52,16 +89,8 @@ td{
   line-height: 35px;
 }
 
-
 .dynamic-slider{
   width: 100%;
   min-width: 65px;
   max-width: 130px;
-}
-
-ngb-panel{
-  width: 100%
-}
-.card-header {
-  padding: 0.25rem 0.75rem;
 }

@@ -167,8 +167,10 @@ export class DashboardComponent implements OnInit {
     const platforms = this.commonService.getPlatformLocations('');
     this.mapService.plotPlatforms(this.googleMap, platforms);
     // Drawing the forecast locations
-    const forecastLocations = this.commonService.getForecastProjectLocations();
-    this.mapService.plotForecastLocations(this.googleMap, forecastLocations)
+    if (this.permission.forecastRead) {
+      const forecastLocations = this.commonService.getForecastProjectLocations();
+      this.mapService.plotForecastLocations(this.googleMap, forecastLocations)
+    }
   }
 
   makeLegend() {
@@ -208,15 +210,16 @@ export class DashboardComponent implements OnInit {
           width: 55
         }
       ];
+
+      // Generate the legend
       this.mapLegend.add(GmapService.iconVesselCluster);
       this.mapLegend.add(GmapService.iconVesselLive);
       this.mapLegend.add(GmapService.iconVesselHours);
       this.mapLegend.add(GmapService.iconVesselOld);
       this.mapLegend.add(GmapService.iconHarbour);
       this.mapLegend.add(GmapService.iconWindfield);
-      this.mapLegend.add(GmapService.iconForecastLocation);
+      if (this.permission.forecastRead) this.mapLegend.add(GmapService.iconForecastLocation);
 
-      // Generate the legend
       const legend = document.getElementById('mapLegendID');
       const height = 35;
       this.mapLegend.markers.forEach(marker => {

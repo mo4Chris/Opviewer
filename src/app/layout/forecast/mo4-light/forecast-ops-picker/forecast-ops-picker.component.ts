@@ -127,26 +127,28 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   onNewSelectedOperation() {
-    this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
-    this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
     this.selectedProject = this.projects.find(project => project.id === this.selectedProjectId);
     if (this.hasCtvSlipSettings) {
       const opts = this.ctvSlipSettings;
       if (opts == null) {
+        this.slipValue = this.slipCoefficients?.[0]; //ToDo: Retrieve from settings
+        this.thrustValue = this.slipThrustLevels?.[0]; //ToDo: Retrieve from settings
         this.selectedProject.client_preferences.Ctv_Slip_Options = {
-          Max_Allowed_Slip_Meter: 0.6,
+          Max_Allowed_Slip_Meter: this.slipValue,
           Window_Length_Seconds: 60,
           Slip_Coefficient: 0.6,
-          Thrust_Level_N: 100000,
+          Thrust_Level_N: this.thrustValue,
         }
       } else {
+        this.slipValue = this.calcService.findNearest(this.slipCoefficients, opts.Slip_Coefficient);
+        this.thrustValue = this.calcService.findNearest(this.slipThrustLevels, opts.Thrust_Level_N)
         opts.Max_Allowed_Slip_Meter = opts.Max_Allowed_Slip_Meter ?? 0.6;
         opts.Window_Length_Seconds = opts.Window_Length_Seconds ?? 60;
       }
     }
     this.startTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Start_Time)
     this.stopTimeInput = parseTimeString(this.selectedProject?.client_preferences?.Ops_Stop_Time)
-    this.updateOperationTimes()
+    this.updateOperationTimes(true)
     this.onChange.emit({
       startTime: this.startTime,
       stopTime: this.stopTime,
@@ -260,20 +262,29 @@ export class ForecastOpsPickerComponent implements OnChanges {
     });
   }
 
-  private updateOperationTimes() {
+  private updateOperationTimes(init = false) {
     // Computes the startTime and stopTime parameters
+    let matlabDate: number;
     let currentTimeStamp = this.dateService.getCurrentMatlabDatenum();
-    let matlabDate = Math.floor(currentTimeStamp);
-    const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
-    if (matlabDate >= maxResponseDate) {
-      currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.minForecastDate)
+
+    if (init) {
       matlabDate = Math.floor(currentTimeStamp);
+      const maxResponseDate = this.dateService.ngbDateToMatlabDatenum(this.maxForecastDate);
+      if (matlabDate >= maxResponseDate) {
+        currentTimeStamp = this.dateService.ngbDateToMatlabDatenum(this.minForecastDate)
+        matlabDate = Math.floor(currentTimeStamp);
+      }
+      this.date = this.dateService.matlabDatenumToYMD(matlabDate);
+    } else {
+      matlabDate = this.dateService.ngbDateToMatlabDatenum(this.date);
     }
+
     this.startTime = matlabDate + this.startTimeInput.hour / 24 + this.startTimeInput.mns / 24 / 60;
     this.stopTime = matlabDate + this.stopTimeInput.hour / 24 + this.stopTimeInput.mns / 24 / 60;
     if (this.stopTime < this.startTime) this.stopTime += 1;
     const currentPastStopTime = currentTimeStamp > this.stopTime;
-    if (currentPastStopTime) {
+    if (init && currentPastStopTime) {
+      this.date = this.dateService.matlabDatenumToYMD(matlabDate + 1);
       this.startTime += 1;
       this.stopTime += 1;
     }
