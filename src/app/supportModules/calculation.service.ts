@@ -125,12 +125,12 @@ export class CalculationService {
   }
 
   findNearest(arr: number[], val: number) {
-    const d = arr.map(_v => Math.abs(_v - val));
-    let min_dist  = d[0];
+    const distances = arr.map(_dist => Math.abs(_dist - val));
+    let min_dist  = distances[0];
     let min_idx   = 0;
-    d.forEach((_d, _i) => {
-      if (_d < min_dist) {
-        min_dist = _d;
+    distances.forEach((_dist, _i) => {
+      if (_dist < min_dist) {
+        min_dist = _dist;
         min_idx = _i;
       }
     })
