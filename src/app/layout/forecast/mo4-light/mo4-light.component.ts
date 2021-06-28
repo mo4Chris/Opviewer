@@ -35,6 +35,7 @@ export class Mo4LightComponent implements OnInit {
   public reponseTime: Date[];
   public Workability: number[][];
   public WorkabilityHeadings: number[];
+  public WorkabilityPerLimiterAlongSelectedHeading: number[][];
   public WorkabilityAlongSelectedHeading: number[];
   public headingLine: PlotlyLineConfig = {
     Name: 'Selected heading',
@@ -239,6 +240,9 @@ export class Mo4LightComponent implements OnInit {
     if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
+    this.WorkabilityPerLimiterAlongSelectedHeading = limiters.map(_limiter => {
+      return _limiter.map(_v => _v[headingIdx] * 100)
+    })
     this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
 
