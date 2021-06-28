@@ -10,7 +10,7 @@ import { ForecastMotionLimit } from '../../models/forecast-limit';
 export class ForecastWorkabilityLimiterComponent implements OnChanges {
   @Input() time: Date[];
   @Input() limits: ForecastMotionLimit[];
-  @Input() workabilityPerLimiter: number[];
+  @Input() workabilityPerLimiter: number[][];
   @Input() combinedWorkability: number[];
   @Input() config: Partial<Plotly.Config> = {
     displayModeBar: true,
@@ -50,7 +50,6 @@ export class ForecastWorkabilityLimiterComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges(): void {
-    console.log(this)
     this.setGraphData();
   }
 

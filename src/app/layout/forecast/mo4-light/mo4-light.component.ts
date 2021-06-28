@@ -128,7 +128,7 @@ export class Mo4LightComponent implements OnInit {
         this.responseObj = responses;
         this.operations = projects;
         this.showContent = true;
-        
+
         if (!this.responseObj) return this.onNoResponse();
 
         this.checkProjectActive();
@@ -199,7 +199,7 @@ export class Mo4LightComponent implements OnInit {
   }
 
   parseResponse() {
-    if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
+    if (!this.responseObj || this.limits.length === 0) return this.Workability = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     this.response = <any> POI;// POI.Response;
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
@@ -286,13 +286,10 @@ export class Mo4LightComponent implements OnInit {
     this.lastUpdated = tnum.format('DD-MMM HH:mm');
   }
   checkProjectActive() {
-    const currentProject = this.operations.find(p => p.id == this.project_id);
-    console.log(currentProject)
+    const currentProject = this.operations?.find(p => p?.id == this.project_id);
+    if (currentProject == null) return;
     const end_date_iso = currentProject.activation_end_date
     const tnum = this.dateService.isoStringToMoment(end_date_iso);
-    console.log(tnum)
-    console.log(tnum.valueOf())
-    console.log(now())
     this.projectNotActive = now() > tnum.valueOf();
   }
 }

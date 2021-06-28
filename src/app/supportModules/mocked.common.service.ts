@@ -746,16 +746,95 @@ export class MockedCommonService extends CommonService {
   }
 
   // Mo4-light
-  getForecastProjectList(): Observable<any[]> {
+  getForecastProjectList() {
     return mockedObservable([{
-      id: 0,
-      name: 'a',
+      id: 1,
+      name: 'test_project',
+      nicename: 'test project',
       client_id: 1,
       latitude: 2,
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'fakeID',
+      vessel_id: 12,
+      activation_start_date: "2021-05-27T09:36:30.052000+00:00",
+      activation_end_date: "2021-06-27T09:36:30.052000+00:00",
+      client_preferences: {
+        Points: <any> [{
+          Name: "Crane",
+          X: {
+            Value: 5.0,
+            Type: "absolute",
+            Unit: "m"
+          },
+          Y: {
+            Value: 3.5,
+            Type: "absolute",
+            Unit: "m"
+          },
+          Z: {
+            Value: 2.0,
+            Type: "absolute",
+            Unit: "m"
+          }
+        }],
+        Degrees_Of_Freedom: {
+          "Roll": {
+            "Disp": true,
+            "Vel": false,
+            "Acc": false
+          },
+          "Pitch": {
+            "Disp": false,
+            "Vel": false,
+            "Acc": true
+          },
+          "Yaw": {
+            "Disp": false,
+            "Vel": true,
+            "Acc": false
+          },
+          "Surge": {
+            "Disp": false,
+            "Vel": false,
+            "Acc": false
+          },
+          "Sway": {
+            "Disp": false,
+            "Vel": true,
+            "Acc": false
+          },
+          "Heave": {
+            "Disp": true,
+            "Vel": true,
+            "Acc": false
+          }
+        },
+        Ops_Start_Time: "12:00",
+        Ops_Stop_Time: "13:00",
+        Ops_Heading: 45,
+        Max_Type: <any> "MPM",
+        Ctv_Slip_Options: {
+          Window_Length_Seconds: 120,
+          Max_Allowed_Slip_Meter: 0.60,
+          Thrust_Level_N: 100000,
+          Slip_Coefficient: 0.6
+        },
+        Limits: <any> [{
+          "Dof": "Heave",
+          "Type": "Disp",
+          "Value": 1.5,
+          "Unit": "m"
+        }]
+      },
+      analysis_types: <any> ['Standard'],
+      metocean_provider: {
+        id: 1,
+        is_active: true,
+        display_name: 'Weather test',
+        name: 'Test_Weather_Provider'
+      }
+
     }]);
   }
   getForecastProjectByName(name: string): Observable<ForecastOperation[]> {

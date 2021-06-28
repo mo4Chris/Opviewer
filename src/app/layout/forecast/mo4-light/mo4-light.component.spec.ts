@@ -90,10 +90,12 @@ describe('Mo4LightComponent', () => {
       const updateSpy1 = spyOn(component, 'computeWorkability')
       // const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
+      const updateSpy4 = spyOn(component, 'onProjectSettingsChange')
       component['route'].params = mockedObservable({project_id: '3'});
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).not.toHaveBeenCalled();
+      expect(updateSpy4).not.toHaveBeenCalled();
       // expect(updateSpy2).not.toHaveBeenCalled();
       // expect(updateSpy3).toHaveBeenCalled(); // TEMP DISABLED - apr21
     });
@@ -105,7 +107,7 @@ describe('Mo4LightComponent', () => {
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
         new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 1.5, 'Unit': 'm'})
       ]);
-      component['route'].params = mockedObservable({project_id: '3'});
+      component['route'].params = mockedObservable({project_id: '1'});
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).toHaveBeenCalled();
@@ -116,7 +118,7 @@ describe('Mo4LightComponent', () => {
 
   describe('after init', () => {
     beforeEach(() => {
-      component['route'].params = mockedObservable({project_id: '3'});
+      component['route'].params = mockedObservable({project_id: '1'});
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
         new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 15, Unit: 'cm'})
       ]);
