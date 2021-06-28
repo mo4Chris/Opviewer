@@ -17,6 +17,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastWeatherOverviewComponent } from './forecast-weather-overview/forecast-weather-overview.component';
+import * as moment from 'moment';
 
 
 describe('Mo4LightComponent', () => {
@@ -164,6 +165,33 @@ describe('Mo4LightComponent', () => {
       expect(component.weather).toBeTruthy();
       expect(component.spectrum).toBeTruthy();
     });
+
+    it('should correctly determine if the project is no longer active', () => {
+      component.operations = [{
+        id: component['project_id'],
+        activation_end_date: "2021-06-27T09:36:30.052000+00:00",
+        activation_start_date: "2021-05-27T09:36:30.052000+00:00",
+        analysis_types: ["Standard"],
+        client_id: 4,
+        client_preferences: null,
+        latitude: 52,
+        longitude: 3,
+        maximum_duration: 60,
+        metocean_provider: {id: 20, name: "infoplaza", display_name: "INFOPLAZA", is_active: true},
+        name: "demo_1622108190052",
+        nicename: "Demo project",
+        vessel_id: 2,
+        water_depth: 20,
+      }]
+      const spy = spyOn(moment, 'now').and.returnValue(1524872801778);
+      fixture.detectChanges();
+      component.checkProjectActive();
+      expect(component.projectNotActive).toBeFalsy();
+      spy.and.returnValue(1624872801778);
+      fixture.detectChanges();
+      component.checkProjectActive();
+      expect(component.projectNotActive).toBeTruthy();
+    })
   });
 
   describe('on new project select', () => {

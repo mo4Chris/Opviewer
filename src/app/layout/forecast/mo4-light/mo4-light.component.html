@@ -4,8 +4,8 @@
 <ngb-alert *ngIf="responseNotFound" type="warning">
   Response was not loaded - please wait until the simulation container has run
 </ngb-alert>
-<ngb-alert *ngIf="responseNotActive" type="warning">
-  Response is no longer active
+<ngb-alert *ngIf="projectNotActive" type="warning">
+  Selected project is no longer active!
 </ngb-alert>
 
 <div *ngIf="showContent; else loading" class="row center font-sm">

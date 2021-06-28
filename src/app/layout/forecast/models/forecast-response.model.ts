@@ -17,7 +17,7 @@ export interface ForecastOperation {
   client_preferences: ForecastExpectedResponsePreference;
   analysis_types: ForecastAnalysisType[],
   metocean_provider: MetoceanProvider,
-  consumer_id: number;
+  consumer_id?: number;
 }
 
 export interface ForecastResponseObject {
