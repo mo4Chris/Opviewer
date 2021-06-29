@@ -18,24 +18,36 @@ module.exports = (app, GET, POST) => {
   describe('On registration', () => {
     // These are unsecured methods - we do NOT mock the demoUserCheck
     const demo_client_id = 4;
+    const demo_forecast_client_id = 5;
+    const primary_metocean_provider_id = 1;
     const client_info_vals = [{client_id: demo_client_id}]; // Returns demo client
     const user_exists_vals = []; // User does not exist
     const create_project_response = {id: 3};
     const create_user_vals = [{user_id: 2}]
     const create_user_permission_vals = []
     const create_user_settings_vals = []
+    const get_default_forecast_client_vals = [{forecast_client_id: demo_forecast_client_id}]
+    const get_default_metocean_provider_response = {
+      metocean_providers: [{
+        id: primary_metocean_provider_id,
+        name: 'infoplaza'
+      }]
+    }
 
     let mailSpy;
-
     beforeEach(() => {
       mock.pgRequests([
         client_info_vals,
         user_exists_vals,
+        get_default_forecast_client_vals,
         create_user_vals,
         create_user_permission_vals,
         create_user_settings_vals
       ])
-      mock.mockForecastApiRequest(create_project_response, 201)
+      mock.mockForecastApiRequests([
+        {data: get_default_metocean_provider_response, response_code: 200},
+        {data: create_project_response, response_code: 201},
+      ]);
       mailSpy = mock.mailer(app, () => {})
     })
 

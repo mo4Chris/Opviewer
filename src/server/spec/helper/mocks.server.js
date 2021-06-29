@@ -57,7 +57,8 @@ function mockDemoCheckerMiddelWare(app, callback=(req, res, next) => next()) {
  *  client_id?: number,
  *  forecast_client_id?: number,
  *  expires?: number,
- *  iat?: number
+ *  iat?: number,
+ *  demo_project_id?: number
  * }} decoded_token
  * @api public
  */
@@ -88,7 +89,8 @@ function mockJsonWebToken(app, decoded_token) {
       read: true,
       changeLimits: true,
       createProject: true,
-    }
+    },
+    demo_project_id: null,
   }
   const token = {...base_token, ...decoded_token};
   token['permission'] = {...base_permissions, ...decoded_token.permission};

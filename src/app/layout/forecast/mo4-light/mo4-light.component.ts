@@ -14,7 +14,7 @@ import { ForecastVesselRequest } from '../forecast-project/forecast-project.comp
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
-import { now } from 'moment';
+import { now } from 'moment-timezone';
 
 @Component({
   selector: 'app-mo4-light',

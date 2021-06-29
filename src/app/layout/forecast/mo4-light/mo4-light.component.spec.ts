@@ -17,7 +17,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastWeatherOverviewComponent } from './forecast-weather-overview/forecast-weather-overview.component';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 
 describe('Mo4LightComponent', () => {
