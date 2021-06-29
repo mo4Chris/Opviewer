@@ -14,6 +14,7 @@ import { ForecastVesselRequest } from '../forecast-project/forecast-project.comp
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { now } from 'moment-timezone';
 
 @Component({
   selector: 'app-mo4-light',
@@ -25,6 +26,7 @@ export class Mo4LightComponent implements OnInit {
 
   public showContent = false;
   public responseNotFound = false;
+  public projectNotActive = false;
 
   public vessels: ForecastVesselRequest[] = []; // Not used
   public operations: ForecastOperation[] = []; // Change to projects?
@@ -35,6 +37,7 @@ export class Mo4LightComponent implements OnInit {
   public reponseTime: Date[];
   public Workability: number[][];
   public WorkabilityHeadings: number[];
+  public WorkabilityPerLimiterAlongSelectedHeading: number[][];
   public WorkabilityAlongSelectedHeading: number[];
   public headingLine: PlotlyLineConfig = {
     Name: 'Selected heading',
@@ -125,8 +128,10 @@ export class Mo4LightComponent implements OnInit {
         this.responseObj = responses;
         this.operations = projects;
         this.showContent = true;
+
         if (!this.responseObj) return this.onNoResponse();
 
+        this.checkProjectActive();
         this.setLastUpdateTime();
         const responseTimes = this.responseObj.response.Points_Of_Interest.P1.Time;
         this.minForecastDate = this.dateService.matlabDatenumToYMD(responseTimes[0]);
@@ -167,6 +172,7 @@ export class Mo4LightComponent implements OnInit {
           timeStamp: this.weather.timeStamp,
         }
         // this.loadWeather();
+
       },
       error: err => {
         this.showContent = true;
@@ -193,7 +199,7 @@ export class Mo4LightComponent implements OnInit {
   }
 
   parseResponse() {
-    if (!this.responseObj || this.limits.length === 0) { return this.Workability = null; }
+    if (!this.responseObj || this.limits.length === 0) return this.Workability = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     this.response = <any> POI;// POI.Response;
     this.reponseTime = POI.Time.map(matlabtime => this.dateService.matlabDatenumToDate(matlabtime));
@@ -239,6 +245,9 @@ export class Mo4LightComponent implements OnInit {
     if (this.response == null) return this.WorkabilityAlongSelectedHeading = null;
     const POI = this.responseObj.response.Points_Of_Interest.P1;
     const headingIdx = this.getHeadingIdx(POI.Heading);
+    this.WorkabilityPerLimiterAlongSelectedHeading = limiters.map(_limiter => {
+      return _limiter.map(_v => _v[headingIdx] * 100)
+    })
     this.WorkabilityAlongSelectedHeading = this.Workability.map(w => w[headingIdx]);
   }
 
@@ -275,6 +284,13 @@ export class Mo4LightComponent implements OnInit {
     const ts = this.responseObj.metocean_id;
     const tnum = this.dateService.isoStringToMoment(ts);
     this.lastUpdated = tnum.format('DD-MMM HH:mm');
+  }
+  checkProjectActive() {
+    const currentProject = this.operations?.find(p => p?.id == this.project_id);
+    if (currentProject == null) return;
+    const end_date_iso = currentProject.activation_end_date
+    const tnum = this.dateService.isoStringToMoment(end_date_iso);
+    this.projectNotActive = now() > tnum.valueOf();
   }
 }
 

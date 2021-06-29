@@ -1,6 +1,7 @@
 const rewire = require('rewire');
 const glob = require('glob')
 const request = require('supertest');
+const reporters = require('jasmine-reporters');
 
 // This test suite runs unit tests for the server file. Since we use
 // rewire to mock token verification, there is no need for user
@@ -23,6 +24,15 @@ const SERVER_LOGGING_LEVEL = 'debug';
 if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
 }
+
+
+// ################# Reporters #################
+var junitReporter = new reporters.JUnitXmlReporter({
+  savePath: '.',
+  filePrefix: 'server_junit_test_output',
+  consolidateAll: true
+});
+jasmine.getEnv().addReporter(junitReporter);
 
 
 // ################# GET & POST #################

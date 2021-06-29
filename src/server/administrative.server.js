@@ -395,6 +395,7 @@ module.exports = function (
 
 
   async function getDefaultClientId() {
+    logger.debug('Getting default client ID')
     const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`
     const values = [DEFAULT_CLIENT_NAME];
     const out = await admin_server_pool.query(query, values)
@@ -404,15 +405,17 @@ module.exports = function (
   }
 
   async function getDefaultForecastClientId() {
+    logger.debug('Getting default forecast client ID')
     const query = `SELECT "forecast_client_id" FROM "clientTable" WHERE "client_name"=$1`
     const values = [DEFAULT_CLIENT_NAME];
     const out = await admin_server_pool.query(query, values)
     const default_client_id = out.rows[0]?.forecast_client_id;
-    if (default_client_id == null) throw new Error('Failed to find default client id')
+    if (default_client_id == null) throw new Error('Failed to find default forecast client id')
     return default_client_id;
   }
 
   async function getDefaultMetoceanProviderId() {
+    logger.debug('Getting default metocean provider ID')
     const out = await pg_get('/metocean_providers');
     const providers = out.data.metocean_providers;
     const demo_provider = providers.find(p => p?.name == DEFAULT_WEATHER_PROVIDER_NAME) ?? providers[0];
@@ -444,7 +447,6 @@ module.exports = function (
     return true;
   }
 
-
   function initUserSettings(user_id = 0) {
     const localLogger = logger.child({
       user_id,
@@ -460,7 +462,6 @@ module.exports = function (
       localLogger.error(err.message)
     })
   }
-
 
   function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
     const localLogger = logger.child({
@@ -542,7 +543,6 @@ module.exports = function (
       localLogger.error(err)
     })
   }
-
 
   function getDefaultProjectPreferences() {
     return {

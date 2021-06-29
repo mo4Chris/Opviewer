@@ -17,6 +17,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastWeatherOverviewComponent } from './forecast-weather-overview/forecast-weather-overview.component';
+import * as moment from 'moment-timezone';
 
 
 describe('Mo4LightComponent', () => {
@@ -89,10 +90,12 @@ describe('Mo4LightComponent', () => {
       const updateSpy1 = spyOn(component, 'computeWorkability')
       // const updateSpy2 = spyOn(component, 'setWorkabilityAlongHeading')
       const updateSpy3 = spyOn(component, 'loadWeather')
+      const updateSpy4 = spyOn(component, 'onProjectSettingsChange')
       component['route'].params = mockedObservable({project_id: '3'});
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).not.toHaveBeenCalled();
+      expect(updateSpy4).not.toHaveBeenCalled();
       // expect(updateSpy2).not.toHaveBeenCalled();
       // expect(updateSpy3).toHaveBeenCalled(); // TEMP DISABLED - apr21
     });
@@ -104,7 +107,7 @@ describe('Mo4LightComponent', () => {
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
         new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 1.5, 'Unit': 'm'})
       ]);
-      component['route'].params = mockedObservable({project_id: '3'});
+      component['route'].params = mockedObservable({project_id: '1'});
       fixture.detectChanges()
       await fixture.whenStable();
       expect(updateSpy1).toHaveBeenCalled();
@@ -115,7 +118,7 @@ describe('Mo4LightComponent', () => {
 
   describe('after init', () => {
     beforeEach(() => {
-      component['route'].params = mockedObservable({project_id: '3'});
+      component['route'].params = mockedObservable({project_id: '1'});
       spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
         new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 15, Unit: 'cm'})
       ]);
@@ -164,6 +167,33 @@ describe('Mo4LightComponent', () => {
       expect(component.weather).toBeTruthy();
       expect(component.spectrum).toBeTruthy();
     });
+
+    it('should correctly determine if the project is no longer active', () => {
+      component.operations = [{
+        id: component['project_id'],
+        activation_end_date: "2021-06-27T09:36:30.052000+00:00",
+        activation_start_date: "2021-05-27T09:36:30.052000+00:00",
+        analysis_types: ["Standard"],
+        client_id: 4,
+        client_preferences: null,
+        latitude: 52,
+        longitude: 3,
+        maximum_duration: 60,
+        metocean_provider: {id: 20, name: "infoplaza", display_name: "INFOPLAZA", is_active: true},
+        name: "demo_1622108190052",
+        nicename: "Demo project",
+        vessel_id: 2,
+        water_depth: 20,
+      }]
+      const spy = spyOn(moment, 'now').and.returnValue(1524872801778);
+      fixture.detectChanges();
+      component.checkProjectActive();
+      expect(component.projectNotActive).toBeFalsy();
+      spy.and.returnValue(1624872801778);
+      fixture.detectChanges();
+      component.checkProjectActive();
+      expect(component.projectNotActive).toBeTruthy();
+    })
   });
 
   describe('on new project select', () => {

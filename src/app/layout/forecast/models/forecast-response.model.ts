@@ -17,7 +17,7 @@ export interface ForecastOperation {
   client_preferences: ForecastExpectedResponsePreference;
   analysis_types: ForecastAnalysisType[],
   metocean_provider: MetoceanProvider,
-  consumer_id: number;
+  consumer_id?: number;
 }
 
 export interface ForecastResponseObject {
@@ -101,7 +101,7 @@ export interface ForecastExpectedResponsePreference {
   Ops_Heading: number;
   Limits: ForecastMotionLimit[];
   Max_Type: MAX_TYPE;
-  Ctv_Slip_Options: ForecastCtvSlipSettings
+  Ctv_Slip_Options: ForecastCtvSlipSettings;
 }
 export interface ForecastCtvSlipSettings {
   Window_Length_Seconds: number,

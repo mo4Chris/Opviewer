@@ -48,6 +48,7 @@ module.exports = (app, GET, POST, PUT) => {
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         permission: DEMO_USER_PERMISSIONS,
+        demo_project_id: DemoProjectId
       })
     })
 
@@ -91,7 +92,10 @@ module.exports = (app, GET, POST, PUT) => {
       expect(response_data.body.length).toEqual(1)
     })
     it('should PUT projects', async () => {
-      mock.mockForecastApiRequest({display_name: 'Good little project'})
+      mock.mockForecastApiRequest({
+        id: DemoProjectId,
+        display_name: 'Good little project'
+      })
       mock.pgRequest([{demo_project_id: DemoProjectId}])
       const url = '/api/mo4light/projectSettings';
       const project_name = 'test_project_1'
