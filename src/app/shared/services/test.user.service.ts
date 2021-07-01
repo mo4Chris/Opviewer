@@ -50,6 +50,10 @@ export class UserTestService extends UserService {
   getDecodedAccessToken( token: string ) {
     return UserTestService.getMockedAccessToken();
   }
+
+  logout() {
+    throw new Error('Logout triggered')
+  }
 }
 
 export const MockedUserServiceProvider = {

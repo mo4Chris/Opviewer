@@ -75,7 +75,6 @@ export class SidebarComponent {
 
     onLoggedout() {
         this.eventService.closeLatestAgmInfoWindow();
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
+        this.userService.logout();
     }
 }

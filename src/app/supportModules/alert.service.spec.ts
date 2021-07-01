@@ -39,5 +39,20 @@ describe('AlertService', () => {
     expect(service.active).toBe(false);
     expect(service['timeoutRef']).not.toBeTruthy();
   });
+
+  describe('message formatting', () => {
+    it('should format errors', () => {
+      try {
+        throw new Error('Test')
+      } catch (err) {
+        assertFormat(err).toEqual('Test')
+      }
+    })
+
+    function assertFormat(input: any) {
+      const msg = service['_formatText'](input);
+      return expect(msg);
+    }
+  })
 });
 

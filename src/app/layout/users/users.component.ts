@@ -34,12 +34,7 @@ export class UsersComponent implements OnInit {
     this.newService.checkUserActive(
       this.tokenInfo.username
     ).subscribe(userIsActive => {
-      if (userIsActive !== true) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this._router.navigate(['login']);
-        return;
-      }
+      if (userIsActive !== true) return this.userService.logout();
       if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
       this.newService.getUsers().subscribe(
         data => {

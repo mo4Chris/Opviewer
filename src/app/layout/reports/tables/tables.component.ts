@@ -39,11 +39,7 @@ export class TablesComponent implements OnInit {
     });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       // Ik vind het op zich een goed idee dat we checken of een user active is, maar kunnen we dat niet beter op een ngOnInit doen in de commonService?
-      if (!userIsActive) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.routerService.routeToLogin();
-      }
+      if (!userIsActive) return this.userService.logout();
       this.newService.getVessel().subscribe(data => {
         if (data == null) return this.alert.sendAlert({
           text: 'No vessels found for user!',

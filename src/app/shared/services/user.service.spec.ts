@@ -6,6 +6,7 @@ import * as moment from 'moment-timezone';
 
 describe('UserService', () => {
   let service: UserService;
+  let logoutSpy: jasmine.Spy;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -15,6 +16,7 @@ describe('UserService', () => {
       ],
     })
     service = TestBed.inject(UserService);
+    logoutSpy = spyOn(service, 'logout')
   });
 
   it('should be created', () => {
@@ -44,7 +46,6 @@ describe('UserService', () => {
 
   it('should not return token - expired', () => {
     spyOn(moment.prototype, 'valueOf').and.returnValue(1623679752188 + 1)
-    const routingSpy = spyOn(service.router, 'navigate');
     const test_token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
     eyJ1c2VySUQiOjU5LCJ1c2VyUGVybWlzc2lvbiI6IlZlc3NlbCBtYXN0ZX
     IiLCJ1c2VyQ29tcGFueSI6Ik1PNCIsInVzZXJCb2F0cyI6bnVsbCwidXNl
@@ -61,6 +62,6 @@ describe('UserService', () => {
     doYMGg63Blf1ZDtgagIO2vJwhvuz80yGCY8xmdvI`
     const decoded = service.getDecodedAccessToken(test_token);
     expect(decoded).not.toBeTruthy();
-    expect(routingSpy).toHaveBeenCalled();
+    expect(logoutSpy).toHaveBeenCalled();
   })
 });

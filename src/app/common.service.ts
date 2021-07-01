@@ -11,12 +11,12 @@ import { CampaignModel } from './layout/TWA/models/campaignModel';
 import { MissedDcTransfer, Vessel2vesselModel } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/Vessel2vessel';
 import { V2vCtvActivity } from './layout/reports/dpr/sov/models/Transfers/vessel2vessel/V2vCtvActivity';
 import { ForecastOperation, ForecastResponseObject, MetoceanProvider } from './layout/forecast/models/forecast-response.model';
-import { mockedObservable } from './models/testObservable';
 import { RawWaveData } from './models/wavedataModel';
 import { storedSettings } from './supportModules/settings.service';
 import { ForecastVesselRequest } from './layout/forecast/forecast-project/forecast-project.component';
 import { TwaSaveFleetModel } from './layout/TWA/models/requests';
 import { UsermanagementVesselModel } from './layout/usermanagement/usermanagement.component';
+import { UserService } from './shared/services/user.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -30,7 +30,10 @@ const httpOptions = {
 })
 export class CommonService {
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private userService: UserService
+  ) {
   }
 
   get(url: string): Observable<any> {
@@ -51,8 +54,7 @@ export class CommonService {
   private async getServerErrorMessage(error: HttpErrorResponse, caugth: any) {
     switch (error.status) {
       case 460: {
-        localStorage.removeItem('token');
-        window.location.reload();
+        this.userService.logout();
       }
       default: {
         throw error;

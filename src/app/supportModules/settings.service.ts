@@ -1,4 +1,4 @@
-import { Injectable, NgModule } from '@angular/core';
+import { Injectable, NgModule, OnInit } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { CommonService } from '../common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
@@ -85,6 +85,10 @@ export class SettingsService {
   fixedTimeZoneLoc = 'Europe/London';
 
   // ##################### Functions ###########################
+  reload() {
+    this.loadSettings;
+  }
+
   getTimeOffset(vesselOffsetHours: number = 0, date?: any) {
     // Returns the time offset in hours according to the chosen timezone settings
     // If a local offset is selected, the vesselOffset is used.

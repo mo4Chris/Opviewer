@@ -30,7 +30,7 @@ const emptyMatlabObject = {
 export class MockedCommonService extends CommonService {
   constructor() {
     // We build the superclass CommonService using a null http class (since we dont want internet traffic)
-    super(null);
+    super(null, null);
   }
 
   loadUserSettings() {

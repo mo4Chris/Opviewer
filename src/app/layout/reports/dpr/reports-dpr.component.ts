@@ -77,9 +77,7 @@ export class ReportsDprComponent implements OnInit {
     });
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (!userIsActive) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        return this.routeService.routeToLogin();
+        this.userService.logout();
       }
       this.newService.getVessel().subscribe(_vessels => {
         this.vessels = _vessels;

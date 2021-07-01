@@ -199,8 +199,9 @@ module.exports = function (
             WHERE "username"=$2`;
 
         const values = [vessel_ids, username];
-        admin_server_pool.query(query, values).then(() => {
-          res.send({ data: "Succesfully saved the vessels"});
+        admin_server_pool.query(query, values).then((sql_response) => {
+          if (sql_response.rowCount > 0) return res.send({ data: "Succesfully saved the vessels"});
+          res.onError(`Failed to update vessels for user ${username}`, 'Failed to save new vessel list')
         }).catch(err => onError(res, err));
       })
     }
@@ -208,7 +209,6 @@ module.exports = function (
 
   app.post("/api/setUserActive",
     body('username').isString().trim(),
-    body('client').isString(),
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.onBadRequest(errors);
@@ -217,10 +217,8 @@ module.exports = function (
       const permission = token['permission'];
       const is_admin = permission.admin
       if (!is_admin && !permission.user_manage) return res.onUnauthorized('User not authorized to manage users');
-      if (!is_admin && req.body.client !== token.userCompany) return res.onUnauthorized('Wrong client');
-      const username = req.body.username;
-      // ToDo use testPermissionToManageUser instead
 
+      const username = req.body.username;
       let query, values;
       if (is_admin) {
         query = `UPDATE "userTable"
@@ -233,12 +231,12 @@ module.exports = function (
           WHERE "userTable"."username"=$1 AND client_id==$2`
         values = [username, token['client_id']];
       }
-      logger.info({
-        msg: 'User (re)-activated',
-        manager_user_id: token['userID'],
-        username: username
-      })
       admin_server_pool.query(query, values).then(sqldata => {
+        logger.info({
+          msg: 'User (re)-activated',
+          manager_user_id: token['userID'],
+          username: username
+        })
         res.send({ data: "Succesfully activated user" });
       }).catch(err => onError(res, err))
     }
@@ -246,7 +244,6 @@ module.exports = function (
 
   app.post("/api/setUserInactive",
     body('username').isString().trim(),
-    body('client').isString(),
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.onBadRequest(errors);
@@ -255,8 +252,6 @@ module.exports = function (
       const permission = token['permission'];
       const is_admin = permission.admin
       if (!is_admin && !permission.user_manage) return onUnauthorized(res);
-      if (!is_admin && req.body.client !== token.userCompany) return onUnauthorized(res);
-      // TODO: verify company
 
       const username = req.body.username;
       let query, values;
@@ -271,12 +266,12 @@ module.exports = function (
           WHERE "userTable"."username"=$1 AND client_id==$2`
         values = [username, token['client_id']];
       }
-      logger.info({
-        msg: 'User deactivated',
-        manager_user_id: token['userID'],
-        username: username
-      })
       admin_server_pool.query(query, values).then(sqldata => {
+        logger.info({
+          msg: 'User deactivated',
+          manager_user_id: token['userID'],
+          username: username
+        })
         res.send({ data: "Succesfully deactivated this user" });
       }).catch(err => onError(res, err))
     }

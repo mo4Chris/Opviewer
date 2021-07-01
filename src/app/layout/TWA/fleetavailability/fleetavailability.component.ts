@@ -92,18 +92,14 @@ export class FleetavailabilityComponent implements OnInit {
 
     ngOnInit() {
         this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive === true) {
-                Chart.pluginService.register(ChartAnnotation);
-                this.getCampaignName();
-                this.getStartDate();
-                this.getWindfield();
-                this.buildData(true);
-            } else {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this.router.navigate(['login']);
-              }
-            });
+            if (userIsActive !== true) return this.userService.logout();
+
+            Chart.pluginService.register(ChartAnnotation);
+            this.getCampaignName();
+            this.getStartDate();
+            this.getWindfield();
+            this.buildData(true);
+        });
     }
 
     buildData(init = false) {

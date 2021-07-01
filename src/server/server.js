@@ -22,11 +22,11 @@ var weather = require('./models/weather.js')
 //#########################################################
 //########## These can be configured via stdin ############
 //#########################################################
-const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER.split(",")[0]  ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                  ?? 'webmaster@mo4.online';
-const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT            ?? 8080;
+const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER?.split(",")?.[0] ?? 'bmodataviewer.com';
+const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                    ?? 'webmaster@mo4.online';
+const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT              ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL          ?? 'debug'
+const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL            ?? 'debug'
 
 
 //#########################################################

@@ -20,8 +20,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     public router: Router,
-    private _auth: AuthService,
     public alert: AlertService,
+    private _auth: AuthService,
   ) {}
 
 
