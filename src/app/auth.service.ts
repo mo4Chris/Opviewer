@@ -50,7 +50,7 @@ export class AuthService {
     return this.httpClient.post<{ data: string, status: number }>(this._registerDemourl, user, httpOptions);
   }
 
-  getRegistrationInformation(token: {registration_token: string, user: string}): Observable<SetPasswordData> {
+  getRegistrationInformation(token: {registration_token: string, username: string}): Observable<SetPasswordData> {
     return this.httpClient.post<SetPasswordData>(this._getUserByTokenUrl, token, httpOptions);
   }
 
