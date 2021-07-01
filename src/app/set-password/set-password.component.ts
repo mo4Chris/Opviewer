@@ -52,7 +52,7 @@ export class SetPasswordComponent implements OnInit {
       if (!this.token || this.token == 'undefined') return this.noUser = true;
       this._auth.getRegistrationInformation({
         registration_token: this.token,
-        user: this.username
+        username: this.username
       }).subscribe(data => {
         if (!data.username) return this.noUser = true;
         this.username = data.username;
