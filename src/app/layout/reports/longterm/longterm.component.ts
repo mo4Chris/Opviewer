@@ -99,11 +99,7 @@ export class LongtermComponent implements OnInit {
     });
 
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive != true) {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        return this.routerService.routeToLogin();
-      }
+      if (userIsActive != true) return this.userService.logout();
 
       this.noPermissionForData = false;
       Chart.pluginService.register(ChartAnnotation);

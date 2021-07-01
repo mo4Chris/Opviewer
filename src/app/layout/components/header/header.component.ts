@@ -110,7 +110,7 @@ export class HeaderComponent implements OnInit {
           });
         }
       });
-    } 
+    }
     this.closeModal();
   }
 
@@ -134,7 +134,7 @@ export class HeaderComponent implements OnInit {
   }
 
   onLoggedout() {
-    localStorage.removeItem('token');
+    this.userService.logout();
   }
 
   changeLang(language: string) {

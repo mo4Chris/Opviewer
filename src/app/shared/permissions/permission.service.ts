@@ -4,8 +4,8 @@ import { UserService } from '../services/user.service';
 
 abstract class PermissionModel {
   admin = false;
-  demo = false; 
-  
+  demo = false;
+
   hasCampaigns = undefined; // True if organization has campaigns
   dprRead = true;
 
@@ -50,40 +50,14 @@ export class PermissionService extends PermissionModel {
     private userService: UserService
   ) {
     super();
-    let token: TokenModel;
-    try {
-      token = TokenModel.load(this.userService);
-      this.hasCampaigns = token.hasCampaigns;
-    } catch (error) {
-      console.error('Failed to retrieve permission from token!');
-      throw error;
-    }
-
-    // We construct this class based on the permissions associated with your account type
-    const defaultPermission = PermissionService.getDefaultPermission(token.userPermission);
-    const tokenPermission = token.permission;
-    const permission = setPermissionFromToken(defaultPermission, tokenPermission)
-
-    // Copy all the permission properties to this class
-    Object.keys(permission).forEach(key => {
-      if (this[key] != null) {
-        this[key] = permission[key];
-      }
-    });
-
-    // Basic logic to keep the world making sense
-    this.sovCommercialRead = this.sovCommercialRead || this.sovCommercialSign || this.sovCommercialWrite;
-    this.sovDprInputRead = this.sovDprInputRead || this.sovDprInputWrite || this.sovDprInputSign;
-    this.sovHseRead = this.sovHseRead || this.sovHseWrite || this.sovHseSign;
-    this.userRead = this.userRead || this.userManage || this.userCreate;
-
-    // Any exceptions or special cases go here
-    if (token.userCompany === 'Bibby Marine') {
-      this.sovSiemensMonthlyKpis = true;
-    }
+    this._init();
   }
 
-
+  public reload() {
+    this.admin = false;
+    this.demo = false;
+    this._init();
+  }
 
   static getDefaultPermission(userPermission: string): PermissionModel {
     switch (userPermission) {
@@ -105,6 +79,40 @@ export class PermissionService extends PermissionModel {
       default:
         // If unknown user type, only basic access is provided
         return <any> {};
+    }
+  }
+
+  private _init() {
+    let token: TokenModel;
+    try {
+      token = TokenModel.load(this.userService);
+      this.hasCampaigns = token.hasCampaigns;
+    } catch (error) {
+      console.error('Failed to retrieve permission from token!');
+      throw error;
+    }
+
+    // We construct this class based on the permissions associated with your account type
+    const defaultPermission = PermissionService.getDefaultPermission(token.userPermission);
+    const tokenPermission = token.permission;
+    const permission = setPermissionFromToken(defaultPermission, tokenPermission);
+
+    // Copy all the permission properties to this class
+    Object.keys(permission).forEach(key => {
+      if (this[key] != null) {
+        this[key] = permission[key];
+      }
+    });
+
+    // Basic logic to keep the world making sense
+    this.sovCommercialRead = this.sovCommercialRead || this.sovCommercialSign || this.sovCommercialWrite;
+    this.sovDprInputRead = this.sovDprInputRead || this.sovDprInputWrite || this.sovDprInputSign;
+    this.sovHseRead = this.sovHseRead || this.sovHseWrite || this.sovHseSign;
+    this.userRead = this.userRead || this.userManage || this.userCreate;
+
+    // Any exceptions or special cases go here
+    if (token.userCompany === 'Bibby Marine') {
+      this.sovSiemensMonthlyKpis = true;
     }
   }
 }

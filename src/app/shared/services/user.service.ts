@@ -14,13 +14,21 @@ export class UserService {
   ) { }
 
   getDecodedAccessToken(token: string): TokenModel {
+    if (token == null) return null;
     const decoded: TokenModel = jwt_decode(token);
     if (typeof decoded.expires != 'number') return null;
     if (moment().valueOf() > decoded.expires) {
-      localStorage.removeItem('token');
-      this.router.navigate(['/login']);
+      this.logout();
       return null;
     }
     return decoded;
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.clear();
+    this.router.navigate(['/login']);
+    window.location.reload();
   }
 }
