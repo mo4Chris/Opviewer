@@ -35,14 +35,12 @@ export class LoginComponent implements OnInit {
       },
       err => {
         if (err instanceof HttpErrorResponse) {
-          if (err.status === 401) {
-            console.error(err);
-            this.alert.sendAlert({
-              text: err.error,
-              type: 'danger'
-            });
-            this.router.navigate(['/login']);
-          }
+          console.error(err);
+          this.alert.sendAlert({
+            text: err.error,
+            type: 'danger'
+          });
+          this.router.navigate(['/login']);
         } else {
           this.alert.sendAlert({
             text: 'Something is wrong, contact MO4',
