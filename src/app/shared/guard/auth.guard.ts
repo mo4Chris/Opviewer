@@ -10,7 +10,6 @@ export class AuthGuard implements CanActivate {
         if (localStorage.getItem('token')) {
             return true;
         }
-        console.log('AUTH GUARD FAILURE')
         this.router.navigate(['/login']);
         return false;
     }

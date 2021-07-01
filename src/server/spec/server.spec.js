@@ -2,6 +2,9 @@ const rewire = require('rewire');
 const glob = require('glob')
 const request = require('supertest');
 const reporters = require('jasmine-reporters');
+const mongo = require('mongoose').Mongoose;
+const {Pool} = require('pg');
+const { of } = require('rxjs');
 
 // This test suite runs unit tests for the server file. Since we use
 // rewire to mock token verification, there is no need for user
@@ -19,11 +22,21 @@ const reporters = require('jasmine-reporters');
 
 // ################# Setup #################
 process.env.SERVER_PORT = '8079'; // Avoid conflicts with default port
+process.env.AZURE_TOKEN = `AZURE_TEST_TOKEN`;
+process.env.IP_USER = `localhost:${process.env.SERVER_PORT || '4200'}`;
+mongo.prototype.connect = (_conn, _opts, callback) => {
+  callback(null,'WOOOLOOLO');
+};
+Pool.prototype.connect = () => {
+  return Promise.resolve(null);
+}
 const app = rewire('../server.js')
 const SERVER_LOGGING_LEVEL = 'debug';
 if (SERVER_LOGGING_LEVEL != null) {
   process.env.LOGGING_LEVEL = SERVER_LOGGING_LEVEL
 }
+
+
 
 
 // ################# Reporters #################
