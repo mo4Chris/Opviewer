@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
-import { Router } from '../../../../node_modules/@angular/router';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
+import { Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
-import { UserService } from '../../shared/services/user.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { UserService } from '@app/shared/services/user.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { UserModel } from '@app/models/userModel';
 
 @Component({
   selector: 'app-users',
@@ -23,11 +24,11 @@ export class UsersComponent implements OnInit {
     public permission: PermissionService,
     private alert: AlertService
   ) { }
-  errData;
-  userData;
+
+  userData: UserModel[];
+  sortedData: UserModel[];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   showAlert = false;
-  sortedData;
   sort = { active: '', isAsc: true };
 
   ngOnInit() {
@@ -38,14 +39,16 @@ export class UsersComponent implements OnInit {
       if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
       this.newService.getUsers().subscribe(
         data => {
+          console.log('data', data)
           this.userData = data
         },
-        err => this.errData = err
+        // err => this.errData = err
+        err => this.alert.sendAlert({text: err})
       );
     });
   }
 
-  redirectManageBoats(username) {
+  redirectManageBoats(username: string) {
     this._router.navigate(['usermanagement', { username: username }]);
   }
 
@@ -58,31 +61,26 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  setActive(user: any) {
+  setActive(user: UserModel) {
     this.newService.setActive({
       username: user.username,
-    }).pipe(
-    map(
-        (res) => {
-          this.alert.sendAlert({text: res.data, type: 'success'});
-          user.active = 1;
-        }
-      ),
-      catchError(error => {
-        this.alert.sendAlert({text: error, type: 'danger'});
-        throw error;
-      })
-    ).subscribe();
+    }).subscribe(res => {
+      this.alert.sendAlert({text: res.data, type: 'success'});
+      user.active = true;
+    }, error => {
+      this.alert.sendAlert({text: error, type: 'danger'});
+      throw error;
+    })
   }
 
-  setInactive(user) {
+  setInactive(user: UserModel) {
     this.newService.setInactive({
       username: user.username,
     }).pipe(
       map(
         (res) => {
           this.alert.sendAlert({text: res.data, type: 'success'});
-          user.active = 0;
+          user.active = false;
         }
       ),
       catchError(error => {
@@ -92,7 +90,7 @@ export class UsersComponent implements OnInit {
     ).subscribe();
   }
 
-  sortData(sort) {
+  sortData(sort: { active: any, isAsc: any}) {
     this.sort = sort;
     const data = this.userData.slice();
     if (!sort.active || sort.isAsc === '') {
@@ -103,8 +101,10 @@ export class UsersComponent implements OnInit {
     this.sortedData = data.sort((a, b) => {
       const isAsc = sort.isAsc;
       switch (sort.active) {
-        case 'permissions': return this.stringMutationService.compare(a.permissions, b.permissions, isAsc);
-        case 'client': return this.stringMutationService.compare(a.client, b.client, isAsc);
+        // case 'permissions': return this.stringMutationService.compare(a.permissions, b.permissions, isAsc);
+        case 'permissions': return this.stringMutationService.compare(a.permission.user_type, b.permission.user_type, isAsc);
+        // case 'client': return this.stringMutationService.compare(a.client, b.client, isAsc);
+        case 'client': return this.stringMutationService.compare(a.client_name, b.client_name, isAsc);
         case 'username': return this.stringMutationService.compare(a.username, b.username, isAsc);
         default: return 0;
       }
