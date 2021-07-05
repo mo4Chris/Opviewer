@@ -213,10 +213,16 @@ export class ReportsDprComponent implements OnInit {
     }
   }
   changeDay(changedDayCount: number) {
-    const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
-    const newDate = oldDate.add(changedDayCount, 'day');
-
+    const oldDate = moment(this.datePickerValue.year + '-' + this.datePickerValue.month + '-' +  this.datePickerValue.day, 'YYYY-MM-DD')
+    const newDate = oldDate.add(changedDayCount, 'days');
+    
     this.datePickerValue = this.dateTimeService.momentToYMD(newDate, false);
+    
+    //moment's months are 0 indexed if you do it based on an object. This is not the case when you do it as a string. Result is still 0 indexed.
+    // An additional 1 is added to visually compensate the datepicker value and display the correct month.
+    const momentOffsetMonthZeroIndex = 1;
+
+    this.datePickerValue.month += momentOffsetMonthZeroIndex;
     this.onChange();
   }
   public setDatesHasSailed(sailDates: SailDates): void {
