@@ -389,7 +389,7 @@ module.exports = function (
         FROM "userTable"
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
-        where "client_id"=$1`;
+        where "clientTable"."client_id"=$1`;
       value = [client_id]
     }
     admin_server_pool.query(query, value).then(async sqldata => {
