@@ -19,6 +19,7 @@ describe('ReportsDprComponent', () => {
   let component: ReportsDprComponent;
   let fixture: ComponentFixture<ReportsDprComponent>;
   const perm = <PermissionService> PermissionService.getDefaultPermission('admin');
+  let buildPageWithCurrentInformationSpy: jasmine.Spy;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -54,16 +55,20 @@ describe('ReportsDprComponent', () => {
   beforeEach(() => {
     spyOn(ReportsDprComponent.prototype, 'getDateFromParameter').and.returnValue(737700); // Equivalent to no date provided
     spyOn(ReportsDprComponent.prototype, 'getMMSIFromParameter').and.returnValue(123456789); // CTV test vessel - replace mmsi later if not desired
-    spyOn(ReportsDprComponent.prototype, 'buildPageWithCurrentInformation');
+    buildPageWithCurrentInformationSpy = spyOn(ReportsDprComponent.prototype, 'buildPageWithCurrentInformation');
 
     fixture = TestBed.createComponent(ReportsDprComponent);
     component = fixture.componentInstance;
     component.permission.admin = false;
+
     fixture.detectChanges();
   });
 
   it('Report dpr component should instantiate', () => {
     expect(component).toBeTruthy();
+    expect(component.datePickerValue).toEqual({
+      year: 2019, month: 10, day: 2
+    });
   });
 
   it('should correctly use prev day button', async () => {
@@ -77,10 +82,10 @@ describe('ReportsDprComponent', () => {
   });
   it('should correctly use next day button', async () => {
     const el: HTMLElement = fixture.nativeElement;
-    const prevDayBtn: HTMLButtonElement = el.querySelector('#nextDayButton');
+    const nextDayBtn: HTMLButtonElement = el.querySelector('#nextDayButton');
     await fixture.whenStable();
     const oldValue = toDate(component.datePickerValue).getTime();
-    prevDayBtn.click();
+    nextDayBtn.click();
     const newValue = toDate(component.datePickerValue).getTime();
     expect(Math.round((newValue - oldValue) / 1000) / 3600 ).toEqual(24);
   });
@@ -112,6 +117,12 @@ describe('ReportsDprComponent', () => {
   function getDatepickerDropdown(): HTMLElement {
     return fixture.nativeElement.querySelector('ngb-datepicker');
   }
+
+  it('should correctly handle next / prev day when switching months', () => {
+    component.changeDay(-2);
+    expect(buildPageWithCurrentInformationSpy).toHaveBeenCalled();
+    expect(component.datePickerValue).toEqual({year: 2019, month: 9, day: 30});
+  })
 
   xit('should print page using hotkey',  async () => {
     // xit means this test is disabled
