@@ -75,10 +75,9 @@ export class ReportsDprComponent implements OnInit {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
       this.printPage(1);
     });
-    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (!userIsActive) {
-        this.userService.logout();
-      }
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(async userIsActive => {
+      if (!userIsActive) return this.userService.logout();
+
       this.newService.getVessel().subscribe(_vessels => {
         this.vessels = _vessels;
         this.buildPageWithCurrentInformation();
@@ -180,18 +179,11 @@ export class ReportsDprComponent implements OnInit {
   }
   getInitialDate() {
     const matlabDate = this.getDateFromParameter();
-    if (isNaN(matlabDate)) {
-      return this.dateTimeService.getMatlabDateYesterday();
-    } else {
-      return matlabDate;
-    }
+    if (isNaN(matlabDate)) return this.dateTimeService.getMatlabDateYesterday();
+    return matlabDate;
   }
   getDateAsMatlab(): any {
-    const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    datepickerValueAsMomentDate.format();
-    const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
-    return this.dateTimeService.unixEpochtoMatlabDatenum(momentDateAsIso);
+    return this.dateTimeService.ngbDateToMatlabDatenum(this.datePickerValue);
   }
   getInitialDateObject() {
     return this.dateTimeService.matlabDatenumToYMD(this.getInitialDate());
@@ -206,17 +198,14 @@ export class ReportsDprComponent implements OnInit {
   }
   getInitialDateNormal() {
     const paramDate = this.getDateFromParameter();
-    if (isNaN(paramDate)) {
-      return this.dateTimeService.getYmdStringYesterday();
-    } else {
-      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
-    }
+    if (isNaN(paramDate)) return this.dateTimeService.getYmdStringYesterday();
+    return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
   }
   changeDay(changedDayCount: number) {
-    const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
+    // For moment, junari is month 0
+    const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month - 1, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
-
-    this.datePickerValue = this.dateTimeService.momentToYMD(newDate, false);
+    this.datePickerValue = this.dateTimeService.momentToYMD(newDate);
     this.onChange();
   }
   public setDatesHasSailed(sailDates: SailDates): void {
