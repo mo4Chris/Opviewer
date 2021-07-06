@@ -129,6 +129,7 @@ export class SetPasswordComponent implements OnInit {
     if (confirm2fa) request_body['confirm2fa'] = confirm2fa;
     this._auth.setUserPassword(request_body).subscribe({
       next: () => {
+        this.alert.clear();
         this.showAfterscreen = true;
         setTimeout(() => {
           this.router.routeToLogin();

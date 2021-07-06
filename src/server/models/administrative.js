@@ -30,11 +30,13 @@ const setPasswordModel = {
   password: passwordValidator,
   confirmPassword: passwordValidator,
   secret2fa: {
+    optional: true,
     in: ['body'],
     errorMessage: 'Invalid secret2fa string',
     isString: true,
   },
   confirm2fa: {
+    optional: true,
     in: ['body'],
     isString: true,
     isLength: {

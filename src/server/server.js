@@ -845,7 +845,7 @@ app.post("/api/getPlatformLocations", function(req, res) {
     active: { $ne: false }
   }, function(err, data) {
     if (err) return onError(res, err);
-    if (data.length) return res.status(404).send(null)
+    if (data.length == 0) return res.status(404).send(null)
     res.send(data);
   });
 });
