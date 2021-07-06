@@ -17,7 +17,8 @@ var sov = require('./models/sov.js')
 var geo = require('./models/geo.js')
 var twa = require('./models/twa.js')
 var videoRequests = require('./models/video_requests.js')
-var weather = require('./models/weather.js')
+var weather = require('./models/weather.js');
+const { default: axios } = require('axios');
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -172,22 +173,36 @@ function onOutdatedToken(res, token, cause = 'Outdated token, please log in agai
   res.status(460).send(cause);
 }
 
-function onError(res, err, additionalInfo = 'Internal server error') {
-  logger.trace('Performing onError')
+function onError(res, raw_error, additionalInfo = 'Internal server error') {
+  logger.debug('Triggering onError')
+
+  const err_keys = typeof(raw_error)=='object' ? Object.keys(raw_error) : [];
+  let err = {};
   try {
-    const response_message = err?.response?.data?.message;
-    logger.debug(`Issue handling external API request: ${response_message}`)
-    if (response_message) {
-      err['message'] = response_message;
-    }
-    if (typeof err == 'object') {
-      err['res'] = res;
+    if (typeof(raw_error) == 'string') {
+      logger.debug('Got text error: ', raw_error)
+      err.message = raw_error;
+    } else if (axios.isAxiosError(raw_error)) {
+      logger.debug('Got axios error')
+      err.message = raw_error.response?.data?.message ?? 'Unspecified axios error';
+      err.axios_url = raw_error?.config?.url;
+      err.axios_method = raw_error?.config?.method;
+      err.axios_data = raw_error?.config?.data;
+      err.axios_response_data = raw_error?.response?.data;
+      err.axios_status = raw_error.response?.status;
+    } else if (err_keys.some(k => k=='schema') && err_keys.some(k => k=='table')) {
+      logger.debug('Got postgres error')
+      err = raw_error;
     } else {
-      err = {
-        res: res,
-        err: err,
-      }
+      logger.debug('Got other error (catchall)')
+      err = raw_error;
     }
+    err.url = res.req?.url;
+    err.method = res.req?.method;
+    err.username = res.req?.token?.username;
+    err.usertype = res.req?.token?.userPermission;
+    err.stack = (new Error()).stack;
+
     logger.error(err, additionalInfo)
     res.status(500).send(additionalInfo);
   } catch (err) {
@@ -235,7 +250,6 @@ function verifyToken(req, res, next) {
 }
 function _verifyToken(req, res) {
   logger.trace('Verifing token')
-  // TODO: fix this
   try {
     if (!req.headers.authorization) return onUnauthorized(res, 'Missing headers');
 
@@ -269,7 +283,7 @@ function _verifyToken(req, res) {
 function validatePermissionToViewVesselData(req, res, callback) {
   logger.trace('Validating permission to view vessel data')
   const token = req['token'];
-  const mmsi = req.body.mmsi ?? req.params.mmsi;
+  const mmsi = req.body['mmsi'] ?? req['params'].mmsi;
   if (token.permission.admin) return callback(true)
 
   if (!token.permission.user_see_all_vessels_client) {
@@ -782,7 +796,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
       "date": date,
       active: { $ne: false }
     }).sort({
-      startTime: 'asc'
+      startTime: 'aszc'
     }).exec( (err, data) => {
       if (err) return onError(res, err);
       res.send(data);
@@ -831,6 +845,7 @@ app.post("/api/getPlatformLocations", function(req, res) {
     active: { $ne: false }
   }, function(err, data) {
     if (err) return onError(res, err);
+    if (data.length) return res.status(404).send(null)
     res.send(data);
   });
 });

@@ -158,7 +158,6 @@ module.exports = function (
         const randomToken = generateRandomToken();
         const SERVER_ADDRESS = process.env.SERVER_ADDRESS
 
-        // TODO: verify this works
         const query = `UPDATE "userTable"
           SET "token"=$1,
             "password"=null
@@ -497,31 +496,46 @@ module.exports = function (
 
   app.post("/api/updateUserPermissions",
     checkSchema(models.updateUserPermissionsModel),
-    function(req, res) {
-    // TODO: verify working as intended
-    const token = req['token'];
-    const permission = token['permission'];
-    if (!permission.admin && !permission.user_manage) return onUnauthorized(res);
+    async function(req, res) {
+      const token = req['token'];
+      const own_permission = token['permission'];
+      if (!own_permission.admin && !own_permission.user_manage) return onUnauthorized(res);
 
-    const target_permission = req.body.permission;
-    const may_not_change_target = target_permission.admin || target_permission.user_can_see_all_vessels_client
-    if (may_not_change_target) return onUnauthorized(res, 'Vessels for target cannot be changed!')
+      const target_permission = req.body.permission;
+      const target_username = req.body.username;
+      const may_not_change_target = target_permission.admin
+        || target_permission.user_can_see_all_vessels_client
+        || target_permission.user_type == 'admin';
+      if (may_not_change_target) return onUnauthorized(res, 'Vessels for target cannot be changed!')
 
-    const company = req.body.userCompany;
-    const user_id = token['userID'];
-    const same_company = token['userCompany'] == company;
-    if (!permission.admin && !same_company) return onUnauthorized(res, 'Different company!');
-
-    const vessel_ids = req.body['boats'].map(vessel => vessel.vessel_id)
-    const query = `
-      UPDATE "userTable"
-      SET "vessel_ids"=$2
-      WHERE "userTable"."user_id" = $1
-    `
-    const values = [user_id, vessel_ids];
-    admin_server_pool.query(query, values).then(() => {
-      res.send({data: "Succesfully saved the permissions"})
-    }).catch(err => onError(res, err))
+      const company = req.body.userCompany;
+      const same_company = token['userCompany'] == company;
+      if (!own_permission.admin && !same_company) return onUnauthorized(res, 'Different company!');
+      return res.onError('Not yet verified!')
+      const userQuery = `SELECT id FROM userTable where "username"=$1`
+      const target_user_response = await admin_server_pool.query(userQuery, [target_username])
+      if (target_user_response.rowCount < 1) return res.onBadRequest('Target user not found!')
+      const target_user_id = target_user_response.rows[0].username;
+      const query = `
+        UPDATE "userPermissionTable"(
+          "user_id", "user_read", "demo", "user_manage", "twa",
+          "dpr", "longterm", "user_type", "forecast"
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `
+      const values = [
+        target_user_id,
+        target_permission.user_read,
+        target_permission.demo,
+        target_permission.user_manage,
+        target_permission.twa,
+        target_permission.dpr,
+        target_permission.longterm,
+        target_permission.user_type,
+        target_permission.forecast,
+      ]
+      admin_server_pool.query(query, values).then(() => {
+        res.send({data: "Succesfully saved the permissions"})
+      }).catch(err => onError(res, err))
   });
 
   // ############################################################

@@ -54,9 +54,8 @@ module.exports = function(app, logger, admin_server_pool) {
   app.get('/api/mo4light/getVesselList', (req, res) => {
     const token = req['token'];
     const start = Date.now()
-    const client_id = 2; // TODO - not sure if this is already fixed
     log('Starting azure vessel request')
-    pg_get('/vessels', {client_id}).then(async (out, err) => {
+    pg_get('/vessels').then(async (out, err) => {
       log(`Receiving azure vessel list after ${Date.now() - start}ms`)
       if (err) return res.onError(err, err);
       const datas = out.data['vessels'].filter(d => checkForecastVesselPermission(token, d));;
@@ -269,7 +268,7 @@ module.exports = function(app, logger, admin_server_pool) {
   })
 
   app.post('/api/mo4light/weather', (req, res) => {
-    const project_id = req.params.project_id;
+    const project_id = req.params['project_id'];
     const token = req['token'];
     return res.onError(null, 'Endpoint still needs to be implemented')
   })
