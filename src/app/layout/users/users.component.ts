@@ -8,6 +8,7 @@ import { StringMutationService } from '@app/shared/services/stringMutation.servi
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { UserModel } from '@app/models/userModel';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-users',
@@ -17,12 +18,13 @@ import { UserModel } from '@app/models/userModel';
 })
 export class UsersComponent implements OnInit {
   constructor(
+    public permission: PermissionService,
     private newService: CommonService,
-    private _router: Router,
+    // private _router: Router,
     private userService: UserService,
     private stringMutationService: StringMutationService,
-    public permission: PermissionService,
-    private alert: AlertService
+    private alert: AlertService,
+    private routerService: RouterService,
   ) { }
 
   userData: UserModel[];
@@ -36,10 +38,9 @@ export class UsersComponent implements OnInit {
       this.tokenInfo.username
     ).subscribe(userIsActive => {
       if (userIsActive !== true) return this.userService.logout();
-      if (!this.permission.admin && !this.permission.userRead) return this._router.navigate(['/access-denied']);
+      if (!this.permission.admin && !this.permission.userRead) return this.routerService.routeToAccessDenied()
       this.newService.getUsers().subscribe(
         data => {
-          console.log('data', data)
           this.userData = data
         },
         // err => this.errData = err
@@ -49,7 +50,8 @@ export class UsersComponent implements OnInit {
   }
 
   redirectManageBoats(username: string) {
-    this._router.navigate(['usermanagement', { username: username }]);
+    // this._router.navigate(['usermanagement', { username: username }]);
+    this.routerService.routeToManageUser(username)
   }
 
   resetPassword(username: string) {

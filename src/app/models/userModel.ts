@@ -3,7 +3,7 @@ import { UserPermissions } from "./tokenModel";
 
 export interface UserModel {
     active: boolean,
-    userID: string,
+    userID: number,
     username: string,
     client_name: string,
     client_id: number,
