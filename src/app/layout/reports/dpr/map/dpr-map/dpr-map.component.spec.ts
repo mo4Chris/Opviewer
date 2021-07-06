@@ -9,7 +9,7 @@ import { MockComponents } from 'ng-mocks';
 import { AutosizeModule } from 'ngx-autosize';
 import { DprMapComponent } from './dpr-map.component';
 
-fdescribe('DprMapComponent', () => {
+describe('DprMapComponent', () => {
   let component: DprMapComponent;
   let fixture: ComponentFixture<DprMapComponent>;
   let consoleSpy: jasmine.Spy;
