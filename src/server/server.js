@@ -796,7 +796,7 @@ app.get("/api/getTurbineTransfers/:mmsi/:date", function(req, res) {
       "date": date,
       active: { $ne: false }
     }).sort({
-      startTime: 'aszc'
+      startTime: 'asc'
     }).exec( (err, data) => {
       if (err) return onError(res, err);
       res.send(data);
