@@ -20,7 +20,6 @@ export class UsersComponent implements OnInit {
   constructor(
     public permission: PermissionService,
     private newService: CommonService,
-    // private _router: Router,
     private userService: UserService,
     private stringMutationService: StringMutationService,
     private alert: AlertService,
