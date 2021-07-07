@@ -296,7 +296,7 @@ export class MockedCommonService extends CommonService {
   getUserByUsername(username: string) {
     const user = UserTestService.getMockedAccessToken();
     const out: UserModel = {
-      userID: '1',
+      userID: 1,
       username: username ?? user.username,
       active: true,
       boats: user.userBoats,
@@ -534,10 +534,21 @@ export class MockedCommonService extends CommonService {
   getLatestTwaUpdate() {
     return mockedObservable(0);
   }
-  getUsers(): Observable<any[]> {
-    return mockedObservable([
-      UserTestService.getMockedAccessToken()
-    ]);
+  getUsers() {
+    const token = UserTestService.getMockedAccessToken();
+    return mockedObservable([{
+      active: true,
+      boats: [{
+        mmsi: 123456789,
+        nicename: 'Test vessel'
+      }],
+      client_id: 1,
+      client_name: 'Testable',
+      permission: token.permission,
+      userID: 1,
+      username: "Erwin_test",
+      vessel_ids: [1],
+    }]);
   }
   getLatestGeneral(): Observable<{ _id: number, date: number, vesselname: string }[]> {
     return mockedObservable([]);

@@ -22,6 +22,9 @@ export class RouterService {
     routeToDashboard() {
         this.route('Dashboard');
     }
+    routeToManageUser(username: string) {
+        this.route(['usermanagement', { username }])
+    }
     routeToDPR(route: {mmsi?: number, date?: number}) {
         if (! route.mmsi) {
             this.route(['reports']);

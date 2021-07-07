@@ -10,6 +10,7 @@ import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
 import { AlertService } from '@app/supportModules/alert.service';
 import { Observable } from 'rxjs';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-set-password',
@@ -32,8 +33,7 @@ export class SetPasswordComponent implements OnInit {
   public requires2fa: boolean;
 
   constructor(
-    public router: Router,
-    private newService: CommonService,
+    public router: RouterService,
     private route: ActivatedRoute,
     private modalService: NgbModal,
     private _auth: AuthService,
@@ -98,17 +98,14 @@ export class SetPasswordComponent implements OnInit {
 
   setUserPassword() {
     this.alert.clear();
-    if (this.passwords.password.length < 7) {
-      return this.alert.sendAlert({
-        text: 'Your password does not meet the minimum length of 7 characters',
-        type: 'danger'
-      });
-    } else if (this.passwords.password !== this.passwords.confirmPassword) {
-      return this.alert.sendAlert({
-        text: 'Password and confirmation do not match!',
-        type: 'danger'
-      });
-    }
+    if (this.passwords.password.length < 7) return this.alert.sendAlert({
+      text: 'Your password does not meet the minimum length of 7 characters',
+      type: 'danger'
+    });
+    if (this.passwords.password !== this.passwords.confirmPassword) return this.alert.sendAlert({
+      text: 'Password and confirmation do not match!',
+      type: 'danger'
+    });
 
     if (!this.requires2fa) this._setPassword(null, null);
     if (!this.initiate2fa) this._setPassword(null, this.passwords.confirm2fa);
@@ -119,26 +116,32 @@ export class SetPasswordComponent implements OnInit {
         type: 'danger'
       });
     }
-
     this._setPassword(this.secretAsBase32, this.passwords.confirm2fa);
   }
 
   private _setPassword(secret2fa: string, confirm2fa: string) {
-    this._auth.setUserPassword({
+    const request_body = {
       passwordToken: this.token,
       password: this.passwords.password,
-      confirmPassword: this.passwords.confirmPassword,
-      secret2fa: secret2fa,
-      confirm2fa: confirm2fa
-    }).subscribe(() => {
-      this.showAfterscreen = true;
-      setTimeout(() => this.router.navigate(['/login']), 3000);
-    }), catchError(error => {
-      this.alert.sendAlert({
-        text: error._body,
-        type: 'danger'
-      });
-      throw error;
+      confirmPassword: this.passwords.confirmPassword
+    };
+    if (secret2fa) request_body['secret2fa'] = secret2fa;
+    if (confirm2fa) request_body['confirm2fa'] = confirm2fa;
+    this._auth.setUserPassword(request_body).subscribe({
+      next: () => {
+        this.alert.clear();
+        this.showAfterscreen = true;
+        setTimeout(() => {
+          this.router.routeToLogin();
+        }, 3000);
+      },
+      error: (error) => {
+        this.alert.sendAlert({
+          text: error,
+          type: 'danger'
+        });
+        throw error;
+      }
     })
   }
 

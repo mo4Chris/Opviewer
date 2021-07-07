@@ -80,8 +80,8 @@ interface PasswordInfo {
   passwordToken: string;
   password: string;
   confirmPassword: string;
-  secret2fa: string;
-  confirm2fa: string;
+  secret2fa?: string;
+  confirm2fa?: string;
 }
 
 interface SetPasswordData {

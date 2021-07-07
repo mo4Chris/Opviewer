@@ -61,6 +61,7 @@ export class MapZoomLayer {
     }
 
     private setZoomCallbacks() {
+        if (!this.map) return;
         this.map.addListener('zoom_changed', () => {
             const newZoomLvl = this.map.getZoom();
             if (this.oldZoomLvl !== newZoomLvl) {

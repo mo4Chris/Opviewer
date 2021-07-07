@@ -1,6 +1,6 @@
 import { AgmMap } from '@agm/core';
 import { CommonModule } from '@angular/common';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -58,17 +58,21 @@ describe('DprMapComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should create', async () => {
+    it('should create', fakeAsync(async () => {
       expect(component).toBeTruthy();
       expect(component.hidden).toBe(true);
       expect(component.hasValidVesselTrace).toBe(true);
+
+      const onAllReadySpy = spyOn<any>(component, 'buildGoogleMap')
       await fixture.whenStable();
       component.ngOnChanges();
       expect(component.hidden).toBe(false);
       expect(component).toBeTruthy();
-      await component.onLoaded.subscribe()
+      component.onGmapReady(null);
+      tick(100000)
+      expect(onAllReadySpy).toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalledTimes(0);
-    });
+    }));
   });
 });
 

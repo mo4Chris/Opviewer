@@ -12,17 +12,17 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th (click)="sortData({active: 'username', isAsc: sort.active=='username'?!sort.isAsc:true})">
+                <th id=username (click)="sortData({active: 'username', isAsc: sort.active=='username'?!sort.isAsc:true})">
                     Username
                   <i class="fa" [class.hidden]="sort.active!='username'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th (click)="sortData({active: 'permissions', isAsc: sort.active=='permissions'?!sort.isAsc:true})">
+                <th id=usertype (click)="sortData({active: 'permissions', isAsc: sort.active=='permissions'?!sort.isAsc:true})">
                     Permission
                   <i class="fa" [class.hidden]="sort.active!='permissions'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
                 </th>
-                <th *ngIf="permission.admin" (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
+                <th id=client *ngIf="permission.admin" (click)="sortData({active: 'client', isAsc: sort.active=='client'?!sort.isAsc:true})">
                     Client
                   <i class="fa" [class.hidden]="sort.active!='client'" [class.fa-arrow-up]="sort.isAsc"
                     [class.fa-arrow-down]="!sort.isAsc"></i>
@@ -32,21 +32,21 @@
                 <th>(de-)activate user</th>
               </tr>
             </thead>
+
             <tbody>
               <tr *ngFor="let user_data of userData; let ind=index">
                 <td>{{ind + 1}}</td>
                 <td>{{user_data.username}}</td>
                 <td>{{user_data.permission.user_type}}</td>
                 <td *ngIf="permission.admin">{{user_data.client_name}}</td>
-                <td><a class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)"
+                <td><a id="set-vessels" class="btn rounded-btn" (click)="redirectManageBoats(user_data.username)"
                   [class.disabled]="user_data.permission.admin || user_data.permission.user_type == 'Logistics specialist'">Manage vessels</a></td>
                 <td><a class="btn rounded-btn" (click)="resetPassword(user_data.username)">Reset password</a></td>
-                <td *ngIf="user_data.active == 1"><a class="btn rounded-btn-red" (click)="setInactive(user_data)">Deactivate user</a></td>
-                <td *ngIf="user_data.active == 0"><a class="btn rounded-btn" (click)="setActive(user_data)">Activate user</a></td>
+                <td *ngIf="user_data.active"><a id="set-user-inactive" class="btn rounded-btn-red" (click)="setInactive(user_data)">Deactivate user</a></td>
+                <td *ngIf="!user_data.active"><a id="set-user-active" class="btn rounded-btn" (click)="setActive(user_data)">Activate user</a></td>
               </tr>
             </tbody>
           </table>
-
         </div>
       </div>
     </div>
