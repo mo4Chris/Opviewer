@@ -97,7 +97,7 @@ module.exports = function (
     if (is_bad_pw) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
     // Getting demo client information
-    const demo_client_id = await hydro_helper.getDefaultForecastClientId();
+    const demo_client_id = await user_helper.getDefaulClientId();
 
     //turn account creation back on after other functions
     try {

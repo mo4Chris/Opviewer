@@ -7,7 +7,7 @@ const fs = require('fs')
 
 // #################### Default values ####################
 const DEFAULT_WEATHER_PROVIDER_NAME   = 'infoplaza';
-const DEFAULT_FORECAST_CLIENT_NAME    = 'Demo';
+const DEFAULT_FORECAST_CLIENT_NAME    = env.DEMO_CLIENT_NAME;
 
 module.exports = {
   DEFAULT_WEATHER_PROVIDER_NAME,
@@ -207,6 +207,7 @@ async function getDefaultForecastClientId() {
   const query = `SELECT "forecast_client_id" FROM "clientTable" WHERE "client_name"=$1`
   const values = [DEFAULT_FORECAST_CLIENT_NAME];
   const out = await admin.query(query, values)
+  console.log('out', out)
   const default_client_id = out.rows[0]?.forecast_client_id;
   if (default_client_id == null) throw new Error('Failed to find default forecast client id')
   return default_client_id;

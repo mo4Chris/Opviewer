@@ -219,7 +219,7 @@ function _verifyToken(req, res) {
 /**
  * Verifies whether or not a user has permission to view data based on mmsi
  *
- * @param {Request} req Request
+ * @param {any} req Request
  * @param {Response} res
  * @param {(tf) => void} callback
  * @returns {void};

@@ -311,3 +311,15 @@ function validateLogin(req, user, res) {
   return true;
 }
 module.exports.validateLogin = validateLogin;
+
+
+async function getDefaulClientId() {
+  logger.debug('Getting default client ID')
+  const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`
+  const values = [env.DEMO_CLIENT_NAME];
+  const out = await connections.admin.query(query, values)
+  const default_client_id = out.rows[0]?.client_id;
+  if (default_client_id == null) throw new Error('Failed to find default client id')
+  return default_client_id;
+}
+module.exports.getDefaulClientId = getDefaulClientId;
