@@ -13,6 +13,7 @@ import { ForecastMotionLimit } from '@app/layout/forecast/models/forecast-limit'
 import { UserModel } from '@app/models/userModel';
 import { ActivatedRoute } from '@angular/router';
 import { ForecastVesselRequest } from '@app/layout/forecast/forecast-project/forecast-project.component';
+import { CTVGeneralStatsModel } from '@app/layout/reports/dpr/models/generalstats.model';
 
 
 const emptyMatlabObject = {
@@ -105,35 +106,37 @@ export class MockedCommonService extends CommonService {
     }] as Client[]);
   }
 
-  getGeneral(vesselObject: VesselObjectModel) {
+  getGeneral(vesselObject: VesselObjectModel): Observable<any> {
+    // TODO: this should return Observable<CTVGeneralStatsModel>
     const date = vesselObject.date;
+    const dprStats = {
+      portDepartureTime: date + 0.48241266,
+      WindFarmArrivalTime: date + 0.49341266,
+      sailedDistance: 67.19673893,
+      AvgSpeedOutbound: 18.32887451,
+      AvgSpeedOutboundUnrestricted: 20.87434116,
+      MsiOutbound: 5.070039138,
+      WBVtechs: 0.3679741968,
+      numDockings: 3,
+      departureWindFarmTime: date + 0.75326827,
+      portArrivalTime: date + 0.77225,
+      TotalFuel: 623,
+      FuelEcon: 1718,
+      AvgSpeedInbound: 19.91148152,
+      AvgSpeedInboundUnrestricted: 21.20668402,
+      MsiInbound: 15.9433976,
+      WBVcrew: 0.3693717037,
+    }
     return mockedObservable({
       data: [{
+        date: date,
         mmsi: vesselObject.mmsi,
         vesselname: 'BMO Apollo 12',
-        date: date,
         minutesFloating: 6.123,
         minutesInField: 74.3,
         distancekm: 124.3,
         sailedDistance: '12km',
-        DPRstats: {
-          portDepartureTime: date + 0.48241266,
-          WindFarmArrivalTime: date + 0.49341266,
-          sailedDistance: 67.19673893,
-          AvgSpeedOutbound: 18.32887451,
-          AvgSpeedOutboundUnrestricted: 20.87434116,
-          MsiOutbound: 5.070039138,
-          WBVtechs: 0.3679741968,
-          numDockings: 3,
-          departureWindFarmTime: date + 0.75326827,
-          portArrivalTime: date + 0.77225,
-          TotalFuel: 623,
-          FuelEcon: 1718,
-          AvgSpeedInbound: 19.91148152,
-          AvgSpeedInboundUnrestricted: 21.20668402,
-          MsiInbound: 15.9433976,
-          WBVcrew: 0.3693717037,
-        },
+        DPRstats: <any> dprStats,
         AIScoverageHours: '_NaN_',
         AIScoveragePerc: '_NaN_',
         COMcoverageHours: '_NaN_',

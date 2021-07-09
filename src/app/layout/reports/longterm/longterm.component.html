@@ -40,15 +40,16 @@
           <div class="form-group">
             <ng-multiselect-dropdown name="selectVessel" (onOpen)="openVesselModal($event)" id="selectVessel"
               class="multiSelectDiv" (onSelect)="onSelectVessel()" (onDeSelect)="onSelectVessel()"
-              (onSelectAll)="onSelectVessel($event)" (onDeSelectAll)="onSelectVessel($event)" 
+              (onSelectAll)="onSelectVessel($event)" (onDeSelectAll)="onSelectVessel($event)"
               [placeholder]="'Select vessel'" [settings]="multiSelectSettings" [data]="Vessels" [(ngModel)]="dropdownValues"
               >
             </ng-multiselect-dropdown>
             <!-- Wavedata is currently disabled for SOV -->
-            <ng-multiselect-dropdown *ngIf="hasValidWaveData" name="selectField" [settings]="fieldSelectSettings"
+            <ng-multiselect-dropdown *ngIf="fieldsWithWavedata?.length>0 && vesselType==='CTV'" name="selectField"
               (onOpen)="openVesselModal($event)" id="selectField" class="multiSelectDiv"
               (onSelect)="selectField($event)" (onDeSelect)="deselectField($event)"
-              placeholder="Select field to add wavedata" [data]="fieldsWithWavedata">
+              [placeholder]="'Select field to add wavedata'" [settings]="fieldSelectSettings"
+              [data]="fieldsWithWavedata" >
             </ng-multiselect-dropdown>
           </div>
           <button id="printButton" class="selectBtn btn btn-outline-primary space-right" (click)="onPrint()">
@@ -66,7 +67,7 @@
     <div *ngIf="vesselObject.vesselName.length > 0; else noVessel">
 
       <app-longterm-print-headerbar class="headerBarStyling" [vesselObject]="vesselObject" [vesselType]="vesselType" [fieldname]="selectedField"></app-longterm-print-headerbar>
-       
+
       <app-longterm-ctv *ngIf="vesselType == 'CTV'" (showContent)="childLoaded($event)" [vesselObject]="vesselObject"
         [tokenInfo]="tokenInfo" [fromDate]="fromDate" [toDate]="toDate" [activeField]="selectedField"
         (navigateToVesselreport)="navigateToVesselreport($event)">

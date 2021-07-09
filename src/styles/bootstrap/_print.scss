@@ -24,10 +24,20 @@
       margin-left: 0cm;
       margin-top: 0cm;
     }
+    
+    @page {
+      margin-left: 1mm;
+      margin-bottom: 0mm;
+      margin-right: 1mm;
+    }
 
     a,
     a:visited {
       text-decoration: underline;
+    }
+
+    .table {
+      margin-bottom: 0;
     }
 
     // Bootstrap specific; comment the following selector out

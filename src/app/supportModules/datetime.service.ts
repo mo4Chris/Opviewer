@@ -16,52 +16,49 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
   // Only use for dates that have duration, dates that contain day, month and year should not be used by this.
   matlabDurationToMinutes(serial: string | number, roundMinutes = true) {
-    if (serial !== 'N/a') {
-      serial = +serial;
-    }
+    if (serial == null) return 'N/a';
+    if (serial == 'N/a') return 'N/a';
+    serial = +serial;
     let dur: moment.Duration;
     if (roundMinutes) {
       dur = moment.duration(<number> serial + 0.5, 'minutes');
     } else {
       dur = moment.duration(serial, 'minutes');
     }
-    let format: string;
-    if (typeof serial !== 'number' || isNaN(serial)) {
-      format = 'N/a';
+    if (isNaN(serial)) {
+      return 'N/a';
     } else if (serial < 60) {
-      format = dur.minutes() + ' minutes';
-    } else {
-      format = (dur.hours() + dur.minutes() / 60).toFixed(1) + ' hours';
+      return dur.minutes() + ' minutes';
     }
-    return format;
+    return (dur.hours() + dur.minutes() / 60).toFixed(1) + ' hours';
   }
 
   minutesToHours(Minutes: number) {
-    const hours = (Minutes / 60).toFixed(1);
-    return hours;
+    return (Minutes / 60).toFixed(1);
   }
 
   matlabDatenumToMoment(serial: number): moment.Moment {
-    const time_info = moment.tz((serial - 719529) * 864e5, 'Etc/UTC');
-    return time_info;
+    return moment.tz((serial - 719529) * 864e5, 'Etc/UTC');
   }
 
   matlabDatenumToDate(serial: number): Date {
     // Creates a Date object. Input is assumed ms since 1970 UTC
-    const time_info = new Date((serial - 719529) * 864e5);
-    return time_info;
+    return new Date((serial - 719529) * 864e5);
   }
 
   matlabDatenumToYmdString(serial: number): string {
-    const datevar = this.matlabDatenumToMoment(serial).format('YYYY-MM-DD');
-
-    return datevar;
+    return this.matlabDatenumToMoment(serial).format('YYYY-MM-DD');
   }
 
-  ymdStringToYMD(YMDDate: string) {
+  ymdStringToYMD(YMDDate: string): {year: number, month: number, day: number} {
+    if (typeof YMDDate !== 'string') return null;
     const YMDarray = YMDDate.split('-');
-    const ObjectDate = { year: YMDarray[0], month: YMDarray[1], day: YMDarray[2] };
-    return ObjectDate;
+    if (YMDarray.length != 3) return null;
+    return {
+      year: +YMDarray[0],
+      month: +YMDarray[1],
+      day: +YMDarray[2]
+    };
   }
 
   applyTimeOffsetToMoment(_moment: moment.Moment) {
@@ -124,38 +121,32 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     const quarterHours = ['00', '15', '30', '45'];
     const times = [];
     for (let i = 0; i < 24; i++) {
-        for (let j = 0; j < 4; j++) {
-            let time = i + ':' + quarterHours[j];
-            if (i < 10) {
-            time = '0' + time;
-            }
-            times.push(time);
-        }
+      for (let j = 0; j < 4; j++) {
+        let time = i + ':' + quarterHours[j];
+        if (i < 10) time = '0' + time;
+        times.push(time);
+      }
     }
     times.push('24:00');
     return times;
   }
 
   createTimesHours() {
-      const allHours = [];
-      for (let i = 0; i < 25; i++) {
-        let time = i + '';
-        if (i < 10) {
-          time = '0' + time;
-        }
-          allHours.push(time);
-      }
-      return allHours;
+    const allHours = [];
+    for (let i = 0; i < 25; i++) {
+      let time = i + '';
+      if (i < 10) time = '0' + time;
+      allHours.push(time);
+    }
+    return allHours;
   }
 
   createTimeFiveMinutes() {
     const all5Minutes = [];
-        for (let i = 0; i < 60; i += 5) {
-          let time = i + '';
-          if (i < 10) {
-          time = '0' + time;
-          }
-        all5Minutes.push(time);
+    for (let i = 0; i < 60; i += 5) {
+      let time = i + '';
+      if (i < 10) time = '0' + time;
+      all5Minutes.push(time);
     }
     return all5Minutes;
   }

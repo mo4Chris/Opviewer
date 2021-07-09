@@ -125,6 +125,8 @@ export class LongtermProcessingService {
         return elt / 1000;
       case 'MSI': case 'msi':
         return elt;
+      case 'A8': case "AW":
+        return elt;
       case 'transitTimeMinutes':
         return elt;
       case 'visitDuration': case 'duration':
@@ -259,17 +261,19 @@ export class LongtermProcessingService {
   }
 
   setAnnotations(compElt: ComprisonArrayElt) {
-    return compElt.annotation ? [compElt.annotation()] : [];
+    let compEltArray = compElt.annotation ? [compElt.annotation()] : [];
+    if(Array.isArray(compEltArray[0])) return compEltArray[0];
+    return compEltArray
   }
 
-  drawHorizontalLine(yVal: number, label?: string) {
+  drawHorizontalLine(yVal: number, label?: string, borderColor?: string) {
     return {
       passive: false,
       type: 'line',
       mode: 'horizontal',
       scaleID: 'y-axis-0',
       value: 1.0001 * yVal, // we add small number to make graphs auto-scale above the line
-      borderColor: 'rgb(75, 192, 192)',
+      borderColor: borderColor || 'rgb(75, 192, 192)',
       borderWidth: 3,
       label: {
         position: 'left',
@@ -280,6 +284,32 @@ export class LongtermProcessingService {
         content: label
       }
     };
+  }
+
+  drawMultipleHorizontalLines(lineObject = [{yVal: 0, label:'', borderColor: 'rgb(75, 192, 192)'}]) {
+    const lineObjectArray = []; 
+
+    lineObject.forEach(lineObj => {
+      lineObjectArray.push({
+        passive: false,
+        type: 'line',
+        mode: 'horizontal',
+        scaleID: 'y-axis-0',
+        value: 1.0001 * lineObj.yVal, // we add small number to make graphs auto-scale above the line
+        borderColor: lineObj.borderColor,
+        borderWidth: 3,
+        label: {
+          position: 'left',
+          xAdjust: 10,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          fontColor: '#fff',
+          enabled: true,
+          content: lineObj.label
+        }
+      });
+    });
+
+    return lineObjectArray;
   }
 
   defaultClickHandler (clickEvent: Chart.clickEvent, chartElt: Chart.ChartElement) {

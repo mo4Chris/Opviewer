@@ -134,18 +134,27 @@ textarea {
         page-break-after: auto;
         //ToDO: Change this so page break soccur at block level instead of row level
     }
+    .mb-3, .my-3 {
+        margin-bottom: 0;
+    }
     .card-body {
         border: 1px solid #ddd;
+        padding:0;
     }
+    
     .card-header {
         border: 1px solid #ddd;
         background-color: rgba(24, 7, 58, 0.9);
+    }
+    .card {
+        border: 0;
     }
     .table-responsive {
         width: 100%;
         margin-left: 0;
         padding: 0;
         font-size: 10pt;
+        overflow-x: hidden;
         page-break-inside: auto;
     }
     .table-bordered-print {
@@ -156,6 +165,9 @@ textarea {
         td {
             border: 1px solid #ddd;
         }
+    }
+    .form-group {
+        margin-bottom:0;
     }
     .btn {
         display: none;
@@ -176,8 +188,8 @@ textarea {
         overflow: visible;
         width: auto;
     }
-    .chartContainer {
-        width: 225mm;
+    #weatherOverview{
+        width: 220mm !important
     }
     .dropdown-toggle {
         border: 0;

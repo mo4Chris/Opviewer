@@ -1,0 +1,5 @@
+<app-fuel-usage-overview class="graphContainer" *ngIf="!noData" [vesselObject]="vesselObject" [retrievedData]="retrievedData"
+></app-fuel-usage-overview>
+
+<app-fuel-average-overview class="graphContainer" *ngIf="!noData" [vesselObject]="vesselObject" (navigateToVesselreport)="navigateToDPR($event)"
+></app-fuel-average-overview>

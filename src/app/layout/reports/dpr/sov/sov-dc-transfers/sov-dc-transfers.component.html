@@ -54,12 +54,11 @@
               <th>Stop time transfer</th>
               <td>
                 <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray();updatePaxCargoTotal()"
-                  type="button">Add missed transfer</button>
+                  type="button">Add missed DC transfer</button>
               </td>
               <td>
                 <button class="btn btn-sm btn-danger"
-                  (click)="removeLastFromMissedTransferArray();updatePaxCargoTotal()" type="button">Remove last
-                  transfer</button>
+                  (click)="removeLastFromMissedTransferArray();updatePaxCargoTotal()" type="button">Remove last</button>
               </td>
             </tr>
             <tr *ngFor="let transfer of missedTransfers">

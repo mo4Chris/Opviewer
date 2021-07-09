@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ElementRef, NgZone, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
 
@@ -34,6 +34,7 @@ export class ReportsDprComponent implements OnInit {
     private eventService: EventService,
     public permission: PermissionService,
     private hotkeys: Hotkeys,
+    private ref: ChangeDetectorRef,
     ) {
   }
 
@@ -147,6 +148,7 @@ export class ReportsDprComponent implements OnInit {
       window.print();
       if (resetPrint) {
         component.printMode = 0;
+        component.ref.detectChanges();
       }
     });
   }

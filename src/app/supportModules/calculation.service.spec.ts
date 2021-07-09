@@ -102,5 +102,13 @@ describe('CalculationService', () => {
   it('getDecimalValueForNumber', () => {
     expect(service.getDecimalValueForNumber('N/a', '%')).toEqual('N/a')
   })
+
+  it('should correctly format edge cases for switchUnitAndMakeString', () => {
+    expect(service.switchUnitAndMakeString(5, 'm', 'm')).toEqual('5.0 m')
+    expect(service.switchUnitAndMakeString(NaN, 'm', 'm')).toEqual('N/a')
+    expect(service.switchUnitAndMakeString(null, 'm', 'm')).toEqual('N/a')
+    expect(service.switchUnitAndMakeString(0, 'm', 'm')).toEqual('0 m')
+    // expect(service.switchUnitAndMakeString(-5, 'm', 'm')).toEqual('-5 m')
+  })
 });
 

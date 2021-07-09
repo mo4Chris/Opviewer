@@ -312,10 +312,10 @@ export class CtvreportComponent implements OnInit, OnChanges {
   }
   private getDatesShipHasSailed(date: VesselObjectModel) {
     const mmsi = this.vesselObject.mmsi;
-    forkJoin(
+    forkJoin([
       this.newService.getDatesWithValues(date),
       this.newService.getDatesWithValuesFromGeneralStats(date)
-    ).subscribe(([transfers, genData]) => {
+    ]).subscribe(([transfers, genData]) => {
       this.dateData.mmsi = mmsi;
       this.dateData.transfer = transfers;
       this.dateData.general = genData.data;
@@ -373,7 +373,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
       const transferDates = [];
       const transitDates = [];
       const otherDates = [];
-      let formattedDate: {year: string, month: string, day: string};
+      let formattedDate: {year: number, month: number, day: number};
       let hasTransfers: boolean;
       this.dateData.general.forEach(elt => {
         formattedDate = this.dateTimeService.ymdStringToYMD(this.dateTimeService.matlabDatenumToYmdString(elt.date));

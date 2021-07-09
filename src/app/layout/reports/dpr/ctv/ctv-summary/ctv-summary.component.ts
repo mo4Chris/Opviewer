@@ -7,6 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 @Component({
   selector: 'app-ctv-summary',
@@ -28,7 +29,7 @@ export class CtvSummaryComponent implements OnChanges {
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
 
-  public fuelConsumedValue = '0 m³';
+  public fuelConsumedValue = '0 liter';
   public tripEfficiency = 'N/a';
 
   constructor(
@@ -37,16 +38,15 @@ export class CtvSummaryComponent implements OnChanges {
     private dateService: DatetimeService,
     private calcService: CalculationService,
     public permission: PermissionService,
+    public settings: SettingsService
   ) {
   }
 
   ngOnChanges() {
     if (this.engine && this.general && this.general.sailedDistance) {
-      this.tripEfficiency = this.roundNumber(
-        (this.engine.fuelUsedTotalM3 * 1000) / (+this.general.sailedDistance.replace('km', ''))
-        , 10, ' L/km');
+      this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
       }
-    this.getValueForFuelConsumed();
+    this.setValueForFuelConsumed();
   }
 
   saveGeneralStats() {
@@ -61,28 +61,27 @@ export class CtvSummaryComponent implements OnChanges {
       })).subscribe();
   }
 
-  getValueForFuelConsumed() {
-    if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
-      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, 'm3');
-    } else if (this.engine.fuelUsedTotalM3) {
-      this.fuelConsumedValue = this.roundNumber(this.engine.fuelUsedTotalM3, 10, 'm3');
+  setValueForFuelConsumed() {
+    if (this.generalInputStats?.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
+      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter');
+    } else if (this.engine?.fuelUsedTotalM3) {
+      const val_rnd = this.roundNumber(this.engine.fuelUsedTotalM3, 10)
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(val_rnd, 'm3', 'liter');
+    } else {
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(0, 'm3', 'liter');
     }
   }
 
-  getMatlabDateToJSTime(serial) {
+  matlabDatenumToTimeString(serial) {
     return this.dateService.matlabDatenumToTimeString(serial);
   }
 
-  roundNumber(number, decimal = 10, addString = '') {
+  roundNumber(number: number, decimal = 10, addString = '') {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
   }
 
   switchUnitAndMakeString(value: string | number, oldUnit: string, newUnit: string) {
     return this.calcService.switchUnitAndMakeString(value, oldUnit, newUnit);
-  }
-
-  getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    return this.dateService.getMatlabDatenumDifferenceString(serialEnd, serialBegin);
   }
 }
 

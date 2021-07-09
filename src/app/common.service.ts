@@ -154,6 +154,12 @@ export class CommonService {
   getPlatformTransfers(mmsi: number, date: number) {
     return this.get('/api/getPlatformTransfers/' + mmsi + '/' + date);
   }
+  getTransfersForVesselByRangeForCTV(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getTransfersForVesselByRangeForCTV/', vessel);
+  }
+  getCtvInputsByRange(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getCtvInputsByRange/', vessel);
+  }
   getTurbineTransfers(mmsi: number, date: number) {
     return this.get('/api/getTurbineTransfers/' + mmsi + '/' + date);
   }

@@ -7,6 +7,10 @@ export class CalculationService {
 
   constructor() { }
 
+  objectToInt(objectvalue): number {
+    return parseFloat(objectvalue);
+  }
+
   roundNumber(number: string | String | number, decimal = 10, addString: string = '') {
     if (addString) {
       switch (addString) {
@@ -30,26 +34,23 @@ export class CalculationService {
   }
 
   getDecimalValueForNumber(value: any, endpoint: string = null): string {
-      const type = typeof (value);
-      if (value == null) return 'N/a';
-      if (type === 'number' && !isNaN(value)) {
-          value = Math.round(value * 10) / 10;
-          if (value - Math.floor(value) === 0 ) {
-            value = value + '.0';
-          }
-          if (endpoint != null) {
-              value = value + endpoint;
-          }
-      } else if (type === 'string' && value !== 'NaN' && value !== 'N/a' && value !== '_NaN_') {
-          const num = +value;
-          value = num.toFixed(1);
-          if (endpoint != null) {
-              value = value + endpoint;
-          }
-      } else {
-        value = 'N/a';
+    if (value == null) return 'N/a';
+    const type = typeof value;
+    if (type == 'number') {
+      if (isNaN(value)) return 'N/a';
+      value = Math.round(value * 10) / 10;
+      if (value - Math.floor(value) == 0 ) {
+        value = value + '.0';
       }
-
+      if (endpoint != null) value = value + endpoint;
+    } else if (type === 'string' && value !== 'NaN' && value !== 'N/a' && value !== '_NaN_') {
+      const num = +value;
+      if (isNaN(num)) return 'N/a';
+      value = num.toFixed(1);
+      if (endpoint != null)  value = value + endpoint;
+    } else {
+      value = 'N/a';
+    }
     return value;
   }
 
@@ -85,7 +86,14 @@ export class CalculationService {
     return copy.length > 0 ? Math.min(...copy) : NaN;
   }
 
+  getFuelEcon(fuelUsedTotalM3 = 0, sailedDistance, distance_unit_type){
+    return this.roundNumber(
+      ((fuelUsedTotalM3 * 1000) / (+sailedDistance.replace(/[a-z]/gi, '')))
+      , 10, ' liter/'+ distance_unit_type);
+  }
+
   calcPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
+  // GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
     function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
       const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
@@ -229,9 +237,12 @@ export class CalculationService {
   }
 
   switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
-    const newValues = this.switchUnits([+value], oldUnit, newUnit);
-    if (newValues && newValues[0] && !isNaN(newValues[0])) {
-      return this.getDecimalValueForNumber(newValues[0], ' ' + newUnit);
+    const is_valid = typeof(value) == "number" || typeof(value) == "string";
+    const newValues = is_valid ? this.switchUnits(+value, oldUnit, newUnit) : null;
+    if (newValues > 0) {
+      return this.getDecimalValueForNumber(newValues, ' ' + newUnit);
+    } else if (newValues == 0) {
+        return '0 ' + newUnit;
     } else {
       return 'N/a';
     }
@@ -240,9 +251,7 @@ export class CalculationService {
   switchUnits(vals: number, from: string, to: string): number;
   switchUnits(vals: number[], from: string, to: string): number[]
   switchUnits(vals: any, from: string, to: string): any {
-    if (from === to) {
-      return vals;
-    }
+    if (from == to) return vals;
     switch (from) {
       case 'm/s2': case 'm/s²':
         return this.switchAccelerationUnits(vals, from, to);

@@ -3,7 +3,7 @@
   <div *ngIf="!readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
-        Turbine transfer
+        Docking list
       </div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">
@@ -59,12 +59,11 @@
               <td colspan="4"></td>
               <td>
                 <button class="btn btn-sm btn-success" (click)="addMissedTransferToArray(); updatePaxCargoTotal()"
-                  type="button">add missed transfer</button>
+                  type="button">Add missed transfer</button>
               </td>
               <td colspan="2">
                 <button class="btn btn-sm btn-danger"
-                  (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">remove last
-                  transfer</button>
+                  (click)="removeLastFromMissedTransferArray(); updatePaxCargoTotal()" type="button">Remove last</button>
               </td>
             </tr>
             <tr name="missedTransfer" *ngFor="let transfer of missedPaxCargo">
@@ -112,12 +111,12 @@
               <td colspan="4"></td>
               <td>
                 <button class="btn btn-sm btn-success" (click)="addHelicopterTransferToArray(); updatePaxCargoTotal()"
-                  type="button">add helicopter transfer</button>
+                  type="button">Add helicopter transfer</button>
               </td>
               <td colspan="2">
                 <button class="btn btn-sm btn-danger"
-                  (click)="removeLastFromHelicopterTransferArray(); updatePaxCargoTotal()" type="button">remove last
-                  transfer</button>
+                  (click)="removeLastFromHelicopterTransferArray(); updatePaxCargoTotal()" type="button">Remove last
+                  </button>
               </td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
@@ -194,7 +193,7 @@
   <div *ngIf="readonly" class="col-xl-12 col-lg-24 singlepage-print-port">
     <div class="card mb-3">
       <div class="card-header">
-        Turbine transfers
+        Docking list
       </div>
       <div class="card-body table-responsive">
         <table class="table table-hover table-striped table-bordered-print">

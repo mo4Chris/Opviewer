@@ -168,7 +168,7 @@ export class LongtermSOVComponent implements OnInit, OnChanges {
         return { data: binnedData, labels: labels };
     }
 
-    groupDataByMonth(data: { date: number[] }) {
+    private groupDataByMonth(data: { date: number[] }) {
         const dateObj = Object.create(this.fromDate);
         dateObj.year = this.fromDate.year;
         dateObj.month = this.fromDate.month;
