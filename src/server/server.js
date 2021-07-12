@@ -1,24 +1,5 @@
-var express = require('express');
-var jwt = require("jsonwebtoken");
-var nodemailer = require('nodemailer');
-var pino = require('pino');
-
-var mo4lightServer = require('./mo4light.server.js')
-var fileUploadServer = require('./file-upload.server.js')
-var mo4AdminServer = require('./administrative.server.js')
-var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
-
-var mongo = require("mongoose");
-var { Pool } = require('pg')
-require('dotenv').config({ path: __dirname + '/./../.env' });
+require('dotenv').config({ path: __dirname + '/./../../.env' });
 var args = require('minimist')(process.argv.slice(2));
-var ctv = require('./models/ctv.js')
-var sov = require('./models/sov.js')
-var geo = require('./models/geo.js')
-var twa = require('./models/twa.js')
-var videoRequests = require('./models/video_requests.js')
-var weather = require('./models/weather.js');
-const { default: axios } = require('axios');
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -27,34 +8,41 @@ const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER?.split(",")?.
 const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                    ?? 'webmaster@mo4.online';
 const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT              ?? 8080;
 const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL            ?? 'debug'
+const AZURE_TOKEN     = args.AZURE_TOKEN    ?? process.env.AZURE_TOKEN;
 
-
-//#########################################################
-//############ Saving values to process env  ##############
-//#########################################################
 process.env.SERVER_ADDRESS = SERVER_ADDRESS;
 process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
 process.env.SERVER_PORT = SERVER_PORT;
 process.env.DB_CONN = DB_CONN;
-process.env.LOGGING_LEVEL = LOGGING_LEVEL;
+process.env.AZURE_TOKEN = AZURE_TOKEN;
 
+//#########################################################
+//############# Server code initialization  ###############
+//#########################################################
+var express = require('express');
+var jwt = require("jsonwebtoken");
+var mongo = require("mongoose")
+
+var {logger} = require('./logging');
+var mo4lightServer = require('./mo4light.server.js')
+var fileUploadServer = require('./file-upload.server.js')
+var mo4AdminServer = require('./administrative.server.js')
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
+
+var ctv = require('./models/ctv.js')
+var sov = require('./models/sov.js')
+var geo = require('./models/geo.js')
+var twa = require('./models/twa.js')
+var videoRequests = require('./models/video_requests.js')
+var weather = require('./models/weather.js');
 
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
 var app = express();
+var conn = require('./connections')
+var {onError, onUnauthorized, onBadRequest, onOutdatedToken} = require('./callbacks')
 
-var logger = pino({level: LOGGING_LEVEL})
-
-mongo.set('useFindAndModify', false);
-var db = mongo.connect(DB_CONN, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}, function(err, response) {
-  if (err) return logger.fatal(err);
-  logger.info('Connected to mongo database');
-})
 
 var app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -78,35 +66,8 @@ app.use(function(req, res, next) {
   next();
 });
 
-let transporter = nodemailer.createTransport({
-  // @ts-ignore
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: (+process.env.EMAIL_PORT == 465),
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-const admin_server_pool = new Pool({
-  host: process.env.ADMIN_DB_HOST,
-  port: +process.env.ADMIN_DB_PORT,
-  database: process.env.ADMIN_DB_DATABASE,
-  user: process.env.ADMIN_DB_USER,
-  password: process.env.ADMIN_DB_PASSWORD,
-  ssl: false
-})
-
-admin_server_pool.connect().then(() => {
-  logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
-}).catch(err => {
-  return logger.fatal(err, "Failed initial connection to admin db!")
-})
-admin_server_pool.on('error', (err) => {
-  logger.fatal(err, 'Unexpected error in connection with admin database!')
-})
 
 
 //#########################################################
@@ -141,97 +102,7 @@ var upstreamModel = mongo.model('pushUpstream', upstreamSchema, 'pushUpstream');
 //############################################################
 //#################  Support functions  ######################
 //############################################################
-function onUnauthorized(res, cause = 'unknown') {
-  logger.trace('Performing onUnauthorized')
-  const req = res.req;
-  logger.warn({
-    msg: `Bad request: ${cause}`,
-    type: 'BAD_REQUEST',
-    cause,
-    username: req?.token?.username,
-    url: req.url,
-  })
-  if (cause == 'unknown') {
-    res.status(401).send('Unauthorized request')
-  } else {
-    res.status(401).send(`Unauthorized: ${cause}`)
-  }
-}
 
-function onOutdatedToken(res, token, cause = 'Outdated token, please log in again') {
-  logger.trace('Performing onOutdatedToken')
-  const req = res.req;
-  if (token == undefined) return;
-  logger.warn({
-    msg: `Outdated request: ${cause}`,
-    type: 'OUTDATED_REQUEST',
-    cause,
-    username: token?.username,
-    url: req?.url,
-  })
-
-  res.status(460).send(cause);
-}
-
-function onError(res, raw_error, additionalInfo = 'Internal server error') {
-  logger.debug('Triggering onError')
-
-  const err_keys = typeof(raw_error)=='object' ? Object.keys(raw_error) : [];
-  let err = {};
-  try {
-    if (typeof(raw_error) == 'string') {
-      logger.debug('Got text error: ', raw_error)
-      err.message = raw_error;
-    } else if (axios.isAxiosError(raw_error)) {
-      logger.debug('Got axios error')
-      err.message = raw_error.response?.data?.message ?? 'Unspecified axios error';
-      err.axios_url = raw_error?.config?.url;
-      err.axios_method = raw_error?.config?.method;
-      err.axios_data = raw_error?.config?.data;
-      err.axios_response_data = raw_error?.response?.data;
-      err.axios_status = raw_error.response?.status;
-    } else if (err_keys.some(k => k=='schema') && err_keys.some(k => k=='table')) {
-      logger.debug('Got postgres error')
-      err = raw_error;
-    } else {
-      logger.debug('Got other error (catchall)')
-      err = raw_error;
-    }
-    err.url = res.req?.url;
-    err.method = res.req?.method;
-    err.username = res.req?.token?.username;
-    err.usertype = res.req?.token?.userPermission;
-    err.stack = (new Error()).stack;
-
-    logger.error(err, additionalInfo)
-    res.status(500).send(additionalInfo);
-  } catch (err) {
-    console.error(err)
-  }
-}
-
-function onBadRequest(res, cause = 'Bad request') {
-  if (typeof cause == 'object' && cause['errors'] != null) {
-    const param = cause['errors']?.[0]?.['param'] ?? 'unknown';
-    const msg = cause['errors']?.[0]?.['msg'] ?? 'unknown issue';
-    cause = `Invalid value for "${param}": ${msg}`;
-  }
-
-  logger.trace('Performing onBadRequest')
-  const req = res.req;
-  logger.warn({
-    msg: `Bad request: ${cause}`,
-    type: 'BAD_REQUEST',
-    cause,
-    username: req?.token?.username ?? 'UNKNOWN',
-    url: req.url,
-  })
-  if (cause == 'Bad request') {
-    res.status(400).send('Bad request')
-  } else {
-    res.status(400).send(cause)
-  }
-}
 
 
 function verifyToken(req, res, next) {
@@ -262,7 +133,7 @@ function _verifyToken(req, res) {
     if(typeof(payload?.['userID']) !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
+    conn.admin.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
       lastActive,
       payload['userID']
     ])
@@ -290,7 +161,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
     logger.debug('Verifying vessel are included in token')
     const user_vessels = token.userBoats;
     const mmsi_in_token = checkPermission(user_vessels.map(v => v.mmsi));
-    if (!mmsi_in_token) return res.onUnauthorized(`Usertoken error: unauthorized for vessel ${mmsi}`);
+    if (!mmsi_in_token) return onUnauthorized(res, `Usertoken error: unauthorized for vessel ${mmsi}`);
   }
 
   const client_id = token.client_id;
@@ -299,12 +170,12 @@ function validatePermissionToViewVesselData(req, res, callback) {
   where $1=ANY(v."client_ids")
   `
   logger.debug('Getting client vessels from admin db')
-  admin_server_pool.query(query, [client_id]).then(sqlresponse => {
+  conn.admin.query(query, [client_id]).then(sqlresponse => {
     logger.trace('Got sql response!')
     const client_vessel_mmsi = sqlresponse.rows.map(r => r.mmsi);
     const mmsi_in_token = checkPermission(client_vessel_mmsi);
     logger.debug('Getting client vessels from admin db')
-    if (!mmsi_in_token) return res.onUnauthorized(`User not authorized for vessel ${mmsi}`);
+    if (!mmsi_in_token) return onUnauthorized(res, `User not authorized for vessel ${mmsi}`);
     callback(true);
   }).catch(res.onError)
 
@@ -337,7 +208,7 @@ function mailTo(subject, html, user) {
 
   // send mail with defined transport object
   maillogger.info('Sending email')
-  transporter.sendMail(mailOptions, (error, info) => {
+  conn.mailer.sendMail(mailOptions, (error, info) => {
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
@@ -372,7 +243,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, admin_server_pool, mailTo)
+mo4AdminServer(app, logger, conn.admin, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -381,9 +252,9 @@ app.use(verifyToken)
 
 app.use(verifyDemoAccount);
 
-mo4lightServer(app, logger, admin_server_pool)
+mo4lightServer(app, logger, conn.admin)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, conn.admin, mailTo)
 
 
 //####################################################################
@@ -534,7 +405,7 @@ async function getVesselsForAdmin(token, res) {
     "vesselTable"."operations_class"
   FROM "vesselTable"`;
 
-  vessels = await admin_server_pool.query(PgQuery).then(sql_response => {
+  vessels = await conn.admin.query(PgQuery).then(sql_response => {
     const response =  sql_response.rows;
     return response;
   });
@@ -547,7 +418,7 @@ async function getVesselsForAdmin(token, res) {
   join "clientTable" c on c."client_id" = u.id
   group by 1`
 
-  return await admin_server_pool.query(PgQueryClients).then(sql_client_response => {
+  return await conn.admin.query(PgQueryClients).then(sql_client_response => {
     let vesselList = [];
     vessels.forEach(vessel => {
       const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
@@ -575,7 +446,7 @@ async function getAllVesselsForClient(token, res) {
 
   const values = [token.client_id];
 
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+  return conn.admin.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   });
 }
@@ -594,7 +465,7 @@ async function getAssignedVessels(token, res) {
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
-  const sql_response = await admin_server_pool.query(PgQuery, values);
+  const sql_response = await conn.admin.query(PgQuery, values);
   return sql_response.rows;
 }
 
@@ -612,7 +483,7 @@ app.post("/api/getVesselNameAndIDById", function(req, res) {
   WHERE "vesselTable"."vessel_id" =ANY($1)`;
   const values = [vessel_ids];
 
-  admin_server_pool.query(PgQuery, values).then(sql_response => {
+  conn.admin.query(PgQuery, values).then(sql_response => {
     res.send(sql_response.rows);
   });
 });
@@ -631,7 +502,7 @@ async function getAllVesselsForClientByUsername(req, res, username) {
   `;
 
   const clientIDValues = [username];
-  const clientID = await admin_server_pool.query(PgQueryClientID, clientIDValues).then(sql_response => {
+  const clientID = await conn.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
     return sql_response.rows[0].client_id;
   });
 
@@ -645,7 +516,7 @@ async function getAllVesselsForClientByUsername(req, res, username) {
   FROM "vesselTable"
   WHERE $1=ANY("vesselTable"."client_ids")`;
   const values = [clientID];
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+  return conn.admin.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   });
 }
@@ -2498,7 +2369,7 @@ function verifyDemoAccount(req, res, next) {
     where u."user_id"=$1`;
   const values = [token.userID]
 
-  admin_server_pool.query(query, values).then(sql_response => {
+  conn.admin.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
     if(!data.active) return onOutdatedToken(res, 'Your account is inactive');
@@ -2511,14 +2382,14 @@ function verifyDemoAccount(req, res, next) {
     const user_type = data.user_type;
     if (user_type == 'demo'){
       const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-      admin_server_pool.query(setUserInactiveQuery, values).catch(res.onError);
+      conn.admin.query(setUserInactiveQuery, values).catch(res.onError);
       return onUnauthorized(res, 'Demo account expired!');
     } else {
       const setDemoToFalseQuery = `UPDATE "userPermissionTable"
         SET "demo"=false
             "demo_expiration_date"=null
         WHERE "user_id"=$1`;
-      admin_server_pool.query(setDemoToFalseQuery, values).catch(res.onError);
+      conn.admin.query(setDemoToFalseQuery, values).catch(res.onError);
       res.send(data);
     }
   }).catch(err => res.onError(err, 'Error querying admin DB'))

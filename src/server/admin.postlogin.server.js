@@ -3,6 +3,8 @@ const { body, validationResult, checkSchema } = require("express-validator");
 const { Pool } = require("pg");
 const models = require('./models/administrative.js');
 
+const conn = require('./connections')
+
 /**
  * Server file with all the secure endpoints to the admin database.
  *
@@ -29,7 +31,7 @@ module.exports = function (
     if (!perm.admin) return onUnauthorized(res);
     // defaultPgLoader('clientList')(req, res);
     const query = `SELECT * FROM "clientTable"`
-    admin_server_pool.query(query).then(sqlresponse => {
+    conn.admin.query(query).then(sqlresponse => {
       res.send(sqlresponse.rows);
     }).catch(err => onError(res, err));
   });
