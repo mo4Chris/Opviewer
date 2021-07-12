@@ -90,7 +90,7 @@ module.exports = function (
     if (!is_admin && !own_permissions.user_manage) return res.onUnauthorized('User not authorized to create new users')
     logger.trace('Verfying client')
     // TODO: If a user is associated with multiple clients this wont do
-    if (!is_admin && (client_id != own_client_id)) return onUnauthorized(res, 'Target client does not match own client')
+    if (!is_admin && (client_id != own_client_id)) return res.onUnauthorized('Target client does not match own client')
     logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
       // Valid - do nothing
@@ -99,12 +99,12 @@ module.exports = function (
       const own_vessel_ids = own_vessel_list.map(v => v.vesse_id);
       if (vessel_ids.some(_vessel_id => !own_vessel_ids.some(_id => _vessel_id == _id))) res.onUnauthorized();
     } else {
-      if (vessel_ids == null) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
+      if (vessel_ids == null) return res.onUnauthorized('Cannot assign vessels you have no access to!')
       const illegal = vessel_ids.some(id => {
         const in_own_vessel_list = own_vessel_ids.some(_onw_id => id === _onw_id)
         return !in_own_vessel_list;
       });
-      if (illegal) return onUnauthorized(res, 'Cannot assign vessels you have no access to!')
+      if (illegal) return res.onUnauthorized('Cannot assign vessels you have no access to!')
     }
 
     // This part is now solved in an await statement to reduce its complexity
@@ -118,8 +118,8 @@ module.exports = function (
         user_type
       })
     } catch (err) {
-      if (err.constraint == 'Unique usernames') return onUnauthorized(res, 'User already exists')
-      return onError(res, err, 'Error creating user')
+      if (err.constraint == 'Unique usernames') return res.onUnauthorized('User already exists')
+      return res.onError(err, 'Error creating user')
     }
     logger.info(`Successfully created new user with random token ${password_setup_token}`)
     // send email
@@ -255,12 +255,12 @@ module.exports = function (
       if (is_admin) {
         query = `UPDATE "userTable"
           SET "active"=false
-          WHERE "userTable"."username"=$1`
+          WHERE "username"=$1`
         values = [username];
       } else {
         query = `UPDATE "userTable"
           SET "active"=false
-          WHERE "userTable"."username"=$1 AND client_id==$2`
+          WHERE "username"=$1 AND "client_id"=$2`
         values = [username, token['client_id']];
       }
       admin_server_pool.query(query, values).then(sqldata => {
@@ -447,7 +447,7 @@ module.exports = function (
         FROM "userTable"
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
-        where "username" = $1 AND "client_id"=$2`;
+        where "username"=$1 AND "userTable"."client_id"=$2`;
       value = [username, client_id]
     }
     admin_server_pool.query(query, value).then(async sqldata => {
@@ -489,7 +489,7 @@ module.exports = function (
       FROM "clientTable"`
     admin_server_pool.query(query).then((data) => {
       return res.send(data.rows);
-    }).catch(err => onError(res, err, 'Failed to get clients!'))
+    }).catch(err => res.onError(err, 'Failed to get clients!'))
   });
 
   app.post("/api/updateUserPermissions",
@@ -504,11 +504,11 @@ module.exports = function (
       const may_not_change_target = target_permission.admin
         || target_permission.user_can_see_all_vessels_client
         || target_permission.user_type == 'admin';
-      if (may_not_change_target) return onUnauthorized(res, 'Vessels for target cannot be changed!')
+      if (may_not_change_target) return res.onUnauthorized('Vessels for target cannot be changed!')
 
       const company = req.body.userCompany;
       const same_company = token['userCompany'] == company;
-      if (!own_permission.admin && !same_company) return onUnauthorized(res, 'Different company!');
+      if (!own_permission.admin && !same_company) return res.onUnauthorized('Different company!');
       return res.onError('Not yet verified!')
       const userQuery = `SELECT id FROM userTable where "username"=$1`
       const target_user_response = await admin_server_pool.query(userQuery, [target_username])

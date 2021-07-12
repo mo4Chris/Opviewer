@@ -2,7 +2,6 @@ import { AgmMap } from '@agm/core';
 import { CommonModule } from '@angular/common';
 import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MockComponents } from 'ng-mocks';
@@ -38,7 +37,6 @@ describe('DprMapComponent', () => {
       ],
       providers: [
         MockedCommonServiceProvider,
-        MockedMapStoreProvider,
         MockedUserServiceProvider,
       ]
     })

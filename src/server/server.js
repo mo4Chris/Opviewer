@@ -383,7 +383,7 @@ app.use(verifyDemoAccount);
 
 mo4lightServer(app, logger, admin_server_pool)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminPostLoginServer(app, logger, admin_server_pool, mailTo)
 
 
 //####################################################################
