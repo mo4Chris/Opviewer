@@ -15,8 +15,6 @@ const models = require('./models/administrative.js');
 module.exports = function (
   app,
   logger,
-  onError = (res, err, additionalInfo) => console.log(err),
-  onUnauthorized = (res, additionalInfo) => console.log(additionalInfo),
   admin_server_pool,
   mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
 ) {
@@ -26,12 +24,12 @@ module.exports = function (
   app.get('/api/getClients', (req, res) => {
     const token = req['token'];
     const perm = token['permission'];
-    if (!perm.admin) return onUnauthorized(res);
+    if (!perm.admin) return res.onUnauthorized();
     // defaultPgLoader('clientList')(req, res);
     const query = `SELECT * FROM "clientTable"`
     admin_server_pool.query(query).then(sqlresponse => {
       res.send(sqlresponse.rows);
-    }).catch(err => onError(res, err));
+    }).catch(err => res.onError(err));
   });
 
   app.get('/api/vesselList', (req, res) => {
@@ -52,14 +50,14 @@ module.exports = function (
     }
     admin_server_pool.query(query, values).then(sqlresponse => {
       res.send(sqlresponse.rows);
-    }).catch(err => onError(res, err));
+    }).catch(err => res.onError(err));
   });
 
   app.get('/api/userPermissions', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
     return loadUserPermissions(user_id).catch((err) => {
-      return onError(res, err)
+      return res.onError(err)
     })
   })
 
@@ -67,7 +65,7 @@ module.exports = function (
     const token = req['token'];
     const user_id = token['user_id'];
     return loadUserPreference(user_id).catch((err) => {
-      return onError(res, err)
+      return res.onError(err)
     })
   })
 
@@ -151,10 +149,10 @@ module.exports = function (
       localLogger.info(`Password reset requested`)
       testPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
-        return onError(res, err)
+        return res.onError(err)
       }).then((has_rights) => {
         localLogger.debug('Valid permission = ' + has_rights)
-        if (!has_rights) return onUnauthorized(res);
+        if (!has_rights) return res.onUnauthorized();
         const randomToken = generateRandomToken();
         const SERVER_ADDRESS = process.env.SERVER_ADDRESS
 
@@ -172,7 +170,7 @@ module.exports = function (
             If that doesnt work copy the link below <br> ${link}`;
             mailTo('Password reset', html, username);
             res.send({ data: "Succesfully reset the password" });
-        }).catch(err => onError(res, err));
+        }).catch(err => res.onError(err));
       })
     }
   );
@@ -190,7 +188,7 @@ module.exports = function (
 
       testPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
-        return onError(res, err)
+        return res.onError(err)
       }).then((has_rights) => {
         if (!has_rights) return res.onUnauthorized()
         const query = `UPDATE "userTable"
@@ -201,7 +199,7 @@ module.exports = function (
         admin_server_pool.query(query, values).then((sql_response) => {
           if (sql_response.rowCount > 0) return res.send({ data: "Succesfully saved the vessels"});
           res.onError(`Failed to update vessels for user ${username}`, 'Failed to save new vessel list')
-        }).catch(err => onError(res, err));
+        }).catch(err => res.onError(err));
       })
     }
   );
@@ -237,7 +235,7 @@ module.exports = function (
           username: username
         })
         res.send({ data: "Succesfully activated user" });
-      }).catch(err => onError(res, err))
+      }).catch(err => res.onError(err))
     }
   );
 
@@ -250,7 +248,7 @@ module.exports = function (
       const token = req['token']
       const permission = token['permission'];
       const is_admin = permission.admin
-      if (!is_admin && !permission.user_manage) return onUnauthorized(res);
+      if (!is_admin && !permission.user_manage) return res.onUnauthorized();
 
       const username = req.body.username;
       let query, values;
@@ -272,7 +270,7 @@ module.exports = function (
           username: username
         })
         res.send({ data: "Succesfully deactivated this user" });
-      }).catch(err => onError(res, err))
+      }).catch(err => res.onError(err))
     }
   );
 
@@ -324,7 +322,7 @@ module.exports = function (
     const values = [user_id];
     admin_server_pool.query(query, values).then(sqldata => {
       res.send(sqldata.rows[0])
-    }).catch(err => onError(res, err))
+    }).catch(err => res.onError(err))
   });
 
   app.post('/api/saveUserSettings',
@@ -356,7 +354,7 @@ module.exports = function (
       ];
       admin_server_pool.query(query, values).then(sqldata => {
         res.send({status: 1});
-      }).catch(err => onError(res, err))
+      }).catch(err => res.onError(err))
     }
   );
 
@@ -371,7 +369,7 @@ module.exports = function (
     const permission = token.permission;
     const is_admin = token?.permission?.admin ?? false;
     const client_id = token?.client_id;
-    if (!is_admin && !permission.user_read) return onUnauthorized(res)
+    if (!is_admin && !permission.user_read) return res.onUnauthorized()
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
     "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
@@ -418,7 +416,7 @@ module.exports = function (
         });
       }
       return res.send(users)
-    }).catch(err => onError(res, err))
+    }).catch(err => res.onError(err))
   });
 
   app.post("/api/getUserByUsername", body('username').isString(), function(req, res) {
@@ -431,7 +429,7 @@ module.exports = function (
     const client_id = token.client_id;
     const username    = req.body.username;
 
-    if (!is_admin && !permission.user_read) return onUnauthorized(res)
+    if (!is_admin && !permission.user_read) return res.onUnauthorized()
 
     const selectedFields = `"userTable"."user_id", "userTable"."active", "username", "vessel_ids", "userTable"."client_id",
     "admin", "user_read", "demo", "user_manage", "twa", "dpr", "longterm",
@@ -480,13 +478,13 @@ module.exports = function (
       }
       return res.send(users)
     }).catch(err => {
-      onError(res, err)
+      res.onError(err)
     })
   });
 
   app.get("/api/getCompanies", function(req, res) {
     const token = req['token'];
-    if (!token.permission.admin) return onUnauthorized(res);
+    if (!token.permission.admin) return res.onUnauthorized();
     const query = `SELECT "client_id", "client_name", "client_permissions"
       FROM "clientTable"`
     admin_server_pool.query(query).then((data) => {
@@ -499,7 +497,7 @@ module.exports = function (
     async function(req, res) {
       const token = req['token'];
       const own_permission = token['permission'];
-      if (!own_permission.admin && !own_permission.user_manage) return onUnauthorized(res);
+      if (!own_permission.admin && !own_permission.user_manage) return res.onUnauthorized();
 
       const target_permission = req.body.permission;
       const target_username = req.body.username;
@@ -535,7 +533,7 @@ module.exports = function (
       ]
       admin_server_pool.query(query, values).then(() => {
         res.send({data: "Succesfully saved the permissions"})
-      }).catch(err => onError(res, err))
+      }).catch(err => res.onError(err))
   });
 
   // ############################################################
@@ -730,7 +728,7 @@ module.exports = function (
           out.push(data)
         });
         res.send(out);
-      }).catch(err => onError(res, err))
+      }).catch(err => res.onError(err))
     }
   }
 
