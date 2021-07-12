@@ -3,6 +3,7 @@ const fs = require('fs');
 const forecastModel = require('./models/forecast')
 var { Pool } = require('pg');
 const { validationResult, param } = require('express-validator');
+const moment = require('moment-timezone');
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
@@ -291,6 +292,7 @@ module.exports = function(app, logger, admin_server_pool) {
     }
 
     logger.debug('User is not demo')
+    // TODO use active project list instead
     const endpoint = token.permission.admin ? '/projects': `/projects/${token.client_id}`
     logger.debug(`Using endpoint ${endpoint}`)
     const out = await pg_get(endpoint);
@@ -298,10 +300,13 @@ module.exports = function(app, logger, admin_server_pool) {
     const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
     const project_output = []
 
+    const curr = moment.now()
     for (let pidx in data) {
       const _project = data[pidx];
+      const _activation_end_num = moment(_project.activation_end_date).valueOf();
       project_output.push({
         id: _project.id,
+        active: _activation_end_num > curr,
         name: _project.name,
         nicename: _project.display_name,
         client_id: _project.client_id,

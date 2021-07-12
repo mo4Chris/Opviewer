@@ -10,6 +10,7 @@
             <tr>
               <th>Name</th>
               <th *ngIf="permission.admin">Client</th>
+              <th *ngIf="permission.admin">Active</th>
               <th>Project overview</th>
               <th>Edit project</th>
             </tr>
@@ -18,6 +19,7 @@
             <tr *ngFor='let project of projects; let _index = index'>
               <td>{{project.nicename}}</td>
               <td *ngIf="permission.admin">{{getClient(project.client_id)}}</td>
+              <td *ngIf="permission.admin">{{project.active}}</td>
               <td>
                 <button (click)="routeToProject(project.id)" class="btn btn-primary">
                   Forecast
