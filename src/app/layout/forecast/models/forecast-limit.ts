@@ -39,6 +39,7 @@ export class ForecastMotionLimit {
           case 'Roll': case 'Pitch': case 'Yaw':
             return 'deg/s²';
         }
+        return '';
       case 'Vel':
         switch (this.Dof) {
           case null:
@@ -48,6 +49,7 @@ export class ForecastMotionLimit {
           case 'Roll': case 'Pitch': case 'Yaw':
             return 'deg/s';
         }
+        return '';
       case 'Disp':
         switch (this.Dof) {
           case null:
@@ -57,6 +59,7 @@ export class ForecastMotionLimit {
           case 'Roll': case 'Pitch': case 'Yaw':
             return 'deg';
         }
+        return '';
       case 'Slip':
         return '%';
       case 'Wave':
@@ -70,6 +73,7 @@ export class ForecastMotionLimit {
           case 'Tz':
             return 's';
         }
+        return '';
       case 'Wind':
         switch (this.Dof) {
           case 'Speed':
@@ -77,6 +81,7 @@ export class ForecastMotionLimit {
           case 'Gust':
             return 'm/s';
         }
+        return '';
       default:
         console.error(`Unsupported unit for type ${this.Type} and dof ${this.Dof}`);
         return '';

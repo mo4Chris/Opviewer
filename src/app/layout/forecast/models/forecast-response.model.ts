@@ -4,6 +4,7 @@ export type ForecastAnalysisType = "Standard" | "CTV";
 
 export interface ForecastOperation {
   id: number;
+  active?: boolean,
   name: string;
   nicename: string;
   client_id: number;
