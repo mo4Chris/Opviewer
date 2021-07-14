@@ -1,7 +1,7 @@
-var bcrypt = require("bcryptjs");
 const { body, validationResult, checkSchema } = require("express-validator");
 const { Pool } = require("pg");
 const models = require('./models/administrative.js');
+const user_helper = require('./helper/user')
 
 /**
  * Server file with all the secure endpoints to the admin database.
@@ -54,15 +54,7 @@ module.exports = function (
   app.get('/api/userPermissions', (req, res) => {
     const token = req['token'];
     const user_id = token['user_id'];
-    return loadUserPermissions(user_id).catch((err) => {
-      return res.onError(err)
-    })
-  })
-
-  app.get('/api/userPreferences', (req, res) => {
-    const token = req['token'];
-    const user_id = token['user_id'];
-    return loadUserPreference(user_id).catch((err) => {
+    return user_helper.loadUserPermissions(user_id).catch((err) => {
       return res.onError(err)
     })
   })
@@ -93,7 +85,7 @@ module.exports = function (
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
       // Valid - do nothing
     } else if (own_vessel_ids == null) {
-      const own_vessel_list = await getVesselsForUser(own_user_id);
+      const own_vessel_list = await user_helper.getVesselsForUser(own_user_id);
       const own_vessel_ids = own_vessel_list.map(v => v.vesse_id);
       if (vessel_ids.some(_vessel_id => !own_vessel_ids.some(_id => _vessel_id == _id))) res.onUnauthorized();
     } else {
@@ -108,7 +100,7 @@ module.exports = function (
     // This part is now solved in an await statement to reduce its complexity
     let password_setup_token = '';
     try {
-      password_setup_token = await createUser({
+      password_setup_token = await user_helper.createUser({
         username,
         requires2fa,
         client_id,
@@ -145,13 +137,13 @@ module.exports = function (
         username
       })
       localLogger.info(`Password reset requested`)
-      getPermissionToManageUser(token, username).catch(err => {
+      user_helper.getPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
         return res.onError(err)
       }).then((has_rights) => {
         localLogger.debug('Valid permission = ' + has_rights)
         if (!has_rights) return res.onUnauthorized();
-        const randomToken = generateRandomToken();
+        const randomToken = user_helper.generateRandomToken();
         const SERVER_ADDRESS = process.env.SERVER_ADDRESS
 
         const query = `UPDATE "userTable"
@@ -184,7 +176,7 @@ module.exports = function (
       const vessel_ids = req.body.vessel_ids;
       const token = req['token'];
 
-      getPermissionToManageUser(token, username).catch(err => {
+      user_helper.getPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
         return res.onError(err)
       }).then((has_rights) => {
@@ -391,7 +383,7 @@ module.exports = function (
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
-        const vessels = await getVesselsForUser(row.user_id);
+        const vessels = await user_helper.getVesselsForUser(row.user_id);
         users.push({
           active: row.active,
           userID: row.user_id,
@@ -452,7 +444,7 @@ module.exports = function (
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
-        const vessels = await getVesselsForUser(row.user_id);
+        const vessels = await user_helper.getVesselsForUser(row.user_id);
         users.push({
           active: row.active,
           userID: row.user_id,
@@ -505,7 +497,7 @@ module.exports = function (
         || target_permission.user_type == 'admin';
       if (may_not_change_target) return res.onUnauthorized('Permissions for target user may be changed!')
 
-      if (!await getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
+      if (!await user_helper.getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
       const userQuery = `SELECT "user_id" FROM userTable where "username"=$1`
       const target_user_response = await admin_server_pool.query(userQuery, [target_username])
       if (target_user_response.rowCount < 1) return res.onBadRequest('Target user not found!')
@@ -532,209 +524,5 @@ module.exports = function (
         res.send({data: "Succesfully saved the permissions"})
       }).catch(err => res.onError(err))
   });
-
-  // ############################################################
-  // ##################### HELPER FUNCTIONS #####################
-  // ############################################################
-
-  async function createUser({
-    username = '',
-    user_type = 'Vessel master',
-    requires2fa = true,
-    vessel_ids = [],
-    client_id = null,
-  }) {
-    if (!(client_id > 0)) { throw Error('Invalid client id!') }
-    if (!(username?.length > 0)) { throw Error('Invalid username!') }
-
-    logger.info(`Creating new user ${username}`)
-    const password_setup_token = generateRandomToken();
-    const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
-    const query = `INSERT INTO "userTable"(
-      "username",
-      "requires2fa",
-      "active",
-      "vessel_ids",
-      "token",
-      "client_id"
-    ) VALUES($1, $2, $3, $4, $5, $6) RETURNING "userTable"."user_id"`
-    const values = [
-      username,
-      Boolean(requires2fa) ?? true,
-      true,
-      valid_vessel_ids ? vessel_ids : null,
-      password_setup_token,
-      client_id
-    ]
-    logger.info('Starting database insert')
-    const sqlresponse = await admin_server_pool.query(query, values)
-    const user_id = sqlresponse.rows[0].user_id;
-
-    logger.info('New user has id ' + user_id)
-    logger.debug('Init user permissions')
-    initUserPermission(user_id, user_type);
-    logger.debug('Init user settings')
-    initUserSettings(user_id);
-    return password_setup_token;
-  }
-
-
-  async function getVesselsForUser(user_id = 0) {
-    let PgQuery = `
-    SELECT "vesselTable"."vessel_id", "vesselTable"."mmsi", "vesselTable"."nicename"
-      FROM "vesselTable"
-      INNER JOIN "userTable"
-      ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
-      WHERE "userTable"."user_id"=$1 AND "userTable"."active"=true`;
-    const values = [user_id]
-    const data = await admin_server_pool.query(PgQuery, values);
-    if (data.rowCount > 0) {
-      return data.rows;
-    } else {
-      return null;
-    }
-  };
-
-  function initUserSettings(user_id = 0) {
-    const localLogger = logger.child({
-      user_id,
-      function: "initUserSettings"
-    })
-    const text = `INSERT INTO "userSettingsTable"
-    (user_id, timezone, unit, longterm, weather_chart, dpr)
-    VALUES($1, $2, $3, $4, $5, $6)`;
-    const values = [+user_id, {type: 'vessel'}, {speed: "knots"}, null, null, null];
-    admin_server_pool.query(text, values).then(() => {
-      localLogger.info('Created user settings')
-    }).catch((err) => {
-      localLogger.error(err.message)
-    })
-  }
-  function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
-    const localLogger = logger.child({
-      user_id,
-      user_type,
-      function: "initUserPermission"
-    })
-    const is_admin = user_type == 'admin';
-    const default_values = {
-      user_type,
-      admin: is_admin,
-      user_read: true,
-      demo: false,
-      user_manage: is_admin,
-      user_see_all_vessels_client: is_admin,
-      dpr: {
-        read: true,
-        sov_input: 'read',
-        sov_commercial: 'read',
-        sov_hse: null,
-      },
-      longterm: {
-        read: false,
-      },
-      twa: {
-        read: is_admin
-      },
-      forecast: {
-        read: is_admin,
-        changeLimits: is_admin,
-        createProject: is_admin
-      }
-    }
-    let permissions = { ...default_values, ...opt_permissions };
-
-    // TODO: Init via JSON files
-    switch (user_type) {
-      case 'admin':
-        permissions.dpr.sov_input = 'write';
-        permissions.dpr.sov_hse = 'write';
-        break
-      case 'Vessel master':
-        permissions.user_read = false;
-        permissions.dpr.sov_hse = 'write';
-        break
-      case 'Qhse specialist':
-        permissions.dpr.sov_hse = 'sign';
-        break
-      case 'Marine controller':
-        permissions.longterm.read = true;
-        permissions.dpr.sov_hse = 'read';
-        break
-      case 'Logistics specialist':
-        permissions.longterm.read = true;
-        permissions.user_see_all_vessels_client = true;
-        break
-      case 'Client representative':
-        permissions.dpr.sov_commercial = 'read';
-        permissions.dpr.sov_input = 'read';
-        break
-      case 'demo':
-        permissions.demo = true
-        permissions.dpr.read = false;
-        permissions.forecast.read = true;
-        break
-    }
-    const query = `
-      INSERT INTO "userPermissionTable"(
-        "user_id", "admin", "user_read", "demo", "user_manage", "twa",
-        "dpr", "longterm", "user_type", "forecast"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `
-    const values = [user_id, permissions.admin, permissions.user_read, permissions.demo,
-      permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
-      permissions.user_type, permissions.forecast];
-    admin_server_pool.query(query, values).then(() => {
-      localLogger.info('Created user permissions')
-    }).catch((err) => {
-      localLogger.error(err)
-    })
-  }
-
-  async function getPermissionToManageUser(token, username='') {
-    logger.info({
-      msg: 'Verifying user management permission',
-      request_by: token.username,
-      username: username
-    })
-    const permission = token.permission;
-    const own_client_id = token.client_id;
-    if (permission.admin) return true;
-    if (!permission.user_manage) return false;
-    const query = `SELECT client_id
-      FROM "userTable"
-      WHERE "userTable"."username"=$1 AND "userTable"."active"=true`
-    const values = [username];
-    const sqlresponse = await admin_server_pool.query(query, values);
-    if (sqlresponse.rowCount < 1) throw new Error('No active user found')
-    const target_client_id = sqlresponse.rows[0].client_id;
-    return target_client_id == own_client_id;
-  }
-
-  function loadUserPermissions(user_id = 0) {
-    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"=$1', [user_id])
-  }
-  function loadUserPreference(user_id = 0) {
-    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"=$1', [user_id])
-  }
-// ########################################################################
-// #################### Support function - outside API ####################
-// ########################################################################
-
-// function genericSqlInsert(table_name, insert_object, appendum = null, id_name = 'user_id') {
-//   // return admin_server_pool.query(`SELECT * FROM "${table_name}"`)
-
-//   const keys = Object.keys(insert_object);
-//   const joined_keys = keys.map(k => '"' + k + '"').join(', ')
-//   const joined_values = keys.map((key, i) => '$' + (i + 1)).join(', ')
-//   const values = keys.map(k => insert_object[k])
-//   const full_query = `INSERT INTO "${table_name}"(${joined_keys}) VALUES(${joined_values}) RETURNING ${id_name}`
-//   return admin_server_pool.query(full_query, values)
-// }
-
-function generateRandomToken() {
-  let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
-  randomToken = randomToken.replace(/\//gi, '8');
-  return randomToken;
 }
 
