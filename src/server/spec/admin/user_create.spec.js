@@ -18,7 +18,7 @@ module.exports = (app, GET, POST) => {
     const company = 'Aperture industries';
     const new_user_id = 666;
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
     })
 

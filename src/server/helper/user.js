@@ -1,8 +1,8 @@
 var bcrypt = require("bcryptjs");
 var pino = require('pino');
-var logger = pino()
-
+var env = require('./env')
 var connections = require('./connections')
+var {logger} = require('./logging')
 
 module.exports = {};
 
@@ -55,7 +55,7 @@ async function createUser({
     client_id
   ]
   logger.info('Starting database insert')
-  const sqlresponse = await admin_server_pool.query(query, values)
+  const sqlresponse = await connections.admin.query(query, values)
   const user_id = sqlresponse.rows[0].user_id;
 
   logger.info('New user has id ' + user_id)
@@ -66,7 +66,6 @@ async function createUser({
   return password_setup_token;
 }
 module.exports.createUser = createUser;
-
 
 
 function initUserSettings(user_id = 0) {
@@ -84,6 +83,8 @@ function initUserSettings(user_id = 0) {
     localLogger.error(err.message)
   })
 }
+module.exports.initUserSettings = initUserSettings;
+
 
 function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
   const localLogger = logger.child({
@@ -167,6 +168,7 @@ function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
 }
 module.exports.initUserPermission = initUserPermission;
 
+
 async function getPermissionToManageUser(token, username='') {
   logger.info({
     msg: 'Verifying user management permission',
@@ -188,6 +190,7 @@ async function getPermissionToManageUser(token, username='') {
 }
 module.exports.getPermissionToManageUser = getPermissionToManageUser;
 
+
 function loadUserPermissions(user_id = 0) {
   const query = 'SELECT * FROM "userPermissionTable" WHERE "user_id"=$1'
   const values = [user_id];
@@ -195,12 +198,14 @@ function loadUserPermissions(user_id = 0) {
 }
 module.exports.loadUserPermissions = loadUserPermissions;
 
+
 function loadUserSettings(user_id = 0) {
   const query = 'SELECT * FROM "userSettingsTable" WHERE "user_id"=$1';
   const values = [user_id]
   return connections.admin.query(query, values)
 }
 module.exports.loadUserSettings = loadUserSettings;
+
 
 function generateRandomToken() {
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
