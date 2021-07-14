@@ -13,7 +13,6 @@ type Matrix = number[][];
 export class ForecastResponseService {
 
   constructor(
-    private calcService: CalculationService,
     private matService: MatrixService,
   ) {
   }
@@ -41,107 +40,9 @@ export class ForecastResponseService {
   }
 
   setLimitsFromOpsPreference(op: ForecastOperation): ForecastMotionLimit[] {
-    if (op?.client_preferences?.Limits) {
+    if (Array.isArray(op?.client_preferences?.Limits)) {
       return op.client_preferences.Limits.map(_limit => new ForecastMotionLimit(_limit))
     }
-    if (!op?.client_preferences?.Points_Of_Interest?.P1?.Degrees_Of_Freedom) return [];
-    const limits = new Array<ForecastMotionLimit>();
-    const dofPreference = op.client_preferences.Points_Of_Interest.P1.Degrees_Of_Freedom;
-    const dofKeys = Object.keys(dofPreference);
-    dofKeys.forEach((_dof: Dof6) => {
-      Object.keys(dofPreference[_dof]).forEach((_type: DofType) => {
-        if (!dofPreference[_dof][_type]) return
-        limits.push(new ForecastMotionLimit());
-      })
-    });
-    if (limits.length == 0) limits.push(new ForecastMotionLimit({Dof: 'Heave', Type: 'Disp', Value: 1.5, Unit: 'm'}))
-    return limits;
-  }
-
-
-  // radianToCarthegian(r: number[], theta: number[], z: number[][]) {
-  //   const R = this.calcService.maxInNdArray(r);
-  //   const a = theta.map(t => t * Math.PI / 180);
-  //   const x = this.calcService.linspace(-R, R, 2*R/(R.length + 1));
-  //   const y = this.calcService.linspace(-R, R, 2*R/(R.length + 1));
-  //   return {
-  //     x,
-  //     y,
-  //     c,
-  //   }
-  // }
-  polarToCarthegian(
-    r: number[],
-    theta: number[],
-    z: number[][],
-    {
-      inDegrees = true,
-      useInterpolation = true,
-      smoothFactor = 2,
-    }
-  ) {
-    const a = inDegrees ? theta.map(t => t * Math.PI / 180) : theta;
-
-    const R = this.calcService.maxInNdArray(r);
-    const N = z.length;
-    const step = 2 * R / (N - 1);
-    const x = this.calcService.linspace(-R, R, step);
-    const y = this.calcService.linspace(-R, R, step);
-
-    const Z = z.map((_z, i) => {
-      return _z.map((e, j) => {
-        return
-      })
-    })
-
-    let _x: number[], _y: number[];
-    if (useInterpolation) {
-      _x = this.calcService.linspace(-R, R, step / smoothFactor);
-      _y = this.calcService.linspace(-R, R, step / smoothFactor);
-    } else {
-      _x = x;
-      _y = y;
-    }
-    const sliderSteps = [];
-    if (useInterpolation) {
-      z = this.calcService.interp2(x, y, z, _x, _y);
-    }
-  }
-
-  private getDefaultDofUnit(type: DofType, dof: Dof6) {
-    switch (type) {
-      case null:
-        return '-';
-      case 'Acc':
-        switch (dof) {
-          case null:
-            return '-';
-          case 'Heave': case 'Surge': case 'Sway':
-            return 'm/s²';
-          case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg/s²';
-        }
-      case 'Vel':
-        switch (dof) {
-          case null:
-            return '-';
-          case 'Heave': case 'Surge': case 'Sway':
-            return 'm/s';
-          case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg/s';
-        }
-      case 'Disp':
-        switch (dof) {
-          case null:
-            return '-';
-          case 'Heave': case 'Surge': case 'Sway':
-            return 'm';
-          case 'Roll': case 'Pitch': case 'Yaw':
-            return 'deg';
-        }
-      default:
-        console.error(`Unsupported unit for type ${type} and dof ${dof}`);
-        return '';
-    }
+    return [new ForecastMotionLimit({Dof: 'Heave', Type: 'Disp', Value: 1.5, Unit: 'm'})];
   }
 }

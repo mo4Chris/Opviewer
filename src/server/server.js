@@ -9,7 +9,6 @@ var mo4AdminServer = require('./administrative.server.js')
 var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
 
 var mongo = require("mongoose");
-var { Pool } = require('pg')
 require('dotenv').config({ path: __dirname + '/./../.env' });
 var args = require('minimist')(process.argv.slice(2));
 var ctv = require('./models/ctv.js')
@@ -19,6 +18,8 @@ var twa = require('./models/twa.js')
 var videoRequests = require('./models/video_requests.js')
 var weather = require('./models/weather.js');
 const { default: axios } = require('axios');
+
+const connections = require('./helper/connections')
 
 //#########################################################
 //########## These can be configured via stdin ############
@@ -43,6 +44,7 @@ process.env.LOGGING_LEVEL = LOGGING_LEVEL;
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
+
 var app = express();
 
 var logger = pino({level: LOGGING_LEVEL})
@@ -90,23 +92,6 @@ let transporter = nodemailer.createTransport({
 });
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-const admin_server_pool = new Pool({
-  host: process.env.ADMIN_DB_HOST,
-  port: +process.env.ADMIN_DB_PORT,
-  database: process.env.ADMIN_DB_DATABASE,
-  user: process.env.ADMIN_DB_USER,
-  password: process.env.ADMIN_DB_PASSWORD,
-  ssl: false
-})
-
-admin_server_pool.connect().then(() => {
-  logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
-}).catch(err => {
-  return logger.fatal(err, "Failed initial connection to admin db!")
-})
-admin_server_pool.on('error', (err) => {
-  logger.fatal(err, 'Unexpected error in connection with admin database!')
-})
 
 
 //#########################################################
@@ -262,7 +247,7 @@ function _verifyToken(req, res) {
     if(typeof(payload?.['userID']) !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
+    connections.admin.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
       lastActive,
       payload['userID']
     ])
@@ -299,7 +284,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
   where $1=ANY(v."client_ids")
   `
   logger.debug('Getting client vessels from admin db')
-  admin_server_pool.query(query, [client_id]).then(sqlresponse => {
+  connections.admin.query(query, [client_id]).then(sqlresponse => {
     logger.trace('Got sql response!')
     const client_vessel_mmsi = sqlresponse.rows.map(r => r.mmsi);
     const mmsi_in_token = checkPermission(client_vessel_mmsi);
@@ -372,7 +357,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, admin_server_pool, mailTo)
+mo4AdminServer(app, logger, connections.admin, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -381,9 +366,9 @@ app.use(verifyToken)
 
 app.use(verifyDemoAccount);
 
-mo4lightServer(app, logger, admin_server_pool)
+mo4lightServer(app, logger, connections.admin)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminPostLoginServer(app, logger, connections.admin, mailTo)
 
 
 //####################################################################
@@ -534,7 +519,7 @@ async function getVesselsForAdmin(token, res) {
     "vesselTable"."operations_class"
   FROM "vesselTable"`;
 
-  vessels = await admin_server_pool.query(PgQuery).then(sql_response => {
+  vessels = await connections.admin.query(PgQuery).then(sql_response => {
     const response =  sql_response.rows;
     return response;
   });
@@ -547,7 +532,7 @@ async function getVesselsForAdmin(token, res) {
   join "clientTable" c on c."client_id" = u.id
   group by 1`
 
-  return await admin_server_pool.query(PgQueryClients).then(sql_client_response => {
+  return await connections.admin.query(PgQueryClients).then(sql_client_response => {
     let vesselList = [];
     vessels.forEach(vessel => {
       const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
@@ -575,7 +560,7 @@ async function getAllVesselsForClient(token, res) {
 
   const values = [token.client_id];
 
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+  return connections.admin.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   });
 }
@@ -594,7 +579,7 @@ async function getAssignedVessels(token, res) {
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
     WHERE "userTable"."user_id"=$1`;
   const values = [token.userID]
-  const sql_response = await admin_server_pool.query(PgQuery, values);
+  const sql_response = await connections.admin.query(PgQuery, values);
   return sql_response.rows;
 }
 
@@ -612,7 +597,7 @@ app.post("/api/getVesselNameAndIDById", function(req, res) {
   WHERE "vesselTable"."vessel_id" =ANY($1)`;
   const values = [vessel_ids];
 
-  admin_server_pool.query(PgQuery, values).then(sql_response => {
+  connections.admin.query(PgQuery, values).then(sql_response => {
     res.send(sql_response.rows);
   });
 });
@@ -631,7 +616,7 @@ async function getAllVesselsForClientByUsername(req, res, username) {
   `;
 
   const clientIDValues = [username];
-  const clientID = await admin_server_pool.query(PgQueryClientID, clientIDValues).then(sql_response => {
+  const clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
     return sql_response.rows[0].client_id;
   });
 
@@ -645,7 +630,7 @@ async function getAllVesselsForClientByUsername(req, res, username) {
   FROM "vesselTable"
   WHERE $1=ANY("vesselTable"."client_ids")`;
   const values = [clientID];
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
+  return connections.admin.query(PgQuery, values).then(sql_response => {
     return sql_response.rows;
   });
 }
@@ -2502,7 +2487,7 @@ function verifyDemoAccount(req, res, next) {
     where u."user_id"=$1`;
   const values = [token.userID]
 
-  admin_server_pool.query(query, values).then(sql_response => {
+  connections.admin.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
     if(!data.active) return onOutdatedToken(res, 'Your account is inactive');
@@ -2515,14 +2500,14 @@ function verifyDemoAccount(req, res, next) {
     const user_type = data.user_type;
     if (user_type == 'demo'){
       const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-      admin_server_pool.query(setUserInactiveQuery, values).catch(res.onError);
+      connections.admin.query(setUserInactiveQuery, values).catch(res.onError);
       return onUnauthorized(res, 'Demo account expired!');
     } else {
       const setDemoToFalseQuery = `UPDATE "userPermissionTable"
         SET "demo"=false
             "demo_expiration_date"=null
         WHERE "user_id"=$1`;
-      admin_server_pool.query(setDemoToFalseQuery, values).catch(res.onError);
+      connections.admin.query(setDemoToFalseQuery, values).catch(res.onError);
       res.send(data);
     }
   }).catch(err => res.onError(err, 'Error querying admin DB'))

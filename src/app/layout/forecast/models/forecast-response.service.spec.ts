@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { ForecastResponseService } from './forecast-response.service';
 import { Dof6Array } from './forecast-response.model';
+import { ForecastMotionLimit } from './forecast-limit';
 
 describe('ForecastResponseService', () => {
   let service: ForecastResponseService;
@@ -31,4 +32,47 @@ describe('ForecastResponseService', () => {
     expect(service.combineWorkabilities([[[]]])).toEqual([[]]);
     expect(service.combineWorkabilities([[[1, 3, 1]], [[2, 2, 2]], [[1, 0, 5]]])).toEqual([[2, 3, 5]]);
   });
+
+  it('should set limits from ops preference', () => {
+    let ops = null;
+    const default_out = [new ForecastMotionLimit({Dof: 'Heave', Type: 'Disp', Value: 1.5, Unit: 'm'})];
+    expect(service.setLimitsFromOpsPreference(ops)).toEqual(default_out)
+    ops = getOps();
+    expect(service.setLimitsFromOpsPreference(ops)).toEqual(default_out)
+    ops = getOps({client_preferences: null});
+    expect(service.setLimitsFromOpsPreference(ops)).toEqual(default_out)
+    ops = getOps(getDof({Dof: 'Roll', Type: 'Disp', Value: 1}));
+    expect(service.setLimitsFromOpsPreference(ops)).not.toEqual(default_out)
+    ops = getOps(getDof({Dof: 'Roll', Type: 'Disp', Value: 1, Unit: 'deg'}));
+    expect(service.setLimitsFromOpsPreference(ops)).not.toEqual(default_out)
+  })
 });
+
+function getOps(opts = {}) {
+  const base = {
+    id: 1,
+    name: "string",
+    nicename: "string",
+    client_id: 1,
+    latitude: 1,
+    longitude: 1,
+    water_depth: 1,
+    maximum_duration: 1,
+    vessel_id: 1,
+    activation_start_date: "string",
+    activation_end_date: "string",
+    client_preferences: null,
+    analysis_types: ["Default"],
+    metocean_provider: null,
+    consumer_id: 0,
+  }
+  return {...base, ... opts};
+}
+
+function getDof(value) {
+  return {
+    client_preferences: {
+      Limits: [value]
+    }
+  }
+}

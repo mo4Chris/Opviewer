@@ -450,7 +450,7 @@ export class MockedCommonService extends CommonService {
   getPlatformLocations() {
     return mockedObservable([{
       filename: 'test123',
-      name: ['PE-F15-PA'],
+      name: [['PE-F15-PA']],
       lat: [[0]],
       lon: [[0]],
       centroid: {
@@ -665,14 +665,27 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
   getParkLocations() {
-    return mockedObservable([]);
+    return mockedObservable([{
+      SiteName: 'Test park',
+      filename: 'Test_park_ugly',
+      name: ['a', 'b'],
+      lon: [0.5, 0.6],
+      lat: [0.5, 0.6],
+      centroid: {
+        lon: 50,
+        lat: 1
+      },
+      outlineLonCoordinates: [0, 1, 1, 0],
+      outlineLatCoordinates: [0, 0, 1, 1]
+    }]);
   }
   getHarbourLocations() {
     return mockedObservable([{
       name: 'Test harbour',
       centroid: {
         lon: 50,
-        lat: 1
+        lat: 1,
+        radius: 1,
       },
       lon: [50],
       lat: [1]

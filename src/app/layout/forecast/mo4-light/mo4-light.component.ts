@@ -99,7 +99,6 @@ export class Mo4LightComponent implements OnInit {
   }
 
   public get projectSettingsChanged(): Boolean {
-
     const settings = this?.responseObj?.response?.Points_Of_Interest?.P1?.Project_Settings;
     const op = this.operations?.find(p => p?.id == this.responseObj?.id)
     const valid = Boolean(settings) && Boolean(op)
