@@ -451,6 +451,9 @@ export class CommonService {
   getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getPlatformTransfersForVesselByRangeForSOV/', vessel);
   }
+  getGeneralForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getGeneralForVesselByRangeForSOV/', vessel);
+  }
   getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTransitsForVesselByRangeForSOV/', vessel);
   }

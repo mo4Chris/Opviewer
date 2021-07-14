@@ -1773,6 +1773,10 @@ app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
   aggregateStatsOverModel(sov.SovPlatformTransfersModel, req, res, { date: 'arrivalTimePlatform' });
 });
 
+app.post("/api/getGeneralForVesselByRangeForSOV", function(req, res) {
+  aggregateStatsOverModel(sov.SovGeneralModel, req, res);
+});
+
 app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
   aggregateStatsOverModel(sov.SovVessel2vesselTransfersModel, req, res);
 });
