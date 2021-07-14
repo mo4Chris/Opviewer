@@ -27,7 +27,7 @@
             </tr>
           </thead>
           <tbody *ngFor="let _kpis of kpis; let _j = index" class="sep-row">
-            <tr><th colspan=14>
+            <tr><th colspan=15>
               {{vesselNames[_j]}}
             </th></tr>
             <tr *ngFor="let kpi of _kpis; let _i = index">
@@ -38,7 +38,7 @@
               <td>{{kpi.totalUtilHours}}</td>
               <td>{{kpi.totalWeatherDowntime}}</td>
               <td>{{kpi.totalTechnicalDowntime}}</td>
-              <td>{{kpi.totalFuelUsed}}</td>
+              <td>{{kpi.distanceSailed}}</td>
               <td>{{kpi.totalFuelUsed}}</td>
               <td>{{kpi.fuelUsedPerWorkingDay}}</td>
               <td>{{kpi.totalPaxTransfered}}</td>

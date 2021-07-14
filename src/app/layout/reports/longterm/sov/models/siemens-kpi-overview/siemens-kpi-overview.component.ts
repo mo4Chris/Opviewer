@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 
 // Encode daily operations per 15 minutes
@@ -42,7 +43,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numCargoOps: 1,
     numPortCalls: 1,
     numMaintainanceOps: 1,
-    distanceSailed: 1,
+    distanceSailed: 'N/a',
   }]];
   currentDate = this.dateService.matlabDatenumToYMD(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
@@ -52,6 +53,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
+    private settingsService: SettingsService,
     private ref: ChangeDetectorRef,
   ) {
     this.defaultMinDate = this.dateService.getMatlabDatenumMonthsAgo(-6);
@@ -231,7 +233,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     kpi.paxTransferedGangway    = paxGangwayTransfer;
     kpi.numCargoOps             = cargoOps;
     kpi.numMaintainanceOps      = maintainanceOps;
-    kpi.distanceSailed          = distanceSailed;
+    kpi.distanceSailed          = this.calcService.switchUnitAndMakeString(distanceSailed, 'km', this.settingsService.unit_distance);
     return kpi;
   }
 
@@ -365,5 +367,5 @@ interface SiemensKpi {
   numCargoOps: number;
   numPortCalls: number;
   numMaintainanceOps: number;
-  distanceSailed: number;
+  distanceSailed: String;
 }

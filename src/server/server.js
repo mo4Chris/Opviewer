@@ -3,10 +3,10 @@ var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 var pino = require('pino');
 
-var mo4lightServer = require('./mo4light.server.js')
-var fileUploadServer = require('./file-upload.server.js')
-var mo4AdminServer = require('./administrative.server.js')
-var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
+var mo4lightServer = require('./mo4light.server.js');
+var fileUploadServer = require('./file-upload.server.js');
+var mo4AdminServer = require('./administrative.server.js');
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
 
 var mongo = require("mongoose");
 require('dotenv').config({ path: __dirname + '/./../.env' });
