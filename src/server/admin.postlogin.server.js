@@ -35,18 +35,16 @@ module.exports = function (
   app.get('/api/vesselList', (req, res) => {
     const token = req['token'];
     const is_admin = token?.permission?.admin ?? false;
-    const client_id = token?.client_id;
     let query, values;
-    logger.warn('This is broken!')
     if (is_admin) {
       query = `SELECT *
         FROM "vesselTable"`
       values = [];
     } else {
       query = `SELECT *
-        FROM "vesselTable"
-        WHERE $1 == ANY("vesselTable"."client_ids")`
-      values = [client_id];
+      FROM "vesselTable"
+      WHERE $1=ANY("client_ids")`
+      values = [token.client_id];
     }
     admin_server_pool.query(query, values).then(sqlresponse => {
       res.send(sqlresponse.rows);
@@ -147,7 +145,7 @@ module.exports = function (
         username
       })
       localLogger.info(`Password reset requested`)
-      testPermissionToManageUser(token, username).catch(err => {
+      getPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
         return res.onError(err)
       }).then((has_rights) => {
@@ -186,7 +184,7 @@ module.exports = function (
       const vessel_ids = req.body.vessel_ids;
       const token = req['token'];
 
-      testPermissionToManageUser(token, username).catch(err => {
+      getPermissionToManageUser(token, username).catch(err => {
         if (err.message == 'User not found') return res.status(400).send('User not found');
         return res.onError(err)
       }).then((has_rights) => {
@@ -219,13 +217,13 @@ module.exports = function (
       let query, values;
       if (is_admin) {
         query = `UPDATE "userTable"
-          SET "active"=false
+          SET "active"=true
           WHERE "userTable"."username"=$1`
         values = [username];
       } else {
         query = `UPDATE "userTable"
-          SET "active"=false
-          WHERE "userTable"."username"=$1 AND client_id==$2`
+          SET "active"=true
+          WHERE "userTable"."username"=$1 AND client_id=$2`
         values = [username, token['client_id']];
       }
       admin_server_pool.query(query, values).then(sqldata => {
@@ -386,7 +384,7 @@ module.exports = function (
         FROM "userTable"
         LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
         LEFT JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
-        where "clientTable"."client_id"=$1`;
+        WHERE "clientTable"."client_id"=$1`;
       value = [client_id]
     }
     admin_server_pool.query(query, value).then(async sqldata => {
@@ -495,6 +493,7 @@ module.exports = function (
   app.post("/api/updateUserPermissions",
     checkSchema(models.updateUserPermissionsModel),
     async function(req, res) {
+      // Set user permissions for another user
       const token = req['token'];
       const own_permission = token['permission'];
       if (!own_permission.admin && !own_permission.user_manage) return res.onUnauthorized();
@@ -502,23 +501,21 @@ module.exports = function (
       const target_permission = req.body.permission;
       const target_username = req.body.username;
       const may_not_change_target = target_permission.admin
-        || target_permission.user_can_see_all_vessels_client
+        // || target_permission.user_can_see_all_vessels_client
         || target_permission.user_type == 'admin';
-      if (may_not_change_target) return res.onUnauthorized('Vessels for target cannot be changed!')
+      if (may_not_change_target) return res.onUnauthorized('Permissions for target user may be changed!')
 
-      const company = req.body.userCompany;
-      const same_company = token['userCompany'] == company;
-      if (!own_permission.admin && !same_company) return res.onUnauthorized('Different company!');
-      return res.onError('Not yet verified!')
-      const userQuery = `SELECT id FROM userTable where "username"=$1`
+      if (!await getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
+      const userQuery = `SELECT "user_id" FROM userTable where "username"=$1`
       const target_user_response = await admin_server_pool.query(userQuery, [target_username])
       if (target_user_response.rowCount < 1) return res.onBadRequest('Target user not found!')
-      const target_user_id = target_user_response.rows[0].username;
+      const target_user_id = target_user_response.rows[0].id;
       const query = `
-        UPDATE "userPermissionTable"(
-          "user_id", "user_read", "demo", "user_manage", "twa",
-          "dpr", "longterm", "user_type", "forecast"
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        UPDATE "userPermissionTable"
+        SET
+          "user_read"=$2, "demo"=$3, "user_manage"=$4, "twa"=$5,
+          "dpr"=$6, "longterm"=$7, "user_type"=$8, "forecast"=$9
+          WHERE "user_id"=$1
       `
       const values = [
         target_user_id,
@@ -588,10 +585,10 @@ module.exports = function (
       FROM "vesselTable"
       INNER JOIN "userTable"
       ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
-      WHERE "userTable"."user_id"=$1`;
+      WHERE "userTable"."user_id"=$1 AND "userTable"."active"=true`;
     const values = [user_id]
     const data = await admin_server_pool.query(PgQuery, values);
-    if (data.rows.length > 0) {
+    if (data.rowCount > 0) {
       return data.rows;
     } else {
       return null;
@@ -647,6 +644,7 @@ module.exports = function (
     }
     let permissions = { ...default_values, ...opt_permissions };
 
+    // TODO: Init via JSON files
     switch (user_type) {
       case 'admin':
         permissions.dpr.sov_input = 'write';
@@ -693,47 +691,7 @@ module.exports = function (
     })
   }
 
-  /**
-   *
-   * @param {string} table Name of table
-   * @param {string | array} fields Fields to be loaded
-   * @param {function} filter Optional filter callback
-   * @returns {(req: import("express").Request, res: import("express").Response) => void}
-   */
-  function defaultPgLoader(table, fields = '*', filter = null) {
-    let PgQuery = '';
-    if (fields == '*') {
-      PgQuery = `SELECT * from "${table}"`;
-    } else if (typeof fields == 'string') {
-      PgQuery = `SELECT (${fields}) from "${table}"`;
-    } else {
-      const fieldList = fields.join(', ');
-      PgQuery = `SELECT (${fieldList}) from "${table}"`;
-    }
-    if (filter) {
-      PgQuery = `${PgQuery} where ${filter}`
-    }
-    return function (req, res) {
-      admin_server_pool.query(PgQuery).then(data => {
-        if (fields == '*') return res.send(data.rows)
-        if (typeof fields == 'string') {
-          return res.send(data.rows.map(user => user[fields]));
-        }
-        const out = [];
-        data.rows.forEach(row => {
-          const temp = {};
-          fields.forEach(key => {
-            temp[key] = row[key]
-          });
-          out.push(data)
-        });
-        res.send(out);
-      }).catch(err => res.onError(err))
-    }
-  }
-
-
-  async function testPermissionToManageUser(token, username='') {
+  async function getPermissionToManageUser(token, username='') {
     logger.info({
       msg: 'Verifying user management permission',
       request_by: token.username,
@@ -745,21 +703,20 @@ module.exports = function (
     if (!permission.user_manage) return false;
     const query = `SELECT client_id
       FROM "userTable"
-      WHERE "userTable"."username" = $1`
+      WHERE "userTable"."username"=$1 AND "userTable"."active"=true`
     const values = [username];
     const sqlresponse = await admin_server_pool.query(query, values);
-    if (sqlresponse.rowCount !== 1) throw new Error('User not found')
+    if (sqlresponse.rowCount < 1) throw new Error('No active user found')
     const target_client_id = sqlresponse.rows[0].client_id;
     return target_client_id == own_client_id;
   }
 
   function loadUserPermissions(user_id = 0) {
-    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
+    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"=$1', [user_id])
   }
   function loadUserPreference(user_id = 0) {
-    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"==$(1)', [user_id])
+    return admin_server_pool.query('SELECT * FROM "userPermissionTable" WHERE "user_id"=$1', [user_id])
   }
-};
 // ########################################################################
 // #################### Support function - outside API ####################
 // ########################################################################
@@ -780,5 +737,4 @@ function generateRandomToken() {
   randomToken = randomToken.replace(/\//gi, '8');
   return randomToken;
 }
-
 
