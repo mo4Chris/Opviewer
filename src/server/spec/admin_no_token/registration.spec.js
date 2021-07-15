@@ -48,10 +48,11 @@ module.exports = (app, GET, POST) => {
         {data: get_default_metocean_provider_response, response_code: 200},
         {data: create_project_response, response_code: 201},
       ]);
-      mailSpy = mock.mailer(app, () => {})
+      mailSpy = mock.mailer(() => {})
     })
 
-    it('it should register', async () => {
+    fit('it should register', async () => {
+      // BROKEN
       const response = registerDemoUser({})
       await response.expect(expectValidRequest)
     })

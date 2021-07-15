@@ -2,15 +2,14 @@ var express = require('express');
 var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 var pino = require('pino');
+var env = require('./helper/env')
 
 var mo4lightServer = require('./mo4light.server.js');
 var fileUploadServer = require('./file-upload.server.js');
 var mo4AdminServer = require('./administrative.server.js');
 var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
 
-var mongo = require("mongoose");
-require('dotenv').config({ path: __dirname + '/./../.env' });
-var args = require('minimist')(process.argv.slice(2));
+var {mongo} = require("./helper/connections");
 var ctv = require('./models/ctv.js')
 var sov = require('./models/sov.js')
 var geo = require('./models/geo.js')
@@ -22,41 +21,12 @@ const { default: axios } = require('axios');
 const connections = require('./helper/connections')
 
 //#########################################################
-//########## These can be configured via stdin ############
-//#########################################################
-const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER?.split(",")?.[0] ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                    ?? 'webmaster@mo4.online';
-const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT              ?? 8080;
-const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL            ?? 'debug'
-
-
-//#########################################################
-//############ Saving values to process env  ##############
-//#########################################################
-process.env.SERVER_ADDRESS = SERVER_ADDRESS;
-process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
-process.env.SERVER_PORT = SERVER_PORT;
-process.env.DB_CONN = DB_CONN;
-process.env.LOGGING_LEVEL = LOGGING_LEVEL;
-
-
-//#########################################################
 //########### Init up application middleware  #############
 //#########################################################
 
 var app = express();
 
-var logger = pino({level: LOGGING_LEVEL})
-
-mongo.set('useFindAndModify', false);
-var db = mongo.connect(DB_CONN, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}, function(err, response) {
-  if (err) return logger.fatal(err);
-  logger.info('Connected to mongo database');
-})
+var logger = pino({level: env.LOGGING_LEVEL})
 
 var app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -78,17 +48,6 @@ app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,authorization');
   res.setHeader('Access-Control-Allow-Credentials', 1);
   next();
-});
-
-let transporter = nodemailer.createTransport({
-  // @ts-ignore
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: (+process.env.EMAIL_PORT == 465),
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
 });
 
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
@@ -315,14 +274,14 @@ function mailTo(subject, html, user) {
   const mailOptions = {
     from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
     to: user, //'bar@example.com, baz@example.com' list of receivers
-    bcc: WEBMASTER_MAIL, //'bar@example.com, baz@example.com' list of bcc receivers
+    bcc: env.WEBMASTER_MAIL, //'bar@example.com, baz@example.com' list of bcc receivers
     subject: subject, //'Hello ✔' Subject line
     html: body //'<b>Hello world?</b>' html body
   };
 
   // send mail with defined transport object
   maillogger.info('Sending email')
-  transporter.sendMail(mailOptions, (error, info) => {
+  connections.mailer.sendMail(mailOptions, (error, info) => {
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
@@ -1302,7 +1261,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     let _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
       ' has been signed off by the skipper. Please review the dpr and sign off if in agreement!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
       // ToDo: set proper recipient
     let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
     let recipient = [];
@@ -1338,7 +1297,7 @@ app.post("/api/declineDprClient", function(req, res) {
   let mmsi = req.body.mmsi;
   let date = req.body.date;
   let title = '';
-  let recipient = WEBMASTER_MAIL;
+  let recipient = env.WEBMASTER_MAIL;
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -1365,7 +1324,7 @@ app.post("/api/declineDprClient", function(req, res) {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
 
-        recipient = WEBMASTER_MAIL;
+        recipient = env.WEBMASTER_MAIL;
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -1376,7 +1335,7 @@ app.post("/api/declineDprClient", function(req, res) {
     const _body = 'The dpr for vessel ' + vesselname + ',' + dateString +
       ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
       '<br><br>Feedback from client:<br>' + req.body.feedback;
     // ToDo: set proper recipient
     setTimeout(function() {
@@ -1415,7 +1374,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     }, {}, (err, data) => {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
-        recipient = [WEBMASTER_MAIL]
+        recipient = [env.WEBMASTER_MAIL]
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -1426,7 +1385,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     const _body = 'The HSE DPR for vessel ' + vesselname + ', ' + dateString +
       ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
       '<br><br>Feedback from client:<br>' + req.body.feedback;
     // ToDo: set proper recipient
     setTimeout(function() {
@@ -2294,7 +2253,7 @@ app.post("/api/saveFleetRequest", function(req, res) {
       "Limit Hs: " + request.limitHs + " <br>" +
       "Username: " + request.user + " <br>" +
       "Request time: " + requestTime.toISOString().slice(0, 10);
-    mailTo('Campaign requested', html, WEBMASTER_MAIL);
+    mailTo('Campaign requested', html, env.WEBMASTER_MAIL);
     return res.send({ data: 'Request succesfully made' });
   });
 });
@@ -2398,8 +2357,8 @@ app.get('/api/getLatestTwaUpdate/', function(req, res) {
   }
 })
 
-app.listen(SERVER_PORT, function() {
-  logger.info(`MO4 Dataviewer listening on port ${SERVER_PORT}!`);
+app.listen(env.SERVER_PORT, function() {
+  logger.info(`MO4 Dataviewer listening on port ${env.SERVER_PORT}!`);
 });
 
 

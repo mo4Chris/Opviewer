@@ -66,7 +66,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,
@@ -128,7 +128,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,

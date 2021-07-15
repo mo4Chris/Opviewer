@@ -25,7 +25,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.jsonWebToken(app, {
         active: 1,
         userID,
