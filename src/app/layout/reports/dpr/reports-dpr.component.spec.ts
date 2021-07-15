@@ -150,6 +150,17 @@ describe('ReportsDprComponent', () => {
     expect(printSpy).toHaveBeenCalled();
   });
 
+  it('should correctly classify CTV / SOV', () => {
+    component.vesselObject.vesselType = 'CTV';
+    expect(component.isCtvDpr).toBeTruthy();
+    expect(component.isSovDpr).toBeFalsy();
+    component.vesselObject.vesselType = 'SOV';
+    expect(component.isCtvDpr).toBeFalsy();
+    expect(component.isSovDpr).toBeTruthy();
+    component.vesselObject.vesselType = 'OSV';
+    expect(component.isCtvDpr).toBeFalsy();
+    expect(component.isSovDpr).toBeTruthy();
+  })
 });
 
 function toDate(YMD: {year: number, month: number, day: number}): Date {

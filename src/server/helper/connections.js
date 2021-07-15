@@ -4,7 +4,6 @@ var mongo = require("mongoose");
 var nodemailer = require('nodemailer');
 var { default: http } = require('axios')
 var env = require('./env')
-
 var logger = pino()
 module.exports = {};
 
@@ -30,10 +29,11 @@ module.exports.admin = admin_server_pool;
 
 // ############# mongoDB #################
 mongo.set('useFindAndModify', false);
-mongo.connect(process.env.DB_CONN, {
+mongo.connect(env.DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, function(err, response) {
+  console.log('err', err)
   if (err) return logger.fatal(err);
   logger.info('Connected to mongo database');
 })
@@ -105,7 +105,7 @@ function pg_post(endpoint, data) {
 function pg_put(endpoint, data) {
   logger.debug('Performing PUT request:' + endpoint)
   const url = baseUrl + endpoint;
-  return http.post(url, data, {headers, timeout})
+  return http.put(url, data, {headers, timeout})
 }
 
 /**

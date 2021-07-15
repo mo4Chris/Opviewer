@@ -183,11 +183,8 @@ const updateUserPermissionsModel = {
   permission: {
     isObject: true,
   },
-  userCompany: {
+  username: {
     isString: true,
-  },
-  boats: {
-    isArray: true,
   }
 }
 

@@ -16,6 +16,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -35,6 +36,7 @@ export class ReportsDprComponent implements OnInit {
     public permission: PermissionService,
     private hotkeys: Hotkeys,
     private ref: ChangeDetectorRef,
+    private stringMutationService: StringMutationService,
     ) {
   }
 
@@ -71,6 +73,13 @@ export class ReportsDprComponent implements OnInit {
     return year_matched && month_matched && day_matched;
   }
 
+  public get isCtvDpr() {
+    return this.vesselObject.vesselType == 'CTV';
+  }
+  public get isSovDpr() {
+    return this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV';
+  }
+
   // Initial load
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
@@ -80,7 +89,9 @@ export class ReportsDprComponent implements OnInit {
       if (!userIsActive) return this.userService.logout();
 
       this.newService.getVessel().subscribe(_vessels => {
-        this.vessels = _vessels;
+        this.vessels = _vessels.sort((a, b) => {
+          return this.stringMutationService.compare(a.nicename.toLowerCase(), b.nicename.toLowerCase(), true);
+        });
         this.buildPageWithCurrentInformation();
       });
     });
@@ -127,7 +138,7 @@ export class ReportsDprComponent implements OnInit {
   }
 
   printPage(printtype: number) {
-    if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
+    if (this.isSovDpr) {
       this.printMode = printtype;
       setTimeout(() => {
         this._doPrint(true);

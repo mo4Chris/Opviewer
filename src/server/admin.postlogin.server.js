@@ -485,6 +485,9 @@ module.exports = function (
   app.post("/api/updateUserPermissions",
     checkSchema(models.updateUserPermissionsModel),
     async function(req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors);
+
       // Set user permissions for another user
       const token = req['token'];
       const own_permission = token['permission'];
@@ -498,10 +501,9 @@ module.exports = function (
       if (may_not_change_target) return res.onUnauthorized('Permissions for target user may be changed!')
 
       if (!await user_helper.getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
-      const userQuery = `SELECT "user_id" FROM userTable where "username"=$1`
-      const target_user_response = await admin_server_pool.query(userQuery, [target_username])
-      if (target_user_response.rowCount < 1) return res.onBadRequest('Target user not found!')
-      const target_user_id = target_user_response.rows[0].id;
+      const target_user_id = await user_helper.getIdForUser(target_username).catch(err => {
+        return res.onBadRequest('Target user not found!')
+      })
       const query = `
         UPDATE "userPermissionTable"
         SET

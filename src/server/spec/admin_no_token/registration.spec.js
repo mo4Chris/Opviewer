@@ -51,8 +51,7 @@ module.exports = (app, GET, POST) => {
       mailSpy = mock.mailer(() => {})
     })
 
-    fit('it should register', async () => {
-      // BROKEN
+    it('it should register', async () => {
       const response = registerDemoUser({})
       await response.expect(expectValidRequest)
     })

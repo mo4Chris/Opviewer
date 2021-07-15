@@ -1,8 +1,9 @@
 var bcrypt = require("bcryptjs");
-var pino = require('pino');
+var twoFactor = require('node-2fa');
 var env = require('./env')
 var connections = require('./connections')
-var {logger} = require('./logging')
+var {logger} = require('./logging');
+const { toIso8601 } = require("./hydro");
 
 module.exports = {};
 
@@ -66,6 +67,62 @@ async function createUser({
   return password_setup_token;
 }
 module.exports.createUser = createUser;
+
+
+async function createDemoUser({
+  username = '',
+  requires2fa = false,
+  client_id = null,
+  vessel_ids = [],
+  user_type = 'demo',
+  password = null,
+  demo_project_id = null
+}) {
+  const expireDate = new Date();
+  const formattedExpireDate = toIso8601(new Date(expireDate.setMonth(expireDate.getMonth() + 1)))
+  if (!(client_id > 0)) { throw Error('Invalid client id!') }
+  if (!(username?.length > 0)) { throw Error('Invalid username!') }
+
+  logger.info(`Creating new user ${username}`)
+  const password_setup_token = null;
+  if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
+  const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
+  const query = `INSERT INTO public."userTable"(
+    username,
+    requires2fa,
+    secret2fa,
+    active,
+    vessel_ids,
+    password,
+    token,
+    client_id,
+    demo_project_id,
+    demo_expiration_date
+  ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "userTable"."user_id"`
+  const values = [
+    username,
+    Boolean(requires2fa) ?? true,
+    null,
+    true,
+    valid_vessel_ids ? vessel_ids : null,
+    password,
+    password_setup_token,
+    client_id,
+    demo_project_id,
+    formattedExpireDate
+  ]
+
+  const sqlresponse = await connections.admin.query(query, values)
+  const user_id = sqlresponse.rows[0].user_id;
+
+  logger.info('New user has id ' + user_id)
+  logger.debug('Init user permissions')
+  initUserPermission(user_id, user_type, {demo: true});
+  logger.debug('Init user settings')
+  initUserSettings(user_id);
+  return;
+}
+module.exports.createDemoUser = createDemoUser;
 
 
 function initUserSettings(user_id = 0) {
@@ -213,3 +270,56 @@ function generateRandomToken() {
   return randomToken;
 }
 module.exports.generateRandomToken = generateRandomToken;
+
+
+/**
+ * Return the ID belonging to a user
+ * @param {string} username Username
+ * @returns
+ */
+async function getIdForUser(username) {
+  const userQuery = `SELECT "user_id" FROM userTable where "username"=$1`
+  const target_user_response = await connections.admin.query(userQuery, [username])
+  if (target_user_response.rowCount < 1) throw new Error('Target user not found!')
+  const target_user_id = target_user_response.rows[0].user_id;
+  return target_user_id;
+}
+module.exports.getIdForUser = getIdForUser;
+
+
+function validateLogin(req, user, res) {
+  const userData = req.body;
+  if (!user.active) { res.onUnauthorized('User is not active, please contact your supervisor'); return false }
+  if (!user.password || user.password == '') {
+    res.onUnauthorized('Account needs to be activated before loggin in, check your email for the link');
+    return false;
+  }
+  if (!bcrypt.compareSync(userData.password, user.password)) {
+    res.onUnauthorized('Password is incorrect');
+    return false;
+  }
+  logger.trace(user)
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const isLocalHost = ip == '::1' || ip === '';
+  const secret2faValid = (user.secret2fa?.length > 0) && (twoFactor.verifyToken(user.secret2fa, userData.confirm2fa) != null)
+  const requires2fa = (user.requires2fa == null) ? true : Boolean(user.requires2fa);
+  logger.debug({ "msg": "2fa status", "requires2fa": requires2fa, "2fa_valid": secret2faValid, "isLocalhost": isLocalHost })
+  if (!isLocalHost && !secret2faValid && requires2fa) {
+    res.onUnauthorized('2fa is incorrect');
+    return false
+  }
+  return true;
+}
+module.exports.validateLogin = validateLogin;
+
+
+async function getDefaulClientId() {
+  logger.debug('Getting default client ID')
+  const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`
+  const values = [env.DEMO_CLIENT_NAME];
+  const out = await connections.admin.query(query, values)
+  const default_client_id = out.rows[0]?.client_id;
+  if (default_client_id == null) throw new Error('Failed to find default client id')
+  return default_client_id;
+}
+module.exports.getDefaulClientId = getDefaulClientId;
