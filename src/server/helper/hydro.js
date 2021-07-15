@@ -6,10 +6,13 @@ const fs = require('fs')
 
 
 // #################### Default values ####################
-const DEFAULT_WEATHER_PROVIDER_NAME = 'infoplaza';
-const DEFAULT_CLIENT_NAME           = 'Demo';
+const DEFAULT_WEATHER_PROVIDER_NAME   = 'infoplaza';
+const DEFAULT_FORECAST_CLIENT_NAME    = 'Demo';
 
-module.exports = {};
+module.exports = {
+  DEFAULT_WEATHER_PROVIDER_NAME,
+  DEFAULT_FORECAST_CLIENT_NAME: DEFAULT_FORECAST_CLIENT_NAME
+};
 
 
 /**
@@ -199,23 +202,10 @@ async function createProject(client_id = -1, metocean_provider_id = -1) {
 }
 module.exports.createProject = createProject;
 
-
-async function getDefaultClientId() {
-  logger.debug('Getting default client ID')
-  const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`
-  const values = [DEFAULT_CLIENT_NAME];
-  const out = await admin.query(query, values)
-  const default_client_id = out.rows[0]?.client_id;
-  if (default_client_id == null) throw new Error('Failed to find default client id')
-  return default_client_id;
-}
-module.exports.getDefaultClientId = getDefaultClientId;
-
-
 async function getDefaultForecastClientId() {
   logger.debug('Getting default forecast client ID')
   const query = `SELECT "forecast_client_id" FROM "clientTable" WHERE "client_name"=$1`
-  const values = [DEFAULT_CLIENT_NAME];
+  const values = [DEFAULT_FORECAST_CLIENT_NAME];
   const out = await admin.query(query, values)
   const default_client_id = out.rows[0]?.forecast_client_id;
   if (default_client_id == null) throw new Error('Failed to find default forecast client id')
@@ -241,7 +231,11 @@ function getDefaultProjectPreferences() {
 module.exports.getDefaultProjectPreferences = getDefaultProjectPreferences;
 
 
-// #################### Support code non-dependent on server state ####################
+/**
+ * Casts Date to the iso8601 format
+ * @param {Date} d Date object
+ * @returns
+ */
 function toIso8601(d) {
   return d.toISOString().slice(0, 23) + '+00:00';
 }

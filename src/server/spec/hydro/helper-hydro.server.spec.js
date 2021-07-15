@@ -64,6 +64,35 @@ describe('Hydro helper functions', () => {
     })
   })
 
+  it('should convert datenum to iso 8601', () => {
+    const test_date = new Date(Date.UTC(2021, 0, 1, 0, 0, 0));
+    expect(helper.toIso8601(test_date)).toEqual('2021-01-01T00:00:00.000+00:00')
+  })
+
+  it('should load default project preferences', () => {
+    const prefs = helper.getDefaultProjectPreferences();
+    expect(prefs).toBeTruthy();
+    expect(typeof prefs).toEqual('object');
+  })
+
+  it('should get default weather provider id', async () => {
+    mock.mockForecastApiRequest({metocean_providers: [{
+      name: 'baloni',
+      id: 1
+    }, {
+      name: helper.DEFAULT_WEATHER_PROVIDER_NAME,
+      id: 2
+    }]})
+    const id = await helper.getDefaultMetoceanProviderId();
+    expect(id).toEqual(2);
+  })
+
+  it('should get default forecast client id', async () => {
+    mock.pgRequest([{forecast_client_id: 2}])
+    const id = await helper.getDefaultForecastClientId();
+    expect(id).toEqual(2);
+  })
+
   describe('- checkProjectPermission:', () => {
     const project1 = {
       id: 1,
