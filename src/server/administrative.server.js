@@ -109,7 +109,6 @@ module.exports = function (
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await hydro_helper.createProject() // works
-      console.log('demo_project_id', demo_project_id)
       await user_helper.createDemoUser({
         username,
         requires2fa,

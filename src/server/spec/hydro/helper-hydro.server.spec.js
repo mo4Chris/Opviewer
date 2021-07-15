@@ -63,4 +63,121 @@ describe('Hydro helper functions', () => {
       vessel_id: 1
     })
   })
+
+  describe('- checkProjectPermission:', () => {
+    const project1 = {
+      id: 1,
+      client_id: 1,
+      name: 'project_1'
+    };
+    const project2 = {
+      id: 2,
+      client_id: 2,
+      name: 'project_2'
+    }
+    const project3 = {
+      id: 3,
+      client_id: 3,
+      name: 'Sample_Project'
+    };
+
+    it('should return true as admin', () => {
+      const token = {permission: {
+        admin: true
+      }}
+      expect(helper.checkProjectPermission(token, project1)).toBe(true);
+      expect(helper.checkProjectPermission(token, project2)).toBe(true);
+      expect(helper.checkProjectPermission(token, project3)).toBe(true);
+    })
+
+    it('should return false without forecast read permission', () => {
+      const token = {permission: {
+        admin: false,
+        forecast: {read: false}
+      }}
+      expect(helper.checkProjectPermission(token, project1)).toBe(false);
+      expect(helper.checkProjectPermission(token, project2)).toBe(false);
+      expect(helper.checkProjectPermission(token, project3)).toBe(false);
+    })
+
+    it('should return projects belonging to client', () => {
+      const token = {
+        permission: {
+          admin: false,
+          forecast: {read: true}
+        },
+        client_id: 1,
+        demo_project_id: null
+      }
+      expect(helper.checkProjectPermission(token, project1)).toBe(true);
+      expect(helper.checkProjectPermission(token, project2)).toBe(false);
+      expect(helper.checkProjectPermission(token, project3)).toBe(true);
+    })
+
+    it('should return demo project', () => {
+      const token = {
+        permission: {
+          admin: false,
+          demo: true,
+          forecast: {read: true}
+        },
+        client_id: 1,
+        demo_project_id: 2
+      }
+      expect(helper.checkProjectPermission(token, project1)).toBe(true);
+      expect(helper.checkProjectPermission(token, project2)).toBe(true);
+      expect(helper.checkProjectPermission(token, project3)).toBe(true);
+    })
+  })
+
+  describe('- checkForecastVesselPermission:', () => {
+    // const generic_client_id = 1;
+    const vessel_1 = {
+      id: 1,
+      client_id: 1,
+      name: 'vessel_1'
+    };
+    const vessel_2 = {
+      id: 2,
+      client_id: 2,
+      name: 'vessel_2'
+    }
+    const vessel_3 = {
+      id: 3,
+      client_id: 3,
+      name: 'vessel_3'
+    };
+
+    it('should return true as admin', () => {
+      const token = {permission: {
+        admin: true
+      }}
+      expect(helper.checkForecastVesselPermission(token, vessel_1)).toBe(true);
+      expect(helper.checkForecastVesselPermission(token, vessel_2)).toBe(true);
+      expect(helper.checkForecastVesselPermission(token, vessel_3)).toBe(true);
+    })
+
+    it('should return false without forecast read permission', () => {
+      const token = {permission: {
+        admin: false,
+        forecast: {read: false}
+      }}
+      expect(helper.checkForecastVesselPermission(token, vessel_1)).toBe(false);
+      expect(helper.checkForecastVesselPermission(token, vessel_2)).toBe(false);
+      expect(helper.checkForecastVesselPermission(token, vessel_3)).toBe(false);
+    })
+
+    it('should return projects belonging to client', () => {
+      const token = {
+        permission: {
+          admin: false,
+          forecast: {read: true}
+        },
+        client_id: 3,
+      }
+      expect(helper.checkForecastVesselPermission(token, vessel_1)).toBe(true);
+      expect(helper.checkForecastVesselPermission(token, vessel_2)).toBe(false);
+      expect(helper.checkForecastVesselPermission(token, vessel_3)).toBe(true);
+    })
+  })
 })

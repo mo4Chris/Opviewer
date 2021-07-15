@@ -52,7 +52,6 @@ module.exports = (app, GET, POST) => {
     })
 
     it('it should register', async () => {
-      // BROKEN
       const response = registerDemoUser({})
       await response.expect(expectValidRequest)
     })

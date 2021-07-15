@@ -151,13 +151,12 @@ module.exports.checkProjectPermission = checkProjectPermission;
 function checkForecastVesselPermission(userToken, vessel) {
   const perm = userToken?.permission
   if (perm.admin) return true;
-  if (!perm.forecast.read) return false;
+  if (!perm?.forecast?.read) return false;
   const client_match = vessel.client_id == userToken.client_id;
   const generic_match = vessel.client_id == env.GENERIC_VESSEL_CLIENT_ID;
   return client_match || generic_match;
 }
 module.exports.checkForecastVesselPermission = checkForecastVesselPermission;
-
 
 
 async function createProject(client_id = -1, metocean_provider_id = -1) {
