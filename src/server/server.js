@@ -4,10 +4,10 @@ var nodemailer = require('nodemailer');
 var pino = require('pino');
 var env = require('./helper/env')
 
-var mo4lightServer = require('./mo4light.server.js')
-var fileUploadServer = require('./file-upload.server.js')
-var mo4AdminServer = require('./administrative.server.js')
-var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
+var mo4lightServer = require('./mo4light.server.js');
+var fileUploadServer = require('./file-upload.server.js');
+var mo4AdminServer = require('./administrative.server.js');
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
 
 var {mongo} = require("./helper/connections");
 var ctv = require('./models/ctv.js')
@@ -1715,6 +1715,10 @@ app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
 
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
   aggregateStatsOverModel(sov.SovPlatformTransfersModel, req, res, { date: 'arrivalTimePlatform' });
+});
+
+app.post("/api/getGeneralForVesselByRangeForSOV", function(req, res) {
+  aggregateStatsOverModel(sov.SovGeneralModel, req, res);
 });
 
 app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
