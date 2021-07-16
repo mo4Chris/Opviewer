@@ -8,9 +8,14 @@ export class VesselModel {
     vesselname: string;
     nicename: string;
     mmsi: number;
-    onHire: boolean;
-
+    // I know that this is really ugly to do. But in Mongo this is still listed as operationsClass and in sql as operations_class
+    // both are now added as optional to 
+    onHire?: boolean;
+    active?: boolean;
+    // I know that this is really ugly to do. But in Mongo this is still listed as operationsClass and in sql as operations_class
+    // both are now added as optional to 
     operationsClass: VesselOperationsClass;
+    operations_class: VesselOperationsClass;
     vessel_length: number;
     displacement: number;
     dist2bow?: number;
