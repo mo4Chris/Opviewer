@@ -32,7 +32,9 @@ export class ForecastVesselComponent implements OnInit {
   }];
 
   public providers: MetoceanProvider[];
-  public project: ForecastOperation = <any> {};
+  public project: ForecastOperation = <any> {
+    metocean_provider: {}
+  };
   public projectLoaded = false;
   public new = false;
   public SelectedVessel: ForecastVesselRequest | 0 = 0;
@@ -95,9 +97,6 @@ export class ForecastVesselComponent implements OnInit {
       if (this.project_name == 'new') return;
       this.loadData();
     });
-    this.newService.getForecastMetoceanProviders().subscribe(_providers => {
-      this.providers = _providers;
-    })
   }
   initParameter(): Observable<void> {
     return this.route.params.pipe(
@@ -111,9 +110,13 @@ export class ForecastVesselComponent implements OnInit {
   loadData() {
     forkJoin([
       this.newService.getForecastProjectByName(this.project_name),
+      this.newService.getForecastMetoceanProviders(),
       this.newService.getForecastVesselList(),
-    ]).subscribe(([_project, vessels]) => {
+    ]).subscribe(([_project, _providers, vessels]) => {
       this.project = _project[0];
+      this.providers = _providers;
+      this.project.metocean_provider = this.providers.find(_provider => _provider.name == this.project.metocean_provider.name)
+
       this.is_sample_project = !this.permission.admin && (this.project_name == 'Sample_Project');
       this.ctv_slip_settings =  this.project?.client_preferences?.Ctv_Slip_Options;
       if (this.ctv_slip_settings == null) this.initCtvSlipSettings();
@@ -122,7 +125,7 @@ export class ForecastVesselComponent implements OnInit {
       this.SelectedVessel = this.vessels.find(v => v.id == this.project.vessel_id) ?? 0;
       this.projectLoaded = true;
       this.onLoaded();
-      this.ref.detectChanges()
+      this.ref.detectChanges();
     });
   }
 

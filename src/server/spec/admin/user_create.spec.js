@@ -66,6 +66,7 @@ module.exports = (app, GET, POST) => {
         mock.pgRequest([new_user_id])
         const newUser = {
           username: 'Bot@bot.com',
+          user_type: 'Vessel master',
           requires2fa: true,
           client_id: OWN_CLIENT_ID,
           vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
@@ -127,7 +128,7 @@ module.exports = (app, GET, POST) => {
         const request = POST('/api/createUser', newUser, true)
         await request.expect(expectUnAuthRequest)
       })
-      it('not create new user - vessel does not belong to client', async () => {
+      it('not create new user - wrong client', async () => {
         mock.jsonWebToken(app, {
           userID: 1,
           client_id: OWN_CLIENT_ID,
@@ -148,6 +149,34 @@ module.exports = (app, GET, POST) => {
         const newUser = {
           username: 'Bot@bot.com',
           requires2fa: true,
+          client_id: OTHER_CLIENT_ID,
+          vessel_ids: [OWN_VESSEL_1, OWN_VESSEL_2],
+        }
+        const request = POST('/api/createUser', newUser, true)
+        await request.expect(expectUnAuthRequest)
+      })
+      it('not create new user - target with admin permissions whilst account is not admin', async () => {
+        mock.jsonWebToken(app, {
+          userID: 1,
+          client_id: OWN_CLIENT_ID,
+          username: username,
+          userCompany: company,
+          userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
+          userPermission: 'Logistic specialist',
+          permission: {
+            admin: false,
+            user_type: 'Logistic specialist',
+            user_read: true,
+            demo: true,
+            user_manage: true,
+            user_see_all_vessels_client: true,
+          }
+        })
+        mock.pgRequest([new_user_id])
+        const newUser = {
+          username: 'Bot@bot.com',
+          requires2fa: true,
+          user_type: 'admin',
           client_id: OWN_CLIENT_ID,
           vessel_ids: [OTHER_VESSEL],
         }

@@ -5,7 +5,7 @@ if (base.error) {
   throw base.error
 }
 
-const SERVER_ADDRESS    = process.env.IP_USER?.split(",")?.[0]  ?? 'bmodataviewer.com';
+const SERVER_ADDRESS    = process.env.IP_USER?.split(",")?.[0]  ?? 'forecasting.mo4.online';
 const WEBMASTER_MAIL    = process.env.EMAIL                     ?? 'webmaster@mo4.online';
 const SERVER_PORT       = process.env.SERVER_PORT               ?? 8080;
 const DB_CONN           = process.env.DB_CONN;
