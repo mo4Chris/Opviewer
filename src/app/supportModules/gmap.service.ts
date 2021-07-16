@@ -173,7 +173,12 @@ export class GmapService {
     }
   ];
 
-  addParksToLayersForVessel(visitLayer: MapZoomLayer, otherLayer: MapZoomLayer, parks: TurbineParkWithDrawData[], platforms: OffshorePlatformWithData[]) {
+  addParksToLayersForVessel(
+    visitLayer: MapZoomLayer,
+    otherLayer: MapZoomLayer,
+    parks: TurbineParkWithDrawData[],
+    platforms: OffshorePlatformWithData[]
+  ) {
     // Drawing turbines
     parks.forEach((park, index) => {
       if (park.isVisited) {
