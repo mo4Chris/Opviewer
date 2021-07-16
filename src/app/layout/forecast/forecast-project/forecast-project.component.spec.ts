@@ -18,70 +18,70 @@ import { ForecastOperation } from '../models/forecast-response.model';
 import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 
-describe('ForecastProjectComponent', () => {
-  let component: ForecastVesselComponent;
-  let fixture: ComponentFixture<ForecastVesselComponent>;
+// describe('ForecastProjectComponent - new', () => {
+//   let component: ForecastVesselComponent;
+//   let fixture: ComponentFixture<ForecastVesselComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        ForecastVesselComponent,
-        MockComponents(
-          AgmMap,
-          VesselLocationIndicatorComponent
-        )
-      ],
-      imports: [
-        FormsModule,
-        CommonModule,
-        NgbModule,
-        RouterTestingModule
-      ],
-      providers: [
-        MockedCommonServiceProvider,
-        MockedUserServiceProvider,
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            params: mockedObservable({
-              project_name: 'new'
-            }),
-          },
-      }
-      ]
-    })
-    .compileComponents();
-  }));
+//   beforeEach(waitForAsync(() => {
+//     TestBed.configureTestingModule({
+//       declarations: [
+//         ForecastVesselComponent,
+//         MockComponents(
+//           AgmMap,
+//           VesselLocationIndicatorComponent
+//         )
+//       ],
+//       imports: [
+//         FormsModule,
+//         CommonModule,
+//         NgbModule,
+//         RouterTestingModule
+//       ],
+//       providers: [
+//         MockedCommonServiceProvider,
+//         MockedUserServiceProvider,
+//         {
+//           provide: ActivatedRoute,
+//           useValue: {
+//             params: mockedObservable({
+//               project_name: 'new'
+//             }),
+//           },
+//       }
+//       ]
+//     })
+//     .compileComponents();
+//   }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ForecastVesselComponent);
-    component = fixture.componentInstance;
-  });
+//   beforeEach(() => {
+//     fixture = TestBed.createComponent(ForecastVesselComponent);
+//     component = fixture.componentInstance;
+//   });
 
-  it('should init new - permission denied', () => {
-    const routingSpy = spyOn(RouterService.prototype, 'route');
-    const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
-    const loadSpy = spyOn(component, 'loadData');
-    component.permission.forecastCreateProject = false;
-    fixture.detectChanges();
-    expect(routingSpy).toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalled();
-    expect(loadSpy).not.toHaveBeenCalled();
-  })
+//   it('should init new - permission denied', () => {
+//     const routingSpy = spyOn(RouterService.prototype, 'route');
+//     const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
+//     const loadSpy = spyOn(component, 'loadData');
+//     component.permission.forecastCreateProject = false;
+//     fixture.detectChanges();
+//     expect(routingSpy).toHaveBeenCalled();
+//     expect(alertSpy).toHaveBeenCalled();
+//     expect(loadSpy).not.toHaveBeenCalled();
+//   })
 
-  xit('should init new - permission granted', () => {
-    const routingSpy = spyOn(RouterService.prototype, 'route');
-    const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
-    const loadSpy = spyOn(component, 'loadData');
-    component.permission.forecastCreateProject = true;
-    fixture.detectChanges();
-    expect(routingSpy).not.toHaveBeenCalled();
-    expect(alertSpy).not.toHaveBeenCalled();
-    expect(loadSpy).not.toHaveBeenCalled();
-  })
-});
+//   xit('should init new - permission granted', () => {
+//     const routingSpy = spyOn(RouterService.prototype, 'route');
+//     const alertSpy = spyOn(AlertService.prototype, 'sendAlert');
+//     const loadSpy = spyOn(component, 'loadData');
+//     component.permission.forecastCreateProject = true;
+//     fixture.detectChanges();
+//     expect(routingSpy).not.toHaveBeenCalled();
+//     expect(alertSpy).not.toHaveBeenCalled();
+//     expect(loadSpy).not.toHaveBeenCalled();
+//   })
+// });
 
-describe('ForecastProjectComponent', () => {
+describe('ForecastProjectComponent - existing', () => {
   let component: ForecastVesselComponent;
   let fixture: ComponentFixture<ForecastVesselComponent>;
   let routingSpy: jasmine.Spy
@@ -172,7 +172,7 @@ describe('ForecastProjectComponent', () => {
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
       client_preferences: mockForecastProjectPreferences(),
       consumer_id: 123,
-      metocean_provider: {name: 'a', id: 1, display_name: 'b', is_active: true},
+      metocean_provider: {name: 'test_provider', id: 1, display_name: 'b', is_active: true},
       analysis_types: ['Standard', 'CTV']
     }
     const vessel: ForecastVesselRequest = {

@@ -4,7 +4,7 @@ import { GmapService } from './gmap.service';
 import { MockedCommonServiceProvider } from './mocked.common.service';
 import { SettingsService } from './settings.service';
 
-fdescribe('GmapService', () => {
+describe('GmapService', () => {
   let service: GmapService
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -42,6 +42,25 @@ fdescribe('GmapService', () => {
     }])
     expect(spy1).toHaveBeenCalled();
     expect(spy2).toHaveBeenCalled();
+    expect(spy3).not.toHaveBeenCalled();
+  });
+
+  it('should not draw circles om map if disabled in the settings', () => {
+    service['settings'].dpr_map_drawExclusionZone = 0;
+    const fakeMap = createGoogleConstructorSpy('Map');
+    const spy1 = createGoogleConstructorSpy('Marker')
+    const spy2 = createGoogleConstructorSpy('Circle')
+    const spy3 = createGoogleConstructorSpy('InfoWindow')
+    const layer = <any> {map: fakeMap};
+    service.addParksToLayersForVessel(layer, layer, [], [{
+      lon: 1,
+      lat: 1,
+      isVisited: false,
+      name: 'test platform',
+      visits: [],
+    }])
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).not.toHaveBeenCalled();
     expect(spy3).not.toHaveBeenCalled();
   });
 });
