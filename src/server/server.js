@@ -40,6 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
   const allowedOrigins = process.env.IP_USER;
+  if (allowedOrigins == null || allowedOrigins == '') throw new Error('Missing allowed origins: IP_USER is not defined!')
   const origin = req.headers.origin;
   const hasMultipleOrigins = allowedOrigins.indexOf(origin) > -1;
   if (hasMultipleOrigins) res.setHeader('Access-Control-Allow-Origin', origin);
@@ -316,7 +317,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, connections.admin, mailTo)
+mo4AdminServer(app, logger, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -325,9 +326,9 @@ app.use(verifyToken)
 
 app.use(verifyDemoAccount);
 
-mo4lightServer(app, logger, connections.admin)
+mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, connections.admin, mailTo)
+mo4AdminPostLoginServer(app, logger, mailTo)
 
 
 //####################################################################

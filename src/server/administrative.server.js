@@ -1,11 +1,11 @@
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
-const { Pool } = require("pg");
 const { body, validationResult, checkSchema, matchedData } = require('express-validator');
 const models = require('./models/administrative.js');
 const user_helper = require('./helper/user')
 const hydro_helper = require('./helper/hydro')
+const connections = require('./helper/connections')
 
 
 // #################### Actual API ####################
@@ -15,19 +15,17 @@ const hydro_helper = require('./helper/hydro')
  *
  * @param {import("express").Application} app Main application
  * @param {import("pino").Logger} logger Logger class
- * @param {Pool} admin_server_pool
  * @param {(subject: string, body: string, recipient: string) => void} mailTo
  * @api public
  */
 module.exports = function (
   app,
   logger,
-  admin_server_pool,
   mailTo = (subject, body, recipient = 'webmaster@mo4.online') => { }
 ) {
   // ######################### Endpoints #########################
   app.get('/api/admin/connectionTest', (req, res) => {
-    admin_server_pool.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
+    connections.admin.query('SELECT sum(numbackends) FROM pg_stat_database').then(() => {
       return res.send({ status: 1 })
     }).catch((err) => {
       logger.warn(err, 'Connection test failed')
@@ -49,8 +47,8 @@ module.exports = function (
         FROM "userTable"
         WHERE "token"=$1`
       const values = [registration_token]
-      admin_server_pool.query(query, values).then(sqlresponse => {
-        if (sqlresponse.rowCount == 0) return res.status(400).send('User not found / token invalid')
+      connections.admin.query(query, values).then(sqlresponse => {
+        if (sqlresponse.rowCount == 0) return res.onBadRequest('User not found / token invalid')
         const row = sqlresponse.rows[0];
         if (row.username != username) return res.onBadRequest('Registration token does not match requested user!')
         res.send({
@@ -105,7 +103,7 @@ module.exports = function (
         FROM "userTable" t
         WHERE t."username"=$1`
       const values = [username];
-      const response = await admin_server_pool.query(query, values)
+      const response = await connections.admin.query(query, values)
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await hydro_helper.createProject() // works
@@ -160,7 +158,7 @@ module.exports = function (
       WHERE "token"=$1`
     const values = [passwordToken];
     localLogger.debug('Getting user info from admin db')
-    admin_server_pool.query(query, values).then((sqlresponse) => {
+    connections.admin.query(query, values).then((sqlresponse) => {
       localLogger.debug('Got sql response')
       if (sqlresponse.rowCount == 0) return res.onBadRequest('User not found / token invalid')
       const data = sqlresponse.rows[0];
@@ -182,7 +180,7 @@ module.exports = function (
       const hashed_password = bcrypt.hashSync(req.body.password, 10)
       const value2 = [hashed_password, usableSecret2fa, user_id]
       localLogger.debug('Performing password update')
-      admin_server_pool.query(query2, value2).then(() => {
+      connections.admin.query(query2, value2).then(() => {
         logger.info('Updated password for user with id ' + user_id)
         res.send({ data: 'Password set successfully!' })
       }).catch(err => res.onError(err));
@@ -213,7 +211,7 @@ module.exports = function (
     const values = [username];
 
     localLogger.info('Received login for user: ' + username);
-    admin_server_pool.query(PgQuery, values).then(async (admin_data, err) => {
+    connections.admin.query(PgQuery, values).then(async (admin_data, err) => {
       if (err) return res.onError(err);
       if (admin_data.rows.length == 0) return res.onUnauthorized('User does not exist');
 
@@ -225,7 +223,7 @@ module.exports = function (
 
       localLogger.debug('Retrieving client for user');
       const query = 'SELECT "forecast_client_id" FROM "clientTable" WHERE "client_id" = $1';
-      const client_data = await admin_server_pool.query(query, [user.client_id]);
+      const client_data = await connections.admin.query(query, [user.client_id]);
       if (client_data.rowCount == 0) return res.onError('Issue getting client forecast id for user')
       const forecast_client_id = client_data.rows[0].forecast_client_id;
       localLogger.debug('Found forecast client id' + forecast_client_id)

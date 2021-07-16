@@ -65,9 +65,9 @@
             <tr>
               <td><div [ngbTooltip]="helpWaterDepth">Weather provider</div></td>
               <td colspan="2">
-                <select name="metocean-select" [(ngModel)]="project.metocean_provider" required placeholder="Please select"
-                  class="form-control form-control-md" >
-                  <option *ngFor="let _provider of providers" [value]="_provider">{{_provider.display_name}}</option>
+                <select name="metocean-select" [(ngModel)]="project.metocean_provider" required
+                  placeholder="Please select" class="form-control form-control-md">
+                  <option *ngFor="let _provider of providers" [ngValue]="_provider">{{_provider.display_name}}</option>
                 </select>
               </td>
             </tr>

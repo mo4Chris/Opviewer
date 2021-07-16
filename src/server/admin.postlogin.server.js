@@ -2,20 +2,20 @@ const { body, validationResult, checkSchema } = require("express-validator");
 const { Pool } = require("pg");
 const models = require('./models/administrative.js');
 const user_helper = require('./helper/user')
+const connections = require('./helper/connections')
+const env = require('./helper/env')
 
 /**
  * Server file with all the secure endpoints to the admin database.
  *
  * @param {import("express").Application} app Main application
  * @param {import("pino").Logger} logger Logger class
- * @param {Pool} admin_server_pool
  * @param {(subject: string, body: string, recipient: string) => void} mailTo
  * @api public
  */
 module.exports = function (
   app,
   logger,
-  admin_server_pool,
   mailTo = (subject, body, recipient='webmaster@mo4.online') => {}
 ) {
 
@@ -27,7 +27,7 @@ module.exports = function (
     if (!perm.admin) return res.onUnauthorized();
     // defaultPgLoader('clientList')(req, res);
     const query = `SELECT * FROM "clientTable"`
-    admin_server_pool.query(query).then(sqlresponse => {
+    connections.admin.query(query).then(sqlresponse => {
       res.send(sqlresponse.rows);
     }).catch(err => res.onError(err));
   });
@@ -46,7 +46,7 @@ module.exports = function (
       WHERE $1=ANY("client_ids")`
       values = [token.client_id];
     }
-    admin_server_pool.query(query, values).then(sqlresponse => {
+    connections.admin.query(query, values).then(sqlresponse => {
       res.send(sqlresponse.rows);
     }).catch(err => res.onError(err));
   });
@@ -74,10 +74,13 @@ module.exports = function (
     const client_id = req.body.client_id;
     const vessel_ids = req.body.vessel_ids;
     const user_type = req.body.user_type;
-    const is_admin = own_permissions?.['admin'] ?? false;
+    const is_admin = own_permissions.admin ?? false;
 
     // Check if user authorized to create users
     if (!is_admin && !own_permissions.user_manage) return res.onUnauthorized('User not authorized to create new users')
+    if (!is_admin && user_type=='admin') return res.onUnauthorized('Only admins are authorized to create new admin accounts!')
+    if (!is_admin && user_type=='demo') return res.onUnauthorized('Only admins are authorized to create new demo accounts!')
+
     logger.trace('Verfying client')
     // TODO: If a user is associated with multiple clients this wont do
     if (!is_admin && (client_id != own_client_id)) return res.onUnauthorized('Target client does not match own client')
@@ -113,7 +116,7 @@ module.exports = function (
     }
     logger.info(`Successfully created new user with random token ${password_setup_token}`)
     // send email
-    const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+    const SERVER_ADDRESS = env.SERVER_ADDRESS;
     const link = `${SERVER_ADDRESS}/set-password;token=${password_setup_token};user=${username}`;
     const html = 'An account for the dataviewer has been created for this email. To activate your account <a href="' + link + '">click here</a> <br>' +
       'If that does not work copy the link below <br>' + link;
@@ -144,7 +147,7 @@ module.exports = function (
         localLogger.debug('Valid permission = ' + has_rights)
         if (!has_rights) return res.onUnauthorized();
         const randomToken = user_helper.generateRandomToken();
-        const SERVER_ADDRESS = process.env.SERVER_ADDRESS
+        const SERVER_ADDRESS = env.SERVER_ADDRESS
 
         const query = `UPDATE "userTable"
           SET "token"=$1,
@@ -152,7 +155,7 @@ module.exports = function (
           WHERE "username"=$2`
         const values = [randomToken, username]
         localLogger.debug('Executing database insert')
-        admin_server_pool.query(query, values).then(() => {
+        connections.admin.query(query, values).then(() => {
           localLogger.debug('Insert successfull - sending email')
           const link = SERVER_ADDRESS + "/set-password;token=" + randomToken + ";user=" + username;
           let html = `Your password has been reset. To use your account again, please
@@ -186,7 +189,7 @@ module.exports = function (
             WHERE "username"=$2`;
 
         const values = [vessel_ids, username];
-        admin_server_pool.query(query, values).then((sql_response) => {
+        connections.admin.query(query, values).then((sql_response) => {
           if (sql_response.rowCount > 0) return res.send({ data: "Succesfully saved the vessels"});
           res.onError(`Failed to update vessels for user ${username}`, 'Failed to save new vessel list')
         }).catch(err => res.onError(err));
@@ -218,7 +221,7 @@ module.exports = function (
           WHERE "userTable"."username"=$1 AND client_id=$2`
         values = [username, token['client_id']];
       }
-      admin_server_pool.query(query, values).then(sqldata => {
+      connections.admin.query(query, values).then(sqldata => {
         logger.info({
           msg: 'User (re)-activated',
           manager_user_id: token['userID'],
@@ -253,7 +256,7 @@ module.exports = function (
           WHERE "username"=$1 AND "client_id"=$2`
         values = [username, token['client_id']];
       }
-      admin_server_pool.query(query, values).then(sqldata => {
+      connections.admin.query(query, values).then(sqldata => {
         logger.info({
           msg: 'User deactivated',
           manager_user_id: token['userID'],
@@ -285,7 +288,7 @@ module.exports = function (
       })
       const html = `Feedback has been given by: ${user} on page ${page}.<br><br>
         Feedback message: ${feedback}`;
-      const WEBMASTER_MAIL = process.env.WEBMASTER_MAIL;
+      const WEBMASTER_MAIL = env.WEBMASTER_MAIL;
       mailTo('Feedback ' + client, html, WEBMASTER_MAIL);
       res.send({ data: 'Feedback has been sent', status: 200 });
     }
@@ -300,7 +303,7 @@ module.exports = function (
     })
     const html = `A full account has been requested by demo user: ${user} <br><br>
       Please contact this user to help set up a full account.`;
-    const WEBMASTER_MAIL = process.env.WEBMASTER_MAIL;
+    const WEBMASTER_MAIL = env.WEBMASTER_MAIL;
     mailTo('Full account request', html, WEBMASTER_MAIL);
     res.send({ data: 'Full account has been requested', status: 200 });
   });
@@ -310,7 +313,7 @@ module.exports = function (
     const user_id = token['userID']
     const query = `SELECT * FROM "userSettingsTable" WHERE "user_id"=$1`
     const values = [user_id];
-    admin_server_pool.query(query, values).then(sqldata => {
+    connections.admin.query(query, values).then(sqldata => {
       res.send(sqldata.rows[0])
     }).catch(err => res.onError(err))
   });
@@ -342,7 +345,7 @@ module.exports = function (
         newSettings['weather_chart'],
         newSettings['timezone'],
       ];
-      admin_server_pool.query(query, values).then(sqldata => {
+      connections.admin.query(query, values).then(sqldata => {
         res.send({status: 1});
       }).catch(err => res.onError(err))
     }
@@ -379,7 +382,7 @@ module.exports = function (
         WHERE "clientTable"."client_id"=$1`;
       value = [client_id]
     }
-    admin_server_pool.query(query, value).then(async sqldata => {
+    connections.admin.query(query, value).then(async sqldata => {
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
@@ -440,7 +443,7 @@ module.exports = function (
         where "username"=$1 AND "userTable"."client_id"=$2`;
       value = [username, client_id]
     }
-    admin_server_pool.query(query, value).then(async sqldata => {
+    connections.admin.query(query, value).then(async sqldata => {
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
@@ -477,7 +480,7 @@ module.exports = function (
     if (!token.permission.admin) return res.onUnauthorized();
     const query = `SELECT "client_id", "client_name", "client_permissions"
       FROM "clientTable"`
-    admin_server_pool.query(query).then((data) => {
+    connections.admin.query(query).then((data) => {
       return res.send(data.rows);
     }).catch(err => res.onError(err, 'Failed to get clients!'))
   });
@@ -522,7 +525,7 @@ module.exports = function (
         target_permission.user_type,
         target_permission.forecast,
       ]
-      admin_server_pool.query(query, values).then(() => {
+      connections.admin.query(query, values).then(() => {
         res.send({data: "Succesfully saved the permissions"})
       }).catch(err => res.onError(err))
   });

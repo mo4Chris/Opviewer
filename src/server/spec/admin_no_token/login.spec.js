@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const mock = require('../helper/mocks.server')
 const request = require('supertest');
 const { expectUnAuthRequest, expectBadRequest, expectValidRequest } = require('../helper/validate.server');
+const { TurbineWarrantyRequestModel } = require('../../models/twa');
 
 // #####################################################################
 // ################# Tests - administrative - no login #################
@@ -47,6 +48,32 @@ module.exports = (app, GET, POST) => {
       const response = await request;
       expect(response.status).toBe(200, 'Failed admin connection test!')
       await expect(response.body['status']).toBe(1, 'Connection test not returning true!')
+    })
+
+    it('get registration information', async () => {
+      mock.pgRequest([{
+        username: 'test@test.nl',
+        requires2fa: true,
+        secret2fa: '123456'
+      }]);
+      const request = POST('/api/getRegistrationInformation', {
+        username: 'test@test.nl',
+        registration_token: 'token123'
+      });
+      await request.expect(expectValidRequest);
+      const data = (await request).body;
+      expect(data.username).toEqual('test@test.nl')
+      expect(data.requires2fa).toEqual(true)
+      expect(data.secret2fa).toEqual('123456')
+    })
+
+    it('not get registration information if it is not available', async () => {
+      mock.pgRequest([]);
+      const request = POST('/api/getRegistrationInformation', {
+        username: 'test@test.nl',
+        registration_token: 'token123'
+      });
+      await request.expect(expectBadRequest);
     })
 
     // ================= SET PASSWORD ==================

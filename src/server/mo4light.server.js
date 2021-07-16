@@ -22,10 +22,9 @@ function log(message) {
  *
  * @param {import("express").Application} app Main application
  * @param {import("pino").Logger} logger Logger class
- * @param {Pool} admin_server_pool
  * @api public
  */
-module.exports = function(app, logger, admin_server_pool) {
+module.exports = function(app, logger) {
   app.get('/api/mo4light/getVesselList', (req, res) => {
     const token = req['token'];
     const start = Date.now()

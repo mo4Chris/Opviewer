@@ -62,6 +62,15 @@ module.exports = (app, GET, POST) => {
       })
       await response.expect(expectBadRequest)
     })
+
+    it('it should not register invalid user types', async () => {
+      const response = registerDemoUser({
+        user_type: 'Bad user type'
+      })
+      await response.expect(expectBadRequest)
+      const out = await response;
+    })
+
     it('it should not register with invalid password', async () => {
       const response = registerDemoUser({
         password: null
