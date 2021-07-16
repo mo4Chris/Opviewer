@@ -107,6 +107,30 @@
         </div>
       </div>
     </div>
+    <div class="col-xl-6 col-lg-12" *ngIf="permission.longterm">
+      <div class="card mb-3">
+        <div class="card-header">DPR</div>
+        <div class="card-body table-responsive">
+          <table class="table table-responsive table-bordered tableSummary">
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td><div [ngbTooltip]="helpDrawExclusionZone">Draw zone near platforms</div></td>
+                <td>
+                <div class="input-group">
+                    <input class="form-control form-control-md" type="number" step=1 (change)="changeSetting()" min="0"
+                      [(ngModel)]="settings.dpr_map_drawExclusionZone" placeholder="0">
+                    <div class="input-group-append tight">
+                      <span class="input-group-text">m</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
   <div>
     <button class="btn btn-outline-primary" (click)="saveSettings()">
@@ -126,4 +150,9 @@
 <ng-template #helpLongtermFilterFailedTransfers class="helpContent">
   Toggles the inclusion of transfers with score "1" in the long term reports section.
   This is desired if these low score skew the trend graphics.
+</ng-template>
+<ng-template #helpDrawExclusionZone class="helpContent">
+  Draws a circle on the DPR map for nearby platforms. Green circles correspond to
+  platforms that were visited, black otherwise. Choose 500m for the default safety zone,
+  or 1000m for the waiting zone.
 </ng-template>
