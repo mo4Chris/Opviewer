@@ -8,7 +8,12 @@ const { toIso8601 } = require("./hydro");
 module.exports = {};
 
 // ##################################
-async function getVesselsForUser(user_id = 0) {
+/**
+ * Return list of vessel for user
+ * @param {number} user_id
+ * @returns {Promise<{vessel_id: number, mmsi: number, nicename: string}[]>}
+ */
+async function getVesselsForUser(user_id) {
   let PgQuery = `
   SELECT "vesselTable"."vessel_id", "vesselTable"."mmsi", "vesselTable"."nicename"
     FROM "vesselTable"
@@ -26,6 +31,17 @@ async function getVesselsForUser(user_id = 0) {
 module.exports.getVesselsForUser = getVesselsForUser;
 
 
+/**
+ *
+ * @param {{
+ * username: string,
+ * user_type: string,
+ * requires2fa: boolean,
+ * vessel_ids: number[],
+ * client_id: number
+ * }} param0
+ * @returns
+ */
 async function createUser({
   username = '',
   user_type = 'Vessel master',
@@ -69,6 +85,19 @@ async function createUser({
 module.exports.createUser = createUser;
 
 
+/**
+ * Creates a new demo user
+ * @param {{
+ * username: string,
+ * requires2fa?: boolean,
+ * client_id: number,
+ * vessel_ids: number[],
+ * user_type: string,
+ * password: string,
+ * demo_project_id: number
+ * }} param0
+ * @returns
+ */
 async function createDemoUser({
   username = '',
   requires2fa = false,
@@ -125,6 +154,10 @@ async function createDemoUser({
 module.exports.createDemoUser = createDemoUser;
 
 
+/**
+ * Initializes user settings for a new user
+ * @param {number} user_id
+ */
 function initUserSettings(user_id = 0) {
   const localLogger = logger.child({
     user_id,
@@ -142,7 +175,12 @@ function initUserSettings(user_id = 0) {
 }
 module.exports.initUserSettings = initUserSettings;
 
-
+/**
+ * Intializes user permissions
+ * @param {number} user_id
+ * @param {string} user_type
+ * @param {any} opt_permissions
+ */
 function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
   const localLogger = logger.child({
     user_id,
@@ -206,6 +244,7 @@ function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
       permissions.demo = true
       permissions.dpr.read = false;
       permissions.forecast.read = true;
+      permissions.forecast.changeLimits = true;
       break
   }
   const query = `
@@ -226,6 +265,12 @@ function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
 module.exports.initUserPermission = initUserPermission;
 
 
+/**
+ * Returns true/false if user has permissions to manage the requested user
+ * @param {object} token
+ * @param {string} username
+ * @returns {Promise<boolean>}
+ */
 async function getPermissionToManageUser(token, username='') {
   logger.info({
     msg: 'Verifying user management permission',
@@ -248,6 +293,11 @@ async function getPermissionToManageUser(token, username='') {
 module.exports.getPermissionToManageUser = getPermissionToManageUser;
 
 
+/**
+ * Loads user permissions
+ * @param {number} user_id
+ * @returns
+ */
 function loadUserPermissions(user_id = 0) {
   const query = 'SELECT * FROM "userPermissionTable" WHERE "user_id"=$1'
   const values = [user_id];
@@ -256,6 +306,11 @@ function loadUserPermissions(user_id = 0) {
 module.exports.loadUserPermissions = loadUserPermissions;
 
 
+/**
+ * Loads user settings
+ * @param {number} user_id
+ * @returns
+ */
 function loadUserSettings(user_id = 0) {
   const query = 'SELECT * FROM "userSettingsTable" WHERE "user_id"=$1';
   const values = [user_id]
@@ -264,6 +319,11 @@ function loadUserSettings(user_id = 0) {
 module.exports.loadUserSettings = loadUserSettings;
 
 
+
+/**
+ * Returns a random token using bcrypt
+ * @returns {string}
+ */
 function generateRandomToken() {
   let randomToken = bcrypt.hashSync(Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2), 10);
   randomToken = randomToken.replace(/\//gi, '8');
@@ -287,6 +347,13 @@ async function getIdForUser(username) {
 module.exports.getIdForUser = getIdForUser;
 
 
+/**
+ * Verifies login
+ * @param {any} req
+ * @param {any} user
+ * @param {any} res
+ * @returns boolean
+ */
 function validateLogin(req, user, res) {
   const userData = req.body;
   if (!user.active) { res.onUnauthorized('User is not active, please contact your supervisor'); return false }

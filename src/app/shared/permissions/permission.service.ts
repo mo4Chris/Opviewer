@@ -165,6 +165,9 @@ class VesselMaster extends PermissionModel {
 class DemoUser extends PermissionModel {
   demo = true;
   dprRead = false;
+
+  forecastRead = true;
+  forecastCreateProject = true;
   forecastChangeLimits = true;
 }
 

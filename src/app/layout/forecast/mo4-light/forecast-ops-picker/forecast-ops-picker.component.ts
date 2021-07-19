@@ -17,6 +17,7 @@ const DEFAULT_SLIP_OPTIONS = {
   Thrust_Level_N: 10000,
   Window_Length_Seconds: 120,
 }
+const SAMPLE_PROJECT_NAME = 'sample_project';
 
 @Component({
   selector: 'app-forecast-ops-picker',
@@ -112,6 +113,9 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
   public get hasCtvSlipSettings() {
     return this.selectedProject?.analysis_types?.some(type => type == 'CTV')
+  }
+  public get isSampleProject() {
+    return this.selectedProject?.name.toLowerCase() == SAMPLE_PROJECT_NAME;
   }
 
   // ##################### Methods #####################
@@ -237,6 +241,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   saveProjectConfigChanges() {
+    if ( this.isSampleProject && !this.permission.admin) return;
     const old_preferences = this.selectedProject.client_preferences;
     const new_preferences: ForecastExpectedResponsePreference = {
       Points_Of_Interest: old_preferences.Points_Of_Interest,

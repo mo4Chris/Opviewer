@@ -6,7 +6,7 @@
   <div [hidden]="!loaded" class="spectral-container">
     <plotly-plot [data]="parsedData" [layout]='PlotLayout'
       (initialized)="onPlotlyInit($event)" [useResizeHandler]="true"
-      (sliderEnd)="onSliderChange($event)" [config]="PlotlyOptions">
+      (sliderChange)="onSliderChange($event)" [config]="PlotlyOptions">
     </plotly-plot>
   </div>
 

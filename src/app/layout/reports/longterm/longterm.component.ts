@@ -114,7 +114,7 @@ export class LongtermComponent implements OnInit {
         this.fieldsWithWavedata.forEach(elt => {
           elt.text = elt.site + ' - ' + elt.name;
         });
-        this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
+        this.Vessels = vessels.filter(elt => elt.operations_class === this.vesselType);
         this.buildPageWithCurrentInformation();
       });
     });
@@ -132,6 +132,7 @@ export class LongtermComponent implements OnInit {
         vesselName: this.dropdownValues.map(x => x.nicename),
       }};
     }
+
     this.buildPageWithCurrentInformation();
   }
 
