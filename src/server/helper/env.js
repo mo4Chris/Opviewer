@@ -17,7 +17,7 @@ const AZURE_TOKEN       = process.env.AZURE_TOKEN;
 
 const SHARED_DEMO_PROJECT_NAME  = process.env.SHARED_DEMO_PROJECT_NAME  ?? 'Sample_Project';
 const GENERIC_VESSEL_CLIENT_ID  = process.env.GENERIC_VESSEL_CLIENT_ID  ?? 1; // ToDo: replace this!
-const DEMO_CLIENT_NAME          = process.env.DEMO_CLIENT_NAME          ?? 'demo';
+const DEMO_CLIENT_NAME          = process.env.DEMO_CLIENT_NAME          ?? 'Demo';
 
 if (!AZURE_TOKEN) throw new Error('No valid azure token found!')
 if (!DB_CONN) throw new Error('No valid admin DB connection string found!')
