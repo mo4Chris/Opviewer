@@ -309,6 +309,62 @@ describe('ForecastOpsPickerComponent', () => {
       expect(component.stopTime).toBeCloseTo(737704 + 8/24, 4);
     })
   })
+
+
+  it('should show save button', () => {
+    component.onHeadingChange();
+    fixture.detectChanges();
+    const btn1 = locate('button');
+    expect(component.isSampleProject).toBe(false);
+    expect(btn1).toBeTruthy();
+  })
+
+  it('should only save changes for sample project as admin', async () => {
+    const spy = spyOn(MockedCommonService.prototype, 'saveForecastProjectSettings').and.returnValue(mockedObservable(null));
+    component.permission.admin = false;
+    fixture.detectChanges();
+    const SAMPLE_PROJECT_NAME = 'sample_project';
+    component.projects = [{
+      id: component['project_id'],
+      activation_end_date: "2021-06-27T09:36:30.052000+00:00",
+      activation_start_date: "2041-05-27T09:36:30.052000+00:00",
+      analysis_types: ["Standard"],
+      client_id: 4,
+      client_preferences: <any> {},
+      latitude: 52,
+      longitude: 3,
+      maximum_duration: 60,
+      metocean_provider: {id: 20, name: "infoplaza", display_name: "INFOPLAZA", is_active: true},
+      name: SAMPLE_PROJECT_NAME,
+      nicename: "Demo project",
+      vessel_id: 2,
+      water_depth: 20,
+    }];
+    component.onNewSelectedOperation();
+    component.onHeadingChange();
+    expect(component.isSampleProject).toBe(true);
+    fixture.detectChanges();
+    let btn = <HTMLButtonElement> locate('button');
+    await btn.click();
+    await fixture.detectChanges();
+    await fixture.whenStable();
+    expect(spy).not.toHaveBeenCalled();
+
+    component.onHeadingChange();
+    component.permission.admin = true;
+    fixture.detectChanges();
+    btn = <HTMLButtonElement> locate('button');
+    await btn.click();
+    await fixture.detectChanges();
+    await fixture.whenStable();
+    expect(spy).toHaveBeenCalled();
+  })
+
+
+  function locate(locator: string) {
+    const nativeElt = <HTMLElement> fixture.nativeElement;
+    return nativeElt.querySelector(locator);
+  }
 });
 
 

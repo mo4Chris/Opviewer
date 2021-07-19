@@ -56,7 +56,7 @@ module.exports = function(app, logger) {
 
     const token = req['token'];
     helper.getProjectList(token).then(async projects => {
-      logger.trace(`Query returned ${projects?.lenght ?? 0} projects`)
+      logger.trace(`Query returned ${projects?.length ?? 0} projects`)
       res.send(projects)
     }).catch(res.onError)
   });

@@ -32,7 +32,7 @@ export class ForecastVesselComponent implements OnInit {
   }];
 
   public providers: MetoceanProvider[];
-  public project: ForecastOperation;
+  public project: ForecastOperation = <any> {};
   public projectLoaded = false;
   public new = false;
   public SelectedVessel: ForecastVesselRequest | 0 = 0;

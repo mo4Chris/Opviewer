@@ -244,6 +244,7 @@ function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
       permissions.demo = true
       permissions.dpr.read = false;
       permissions.forecast.read = true;
+      permissions.forecast.changeLimits = true;
       break
   }
   const query = `

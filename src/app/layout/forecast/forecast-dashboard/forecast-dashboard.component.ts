@@ -25,15 +25,14 @@ export class ForecastDashboardComponent implements OnInit {
   }
 
   loadData() {
-    if (this.permission.admin) {
-      return forkJoin([
-        this.newService.getForecastClientList(),
-        this.newService.getForecastProjectList(),
-      ]).subscribe(([clients, projects]) => {
-        this.clients = clients;
-        this.projects = projects;
-      });
-    }
+    if (this.permission.admin) return forkJoin([
+      this.newService.getForecastClientList(),
+      this.newService.getForecastProjectList(),
+    ]).subscribe(([clients, projects]) => {
+      this.clients = clients;
+      this.projects = projects;
+    });
+
     forkJoin([
       this.newService.getForecastProjectList(),
     ]).subscribe(([projects]) => {

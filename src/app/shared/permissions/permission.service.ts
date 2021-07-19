@@ -164,6 +164,10 @@ class VesselMaster extends PermissionModel {
 
 class DemoUser extends PermissionModel {
   demo = true;
+
+  forecastRead = true;
+  forecastCreateProject = true;
+  forecastChangeLimits = true;
 }
 
 class MarineController extends PermissionModel {
