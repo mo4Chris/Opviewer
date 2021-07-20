@@ -14,6 +14,8 @@ module.exports = {};
  * @returns {Promise<{vessel_id: number, mmsi: number, nicename: string}[]>}
  */
 async function getVesselsForUser(user_id) {
+  logger.info('Getting vessels for user')
+  if (!(user_id > 0)) throw new Error('Invalid user ID')
   let PgQuery = `
   SELECT "vesselTable"."vessel_id", "vesselTable"."mmsi", "vesselTable"."nicename"
     FROM "vesselTable"
@@ -22,11 +24,20 @@ async function getVesselsForUser(user_id) {
     WHERE "userTable"."user_id"=$1 AND "userTable"."active"=true`;
   const values = [user_id]
   const data = await connections.admin.query(PgQuery, values);
+
+  logger.info('Got vessels for user')
   if (data.rowCount > 0) {
     return data.rows;
-  } else {
-    return null;
   }
+  const query2 = `SELECT u."permission", v."mmsi", v."vessel_id", v."nicename"
+    FROM "userTable" u
+    INNER JOIN "vesselTable" v
+    ON u.client_id=ANY(v.client_ids)
+    WHERE u.active=true AND u.user_id=$1
+  `
+  const values2 = [user_id];
+  const data2 = await connections.admin.query(query2, values2);
+  // TODO: fix this shit
 };
 module.exports.getVesselsForUser = getVesselsForUser;
 

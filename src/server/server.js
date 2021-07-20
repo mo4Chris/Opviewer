@@ -124,7 +124,11 @@ function onError(res, raw_error, additionalInfo = 'Internal server error') {
   const err_keys = typeof(raw_error)=='object' ? Object.keys(raw_error) : [];
   let err = {};
   try {
-    if (typeof(raw_error) == 'string') {
+    if (raw_error instanceof Error) {
+      err.message = raw_error.message;
+      err.name = raw_error.name;
+      err.stack = raw_error.stack;
+    } else if (typeof(raw_error) == 'string') {
       logger.debug('Got text error: ', raw_error)
       err.message = raw_error;
     } else if (axios.isAxiosError(raw_error)) {
