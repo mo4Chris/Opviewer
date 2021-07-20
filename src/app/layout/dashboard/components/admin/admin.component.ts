@@ -103,7 +103,7 @@ export class AdminComponent implements OnInit {
               client: vesselInfo.client[0],
               lastActive: this.dateService.matlabDatenumToYmdString(genInfo.date),
               lastActiveDays: this.calcService.roundNumber(this.currentMatlabDate - genInfo.date, 1),
-              type: vesselInfo.operations_class,
+              type: vesselInfo.operationsClass,
             });
           }
         });

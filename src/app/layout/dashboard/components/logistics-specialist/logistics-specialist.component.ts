@@ -174,20 +174,10 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   routeToLtmFromVesselInfo(vesselInfo: VesselInfo) {
-    let rawVesselName = '';
-    this.vesselInfos.some(info => {
-      if (info.mmsi === vesselInfo.mmsi) {
-        rawVesselName = info.vesselname;
-        return true;
-      }
-      return false;
-    });
-    this.routerService.routeToDPR({
-      mmsi: vesselInfo.mmsi
-    });
+    const info = this.vesselInfos.find(info => info.mmsi == vesselInfo.mmsi);
     this.routerService.routeToLTM({
       mmsi: vesselInfo.mmsi,
-      name: rawVesselName
+      name: info.nicename ?? 'Vessel'
     });
   }
 

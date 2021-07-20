@@ -9,7 +9,7 @@ describe('User helper functions', () => {
       mmsi: 123456789,
       nicename: "vessel_1",
       active: true,
-      operations_class: "CTV",
+      operationsClass: "CTV",
       client_ids: []
     }]
     mock.pgRequest(output)

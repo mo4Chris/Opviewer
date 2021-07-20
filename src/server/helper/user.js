@@ -15,7 +15,7 @@ module.exports = {};
  *  mmsi: number,
  *  nicename: string,
  *  active: boolean,
- *  operations_class: string,
+ *  operationsClass: string,
  *  client_ids: number[]
  * }}
  */
@@ -56,7 +56,17 @@ async function getVesselsForAdmin(token) {
   FROM "vesselTable"`;
 
   vessels = await connections.admin.query(PgQuery).then(sql_response => {
-    const response =  sql_response.rows;
+    const response =  sql_response.rows.map(row => {
+      return {
+        mmsi: row.mmsi,
+        nicename: row.nicename,
+        client_ids: row.client_ids,
+        active: row.active,
+        operationsClass: row.operations_class,
+        vessel_id: row.vessel_id,
+        client: []
+      }
+    });
     return response;
   });
 
@@ -75,7 +85,15 @@ async function getVesselsForAdmin(token) {
     vessels.forEach(vessel => {
       const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
       vessel.client = clientsArray.array_agg;
-      vesselList.push(vessel);
+      vesselList.push({
+        mmsi: vessel.mmsi,
+        nicename: vessel.nicename,
+        client_ids: vessel.client_ids,
+        active: vessel.active,
+        operationsClass: vessel.operations_class,
+        vessel_id: vessel.vessel_id,
+        client: []
+      });
     });
     return vesselList;
   });
@@ -111,7 +129,7 @@ async function getAllVesselsForClient(token) {
         nicename: row.nicename,
         client_ids: row.client_ids,
         active: row.active,
-        operations_class: row.operations_class,
+        operationsClass: row.operations_class,
         vessel_id: row.vessel_id,
         client: []
       }
@@ -129,7 +147,7 @@ module.exports.getAllVesselsForClient = getAllVesselsForClient;
 async function getAssignedVessels(user_id) {
   logger.debug('Getting assigned vessels')
   let PgQuery = `
-  SELECT "vesselTable"."mmsi",
+  SELECT
   "vesselTable"."mmsi",
   "vesselTable".nicename,
   "vesselTable"."client_ids",
@@ -141,7 +159,17 @@ async function getAssignedVessels(user_id) {
     WHERE "userTable"."user_id"=$1`;
   const values = [user_id]
   const sql_response = await connections.admin.query(PgQuery, values);
-  return sql_response.rows;
+  return sql_response.rows.map(row => {
+    return {
+      mmsi: row.mmsi,
+      nicename: row.nicename,
+      client_ids: row.client_ids,
+      active: row.active,
+      operationsClass: row.operations_class,
+      vessel_id: row.vessel_id,
+      client: []
+    }
+  });
 }
 module.exports.getAssignedVessels = getAssignedVessels;
 
@@ -187,7 +215,7 @@ async function getAllVesselsForClientByUsername(token, username) {
         nicename: v.nicename,
         vessel_id: v.vessel_id,
         active: v.active,
-        operations_class: v.operations_class,
+        operationsClass: v.operations_class,
         client_ids: [clientID]
       }
     });
