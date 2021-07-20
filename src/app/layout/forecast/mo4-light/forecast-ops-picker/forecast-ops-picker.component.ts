@@ -43,6 +43,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
   @Input() slipCoefficients = [];
   @Input() thrustIndex = 0;
   @Input() slipThrustLevels = [];
+  @Input() responseNotFound = false;
 
   @Output() slipCoefficientChange = new EventEmitter<number>();
   @Output() thrustIndexChange = new EventEmitter<number>();

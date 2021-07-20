@@ -18,7 +18,7 @@
         </button>
       </div>
       <div class="card-body forecast-margin">
-        <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id"
+        <app-forecast-ops-picker [projects]="operations" [selectedProjectId]="project_id" [responseNotFound]="responseNotFound"
           [minForecastDate]="minForecastDate" [maxForecastDate]="maxForecastDate" [(heading)]="selectedHeading"
           (onChange)="onProjectSettingsChange($event)" [limits]="limits" [lastUpdated]="lastUpdated"
           [(slipCoefficient)]="selectedSlipCoefficient" [(thrustIndex)]="selectedThrustIndex"  [vessels]='vessels'
