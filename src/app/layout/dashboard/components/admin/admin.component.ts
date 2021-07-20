@@ -107,7 +107,7 @@ export class AdminComponent implements OnInit {
             });
           }
         });
-        
+
         this.noActivityVessels.sort((a, b) => {
           return a.matlabDate < b.matlabDate ? 1 : a.matlabDate === b.matlabDate ? 0 : -1;
         });
