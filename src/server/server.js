@@ -460,34 +460,27 @@ app.post("/api/getCommentsForVessel", function(req, res) {
 app.get("/api/getVessel", function(req, res) {
   const token = req['token'];
   user_helper.getVesselsForUser(token).then(simple_vessels => {
-    // TODO: query vessels in mongoDB
+    const mmsi_list = simple_vessels.map(v => v.mmsi);
     Vesselmodel.find({
-      active: true,
       mmsi: {
-        $in: simple_vessels.map(v => v.mmsi)
+        $in : mmsi_list
       }
-    }, (data) => {
-      res.send([])
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      res.send(data)
     })
   }).catch(err => onError(res, err));
 });
 
 
-// async function getVesselsForUser (req, res) {
-//   const token = req['token'];
-
-//   if (token.permission.admin) return await getVesselsForAdmin(token, res);
-//   if (token.permission.user_see_all_vessels_client) return await getAllVesselsForClient(token, res);
-//   return await getAssignedVessels(token, res);
-// }
-
-
 app.get("/api/getVesselsForClientByUser/:username", function(req, res) {
   const username = req.params.username;
-  getAllVesselsForClientByUsername(req, res, username).then(response => {
+  const token = req['token'];
+  user_helper.getAllVesselsForClientByUsername(token, username).then(response => {
     res.send(response)
   }).catch(err => onError(res,err));
 });
+
 
 app.post("/api/getVesselNameAndIDById", function(req, res) {
   const vessel_ids = req.body.vessel_ids;
@@ -500,39 +493,6 @@ app.post("/api/getVesselNameAndIDById", function(req, res) {
     res.send(sql_response.rows);
   });
 });
-
-async function getAllVesselsForClientByUsername(req, res, username) {
-  const token = req['token'];
-
-  if (!token.permission.user_see_all_vessels_client) throw new Error('Unauthorized user, not allowed to see all vessels');
-  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
-  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
-
-  let PgQueryClientID = `
-    SELECT "client_id"
-    FROM "userTable"
-    WHERE "username"= $1
-  `;
-
-  const clientIDValues = [username];
-  const clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
-    return sql_response.rows[0].client_id;
-  });
-
-  let PgQuery = `
-  SELECT
-    "vesselTable"."mmsi",
-    "vesselTable".nicename,
-    "vesselTable"."vessel_id",
-    "vesselTable"."active",
-    "vesselTable"."operations_class"
-  FROM "vesselTable"
-  WHERE $1=ANY("vesselTable"."client_ids")`;
-  const values = [clientID];
-  return connections.admin.query(PgQuery, values).then(sql_response => {
-    return sql_response.rows;
-  });
-}
 
 app.get("/api/getHarbourLocations", function(req, res) {
   geo.HarbourModel.find({

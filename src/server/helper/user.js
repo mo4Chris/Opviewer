@@ -15,7 +15,7 @@ module.exports = {};
  *  mmsi: number,
  *  nicename: string,
  *  active: boolean,
- *  operations_class: "CTV" | "OSV" | "SOV",
+ *  operations_class: string,
  *  client_ids: number[]
  * }}
  */
@@ -24,31 +24,27 @@ let VesselListInstance;
 
 /**
  * Return list of vessel for user
- * @param { TokenModel } token
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
  * @returns {Promise<VesselListInstance[]>}
  */
 async function getVesselsForUser (token) {
-  if (token?.permission == null) {
-    console.log('token', token)
-    throw new Error('Invalid token')
-  }
-  if (token.permission.admin) return await getVesselsForAdmin(token);
-  if (token.permission.user_see_all_vessels_client) return await getAllVesselsForClient(token);
-  return await getAssignedVessels(token.userID);
+  logger.trace(`Getting vessels for user with ID ${token.userID}`)
+  if (token?.permission == null) throw new Error('Invalid token');
+  if (token.permission.admin) return await module.exports.getVesselsForAdmin(token);
+  if (token.permission.user_see_all_vessels_client) return await module.exports.getAllVesselsForClient(token);
+  return await module.exports.getAssignedVessels(token.userID);
 }
 module.exports.getVesselsForUser = getVesselsForUser;
 
 
 /**
  * Return list of vessel for admin
- * @param { TokenModel } token
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
  * @returns {Promise<VesselListInstance[]>}
  */
 async function getVesselsForAdmin(token) {
-  if (!token?.permission?.admin) {
-    console.log(token)
-    throw new Error('Unauthorized user, Admin only');
-  }
+  if (!token?.permission?.admin) throw new Error('Unauthorized user, Admin only');
+
   let vessels = [];
   let PgQuery = `
   SELECT
@@ -64,13 +60,15 @@ async function getVesselsForAdmin(token) {
     return response;
   });
 
-  const PgQueryClients = `select  u."mmsi", array_agg(c."client_name")
-  from (
-    select "vesselTable"."mmsi" mmsi, unnest("vesselTable"."client_ids") id
-    from "vesselTable"
-  ) u
-  join "clientTable" c on c."client_id" = u.id
-  group by 1`
+  const PgQueryClients = `SELECT
+    u."mmsi",
+    array_agg(c."client_name")
+    from (
+      select "vesselTable"."mmsi" mmsi, unnest("vesselTable"."client_ids") id
+      from "vesselTable"
+    ) u
+    join "clientTable" c on c."client_id" = u.id
+    group by 1`
 
   return await connections.admin.query(PgQueryClients).then(sql_client_response => {
     let vesselList = [];
@@ -82,16 +80,16 @@ async function getVesselsForAdmin(token) {
     return vesselList;
   });
 }
+module.exports.getVesselsForAdmin = getVesselsForAdmin;
+
 
 /**
  * Return list of vessels for client
- * @param { TokenModel } token
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
  * @returns {Promise<VesselListInstance[]>}
  */
 async function getAllVesselsForClient(token) {
   if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
-  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
-  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
 
   let PgQuery = `
   SELECT
@@ -120,6 +118,8 @@ async function getAllVesselsForClient(token) {
     });
   });
 }
+module.exports.getAllVesselsForClient = getAllVesselsForClient;
+
 
 /**
  * Return list of vessel for user
@@ -144,6 +144,56 @@ async function getAssignedVessels(user_id) {
   return sql_response.rows;
 }
 module.exports.getAssignedVessels = getAssignedVessels;
+
+
+/**
+ * Return list of vessels for client
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
+ * @param { string } username
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getAllVesselsForClientByUsername(token, username) {
+  const permission = token.permission;
+  const has_permission = permission.admin || permission.user_see_all_vessels_client;
+  if (!has_permission) throw new Error('Unauthorized user, not allowed to see all vessels');
+  let PgQueryClientID = `
+    SELECT "client_id"
+    FROM "userTable"
+    WHERE "username"= $1
+  `;
+
+  const clientIDValues = [username];
+  let clientID = token.client_id;
+  if (permission.admin) {
+    clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
+      return sql_response.rows[0].client_id;
+    });
+  }
+
+  let PgQuery = `
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."vessel_id",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+  const values = [clientID];
+  return connections.admin.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows.map(v => {
+      return {
+        mmsi: v.mmsi,
+        nicename: v.nicename,
+        vessel_id: v.vessel_id,
+        active: v.active,
+        operations_class: v.operations_class,
+        client_ids: [clientID]
+      }
+    });
+  });
+}
+module.exports.getAllVesselsForClientByUsername = getAllVesselsForClientByUsername;
 
 
 /**
