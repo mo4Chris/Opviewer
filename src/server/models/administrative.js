@@ -89,6 +89,10 @@ const createUserModel = {
       options: {
         min: 5
       }
+    },
+    matches: {
+      errorMessage: 'Not a valid email',
+      options: /\w@\w/,
     }
   },
   requires2fa: {
