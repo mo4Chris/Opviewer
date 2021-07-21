@@ -29,7 +29,7 @@ export class SovWaveSpectrumComponent implements OnChanges {
     displayModeBar: true,
     modeBarButtonsToRemove: ['zoom2d', 'pan2d', 'autoScale2d', 'toggleSpikelines', 'hoverClosestCartesian',
       'hoverCompareCartesian', 'zoomIn2d', 'zoomOut2d'],
-    displaylogo: false
+    displaylogo: false,
   }
 
 
@@ -152,8 +152,8 @@ export class SovWaveSpectrumComponent implements OnChanges {
       },
       margin: {
         l: 40,
-        r: 20,
-        b: 0,
+        r: 40,
+        b: 80,
         t: 0,
         pad: 4
       },
