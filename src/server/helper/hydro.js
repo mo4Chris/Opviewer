@@ -206,8 +206,7 @@ async function getDefaultForecastClientId() {
   logger.debug('Getting default forecast client ID')
   const query = `SELECT "forecast_client_id" FROM "clientTable" WHERE "client_name"=$1`
   const values = [DEFAULT_FORECAST_CLIENT_NAME];
-  const out = await admin.query(query, values)
-  console.log('out', out)
+  const out = await admin.query(query, values);
   const default_client_id = out.rows[0]?.forecast_client_id;
   if (default_client_id == null) throw new Error('Failed to find default forecast client id')
   return default_client_id;

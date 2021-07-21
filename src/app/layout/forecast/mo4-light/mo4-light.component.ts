@@ -207,14 +207,14 @@ export class Mo4LightComponent implements OnInit {
   }
   parseCtvSlipResponse() {
     const POI = this.responseObj?.response?.Points_Of_Interest?.P1;
-    if (! POI?.SlipResponse) return;
+    if (! POI?.SlipResponse?.ProbabilityWindowNoSlip) return;
     const slip = POI.SlipResponse;
 
     this.SlipCoefficients = slip.Friction_Coeff_Range;
     this.SlipThrustLevels = slip.Thrust_Range;
 
     this.SlipProbability = slip.ProbabilityWindowNoSlip.map(
-      _s => _s.map(__s => __s[this.selectedThrustIndex][this.selectedSlipCoefficient])
+      _s => _s.map(__s => __s?.[this.selectedThrustIndex]?.[this.selectedSlipCoefficient])
     );
     this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
   }

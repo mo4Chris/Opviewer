@@ -4,6 +4,7 @@ const models = require('./models/administrative.js');
 const user_helper = require('./helper/user')
 const connections = require('./helper/connections')
 const env = require('./helper/env')
+const TokenModel = require("./models/token.d");
 
 /**
  * Server file with all the secure endpoints to the admin database.
@@ -65,7 +66,7 @@ module.exports = function (
     if (!errors.isEmpty()) return res.onBadRequest(errors);
 
     const own_token = req['token'];
-    const own_user_id = +own_token.user_id;
+    const own_user_id = +own_token.userID;
     const own_vessel_ids = own_token.userBoats;
     const own_client_id = +own_token.client_id;
     const own_permissions = own_token.permission;
@@ -80,17 +81,25 @@ module.exports = function (
     if (!is_admin && !own_permissions.user_manage) return res.onUnauthorized('User not authorized to create new users')
     if (!is_admin && user_type=='admin') return res.onUnauthorized('Only admins are authorized to create new admin accounts!')
     if (!is_admin && user_type=='demo') return res.onUnauthorized('Only admins are authorized to create new demo accounts!')
+    if (!(own_user_id>0)) return res.onError('Invalid user ID!')
 
-    logger.trace('Verfying client')
+    logger.debug('Verifying client')
     // TODO: If a user is associated with multiple clients this wont do
     if (!is_admin && (client_id != own_client_id)) return res.onUnauthorized('Target client does not match own client')
     logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
     if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
       // Valid - do nothing
     } else if (own_vessel_ids == null) {
-      const own_vessel_list = await user_helper.getVesselsForUser(own_user_id);
-      const own_vessel_ids = own_vessel_list.map(v => v.vesse_id);
-      if (vessel_ids.some(_vessel_id => !own_vessel_ids.some(_id => _vessel_id == _id))) res.onUnauthorized();
+      logger.debug('Own vessels are null => getting vessels from helper')
+      try {
+        const own_vessel_list = await user_helper.getVesselsForUser(own_token)
+        const own_vessel_ids = own_vessel_list.map(v => v.vessel_id);
+        if (vessel_ids.some(_vessel_id => {
+          return !own_vessel_ids.some(_id => _vessel_id == _id)
+        })) return res.onUnauthorized();
+      } catch (err) {
+        return res.onError(err);
+      }
     } else {
       if (vessel_ids == null) return res.onUnauthorized('Cannot assign vessels you have no access to!')
       const illegal = vessel_ids.some(id => {
@@ -358,6 +367,7 @@ module.exports = function (
   });
 
   app.get("/api/getUsers", function(req, res) {
+    /** @type {TokenModel} */
     const token = req['token'];
     const permission = token.permission;
     const is_admin = token?.permission?.admin ?? false;
@@ -386,7 +396,6 @@ module.exports = function (
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
-        const vessels = await user_helper.getVesselsForUser(row.user_id);
         users.push({
           active: row.active,
           userID: row.user_id,
@@ -405,11 +414,13 @@ module.exports = function (
             longterm: row.longterm,
             forecast: row.forecast,
           },
-          boats: vessels
+          // boats: vessels
         });
       }
       return res.send(users)
-    }).catch(err => res.onError(err))
+    }).catch(err => {
+      return res.onError(err)
+    })
   });
 
   app.post("/api/getUserByUsername", body('username').isString(), function(req, res) {
@@ -447,7 +458,24 @@ module.exports = function (
       const users = [];
       for (let _row = 0; _row<sqldata.rowCount; _row++) {
         const row = sqldata.rows[_row];
-        const vessels = await user_helper.getVesselsForUser(row.user_id);
+        const permission = {
+          user_type: row.user_type,
+          admin: row.admin,
+          user_read: row.user_read,
+          demo: row.demo,
+          user_manage: row.user_manage,
+          twa: row.twa,
+          dpr: row.dpr,
+          longterm: row.longterm,
+          forecast: row.forecast,
+        };
+        /** @type {any} */
+        const target_token = {
+          userID: row.userID,
+          client_id,
+          permission,
+        }
+        const vessels = await user_helper.getVesselsForUser(target_token);
         users.push({
           active: row.active,
           userID: row.user_id,
@@ -455,17 +483,7 @@ module.exports = function (
           client_name: row.client_name,
           client_id: row.client_id,
           vessel_ids: row.vessel_ids,
-          permission: {
-            user_type: row.user_type,
-            admin: row.admin,
-            user_read: row.user_read,
-            demo: row.demo,
-            user_manage: row.user_manage,
-            twa: row.twa,
-            dpr: row.dpr,
-            longterm: row.longterm,
-            forecast: row.forecast,
-          },
+          permission,
           boats: vessels
         });
       }

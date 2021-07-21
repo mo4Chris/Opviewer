@@ -4,31 +4,224 @@ var env = require('./env')
 var connections = require('./connections')
 var {logger} = require('./logging');
 const { toIso8601 } = require("./hydro");
+const TokenModel = require('../models/token.d')
 
 module.exports = {};
 
 // ##################################
 /**
- * Return list of vessel for user
- * @param {number} user_id
- * @returns {Promise<{vessel_id: number, mmsi: number, nicename: string}[]>}
+ * @type {{
+ *  vessel_id: number,
+ *  mmsi: number,
+ *  nicename: string,
+ *  active: boolean,
+ *  operationsClass: string,
+ *  client_ids: number[]
+ * }}
  */
-async function getVesselsForUser(user_id) {
+let VesselListInstance;
+
+
+/**
+ * Return list of vessel for user
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getVesselsForUser (token) {
+  logger.trace(`Getting vessels for user with ID ${token.userID}`)
+  if (token?.permission == null) throw new Error('Invalid token');
+  if (token.permission.admin) return await module.exports.getVesselsForAdmin(token);
+  if (token.permission.user_see_all_vessels_client) return await module.exports.getAllVesselsForClient(token);
+  return await module.exports.getAssignedVessels(token.userID);
+}
+module.exports.getVesselsForUser = getVesselsForUser;
+
+
+/**
+ * Return list of vessel for admin
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getVesselsForAdmin(token) {
+  if (!token?.permission?.admin) throw new Error('Unauthorized user, Admin only');
+
+  let vessels = [];
   let PgQuery = `
-  SELECT "vesselTable"."vessel_id", "vesselTable"."mmsi", "vesselTable"."nicename"
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."client_ids",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"`;
+
+  vessels = await connections.admin.query(PgQuery).then(sql_response => {
+    const response =  sql_response.rows.map(row => {
+      return {
+        mmsi: row.mmsi,
+        nicename: row.nicename,
+        client_ids: row.client_ids,
+        active: row.active,
+        operationsClass: row.operations_class,
+        vessel_id: row.vessel_id,
+        client: []
+      }
+    });
+    return response;
+  });
+
+  const PgQueryClients = `SELECT
+    u."mmsi",
+    array_agg(c."client_name")
+    from (
+      select "vesselTable"."mmsi" mmsi, unnest("vesselTable"."client_ids") id
+      from "vesselTable"
+    ) u
+    join "clientTable" c on c."client_id" = u.id
+    group by 1`
+
+  return await connections.admin.query(PgQueryClients).then(sql_client_response => {
+    let vesselList = [];
+    vessels.forEach(vessel => {
+      const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
+      vessel.client = clientsArray.array_agg;
+      vesselList.push({
+        mmsi: vessel.mmsi,
+        nicename: vessel.nicename,
+        client_ids: vessel.client_ids,
+        active: vessel.active,
+        operationsClass: vessel.operations_class,
+        vessel_id: vessel.vessel_id,
+        client: []
+      });
+    });
+    return vesselList;
+  });
+}
+module.exports.getVesselsForAdmin = getVesselsForAdmin;
+
+
+/**
+ * Return list of vessels for client
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getAllVesselsForClient(token) {
+  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
+
+  let PgQuery = `
+  SELECT
+    "vesselTable"."vessel_id",
+    "vesselTable"."mmsi",
+    "vesselTable"."nicename",
+    "vesselTable"."client_ids",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+
+  const values = [token.client_id];
+
+  return connections.admin.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows.map(row => {
+      return {
+        mmsi: row.mmsi,
+        nicename: row.nicename,
+        client_ids: row.client_ids,
+        active: row.active,
+        operationsClass: row.operations_class,
+        vessel_id: row.vessel_id,
+        client: []
+      }
+    });
+  });
+}
+module.exports.getAllVesselsForClient = getAllVesselsForClient;
+
+
+/**
+ * Return list of vessel for user
+ * @param { number } user_id
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getAssignedVessels(user_id) {
+  logger.debug('Getting assigned vessels')
+  let PgQuery = `
+  SELECT
+  "vesselTable"."mmsi",
+  "vesselTable".nicename,
+  "vesselTable"."client_ids",
+  "vesselTable"."active",
+  "vesselTable"."operations_class"
     FROM "vesselTable"
     INNER JOIN "userTable"
     ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
-    WHERE "userTable"."user_id"=$1 AND "userTable"."active"=true`;
+    WHERE "userTable"."user_id"=$1`;
   const values = [user_id]
-  const data = await connections.admin.query(PgQuery, values);
-  if (data.rowCount > 0) {
-    return data.rows;
-  } else {
-    return null;
+  const sql_response = await connections.admin.query(PgQuery, values);
+  return sql_response.rows.map(row => {
+    return {
+      mmsi: row.mmsi,
+      nicename: row.nicename,
+      client_ids: row.client_ids,
+      active: row.active,
+      operationsClass: row.operations_class,
+      vessel_id: row.vessel_id,
+      client: []
+    }
+  });
+}
+module.exports.getAssignedVessels = getAssignedVessels;
+
+
+/**
+ * Return list of vessels for client
+ * @param { TokenModel | {userID: number, client_id: number, permission: any} } token
+ * @param { string } username
+ * @returns {Promise<VesselListInstance[]>}
+ */
+async function getAllVesselsForClientByUsername(token, username) {
+  const permission = token.permission;
+  const has_permission = permission.admin || permission.user_see_all_vessels_client;
+  if (!has_permission) throw new Error('Unauthorized user, not allowed to see all vessels');
+  let PgQueryClientID = `
+    SELECT "client_id"
+    FROM "userTable"
+    WHERE "username"= $1
+  `;
+
+  const clientIDValues = [username];
+  let clientID = token.client_id;
+  if (permission.admin) {
+    clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
+      return sql_response.rows[0].client_id;
+    });
   }
-};
-module.exports.getVesselsForUser = getVesselsForUser;
+
+  let PgQuery = `
+  SELECT
+    "vesselTable"."mmsi",
+    "vesselTable".nicename,
+    "vesselTable"."vessel_id",
+    "vesselTable"."active",
+    "vesselTable"."operations_class"
+  FROM "vesselTable"
+  WHERE $1=ANY("vesselTable"."client_ids")`;
+  const values = [clientID];
+  return connections.admin.query(PgQuery, values).then(sql_response => {
+    return sql_response.rows.map(v => {
+      return {
+        mmsi: v.mmsi,
+        nicename: v.nicename,
+        vessel_id: v.vessel_id,
+        active: v.active,
+        operationsClass: v.operations_class,
+        client_ids: [clientID]
+      }
+    });
+  });
+}
+module.exports.getAllVesselsForClientByUsername = getAllVesselsForClientByUsername;
 
 
 /**
@@ -267,7 +460,7 @@ module.exports.initUserPermission = initUserPermission;
 
 /**
  * Returns true/false if user has permissions to manage the requested user
- * @param {object} token
+ * @param { TokenModel } token
  * @param {string} username
  * @returns {Promise<boolean>}
  */
@@ -352,7 +545,7 @@ module.exports.getIdForUser = getIdForUser;
  * @param {any} req
  * @param {any} user
  * @param {any} res
- * @returns boolean
+ * @returns {boolean}
  */
 function validateLogin(req, user, res) {
   const userData = req.body;
@@ -380,6 +573,11 @@ function validateLogin(req, user, res) {
 module.exports.validateLogin = validateLogin;
 
 
+
+/**
+ * Returns default iid number
+ * @returns {Promise<number>};
+ */
 async function getDefaulClientId() {
   logger.debug('Getting default client ID')
   const query = `SELECT "client_id" FROM "clientTable" WHERE "client_name"=$1`

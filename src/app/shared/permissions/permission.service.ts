@@ -127,6 +127,8 @@ function setPermissionFromToken(base: PermissionModel, permission: UserPermissio
   if (permission?.user_manage != null) base.userManage = permission?.user_manage;
   if (permission?.user_manage != null) base.userCreate = permission?.user_manage;
 
+  if (permission?.dpr?.read != null ) base.dprRead = permission.dpr.read;
+
   return base;
 }
 

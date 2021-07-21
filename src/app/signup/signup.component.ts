@@ -77,7 +77,9 @@ export class SignupComponent implements OnInit {
       this.alert.sendAlert({ type: 'success', text: res.data });
       this.routerService.route(['dashboard', {status: 'success', message: res.data}]);
     }, err => {
-      if (err.status === 401) {
+      if (err.status === 400) {
+        return this.alert.sendAlert({ type: 'danger', text: err.error, timeout: null });
+      } else if (err.status === 401) {
         this.alert.sendAlert({ type: 'danger', text: err.error, timeout: null });
       } else {
         this.alert.sendAlert({ type: 'danger', text: 'Something is wrong, please contact MO4' });

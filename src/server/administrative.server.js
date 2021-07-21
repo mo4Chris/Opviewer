@@ -95,10 +95,8 @@ module.exports = function (
     if (is_bad_pw) return res.status(400).send('Invalid password: should be string of at least 7 characters')
 
     // Getting demo client information
-    const demo_client_id = await user_helper.getDefaulClientId();
-
-    //turn account creation back on after other functions
     try {
+      const demo_client_id = await user_helper.getDefaulClientId();
       const query = `SELECT t.username
         FROM "userTable" t
         WHERE t."username"=$1`
@@ -219,7 +217,7 @@ module.exports = function (
       localLogger.debug('Validating login')
       if (!user_helper.validateLogin(req, user, res)) return null; // Password validation happens here
       localLogger.debug('Retrieving vessels for user');
-      const vessels = await user_helper.getVesselsForUser(user.user_id).catch(err => { return res.onError(err) });
+      const vessels = await user_helper.getAssignedVessels(user.user_id);
 
       localLogger.debug('Retrieving client for user');
       const query = 'SELECT "forecast_client_id" FROM "clientTable" WHERE "client_id" = $1';
