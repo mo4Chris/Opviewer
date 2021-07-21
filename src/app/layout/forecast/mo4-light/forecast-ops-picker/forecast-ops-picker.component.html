@@ -19,14 +19,14 @@
             <td><div [ngbTooltip]="helpVessel">Vessel</div></td>
             <td colspan="2">{{selectedVesselName}}</td>
           </tr>
-          <tr>
+          <tr *ngIf="!responseNotFound">
             <td><div [ngbTooltip]="helpLocation">Location</div></td>
             <td colspan="2">{{gps.formatLat(response?.latitude)}}, {{gps.formatLng(response?.longitude)}}</td>
           </tr>
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel title="Response details" id="response-overview" class="panel-header">
+      <ngb-panel *ngIf="!responseNotFound" title="Response details" id="response-overview" class="panel-header">
         <ng-template ngbPanelContent class="panel-header">
           <tr>
             <td>
@@ -43,7 +43,7 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel title="Operation setting" id="ops-date-time">
+      <ngb-panel *ngIf="!responseNotFound" title="Operation setting" id="ops-date-time">
         <ng-template ngbPanelContent>
           <tr>
             <td>
@@ -117,8 +117,8 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel *ngIf="hasCtvSlipSettings" title="Ctv slip settings" id="ctv-settings">
-        <ng-template ngbPanelContent>
+      <ngb-panel *ngIf="hasCtvSlipSettings && !responseNotFound" title="Ctv slip settings" id="ctv-settings">
+        <ng-template  ngbPanelContent>
           <tr>
             <td>
               <div [ngbTooltip]="helpCtvSlipCoeff">Friction Coefficient</div>
@@ -172,7 +172,7 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel title="Operation limits" id="ops-limits">
+      <ngb-panel title="Operation limits" *ngIf="!responseNotFound" id="ops-limits">
         <ng-template ngbPanelContent>
           <tr colspan="3" [ngbTooltip]="helpLimits" class='sep-row' container="body">
             <th>Limit type</th>
@@ -186,8 +186,8 @@
                 <option value='Vel'>Velocity</option>
                 <option value='Disp'>Displacement</option>
                 <option value='Slip'>Slip prob</option>
-                <option value='Wave'>Wave</option>
-                <option value='Wind'>Wind</option>
+                <option *ngIf="validWaveTypes.length > 0" value='Wave'>Wave</option>
+                <option *ngIf="validWindTypes.length > 0" value='Wind'>Wind</option>
               </select>
             </td>
             <td class="tight">
