@@ -53,7 +53,7 @@ export class VesselMasterComponent implements OnInit {
           this.zoominfo.emit({
             latitude: park.centroid.lat,
             longitude: park.centroid.lon,
-            zoomlvl: 8.5,
+            zoomlvl: 11.5,
           });
         } else {
           this.zoominfo.emit(this.defaultZoomInfo);

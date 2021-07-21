@@ -1610,6 +1610,10 @@ app.post("/api/getTransfersForVesselByRange", function(req, res) {
   aggregateStatsOverModel(ctv.TransferModel, req, res);
 });
 
+app.post("/api/getTransfersForVesselByRangeForCTV", function(req, res) {
+  aggregateStatsOverModel(ctv.TransferModel, req, res);
+});
+
 app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
   aggregateStatsOverModel(sov.SovTurbineTransfersModel, req, res);
 });
@@ -1644,6 +1648,10 @@ app.post("/api/getPortcallsByRange", function(req, res) {
 
 app.post("/api/getDprInputsByRange", function(req, res) {
   aggregateStatsOverModel(sov.SovDprInputModel, req, res);
+});
+
+app.post("/api/getCtvInputsByRange", function(req, res) {
+  aggregateStatsOverModel(ctv.GeneralModel, req, res);
 });
 
 app.post("/api/validatePermissionToViewData", function(req, res) {
