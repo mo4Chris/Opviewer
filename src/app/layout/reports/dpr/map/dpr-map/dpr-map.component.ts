@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, OnDestroy } from '@angular/core';
 import { GmapService } from '@app/supportModules/gmap.service';
 import { MapStore, TurbinePark, OffshorePlatform, HarbourLocation } from '@app/stores/map.store';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -10,7 +10,7 @@ import { MapZoomLayer } from '@app/models/mapZoomLayer';
   templateUrl: './dpr-map.component.html',
   styleUrls: ['./dpr-map.component.scss'],
 })
-export class DprMapComponent implements OnChanges {
+export class DprMapComponent implements OnChanges, OnDestroy {
   @Input() vesselTrace: GeoTrace;
   @Input() turbineVisits = [];
   @Input() platformVisits = [];
@@ -89,12 +89,19 @@ export class DprMapComponent implements OnChanges {
     });
   }
 
+  ngOnDestroy() {
+    if (this._mapPromiseTimeout) {
+      clearTimeout(this._mapPromiseTimeout);
+    }
+  }
+
   // Init
+  private _mapPromiseTimeout: NodeJS.Timeout;
   initMapPromise() {
     this.mapIsReady = new Promise((resolve, reject) => {
       this.triggerMapPromise = resolve;
       this.zone.runOutsideAngular(() => {
-        setTimeout(() => {
+        this._mapPromiseTimeout = setTimeout(() => {
           if (this.hasValidVesselTrace) {
             reject('Error initializing google map!');
           }

@@ -17,6 +17,7 @@ module.exports = {};
  *  active: boolean,
  *  operationsClass: string,
  *  client_ids: number[]
+ *  client: any[];
  * }}
  */
 let VesselListInstance;
@@ -84,7 +85,6 @@ async function getVesselsForAdmin(token) {
     let vesselList = [];
     vessels.forEach(vessel => {
       const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
-      vessel.client = clientsArray.array_agg;
       vesselList.push({
         mmsi: vessel.mmsi,
         nicename: vessel.nicename,
@@ -92,7 +92,7 @@ async function getVesselsForAdmin(token) {
         active: vessel.active,
         operationsClass: vessel.operations_class,
         vessel_id: vessel.vessel_id,
-        client: []
+        client: clientsArray.array_agg,
       });
     });
     return vesselList;

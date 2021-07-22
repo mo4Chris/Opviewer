@@ -467,7 +467,12 @@ app.get("/api/getVessel", function(req, res) {
       }
     }, (err, data) => {
       if (err) return onError(res, err);
-      res.send(data)
+      const output = data.map(v => {
+        const simple = simple_vessels.find(_v => _v.mmsi == v.mmsi);
+        v.active = simple.active;
+        return v;
+      });
+      res.send(output)
     })
   }).catch(err => onError(res, err));
 });

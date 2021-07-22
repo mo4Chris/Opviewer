@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
-import { AgmCoreModule } from '@agm/core';
+import { AgmCoreModule, AgmMap } from '@agm/core';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -11,10 +11,12 @@ import { LogisticsSpecialistComponent } from './components/logistics-specialist/
 import { MarineControllerComponent } from './components/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/vessel-master/vessel-master.component';
 import { MockComponents } from 'ng-mocks';
-import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
+import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterService } from '@app/supportModules/router.service';
+import { mockedObservable } from '@app/models/testObservable';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -24,21 +26,24 @@ describe('DashboardComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        HttpClientModule,
-        AgmCoreModule.forRoot(),
-        AgmJsMarkerClustererModule,
-        AgmSnazzyInfoWindowModule,
         NgbModule,
-        RouterTestingModule,
         BrowserAnimationsModule,
+        RouterTestingModule,
       ],
       declarations: [
         DashboardComponent,
-        MockComponents(AdminComponent, LogisticsSpecialistComponent, MarineControllerComponent, VesselMasterComponent),
+        MockComponents(
+          AdminComponent,
+          LogisticsSpecialistComponent,
+          MarineControllerComponent,
+          VesselMasterComponent,
+          AgmMap,
+        ),
       ],
       providers: [
         MockedCommonServiceProvider,
-        MockedUserServiceProvider
+        MockedUserServiceProvider,
+        RouterService,
       ]
     })
     .compileComponents();
@@ -47,10 +52,35 @@ describe('DashboardComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
+
+  it('should set zoomInfo', () => {
+    fixture.detectChanges();
+    const info = {
+      longitude: 1,
+      latitude: 2,
+      zoomlvl: 3,
+    }
+    component.setZoominfo(info);
+    expect(component.zoominfo).toEqual(info);
+  })
+
+  it('should log user out if it is not active', () => {
+    const logoutspy = spyOn(UserTestService.prototype, 'logout');
+    spyOn(MockedCommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(false));
+    fixture.detectChanges();
+    expect(logoutspy).toHaveBeenCalled();
+  })
+
+  it('should not log user out if it is active', () => {
+    const logoutspy = spyOn(UserTestService.prototype, 'logout');
+    spyOn(MockedCommonService.prototype, 'checkUserActive').and.returnValue(mockedObservable(true));
+    fixture.detectChanges();
+    expect(logoutspy).not.toHaveBeenCalled();
+  })
 });

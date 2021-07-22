@@ -9,8 +9,9 @@ describe('User helper functions', () => {
       mmsi: 123456789,
       nicename: "vessel_1",
       active: true,
-      operationsClass: "CTV",
-      client_ids: []
+      operations_class: "CTV",
+      client_ids: [],
+      client: [],
     }]
     mock.pgRequest(output)
     const vessels = await helper.getVesselsForUser({
@@ -21,7 +22,15 @@ describe('User helper functions', () => {
         user_see_all_vessels_client: false,
       }
     });
-    expect(vessels).toEqual(output);
+    expect(vessels).toEqual([{
+      vessel_id: 1,
+      mmsi: 123456789,
+      nicename: "vessel_1",
+      active: true,
+      operationsClass: "CTV",
+      client_ids: [],
+      client: [],
+    }]);
   })
 
   it('should get vessels for admin', async () => {

@@ -108,17 +108,13 @@ export class LongtermComponent implements OnInit {
         this.newService.getVessel(),
         this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
       ]).subscribe(([fields, vessels, validatedValue]) => {
-        console.log('validatedValue', validatedValue)
-        console.log('vessels', vessels)
         if (validatedValue.length != 1) return this.noPermissionForData = true;
         this.vesselType = validatedValue[0]?.operationsClass;
-        console.log('this.vesselType', this.vesselType)
         this.fieldsWithWavedata = fields;
         this.fieldsWithWavedata.forEach(elt => {
           elt.text = elt.site + ' - ' + elt.name;
         });
         this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
-        console.log('this.Vessels', this.Vessels)
         this.buildPageWithCurrentInformation();
       });
     });
