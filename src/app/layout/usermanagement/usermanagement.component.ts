@@ -120,5 +120,5 @@ export interface UsermanagementVesselModel {
   nicename: string,
   vessel_id:number,
   active: boolean,
-  operations_class: VesselOperationsClass
+  operationsClass: VesselOperationsClass
 }

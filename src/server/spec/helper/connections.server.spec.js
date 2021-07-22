@@ -1,8 +1,4 @@
 const { default: axios } = require('axios');
-// const mongoose = require('mongoose');
-// const { Pool } = require('pg');
-// const env = require('./../../helper/env');
-// const { LatLonModel } = require('../../models/geo');
 
 
 describe('Connections', () => {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone, ElementRef, OnDestroy } from '@angular/core';
 import { routerTransition } from '@app/router.animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
@@ -24,7 +24,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
   styleUrls: ['./dashboard.component.scss'],
   animations: [routerTransition()]
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     public router: Router,
     private route: ActivatedRoute,
@@ -118,6 +118,13 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+    }
+  }
+
+  private _timeout: NodeJS.Timeout;
   getLocations() {
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
@@ -143,7 +150,7 @@ export class DashboardComponent implements OnInit {
       }, 100);
       // We need to tell angular that the 10 minute dashboard update
       // should not be waited for with regards to change detection.
-      setTimeout(() => {
+      this._timeout = setTimeout(() => {
         this.eventService.closeLatestAgmInfoWindow();
         if (this.router.url === '/dashboard') {
           this.getLocations();

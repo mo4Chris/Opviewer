@@ -768,7 +768,7 @@ export class MockedCommonService extends CommonService {
       mmsi: demo_vessel.mmsi,
       nicename: demo_vessel.nicename,
       active: true,
-      operations_class: demo_vessel.operationsClass
+      operationsClass: demo_vessel.operationsClass
     }])
   }
 

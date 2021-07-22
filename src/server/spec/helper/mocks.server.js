@@ -183,10 +183,6 @@ function mockForecastApiRequest(data, response_code=null) {
     status: response_code ?? default_response_code,
     text: 'mocked'
   });
-  // const dataPromise = new Response(data)
-  // spyOn(ax.default, 'get').and.returnValue(dataPromise)
-  // spyOn(ax.default, 'post').and.returnValue(dataPromise)
-  // spyOn(ax.default, 'put').and.returnValue(dataPromise)
   spyOn(connections.hydro, 'GET').and.returnValue(dataPromise)
   spyOn(connections.hydro, 'POST').and.returnValue(dataPromise)
   spyOn(connections.hydro, 'PUT').and.returnValue(dataPromise)
@@ -206,9 +202,6 @@ function mockForecastApiRequests(datas = [{data: null, response_code:500}]) {
       text: 'mocked'
     });
   }
-  // spyOn(ax.default, 'get').and.callFake(returnData)
-  // spyOn(ax.default, 'post').and.callFake(returnData)
-  // spyOn(ax.default, 'put').and.callFake(returnData)
   spyOn(connections.hydro, 'GET').and.callFake(returnData)
   spyOn(connections.hydro, 'POST').and.callFake(returnData)
   spyOn(connections.hydro, 'PUT').and.callFake(returnData)
