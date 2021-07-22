@@ -222,9 +222,9 @@
             </td>
           </tr>
           <tr>
-            <td colspan=3 *ngIf="permission.forecastChangeLimits">
+            <td colspan=3 *ngIf="mayChangeLimits">
               <div [ngbTooltip]="addLimitsTooltip">
-                <button class="btn btn-sm btn-danger float-right" [disabled]="(limits==null) || (limits?.length<=0)"
+                <button class="btn btn-sm btn-danger float-left" [disabled]="(limits==null) || (limits?.length<=0)"
                   (click)="onRemoveLimitsLine();" type="button">
                   Remove last
                 </button>

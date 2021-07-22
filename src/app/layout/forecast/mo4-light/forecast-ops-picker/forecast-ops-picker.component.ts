@@ -75,6 +75,12 @@ export class ForecastOpsPickerComponent implements OnChanges {
   public get weather() {
     return this?.response?.response?.Points_Of_Interest?.P1?.['MetoceanData'];
   }
+  public get mayChangeLimits() {
+    if(this.permission.admin) return true;
+    if(!this.isSampleProject && this.permission.forecastChangeLimits) return true;
+    //if(this.selectedProjectId != 22 && this.permission.forecastChangeLimits) return true;
+    return false;
+  }
   public get validWaveTypes () {
     const ts_len = this.weather?.Time?.length ?? 0;
     if (ts_len == 0) return [];
