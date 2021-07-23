@@ -3,7 +3,8 @@ const { admin, hydro } = require('./connections')
 const moment = require('moment-timezone');
 const env = require('./env');
 const fs = require('fs')
-const TokenModel = require('../models/token.d')
+const TokenModel = require('../models/token.d');
+const { sortByStringField } = require('./sort');
 
 
 // #################### Default values ####################
@@ -73,7 +74,7 @@ async function getDemoProject(token) {
       vessel_id: _project.vessel_id
     }
   })
-  return project_output;
+  return sortByStringField(project_output, p => p.nicename);
 }
 module.exports.getDemoProject = getDemoProject;
 
@@ -121,7 +122,7 @@ async function getProjectList(token) {
       metocean_provider: _project.metocean_provider,
     })
   }
-  return project_output;
+  return sortByStringField(project_output, p => p.nicename);
 }
 module.exports.getProjectList = getProjectList;
 
