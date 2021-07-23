@@ -99,7 +99,7 @@ export class SettingsService {
     } else {
       switch (timezone) {
         case 'vessel':
-          return +vesselOffsetHours || 0;
+          return Math.round(+vesselOffsetHours) || 0;
         case 'own':
           return +this.localTimeZoneOffset;
         case 'utc':

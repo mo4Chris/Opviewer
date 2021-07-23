@@ -12,6 +12,16 @@
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+.float-right {
+  width: 45%;
+  float: right;
+}
+
+.float-left { 
+  width: 45%;
+  float: left
+}
+
 .empty-row {
   height: 0.6 rem;
   padding: 0.1 rem;

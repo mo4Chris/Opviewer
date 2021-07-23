@@ -548,7 +548,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.activeTab = 'sov-summary';
         break;
       case 'Marine controller':
-        this.activeTab = 'sov-input-write';
+        this.activeTab = 'sov-summary';
         break;
       case 'Vessel master':
         this.activeTab = 'sov-input-write';
