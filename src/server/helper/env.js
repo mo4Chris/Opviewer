@@ -15,9 +15,10 @@ const AZURE_BACKUP_URL  = process.env.AZURE_BACKUP_URL          ?? 'https://mo4-
 const AZURE_TOKEN       = process.env.AZURE_TOKEN;
 
 
-const SHARED_DEMO_PROJECT_NAME  = process.env.SHARED_DEMO_PROJECT_NAME  ?? 'Sample_Project';
-const GENERIC_VESSEL_CLIENT_ID  = process.env.GENERIC_VESSEL_CLIENT_ID  ?? 1; // ToDo: replace this!
-const DEMO_CLIENT_NAME          = process.env.DEMO_CLIENT_NAME          ?? 'Demo';
+const SHARED_DEMO_PROJECT_NAME      = process.env.SHARED_DEMO_PROJECT_NAME      ?? 'Sample_Project';
+const GENERIC_VESSEL_CLIENT_ID      = process.env.GENERIC_VESSEL_CLIENT_ID      ?? 1; // ToDo: replace this!
+const DEMO_CLIENT_NAME              = process.env.DEMO_CLIENT_NAME              ?? 'Demo';
+const DEFAULT_WEATHER_PROVIDER_NAME = process.env.DEFAULT_WEATHER_PROVIDER_NAME ?? 'infoplaza';
 
 if (!AZURE_TOKEN) throw new Error('No valid azure token found!')
 if (!DB_CONN) throw new Error('No valid admin DB connection string found!')
@@ -34,4 +35,5 @@ module.exports = {
   SHARED_DEMO_PROJECT_NAME,
   GENERIC_VESSEL_CLIENT_ID,
   DEMO_CLIENT_NAME,
+  DEFAULT_WEATHER_PROVIDER_NAME
 }

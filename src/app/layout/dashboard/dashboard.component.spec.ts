@@ -1,11 +1,9 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
-import { AgmCoreModule, AgmMap } from '@agm/core';
-import { HttpClientModule } from '@angular/common/http';
+import { AgmInfoWindow, AgmMap } from '@agm/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
-import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
-import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
+import { AgmMarkerCluster } from '@agm/js-marker-clusterer';
 import { AdminComponent } from './components/admin/admin.component';
 import { LogisticsSpecialistComponent } from './components/logistics-specialist/logistics-specialist.component';
 import { MarineControllerComponent } from './components/marine-controller/marine-controller.component';
@@ -38,6 +36,8 @@ describe('DashboardComponent', () => {
           MarineControllerComponent,
           VesselMasterComponent,
           AgmMap,
+          AgmMarkerCluster,
+          AgmInfoWindow,
         ),
       ],
       providers: [

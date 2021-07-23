@@ -469,7 +469,6 @@ module.exports = function (
           longterm: row.longterm,
           forecast: row.forecast,
         };
-        /** @type {any} */
         const target_token = {
           userID: row.userID,
           client_id,
@@ -519,7 +518,7 @@ module.exports = function (
       const may_not_change_target = target_permission.admin
         // || target_permission.user_can_see_all_vessels_client
         || target_permission.user_type == 'admin';
-      if (may_not_change_target) return res.onUnauthorized('Permissions for target user may be changed!')
+      if (may_not_change_target) return res.onUnauthorized('Permissions for admins may not be changed!')
 
       if (!await user_helper.getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
       const target_user_id = await user_helper.getIdForUser(target_username).catch(err => {
