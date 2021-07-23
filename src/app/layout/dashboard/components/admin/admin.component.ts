@@ -95,7 +95,7 @@ export class AdminComponent implements OnInit {
       this.newService.getLatestGeneral().subscribe(genStatInfos => {
         genStatInfos.forEach(genInfo => {
           const vesselInfo: VesselModel = this.vesselInfo.find(vessel => vessel.mmsi === genInfo._id);
-          const isOnHire = vesselInfo !== undefined && vesselInfo.active;
+          const isOnHire = vesselInfo !== undefined && vesselInfo.onHire;
           if (isOnHire && genInfo.date <= this.currentMatlabDate - 2) {
             this.noActivityVessels.push({
               matlabDate: genInfo.date,

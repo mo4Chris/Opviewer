@@ -26,15 +26,16 @@ let UserType;
  *  userBoats: {
  *      mmsi: number,
  *      nicename: string
- *  }[];
- *  client_id: number;
- *  userCompany: string;
- *  userPermission: UserType;
- *  permission: UserPermissions;
- *  username: string;
- *  hasCampaigns: boolean;
- *  expires: number;
- *  iat: number;
+ *  }[],
+ *  client_id: number,
+ *  userCompany: string,
+ *  userPermission: UserType,
+ *  permission: UserPermissions,
+ *  username: string,
+ *  hasCampaigns: boolean,
+ *  expires: number,
+ *  demo_project_id?: number,
+ *  iat: number,
  * }}
  */
 let TokenModel;

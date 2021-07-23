@@ -17,7 +17,7 @@ const DEFAULT_SLIP_OPTIONS = {
   Thrust_Level_N: 10000,
   Window_Length_Seconds: 120,
 }
-const SAMPLE_PROJECT_NAME = 'sample_project';
+const SAMPLE_PROJECT_NAME = 'sample_project';  // TODO configure via env file
 
 @Component({
   selector: 'app-forecast-ops-picker',

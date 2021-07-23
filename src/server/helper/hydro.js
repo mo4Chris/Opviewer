@@ -3,10 +3,12 @@ const { admin, hydro } = require('./connections')
 const moment = require('moment-timezone');
 const env = require('./env');
 const fs = require('fs')
+const TokenModel = require('../models/token.d');
+const { sortByStringField } = require('./sort');
 
 
 // #################### Default values ####################
-const DEFAULT_WEATHER_PROVIDER_NAME   = 'infoplaza';
+const DEFAULT_WEATHER_PROVIDER_NAME   = env.DEFAULT_WEATHER_PROVIDER_NAME;
 const DEFAULT_FORECAST_CLIENT_NAME    = env.DEMO_CLIENT_NAME;
 
 module.exports = {
@@ -33,7 +35,7 @@ module.exports.getWeatherProvider = getWeatherProvider;
 
 /**
  * Return the project belonging to a demo user
- * @param {any} token User token
+ * @param {TokenModel} token User token
  * @returns {Promise<any[]>} Project list
  */
 async function getDemoProject(token) {
@@ -45,6 +47,7 @@ async function getDemoProject(token) {
   if (demo_project_id == null) throw new Error('Invalid project id');
 
   logger.info(`Getting demo project with id ${demo_project_id}`)
+  // TODO: this is overkill. We can be much more conservative here
   const out = await hydro.GET('/projects')
   if (!Array.isArray(out.data['projects'])) throw new Error('Received invalid projects list')
 
@@ -71,20 +74,20 @@ async function getDemoProject(token) {
       vessel_id: _project.vessel_id
     }
   })
-  return project_output;
+  return sortByStringField(project_output, p => p.nicename);
 }
 module.exports.getDemoProject = getDemoProject;
 
 
 /**
- * @param {any} token User token
+ * @param {TokenModel} token User token
  * @returns {Promise<any[]>} Project list
  */
 async function getProjectList(token) {
   logger.debug('Getting project list')
   if (token.permission.demo) {
     logger.info('Demo user -> getting demo project')
-    const project_output = await getDemoProject(token);
+    const project_output = await module.exports.getDemoProject(token);
     logger.trace('Sending demo project')
     return project_output;
   }
@@ -119,7 +122,7 @@ async function getProjectList(token) {
       metocean_provider: _project.metocean_provider,
     })
   }
-  return project_output;
+  return sortByStringField(project_output, p => p.nicename);
 }
 module.exports.getProjectList = getProjectList;
 
@@ -127,7 +130,7 @@ module.exports.getProjectList = getProjectList;
 /**
  * Tests for project access permission
  *
- * @param {any} userToken User token
+ * @param {TokenModel} userToken User token
  * @param {any} project Forecast project
  * @api public
  * @returns {Boolean}
@@ -146,7 +149,7 @@ module.exports.checkProjectPermission = checkProjectPermission;
 /**
  * Tests for vessel access permission
  *
- * @param {any} userToken User token
+ * @param {TokenModel} userToken User token
  * @param {any} vessel Forecast vessel
  * @api public
  * @returns {Boolean}
@@ -163,8 +166,8 @@ module.exports.checkForecastVesselPermission = checkForecastVesselPermission;
 
 
 async function createProject(client_id = -1, metocean_provider_id = -1) {
-  if (client_id < 1) client_id = await getDefaultForecastClientId();
-  if (metocean_provider_id < 1) metocean_provider_id = await getDefaultMetoceanProviderId();
+  if (client_id < 1) client_id = await module.exports.getDefaultForecastClientId();
+  if (metocean_provider_id < 1) metocean_provider_id = await module.exports.getDefaultMetoceanProviderId();
   logger.info(`Creating new project with client id = ${client_id}`)
   const currentTime = Date.now()
   const currentDate = new Date(currentTime);

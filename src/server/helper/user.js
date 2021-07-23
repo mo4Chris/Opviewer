@@ -194,6 +194,7 @@ async function getAllVesselsForClientByUsername(token, username) {
   let clientID = token.client_id;
   if (permission.admin) {
     clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
+      if (sql_response.rowCount < 1) throw new Error('Client id not found!')
       return sql_response.rows[0].client_id;
     });
   }
@@ -216,7 +217,8 @@ async function getAllVesselsForClientByUsername(token, username) {
         vessel_id: v.vessel_id,
         active: v.active,
         operationsClass: v.operations_class,
-        client_ids: [clientID]
+        client_ids: [clientID],
+        client: []
       }
     });
   });

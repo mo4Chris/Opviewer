@@ -5,6 +5,7 @@ const user_helper = require('./helper/user')
 const connections = require('./helper/connections')
 const env = require('./helper/env')
 const TokenModel = require("./models/token.d");
+const { sortByStringField } = require("./helper/sort.js");
 
 /**
  * Server file with all the secure endpoints to the admin database.
@@ -48,7 +49,9 @@ module.exports = function (
       values = [token.client_id];
     }
     connections.admin.query(query, values).then(sqlresponse => {
-      res.send(sqlresponse.rows);
+      const vessels = sqlresponse.rows
+      const sorted = sortByStringField(vessels, v => v.nicename);
+      return res.send(sorted)
     }).catch(err => res.onError(err));
   });
 
@@ -417,7 +420,8 @@ module.exports = function (
           // boats: vessels
         });
       }
-      return res.send(users)
+      const sorted = sortByStringField(users, u => u.username);
+      return res.send(sorted)
     }).catch(err => {
       return res.onError(err)
     })
@@ -469,7 +473,6 @@ module.exports = function (
           longterm: row.longterm,
           forecast: row.forecast,
         };
-        /** @type {any} */
         const target_token = {
           userID: row.userID,
           client_id,
@@ -494,12 +497,15 @@ module.exports = function (
   });
 
   app.get("/api/getCompanies", function(req, res) {
+    // Why does this function exists? We also have getClients
     const token = req['token'];
     if (!token.permission.admin) return res.onUnauthorized();
     const query = `SELECT "client_id", "client_name", "client_permissions"
       FROM "clientTable"`
     connections.admin.query(query).then((data) => {
-      return res.send(data.rows);
+      const clients = data.rows;
+      const sorted = sortByStringField(clients, c => c.client_name);
+      return res.send(sorted)
     }).catch(err => res.onError(err, 'Failed to get clients!'))
   });
 
@@ -519,7 +525,7 @@ module.exports = function (
       const may_not_change_target = target_permission.admin
         // || target_permission.user_can_see_all_vessels_client
         || target_permission.user_type == 'admin';
-      if (may_not_change_target) return res.onUnauthorized('Permissions for target user may be changed!')
+      if (may_not_change_target) return res.onUnauthorized('Permissions for admins may not be changed!')
 
       if (!await user_helper.getPermissionToManageUser(token, target_username)) return res.onUnauthorized();
       const target_user_id = await user_helper.getIdForUser(target_username).catch(err => {

@@ -3,7 +3,8 @@ var { Pool } = require('pg');
 const { validationResult, param } = require('express-validator');
 const { hydro } = require('./helper/connections');
 const helper = require('./helper/hydro')
-const env = require('./helper/env')
+const env = require('./helper/env');
+const { sortByStringField } = require('./helper/sort');
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
 // It turns out we only need to import the dotenv file for any calls to process.env in the initialization code,
@@ -46,7 +47,9 @@ module.exports = function(app, logger) {
           client_id: data.client_id
         }
       });
-      res.send(data_out)
+      const sorted = sortByStringField(data_out, c => c.nicename);
+      return res.send(sorted);
+      // res.send(data_out)
     }).catch(res.onError)
   });
 
