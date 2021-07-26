@@ -9,12 +9,13 @@ module.exports = {};
  */
 function sortByStringField(arr, map, toLowerCase=true) {
   let s1, s2;
+  if (!Array.isArray(arr)) return arr;
   return arr.sort((elt1, elt2) => {
     s1 = map(elt1);
     s2 = map(elt2);
     if (toLowerCase) {
-      s1 = s1.toLowerCase();
-      s2 = s2.toLowerCase();
+      s1 = s1?.toLowerCase();
+      s2 = s2?.toLowerCase();
     }
     if (s1 > s2) return 1;
     if (s1 < s2) return -1;

@@ -53,7 +53,8 @@ async function getVesselsForAdmin(token) {
     "vesselTable".nicename,
     "vesselTable"."client_ids",
     "vesselTable"."active",
-    "vesselTable"."operations_class"
+    "vesselTable"."operations_class",
+    "vesselTable"."vessel_id"
   FROM "vesselTable"`;
 
   vessels = await connections.admin.query(PgQuery).then(sql_response => {
@@ -84,15 +85,15 @@ async function getVesselsForAdmin(token) {
   return await connections.admin.query(PgQueryClients).then(sql_client_response => {
     let vesselList = [];
     vessels.forEach(vessel => {
-      const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
+      const clientsArray = sql_client_response.rows.find(element => element?.mmsi == vessel.mmsi);
       vesselList.push({
         mmsi: vessel.mmsi,
         nicename: vessel.nicename,
         client_ids: vessel.client_ids,
         active: vessel.active,
-        operationsClass: vessel.operations_class,
+        operationsClass: vessel.operationsClass,
         vessel_id: vessel.vessel_id,
-        client: clientsArray.array_agg,
+        client: clientsArray?.array_agg ?? [],
       });
     });
     return vesselList;
@@ -148,6 +149,7 @@ async function getAssignedVessels(user_id) {
   logger.debug('Getting assigned vessels')
   let PgQuery = `
   SELECT
+  "vesselTable"."vessel_id",
   "vesselTable"."mmsi",
   "vesselTable".nicename,
   "vesselTable"."client_ids",
