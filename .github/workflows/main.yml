@@ -5,8 +5,13 @@ name: Dataviewer
 on:
   # Triggers the workflow on push or pull request events but only for the Development branch
   push:
+    branches:
+      - Development
+      - master
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  #
+  pull_request:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -98,37 +103,37 @@ jobs:
   #     - name: Run unit tests for vm ctv
   #       run: npm run ng e2e -- --configuration vm-ctv
 
-  # build-prod:
-  #   runs-on: ubuntu-latest
+  build-prod:
+    runs-on: ubuntu-latest
 
-  #   timeout-minutes: 10
+    timeout-minutes: 10
 
-  #   strategy:
-  #     matrix:
-  #       node: [14.15.5]
+    strategy:
+      matrix:
+        node: [14.15.5]
 
-  #   needs: [test]
+    needs: [test]
 
-  #   steps:
-  #     - name: Use node@${{ matrix.node }}
-  #       uses: actions/setup-node@v2.1.4
-  #       with:
-  #         node-version: ${{ matrix.node }}
-  #         architecture: x64
+    steps:
+      - name: Use node@${{ matrix.node }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node }}
+          architecture: x64
 
-  #     - name: Checkout source code
-  #       uses: actions/checkout@v2
+      - name: Checkout source code
+        uses: actions/checkout@v2
 
-  #     - name: install node packages
-  #       run: npm install --production
+      - name: install node packages
+        run: npm install --production
 
-  #     - name: Add config file
-  #       run: |
-  #         echo ToDo: add relevant config files
+      - name: Add config file
+        run: |
+          echo ToDo: add relevant config files
 
-  #     - name: Run unit tests for vm ctv
-  #       run: npm run build-prod
-  #       # Ideally, we should use the build artefacts produced here in the deploy stage
+      - name: Run unit tests for vm ctv
+        run: npm run build-prod
+        # Ideally, we should use the build artefacts produced here in the deploy stage
 
 
   # Deploy: # We deploy the api code to azure functions but only if the earlier 2 tests are run without any errors.
