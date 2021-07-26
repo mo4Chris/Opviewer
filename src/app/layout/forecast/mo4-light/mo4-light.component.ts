@@ -160,6 +160,9 @@ export class Mo4LightComponent implements OnInit {
           Tp: param.Tp,
           waveDir: param.MeanDirection,
           wavePeakDir: param.PeakDirection,
+          windDir: raw_weather.Wind.Direction,
+          windGust: raw_weather.Wind.Gust,
+          windSpeed: raw_weather.Wind.Speed,
           source: provider
         }
         const spectral = raw_weather.Wave.Spectral

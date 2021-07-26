@@ -89,20 +89,20 @@ export class WeatherOverviewComponent implements OnInit, OnChanges {
       const elt = obj[key];
       if (key!='timeStamp' && Array.isArray(elt) && elt.some(e => (typeof(e) == 'number' && e>=0))) {
         valid.push(key);
-      } 
+      }
     });
     return valid;
   }
 
   private getAxisId(id: string) {
-    switch (id) {
-      case 'Hs': case 'Hmax':
+    switch (id.toLowerCase()) {
+      case 'hs': case 'hmax':
         return 'Hs'
-      case 'windDir': case 'waveDir': case'wavePeakDir': case 'direction':
+      case 'winddir': case 'wavedir': case'wavepeakdir': case 'direction':
         return 'waveDir'
-      case 'Tp': case 'Tz': case 'T0':
+      case 'tp': case 'tz': case 't0':
         return 'Tp';
-      case 'Wind': case 'WindSpeed': case 'WindAvg': case 'WindGust':
+      case 'wind': case 'windspeed': case 'windavg': case 'windgust':
         return 'Wind'
       default:
         // This may crash but is far more flexible
