@@ -111,7 +111,7 @@ function mockJsonWebToken(app, decoded_token) {
     rowCount: return_values.length,
     rows: return_values,
   }
-  spyOn(connections.admin, 'query').and.returnValue(
+  return spyOn(connections.admin, 'query').and.returnValue(
     Promise.resolve(sqlresponse)
   )
 }
@@ -137,7 +137,7 @@ function mockPostgressRequests(return_values = [[]]) {
     index++;
     return Promise.resolve(sqlresponse(input));
   }
-  spyOn(connections.admin, 'query').and.callFake(returnData)
+  return spyOn(connections.admin, 'query').and.callFake(returnData)
 }
 
 
@@ -150,13 +150,14 @@ function mockPostgressRequests(return_values = [[]]) {
 function mockTwoFactorAuthentication(valid = true) {
   let secret2faSpy = spyOn(twoFactor, 'verifyToken');
   if (valid) {secret2faSpy.and.returnValue(1)}
+  return secret2faSpy;
 }
 
 
 /**
  * Mocks the mailer, causing any uncaught mails not to trigger actual email but rather an error.
  *
- * @param {object} app
+ * @param {Function} callback
  * @api public {(mailOpts: object) => void}
  */
 function mockMailer(callback = UncaughtMailCallback) {

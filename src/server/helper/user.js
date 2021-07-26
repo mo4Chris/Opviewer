@@ -183,18 +183,18 @@ module.exports.getAssignedVessels = getAssignedVessels;
  * @returns {Promise<VesselListInstance[]>}
  */
 async function getAllVesselsForClientByUsername(token, username) {
-  const permission = token.permission;
-  const has_permission = permission.admin || permission.user_see_all_vessels_client;
+  const permission = token?.permission;
+  const has_permission = permission?.admin || permission?.user_see_all_vessels_client;
   if (!has_permission) throw new Error('Unauthorized user, not allowed to see all vessels');
-  let PgQueryClientID = `
-    SELECT "client_id"
-    FROM "userTable"
-    WHERE "username"= $1
-  `;
 
-  const clientIDValues = [username];
   let clientID = token.client_id;
   if (permission.admin) {
+    let PgQueryClientID = `
+      SELECT "client_id"
+      FROM "userTable"
+      WHERE "username"= $1
+    `;
+    const clientIDValues = [username];
     clientID = await connections.admin.query(PgQueryClientID, clientIDValues).then(sql_response => {
       if (sql_response.rowCount < 1) throw new Error('Client id not found!')
       return sql_response.rows[0].client_id;
@@ -250,7 +250,7 @@ async function createUser({
   if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
   logger.info(`Creating new user ${username}`)
-  const password_setup_token = generateRandomToken();
+  const password_setup_token = module.exports.generateRandomToken();
   const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
   const query = `INSERT INTO "userTable"(
     "username",
@@ -274,9 +274,9 @@ async function createUser({
 
   logger.info('New user has id ' + user_id)
   logger.debug('Init user permissions')
-  initUserPermission(user_id, user_type);
+  module.exports.initUserPermission(user_id, user_type);
   logger.debug('Init user settings')
-  initUserSettings(user_id);
+  module.exports.initUserSettings(user_id);
   return password_setup_token;
 }
 module.exports.createUser = createUser;
@@ -343,9 +343,9 @@ async function createDemoUser({
 
   logger.info('New user has id ' + user_id)
   logger.debug('Init user permissions')
-  initUserPermission(user_id, user_type, {demo: true});
+  module.exports.initUserPermission(user_id, user_type, {demo: true});
   logger.debug('Init user settings')
-  initUserSettings(user_id);
+  module.exports.initUserSettings(user_id);
   return;
 }
 module.exports.createDemoUser = createDemoUser;
@@ -354,8 +354,9 @@ module.exports.createDemoUser = createDemoUser;
 /**
  * Initializes user settings for a new user
  * @param {number} user_id
+ * @returns {Promise<void>}
  */
-function initUserSettings(user_id = 0) {
+async function initUserSettings(user_id = 0) {
   const localLogger = logger.child({
     user_id,
     function: "initUserSettings"
@@ -364,7 +365,7 @@ function initUserSettings(user_id = 0) {
   (user_id, timezone, unit, longterm, weather_chart, dpr)
   VALUES($1, $2, $3, $4, $5, $6)`;
   const values = [+user_id, {type: 'vessel'}, {speed: "knots"}, null, null, null];
-  connections.admin.query(text, values).then(() => {
+  return connections.admin.query(text, values).then(() => {
     localLogger.info('Created user settings')
   }).catch((err) => {
     localLogger.error(err.message)
@@ -377,8 +378,9 @@ module.exports.initUserSettings = initUserSettings;
  * @param {number} user_id
  * @param {string} user_type
  * @param {any} opt_permissions
+ * @returns {Promise<void>}
  */
-function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
+async function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
   const localLogger = logger.child({
     user_id,
     user_type,
@@ -453,7 +455,7 @@ function initUserPermission(user_id = 0, user_type, opt_permissions = {}) {
   const values = [user_id, permissions.admin, permissions.user_read, permissions.demo,
     permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
     permissions.user_type, permissions.forecast];
-  connections.admin.query(query, values).then(() => {
+  return connections.admin.query(query, values).then(() => {
     localLogger.info('Created user permissions')
   }).catch((err) => {
     localLogger.error(err)
@@ -474,10 +476,10 @@ async function getPermissionToManageUser(token, username='') {
     request_by: token.username,
     username: username
   })
-  const permission = token.permission;
+  const own_permission = token.permission;
   const own_client_id = token.client_id;
-  if (permission.admin) return true;
-  if (!permission.user_manage) return false;
+  if (own_permission.admin) return true;
+  if (!own_permission.user_manage) return false;
   const query = `SELECT client_id
     FROM "userTable"
     WHERE "userTable"."username"=$1 AND "userTable"."active"=true`
@@ -532,7 +534,7 @@ module.exports.generateRandomToken = generateRandomToken;
 /**
  * Return the ID belonging to a user
  * @param {string} username Username
- * @returns
+ * @returns {Promise<number>}
  */
 async function getIdForUser(username) {
   const userQuery = `SELECT "user_id" FROM userTable where "username"=$1`

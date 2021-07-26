@@ -16,7 +16,7 @@ let UserPermissions;
 
 
 /**
- * @type{'admin'}
+ * @type{string}
  */
 let UserType;
 
