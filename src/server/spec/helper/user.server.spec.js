@@ -308,7 +308,8 @@ describe('User helper', () => {
 
   it('should init user settings', async () => {
     mock.pgRequest([]).and.callFake((sql, values) => {
-      expect(values[0]).toEqual(100)
+      expect(values[0]).toEqual(100);
+      return Promise.resolve(null);
     });
     const promise = await helper.initUserSettings(100);
     expect(promise).toBeFalsy();
@@ -319,6 +320,7 @@ describe('User helper', () => {
     mock.pgRequest([]).and.callFake((sql, values) => {
       expect(values[0]).toEqual(100)
       expect(values[1]).toEqual(false) // admin permission
+      return Promise.resolve(null);
     });
     const promise = await helper.initUserPermission(100, 'demo');
     expect(promise).toBeFalsy();
