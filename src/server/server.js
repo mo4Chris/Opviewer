@@ -469,7 +469,10 @@ app.get("/api/getVessel", function(req, res) {
       if (err) return onError(res, err);
       const output = data.map(v => {
         const simple = simple_vessels.find(_v => _v.mmsi == v.mmsi);
-        v.active = simple.active;
+        v.active = simple?.active ?? false;
+        if (Array.isArray(simple?.client) && simple.client.length > 0) {
+          v.client = simple.client
+        }
         return v;
       });
       res.send(output)

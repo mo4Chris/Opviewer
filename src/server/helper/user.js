@@ -17,7 +17,7 @@ module.exports = {};
  *  active: boolean,
  *  operationsClass: string,
  *  client_ids: number[]
- *  client: any[];
+ *  client: string[];
  * }}
  */
 let VesselListInstance;
