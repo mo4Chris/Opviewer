@@ -172,7 +172,8 @@ module.exports = function(app, logger) {
         return {
           nicename: d.nicename,
           lon: d.longitude,
-          lat: d.latitude
+          lat: d.latitude,
+          id: d.id
         }
       })
       res.send(project_output)

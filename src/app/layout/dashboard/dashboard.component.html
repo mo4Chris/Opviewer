@@ -26,6 +26,21 @@ Timestamp: {{location.TIMESTAMP.toString().replace('T', ' ') }} UTC<br>
                         </agm-info-window>
                     </agm-marker>
                 </ng-container>
+
+                <ng-container *ngFor="let location of forecastLocationData; let i=index" >
+                    <agm-marker [latitude]="location.lat" [longitude]="location.lon" (mouseOver)="onMouseOver(infoWindow, gm)" [iconUrl]="mapService.iconForecastLocation" [zIndex]=500>
+                        <agm-info-window #infoWindow [disableAutoPan]="true">
+<pre>
+Project name: {{location.nicename}}
+Project lat:  {{location.lat}}
+Project lon:  {{location.lon}}
+
+<button class="btn btn-sm btn-default" (click)="redirectToForecasting(location.id)" type="button">Go to Forecasting</button></pre>
+                        </agm-info-window>
+                    </agm-marker>
+                </ng-container>
+
+                
             </agm-marker-cluster >
         </agm-map>
         <div id="mapLegendID" class="mapLegend">
