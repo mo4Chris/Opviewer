@@ -42,6 +42,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
   locationData: AisMarkerModel[];
   forecastLocationData: ForecastMarkerModel[];
+  forecastLocationIcon = GmapService.iconForecastLocation;
 
   // Map settings
   googleMap: google.maps.Map;
