@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   plotForecastLocations(forecastLocations: Observable<{nicename: string, lon: number, lat: number, id: number}[]>, minZoom = 5, maxZoom = 30) {
     forecastLocations.subscribe(_locs => this.forecastLocationData = _locs);
   }
-  
+
 
   setZoominfo(zoominfo: ZoomInfo): void {
     this.zoominfo = zoominfo;

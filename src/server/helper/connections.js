@@ -33,7 +33,6 @@ mongo.connect(env.DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, function(err, response) {
-  console.log('err', err)
   if (err) return logger.fatal(err);
   logger.info('Connected to mongo database');
 })
