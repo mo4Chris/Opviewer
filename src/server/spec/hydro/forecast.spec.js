@@ -195,7 +195,8 @@ module.exports = (app, GET, POST, PUT) => {
       expect(locs[0]).toEqual({
         nicename: CLIENT_PROJECT_1.display_name,
         lon: CLIENT_PROJECT_1.longitude,
-        lat: CLIENT_PROJECT_1.latitude
+        lat: CLIENT_PROJECT_1.latitude,
+        id:  CLIENT_PROJECT_1.id
       })
     })
     it('should save project settings', () => {

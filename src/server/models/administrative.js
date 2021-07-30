@@ -1,6 +1,6 @@
 const {Schema, ParamSchema} = require('express-validator')
 
-const USER_TYPE_OPTIONS = ['demo', 'Vessel master', 'Logistic specialist', 'Marine controller', 'admin',
+const USER_TYPE_OPTIONS = ['demo', 'Vessel master', 'Logistics specialist', 'Marine controller', 'admin',
   'Client representative', 'Qhse specialist']
 
 

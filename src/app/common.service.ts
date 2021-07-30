@@ -386,7 +386,7 @@ export class CommonService {
   getHarbourLocations() {
     return this.get('/api/getHarbourLocations/');
   }
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string, id: number}[]> {
     return this.get('/api/forecastProjectLocations')
   }
   getLatestBoatLocation(): Observable<AisMarkerModel[]> {

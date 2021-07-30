@@ -168,11 +168,13 @@ module.exports = function(app, logger) {
     logger.debug('Getting project forecast locations')
     const token = req['token'];
     helper.getProjectList(token).then(data => {
-      const project_output = data.map(d => {
+      const active = data.filter(p => p.active);
+      const project_output = active.map(d => {
         return {
           nicename: d.nicename,
           lon: d.longitude,
-          lat: d.latitude
+          lat: d.latitude,
+          id: d.id
         }
       })
       res.send(project_output)

@@ -16,6 +16,8 @@ import { GmapService } from '@app/supportModules/gmap.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
+import { Observable } from 'rxjs';
+import { MapZoomData, MapZoomLayer } from '@app/models/mapZoomLayer';
 
 
 @Component({
@@ -39,6 +41,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
   ) { }
   locationData: AisMarkerModel[];
+  forecastLocationData: ForecastMarkerModel[];
+  forecastLocationIcon = GmapService.iconForecastLocation;
 
   // Map settings
   googleMap: google.maps.Map;
@@ -96,6 +100,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  plotForecastLocations(forecastLocations: Observable<{nicename: string, lon: number, lat: number, id: number}[]>, minZoom = 5, maxZoom = 30) {
+    forecastLocations.subscribe(_locs => this.forecastLocationData = _locs);
+  }
+
 
   setZoominfo(zoominfo: ZoomInfo): void {
     this.zoominfo = zoominfo;
@@ -174,7 +183,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Drawing the forecast locations
     if (this.permission.forecastRead) {
       const forecastLocations = this.commonService.getForecastProjectLocations();
-      this.mapService.plotForecastLocations(this.googleMap, forecastLocations)
+      this.plotForecastLocations(forecastLocations)
     }
   }
 
@@ -241,6 +250,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.routerService.routeToDPR({ mmsi: mmsi });
   }
 
+  redirectToForecasting(id: number) {
+    this.eventService.closeLatestAgmInfoWindow();
+    this.routerService.routeToForecast(id);
+  }
+
   getAlert() {
     this.route.params.subscribe(params => {
       this.alert.type = params.status;
@@ -256,6 +270,13 @@ export interface AisMarkerModel {
   LAT: number;
   vesselInformation: any[];
   markerIcon: mapMarkerIcon;
+}
+
+export interface ForecastMarkerModel {
+  nicename: string;
+  lat: number;
+  lon: number;
+  id: number;
 }
 
 interface ClusterStyle {

@@ -691,11 +691,12 @@ export class MockedCommonService extends CommonService {
       lat: [1]
     }]);
   }
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string, id: number}[]> {
     return mockedObservable([{
-      nicename: 'Test harbour',
       lon: 50,
-      lat: 1
+      lat: 1,
+      nicename: 'Test harbour',
+      id: 13
     }]);
   }
 
