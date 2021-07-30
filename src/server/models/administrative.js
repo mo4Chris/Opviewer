@@ -1,5 +1,9 @@
 const {Schema, ParamSchema} = require('express-validator')
 
+const USER_TYPE_OPTIONS = ['demo', 'Vessel master', 'Logistics specialist', 'Marine controller', 'admin',
+  'Client representative', 'Qhse specialist']
+
+
 /** @type{ParamSchema} */
 const passwordValidator = {
   errorMessage: 'Invalid password!',
@@ -56,9 +60,8 @@ const createDemoUserModel = {
     isBoolean: true
   },
   user_type: {
-    optional: true,
     equals: {
-      options: ['demo']
+      options: 'demo'
     }
   },
   vessel_ids: {
@@ -86,6 +89,10 @@ const createUserModel = {
       options: {
         min: 5
       }
+    },
+    matches: {
+      errorMessage: 'Not a valid email',
+      options: /\w@\w/,
     }
   },
   requires2fa: {
@@ -93,8 +100,10 @@ const createUserModel = {
   },
   user_type: {
     optional: true,
-    equals: {
-      options: ['demo']
+    custom: {
+      options: (value) => {
+        return USER_TYPE_OPTIONS.includes(value)
+      },
     }
   },
   vessel_ids: {
@@ -183,16 +192,14 @@ const updateUserPermissionsModel = {
   permission: {
     isObject: true,
   },
-  userCompany: {
+  username: {
     isString: true,
-  },
-  boats: {
-    isArray: true,
   }
 }
 
 
 module.exports = {
+  USER_TYPE_OPTIONS,
   setPasswordModel,
   createUserModel,
   createDemoUserModel,

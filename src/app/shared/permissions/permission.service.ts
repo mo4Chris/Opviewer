@@ -127,6 +127,8 @@ function setPermissionFromToken(base: PermissionModel, permission: UserPermissio
   if (permission?.user_manage != null) base.userManage = permission?.user_manage;
   if (permission?.user_manage != null) base.userCreate = permission?.user_manage;
 
+  if (permission?.dpr?.read != null ) base.dprRead = permission.dpr.read;
+
   return base;
 }
 
@@ -164,18 +166,18 @@ class VesselMaster extends PermissionModel {
 
 class DemoUser extends PermissionModel {
   demo = true;
+  dprRead = false;
+
+  forecastRead = true;
+  forecastCreateProject = true;
+  forecastChangeLimits = true;
 }
 
 class MarineController extends PermissionModel {
-  sovCommercialWrite = true;
-  sovDprInputWrite = true;
-  sovDprInputSign = true;
-  sovHseWrite = true;
   longterm = true;
   userRead = true;
 
   sovWaveSpectrum = true;
-  ctvVideoRequest = true;
 }
 
 class LogisticSpecialist extends PermissionModel {

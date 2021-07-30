@@ -14,6 +14,7 @@ export class SettingsService {
   unit_weight: weightOptions = 'ton';
   unit_latlng: GpsOptions = 'DMS';
   LongtermFilterFailedTransfers = false;
+  dpr_map_drawExclusionZone = 0;
 
   // Some session settings - these are not saved across sessions
   weatherChartHidden = {
@@ -98,7 +99,7 @@ export class SettingsService {
     } else {
       switch (timezone) {
         case 'vessel':
-          return +vesselOffsetHours || 0;
+          return Math.round(+vesselOffsetHours) || 0;
         case 'own':
           return +this.localTimeZoneOffset;
         case 'utc':
@@ -124,12 +125,14 @@ export class SettingsService {
       this.initSetting('Timezone', settings?.timezone?.type)
       this.initSetting('fixedTimeZoneOffset', settings?.timezone?.fixedTimeZoneOffset);
       this.initSetting('fixedTimeZoneLoc', settings?.timezone?.fixedTimeZoneLoc)
+
       this.initSetting('unit_distance', settings?.unit?.distance)
       this.initSetting('unit_speed', settings?.unit?.speed)
       this.initSetting('unit_weight', settings?.unit?.weight)
       this.initSetting('unit_gps', settings?.unit?.gps)
       this.initSetting('weatherChartHidden', settings?.weather_chart)
       this.initSetting('LongtermFilterFailedTransfers', settings?.longterm?.filterFailedTransfers)
+      this.initSetting('dpr_map_drawExclusionZone', settings?.dpr?.map?.drawExclusionZone)
     });
   }
 
@@ -157,7 +160,11 @@ export class SettingsService {
         filterFailedTransfers: this.LongtermFilterFailedTransfers
       },
       weather_chart: this.weatherChartHidden,
-      dpr: null,
+      dpr: {
+        map: {
+          drawExclusionZone: this.dpr_map_drawExclusionZone
+        }
+      },
     }).subscribe(data => {
       this.alert.sendAlert({
         text: 'Saved user settings',

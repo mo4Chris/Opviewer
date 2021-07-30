@@ -61,12 +61,12 @@ module.exports = (app, GET, POST) => {
 
 
 
-  describe('Logistic specialist should', () => {
+  describe('Logistics specialist should', () => {
     const username = 'Test logistics specialist';
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,
@@ -104,6 +104,21 @@ module.exports = (app, GET, POST) => {
       const response = GET('/api/getUsers')
       await response.expect(expectValidRequest)
     })
+
+    it('get a vessel list', async () => {
+      mock.pgRequest([{
+        vesselname: 'ABBA',
+        client_id: 1,
+      }])
+      const response = GET('/api/vesselList')
+      await response.expect(expectValidRequest)
+    })
+
+    it('not get a client list', async () => {
+      mock.pgRequest([{active: true}]);
+      const response = GET('/api/getClients')
+      await response.expect(expectUnAuthRequest)
+    })
   })
 
 
@@ -113,7 +128,7 @@ module.exports = (app, GET, POST) => {
     const company = 'BMO';
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,

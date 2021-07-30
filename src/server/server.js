@@ -2,16 +2,14 @@ var express = require('express');
 var jwt = require("jsonwebtoken");
 var nodemailer = require('nodemailer');
 var pino = require('pino');
+var env = require('./helper/env')
 
-var mo4lightServer = require('./mo4light.server.js')
-var fileUploadServer = require('./file-upload.server.js')
-var mo4AdminServer = require('./administrative.server.js')
-var mo4AdminPostLoginServer = require('./admin.postlogin.server.js')
+var mo4lightServer = require('./mo4light.server.js');
+var fileUploadServer = require('./file-upload.server.js');
+var mo4AdminServer = require('./administrative.server.js');
+var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
 
-var mongo = require("mongoose");
-var { Pool } = require('pg')
-require('dotenv').config({ path: __dirname + '/./../.env' });
-var args = require('minimist')(process.argv.slice(2));
+var {mongo} = require("./helper/connections");
 var ctv = require('./models/ctv.js')
 var sov = require('./models/sov.js')
 var geo = require('./models/geo.js')
@@ -20,41 +18,17 @@ var videoRequests = require('./models/video_requests.js')
 var weather = require('./models/weather.js');
 const { default: axios } = require('axios');
 
-//#########################################################
-//########## These can be configured via stdin ############
-//#########################################################
-const SERVER_ADDRESS  = args.SERVER_ADDRESS ?? process.env.IP_USER?.split(",")?.[0] ?? 'bmodataviewer.com';
-const WEBMASTER_MAIL  = args.EMAIL          ?? process.env.EMAIL                    ?? 'webmaster@mo4.online';
-const SERVER_PORT     = args.SERVER_PORT    ?? process.env.SERVER_PORT              ?? 8080;
-const DB_CONN         = args.DB_CONN        ?? process.env.DB_CONN;
-const LOGGING_LEVEL   = args.LOGGING_LEVEL  ?? process.env.LOGGING_LEVEL            ?? 'debug'
+const user_helper = require('./helper/user');
 
-
-//#########################################################
-//############ Saving values to process env  ##############
-//#########################################################
-process.env.SERVER_ADDRESS = SERVER_ADDRESS;
-process.env.WEBMASTER_MAIL = WEBMASTER_MAIL;
-process.env.SERVER_PORT = SERVER_PORT;
-process.env.DB_CONN = DB_CONN;
-process.env.LOGGING_LEVEL = LOGGING_LEVEL;
-
+const connections = require('./helper/connections')
 
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
+
 var app = express();
 
-var logger = pino({level: LOGGING_LEVEL})
-
-mongo.set('useFindAndModify', false);
-var db = mongo.connect(DB_CONN, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}, function(err, response) {
-  if (err) return logger.fatal(err);
-  logger.info('Connected to mongo database');
-})
+var logger = pino({level: env.LOGGING_LEVEL})
 
 var app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -68,6 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
   const allowedOrigins = process.env.IP_USER;
+  if (allowedOrigins == null || allowedOrigins == '') throw new Error('Missing allowed origins: IP_USER is not defined!')
   const origin = req.headers.origin;
   const hasMultipleOrigins = allowedOrigins.indexOf(origin) > -1;
   if (hasMultipleOrigins) res.setHeader('Access-Control-Allow-Origin', origin);
@@ -78,35 +53,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-let transporter = nodemailer.createTransport({
-  // @ts-ignore
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: (+process.env.EMAIL_PORT == 465),
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
 const SECURE_METHODS = ['GET', 'POST', 'PUT', 'PATCH']
-const admin_server_pool = new Pool({
-  host: process.env.ADMIN_DB_HOST,
-  port: +process.env.ADMIN_DB_PORT,
-  database: process.env.ADMIN_DB_DATABASE,
-  user: process.env.ADMIN_DB_USER,
-  password: process.env.ADMIN_DB_PASSWORD,
-  ssl: false
-})
-
-admin_server_pool.connect().then(() => {
-  logger.info(`Connected to admin database at host ${process.env.ADMIN_DB_HOST}`)
-}).catch(err => {
-  return logger.fatal(err, "Failed initial connection to admin db!")
-})
-admin_server_pool.on('error', (err) => {
-  logger.fatal(err, 'Unexpected error in connection with admin database!')
-})
 
 
 //#########################################################
@@ -179,7 +126,11 @@ function onError(res, raw_error, additionalInfo = 'Internal server error') {
   const err_keys = typeof(raw_error)=='object' ? Object.keys(raw_error) : [];
   let err = {};
   try {
-    if (typeof(raw_error) == 'string') {
+    if (raw_error instanceof Error) {
+      err.message = raw_error.message;
+      err.name = raw_error.name;
+      err.stack = raw_error.stack;
+    } else if (typeof(raw_error) == 'string') {
       logger.debug('Got text error: ', raw_error)
       err.message = raw_error;
     } else if (axios.isAxiosError(raw_error)) {
@@ -262,7 +213,7 @@ function _verifyToken(req, res) {
     if(typeof(payload?.['userID']) !== 'number') return onOutdatedToken(res, payload)
 
     const lastActive = new Date()
-    admin_server_pool.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
+    connections.admin.query(`UPDATE "userTable" SET "last_active"=$1 WHERE user_id=$2`, [
       lastActive,
       payload['userID']
     ])
@@ -275,7 +226,7 @@ function _verifyToken(req, res) {
 /**
  * Verifies whether or not a user has permission to view data based on mmsi
  *
- * @param {Request} req Request
+ * @param {any} req Request
  * @param {Response} res
  * @param {(tf) => void} callback
  * @returns {void};
@@ -299,7 +250,7 @@ function validatePermissionToViewVesselData(req, res, callback) {
   where $1=ANY(v."client_ids")
   `
   logger.debug('Getting client vessels from admin db')
-  admin_server_pool.query(query, [client_id]).then(sqlresponse => {
+  connections.admin.query(query, [client_id]).then(sqlresponse => {
     logger.trace('Got sql response!')
     const client_vessel_mmsi = sqlresponse.rows.map(r => r.mmsi);
     const mmsi_in_token = checkPermission(client_vessel_mmsi);
@@ -330,14 +281,14 @@ function mailTo(subject, html, user) {
   const mailOptions = {
     from: '"MO4 Dataviewer" <no-reply@mo4.online>', // sender address
     to: user, //'bar@example.com, baz@example.com' list of receivers
-    bcc: WEBMASTER_MAIL, //'bar@example.com, baz@example.com' list of bcc receivers
+    bcc: env.WEBMASTER_MAIL, //'bar@example.com, baz@example.com' list of bcc receivers
     subject: subject, //'Hello ✔' Subject line
     html: body //'<b>Hello world?</b>' html body
   };
 
   // send mail with defined transport object
   maillogger.info('Sending email')
-  transporter.sendMail(mailOptions, (error, info) => {
+  connections.mailer.sendMail(mailOptions, (error, info) => {
     if (error) return maillogger.error(error);
     maillogger.info('Message sent with id: %s', info.messageId);
   });
@@ -372,7 +323,7 @@ app.use((req, res, next) => {
   next();
 })
 
-mo4AdminServer(app, logger, admin_server_pool, mailTo)
+mo4AdminServer(app, logger, mailTo)
 
 // ################### APPLICATION MIDDLEWARE ###################
 // #### Every method below this block requires a valid token ####
@@ -381,9 +332,9 @@ app.use(verifyToken)
 
 app.use(verifyDemoAccount);
 
-mo4lightServer(app, logger, admin_server_pool)
+mo4lightServer(app, logger)
 fileUploadServer(app, logger)
-mo4AdminPostLoginServer(app, logger, onError, onUnauthorized, admin_server_pool, mailTo)
+mo4AdminPostLoginServer(app, logger, mailTo)
 
 
 //####################################################################
@@ -507,103 +458,37 @@ app.post("/api/getCommentsForVessel", function(req, res) {
 });
 
 app.get("/api/getVessel", function(req, res) {
-  getVesselsForUser(req, res).then(response => {
-    res.send(response)
-  }
-    ).catch(err => onError(res,err));
+  const token = req['token'];
+  user_helper.getVesselsForUser(token).then(simple_vessels => {
+    const mmsi_list = simple_vessels.map(v => v.mmsi);
+    Vesselmodel.find({
+      mmsi: {
+        $in : mmsi_list
+      }
+    }, (err, data) => {
+      if (err) return onError(res, err);
+      const output = data.map(v => {
+        const simple = simple_vessels.find(_v => _v.mmsi == v.mmsi);
+        v.active = simple?.active ?? false;
+        if (Array.isArray(simple?.client) && simple.client.length > 0) {
+          v.client = simple.client
+        }
+        return v;
+      });
+      res.send(output)
+    })
+  }).catch(err => onError(res, err));
 });
 
-
-async function getVesselsForUser (req, res) {
-  const token = req['token'];
-
-  if (token.permission.admin) return await getVesselsForAdmin(token, res);
-  if (token.permission.user_see_all_vessels_client) return await getAllVesselsForClient(token, res);
-  return await getAssignedVessels(token, res);
-}
-
-async function getVesselsForAdmin(token, res) {
-  if (!token.permission.admin) throw new Error('Unauthorized user, Admin only');
-  let vessels = [];
-  let PgQuery = `
-  SELECT
-    "vesselTable"."mmsi",
-    "vesselTable".nicename,
-    "vesselTable"."client_ids",
-    "vesselTable"."active",
-    "vesselTable"."operations_class"
-  FROM "vesselTable"`;
-
-  vessels = await admin_server_pool.query(PgQuery).then(sql_response => {
-    const response =  sql_response.rows;
-    return response;
-  });
-
-  const PgQueryClients = `select  u."mmsi", array_agg(c."client_name")
-  from (
-    select "vesselTable"."mmsi" mmsi, unnest("vesselTable"."client_ids") id
-    from "vesselTable"
-  ) u
-  join "clientTable" c on c."client_id" = u.id
-  group by 1`
-
-  return await admin_server_pool.query(PgQueryClients).then(sql_client_response => {
-    let vesselList = [];
-    vessels.forEach(vessel => {
-      const clientsArray = sql_client_response.rows.find(element => element.mmsi == vessel.mmsi);
-      vessel.client = clientsArray.array_agg;
-      vesselList.push(vessel);
-    });
-    return vesselList;
-  });
-}
-
-async function getAllVesselsForClient(token, res) {
-  if (!token.permission.user_see_all_vessels_client)  throw new Error('Unauthorized user, not allowed to see all vessels');
-  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
-  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
-
-  let PgQuery = `
-  SELECT
-    "vesselTable"."mmsi",
-    "vesselTable".nicename,
-    "vesselTable"."client_ids",
-    "vesselTable"."active",
-    "vesselTable"."operations_class"
-  FROM "vesselTable"
-  WHERE $1=ANY("vesselTable"."client_ids")`;
-
-  const values = [token.client_id];
-
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
-    return sql_response.rows;
-  });
-}
-
-async function getAssignedVessels(token, res) {
-  logger.debug('Getting assigned vessels')
-  let PgQuery = `
-  SELECT "vesselTable"."mmsi",
-  "vesselTable"."mmsi",
-  "vesselTable".nicename,
-  "vesselTable"."client_ids",
-  "vesselTable"."active",
-  "vesselTable"."operations_class"
-    FROM "vesselTable"
-    INNER JOIN "userTable"
-    ON "vesselTable"."vessel_id"=ANY("userTable"."vessel_ids")
-    WHERE "userTable"."user_id"=$1`;
-  const values = [token.userID]
-  const sql_response = await admin_server_pool.query(PgQuery, values);
-  return sql_response.rows;
-}
 
 app.get("/api/getVesselsForClientByUser/:username", function(req, res) {
   const username = req.params.username;
-  getAllVesselsForClientByUsername(req, res, username).then(response => {
+  const token = req['token'];
+  user_helper.getAllVesselsForClientByUsername(token, username).then(response => {
     res.send(response)
   }).catch(err => onError(res,err));
 });
+
 
 app.post("/api/getVesselNameAndIDById", function(req, res) {
   const vessel_ids = req.body.vessel_ids;
@@ -612,43 +497,10 @@ app.post("/api/getVesselNameAndIDById", function(req, res) {
   WHERE "vesselTable"."vessel_id" =ANY($1)`;
   const values = [vessel_ids];
 
-  admin_server_pool.query(PgQuery, values).then(sql_response => {
+  connections.admin.query(PgQuery, values).then(sql_response => {
     res.send(sql_response.rows);
   });
 });
-
-async function getAllVesselsForClientByUsername(req, res, username) {
-  const token = req['token'];
-
-  if (!token.permission.user_see_all_vessels_client) throw new Error('Unauthorized user, not allowed to see all vessels');
-  //temporarily change MO4 to BMO since the values in the MongoDB still show BMO
-  if (token.userCompany == 'MO4') token.userCompany = 'BMO'
-
-  let PgQueryClientID = `
-    SELECT "client_id"
-    FROM "userTable"
-    WHERE "username"= $1
-  `;
-
-  const clientIDValues = [username];
-  const clientID = await admin_server_pool.query(PgQueryClientID, clientIDValues).then(sql_response => {
-    return sql_response.rows[0].client_id;
-  });
-
-  let PgQuery = `
-  SELECT
-    "vesselTable"."mmsi",
-    "vesselTable".nicename,
-    "vesselTable"."vessel_id",
-    "vesselTable"."active",
-    "vesselTable"."operations_class"
-  FROM "vesselTable"
-  WHERE $1=ANY("vesselTable"."client_ids")`;
-  const values = [clientID];
-  return admin_server_pool.query(PgQuery, values).then(sql_response => {
-    return sql_response.rows;
-  });
-}
 
 app.get("/api/getHarbourLocations", function(req, res) {
   geo.HarbourModel.find({
@@ -872,10 +724,11 @@ app.get("/api/getParkByNiceName/:parkName", function(req, res) {
 });
 
 app.get("/api/getLatestBoatLocation/", async function(req, res) {
-  const uservessels = await getVesselsForUser(req);
+  const token = req['token'];
+  const uservessels = await user_helper.getVesselsForUser(token);
   if (!Array.isArray(uservessels)) return null;
 
-  const companyMmsi = uservessels.map(v => v['mmsi'])
+  const companyMmsi = uservessels.map(v => v.mmsi)
   geo.VesselLocationModel.aggregate([{
       "$match": {
         MMSI: { $in: companyMmsi },
@@ -1317,7 +1170,7 @@ app.post("/api/saveDprSigningSkipper", function(req, res) {
     let _body = 'The dpr for vessel ' + vesselname + ', ' + dateString +
       ' has been signed off by the skipper. Please review the dpr and sign off if in agreement!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date
       // ToDo: set proper recipient
     let title = 'DPR signoff for ' + vesselname + ' ' + dateString;
     let recipient = [];
@@ -1353,7 +1206,7 @@ app.post("/api/declineDprClient", function(req, res) {
   let mmsi = req.body.mmsi;
   let date = req.body.date;
   let title = '';
-  let recipient = WEBMASTER_MAIL;
+  let recipient = env.WEBMASTER_MAIL;
   let vesselname = req.body.vesselName || '<invalid vessel name>';
   let dateString = req.body.dateString || '<invalid date>';
   validatePermissionToViewVesselData(req, res, function(validated) {
@@ -1380,7 +1233,7 @@ app.post("/api/declineDprClient", function(req, res) {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
 
-        recipient = WEBMASTER_MAIL;
+        recipient = env.WEBMASTER_MAIL;
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -1391,7 +1244,7 @@ app.post("/api/declineDprClient", function(req, res) {
     const _body = 'The dpr for vessel ' + vesselname + ',' + dateString +
       ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
       '<br><br>Feedback from client:<br>' + req.body.feedback;
     // ToDo: set proper recipient
     setTimeout(function() {
@@ -1430,7 +1283,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     }, {}, (err, data) => {
       if (err || data.length === 0) {
         if (err) return onError(res, err);
-        recipient = [WEBMASTER_MAIL]
+        recipient = [env.WEBMASTER_MAIL]
         title = 'Failed to deliver: skipper not found!'
       } else {
         recipient = data.signedOff.signedOffSkipper
@@ -1441,7 +1294,7 @@ app.post("/api/declineHseDprClient", function(req, res) {
     const _body = 'The HSE DPR for vessel ' + vesselname + ', ' + dateString +
       ' has been refused by client. Please correct the dpr accordingly and sign off again!<br><br>' +
       'Link to the relevant report:<br>' +
-      SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
+      env.SERVER_ADDRESS + '/reports/dpr;mmsi=' + mmsi + ';date=' + date +
       '<br><br>Feedback from client:<br>' + req.body.feedback;
     // ToDo: set proper recipient
     setTimeout(function() {
@@ -1771,6 +1624,10 @@ app.post("/api/getTurbineTransfersForVesselByRangeForSOV", function(req, res) {
 
 app.post("/api/getPlatformTransfersForVesselByRangeForSOV", function(req, res) {
   aggregateStatsOverModel(sov.SovPlatformTransfersModel, req, res, { date: 'arrivalTimePlatform' });
+});
+
+app.post("/api/getGeneralForVesselByRangeForSOV", function(req, res) {
+  aggregateStatsOverModel(sov.SovGeneralModel, req, res);
 });
 
 app.post("/api/getVessel2vesselsByRangeForSov", function(req, res) {
@@ -2305,7 +2162,7 @@ app.post("/api/saveFleetRequest", function(req, res) {
       "Limit Hs: " + request.limitHs + " <br>" +
       "Username: " + request.user + " <br>" +
       "Request time: " + requestTime.toISOString().slice(0, 10);
-    mailTo('Campaign requested', html, WEBMASTER_MAIL);
+    mailTo('Campaign requested', html, env.WEBMASTER_MAIL);
     return res.send({ data: 'Request succesfully made' });
   });
 });
@@ -2409,8 +2266,8 @@ app.get('/api/getLatestTwaUpdate/', function(req, res) {
   }
 })
 
-app.listen(SERVER_PORT, function() {
-  logger.info(`MO4 Dataviewer listening on port ${SERVER_PORT}!`);
+app.listen(env.SERVER_PORT, function() {
+  logger.info(`MO4 Dataviewer listening on port ${env.SERVER_PORT}!`);
 });
 
 
@@ -2498,7 +2355,7 @@ function verifyDemoAccount(req, res, next) {
     where u."user_id"=$1`;
   const values = [token.userID]
 
-  admin_server_pool.query(query, values).then(sql_response => {
+  connections.admin.query(query, values).then(sql_response => {
     const data = sql_response.rows[0];
     let currentDate = new Date();
     if(!data.active) return onOutdatedToken(res, 'Your account is inactive');
@@ -2511,14 +2368,14 @@ function verifyDemoAccount(req, res, next) {
     const user_type = data.user_type;
     if (user_type == 'demo'){
       const setUserInactiveQuery = 'UPDATE "userTable" SET "active"=false where "user_id"=$1';
-      admin_server_pool.query(setUserInactiveQuery, values).catch(res.onError);
+      connections.admin.query(setUserInactiveQuery, values).catch(res.onError);
       return onUnauthorized(res, 'Demo account expired!');
     } else {
       const setDemoToFalseQuery = `UPDATE "userPermissionTable"
         SET "demo"=false
             "demo_expiration_date"=null
         WHERE "user_id"=$1`;
-      admin_server_pool.query(setDemoToFalseQuery, values).catch(res.onError);
+      connections.admin.query(setDemoToFalseQuery, values).catch(res.onError);
       res.send(data);
     }
   }).catch(err => res.onError(err, 'Error querying admin DB'))

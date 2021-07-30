@@ -94,7 +94,7 @@ describe('Mo4LightComponent', () => {
       component['route'].params = mockedObservable({project_id: '3'});
       fixture.detectChanges()
       await fixture.whenStable();
-      expect(updateSpy1).not.toHaveBeenCalled();
+      expect(updateSpy1).toHaveBeenCalled();
       expect(updateSpy4).not.toHaveBeenCalled();
       // expect(updateSpy2).not.toHaveBeenCalled();
       // expect(updateSpy3).toHaveBeenCalled(); // TEMP DISABLED - apr21
@@ -119,9 +119,6 @@ describe('Mo4LightComponent', () => {
   describe('after init', () => {
     beforeEach(() => {
       component['route'].params = mockedObservable({project_id: '1'});
-      spyOn(ForecastResponseService.prototype, 'setLimitsFromOpsPreference').and.returnValue([
-        new ForecastMotionLimit({Type: 'Disp', Dof: 'Heave', Value: 15, Unit: 'cm'})
-      ]);
       fixture.detectChanges();
     });
 
@@ -148,8 +145,10 @@ describe('Mo4LightComponent', () => {
     });
 
     it('should set and update heading', () => {
+      expect(component.headingLine.Value).not.toEqual(100);
       component.selectedHeading = 100;
       expect(component).toBeTruthy();
+      expect(component.headingLine.Value).toEqual(100);
     });
 
     it('should update on change project configuration', () => {
@@ -167,6 +166,22 @@ describe('Mo4LightComponent', () => {
       expect(component.weather).toBeTruthy();
       expect(component.spectrum).toBeTruthy();
     });
+
+    it('should register projectSettingsChanged', () => {
+      const op = component.operations[0];
+      component.responseObj.latitude = op.latitude;
+      component.responseObj.longitude = op.longitude;
+      component.responseObj.response.Points_Of_Interest.P1.Project_Settings.water_depth = op.water_depth;
+
+      expect(component.projectSettingsChanged).toBe(false);
+      component.responseObj.latitude += 1;
+      expect(component.projectSettingsChanged).toBe(true);
+    })
+
+    it('should register projectSettingsChanged before first forecast', () => {
+      component.responseObj = null
+      expect(component.projectSettingsChanged).toBe(false);
+    })
 
     it('should correctly determine if the project is no longer active', () => {
       component.operations = [{

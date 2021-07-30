@@ -8,8 +8,8 @@ export class VesselModel {
     vesselname: string;
     nicename: string;
     mmsi: number;
-    onHire: boolean;
-
+    onHire?: boolean;
+    active?: boolean;
     operationsClass: VesselOperationsClass;
     vessel_length: number;
     displacement: number;

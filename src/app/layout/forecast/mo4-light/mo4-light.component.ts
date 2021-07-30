@@ -99,7 +99,6 @@ export class Mo4LightComponent implements OnInit {
   }
 
   public get projectSettingsChanged(): Boolean {
-
     const settings = this?.responseObj?.response?.Points_Of_Interest?.P1?.Project_Settings;
     const op = this.operations?.find(p => p?.id == this.responseObj?.id)
     const valid = Boolean(settings) && Boolean(op)
@@ -161,6 +160,9 @@ export class Mo4LightComponent implements OnInit {
           Tp: param.Tp,
           waveDir: param.MeanDirection,
           wavePeakDir: param.PeakDirection,
+          windDir: raw_weather?.Wind?.Direction,
+          windGust: raw_weather?.Wind?.Gust,
+          windSpeed: raw_weather?.Wind?.Speed,
           source: provider
         }
         const spectral = raw_weather.Wave.Spectral
@@ -208,14 +210,14 @@ export class Mo4LightComponent implements OnInit {
   }
   parseCtvSlipResponse() {
     const POI = this.responseObj?.response?.Points_Of_Interest?.P1;
-    if (! POI?.SlipResponse) return;
+    if (! POI?.SlipResponse?.ProbabilityWindowNoSlip) return;
     const slip = POI.SlipResponse;
 
     this.SlipCoefficients = slip.Friction_Coeff_Range;
     this.SlipThrustLevels = slip.Thrust_Range;
 
     this.SlipProbability = slip.ProbabilityWindowNoSlip.map(
-      _s => _s.map(__s => __s[this.selectedThrustIndex][this.selectedSlipCoefficient])
+      _s => _s.map(__s => __s?.[this.selectedThrustIndex]?.[this.selectedSlipCoefficient])
     );
     this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
   }

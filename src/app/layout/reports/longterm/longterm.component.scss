@@ -139,7 +139,7 @@
     display: none;
 }
 @media print {
-    @page {size: landscape}
+    @page {size: Landscape}
     
     .hideOnPrint {
         display: none;
@@ -170,8 +170,8 @@
     }
 
     .logoImage {
-        height: 8cm;
-        margin-top: 0.25cm;
+        height: 3cm;
+        margin-top: 3.25cm;
         float: right;
     }
 

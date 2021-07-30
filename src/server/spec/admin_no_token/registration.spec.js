@@ -48,7 +48,7 @@ module.exports = (app, GET, POST) => {
         {data: get_default_metocean_provider_response, response_code: 200},
         {data: create_project_response, response_code: 201},
       ]);
-      mailSpy = mock.mailer(app, () => {})
+      mailSpy = mock.mailer(() => {})
     })
 
     it('it should register', async () => {
@@ -62,6 +62,15 @@ module.exports = (app, GET, POST) => {
       })
       await response.expect(expectBadRequest)
     })
+
+    it('it should not register invalid user types', async () => {
+      const response = registerDemoUser({
+        user_type: 'Bad user type'
+      })
+      await response.expect(expectBadRequest)
+      const out = await response;
+    })
+
     it('it should not register with invalid password', async () => {
       const response = registerDemoUser({
         password: null

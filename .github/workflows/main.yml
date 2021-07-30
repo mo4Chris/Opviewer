@@ -5,35 +5,40 @@ name: Dataviewer
 on:
   # Triggers the workflow on push or pull request events but only for the Development branch
   push:
+    branches:
+      - Development
+      - master
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  #
+  pull_request:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  lint:
-    runs-on: ubuntu-latest
+  # lint:
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node: [14.15.5]
+  #   strategy:
+  #     matrix:
+  #       node: [14.15.5]
 
-    timeout-minutes: 10
+  #   timeout-minutes: 10
 
-    steps:
-      - name: Use node@${{ matrix.node }}
-        uses: actions/setup-node@v2.1.4
-        with:
-          node-version: ${{ matrix.node }}
-          architecture: x64
+  #   steps:
+  #     - name: Use node@${{ matrix.node }}
+  #       uses: actions/setup-node@v2.1.4
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         architecture: x64
 
-      - name: Checkout source code
-        uses: actions/checkout@v2
+  #     - name: Checkout source code
+  #       uses: actions/checkout@v2
 
-      - name: setup angular via npm install
-        run: npm install
+  #     - name: setup angular via npm install
+  #       run: npm install
 
-      - name: Performing ng lint
-        run: npm run ng lint
+  #     - name: Performing ng lint
+  #       run: npm run ng lint
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -62,41 +67,41 @@ jobs:
 
       - name: Run unit tests
         run: npm run test -- --no-watch --browsers=ChromeHeadless --code-coverage=true
-  e2e:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        node: [14.15.5]
-    steps:
-      - name: Use node@${{ matrix.node }}
-        uses: actions/setup-node@v2.1.4
-        with:
-          node-version: ${{ matrix.node }}
-          architecture: x64
+  # e2e:
+  #   # The type of runner that the job will run on
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     matrix:
+  #       node: [14.15.5]
+  #   steps:
+  #     - name: Use node@${{ matrix.node }}
+  #       uses: actions/setup-node@v2.1.4
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         architecture: x64
 
-      - name: Checkout source code
-        uses: actions/checkout@v2
+  #     - name: Checkout source code
+  #       uses: actions/checkout@v2
 
-      - name: install node packages
-        run: npm install
+  #     - name: install node packages
+  #       run: npm install
 
-      - name: Start API server
-        run: npm run server-dev
-        env:
-          IP_USER: http://localhost:4200, http://localhost:4300, http://localhost:4444
-          DB_CONN: ${{ secrets.DB_CONN_TEST }}
-          AZURE_URL: http://mo4-hydro-api.azurewebsites.net
-          AZURE_TOKEN: ${{ secrets.AZURE_TOKEN_TEST }}
-          ADMIN_DB_HOST: mo4light-administrative-database.postgres.database.azure.com
-          ADMIN_DB_USER: MO4Admin@mo4light-administrative-database
-          ADMIN_DB_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
-          ADMIN_DB_DATABASE: postgres
-          ADMIN_DB_PORT: 5432
+  #     - name: Start API server
+  #       run: npm run server-dev
+  #       env:
+  #         IP_USER: http://localhost:4200, http://localhost:4300, http://localhost:4444
+  #         DB_CONN: ${{ secrets.DB_CONN_TEST }}
+  #         AZURE_URL: http://mo4-hydro-api.azurewebsites.net
+  #         AZURE_TOKEN: ${{ secrets.AZURE_TOKEN_TEST }}
+  #         ADMIN_DB_HOST: mo4light-administrative-database.postgres.database.azure.com
+  #         ADMIN_DB_USER: MO4Admin@mo4light-administrative-database
+  #         ADMIN_DB_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
+  #         ADMIN_DB_DATABASE: postgres
+  #         ADMIN_DB_PORT: 5432
 
-      - name: Run unit tests for vm ctv
-        run: npm run ng e2e -- --configuration vm-ctv
+  #     - name: Run unit tests for vm ctv
+  #       run: npm run ng e2e -- --configuration vm-ctv
 
   build-prod:
     runs-on: ubuntu-latest
@@ -131,18 +136,18 @@ jobs:
         # Ideally, we should use the build artefacts produced here in the deploy stage
 
 
-  Deploy: # We deploy the api code to azure functions but only if the earlier 2 tests are run without any errors.
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [14.15.5]
-    if: github.ref == 'refs/heads/master' # check if the push is on master branch, not for any other branch
-    needs: [lint, test] # Only run this if the other 2 jobs have run with no error
-    steps:
-      - name: Add configuration files
-        run: |
-          echo TODO
-      # Not sure how to proceed from here
+  # Deploy: # We deploy the api code to azure functions but only if the earlier 2 tests are run without any errors.
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node: [14.15.5]
+  #   if: github.ref == 'refs/heads/master' # check if the push is on master branch, not for any other branch
+  #   needs: [lint, test] # Only run this if the other 2 jobs have run with no error
+  #   steps:
+  #     - name: Add configuration files
+  #       run: |
+  #         echo TODO
+  #     # Not sure how to proceed from here
 
 
 

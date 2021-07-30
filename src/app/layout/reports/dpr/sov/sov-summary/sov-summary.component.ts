@@ -135,6 +135,8 @@ export class SovSummaryComponent implements OnChanges {
       if (sailingDuration > 0 || waitingDuration > 0) {
         this.operationalChartCalculated = true;
         setTimeout(() => {
+          //ToDo: Find nicer way to avoid duplicate graphs when page loads on tab other than summary
+          this?.operationsChart?.destroy();
           this.operationsChart = new Chart('operationalStats', {
             type: 'pie',
             data: {
@@ -182,6 +184,8 @@ export class SovSummaryComponent implements OnChanges {
     if (Object.keys(counter).some((key) => counter[key] > 0)) {
       this.sovHasLimiters = true;
       setTimeout(() => {
+        //ToDo: Find nicer way to avoid duplicate graphs when page loads on tab other than summary
+        this?.gangwayLimitationsChart?.destroy();
         this.gangwayLimitationsChart = new Chart('gangwayLimitations', {
           type: 'pie',
           data: {

@@ -1,8 +1,7 @@
 const twoFactor = require('node-2fa');
-const { Client, Pool } = require('pg');
 // const mo4lightServer = require('../../mo4light.server')
 const ax = require('axios');
-const { ThrowStmt } = require('@angular/compiler');
+const connections = require('../../helper/connections');
 
 
 /**
@@ -112,10 +111,7 @@ function mockJsonWebToken(app, decoded_token) {
     rowCount: return_values.length,
     rows: return_values,
   }
-  spyOn(Pool.prototype, 'query').and.returnValue(
-    Promise.resolve(sqlresponse)
-  )
-  spyOn(Client.prototype, 'query').and.returnValue(
+  return spyOn(connections.admin, 'query').and.returnValue(
     Promise.resolve(sqlresponse)
   )
 }
@@ -141,8 +137,7 @@ function mockPostgressRequests(return_values = [[]]) {
     index++;
     return Promise.resolve(sqlresponse(input));
   }
-  spyOn(Pool.prototype, 'query').and.callFake(returnData)
-  spyOn(Client.prototype, 'query').and.callFake(returnData)
+  return spyOn(connections.admin, 'query').and.callFake(returnData)
 }
 
 
@@ -155,17 +150,19 @@ function mockPostgressRequests(return_values = [[]]) {
 function mockTwoFactorAuthentication(valid = true) {
   let secret2faSpy = spyOn(twoFactor, 'verifyToken');
   if (valid) {secret2faSpy.and.returnValue(1)}
+  return secret2faSpy;
 }
 
 
 /**
  * Mocks the mailer, causing any uncaught mails not to trigger actual email but rather an error.
  *
- * @param {object} app
+ * @param {Function} callback
  * @api public {(mailOpts: object) => void}
  */
-function mockMailer(app, callback = UncaughtMailCallback) {
-  return spyOn(app.__get__('transporter'), 'sendMail').and.callFake(callback);
+function mockMailer(callback = UncaughtMailCallback) {
+  // return spyOn(app.__get__('transporter'), 'sendMail').and.callFake(callback);
+  return spyOn(connections.mailer, 'sendMail').and.callFake(callback);
 }
 function UncaughtMailCallback(mailOpts)  {
   console.log('mailOpts', mailOpts)
@@ -187,10 +184,10 @@ function mockForecastApiRequest(data, response_code=null) {
     status: response_code ?? default_response_code,
     text: 'mocked'
   });
-  // const dataPromise = new Response(data)
-  spyOn(ax.default, 'get').and.returnValue(dataPromise)
-  spyOn(ax.default, 'post').and.returnValue(dataPromise)
-  spyOn(ax.default, 'put').and.returnValue(dataPromise)
+  spyOn(connections.hydro, 'GET').and.returnValue(dataPromise)
+  spyOn(connections.hydro, 'POST').and.returnValue(dataPromise)
+  spyOn(connections.hydro, 'PUT').and.returnValue(dataPromise)
+  spyOn(connections.hydro, 'DELETE').and.returnValue(dataPromise)
 }
 function mockForecastApiRequests(datas = [{data: null, response_code:500}]) {
   const default_response_code = 200;
@@ -206,9 +203,10 @@ function mockForecastApiRequests(datas = [{data: null, response_code:500}]) {
       text: 'mocked'
     });
   }
-  spyOn(ax.default, 'get').and.callFake(returnData)
-  spyOn(ax.default, 'post').and.callFake(returnData)
-  spyOn(ax.default, 'put').and.callFake(returnData)
+  spyOn(connections.hydro, 'GET').and.callFake(returnData)
+  spyOn(connections.hydro, 'POST').and.callFake(returnData)
+  spyOn(connections.hydro, 'PUT').and.callFake(returnData)
+  spyOn(connections.hydro, 'DELETE').and.callFake(returnData)
 }
 
 

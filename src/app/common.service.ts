@@ -386,7 +386,7 @@ export class CommonService {
   getHarbourLocations() {
     return this.get('/api/getHarbourLocations/');
   }
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string, id: number}[]> {
     return this.get('/api/forecastProjectLocations')
   }
   getLatestBoatLocation(): Observable<AisMarkerModel[]> {
@@ -450,6 +450,9 @@ export class CommonService {
   }
   getPlatformTransfersForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getPlatformTransfersForVesselByRangeForSOV/', vessel);
+  }
+  getGeneralForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
+    return this.post('/api/getGeneralForVesselByRangeForSOV/', vessel);
   }
   getTransitsForVesselByRangeForSOV(vessel: StatsRangeRequest): Observable<any[]> {
     return this.post('/api/getTransitsForVesselByRangeForSOV/', vessel);

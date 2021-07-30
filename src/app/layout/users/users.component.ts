@@ -102,9 +102,7 @@ export class UsersComponent implements OnInit {
     this.sortedData = data.sort((a, b) => {
       const isAsc = sort.isAsc;
       switch (sort.active) {
-        // case 'permissions': return this.stringMutationService.compare(a.permissions, b.permissions, isAsc);
         case 'permissions': return this.stringMutationService.compare(a.permission.user_type, b.permission.user_type, isAsc);
-        // case 'client': return this.stringMutationService.compare(a.client, b.client, isAsc);
         case 'client': return this.stringMutationService.compare(a.client_name, b.client_name, isAsc);
         case 'username': return this.stringMutationService.compare(a.username, b.username, isAsc);
         default: return 0;

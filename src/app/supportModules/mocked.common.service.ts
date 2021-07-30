@@ -450,7 +450,7 @@ export class MockedCommonService extends CommonService {
   getPlatformLocations() {
     return mockedObservable([{
       filename: 'test123',
-      name: ['PE-F15-PA'],
+      name: [['PE-F15-PA']],
       lat: [[0]],
       lon: [[0]],
       centroid: {
@@ -665,24 +665,38 @@ export class MockedCommonService extends CommonService {
     return mockedObservable([]);
   }
   getParkLocations() {
-    return mockedObservable([]);
+    return mockedObservable([{
+      SiteName: 'Test park',
+      filename: 'Test_park_ugly',
+      name: ['a', 'b'],
+      lon: [0.5, 0.6],
+      lat: [0.5, 0.6],
+      centroid: {
+        lon: 50,
+        lat: 1
+      },
+      outlineLonCoordinates: [0, 1, 1, 0],
+      outlineLatCoordinates: [0, 0, 1, 1]
+    }]);
   }
   getHarbourLocations() {
     return mockedObservable([{
       name: 'Test harbour',
       centroid: {
         lon: 50,
-        lat: 1
+        lat: 1,
+        radius: 1,
       },
       lon: [50],
       lat: [1]
     }]);
   }
-  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string}[]> {
+  getForecastProjectLocations(): Observable<{lon: number, lat: number, nicename: string, id: number}[]> {
     return mockedObservable([{
-      nicename: 'Test harbour',
       lon: 50,
-      lat: 1
+      lat: 1,
+      nicename: 'Test harbour',
+      id: 13
     }]);
   }
 
@@ -755,7 +769,7 @@ export class MockedCommonService extends CommonService {
       mmsi: demo_vessel.mmsi,
       nicename: demo_vessel.nicename,
       active: true,
-      operations_class: demo_vessel.operationsClass
+      operationsClass: demo_vessel.operationsClass
     }])
   }
 
@@ -866,7 +880,13 @@ export class MockedCommonService extends CommonService {
       activation_end_date: "2023-02-10T09:44:17.881913+00:00",
       client_preferences: mockForecastProjectPreferences(),
       consumer_id: 123,
-      analysis_types: ['Standard']
+      analysis_types: ['Standard'],
+      metocean_provider: {
+        id: 1,
+        name: 'test_provider',
+        display_name: 'Testy',
+        is_active: true,
+      }
     }]);
   }
   getClientList() {
@@ -976,7 +996,7 @@ export class MockedCommonService extends CommonService {
     return mockedObservable(responseObj);
   }
   getForecastProjectsForClient(client_id: number) {
-    return mockedObservable([{
+    return mockedObservable([<ForecastOperation> {
       id: 0,
       name: 'a',
       client_id: client_id,
@@ -984,7 +1004,15 @@ export class MockedCommonService extends CommonService {
       longitude: 3,
       water_depth: 4,
       maximum_duration: 5,
-      vessel_id: 'fakeID',
+      vessel_id: 123,
+      activation_start_date: "2020-02-10T09:44:17.881913+00:00",
+      activation_end_date: "2023-02-10T09:44:17.881913+00:00",
+      metocean_provider: {
+        id: 1,
+        name: 'test_provider',
+        display_name: 'Test provider',
+        is_active: true,
+      }
     }]);
   }
   getForecastMetoceanProviders() {

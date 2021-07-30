@@ -4,7 +4,6 @@ const request = require('supertest');
 const reporters = require('jasmine-reporters');
 const mongo = require('mongoose').Mongoose;
 const {Pool} = require('pg');
-const { of } = require('rxjs');
 
 // This test suite runs unit tests for the server file. Since we use
 // rewire to mock token verification, there is no need for user

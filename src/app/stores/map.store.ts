@@ -106,18 +106,6 @@ export class MapStore {
   }
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-class MockedMapStore extends MapStore {
-  parks: Promise<TurbinePark[]> = new Promise(resolve => resolve([]));
-  platforms: Promise<OffshorePlatform[]> = new Promise(resolve => resolve([]));
-}
-export const MockedMapStoreProvider = {
-  provide: MapStore,
-  useClass: MockedMapStore,
-};
-
 export interface TurbinePark {
   name: string;
   filename: string;

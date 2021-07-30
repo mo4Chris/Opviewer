@@ -25,8 +25,8 @@
     </select>
   </div>
   <button class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(1);" type="button">Print DPR Full</button>
-  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'" class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(2);" type="button">Print DPR Commercial</button>
-  <button *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"  class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(3);" type="button">Print DPR HSE</button>
+  <button *ngIf="isSovDpr" class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(2);" type="button">Print DPR Commercial</button>
+  <button *ngIf="isSovDpr"  class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(3);" type="button">Print DPR HSE</button>
 </div>
 <!-- Plotting map-->
 <div class="loader" *ngIf="!loaded">
@@ -38,11 +38,11 @@
 </div>
 <div *ngIf="noPermissionForData == false; else noPermission"  [hidden]="!loaded" style="width: 100%">
     <!-- This builds the CTV / SOV subpages -->
-    <app-ctvreport *ngIf="vesselObject.vesselType == 'CTV'" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
+    <app-ctvreport *ngIf="isCtvDpr" (loaded)="isLoaded($event)" [vesselObject]="vesselObject"
       [tokenInfo]="tokenInfo" (sailDates)="setDatesHasSailed($event)"
       >
     </app-ctvreport>
-    <app-sovreport *ngIf="vesselObject.vesselType == 'SOV' || vesselObject.vesselType == 'OSV'"
+    <app-sovreport *ngIf="isSovDpr"
       [vesselObject]="vesselObject" [tokenInfo]="tokenInfo" (sailDates)="setDatesHasSailed($event)"
       [printMode]="printMode" (loaded)="isLoaded($event)">
     </app-sovreport>

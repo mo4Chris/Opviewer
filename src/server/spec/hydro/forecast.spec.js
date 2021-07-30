@@ -148,7 +148,18 @@ module.exports = (app, GET, POST, PUT) => {
       mock.mockForecastApiRequest({vessels: [GENERIC_VESSEL, CLIENT_VESSEL, OTHER_CLIENT_VESSEL]})
       const response = GET(url)
       const response_data = await response;
-      return expect(response_data.body.length).toEqual(2)
+      expect(response_data.body.length).toEqual(2)
+      expect(response_data.body[0]).toEqual({
+        id: 'generic_vessel',
+        nicename: 'Generic test vessel',
+        type: 'CTV',
+        length: 10,
+        width: 2,
+        draft: 2,
+        gm: 10,
+        client_id: GENERIC_VESSEL_CLIENT_ID,
+        analysis_types: ['Standard']
+      })
     })
     it('should GET project', () => {
       const url = `/api/mo4light/getProject`
@@ -184,7 +195,8 @@ module.exports = (app, GET, POST, PUT) => {
       expect(locs[0]).toEqual({
         nicename: CLIENT_PROJECT_1.display_name,
         lon: CLIENT_PROJECT_1.longitude,
-        lat: CLIENT_PROJECT_1.latitude
+        lat: CLIENT_PROJECT_1.latitude,
+        id:  CLIENT_PROJECT_1.id
       })
     })
     it('should save project settings', () => {
@@ -320,7 +332,7 @@ const DEMO_PROJECT = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard'],
@@ -335,7 +347,7 @@ const CLIENT_PROJECT_1 = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
@@ -350,7 +362,7 @@ const CLIENT_PROJECT_2 = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
@@ -365,14 +377,14 @@ const OTHER_CLIENT_PROJECT = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
 }
 const GENERIC_VESSEL = {
   id: 'generic_vessel',
-  nicename: 'Generic test vessel',
+  display_name: 'Generic test vessel',
   type: 'CTV',
   length: 10,
   width: 2,
@@ -383,7 +395,7 @@ const GENERIC_VESSEL = {
 }
 const CLIENT_VESSEL = {
   id: 'client_vessel',
-  nicename: 'Specific client test vessel',
+  display_name: 'Specific client test vessel',
   type: 'CTV',
   length: 100,
   width: 20,
@@ -394,7 +406,7 @@ const CLIENT_VESSEL = {
 }
 const OTHER_CLIENT_VESSEL = {
   id: 'client_vessel',
-  nicename: 'Specific client test vessel',
+  display_name: 'Specific client test vessel',
   type: 'CTV',
   length: 100,
   width: 20,

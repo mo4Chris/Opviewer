@@ -94,7 +94,7 @@ export class AdminComponent implements OnInit {
       this.vesselInfo = vessels;
       this.newService.getLatestGeneral().subscribe(genStatInfos => {
         genStatInfos.forEach(genInfo => {
-          const vesselInfo: VesselModel = this.vesselInfo.find((vessel) => vessel.mmsi === genInfo._id);
+          const vesselInfo: VesselModel = this.vesselInfo.find(vessel => vessel.mmsi === genInfo._id);
           const isOnHire = vesselInfo !== undefined && vesselInfo.onHire;
           if (isOnHire && genInfo.date <= this.currentMatlabDate - 2) {
             this.noActivityVessels.push({
@@ -107,6 +107,7 @@ export class AdminComponent implements OnInit {
             });
           }
         });
+
         this.noActivityVessels.sort((a, b) => {
           return a.matlabDate < b.matlabDate ? 1 : a.matlabDate === b.matlabDate ? 0 : -1;
         });

@@ -23,7 +23,7 @@ module.exports = (app, GET, POST) => {
 
 
     beforeEach(() => {
-      mock.mailer(app);
+      mock.mailer();
       mock.mockDemoCheckerMiddelWare(app)
       mock.jsonWebToken(app, {
         username: username,

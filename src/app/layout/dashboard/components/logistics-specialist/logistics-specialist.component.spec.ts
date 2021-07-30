@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { MockedUserServiceProvider, UserTestService } from '@app/shared/services/test.user.service';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 
-describe('Dashboard logistic specialist', () => {
+describe('Dashboard Logistics specialist', () => {
   let component: LogisticsSpecialistComponent;
   let fixture: ComponentFixture<LogisticsSpecialistComponent>;
   const token = UserTestService.getMockedAccessToken({});

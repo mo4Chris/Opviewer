@@ -132,6 +132,7 @@ export class LongtermComponent implements OnInit {
         vesselName: this.dropdownValues.map(x => x.nicename),
       }};
     }
+
     this.buildPageWithCurrentInformation();
   }
 

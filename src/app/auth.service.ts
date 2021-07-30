@@ -7,13 +7,6 @@ import { UserType } from './shared/enums/UserType';
 import { CommonService } from './common.service';
 import { map } from 'rxjs/operators';
 
-const httpOptions = {
-  headers: new HttpHeaders({
-    'Content-Type':  'application/json',
-    'Authorization': '' + localStorage.getItem('token')
-  })
-  };
-
 @Injectable()
 export class AuthService {
   private _getUserByTokenUrl = environment.DB_IP + '/api/getRegistrationInformation/';
@@ -27,10 +20,18 @@ export class AuthService {
     private commonService: CommonService,
   ) { }
 
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type':  'application/json',
+      'Authorization': '' + this.getToken()
+    })
+  }
+
   loginUser(user: UserLoginData): Observable<{token: string}> {
-    return this.httpClient.post<{token: string}>(this._loginurl, user, httpOptions).pipe(
+    return this.httpClient.post<{token: string}>(this._loginurl, user, this.httpOptions).pipe(
       map((tokenObj) => {
         this.commonService.updateAuthorizationToken(tokenObj.token);
+        this.updateAuthorizationToken(tokenObj.token);
         return tokenObj;
       })
     );
@@ -40,23 +41,29 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  updateAuthorizationToken(token: string) {
+    const oldHeaders = this.httpOptions.headers;
+    const newHeaders = oldHeaders.set('Authorization', token);
+    this.httpOptions.headers = newHeaders;
+  }
+
   registerUser(user: UserCreationData): Observable<{ data: string, status: number }> {
     // Create a new account using an account that is already active
-    return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, httpOptions);
+    return this.httpClient.post<{ data: string, status: number }>(this._registerurl, user, this.httpOptions);
   }
 
   registerDemoUser(user: UserDemoData): Observable<{ data: string, status: number }> {
     // Create a new account using an account that is already active
-    return this.httpClient.post<{ data: string, status: number }>(this._registerDemourl, user, httpOptions);
+    return this.httpClient.post<{ data: string, status: number }>(this._registerDemourl, user, this.httpOptions);
   }
 
   getRegistrationInformation(token: {registration_token: string, username: string}): Observable<SetPasswordData> {
-    return this.httpClient.post<SetPasswordData>(this._getUserByTokenUrl, token, httpOptions);
+    return this.httpClient.post<SetPasswordData>(this._getUserByTokenUrl, token, this.httpOptions);
   }
 
   setUserPassword(passwords: PasswordInfo): Observable<{token: string}>  {
     // Set password and 2fa using an account which is created but does not yet have a valid password
-    return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, httpOptions);
+    return this.httpClient.post<{token: string}>(this._setPasswordUrl, passwords, this.httpOptions);
   }
 }
 
