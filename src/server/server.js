@@ -126,14 +126,7 @@ function onError(res, raw_error, additionalInfo = 'Internal server error') {
   const err_keys = typeof(raw_error)=='object' ? Object.keys(raw_error) : [];
   let err = {};
   try {
-    if (raw_error instanceof Error) {
-      err.message = raw_error.message;
-      err.name = raw_error.name;
-      err.stack = raw_error.stack;
-    } else if (typeof(raw_error) == 'string') {
-      logger.debug('Got text error: ', raw_error)
-      err.message = raw_error;
-    } else if (axios.isAxiosError(raw_error)) {
+    if (axios.isAxiosError(raw_error)) {
       logger.debug('Got axios error')
       err.message = raw_error.response?.data?.message ?? 'Unspecified axios error';
       err.axios_url = raw_error?.config?.url;
@@ -141,6 +134,13 @@ function onError(res, raw_error, additionalInfo = 'Internal server error') {
       err.axios_data = raw_error?.config?.data;
       err.axios_response_data = raw_error?.response?.data;
       err.axios_status = raw_error.response?.status;
+    } else if (raw_error instanceof Error) {
+      err.message = raw_error.message;
+      err.name = raw_error.name;
+      err.stack = raw_error.stack;
+    } else if (typeof(raw_error) == 'string') {
+      logger.debug('Got text error: ', raw_error)
+      err.message = raw_error;
     } else if (err_keys.some(k => k=='schema') && err_keys.some(k => k=='table')) {
       logger.debug('Got postgres error')
       err = raw_error;
