@@ -21,7 +21,7 @@ describe('User helper', () => {
     expect(clientSpy).not.toHaveBeenCalled();
     expect(userSpy).not.toHaveBeenCalled();
   })
-  it('should get vessels for user - logistic specialist', () => {
+  it('should get vessels for user - Logistics specialist', () => {
     const adminSpy = spyOn(helper, 'getVesselsForAdmin')
     const clientSpy = spyOn(helper, 'getAllVesselsForClient')
     const userSpy = spyOn(helper, 'getAssignedVessels')

@@ -35,7 +35,7 @@ describe('PermissionService', () => {
     expect(service.sovCommercialWrite).toBe(true);
   })
 
-  it('should init as logistic specialist', () => {
+  it('should init as Logistics specialist', () => {
     mockUserModel('Logistics specialist');
     service = TestBed.inject(PermissionService);
     expect(service).toBeTruthy();

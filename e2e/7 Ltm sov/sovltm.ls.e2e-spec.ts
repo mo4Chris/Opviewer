@@ -18,7 +18,7 @@ describe('Sov longterm module', () => {
     expect(await page.dp.getLastMonthBtn().isEnabled()).toBe(true);
     expect(await page.dp.getNextMonthBtn().isEnabled()).toBe(false);
     expect(await page.getVesselList().count()).toBeGreaterThan(0);
-    expect(await page.getKpiCard().isPresent()).toBe(false, 'BMO logistic specialist does not have KPI permission');
+    expect(await page.getKpiCard().isPresent()).toBe(false, 'BMO Logistics specialist does not have KPI permission');
     expect(await page.dp.isOpen()).toBe(false);
     expect(await page.getDateString()).toMatch(/\d{4}-\d{2}-01 - \d{4}-\d{2}-\d{2}/);
   });

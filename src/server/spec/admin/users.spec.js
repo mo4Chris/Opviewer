@@ -61,7 +61,7 @@ module.exports = (app, GET, POST) => {
 
 
 
-  describe('Logistic specialist should', () => {
+  describe('Logistics specialist should', () => {
     const username = 'Test logistics specialist';
     const company = 'BMO';
 

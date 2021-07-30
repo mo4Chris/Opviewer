@@ -120,7 +120,7 @@ describe('CtvReportComponent', () => {
     });
   }));
 
-  it('should create as logistic specialist', async(() => {
+  it('should create as Logistics specialist', async(() => {
     component.tokenInfo = tokenInfo.logisticSpecialist;
     component.vesselObject = vesselObject(component.tokenInfo);
     expect(component).toBeTruthy();

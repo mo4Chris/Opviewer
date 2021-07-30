@@ -45,17 +45,17 @@ module.exports = (app, GET, POST) => {
         const request = POST('/api/createUser', newUser, true)
         await request.expect(expectValidRequest)
       })
-      it('successfull - logistic specialist', async () => {
+      it('successfull - Logistics specialist', async () => {
         mock.jsonWebToken(app, {
           userID: 1,
           client_id: OWN_CLIENT_ID,
           username: username,
           userCompany: company,
           userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
-          userPermission: 'Logistic specialist',
+          userPermission: 'Logistics specialist',
           permission: {
             admin: false,
-            user_type: 'Logistic specialist',
+            user_type: 'Logistics specialist',
             user_read: true,
             demo: true,
             user_manage: true,
@@ -81,10 +81,10 @@ module.exports = (app, GET, POST) => {
           username: username,
           userCompany: company,
           userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
-          userPermission: 'Logistic specialist',
+          userPermission: 'Logistics specialist',
           permission: {
             admin: false,
-            user_type: 'Logistic specialist',
+            user_type: 'Logistics specialist',
             user_read: true,
             demo: true,
             user_manage: true,
@@ -108,10 +108,10 @@ module.exports = (app, GET, POST) => {
           username: username,
           userCompany: company,
           userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
-          userPermission: 'Logistic specialist',
+          userPermission: 'Logistics specialist',
           permission: {
             admin: false,
-            user_type: 'Logistic specialist',
+            user_type: 'Logistics specialist',
             user_read: true,
             demo: true,
             user_manage: true,
@@ -135,10 +135,10 @@ module.exports = (app, GET, POST) => {
           username: username,
           userCompany: company,
           userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
-          userPermission: 'Logistic specialist',
+          userPermission: 'Logistics specialist',
           permission: {
             admin: false,
-            user_type: 'Logistic specialist',
+            user_type: 'Logistics specialist',
             user_read: true,
             demo: true,
             user_manage: true,
@@ -162,10 +162,10 @@ module.exports = (app, GET, POST) => {
           username: username,
           userCompany: company,
           userBoats: [OWN_VESSEL_1, OWN_VESSEL_2],
-          userPermission: 'Logistic specialist',
+          userPermission: 'Logistics specialist',
           permission: {
             admin: false,
-            user_type: 'Logistic specialist',
+            user_type: 'Logistics specialist',
             user_read: true,
             demo: true,
             user_manage: true,
@@ -199,7 +199,7 @@ module.exports = (app, GET, POST) => {
       })
 
       it('reset password', () => {
-        // Note user is logistic specialist
+        // Note user is Logistics specialist
         const reset_username = 'forgot@my.email'
         mock.pgRequest([{
           username: reset_username,
