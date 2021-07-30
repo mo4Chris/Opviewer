@@ -332,7 +332,7 @@ const DEMO_PROJECT = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard'],
@@ -347,7 +347,7 @@ const CLIENT_PROJECT_1 = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
@@ -362,7 +362,7 @@ const CLIENT_PROJECT_2 = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
@@ -377,7 +377,7 @@ const OTHER_CLIENT_PROJECT = {
   water_depth: 20,
   maximum_duration: 180,
   activation_start_date: "2020-02-10T09:44:17.881913+00:00",
-  activation_stop_date: "2021-02-10T09:44:17.881913+00:00",
+  activation_end_date: "3021-02-10T09:44:17.881913+00:00",
   client_preferences: {},
   vessel_id: 1,
   analysis_types: ['Standard']
