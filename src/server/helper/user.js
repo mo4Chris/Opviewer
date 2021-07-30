@@ -449,12 +449,12 @@ async function initUserPermission(user_id = 0, user_type, opt_permissions = {}) 
   const query = `
     INSERT INTO "userPermissionTable"(
       "user_id", "admin", "user_read", "demo", "user_manage", "twa",
-      "dpr", "longterm", "user_type", "forecast"
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      "dpr", "longterm", "user_type", "forecast", "user_see_all_vessels_client"
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
   `
   const values = [user_id, permissions.admin, permissions.user_read, permissions.demo,
     permissions.user_manage, permissions.twa, permissions.dpr, permissions.longterm,
-    permissions.user_type, permissions.forecast];
+    permissions.user_type, permissions.forecast, permissions.user_see_all_vessels_client];
   return connections.admin.query(query, values).then(() => {
     localLogger.info('Created user permissions')
   }).catch((err) => {
