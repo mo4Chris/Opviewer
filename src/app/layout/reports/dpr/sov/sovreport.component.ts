@@ -134,10 +134,16 @@ export class SovreportComponent implements OnInit, OnChanges {
 
         this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
         this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
-        if (sovInfo[0]) {
+
+        if (sovInfo[0] && typeof sovInfo[0]?.daughtercraft_nicename != 'object') {
           this.dcInfo = {
-            mmsi: sovInfo[0].daughtercraft_mmsi,
-            nicename: sovInfo[0].daughtercraft_nicename
+            mmsi: sovInfo[0]?.daughtercraft_mmsi,
+            nicename: sovInfo[0]?.daughtercraft_nicename
+          };
+        } else if(sovInfo[0]) {
+          this.dcInfo = {
+            mmsi: 0,
+            nicename: 'N/a'
           };
         }
 

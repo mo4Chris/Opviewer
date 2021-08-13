@@ -796,7 +796,46 @@ app.post("/api/getSovDprInput", function(req, res) {
       }).exec(function(err, data) {
         if (err) return onError(res, err);
         let dprData = {};
-        if (data != null) {
+        
+        if (data?.length > 0) {
+          dprData = {
+            "mmsi": req?.body?.mmsi,
+            "date": req?.body?.date,
+            "liquids": {
+              fuel: { oldValue: data?.liquids?.fuel?.newValue || 0, loaded: 0, consumed: 0, discharged: 0, newValue: data?.liquids?.fuel?.newValue || 0 },
+              luboil: { oldValue: data?.liquids?.luboil?.newValue || 0, loaded: 0, consumed: 0, discharged: 0, newValue: data?.liquids?.luboil?.newValue || 0 },
+              domwater: { oldValue: data?.liquids?.domwater?.newValue || 0, loaded: 0, consumed: 0, discharged: 0, newValue: data?.liquids?.domwater?.newValue || 0 },
+              potwater: { oldValue: data?.liquids?.potwater?.newValue || 0, loaded: 0, consumed: 0, discharged: 0, newValue: data?.liquids?.potwater?.newValue || 0 }
+            },
+            "toolbox": [],
+            "hoc": [],
+            "vesselNonAvailability": [],
+            "weatherDowntime": [],
+            "standBy": [],
+            "ToolboxAmountOld": data?.ToolboxAmountNew,
+            "ToolboxAmountNew": data?.ToolboxAmountNew,
+            "HOCAmountOld": data?.HOCAmountNew,
+            "HOCAmountNew": data?.HOCAmountNew,
+            "remarks": '',
+            "catering": {
+              project: 0,
+              extraMeals: 0,
+              extraMealsMarineContractors: 0,
+              packedLunches: 0,
+              marine: 0,
+              marineContractors: 0
+            },
+            "missedPaxCargo": [],
+            "helicopterPaxCargo": [],
+            "PoB": {
+              marine: 0,
+              marineContractors: 0,
+              project: 0
+            },
+            "dp": [],
+            "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
+          };
+        } else {
           logger.info({ msg: 'Generating new dpr input model', mmsi: req.body.mmsi, date: req.body.date })
           dprData = {
             "mmsi": req.body.mmsi,
@@ -839,45 +878,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                 signedOffClient: ''
               }
             };
-        } else {
-          dprData = {
-            "mmsi": req.body.mmsi,
-            "date": req.body.date,
-            "liquids": {
-              fuel: { oldValue: data.liquids.fuel.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.fuel.newValue },
-              luboil: { oldValue: data.liquids.luboil.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.luboil.newValue },
-              domwater: { oldValue: data.liquids.domwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.domwater.newValue },
-              potwater: { oldValue: data.liquids.potwater.newValue, loaded: 0, consumed: 0, discharged: 0, newValue: data.liquids.potwater.newValue }
-            },
-            "toolbox": [],
-            "hoc": [],
-            "vesselNonAvailability": [],
-            "weatherDowntime": [],
-            "standBy": [],
-            "ToolboxAmountOld": data.ToolboxAmountNew,
-            "ToolboxAmountNew": data.ToolboxAmountNew,
-            "HOCAmountOld": data.HOCAmountNew,
-            "HOCAmountNew": data.HOCAmountNew,
-            "remarks": '',
-            "catering": {
-              project: 0,
-              extraMeals: 0,
-              extraMealsMarineContractors: 0,
-              packedLunches: 0,
-              marine: 0,
-              marineContractors: 0
-            },
-            "missedPaxCargo": [],
-            "helicopterPaxCargo": [],
-            "PoB": {
-              marine: 0,
-              marineContractors: 0,
-              project: 0
-            },
-            "dp": [],
-            "signedOff": { amount: 0, signedOffSkipper: '', signedOffClient: '' },
-          };
-        }
+        } 
         let sovDprData = new sov.SovDprInputModel(dprData);
 
         sovDprData.save((error, dprData) => {
