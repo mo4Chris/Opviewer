@@ -786,8 +786,6 @@ app.post("/api/getSovDprInput", function(req, res) {
       date: req.body.date,
       active: { $ne: false }
     }, function(err, data) {
-
-      console.log(data);
       if (err) return onError(res, err);
       if (data.length > 0) return res.send(data);
       sov.SovDprInputModel.findOne({

@@ -23,6 +23,9 @@
 
             <button type="button" class="btn btn-outline-secondary form-control helpBtn col-md-2" [autoClose]="true"
               [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
+              <br><br>
+                <b>Trial accounts do not require 2FA!</b>
+
             <ng-template #popContent class="helpContent">
               During the set-up of an account, an Authenticator app is required. This authenticator app returns a
               six-digit code every thirty seconds. Input this code in the "2FA response code" field.
