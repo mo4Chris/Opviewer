@@ -140,6 +140,7 @@ export class SovreportComponent implements OnInit, OnChanges {
             nicename: sovInfo[0].daughtercraft_nicename
           };
         }
+        console.log(sovInfo);
 
         if (
           sov.length !== 0 &&
