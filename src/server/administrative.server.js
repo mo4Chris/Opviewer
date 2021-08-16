@@ -105,6 +105,7 @@ module.exports = function (
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await hydro_helper.createProject() // works
+      username = username.toLowerCase();
       await user_helper.createDemoUser({
         username,
         requires2fa,
@@ -206,7 +207,7 @@ module.exports = function (
     INNER JOIN "clientTable" ON "userTable"."client_id" = "clientTable"."client_id"
     LEFT JOIN "userPermissionTable" ON "userTable"."user_id" = "userPermissionTable"."user_id"
     WHERE "userTable"."username"=$1`
-    const values = [username];
+    const values = [username.toLowerCase()];
 
     localLogger.info('Received login for user: ' + username);
     connections.admin.query(PgQuery, values).then(async (admin_data, err) => {

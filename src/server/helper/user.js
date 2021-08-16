@@ -252,6 +252,7 @@ async function createUser({
   logger.info(`Creating new user ${username}`)
   const password_setup_token = module.exports.generateRandomToken();
   const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
+  username = username.toLowerCase();
   const query = `INSERT INTO "userTable"(
     "username",
     "requires2fa",
