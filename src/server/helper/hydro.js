@@ -94,7 +94,7 @@ async function getProjectList(token) {
 
   logger.debug('User is not demo')
   // TODO use active project list instead
-  const endpoint = token.permission.admin ? '/projects': `/projects/${token.client_id}`
+  const endpoint = token.permission.admin ? '/projects': `/projects/${token.forecast_client_id}`
   logger.debug(`Using endpoint ${endpoint}`)
   const out = await hydro.GET(endpoint);
   const data = out.data['projects'].filter(d => checkProjectPermission(token, d));
@@ -141,7 +141,7 @@ function checkProjectPermission(userToken, project) {
   if (perm.demo && project.id == userToken.demo_project_id) return true;
   if (!perm.forecast.read) return false;
   if (project.name == env.SHARED_DEMO_PROJECT_NAME) return true;
-  return project.client_id == userToken.client_id;
+  return project.client_id == userToken.forecast_client_id;
 }
 module.exports.checkProjectPermission = checkProjectPermission;
 
