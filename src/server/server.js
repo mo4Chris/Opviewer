@@ -797,7 +797,7 @@ app.post("/api/getSovDprInput", function(req, res) {
         if (err) return onError(res, err);
         let dprData = {};
         
-        if (data?.length > 0) {
+        if (data?.date > 0) {
           dprData = {
             "mmsi": req?.body?.mmsi,
             "date": req?.body?.date,
