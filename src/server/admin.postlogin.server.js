@@ -90,9 +90,9 @@ module.exports = function (
     // TODO: If a user is associated with multiple clients this wont do
     if (!is_admin && (client_id != own_client_id)) return res.onUnauthorized('Target client does not match own client')
     logger.trace({msg: 'Verfying vessels belong to client', own: own_vessel_ids, new: vessel_ids})
-    if (is_admin || (own_vessel_ids == null && vessel_ids == null)) {
+    if (is_admin || (own_permissions.user_see_all_vessels_client && user_type == 'Logistics specialist')) {
       // Valid - do nothing
-    } else if (own_vessel_ids == null) {
+    } else if (own_permissions.user_see_all_vessels_client) {
       logger.debug('Own vessels are null => getting vessels from helper')
       try {
         const own_vessel_list = await user_helper.getVesselsForUser(own_token)
