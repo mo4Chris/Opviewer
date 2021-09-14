@@ -120,7 +120,8 @@
               </td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
-              <th></th>
+              <td><input type="text" min="0" class="form-control-sm col-sm-8" [(ngModel)]="transfer.location"
+                [value]="transfer?.location" (ngModelChange)="updatePaxCargoTotal()" placeholder="flight nr"></td>
               <td><input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.hour"
                   [value]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">:
                 <input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.minutes"
@@ -267,7 +268,7 @@
               <td colspan="7"></td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
-              <th>AYAY</th>
+              <th>{{transfer?.location}}</th>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
               <td colspan="4"></td>
