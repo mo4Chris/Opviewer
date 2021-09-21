@@ -65,7 +65,7 @@ module.exports = function (
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res['onBadRequest'](errors);
 
-    const username = req.body.username;
+    const username = req.body.username.toLowerCase();
     const password = req.body.password;
     const requires2fa = req.body.requires2fa;
     const vessel_ids = req.body.vessel_ids; // Always empty?
@@ -105,7 +105,6 @@ module.exports = function (
       const user_exists = response.rowCount > 0;
       if (user_exists) return res.onBadRequest('User already exists');
       const demo_project_id = await hydro_helper.createProject() // works
-      username = username.toLowerCase();
       await user_helper.createDemoUser({
         username,
         requires2fa,
