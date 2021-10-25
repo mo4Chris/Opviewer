@@ -38,7 +38,7 @@ module.exports.getWeatherProvider = getWeatherProvider;
  * @param {TokenModel} token User token
  * @returns {Promise<any[]>} Project list
  */
-async function getDemoProject(token) {
+ async function getDemoProject(token) {
   logger.debug('Getting demo project')
   const query = `SELECT "demo_project_id" FROM "userTable" WHERE "user_id"=$1`
   const user = await admin.query(query, [token.userID])
@@ -141,6 +141,7 @@ function checkProjectPermission(userToken, project) {
   if (perm.demo && project.id == userToken.demo_project_id) return true;
   if (!perm.forecast.read) return false;
   if (project.name == env.SHARED_DEMO_PROJECT_NAME) return true;
+  if (perm.demo && project.client_id == userToken.forecast_client_id) return false;
   return project.client_id == userToken.forecast_client_id;
 }
 module.exports.checkProjectPermission = checkProjectPermission;
