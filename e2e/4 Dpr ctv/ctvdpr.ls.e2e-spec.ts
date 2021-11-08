@@ -206,6 +206,37 @@ describe('CTV dpr', () => {
       await page.validateNoConsoleErrors();
     });
   });
+
+  describe('should go to LTM', () => {
+    beforeEach(() => {
+      page = new CtvDprPage();
+      return page.navigateTo();
+    });
+
+    it('should show goToLtmButton', async () => {
+      const goToLtmButton = page.getGoToLTMButton();
+      expect(await goToLtmButton.isPresent()).toBeTruthy('Ltm button not found!')
+      await page.validateNoConsoleErrors();
+    });
+
+    it('should show goToLtmButton', async () => {
+      const goToLtmButton = page.getGoToLTMButton();
+      expect(await goToLtmButton.isPresent()).toBeTruthy('Ltm button not found!')
+      await page.validateNoConsoleErrors();
+    });
+
+    it('should go to Ltm', async () => {
+      const goToLtmButton = page.getGoToLTMButton();
+      expect(await goToLtmButton.isPresent()).toBeTruthy('Ltm button not found!')
+      goToLtmButton.click();
+      await page.validateNoConsoleErrors();
+      expect(await page.getUrl()).toMatch('reports/longterm;mmsi=123456789;vesselName=TEST%20BMO');
+    });
+
+    
+
+  });
+  
 });
 
 function log(message) {

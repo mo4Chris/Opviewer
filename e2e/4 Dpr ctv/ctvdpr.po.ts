@@ -13,6 +13,9 @@ export class CtvDprPage extends E2ePageObject {
   navigateToEmpty() {
     return browser.get('/reports/dpr;mmsi=123456789;date=737701');
   }
+  navigateToLtm() {
+    return browser.get('/reports/longterm;mmsi=123456789;vesselName=TEST%20BMO')
+  }
   navigateToLatest() {
     return browser.get('/reports/dpr;mmsi=123456789');
   }
@@ -109,6 +112,9 @@ export class CtvDprPage extends E2ePageObject {
     return dropdownHandler.getValue(dropdown);
   }
 
+  getGoToLTMButton() {
+    return element(by.buttonText('Go To LTM'));
+  }
 
   getSlipGraphs() {
     return element.all(by.xpath('//app-ctvslipgraph/div'));
