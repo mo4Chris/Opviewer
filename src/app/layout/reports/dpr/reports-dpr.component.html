@@ -27,6 +27,7 @@
   <button class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(1);" type="button">Print DPR Full</button>
   <button *ngIf="isSovDpr" class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(2);" type="button">Print DPR Commercial</button>
   <button *ngIf="isSovDpr"  class="btn btn-lg boatSelectDropdown topElt" (click)="printPage(3);" type="button">Print DPR HSE</button>
+  <button name="goToLtmButton" class="btn btn-lg boatSelectDropdown topElt" *ngIf="permission?.longterm" (click)="routeToLtmFromVesselInfo();">Go To LTM</button>
 </div>
 <!-- Plotting map-->
 <div class="loader" *ngIf="!loaded">

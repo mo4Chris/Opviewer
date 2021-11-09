@@ -137,6 +137,13 @@ export class ReportsDprComponent implements OnInit {
     });
   }
 
+  routeToLtmFromVesselInfo() {
+    this.routeService.routeToLTM({
+      mmsi: this.vesselObject.mmsi,
+      name: this.vesselObject.vesselName ?? 'Vessel'
+    });
+  }
+
   printPage(printtype: number) {
     if (this.isSovDpr) {
       this.printMode = printtype;
@@ -237,4 +244,14 @@ interface SailDates {
   transfer: object[],
   transit: object[],
   other: object[]
+}
+
+interface VesselInfo {
+  Name: string;
+  mmsi: number;
+  LastSailed: string;
+  Site: string;
+  Budget: number;
+  Type: 'CTV' | 'SOV' | 'OSV';
+  Usage: string;
 }
