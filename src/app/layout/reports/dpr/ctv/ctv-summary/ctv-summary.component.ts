@@ -1,20 +1,25 @@
-import { Component, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
-import { CTVGeneralStatsModel } from '../../models/generalstats.model';
-import { TokenModel } from '@app/models/tokenModel';
-import { AlertService } from '@app/supportModules/alert.service';
-import { CommonService } from '@app/common.service';
-import { map, catchError } from 'rxjs/operators';
-import { DatetimeService } from '@app/supportModules/datetime.service';
-import { CalculationService } from '@app/supportModules/calculation.service';
-import { PermissionService } from '@app/shared/permissions/permission.service';
-import { SettingsService } from '@app/supportModules/settings.service';
+// Third party dependencies
+import { Component, Input, OnChanges } from "@angular/core";
+import { map, catchError } from "rxjs/operators";
+
+// Services
+import { AlertService } from "@app/supportModules/alert.service";
+import { CommonService } from "@app/common.service";
+import { DatetimeService } from "@app/supportModules/datetime.service";
+import { CalculationService } from "@app/supportModules/calculation.service";
+import { PermissionService } from "@app/shared/permissions/permission.service";
+import { SettingsService } from "@app/supportModules/settings.service";
+
+// Models
+import { CTVGeneralStatsModel } from "../../models/generalstats.model";
+import { TokenModel } from "@app/models/tokenModel";
 
 @Component({
-  selector: 'app-ctv-summary',
-  templateUrl: './ctv-summary.component.html',
+  selector: "app-ctv-summary",
+  templateUrl: "./ctv-summary.component.html",
   styleUrls: [
-    './ctv-summary.component.scss',
-    '../ctvreport/ctvreport.component.scss',
+    "./ctv-summary.component.scss",
+    "../ctvreport/ctvreport.component.scss",
   ],
 })
 export class CtvSummaryComponent implements OnChanges {
@@ -24,13 +29,37 @@ export class CtvSummaryComponent implements OnChanges {
   @Input() visitedPark: string;
   @Input() tokenInfo: TokenModel; // ToDo remove in favour of permission service
 
-  toolboxOptions = ['Bunkering OPS', '2 man lifting', 'Battery maintenance', 'Bird survey', 'Working on engines', 'using dock craine', 'lifting between vessel and TP',
-    'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
-    'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
-  drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
+  toolboxOptions = [
+    "Bunkering OPS",
+    "2 man lifting",
+    "Battery maintenance",
+    "Bird survey",
+    "Working on engines",
+    "using dock craine",
+    "lifting between vessel and TP",
+    "Power washing",
+    "Daily slinging and craning",
+    "Fueling substation",
+    "gearbox oil change",
+    "servicing small generator",
+    "Replacing bow fender straps",
+    "Main engine oil and filter changed",
+    "Generator service",
+    "Craining ops",
+    "Bunkering at fuel barge",
+    "New crew",
+  ];
 
-  public fuelConsumedValue = '0 liter';
-  public tripEfficiency = 'N/a';
+  drillOptions = [
+    "Man over board",
+    "Abandon ship",
+    "Fire",
+    "Oil Spill",
+    "Other drills",
+  ];
+
+  public fuelConsumedValue = "0 liter";
+  public tripEfficiency = "N/a";
 
   constructor(
     private alert: AlertService,
@@ -39,36 +68,58 @@ export class CtvSummaryComponent implements OnChanges {
     private calcService: CalculationService,
     public permission: PermissionService,
     public settings: SettingsService
-  ) {
-  }
+  ) {}
 
   ngOnChanges() {
     if (this.engine && this.general && this.general.sailedDistance) {
-      this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
-      }
+      this.tripEfficiency = this.calcService.getFuelEcon(
+        this.engine.fuelUsedTotalM3,
+        this.general.sailedDistance,
+        this.settings.unit_distance
+      );
+    }
     this.setValueForFuelConsumed();
   }
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function
-    this.newService.saveCTVGeneralStats(this.generalInputStats).pipe(
-      map(res => {
-        this.alert.sendAlert({text: res.data, type: 'success'});
-      }),
-      catchError(error => {
-        this.alert.sendAlert({text: error, type: 'danger'});
-        throw error;
-      })).subscribe();
+    this.newService
+      .saveCTVGeneralStats(this.generalInputStats)
+      .pipe(
+        map((res) => {
+          this.alert.sendAlert({ text: res.data, type: "success" });
+        }),
+        catchError((error) => {
+          this.alert.sendAlert({ text: error, type: "danger" });
+          throw error;
+        })
+      )
+      .subscribe();
   }
 
   setValueForFuelConsumed() {
-    if (this.generalInputStats?.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
-      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter');
+    if (
+      this.generalInputStats?.fuelConsumption &&
+      this.generalInputStats.fuelConsumption > 0
+    ) {
+      this.fuelConsumedValue = this.roundNumber(
+        this.generalInputStats.fuelConsumption,
+        10,
+        " liter"
+      );
     } else if (this.engine?.fuelUsedTotalM3) {
-      const val_rnd = this.roundNumber(this.engine.fuelUsedTotalM3, 10)
-      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(val_rnd, 'm3', 'liter');
+      const val_rnd = this.roundNumber(this.engine.fuelUsedTotalM3, 10);
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(
+        val_rnd,
+        "m3",
+        "liter"
+      );
     } else {
-      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(0, 'm3', 'liter');
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(
+        0,
+        "m3",
+        "liter"
+      );
     }
   }
 
@@ -76,11 +127,19 @@ export class CtvSummaryComponent implements OnChanges {
     return this.dateService.matlabDatenumToTimeString(serial);
   }
 
-  roundNumber(number: number, decimal = 10, addString = '') {
-    return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
+  roundNumber(number: number, decimal = 10, addString = "") {
+    return this.calcService.roundNumber(
+      number,
+      (decimal = decimal),
+      (addString = addString)
+    );
   }
 
-  switchUnitAndMakeString(value: string | number, oldUnit: string, newUnit: string) {
+  switchUnitAndMakeString(
+    value: string | number,
+    oldUnit: string,
+    newUnit: string
+  ) {
     return this.calcService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
 }
@@ -93,7 +152,6 @@ interface CtvEngineModel {
   fuelPerHour: number;
   fuelOther: number;
   co2TotalKg: number;
-
 }
 
 interface CtvGeneralInputStatsModel {
