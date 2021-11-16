@@ -1,7 +1,124 @@
-.transitTable{
-    tr {
-        td {
-            width: 50%;
-        }
+@import "../../../../../../styles/bootstrap/functions";
+@import "../../../../../../styles/bootstrap/variables";
+@import "../../../../../../styles/bootstrap/mixins/breakpoints";
+
+.transitTable {
+  tr {
+    td {
+      width: 50%;
     }
+  }
+}
+
+.ctv-summary-statistics > * + * {
+  margin-top: 1em;
+}
+
+.ctv-summary-statistics__cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  // Content in cluster
+  & > * {
+    display: block;
+    width: 100%;
+  }
+
+  & > table {
+    display: inline-table;
+  }
+
+  @include media-breakpoint-up(lg) {
+    & > * {
+      width: calc(50% - 1rem);
+    }
+  }
+
+  // Not using the Bootstrap XL breakpoint since it's not wide enough to display form elements with three columns.
+  @media screen and (min-width: 1450px) {
+    & > * {
+      --third: calc(100% / 3);
+      width: calc(var(--third) - 1rem);
+    }
+  }
+}
+
+.ctv-summary-table {
+  & tr > th {
+    background-color: rgba(0, 159, 227, 0.25);
+  }
+
+  & tr.extra-heading-row > th {
+    background-color: rgba(178, 178, 178, 0.25);
+    font-weight: normal;
+    font-style: italic;
+  }
+
+  & td.fillable {
+    padding: 0.5em;
+  }
+
+  & tr:first-child > th {
+    background-color: unset;
+  }
+
+  & h4 {
+    margin: 0;
+  }
+}
+
+.ctv-summary-widget {
+  & .ctv-summary-widget__cell {
+    padding: 0.75rem;
+
+    & > * + * {
+      margin-top: 1em;
+    }
+  }
+
+  & .ctv-summary-widget__cell + .ctv-summary-widget__cell {
+    border-top: solid $mo4Grey 1px;
+  }
+
+  & .fillable-row {
+    display: flex;
+
+    & label {
+      font-style: italic;
+      flex-grow: 1;
+    }
+
+    & input[type="number"] {
+      --third: calc(100% / 3);
+      width: var(--third);
+    }
+  }
+
+  & .ctv-summary-widget__cell--table {
+    border-top: none;
+    padding: 0;
+
+    & table {
+      margin-bottom: 0;
+    }
+  }
+
+  & .ctv-summary-widget__control-buttons {
+    margin: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+.tooltip-hint {
+  cursor: help;
+  text-decoration: underline rgba(178, 178, 178, 0.8) dotted;
+  text-decoration-skip-ink: auto;
+}
+
+.m-0 {
+  margin: 0;
 }
