@@ -97,19 +97,44 @@
     }
   }
 
-  & .ctv-summary-widget__cell--table {
+  .ctv-summary-widget__control-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .ctv-summary-widget__cell--table {
     border-top: none;
     padding: 0;
 
     table {
       margin-bottom: 0;
     }
+
+    .ctv-summary-widget__control-buttons {
+      margin: 1rem;
+    }
   }
 
-  & .ctv-summary-widget__control-buttons {
-    margin: 1rem;
-    display: flex;
-    gap: 1rem;
+  .hse-list {
+    padding: 0;
+
+    li + li {
+      margin-top: 0.75rem;
+    }
+
+    li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    li input[type="number"] {
+      width: 4rem;
+    }
+
+    li input[type="checkbox"] {
+      width: 2rem;
+    }
   }
 }
 
@@ -121,4 +146,8 @@
 
 .m-0 {
   margin: 0;
+}
+
+.emphasize {
+  font-weight: 700;
 }

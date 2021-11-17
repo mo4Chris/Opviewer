@@ -63,6 +63,7 @@
           <th>Used</th>
           <td class="fillable">
             <input
+              [(ngModel)]="_consumptionWidget.fuel.used"
               name="consumptionUsedFuel"
               id="consumptionUsedFuel"
               class="form-control"
@@ -72,6 +73,7 @@
           </td>
           <td class="fillable">
             <input
+              [(ngModel)]="_consumptionWidget.water.used"
               name="consumptionUsedWater"
               id="consumptionUsedWater"
               class="form-control"
@@ -81,8 +83,9 @@
           </td>
           <td class="fillable">
             <input
-              name="consumptionUsedPower"
-              id="consumptionUsedPower"
+              [(ngModel)]="_consumptionWidget.shorePower.used"
+              name="consumptionUsedShorePower"
+              id="consumptionUsedShorePower"
               class="form-control"
               type="number"
               placeholder="0"
@@ -93,8 +96,9 @@
           <th>Remaining on board</th>
           <td class="fillable">
             <input
-              name="consumptionRemainingFuel"
-              id="consumptionRemainingFuel"
+              [(ngModel)]="_consumptionWidget.fuel.remainingOnBoard"
+              name="consumptionRemainingOnBoardFuel"
+              id="consumptionRemainingOnBoardFuel"
               class="form-control"
               type="number"
               placeholder="0"
@@ -102,8 +106,9 @@
           </td>
           <td class="fillable">
             <input
-              name="consumptionRemainingWater"
-              id="consumptionRemainingWater"
+              [(ngModel)]="_consumptionWidget.water.remainingOnBoard"
+              name="consumptionRemainingOnBoardWater"
+              id="consumptionRemainingOnBoardWater"
               class="form-control"
               type="number"
               placeholder="0"
@@ -111,8 +116,9 @@
           </td>
           <td class="fillable">
             <input
-              name="consumptionRemainingPower"
-              id="consumptionRemainingPower"
+              [(ngModel)]="_consumptionWidget.shorePower.remainingOnBoard"
+              name="consumptionRemainingOnBoardShorePower"
+              id="consumptionRemainingOnBoardShorePower"
               class="form-control"
               type="number"
               placeholder="0"
@@ -123,6 +129,7 @@
           <th>Bunkered</th>
           <td class="fillable">
             <input
+              [(ngModel)]="_consumptionWidget.fuel.bunkered"
               name="consumptionBunkeredFuel"
               id="consumptionBunkeredFuel"
               class="form-control"
@@ -132,6 +139,7 @@
           </td>
           <td class="fillable">
             <input
+              [(ngModel)]="_consumptionWidget.water.bunkered"
               name="consumptionBunkeredWater"
               id="consumptionBunkeredWater"
               class="form-control"
@@ -141,8 +149,9 @@
           </td>
           <td class="fillable">
             <input
-              name="consumptionBunkeredPower"
-              id="consumptionBunkeredPower"
+              [(ngModel)]="_consumptionWidget.shorePower.bunkered"
+              name="consumptionBunkeredShorePower"
+              id="consumptionBunkeredShorePower"
               class="form-control"
               type="number"
               placeholder="0"
@@ -222,8 +231,20 @@
           <h4>
             <label class="m-0" for="accessDayType"> Access day type </label>
           </h4>
-          <select class="form-control" name="accessDayType" id="accessDayType">
-            <option value="" disabled selected hidden>Please select…</option>
+          <select
+            [(ngModel)]="_accessDayType"
+            class="form-control"
+            name="accessDayType"
+            id="accessDayType"
+          >
+            <option value="UNSELECTED" disabled selected hidden>
+              Please select…
+            </option>
+            <option
+              *ngFor="let option of _accessDayTypeOptions"
+              [value]="option.value"
+              [label]="option.label"
+            ></option>
           </select>
         </div>
         <div class="ctv-summary-widget__cell">
@@ -231,6 +252,7 @@
           <div class="fillable-row">
             <label for="hoursOnHire">Amount of hours</label>
             <input
+              [(ngModel)]="_hoursOnHire"
               type="number"
               name="hoursOnHire"
               id="hoursOnHire"
@@ -242,7 +264,7 @@
         <div class="ctv-summary-widget__cell ctv-summary-widget__cell--table">
           <table class="table ctv-summary-table">
             <tr>
-              <th colspan="4">
+              <th colspan="3">
                 <h4 class="tooltip-hint" [ngbTooltip]="helpWeatherDowntime">
                   Weather downtime
                 </h4>
@@ -252,53 +274,282 @@
               <th>Decided by</th>
               <th>From</th>
               <th>To</th>
-              <th>Vessel / Subsystem</th>
+            </tr>
+            <tr
+              *ngFor="
+                let row of _weatherDowntimeWidget;
+                index as i;
+                trackBy: trackByIndex
+              "
+            >
+              <td class="fillable">
+                <select
+                  [(ngModel)]="_weatherDowntimeWidget[i].decidedBy"
+                  class="form-control"
+                  name="weatherDowntimeDecidedBy__{{ i }}"
+                  id="weatherDowntimeDecidedBy__{{ i }}"
+                >
+                  <option value="UNSELECTED" disabled selected hidden>
+                    Please select…
+                  </option>
+                  <option
+                    *ngFor="let option of _weatherDownTimeDecidedByOptions"
+                    [value]="option.value"
+                    [label]="option.label"
+                  ></option>
+                </select>
+              </td>
+              <td class="fillable">
+                <select
+                  [(ngModel)]="_weatherDowntimeWidget[i].from"
+                  class="form-control"
+                  name="weatherDowntimeFrom__{{ i }}"
+                  id="weatherDowntimeFrom__{{ i }}"
+                >
+                  <option
+                    *ngFor="let option of _weatherDowntimeTimeOptions"
+                    [value]="option"
+                    [label]="option"
+                  ></option>
+                </select>
+              </td>
+              <td class="fillable">
+                <select
+                  [(ngModel)]="_weatherDowntimeWidget[i].to"
+                  class="form-control"
+                  name="weatherDowntimeTo__{{ i }}"
+                  id="weatherDowntimeTo__{{ i }}"
+                >
+                  <option
+                    *ngFor="let option of _weatherDowntimeTimeOptions"
+                    [value]="option"
+                    [label]="option"
+                  ></option>
+                </select>
+              </td>
             </tr>
           </table>
           <div class="ctv-summary-widget__control-buttons">
-            <button type="button" class="btn btn-sm btn-success">
+            <button
+              (click)="_handleWeatherDowntimeAddLineClicked()"
+              type="button"
+              class="btn btn-sm btn-success"
+            >
               <i class="fa fa-plus"></i>
               Add line
             </button>
-            <button type="button" class="btn btn-sm btn-danger">
+            <button
+              (click)="_handleWeatherDowntimeDeleteLastClicked()"
+              type="button"
+              class="btn btn-sm btn-danger"
+            >
               <i class="fa fa-trash"></i>
-              Remove last
+              Remove last line
             </button>
           </div>
         </div>
       </div>
       <!-- HSE -->
-      <table class="table table-bordered ctv-summary-table">
-        <tr>
-          <th colspan="2">
-            <h4>HSE</h4>
-          </th>
-        </tr>
-        <tr>
-          <th>SOC cards: 0</th>
-          <td>TODO:</td>
-        </tr>
-        <tr>
-          <th>SOC total previous</th>
-          <td>TODO:</td>
-        </tr>
-        <tr>
-          <th>Toolbox talks: 0</th>
-          <td>TODO:</td>
-        </tr>
-        <tr>
-          <th>Toolbox total previous</th>
-          <td>TODO:</td>
-        </tr>
-        <tr>
-          <th>Drills: 0</th>
-          <td>TODO:</td>
-        </tr>
-        <tr>
-          <th>Drills total previous</th>
-          <td>TODO:</td>
-        </tr>
-      </table>
+      <div class="table-bordered ctv-summary-widget">
+        <div class="ctv-summary-widget__cell">
+          <h4>HSE</h4>
+          <div class="information-row">
+            <p [ngClass]="{ emphasize: _HSESOCCards.length > 0 }">
+              {{
+                _HSESOCCards.length > 0
+                  ? "SOC cards: " + _HSECountTotalAmountOf(_HSESOCCards)
+                  : "No SOC cards."
+              }}
+            </p>
+            <ul class="hse-list">
+              <li
+                *ngFor="
+                  let row of _HSESOCCards;
+                  index as i;
+                  trackBy: trackByIndex
+                "
+              >
+                <input
+                  [(ngModel)]="_HSESOCCards[i].inputReason"
+                  type="text"
+                  class="form-control"
+                  name="HSESOCInputReason__{{ i }}"
+                  id="HSESOCInputReason__{{ i }}"
+                  placeholder="Input reason…"
+                />
+                <input
+                  [ngbTooltip]="helpSOCAmount"
+                  [(ngModel)]="_HSESOCCards[i].amount"
+                  type="number"
+                  class="form-control"
+                  name="HSESOCAmount__{{ i }}"
+                  id="HSESOCAmount__{{ i }}"
+                />
+                <button
+                  [ngbTooltip]="helpRemoveSOCCard"
+                  (click)="_handleSOCRemoveCardWithIndex(i)"
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="ctv-summary-widget__control-buttons">
+            <button
+              (click)="_handleSOCAddCardClicked()"
+              type="button"
+              class="btn btn-sm btn-success"
+            >
+              <i class="fa fa-plus"></i>
+              Add SOC card
+            </button>
+            <button
+              *ngIf="_HSESOCRemoveLastCardButtonEnabled"
+              (click)="_handleSOCRemoveLastCardClicked()"
+              type="button"
+              class="btn btn-sm btn-danger"
+            >
+              <i class="fa fa-trash"></i>
+              Remove last SOC card
+            </button>
+          </div>
+          <div class="information-row">
+            <p [ngClass]="{ emphasize: _HSEToolboxTalks.length > 0 }">
+              {{
+                _HSEToolboxTalks.length > 0
+                  ? "Toolbox talks: " + _HSECountTotalAmountOf(_HSEToolboxTalks)
+                  : "No toolbox talks."
+              }}
+            </p>
+            <ul class="hse-list">
+              <li
+                *ngFor="
+                  let row of _HSEToolboxTalks;
+                  index as i;
+                  trackBy: trackByIndex
+                "
+              >
+                <input
+                  [(ngModel)]="_HSEToolboxTalks[i].inputReason"
+                  type="text"
+                  class="form-control"
+                  name="HSEToolboxTalkInputReason__{{ i }}"
+                  id="HSEToolboxTalkInputReason__{{ i }}"
+                  placeholder="Input reason…"
+                />
+                <input
+                  [ngbTooltip]="helpSOCAmount"
+                  [(ngModel)]="_HSEToolboxTalks[i].amount"
+                  type="number"
+                  class="form-control"
+                  name="HSEToolboxTalkAmount__{{ i }}"
+                  id="HSEToolboxTalkAmount__{{ i }}"
+                />
+                <button
+                  [ngbTooltip]="helpRemoveSOCToolboxTalk"
+                  (click)="_handleToolboxTalksRemoveWithIndex(i)"
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="ctv-summary-widget__control-buttons">
+            <button
+              (click)="_handleToolboxTalksAddClicked()"
+              type="button"
+              class="btn btn-sm btn-success"
+            >
+              <i class="fa fa-plus"></i>
+              Add toolbox talk
+            </button>
+            <button
+              *ngIf="_HSEToolboxTalksRemoveLastButtonEnabled"
+              (click)="_handleToolboxTalksRemoveLastClicked()"
+              type="button"
+              class="btn btn-sm btn-danger"
+            >
+              <i class="fa fa-trash"></i>
+              Remove last toolbox talk
+            </button>
+          </div>
+          <div class="information-row">
+            <p [ngClass]="{ emphasize: _HSEDrills.length > 0 }">
+              {{
+                _HSEDrills.length > 0
+                  ? "Drills: " + _HSECountTotalAmountOf(_HSEDrills)
+                  : "No drills."
+              }}
+            </p>
+            <ul class="hse-list">
+              <li
+                *ngFor="
+                  let row of _HSEDrills;
+                  index as i;
+                  trackBy: trackByIndex
+                "
+              >
+                <input
+                  [(ngModel)]="_HSEDrills[i].inputReason"
+                  type="text"
+                  class="form-control"
+                  name="HSEDrillInputReason__{{ i }}"
+                  id="HSEDrillInputReason__{{ i }}"
+                  placeholder="Input reason…"
+                />
+                <p>P:</p>
+                <input
+                  [ngbTooltip]="helpSOCInvolvedPassengers"
+                  [(ngModel)]="_HSEDrills[i].involvedPassengers"
+                  type="checkbox"
+                  class="form-control"
+                  name="HSEDrillInvolvedPassengers__{{ i }}"
+                  id="HSEDrillInvolvedPassengers__{{ i }}"
+                />
+                <input
+                  [ngbTooltip]="helpSOCAmount"
+                  [(ngModel)]="_HSEDrills[i].amount"
+                  type="number"
+                  class="form-control"
+                  name="HSEDrillAmount__{{ i }}"
+                  id="HSEDrillAmount__{{ i }}"
+                />
+                <button
+                  [ngbTooltip]="helpRemoveSOCDrill"
+                  (click)="_handleDrillsRemoveWithIndex(i)"
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="ctv-summary-widget__control-buttons">
+            <button
+              (click)="_handleDrillsAddClicked()"
+              type="button"
+              class="btn btn-sm btn-success"
+            >
+              <i class="fa fa-plus"></i>
+              Add drill
+            </button>
+            <button
+              *ngIf="_HSEDrillsRemoveLastButtonEnabled"
+              (click)="_handleDrillsRemoveLastClicked()"
+              type="button"
+              class="btn btn-sm btn-danger"
+            >
+              <i class="fa fa-trash"></i>
+              Remove last drill
+            </button>
+          </div>
+        </div>
+      </div>
       <!-- Transit -->
       <table class="table table-bordered ctv-summary-table">
         <tr>
@@ -808,3 +1059,13 @@
 <ng-template #helpWeatherDowntime>
   Time vessel was not available due to bad weather.
 </ng-template>
+
+<ng-template #helpRemoveSOCCard>Remove card</ng-template>
+
+<ng-template #helpRemoveSOCToolboxTalk>Remove talk</ng-template>
+
+<ng-template #helpRemoveSOCDrill>Remove drill</ng-template>
+
+<ng-template #helpSOCAmount>Amount</ng-template>
+
+<ng-template #helpSOCInvolvedPassengers>Drill involved passengers</ng-template>
