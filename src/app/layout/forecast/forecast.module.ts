@@ -8,6 +8,7 @@ import { ForecastWorkabilityPlotComponent } from './models/forecast-workability-
 import { NgbDatepickerModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { HeadingPickerComponent } from './models/heading-picker/heading-picker.component';
+import { GateAccessPickerComponent } from './models/gate-access-picker/gate-access-picker.component';
 import { ForecastVesselComponent } from './forecast-project/forecast-project.component';
 import { AgmCoreModule } from '@agm/core';
 import { ForecastNewVesselComponent } from './forecast-new-vessel/forecast-new-vessel.component';
@@ -48,6 +49,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     ForecastOpsPickerComponent,
     SurfacePlotComponent,
     ForecastWorkabilityPlotComponent,
+    GateAccessPickerComponent,
     HeadingPickerComponent,
     ForecastVesselComponent,
     ForecastNewVesselComponent,
