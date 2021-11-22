@@ -23,16 +23,17 @@ export class HeadingPickerComponent implements OnChanges {
       pad: 4
     },
     polar: {
+      //hole: 0.4,
       radialaxis: {
         visible: true,
         range: [-70, 100],
-        tickvals: [0, 100],
+        tickvals: [100],
         ticktext: ['', '']
       },
       angularaxis: {
         tickmode: 'array',
         tickvals: [0, 45, 90, 135, 180, 225, 270, 315],
-        ticktext: ['0', '45', '90', '135', '180', '225', '270', '315'],
+        ticktext: ['N', '45', '90', '135', '180', '225', '270', '315'],
         direction: 'clockwise',
         tickfont: {
           size: 10
@@ -85,6 +86,8 @@ export class HeadingPickerComponent implements OnChanges {
       theta: [11, 11, 19, 19],
       fill: "toself",
       showlegend: false,
+      //pattern: 'x',
+      hoverinfo: 'name',
       fillcolor: 'orange',
       line: {
         color: 'green'

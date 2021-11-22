@@ -55,7 +55,7 @@ export class LongtermProcessingService {
             queryElt.reqFields.push('combinedId');
             loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
               _transits.forEach(transit => {
-                const valid = transit.combinedId.map((_combinedId: number) =>  _combinedId === 21);
+                const valid = transit.combinedId.map((_combinedId: number) =>  _combinedId === 12);
                 queryElt.reqFields.map(name => {
                   if (transit[name]) {
                     transit[name] = transit[name].filter((_: any, _i: number) => valid[_i]);
@@ -70,7 +70,7 @@ export class LongtermProcessingService {
             queryElt.reqFields.push('combinedId');
             loadable = this.newService.getTransitsForVesselByRange(queryElt).pipe(map(_transits => {
               _transits.forEach(transit => {
-                const valid = transit.combinedId.map((_combinedId: number) => _combinedId === 12);
+                const valid = transit.combinedId.map((_combinedId: number) => _combinedId === 21);
                 queryElt.reqFields.map(name => {
                   if (transit[name]) {
                     transit[name] = transit[name].filter((_: any, _i: number) => valid[_i]);
