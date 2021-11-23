@@ -208,36 +208,86 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
   public HSESOCRemoveLastCardButtonEnabled = false;
 
   public handleSOCAddCardClicked() {
+    this.HSESOCFormCheck();
     this.HSESOCCards.push(this._HSEEmptyRowOption());
   }
 
   public handleSOCRemoveLastCardClicked() {
     this.HSESOCCards.pop();
+    this.HSESOCFormCheck();
   }
 
   public handleSOCRemoveCardWithIndex(index: number) {
     this.HSESOCCards.splice(index, 1);
+    this.HSESOCFormCheck();
+  }
+
+  public HSESOCFormStatus = {
+    emptyInputReason: false,
+    badAmount: false,
+  };
+
+  public HSESOCFormCheck() {
+    const the = (condition) => this.HSESOCCards.filter(condition).length > 0;
+
+    if (the((card) => card.amount <= 0)) {
+      this.HSESOCFormStatus.badAmount = true;
+    } else {
+      this.HSESOCFormStatus.badAmount = false;
+    }
+
+    if (the((card) => card.inputReason.length === 0)) {
+      this.HSESOCFormStatus.emptyInputReason = true;
+    } else {
+      this.HSESOCFormStatus.emptyInputReason = false;
+    }
   }
 
   public HSEToolboxTalks: CtvHSERowOptionModel[] = [];
   public HSEToolboxTalksRemoveLastButtonEnabled = false;
 
   public handleToolboxTalksAddClicked() {
+    this.HSEToolboxTalksFormCheck();
     this.HSEToolboxTalks.push(this._HSEEmptyRowOption());
   }
 
   public handleToolboxTalksRemoveLastClicked() {
     this.HSEToolboxTalks.pop();
+    this.HSEToolboxTalksFormCheck();
   }
 
   public handleToolboxTalksRemoveWithIndex(index: number) {
     this.HSEToolboxTalks.splice(index, 1);
+    this.HSEToolboxTalksFormCheck();
+  }
+
+  public HSEToolboxTalksFormStatus = {
+    emptyInputReason: false,
+    badAmount: false,
+  };
+
+  public HSEToolboxTalksFormCheck() {
+    const the = (condition) =>
+      this.HSEToolboxTalks.filter(condition).length > 0;
+
+    if (the((talk) => talk.amount <= 0)) {
+      this.HSEToolboxTalksFormStatus.badAmount = true;
+    } else {
+      this.HSEToolboxTalksFormStatus.badAmount = false;
+    }
+
+    if (the((talk) => talk.inputReason.length === 0)) {
+      this.HSEToolboxTalksFormStatus.emptyInputReason = true;
+    } else {
+      this.HSEToolboxTalksFormStatus.emptyInputReason = false;
+    }
   }
 
   public HSEDrills: CtvHSEDrillOptionModel[] = [];
   public HSEDrillsRemoveLastButtonEnabled = false;
 
   public handleDrillsAddClicked() {
+    this.HSEDrillsFormCheck();
     this.HSEDrills.push({
       ...this._HSEEmptyRowOption(),
       involvedPassengers: false,
@@ -246,10 +296,33 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
 
   public handleDrillsRemoveLastClicked() {
     this.HSEDrills.pop();
+    this.HSEDrillsFormCheck();
   }
 
   public handleDrillsRemoveWithIndex(index: number) {
     this.HSEDrills.splice(index, 1);
+    this.HSEDrillsFormCheck();
+  }
+
+  public HSEDrillsFormStatus = {
+    emptyInputReason: false,
+    badAmount: false,
+  };
+
+  public HSEDrillsFormCheck() {
+    const the = (condition) => this.HSEDrills.filter(condition).length > 0;
+
+    if (the((drill) => drill.amount <= 0)) {
+      this.HSEDrillsFormStatus.badAmount = true;
+    } else {
+      this.HSEDrillsFormStatus.badAmount = false;
+    }
+
+    if (the((drill) => drill.inputReason.length === 0)) {
+      this.HSEDrillsFormStatus.emptyInputReason = true;
+    } else {
+      this.HSEDrillsFormStatus.emptyInputReason = false;
+    }
   }
 
   // Fuel

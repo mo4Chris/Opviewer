@@ -304,6 +304,7 @@
                 "
               >
                 <input
+                  (change)="HSESOCFormCheck()"
                   [(ngModel)]="HSESOCCards[i].inputReason"
                   type="text"
                   class="form-control"
@@ -312,12 +313,14 @@
                   placeholder="Input reason…"
                 />
                 <input
+                  (change)="HSESOCFormCheck()"
                   [ngbTooltip]="helpSOCAmount"
                   [(ngModel)]="HSESOCCards[i].amount"
                   type="number"
                   class="form-control"
                   name="HSESOCAmount__{{ i }}"
                   id="HSESOCAmount__{{ i }}"
+                  min="1"
                 />
                 <button
                   [ngbTooltip]="helpRemoveSOCCard"
@@ -329,6 +332,20 @@
                 </button>
               </li>
             </ul>
+            <div
+              *ngIf="HSESOCFormStatus.emptyInputReason"
+              class="alert alert-warning"
+              role="alert"
+            >
+              All card should have a description.
+            </div>
+            <div
+              *ngIf="HSESOCFormStatus.badAmount"
+              class="alert alert-warning"
+              role="alert"
+            >
+              None of the cards should have an amount lower than 1.
+            </div>
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
@@ -366,6 +383,7 @@
                 "
               >
                 <input
+                  (change)="HSEToolboxTalksFormCheck()"
                   [(ngModel)]="HSEToolboxTalks[i].inputReason"
                   type="text"
                   class="form-control"
@@ -374,6 +392,7 @@
                   placeholder="Input reason…"
                 />
                 <input
+                  (change)="HSEToolboxTalksFormCheck()"
                   [ngbTooltip]="helpSOCAmount"
                   [(ngModel)]="HSEToolboxTalks[i].amount"
                   type="number"
@@ -391,6 +410,20 @@
                 </button>
               </li>
             </ul>
+            <div
+              *ngIf="HSEToolboxTalksFormStatus.emptyInputReason"
+              class="alert alert-warning"
+              role="alert"
+            >
+              All toolbox talks should have a description.
+            </div>
+            <div
+              *ngIf="HSEToolboxTalksFormStatus.badAmount"
+              class="alert alert-warning"
+              role="alert"
+            >
+              None of the toolbox talks should have an amount lower than 1.
+            </div>
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
@@ -424,6 +457,7 @@
                 *ngFor="let row of HSEDrills; index as i; trackBy: trackByIndex"
               >
                 <input
+                  (change)="HSEDrillsFormCheck()"
                   [(ngModel)]="HSEDrills[i].inputReason"
                   type="text"
                   class="form-control"
@@ -433,6 +467,7 @@
                 />
                 <p>P:</p>
                 <input
+                  (change)="HSEDrillsFormCheck()"
                   [ngbTooltip]="helpSOCInvolvedPassengers"
                   [(ngModel)]="HSEDrills[i].involvedPassengers"
                   type="checkbox"
@@ -441,6 +476,7 @@
                   id="HSEDrillInvolvedPassengers__{{ i }}"
                 />
                 <input
+                  (change)="HSEDrillsFormCheck()"
                   [ngbTooltip]="helpSOCAmount"
                   [(ngModel)]="HSEDrills[i].amount"
                   type="number"
@@ -458,6 +494,20 @@
                 </button>
               </li>
             </ul>
+            <div
+              *ngIf="HSEDrillsFormStatus.emptyInputReason"
+              class="alert alert-warning"
+              role="alert"
+            >
+              All drills should have a description.
+            </div>
+            <div
+              *ngIf="HSEDrillsFormStatus.badAmount"
+              class="alert alert-warning"
+              role="alert"
+            >
+              None of the drills should have an amount lower than 1.
+            </div>
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
