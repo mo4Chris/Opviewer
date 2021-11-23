@@ -77,37 +77,39 @@ export class CtvSummaryConsumptionComponent implements OnInit {
   public consumptionWidgetForm = new FormGroup({
     consumptionStartOfDayFuel: new FormControl(
       this._consumptionWidget.fuel.startOfDay,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
     consumptionStartOfDayWater: new FormControl(
       this._consumptionWidget.water.startOfDay,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
     consumptionStartOfDayShorePower: new FormControl(
       this._consumptionWidget.shorePower.startOfDay,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
-    consumptionUsedFuel: new FormControl(this._consumptionWidget.fuel.used, [
-      Validators.min(0),
-    ]),
-    consumptionUsedWater: new FormControl(this._consumptionWidget.water.used, [
-      Validators.min(0),
-    ]),
+    consumptionUsedFuel: new FormControl(
+      this._consumptionWidget.fuel.used,
+      this._defaultValidators
+    ),
+    consumptionUsedWater: new FormControl(
+      this._consumptionWidget.water.used,
+      this._defaultValidators
+    ),
     consumptionUsedShorePower: new FormControl(
       this._consumptionWidget.shorePower.used,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
     consumptionBunkeredFuel: new FormControl(
       this._consumptionWidget.fuel.bunkered,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
     consumptionBunkeredWater: new FormControl(
       this._consumptionWidget.water.bunkered,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
     consumptionBunkeredShorePower: new FormControl(
       this._consumptionWidget.shorePower.bunkered,
-      [Validators.min(0)]
+      this._defaultValidators
     ),
   });
 
