@@ -78,6 +78,8 @@ export class CtvSummaryComponent implements OnChanges {
 
   public hoursOnHire: number = 0;
 
+  public engineHours: number = 0;
+
   public get weatherDownTimeDecidedByOptions() {
     return this._weatherDownTimeDecidedByOptions;
   }
