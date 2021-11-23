@@ -1,0 +1,41 @@
+$base-color: #ddd;
+$shine-color: #e8e8e8;
+
+.ctv-summary-consumption {
+  position: relative;
+
+  &__skeleton-overlay {
+    position: absolute;
+    opacity: 1;
+
+    background-image: linear-gradient(
+      90deg,
+      $base-color,
+      $shine-color,
+      $base-color
+    );
+    background-size: 16rem;
+
+    animation: shine 1.6s infinite linear;
+    transition: opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    &-disabled {
+      opacity: 0;
+    }
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0rem;
+  }
+  40%,
+  100% {
+    background-position: 16rem;
+  }
+}

@@ -1,0 +1,229 @@
+<form class="ctv-summary-consumption" [formGroup]="consumptionWidgetForm">
+  <table class="table table-bordered ctv-summary-table">
+    <tr>
+      <th colspan="4">
+        <h4>Consumption</h4>
+      </th>
+    </tr>
+    <tr class="extra-heading-row">
+      <th></th>
+      <th>Fuel (m<sup>3</sup>)</th>
+      <th>Water (Litres)</th>
+      <th>Shore power (kWh)</th>
+    </tr>
+    <tr>
+      <th>Start of day</th>
+      <td class="fillable">
+        <input
+          formControlName="consumptionStartOfDayFuel"
+          name="consumptionStartOfDayFuel"
+          id="consumptionStartOfDayFuel"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionStartOfDayFuel
+                .status === 'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionStartOfDayWater"
+          name="consumptionStartOfDayWater"
+          id="consumptionStartOfDayWater"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionStartOfDayWater
+                .status === 'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionStartOfDayShorePower"
+          name="consumptionStartOfDayShorePower"
+          id="consumptionStartOfDayShorePower"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionStartOfDayShorePower
+                .status === 'INVALID'
+          }"
+        />
+      </td>
+    </tr>
+    <tr>
+      <th>Used</th>
+      <td class="fillable">
+        <input
+          formControlName="consumptionUsedFuel"
+          name="consumptionUsedFuel"
+          id="consumptionUsedFuel"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionUsedFuel.status ===
+              'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionUsedWater"
+          name="consumptionUsedWater"
+          id="consumptionUsedWater"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionUsedWater.status ===
+              'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionUsedShorePower"
+          name="consumptionUsedShorePower"
+          id="consumptionUsedShorePower"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionUsedShorePower
+                .status === 'INVALID'
+          }"
+        />
+      </td>
+    </tr>
+    <tr>
+      <th>Bunkered</th>
+      <td class="fillable">
+        <input
+          formControlName="consumptionBunkeredFuel"
+          name="consumptionBunkeredFuel"
+          id="consumptionBunkeredFuel"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionBunkeredFuel.status ===
+              'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionBunkeredWater"
+          name="consumptionBunkeredWater"
+          id="consumptionBunkeredWater"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionBunkeredWater.status ===
+              'INVALID'
+          }"
+        />
+      </td>
+      <td class="fillable">
+        <input
+          formControlName="consumptionBunkeredShorePower"
+          name="consumptionBunkeredShorePower"
+          id="consumptionBunkeredShorePower"
+          class="form-control"
+          type="number"
+          placeholder="0"
+          min="0"
+          [ngClass]="{
+            'is-invalid':
+              consumptionWidgetForm.controls.consumptionBunkeredShorePower
+                .status === 'INVALID'
+          }"
+        />
+      </td>
+    </tr>
+    <tr>
+      <th>Remaining on board</th>
+      <td>
+        {{ consumptionWidget.fuel.remainingOnBoard }}
+      </td>
+      <td>
+        {{ consumptionWidget.water.remainingOnBoard }}
+      </td>
+      <td>
+        {{ consumptionWidget.shorePower.remainingOnBoard }}
+      </td>
+    </tr>
+    <tr>
+      <td
+        *ngIf="
+          consumptionWidgetForm.status === 'INVALID' ||
+          consumptionWidget.fuel.remainingOnBoard < 0 ||
+          consumptionWidget.water.remainingOnBoard < 0 ||
+          consumptionWidget.shorePower.remainingOnBoard < 0
+        "
+        class="flow-2 p-2"
+        colspan="4"
+      >
+        <div
+          *ngIf="consumptionWidgetForm.status === 'INVALID'"
+          class="alert alert-warning m-unset"
+          role="alert"
+        >
+          Please make sure all values are positive numbers.
+        </div>
+        <div
+          *ngIf="consumptionWidget.fuel.remainingOnBoard < 0"
+          class="alert alert-warning m-unset"
+          role="alert"
+        >
+          The remaining fuel cannot be negative.
+        </div>
+        <div
+          *ngIf="consumptionWidget.water.remainingOnBoard < 0"
+          class="alert alert-warning m-unset"
+          role="alert"
+        >
+          The remaining water cannot be negative.
+        </div>
+        <div
+          *ngIf="consumptionWidget.shorePower.remainingOnBoard < 0"
+          class="alert alert-warning m-unset"
+          role="alert"
+        >
+          The remaining shore power cannot be negative.
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div
+    *ngIf="showSkeletonOverlay"
+    class="ctv-summary-consumption__skeleton-overlay"
+    [ngClass]="{
+      'ctv-summary-consumption__skeleton-overlay-disabled':
+        startingValuesHaveBeenSet
+    }"
+  ></div>
+</form>

@@ -1,18 +1,19 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DatetimeService } from '@app/supportModules/datetime.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MapStore } from '@app/stores/map.store';
-import { CtvreportComponent } from './ctvreport.component';
-import { CtvslipgraphComponent } from '../models/ctvslipgraph/ctvslipgraph.component';
-import { CtvSummaryComponent } from '../ctv-summary/ctv-summary.component';
-import { CtvTurbineTransferComponent } from '../ctv-turbine-transfer/ctv-turbine-transfer.component';
-import { DprMapModule } from '../../map/dpr-map/dpr-map.module';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AutosizeModule } from 'ngx-autosize';
-import { SharedPipesModule } from '@app/shared';
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { CommonService } from '@app/common.service';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { DatetimeService } from "@app/supportModules/datetime.service";
+import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
+import { MapStore } from "@app/stores/map.store";
+import { CtvreportComponent } from "./ctvreport.component";
+import { CtvslipgraphComponent } from "../models/ctvslipgraph/ctvslipgraph.component";
+import { CtvSummaryComponent } from "../ctv-summary/ctv-summary.component";
+import { CtvSummaryConsumptionComponent } from "../ctv-summary/widgets/ctv-summary-consumption/ctv-summary-consumption.component";
+import { CtvTurbineTransferComponent } from "../ctv-turbine-transfer/ctv-turbine-transfer.component";
+import { DprMapModule } from "../../map/dpr-map/dpr-map.module";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AutosizeModule } from "ngx-autosize";
+import { SharedPipesModule } from "@app/shared";
+import { NgMultiSelectDropDownModule } from "ng-multiselect-dropdown";
+import { CommonService } from "@app/common.service";
 
 @NgModule({
   imports: [
@@ -27,18 +28,14 @@ import { CommonService } from '@app/common.service';
     SharedPipesModule,
     NgMultiSelectDropDownModule,
   ],
-  providers: [
-    CommonService,
-    DatetimeService,
-  ],
+  providers: [CommonService, DatetimeService],
   declarations: [
     CtvreportComponent,
     CtvslipgraphComponent,
     CtvSummaryComponent,
-    CtvTurbineTransferComponent
+    CtvTurbineTransferComponent,
+    CtvSummaryConsumptionComponent,
   ],
-  exports: [
-    CtvreportComponent
-  ]
+  exports: [CtvreportComponent],
 })
-export class CtvreportModule { }
+export class CtvreportModule {}

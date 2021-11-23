@@ -1,3 +1,5 @@
+<!-- TODO: private stuff is not accessible after compile, I need to correct some things I made private in this template here, oops -->
+
 <div *ngIf="generalInputStats || engine; else noValidData">
   <section class="ctv-summary-statistics">
     <h3 id="generalStatisticsHeader">
@@ -47,118 +49,7 @@
         </tr>
       </table>
       <!-- Consumption -->
-      <table class="table table-bordered ctv-summary-table">
-        <tr>
-          <th colspan="4">
-            <h4>Consumption</h4>
-          </th>
-        </tr>
-        <tr class="extra-heading-row">
-          <th></th>
-          <th>Fuel (m<sup>3</sup>)</th>
-          <th>Water (Litres)</th>
-          <th>Shore power (kWh)</th>
-        </tr>
-        <tr>
-          <th>Used</th>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.fuel.used"
-              name="consumptionUsedFuel"
-              id="consumptionUsedFuel"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.water.used"
-              name="consumptionUsedWater"
-              id="consumptionUsedWater"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.shorePower.used"
-              name="consumptionUsedShorePower"
-              id="consumptionUsedShorePower"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-        </tr>
-        <tr>
-          <th>Remaining on board</th>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.fuel.remainingOnBoard"
-              name="consumptionRemainingOnBoardFuel"
-              id="consumptionRemainingOnBoardFuel"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.water.remainingOnBoard"
-              name="consumptionRemainingOnBoardWater"
-              id="consumptionRemainingOnBoardWater"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.shorePower.remainingOnBoard"
-              name="consumptionRemainingOnBoardShorePower"
-              id="consumptionRemainingOnBoardShorePower"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-        </tr>
-        <tr>
-          <th>Bunkered</th>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.fuel.bunkered"
-              name="consumptionBunkeredFuel"
-              id="consumptionBunkeredFuel"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.water.bunkered"
-              name="consumptionBunkeredWater"
-              id="consumptionBunkeredWater"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-          <td class="fillable">
-            <input
-              [(ngModel)]="_consumptionWidget.shorePower.bunkered"
-              name="consumptionBunkeredShorePower"
-              id="consumptionBunkeredShorePower"
-              class="form-control"
-              type="number"
-              placeholder="0"
-            />
-          </td>
-        </tr>
-      </table>
+      <app-ctv-summary-consumption></app-ctv-summary-consumption>
       <!-- Fuel -->
       <table class="table table-bordered ctv-summary-table">
         <tr>

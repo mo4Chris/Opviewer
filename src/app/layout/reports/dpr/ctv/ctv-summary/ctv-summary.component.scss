@@ -144,8 +144,20 @@
   text-decoration-skip-ink: auto;
 }
 
-.m-0 {
-  margin: 0;
+.flow-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.m-unset {
+  margin: unset;
+}
+
+.p-unset {
+  padding: unset;
+}
+
+.p-2 {
+  padding: 0.5rem;
 }
 
 .emphasize {

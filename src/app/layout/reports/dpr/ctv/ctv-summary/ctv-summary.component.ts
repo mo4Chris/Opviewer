@@ -61,23 +61,6 @@ export class CtvSummaryComponent implements OnChanges {
     "Other drills",
   ];
 
-  private _consumptionWidget: CtvConsumptionWidgetModel = {
-    fuel: {
-      used: 0,
-      remainingOnBoard: 0,
-      bunkered: 0,
-    },
-    water: {
-      used: 0,
-      remainingOnBoard: 0,
-      bunkered: 0,
-    },
-    shorePower: {
-      used: 0,
-      remainingOnBoard: 0,
-      bunkered: 0,
-    },
-  };
 
   private _accessDayTypeOptions: selectOption<CtvAccessDayType>[] = [
     { label: "Full access", value: CtvAccessDayType.FullAccess },
@@ -301,18 +284,6 @@ interface CtvGeneralInputStatsModel {
   incidents: any;
   passengers: any;
   customInput: string;
-}
-
-interface CtvConsumptionWidgetModel {
-  fuel: CtvConsumptionUnitOptionsModel;
-  water: CtvConsumptionUnitOptionsModel;
-  shorePower: CtvConsumptionUnitOptionsModel;
-}
-
-interface CtvConsumptionUnitOptionsModel {
-  used: number;
-  remainingOnBoard: number;
-  bunkered: number;
 }
 
 enum CtvAccessDayType {
