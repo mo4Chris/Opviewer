@@ -15,6 +15,7 @@ export class GateAccessPickerComponent implements OnChanges {
     // General settings for the graph
     height: 400,
     width: 400,
+    dragmode: false,
     margin: {
       l: 40,
       r: 20,
@@ -221,8 +222,8 @@ export class GateAccessPickerComponent implements OnChanges {
 
   createBarPer10Degrees(index, isFirstOrLast) {
     const utilizationLimit = 100 - this.accessibilityPer10Degrees[index].workabilityLimit;
-    const degreeRangeStart = this.accessibilityPer10Degrees[index].startDegreeRange + 1;
-    const degreeRangeEnd = this.accessibilityPer10Degrees[index].endDegreeRange - 1;
+    const degreeRangeStart = this.accessibilityPer10Degrees[index].startDegreeRange + 3;
+    const degreeRangeEnd = this.accessibilityPer10Degrees[index].endDegreeRange - 3;
 
     let rangeAccessColor = this.getColorForAccesibility(this.accessibilityPer10Degrees[index].workabilityLimit);
 
@@ -236,6 +237,9 @@ export class GateAccessPickerComponent implements OnChanges {
       fill: "toself",
       fillcolor: rangeAccessColor,
       showlegend: false,
+      marker: {
+        symbol: 'triangle-down-open'
+       },
       line: {
         color: rangeAccessColor
       }

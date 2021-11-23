@@ -132,6 +132,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.getGeneralStats(),
           this.newService.getDistinctFieldnames(this.vesselObject)
         ]).subscribe(([_transfers, _comments, _videoRequests, _videoBudget, _engine, _general, _distinctFields]) => {
+          console.log(_transfers);
           this.videoBudget = _videoBudget[0] || { maxBudget: -1, currentBudget: -1 };
           this.matchCommentsWithTransfers(_transfers); // Requires video budget
           this.turbineTransfers = _transfers; // Needs to happen after match comments!
@@ -291,6 +292,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   private getTransfersForVessel() {
     return this.newService.getTransfersForVessel(this.vesselObject.mmsi, this.vesselObject.date).pipe(
       map((transfers) => {
+        console.log(transfers);
           this.visitedPark = transfers[0] ? transfers[0].fieldname : '';
           return transfers;
         }),
