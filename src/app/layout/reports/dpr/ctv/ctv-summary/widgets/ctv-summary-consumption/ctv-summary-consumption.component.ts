@@ -1,6 +1,7 @@
 // Third party dependencies
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-ctv-summary-consumption",
@@ -11,19 +12,26 @@ import { FormGroup, FormControl, Validators } from "@angular/forms";
     "./ctv-summary-consumption.component.scss",
   ],
 })
-export class CtvSummaryConsumptionComponent implements OnInit {
+export class CtvSummaryConsumptionComponent implements OnInit, OnDestroy {
   constructor() {}
 
+  private _consumptionWidgetFormSubscription: Subscription;
+
   ngOnInit(): void {
-    this.consumptionWidgetForm.valueChanges.subscribe((_) => {
-      this._syncConsumptionWidgetFormAndModel();
-    });
+    this._consumptionWidgetFormSubscription =
+      this.consumptionWidgetForm.valueChanges.subscribe((_) => {
+        this._syncConsumptionWidgetFormAndModel();
+      });
 
     // TODO: Replace with actual input check
     setTimeout(() => {
       this._startingValuesHaveBeenSet = true;
       this._removeSkeletonOverlay();
     }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    this._consumptionWidgetFormSubscription.unsubscribe();
   }
 
   public get showSkeletonOverlay() {
