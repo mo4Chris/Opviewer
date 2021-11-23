@@ -149,29 +149,50 @@
           </div>
         </div>
         <div class="ctv-summary-widget__cell">
-          <h4>Hours on hire</h4>
-          <div class="fillable-row">
-            <label for="hoursOnHire">Amount of hours</label>
-            <input
-              [(ngModel)]="hoursOnHire"
-              type="number"
-              name="hoursOnHire"
-              id="hoursOnHire"
-              class="form-control"
-              placeholder="0"
-            />
-          </div>
-          <div class="fillable-row">
-            <label for="engineHours">Engine hours</label>
-            <input
-              [(ngModel)]="engineHours"
-              type="number"
-              name="engineHours"
-              id="engineHours"
-              class="form-control"
-              placeholder="0"
-            />
-          </div>
+          <form class="flow-2" [formGroup]="hoursOnHireGroupForm">
+            <h4>Hours on hire</h4>
+            <div class="fillable-row">
+              <label for="hoursOnHire">Amount of hours</label>
+              <input
+                formControlName="hoursOnHireForm"
+                type="number"
+                name="hoursOnHire"
+                id="hoursOnHire"
+                class="form-control"
+                placeholder="0"
+                min="0"
+                [ngClass]="{
+                  'is-invalid':
+                    hoursOnHireGroupForm.controls.hoursOnHireForm.status ===
+                    'INVALID'
+                }"
+              />
+            </div>
+            <div class="fillable-row">
+              <label for="engineHours">Engine hours</label>
+              <input
+                formControlName="engineHoursForm"
+                type="number"
+                name="engineHours"
+                id="engineHours"
+                class="form-control"
+                placeholder="0"
+                min="0"
+                [ngClass]="{
+                  'is-invalid':
+                    hoursOnHireGroupForm.controls.engineHoursForm.status ===
+                    'INVALID'
+                }"
+              />
+            </div>
+            <div
+              *ngIf="hoursOnHireGroupForm.status === 'INVALID'"
+              class="alert alert-warning m-unset"
+              role="alert"
+            >
+              Please make sure all values are positive numbers.
+            </div>
+          </form>
         </div>
         <div class="ctv-summary-widget__cell ctv-summary-widget__cell--table">
           <table class="table ctv-summary-table">

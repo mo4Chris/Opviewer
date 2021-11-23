@@ -1,5 +1,7 @@
 // Third party dependencies
-import { Component, Input, OnChanges } from "@angular/core";
+import { Component, Input, OnInit, OnChanges, OnDestroy } from "@angular/core";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { Subscription } from "rxjs";
 import { map, catchError } from "rxjs/operators";
 
 // Services
@@ -25,7 +27,40 @@ import { TimesQuarterHour } from "@app/supportModules/datetime.service";
     "../ctvreport/ctvreport.component.scss",
   ],
 })
-export class CtvSummaryComponent implements OnChanges {
+export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
+  constructor(
+    private alert: AlertService,
+    private newService: CommonService,
+    private dateService: DatetimeService,
+    private calcService: CalculationService,
+    public permission: PermissionService,
+    public settings: SettingsService
+  ) {}
+
+  private _hoursOnHireGroupFormSubscription: Subscription;
+
+  ngOnInit(): void {
+    this._hoursOnHireGroupFormSubscription =
+      this.hoursOnHireGroupForm.valueChanges.subscribe((_) => {
+        this._syncHoursOnHireGroupFormAndModels();
+      });
+  }
+
+  ngOnChanges(): void {
+    if (this.engine && this.general && this.general.sailedDistance) {
+      this.tripEfficiency = this.calcService.getFuelEcon(
+        this.engine.fuelUsedTotalM3,
+        this.general.sailedDistance,
+        this.settings.unit_distance
+      );
+    }
+    this.setValueForFuelConsumed();
+  }
+
+  ngOnDestroy(): void {
+    this._hoursOnHireGroupFormSubscription.unsubscribe();
+  }
+
   @Input() general: CTVGeneralStatsModel;
   @Input() generalInputStats: CtvGeneralInputStatsModel;
   @Input() engine: CtvEngineModel;
@@ -61,6 +96,8 @@ export class CtvSummaryComponent implements OnChanges {
     "Other drills",
   ];
 
+  // Access day type
+
   public get accessDayTypeOptions() {
     return this._accessDayTypeOptions;
   }
@@ -76,9 +113,37 @@ export class CtvSummaryComponent implements OnChanges {
 
   public accessDayType: CtvAccessDayType = CtvAccessDayType.Unselected;
 
-  public hoursOnHire: number = 0;
+  // Hours on hire group
 
-  public engineHours: number = 0;
+  private _defaultNumberValidators = [
+    Validators.min(0),
+    Validators.pattern(/([0-9]*[.])?[0-9]+/),
+  ];
+
+  private _hoursOnHire: number = 0;
+
+  private _engineHours: number = 0;
+
+  public hoursOnHireGroupForm = new FormGroup({
+    hoursOnHireForm: new FormControl(
+      this._hoursOnHire,
+      this._defaultNumberValidators
+    ),
+    engineHoursForm: new FormControl(
+      this._engineHours,
+      this._defaultNumberValidators
+    ),
+  });
+
+  private _syncHoursOnHireGroupFormAndModels() {
+    const { hoursOnHireForm, engineHoursForm } =
+      this.hoursOnHireGroupForm.value;
+
+    this._hoursOnHire = hoursOnHireForm;
+    this._engineHours = engineHoursForm;
+  }
+
+  // Weather downtime
 
   public get weatherDownTimeDecidedByOptions() {
     return this._weatherDownTimeDecidedByOptions;
@@ -120,6 +185,8 @@ export class CtvSummaryComponent implements OnChanges {
   public handleWeatherDowntimeDeleteLastClicked() {
     this.weatherDowntimeWidget.pop();
   }
+
+  // HSE
 
   public HSECountTotalAmountOf(input: CtvHSERowOptionModel[]): number {
     const onlyNumbers = input.map(({ amount }) => amount);
@@ -185,28 +252,12 @@ export class CtvSummaryComponent implements OnChanges {
     this.HSEDrills.splice(index, 1);
   }
 
+  // Fuel
+
   public fuelConsumedValue = "0 liter";
   public tripEfficiency = "N/a";
 
-  constructor(
-    private alert: AlertService,
-    private newService: CommonService,
-    private dateService: DatetimeService,
-    private calcService: CalculationService,
-    public permission: PermissionService,
-    public settings: SettingsService
-  ) {}
-
-  ngOnChanges() {
-    if (this.engine && this.general && this.general.sailedDistance) {
-      this.tripEfficiency = this.calcService.getFuelEcon(
-        this.engine.fuelUsedTotalM3,
-        this.general.sailedDistance,
-        this.settings.unit_distance
-      );
-    }
-    this.setValueForFuelConsumed();
-  }
+  // TODO: The subscription in the method below needs to be unsubscribed at onDestroy.
 
   saveGeneralStats() {
     // ToDo We need some way to trigger this function
@@ -223,6 +274,8 @@ export class CtvSummaryComponent implements OnChanges {
       )
       .subscribe();
   }
+
+  // Computed-like methods for template
 
   setValueForFuelConsumed() {
     if (
@@ -272,11 +325,6 @@ export class CtvSummaryComponent implements OnChanges {
 
   trackByIndex(index: number, obj: any): any {
     return index;
-  }
-
-  debugPrint(x) {
-    console.log(x);
-    return "";
   }
 }
 
