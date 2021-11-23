@@ -123,30 +123,50 @@
             <label class="m-0" for="accessDayType"> Access day type </label>
           </h4>
           <select
-            [(ngModel)]="_accessDayType"
+            [(ngModel)]="accessDayType"
+            #accessDayTypeLocal="ngModel"
             class="form-control"
             name="accessDayType"
             id="accessDayType"
+            required
           >
-            <option value="UNSELECTED" disabled selected hidden>
-              Please select…
-            </option>
+            <option value="" disabled selected hidden>Please select…</option>
             <option
-              *ngFor="let option of _accessDayTypeOptions"
+              *ngFor="let option of accessDayTypeOptions"
               [value]="option.value"
               [label]="option.label"
             ></option>
           </select>
+          <div
+            *ngIf="
+              accessDayTypeLocal.errors?.required &&
+              (accessDayTypeLocal.dirty || accessDayTypeLocal.touched)
+            "
+            class="alert alert-warning"
+            role="alert"
+          >
+            Please select a value.
+          </div>
         </div>
         <div class="ctv-summary-widget__cell">
           <h4>Hours on hire</h4>
           <div class="fillable-row">
             <label for="hoursOnHire">Amount of hours</label>
             <input
-              [(ngModel)]="_hoursOnHire"
+              [(ngModel)]="hoursOnHire"
               type="number"
               name="hoursOnHire"
               id="hoursOnHire"
+              class="form-control"
+              placeholder="0"
+            />
+          </div>
+          <div class="fillable-row">
+            <label for="engineHours">Engine hours</label>
+            <input
+              type="number"
+              name="engineHours"
+              id="engineHours"
               class="form-control"
               placeholder="0"
             />
@@ -168,14 +188,14 @@
             </tr>
             <tr
               *ngFor="
-                let row of _weatherDowntimeWidget;
+                let row of weatherDowntimeWidget;
                 index as i;
                 trackBy: trackByIndex
               "
             >
               <td class="fillable">
                 <select
-                  [(ngModel)]="_weatherDowntimeWidget[i].decidedBy"
+                  [(ngModel)]="weatherDowntimeWidget[i].decidedBy"
                   class="form-control"
                   name="weatherDowntimeDecidedBy__{{ i }}"
                   id="weatherDowntimeDecidedBy__{{ i }}"
@@ -184,7 +204,7 @@
                     Please select…
                   </option>
                   <option
-                    *ngFor="let option of _weatherDownTimeDecidedByOptions"
+                    *ngFor="let option of weatherDownTimeDecidedByOptions"
                     [value]="option.value"
                     [label]="option.label"
                   ></option>
@@ -192,13 +212,13 @@
               </td>
               <td class="fillable">
                 <select
-                  [(ngModel)]="_weatherDowntimeWidget[i].from"
+                  [(ngModel)]="weatherDowntimeWidget[i].from"
                   class="form-control"
                   name="weatherDowntimeFrom__{{ i }}"
                   id="weatherDowntimeFrom__{{ i }}"
                 >
                   <option
-                    *ngFor="let option of _weatherDowntimeTimeOptions"
+                    *ngFor="let option of weatherDowntimeTimeOptions"
                     [value]="option"
                     [label]="option"
                   ></option>
@@ -206,13 +226,13 @@
               </td>
               <td class="fillable">
                 <select
-                  [(ngModel)]="_weatherDowntimeWidget[i].to"
+                  [(ngModel)]="weatherDowntimeWidget[i].to"
                   class="form-control"
                   name="weatherDowntimeTo__{{ i }}"
                   id="weatherDowntimeTo__{{ i }}"
                 >
                   <option
-                    *ngFor="let option of _weatherDowntimeTimeOptions"
+                    *ngFor="let option of weatherDowntimeTimeOptions"
                     [value]="option"
                     [label]="option"
                   ></option>
@@ -222,7 +242,7 @@
           </table>
           <div class="ctv-summary-widget__control-buttons">
             <button
-              (click)="_handleWeatherDowntimeAddLineClicked()"
+              (click)="handleWeatherDowntimeAddLineClicked()"
               type="button"
               class="btn btn-sm btn-success"
             >
@@ -230,7 +250,7 @@
               Add line
             </button>
             <button
-              (click)="_handleWeatherDowntimeDeleteLastClicked()"
+              (click)="handleWeatherDowntimeDeleteLastClicked()"
               type="button"
               class="btn btn-sm btn-danger"
             >
@@ -246,23 +266,23 @@
         <div class="ctv-summary-widget__cell">
           <h4>HSE</h4>
           <div class="information-row">
-            <p [ngClass]="{ emphasize: _HSESOCCards.length > 0 }">
+            <p [ngClass]="{ emphasize: HSESOCCards.length > 0 }">
               {{
-                _HSESOCCards.length > 0
-                  ? "SOC cards: " + _HSECountTotalAmountOf(_HSESOCCards)
+                HSESOCCards.length > 0
+                  ? "SOC cards: " + HSECountTotalAmountOf(HSESOCCards)
                   : "No SOC cards."
               }}
             </p>
             <ul class="hse-list">
               <li
                 *ngFor="
-                  let row of _HSESOCCards;
+                  let row of HSESOCCards;
                   index as i;
                   trackBy: trackByIndex
                 "
               >
                 <input
-                  [(ngModel)]="_HSESOCCards[i].inputReason"
+                  [(ngModel)]="HSESOCCards[i].inputReason"
                   type="text"
                   class="form-control"
                   name="HSESOCInputReason__{{ i }}"
@@ -271,7 +291,7 @@
                 />
                 <input
                   [ngbTooltip]="helpSOCAmount"
-                  [(ngModel)]="_HSESOCCards[i].amount"
+                  [(ngModel)]="HSESOCCards[i].amount"
                   type="number"
                   class="form-control"
                   name="HSESOCAmount__{{ i }}"
@@ -279,7 +299,7 @@
                 />
                 <button
                   [ngbTooltip]="helpRemoveSOCCard"
-                  (click)="_handleSOCRemoveCardWithIndex(i)"
+                  (click)="handleSOCRemoveCardWithIndex(i)"
                   type="button"
                   class="btn btn-sm btn-danger"
                 >
@@ -290,7 +310,7 @@
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
-              (click)="_handleSOCAddCardClicked()"
+              (click)="handleSOCAddCardClicked()"
               type="button"
               class="btn btn-sm btn-success"
             >
@@ -298,8 +318,8 @@
               Add SOC card
             </button>
             <button
-              *ngIf="_HSESOCRemoveLastCardButtonEnabled"
-              (click)="_handleSOCRemoveLastCardClicked()"
+              *ngIf="HSESOCRemoveLastCardButtonEnabled"
+              (click)="handleSOCRemoveLastCardClicked()"
               type="button"
               class="btn btn-sm btn-danger"
             >
@@ -308,23 +328,23 @@
             </button>
           </div>
           <div class="information-row">
-            <p [ngClass]="{ emphasize: _HSEToolboxTalks.length > 0 }">
+            <p [ngClass]="{ emphasize: HSEToolboxTalks.length > 0 }">
               {{
-                _HSEToolboxTalks.length > 0
-                  ? "Toolbox talks: " + _HSECountTotalAmountOf(_HSEToolboxTalks)
+                HSEToolboxTalks.length > 0
+                  ? "Toolbox talks: " + HSECountTotalAmountOf(HSEToolboxTalks)
                   : "No toolbox talks."
               }}
             </p>
             <ul class="hse-list">
               <li
                 *ngFor="
-                  let row of _HSEToolboxTalks;
+                  let row of HSEToolboxTalks;
                   index as i;
                   trackBy: trackByIndex
                 "
               >
                 <input
-                  [(ngModel)]="_HSEToolboxTalks[i].inputReason"
+                  [(ngModel)]="HSEToolboxTalks[i].inputReason"
                   type="text"
                   class="form-control"
                   name="HSEToolboxTalkInputReason__{{ i }}"
@@ -333,7 +353,7 @@
                 />
                 <input
                   [ngbTooltip]="helpSOCAmount"
-                  [(ngModel)]="_HSEToolboxTalks[i].amount"
+                  [(ngModel)]="HSEToolboxTalks[i].amount"
                   type="number"
                   class="form-control"
                   name="HSEToolboxTalkAmount__{{ i }}"
@@ -341,7 +361,7 @@
                 />
                 <button
                   [ngbTooltip]="helpRemoveSOCToolboxTalk"
-                  (click)="_handleToolboxTalksRemoveWithIndex(i)"
+                  (click)="handleToolboxTalksRemoveWithIndex(i)"
                   type="button"
                   class="btn btn-sm btn-danger"
                 >
@@ -352,7 +372,7 @@
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
-              (click)="_handleToolboxTalksAddClicked()"
+              (click)="handleToolboxTalksAddClicked()"
               type="button"
               class="btn btn-sm btn-success"
             >
@@ -360,8 +380,8 @@
               Add toolbox talk
             </button>
             <button
-              *ngIf="_HSEToolboxTalksRemoveLastButtonEnabled"
-              (click)="_handleToolboxTalksRemoveLastClicked()"
+              *ngIf="HSEToolboxTalksRemoveLastButtonEnabled"
+              (click)="handleToolboxTalksRemoveLastClicked()"
               type="button"
               class="btn btn-sm btn-danger"
             >
@@ -370,23 +390,19 @@
             </button>
           </div>
           <div class="information-row">
-            <p [ngClass]="{ emphasize: _HSEDrills.length > 0 }">
+            <p [ngClass]="{ emphasize: HSEDrills.length > 0 }">
               {{
-                _HSEDrills.length > 0
-                  ? "Drills: " + _HSECountTotalAmountOf(_HSEDrills)
+                HSEDrills.length > 0
+                  ? "Drills: " + HSECountTotalAmountOf(HSEDrills)
                   : "No drills."
               }}
             </p>
             <ul class="hse-list">
               <li
-                *ngFor="
-                  let row of _HSEDrills;
-                  index as i;
-                  trackBy: trackByIndex
-                "
+                *ngFor="let row of HSEDrills; index as i; trackBy: trackByIndex"
               >
                 <input
-                  [(ngModel)]="_HSEDrills[i].inputReason"
+                  [(ngModel)]="HSEDrills[i].inputReason"
                   type="text"
                   class="form-control"
                   name="HSEDrillInputReason__{{ i }}"
@@ -396,7 +412,7 @@
                 <p>P:</p>
                 <input
                   [ngbTooltip]="helpSOCInvolvedPassengers"
-                  [(ngModel)]="_HSEDrills[i].involvedPassengers"
+                  [(ngModel)]="HSEDrills[i].involvedPassengers"
                   type="checkbox"
                   class="form-control"
                   name="HSEDrillInvolvedPassengers__{{ i }}"
@@ -404,7 +420,7 @@
                 />
                 <input
                   [ngbTooltip]="helpSOCAmount"
-                  [(ngModel)]="_HSEDrills[i].amount"
+                  [(ngModel)]="HSEDrills[i].amount"
                   type="number"
                   class="form-control"
                   name="HSEDrillAmount__{{ i }}"
@@ -412,7 +428,7 @@
                 />
                 <button
                   [ngbTooltip]="helpRemoveSOCDrill"
-                  (click)="_handleDrillsRemoveWithIndex(i)"
+                  (click)="handleDrillsRemoveWithIndex(i)"
                   type="button"
                   class="btn btn-sm btn-danger"
                 >
@@ -423,7 +439,7 @@
           </div>
           <div class="ctv-summary-widget__control-buttons">
             <button
-              (click)="_handleDrillsAddClicked()"
+              (click)="handleDrillsAddClicked()"
               type="button"
               class="btn btn-sm btn-success"
             >
@@ -431,8 +447,8 @@
               Add drill
             </button>
             <button
-              *ngIf="_HSEDrillsRemoveLastButtonEnabled"
-              (click)="_handleDrillsRemoveLastClicked()"
+              *ngIf="HSEDrillsRemoveLastButtonEnabled"
+              (click)="handleDrillsRemoveLastClicked()"
               type="button"
               class="btn btn-sm btn-danger"
             >

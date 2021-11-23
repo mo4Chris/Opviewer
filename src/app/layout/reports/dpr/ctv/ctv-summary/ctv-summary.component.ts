@@ -61,6 +61,9 @@ export class CtvSummaryComponent implements OnChanges {
     "Other drills",
   ];
 
+  public get accessDayTypeOptions() {
+    return this._accessDayTypeOptions;
+  }
 
   private _accessDayTypeOptions: selectOption<CtvAccessDayType>[] = [
     { label: "Full access", value: CtvAccessDayType.FullAccess },
@@ -71,9 +74,13 @@ export class CtvSummaryComponent implements OnChanges {
     { label: "Off contract", value: CtvAccessDayType.OffContract },
   ];
 
-  private _accessDayType: CtvAccessDayType = CtvAccessDayType.Unselected;
+  public accessDayType: CtvAccessDayType = CtvAccessDayType.Unselected;
 
-  private _hoursOnHire: number = 0;
+  public hoursOnHire: number = 0;
+
+  public get weatherDownTimeDecidedByOptions() {
+    return this._weatherDownTimeDecidedByOptions;
+  }
 
   private _weatherDownTimeDecidedByOptions: selectOption<CtvWeatherDowntimeDecidingParties>[] =
     [
@@ -91,24 +98,28 @@ export class CtvSummaryComponent implements OnChanges {
       },
     ];
 
+  public get weatherDowntimeTimeOptions() {
+    return this._weatherDowntimeTimeOptions;
+  }
+
   private _weatherDowntimeTimeOptions =
     this.dateService.createTimesQuarterHour();
 
-  private _weatherDowntimeWidget: CtvWeatherDowntimeRowOptionsModel[] = [];
+  public weatherDowntimeWidget: CtvWeatherDowntimeRowOptionsModel[] = [];
 
-  private _handleWeatherDowntimeAddLineClicked() {
-    this._weatherDowntimeWidget.push({
+  public handleWeatherDowntimeAddLineClicked() {
+    this.weatherDowntimeWidget.push({
       decidedBy: CtvWeatherDowntimeDecidingParties.Charterer,
       from: "00:00",
       to: "00:00",
     });
   }
 
-  private _handleWeatherDowntimeDeleteLastClicked() {
-    this._weatherDowntimeWidget.pop();
+  public handleWeatherDowntimeDeleteLastClicked() {
+    this.weatherDowntimeWidget.pop();
   }
 
-  private _HSECountTotalAmountOf(input: CtvHSERowOptionModel[]): number {
+  public HSECountTotalAmountOf(input: CtvHSERowOptionModel[]): number {
     const onlyNumbers = input.map(({ amount }) => amount);
     const reducable = [0, ...onlyNumbers];
     const totalAmount = reducable.reduce((prev, curr) => {
@@ -124,52 +135,52 @@ export class CtvSummaryComponent implements OnChanges {
     };
   }
 
-  private _HSESOCCards: CtvHSERowOptionModel[] = [];
-  private _HSESOCRemoveLastCardButtonEnabled = false;
+  public HSESOCCards: CtvHSERowOptionModel[] = [];
+  public HSESOCRemoveLastCardButtonEnabled = false;
 
-  private _handleSOCAddCardClicked() {
-    this._HSESOCCards.push(this._HSEEmptyRowOption());
+  public handleSOCAddCardClicked() {
+    this.HSESOCCards.push(this._HSEEmptyRowOption());
   }
 
-  private _handleSOCRemoveLastCardClicked() {
-    this._HSESOCCards.pop();
+  public handleSOCRemoveLastCardClicked() {
+    this.HSESOCCards.pop();
   }
 
-  private _handleSOCRemoveCardWithIndex(index: number) {
-    this._HSESOCCards.splice(index, 1);
+  public handleSOCRemoveCardWithIndex(index: number) {
+    this.HSESOCCards.splice(index, 1);
   }
 
-  private _HSEToolboxTalks: CtvHSERowOptionModel[] = [];
-  private _HSEToolboxTalksRemoveLastButtonEnabled = false;
+  public HSEToolboxTalks: CtvHSERowOptionModel[] = [];
+  public HSEToolboxTalksRemoveLastButtonEnabled = false;
 
-  private _handleToolboxTalksAddClicked() {
-    this._HSEToolboxTalks.push(this._HSEEmptyRowOption());
+  public handleToolboxTalksAddClicked() {
+    this.HSEToolboxTalks.push(this._HSEEmptyRowOption());
   }
 
-  private _handleToolboxTalksRemoveLastClicked() {
-    this._HSEToolboxTalks.pop();
+  public handleToolboxTalksRemoveLastClicked() {
+    this.HSEToolboxTalks.pop();
   }
 
-  private _handleToolboxTalksRemoveWithIndex(index: number) {
-    this._HSEToolboxTalks.splice(index, 1);
+  public handleToolboxTalksRemoveWithIndex(index: number) {
+    this.HSEToolboxTalks.splice(index, 1);
   }
 
-  private _HSEDrills: CtvHSEDrillOptionModel[] = [];
-  private _HSEDrillsRemoveLastButtonEnabled = false;
+  public HSEDrills: CtvHSEDrillOptionModel[] = [];
+  public HSEDrillsRemoveLastButtonEnabled = false;
 
-  private _handleDrillsAddClicked() {
-    this._HSEDrills.push({
+  public handleDrillsAddClicked() {
+    this.HSEDrills.push({
       ...this._HSEEmptyRowOption(),
       involvedPassengers: false,
     });
   }
 
-  private _handleDrillsRemoveLastClicked() {
-    this._HSEDrills.pop();
+  public handleDrillsRemoveLastClicked() {
+    this.HSEDrills.pop();
   }
 
-  private _handleDrillsRemoveWithIndex(index: number) {
-    this._HSEDrills.splice(index, 1);
+  public handleDrillsRemoveWithIndex(index: number) {
+    this.HSEDrills.splice(index, 1);
   }
 
   public fuelConsumedValue = "0 liter";
@@ -260,6 +271,11 @@ export class CtvSummaryComponent implements OnChanges {
   trackByIndex(index: number, obj: any): any {
     return index;
   }
+
+  debugPrint(x) {
+    console.log(x);
+    return "";
+  }
 }
 
 interface CtvEngineModel {
@@ -293,7 +309,7 @@ enum CtvAccessDayType {
   NotRequired = "NOT_REQUIRED",
   Maintenance = "MAINTENANCE",
   OffContract = "OFF_CONTRACT",
-  Unselected = "UNSELECTED",
+  Unselected = "",
 }
 
 interface CtvWeatherDowntimeRowOptionsModel {
@@ -306,7 +322,7 @@ enum CtvWeatherDowntimeDecidingParties {
   Charterer = "CHARTERER",
   VesselMaster = "VESSEL_MASTER",
   JointDecision = "JOINT_DECISION",
-  Unselected = "UNSELECTED",
+  Unselected = "",
 }
 
 interface CtvHSERowOptionModel {
