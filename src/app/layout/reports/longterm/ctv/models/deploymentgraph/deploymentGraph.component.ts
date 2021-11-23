@@ -224,9 +224,10 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
             });
             if (this.Chart) {
                 // Update the chart
+                const lastDateLabel = dateLabels.length - 1;
                 this.Chart.data = dsets;
                 this.Chart.scales['x-axis-time'].options.time.min = dateLabels[0];
-                this.Chart.scales['x-axis-time'].options.time.max = dateLabels[-1];
+                this.Chart.scales['x-axis-time'].options.time.max = dateLabels[lastDateLabel];
                 this.Chart.update();
             } else {
                 this.constructNewChart(dsets);
