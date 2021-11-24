@@ -217,6 +217,18 @@
         </div>
       </td>
     </tr>
+    <tr>
+      <td colspan="4">
+        <button
+          (click)="save()"
+          class="btn btn-primary"
+          [ngClass]="{ disabled: !touchedForm }"
+          [disabled]="!touchedForm"
+        >
+          Save
+        </button>
+      </td>
+    </tr>
   </table>
   <div
     *ngIf="showSkeletonOverlay"

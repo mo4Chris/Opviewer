@@ -32,9 +32,16 @@ export class CtvSummaryConsumptionComponent
 
   private _consumptionWidgetFormSubscription: Subscription;
 
+  public get touchedForm() {
+    return this._touchedForm;
+  }
+
+  private _touchedForm = false;
+
   ngOnInit(): void {
     this._consumptionWidgetFormSubscription =
       this.consumptionWidgetForm.valueChanges.subscribe((_) => {
+        this._touchedForm = true;
         this._syncConsumptionWidgetFormAndModel();
       });
   }
@@ -99,10 +106,6 @@ export class CtvSummaryConsumptionComponent
     return this._showSkeletonOverlay;
   }
 
-  public get startingValuesHaveBeenSet() {
-    return this._startingValuesHaveBeenSet;
-  }
-
   public get consumptionWidget() {
     return this._consumptionWidget;
   }
@@ -115,7 +118,9 @@ export class CtvSummaryConsumptionComponent
     }, 300);
   }
 
-  private _startingValuesHaveBeenSet = false;
+  public save() {
+    console.log(this.consumptionWidget);
+  }
 
   private _consumptionWidget: CtvConsumptionWidgetModel = {
     fuel: {
