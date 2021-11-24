@@ -749,7 +749,7 @@ app.post("/api/getSovDprInput", function(req, res) {
       }).exec(function(err, data) {
         if (err) return onError(res, err);
         let dprData = {};
-        
+
         if (data?.date > 0) {
           dprData = {
             "mmsi": req?.body?.mmsi,
@@ -831,7 +831,7 @@ app.post("/api/getSovDprInput", function(req, res) {
                 signedOffClient: ''
               }
             };
-        } 
+        }
         let sovDprData = new sov.SovDprInputModel(dprData);
 
         sovDprData.save((error, dprData) => {
