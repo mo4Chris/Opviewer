@@ -113,6 +113,66 @@ const engineData = new Schema({
 });
 const EngineDataModel = mongo.model("engine", engineData, "engine");
 
+const CtvDprInput = new Schema({
+  date: Number,
+  mmsi: Number,
+  consumption: {
+    fuel: {
+      startOfDay: Number,
+      used: Number,
+      remainingOnBoard: Number,
+      bunkered: Number,
+    },
+    water: {
+      startOfDay: Number,
+      used: Number,
+      remainingOnBoard: Number,
+      bunkered: Number,
+    },
+    shorePower: {
+      startOfDay: Number,
+      used: Number,
+      remainingOnBoard: Number,
+      bunkered: Number,
+    },
+  },
+  accessDayType: { type: String, default: "" },
+  amountOfHours: Number,
+  engineHours: Number,
+  weatherDowntime: [
+    {
+      decidedBy: String,
+      from: String,
+      to: String,
+    },
+  ],
+  HSE: {
+    SOCCards: [
+      {
+        inputReason: String,
+        amount: Number,
+      },
+    ],
+    toolboxTalks: [
+      {
+        inputReason: String,
+        amount: Number,
+      },
+    ],
+    drills: [
+      {
+        inputReason: String,
+        involvedPassengers: Boolean,
+        amount: Number,
+      },
+    ],
+  },
+});
+const CtvDprInputModel = mongo.model(
+  "CTV_dprInput",
+  CtvDprInput,
+  "CTV_dprInput"
+);
 
 module.exports = {
   GeneralModel,
@@ -121,4 +181,5 @@ module.exports = {
   TransitsModel,
   HasSailedModelCTV,
   EngineDataModel,
-}
+  CtvDprInputModel,
+};
