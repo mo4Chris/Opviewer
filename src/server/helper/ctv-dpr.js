@@ -82,7 +82,7 @@ async function getCtvDprInput(req, res) {
   const data = await CtvDprInputModel.find({ mmsi, date }).exec();
   if (data.length > 0) {
     // An entry already exists, so we don't need to create a new one.
-    return res.status(200).send(data);
+    return res.status(200).send(data[0]);
   }
 
   // There is no entry, a fresh one has to be created for this date.
