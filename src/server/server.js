@@ -24,6 +24,8 @@ const connections = require('./helper/connections')
 
 const { validatePermissionToViewVesselData } = require('./helper/validation');
 
+const { getCtvDprInput } = require('./helper/ctv-dpr');
+
 //#########################################################
 //########### Init up application middleware  #############
 //#########################################################
@@ -731,6 +733,13 @@ app.post("/api/getDatesWithValues", function(req, res) {
   });
 });
 
+app.post("/api/getCtvDprInput", async (req, res) => {
+  try {
+    await getCtvDprInput(req, res);
+  } catch (err) {
+    return onError(res, err);
+  }
+});
 
 app.post("/api/getSovDprInput", function(req, res) {
   validatePermissionToViewVesselData(req, res, function(validated) {
