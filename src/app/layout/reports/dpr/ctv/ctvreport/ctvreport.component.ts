@@ -32,6 +32,13 @@ import {
 } from "../../models/generalstats.model";
 import { MapStore, TurbinePark } from "@app/stores/map.store";
 import { TokenModel } from "@app/models/tokenModel";
+import { CtvConsumptionWidgetModel } from "../ctv-summary/widgets/ctv-summary-consumption/ctv-summary-consumption.component";
+import {
+  CtvAccessDayType,
+  CtvHSEDrillOptionModel,
+  CtvHSERowOptionModel,
+  CtvWeatherDowntimeRowOptionsModel,
+} from "../ctv-summary/ctv-summary.component";
 
 @Component({
   selector: "app-ctvreport",
@@ -52,6 +59,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   public videoRequests;
   public videoBudget;
   public general: CTVGeneralStatsModel;
+  public dprInputData: CTVDprInputModel;
 
   public noPermissionForData: boolean;
   public toolboxConducted = [];
@@ -82,6 +90,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
   public showMap = false;
   public isLoading = true;
   public hasData = false;
+  public hasDprInputData = false;
   public wavedataLoaded = false;
   public vesselUtcOffset: number;
 
@@ -139,6 +148,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
       this.loaded.emit(true);
       console.error(err);
     }
+    this.hasDprInputData = false;
+    this._loadDprInputData();
   }
 
   loadDprData() {
@@ -189,6 +200,14 @@ export class CtvreportComponent implements OnInit, OnChanges {
           this.loaded.emit(true);
         }
       });
+  }
+
+  private _loadDprInputData() {
+    console.log("getCtvDprInput");
+    const { mmsi, date } = this.vesselObject;
+    this.newService.getCtvDprInput(mmsi, date).subscribe((data) => {
+      this.dprInputData = data;
+    });
   }
 
   // Callbacks
@@ -682,4 +701,20 @@ interface VideoRequestModel {
   disabled: boolean;
   status?: string;
   active?: boolean;
+}
+
+export interface CTVDprInputModel {
+  mmsi: number;
+  date: number;
+  schemaVersion: number;
+  consumption: CtvConsumptionWidgetModel;
+  accessDayType: CtvAccessDayType;
+  amountOfHoursOnHire: number;
+  engineHours: number;
+  weatherDowntime: CtvWeatherDowntimeRowOptionsModel[];
+  HSE: {
+    SOCCards: CtvHSERowOptionModel[];
+    toolboxTalks: CtvHSERowOptionModel[];
+    drills: CtvHSEDrillOptionModel[];
+  };
 }

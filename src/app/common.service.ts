@@ -17,6 +17,7 @@ import { ForecastVesselRequest } from './layout/forecast/forecast-project/foreca
 import { TwaSaveFleetModel } from './layout/TWA/models/requests';
 import { UsermanagementVesselModel } from './layout/usermanagement/usermanagement.component';
 import { UserService } from './shared/services/user.service';
+import { CTVDprInputModel } from './layout/reports/dpr/ctv/ctvreport/ctvreport.component';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -183,6 +184,9 @@ export class CommonService {
   }
   getCommentsForVessel(vessel: VesselObjectModel) {
     return this.post('/api/getCommentsForVessel/', vessel);
+  }
+  getCtvDprInput(mmsi, date): Observable<CTVDprInputModel> {
+    return this.post('/api/getCtvDprInput', { mmsi, date });
   }
 
 
