@@ -32,6 +32,7 @@ function emptyCtvDprInput(mmsi, date) {
   return {
     mmsi,
     date,
+    schemaVersion: 2,
     consumption: {
       fuel: {
         ...emptyStats,
@@ -44,7 +45,7 @@ function emptyCtvDprInput(mmsi, date) {
       },
     },
     accessDayType: "",
-    amountOfHours: 0,
+    amountOfHoursOnHire: 0,
     engineHours: 0,
     weatherDowntime: [],
     HSE: {

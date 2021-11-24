@@ -116,6 +116,7 @@ const EngineDataModel = mongo.model("engine", engineData, "engine");
 const CtvDprInput = new Schema({
   date: Number,
   mmsi: Number,
+  schemaVersion: { type: Number, default: 2 },
   consumption: {
     fuel: {
       startOfDay: Number,
@@ -137,7 +138,7 @@ const CtvDprInput = new Schema({
     },
   },
   accessDayType: { type: String, default: "" },
-  amountOfHours: Number,
+  amountOfHoursOnHire: Number,
   engineHours: Number,
   weatherDowntime: [
     {
