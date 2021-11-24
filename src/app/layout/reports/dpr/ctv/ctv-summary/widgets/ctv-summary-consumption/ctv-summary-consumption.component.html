@@ -220,10 +220,9 @@
   </table>
   <div
     *ngIf="showSkeletonOverlay"
-    class="ctv-summary-consumption__skeleton-overlay"
+    class="skeleton-overlay"
     [ngClass]="{
-      'ctv-summary-consumption__skeleton-overlay-disabled':
-        startingValuesHaveBeenSet
+      'skeleton-overlay--disabled': startingValuesHaveBeenSet
     }"
   ></div>
 </form>
