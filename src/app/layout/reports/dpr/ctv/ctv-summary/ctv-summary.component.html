@@ -117,7 +117,7 @@
         </tr>
       </table>
       <!-- Access day type / Weather downtime / Hours on hire -->
-      <div class="table-bordered ctv-summary-widget">
+      <div class="table-bordered ctv-summary-widget position-relative">
         <div class="ctv-summary-widget__cell">
           <h4>
             <label class="m-0" for="accessDayType"> Access day type </label>
@@ -281,10 +281,17 @@
             </button>
           </div>
         </div>
+        <div
+          *ngIf="showSkeletonOverlay"
+          class="skeleton-overlay"
+          [ngClass]="{
+            'skeleton-overlay--disabled': dataReady
+          }"
+        ></div>
       </div>
       <!-- HSE -->
       <!-- TODO: This HSE widget should be made generic so it can be re-used on other views. -->
-      <div class="table-bordered ctv-summary-widget">
+      <div class="table-bordered ctv-summary-widget position-relative">
         <div class="ctv-summary-widget__cell">
           <h4>HSE</h4>
           <div class="information-row">
@@ -529,7 +536,15 @@
             </button>
           </div>
         </div>
+        <div
+          *ngIf="showSkeletonOverlay"
+          class="skeleton-overlay"
+          [ngClass]="{
+            'skeleton-overlay--disabled': dataReady
+          }"
+        ></div>
       </div>
+
       <!-- Transit -->
       <table class="table table-bordered ctv-summary-table">
         <tr>

@@ -165,7 +165,7 @@ export class CtvSummaryConsumptionComponent implements OnInit, OnDestroy {
   }
 }
 
-interface CtvConsumptionWidgetModel {
+export interface CtvConsumptionWidgetModel {
   fuel: CtvConsumptionUnitOptionsModel;
   water: CtvConsumptionUnitOptionsModel;
   shorePower: CtvConsumptionUnitOptionsModel;

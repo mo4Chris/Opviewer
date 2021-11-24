@@ -15,6 +15,7 @@ import { SettingsService } from "@app/supportModules/settings.service";
 // Models
 import { CTVGeneralStatsModel } from "../../models/generalstats.model";
 import { TokenModel } from "@app/models/tokenModel";
+import { CTVDprInputModel } from "../ctvreport/ctvreport.component";
 
 // Types
 import { TimesQuarterHour } from "@app/supportModules/datetime.service";
@@ -37,6 +38,20 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     public settings: SettingsService
   ) {}
 
+  @Input() public data: CTVDprInputModel;
+
+  public get dataReady() {
+    return this._dataReady;
+  }
+
+  private _dataReady = false;
+
+  public get showSkeletonOverlay() {
+    return this._showSkeletonOverlay;
+  }
+
+  private _showSkeletonOverlay = true;
+
   private _hoursOnHireGroupFormSubscription: Subscription;
 
   ngOnInit(): void {
@@ -55,6 +70,14 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
     this.setValueForFuelConsumed();
+
+    if (this.dataReady) {
+      this._removeSkeletonOverlay();
+    } else {
+      if (this.data) {
+        this._setupData(this.data);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -95,6 +118,33 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     "Oil Spill",
     "Other drills",
   ];
+
+  private _setupData(data: CTVDprInputModel) {
+    this.HSESOCCards = data.HSE.SOCCards;
+    this.HSEToolboxTalks = data.HSE.toolboxTalks;
+    this.HSEDrills = data.HSE.drills;
+
+    this.accessDayType = data.accessDayType;
+
+    this._hoursOnHire = data.amountOfHoursOnHire;
+    this.hoursOnHireGroupForm.controls.hoursOnHireForm.setValue(
+      data.amountOfHoursOnHire
+    );
+    this._engineHours = data.engineHours;
+    this.hoursOnHireGroupForm.controls.engineHoursForm.setValue(
+      data.engineHours
+    );
+
+    this.weatherDowntimeWidget = data.weatherDowntime;
+
+    this._dataReady = true;
+  }
+
+  private _removeSkeletonOverlay() {
+    setTimeout(() => {
+      this._showSkeletonOverlay = false;
+    }, 300);
+  }
 
   // Access day type
 
@@ -425,7 +475,7 @@ interface CtvGeneralInputStatsModel {
   customInput: string;
 }
 
-enum CtvAccessDayType {
+export enum CtvAccessDayType {
   FullAccess = "FULL_ACCESS",
   HalfAccess = "HALF_ACCESS",
   WeatherDay = "WEATHER_DAY",
@@ -435,7 +485,7 @@ enum CtvAccessDayType {
   Unselected = "",
 }
 
-interface CtvWeatherDowntimeRowOptionsModel {
+export interface CtvWeatherDowntimeRowOptionsModel {
   decidedBy: CtvWeatherDowntimeDecidingParties;
   from: TimesQuarterHour;
   to: TimesQuarterHour;
@@ -448,12 +498,12 @@ enum CtvWeatherDowntimeDecidingParties {
   Unselected = "",
 }
 
-interface CtvHSERowOptionModel {
+export interface CtvHSERowOptionModel {
   inputReason: string;
   amount: number;
 }
 
-interface CtvHSEDrillOptionModel extends CtvHSERowOptionModel {
+export interface CtvHSEDrillOptionModel extends CtvHSERowOptionModel {
   involvedPassengers: boolean;
 }
 
