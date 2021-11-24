@@ -1,75 +1,97 @@
-var mongo = require("mongoose")
-var Schema = mongo.Schema;
+"use strict";
 
-var generalSchema = new Schema({
   mmsi: { type: Number },
-  vesselname: { type: String },
-  date: { type: Number },
-  minutesFloating: { type: Number },
-  minutesInField: { type: Number },
-  distancekm: { type: Number },
-  DPRstats: { type: Object },
-  inputStats: { type: Object }
-}, { versionKey: false });
-var GeneralModel = mongo.model('general', generalSchema, 'general');
+// Third party dependencies
+const mongo = require("mongoose");
+const { Schema } = mongo;
 
-var TransferSchema = new Schema({
-  mmsi: { type: Number },
-  vesselname: { type: String },
-  date: { type: Number },
-  startTime: { type: Number },
-  stopTime: { type: Number },
-  duration: { type: Number },
-  location: { type: String },
-  fieldname: { type: String },
-  paxUp: { type: Number },
-  paxDown: { type: Number },
-  cargoUp: { type: Number },
   cargoDown: { type: Number },
-  comment: { type: String },
-  commentChanged: { type: Object },
-  detector: { type: String },
-  videoAvailable: { type: Number },
-  videoPath: { type: String },
-  videoDurationMinutes: { type: Number }
-}, { versionKey: false });
-var TransferModel = mongo.model('transfers', TransferSchema, 'transfers');
+const generalSchema = new Schema(
+  {
+    mmsi: { type: Number },
+    vesselname: { type: String },
+    date: { type: Number },
+    minutesFloating: { type: Number },
+    minutesInField: { type: Number },
+    distancekm: { type: Number },
+    DPRstats: { type: Object },
+    inputStats: { type: Object },
+  },
+  { versionKey: false }
+);
+const GeneralModel = mongo.model("general", generalSchema, "general");
 
-var CommentsChangedSchema = new Schema({
-  mmsi: { type: Number },
-  oldComment: { type: String },
-  newComment: { type: String },
-  idTransfer: { type: String },
-  otherComment: { type: String },
-  commentChanged: { type: Object },
-  userID: { type: String },
-  processed: { type: String },
-  paxUp: { type: Number },
-  paxDown: { type: Number },
-  cargoUp: { type: Number },
-  cargoDown: { type: Number },
-  date: { type: Number }
-}, { versionKey: false });
-var CommentsChangedModel = mongo.model('CommentsChanged', CommentsChangedSchema, 'CommentsChanged');
+const TransferSchema = new Schema(
+  {
+    mmsi: { type: Number },
+    vesselname: { type: String },
+    date: { type: Number },
+    startTime: { type: Number },
+    duration: { type: Number },
+    location: { type: String },
+    fieldname: { type: String },
+    paxUp: { type: Number },
+    paxDown: { type: Number },
+    cargoUp: { type: Number },
+    cargoDown: { type: Number },
+    comment: { type: String },
+    commentChanged: { type: Object },
+    detector: { type: String },
+    videoAvailable: { type: Number },
+    videoPath: { type: String },
+    videoDurationMinutes: { type: Number },
+  },
+  { versionKey: false }
+);
+const TransferModel = mongo.model("transfers", TransferSchema, "transfers");
 
-var transitSchema = new Schema({
-  vesselname: { type: String },
-  nicename: { type: String },
-  client: { type: String },
-  mmsi: { type: Number },
-  lat: { type: Array },
-  lon: { type: Array }
-}, { versionKey: false });
-var TransitsModel = mongo.model('transits', transitSchema, 'transits');
+const CommentsChangedSchema = new Schema(
+  {
+    mmsi: { type: Number },
+    oldComment: { type: String },
+    newComment: { type: String },
+    idTransfer: { type: String },
+    otherComment: { type: String },
+    commentChanged: { type: Object },
+    userID: { type: String },
+    processed: { type: String },
+    paxUp: { type: Number },
+    paxDown: { type: Number },
+    cargoDown: { type: Number },
+    date: { type: Number },
+  },
+  { versionKey: false }
+);
+const CommentsChangedModel = mongo.model(
+  "CommentsChanged",
+  CommentsChangedSchema,
+  "CommentsChanged"
+);
 
-var hasSailedSchemaCTV = new Schema({
-  mmsi: { type: Number },
-  date: { type: Number },
-  distancekm: { type: Number },
-}, { versionKey: false, strictQuery: true, strict: true });
-var HasSailedModelCTV = mongo.model('hasSailedModel', hasSailedSchemaCTV, 'general');
+const transitSchema = new Schema(
+  {
+    vesselname: { type: String },
+    nicename: { type: String },
+    mmsi: { type: Number },
+    lat: { type: Array },
+    lon: { type: Array },
+  },
+  { versionKey: false }
+);
+const TransitsModel = mongo.model("transits", transitSchema, "transits");
 
-var engineData = new Schema({
+const hasSailedSchemaCTV = new Schema(
+  {
+    mmsi: { type: Number },
+    date: { type: Number },
+    distancekm: { type: Number },
+  },
+  { versionKey: false, strictQuery: true, strict: true }
+);
+const HasSailedModelCTV = mongo.model(
+  "hasSailedModel",
+  "general"
+);
   date: { type: Number },
   mmsi: { type: Number },
   c02TotalKg: { type: Number },
