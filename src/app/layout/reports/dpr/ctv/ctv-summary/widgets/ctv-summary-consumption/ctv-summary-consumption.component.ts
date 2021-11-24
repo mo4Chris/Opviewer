@@ -1,5 +1,5 @@
 // Third party dependencies
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, OnInit, OnDestroy, OnChanges } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Subscription } from "rxjs";
 
@@ -12,8 +12,23 @@ import { Subscription } from "rxjs";
     "./ctv-summary-consumption.component.scss",
   ],
 })
-export class CtvSummaryConsumptionComponent implements OnInit, OnDestroy {
+export class CtvSummaryConsumptionComponent
+  implements OnInit, OnDestroy, OnChanges
+{
   constructor() {}
+
+  @Input() public data: CtvConsumptionWidgetModel;
+  @Input() public mmsi: number;
+  @Input() public date: number;
+
+  private _prevMmsi: number;
+  private _prevDate: number;
+
+  public get dataReady() {
+    return this._dataReady;
+  }
+
+  private _dataReady = false;
 
   private _consumptionWidgetFormSubscription: Subscription;
 
@@ -22,16 +37,62 @@ export class CtvSummaryConsumptionComponent implements OnInit, OnDestroy {
       this.consumptionWidgetForm.valueChanges.subscribe((_) => {
         this._syncConsumptionWidgetFormAndModel();
       });
-
-    // TODO: Replace with actual input check
-    setTimeout(() => {
-      this._startingValuesHaveBeenSet = true;
-      this._removeSkeletonOverlay();
-    }, 1000);
   }
 
   ngOnDestroy(): void {
     this._consumptionWidgetFormSubscription.unsubscribe();
+  }
+
+  ngOnChanges(): void {
+    if (this._prevDate && this._prevMmsi) {
+      if (this._prevDate !== this.date || this._prevMmsi !== this.mmsi) {
+        this._showSkeletonOverlay = true;
+        this._dataReady = false;
+      }
+    }
+
+    if (this._dataReady) {
+      this._removeSkeletonOverlay();
+    } else {
+      if (this.data) {
+        this._setupData(this.data);
+      }
+    }
+  }
+
+  private _setupData(data: CtvConsumptionWidgetModel) {
+    this.consumptionWidgetForm.controls.consumptionStartOfDayFuel.setValue(
+      data.fuel.startOfDay
+    );
+    this.consumptionWidgetForm.controls.consumptionStartOfDayWater.setValue(
+      data.water.startOfDay
+    );
+    this.consumptionWidgetForm.controls.consumptionStartOfDayShorePower.setValue(
+      data.shorePower.startOfDay
+    );
+    this.consumptionWidgetForm.controls.consumptionUsedFuel.setValue(
+      data.fuel.used
+    );
+    this.consumptionWidgetForm.controls.consumptionUsedWater.setValue(
+      data.water.used
+    );
+    this.consumptionWidgetForm.controls.consumptionUsedShorePower.setValue(
+      data.shorePower.used
+    );
+    this.consumptionWidgetForm.controls.consumptionBunkeredFuel.setValue(
+      data.fuel.bunkered
+    );
+    this.consumptionWidgetForm.controls.consumptionBunkeredWater.setValue(
+      data.water.bunkered
+    );
+    this.consumptionWidgetForm.controls.consumptionBunkeredShorePower.setValue(
+      data.shorePower.bunkered
+    );
+
+    this._syncConsumptionWidgetFormAndModel();
+
+    this._dataReady = true;
+    this._removeSkeletonOverlay();
   }
 
   public get showSkeletonOverlay() {

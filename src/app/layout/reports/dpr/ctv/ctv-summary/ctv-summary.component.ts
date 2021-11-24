@@ -1,5 +1,12 @@
 // Third party dependencies
-import { Component, Input, OnInit, OnChanges, OnDestroy } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  Output,
+} from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Subscription } from "rxjs";
 import { map, catchError } from "rxjs/operators";
@@ -16,6 +23,7 @@ import { SettingsService } from "@app/supportModules/settings.service";
 import { CTVGeneralStatsModel } from "../../models/generalstats.model";
 import { TokenModel } from "@app/models/tokenModel";
 import { CTVDprInputModel } from "../ctvreport/ctvreport.component";
+import { CtvConsumptionWidgetModel } from "./widgets/ctv-summary-consumption/ctv-summary-consumption.component";
 
 // Types
 import { TimesQuarterHour } from "@app/supportModules/datetime.service";
@@ -39,6 +47,9 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   @Input() public data: CTVDprInputModel;
+  @Output() public consumptionData: CtvConsumptionWidgetModel;
+
+  private _prevData: CTVDprInputModel;
 
   public get dataReady() {
     return this._dataReady;
@@ -71,7 +82,17 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.setValueForFuelConsumed();
 
-    if (this.dataReady) {
+    if (this._prevData) {
+      if (
+        this._prevData.date !== this.data.date ||
+        this._prevData.mmsi !== this.data.mmsi
+      ) {
+        this._showSkeletonOverlay = true;
+        this._dataReady = false;
+      }
+    }
+
+    if (this._dataReady) {
       this._removeSkeletonOverlay();
     } else {
       if (this.data) {
@@ -120,6 +141,8 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
   ];
 
   private _setupData(data: CTVDprInputModel) {
+    this.consumptionData = data.consumption;
+
     this.HSESOCCards = data.HSE.SOCCards;
     this.HSEToolboxTalks = data.HSE.toolboxTalks;
     this.HSEDrills = data.HSE.drills;
@@ -137,6 +160,7 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
 
     this.weatherDowntimeWidget = data.weatherDowntime;
 
+    this._prevData = data;
     this._dataReady = true;
   }
 

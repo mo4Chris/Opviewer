@@ -49,7 +49,11 @@
         </tr>
       </table>
       <!-- Consumption -->
-      <app-ctv-summary-consumption></app-ctv-summary-consumption>
+      <app-ctv-summary-consumption
+        [data]="consumptionData"
+        [mmsi]="data.mmsi"
+        [date]="data.date"
+      ></app-ctv-summary-consumption>
       <!-- Fuel -->
       <table class="table table-bordered ctv-summary-table">
         <tr>
