@@ -1,11 +1,9 @@
 "use strict";
 
-  mmsi: { type: Number },
 // Third party dependencies
 const mongo = require("mongoose");
 const { Schema } = mongo;
 
-  cargoDown: { type: Number },
 const generalSchema = new Schema(
   {
     mmsi: { type: Number },
@@ -27,6 +25,7 @@ const TransferSchema = new Schema(
     vesselname: { type: String },
     date: { type: Number },
     startTime: { type: Number },
+    stopTime: { type: Number },
     duration: { type: Number },
     location: { type: String },
     fieldname: { type: String },
@@ -57,6 +56,7 @@ const CommentsChangedSchema = new Schema(
     processed: { type: String },
     paxUp: { type: Number },
     paxDown: { type: Number },
+    cargoUp: { type: Number },
     cargoDown: { type: Number },
     date: { type: Number },
   },
@@ -72,6 +72,7 @@ const transitSchema = new Schema(
   {
     vesselname: { type: String },
     nicename: { type: String },
+    client: { type: String },
     mmsi: { type: Number },
     lat: { type: Array },
     lon: { type: Array },
@@ -90,8 +91,11 @@ const hasSailedSchemaCTV = new Schema(
 );
 const HasSailedModelCTV = mongo.model(
   "hasSailedModel",
+  hasSailedSchemaCTV,
   "general"
 );
+
+const engineData = new Schema({
   date: { type: Number },
   mmsi: { type: Number },
   c02TotalKg: { type: Number },
@@ -107,7 +111,7 @@ const HasSailedModelCTV = mongo.model(
   speed: { type: Array },
   timeStamp: { type: Array },
 });
-var EngineDataModel = mongo.model('engine', engineData, 'engine');
+const EngineDataModel = mongo.model("engine", engineData, "engine");
 
 
 module.exports = {
