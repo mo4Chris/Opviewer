@@ -126,6 +126,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.hasData = false;
+    this.hasDprInputData = false;
     this.isLoading = true;
     this.showMap = false;
     this.noPermissionForData = false;
@@ -144,12 +145,11 @@ export class CtvreportComponent implements OnInit, OnChanges {
     }
     try {
       this.loadDprData();
+      this._loadDprInputData();
     } catch (err) {
       this.loaded.emit(true);
       console.error(err);
     }
-    this.hasDprInputData = false;
-    this._loadDprInputData();
   }
 
   loadDprData() {
@@ -203,7 +203,6 @@ export class CtvreportComponent implements OnInit, OnChanges {
   }
 
   private _loadDprInputData() {
-    console.log("getCtvDprInput");
     const { mmsi, date } = this.vesselObject;
     this.newService.getCtvDprInput(mmsi, date).subscribe((data) => {
       this.dprInputData = data;

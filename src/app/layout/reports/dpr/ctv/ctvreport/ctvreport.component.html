@@ -1,39 +1,74 @@
-<app-dpr-map *ngIf="hasData" style="width: 100%;" [vesselTrace]="vesselTrace"
-  [turbineVisits]="turbineTransfers" (onLoaded)="onMapReady($event)">
+<app-dpr-map
+  *ngIf="hasData"
+  style="width: 100%"
+  [vesselTrace]="vesselTrace"
+  [turbineVisits]="turbineTransfers"
+  (onLoaded)="onMapReady($event)"
+>
 </app-dpr-map>
 <div *ngIf="!isLoading || hasData">
-  <br><br>
+  <br /><br />
   <div class="divContainer singlepage-print">
     <h3 *ngIf="!hasData">There is no data available</h3>
-    <app-ctv-summary *ngIf="turbineTransfers.length>0" [general]="general" [generalInputStats]="generalInputStats"
-      [engine]="enginedata" [tokenInfo]="tokenInfo" [visitedPark]="visitedPark" [data]="dprInputData"></app-ctv-summary>
+    <app-ctv-summary
+      *ngIf="turbineTransfers.length > 0"
+      [general]="general"
+      [generalInputStats]="generalInputStats"
+      [engine]="enginedata"
+      [tokenInfo]="tokenInfo"
+      [visitedPark]="visitedPark"
+      [data]="dprInputData"
+    ></app-ctv-summary>
   </div>
-  <br><br>
+  <br /><br />
   <div *ngIf="wavedataLoaded" class="row" class="weatherMap">
     <div class="col-xl-12 col-lg-24">
       <div class="card mb-3">
-        <div class="card-header" >
-          Weather overview: {{wavedata? wavedata.site: ''}}
-          <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
-            [ngbPopover]="popContentWeatherOverview" placement="top" popoverClass="helpPopup">?</button>
-
+        <div class="card-header">
+          Weather overview: {{ wavedata ? wavedata.site : "" }}
+          <button
+            type="button"
+            class="btn btn-outline-secondary helpBtn"
+            [autoClose]="true"
+            [ngbPopover]="popContentWeatherOverview"
+            placement="top"
+            popoverClass="helpPopup"
+          >
+            ?
+          </button>
         </div>
-        <div class="weatherOverview" style="height: 400px" [hidden]="wavegraphMinimized">
+        <div
+          class="weatherOverview"
+          style="height: 400px"
+          [hidden]="wavegraphMinimized"
+        >
           <canvas id="weatherOverview"></canvas>
         </div>
       </div>
     </div>
-    <br><br>
+    <br /><br />
   </div>
 
-  <div class="divContainer singlepage-print singlepage-print-port" *ngIf="turbineTransfers.length > 0">
-    <app-ctv-turbine-transfer [tokenInfo]="tokenInfo" [transfers]="turbineTransfers"
-      (onVideoRequest)="onVideoRequest($event)"></app-ctv-turbine-transfer>
+  <div
+    class="divContainer singlepage-print singlepage-print-port"
+    *ngIf="turbineTransfers.length > 0"
+  >
+    <app-ctv-turbine-transfer
+      [tokenInfo]="tokenInfo"
+      [transfers]="turbineTransfers"
+      (onVideoRequest)="onVideoRequest($event)"
+    ></app-ctv-turbine-transfer>
   </div>
   <div class="row singlepage-print singlepage-print-port">
-    <div class="col-lg-7"  *ngFor="let visit of turbineTransfers;let ind = index">
+    <div
+      class="col-lg-7"
+      *ngFor="let visit of turbineTransfers; let ind = index"
+    >
       <app-ctvslipgraph
-        [index]="ind" [transfer]="visit" [vesselUtcOffset]="vesselUtcOffset"></app-ctvslipgraph>
+        [index]="ind"
+        [transfer]="visit"
+        [vesselUtcOffset]="vesselUtcOffset"
+      ></app-ctvslipgraph>
     </div>
   </div>
   <div class="videoRequestLoading" *ngIf="videoRequestLoading">
@@ -47,10 +82,8 @@
 </div>
 
 <ng-template #popContentWeatherOverview class="helpContent">
-  Weather overview for selected day and vessel.
-  By default, only Hs and avg wind speed are shown.
-  Hidden or missing data is crossed through. To show or
-  hide a particular dataset, click on the colored
-  bars in the legend. Hovering over the graph will
-  display the recorded values at any time.
+  Weather overview for selected day and vessel. By default, only Hs and avg wind
+  speed are shown. Hidden or missing data is crossed through. To show or hide a
+  particular dataset, click on the colored bars in the legend. Hovering over the
+  graph will display the recorded values at any time.
 </ng-template>
