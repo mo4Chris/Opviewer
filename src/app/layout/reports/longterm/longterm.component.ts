@@ -191,6 +191,7 @@ export class LongtermComponent implements OnInit {
   onDateCancel() {
     this._fromDate = copyNgbDate(this.fromDate);
     this._toDate = copyNgbDate(this.toDate);
+    this.closeModal();
   }
   onDateConfirm() {
     this.closeModal();
