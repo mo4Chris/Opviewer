@@ -2,7 +2,7 @@ import { catchError, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { Observable,  } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AisMarkerModel } from './layout/dashboard/dashboard.component';
 import { VesselModel, VesselOperationsClass } from './models/vesselModel';
 import { VesselObjectModel } from './supportModules/mocked.common.service';
