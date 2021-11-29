@@ -272,6 +272,8 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     return (
       this.accessDayType !== "" && this.hoursOnHireGroupForm.status === "VALID"
     );
+
+    // TODO: Add checks + warning alert div for weird times in the weather downtime form. (For example, when your 'to' is earlier than your 'from', or when they are the same.)
   }
 
   private _isSavingAccessHoursWeather = false;
