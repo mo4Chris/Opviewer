@@ -2,6 +2,11 @@
 import { Component, Input, OnInit, OnDestroy, OnChanges } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Subscription } from "rxjs";
+import { Moment } from "moment";
+
+// Services
+import { DatetimeService } from "@app/supportModules/datetime.service";
+import { CommonService } from "@app/common.service";
 
 @Component({
   selector: "app-ctv-summary-consumption",
@@ -15,7 +20,10 @@ import { Subscription } from "rxjs";
 export class CtvSummaryConsumptionComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  constructor() {}
+  constructor(
+    private _datetimeService: DatetimeService,
+    private _commonService: CommonService
+  ) {}
 
   @Input() public data: CtvConsumptionWidgetModel;
   @Input() public mmsi: number;
@@ -69,31 +77,31 @@ export class CtvSummaryConsumptionComponent
 
   private _setupData(data: CtvConsumptionWidgetModel) {
     this.consumptionWidgetForm.controls.consumptionStartOfDayFuel.setValue(
-      data.fuel.startOfDay
+      Number(data.fuel.startOfDay)
     );
     this.consumptionWidgetForm.controls.consumptionStartOfDayWater.setValue(
-      data.water.startOfDay
+      Number(data.water.startOfDay)
     );
     this.consumptionWidgetForm.controls.consumptionStartOfDayShorePower.setValue(
-      data.shorePower.startOfDay
+      Number(data.shorePower.startOfDay)
     );
     this.consumptionWidgetForm.controls.consumptionUsedFuel.setValue(
-      data.fuel.used
+      Number(data.fuel.used)
     );
     this.consumptionWidgetForm.controls.consumptionUsedWater.setValue(
-      data.water.used
+      Number(data.water.used)
     );
     this.consumptionWidgetForm.controls.consumptionUsedShorePower.setValue(
-      data.shorePower.used
+      Number(data.shorePower.used)
     );
     this.consumptionWidgetForm.controls.consumptionBunkeredFuel.setValue(
-      data.fuel.bunkered
+      Number(data.fuel.bunkered)
     );
     this.consumptionWidgetForm.controls.consumptionBunkeredWater.setValue(
-      data.water.bunkered
+      Number(data.water.bunkered)
     );
     this.consumptionWidgetForm.controls.consumptionBunkeredShorePower.setValue(
-      data.shorePower.bunkered
+      Number(data.shorePower.bunkered)
     );
 
     this._syncConsumptionWidgetFormAndModel();
@@ -118,8 +126,35 @@ export class CtvSummaryConsumptionComponent
     }, 300);
   }
 
+  private _isSaving = false;
+
+  public get isSaving() {
+    return this._isSaving;
+  }
+
+  private _lastSave: Moment | undefined;
+
+  public get lastSave() {
+    return this._lastSave;
+  }
+
+  public formatDate(date: Moment): string {
+    return date.format("Do MMM YYYY, HH:mm:ss");
+  }
+
   public save() {
     console.log(this.consumptionWidget);
+    this._isSaving = true;
+    this._commonService
+      .updateCtvDprInputConsumption(
+        this.mmsi,
+        this.date,
+        this.consumptionWidget
+      )
+      .subscribe((v) => {
+        this._isSaving = false;
+        this._lastSave = this._datetimeService.now();
+      });
   }
 
   private _consumptionWidget: CtvConsumptionWidgetModel = {

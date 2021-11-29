@@ -262,6 +262,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return JSValueYesterday;
   }
 
+  now() {
+    return moment();
+  }
+
   moment(year: string | number, month: string |number, day: string | number) {
     return moment({year: year as number, month: month as number, date: day as number});
   }

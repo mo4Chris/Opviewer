@@ -164,7 +164,7 @@
   font-weight: 700;
 }
 
-.btn.disabled {
+.btn:disabled {
   cursor: not-allowed;
 }
 
@@ -203,4 +203,29 @@ $shine-color: #e8e8e8;
   to {
     background-position: 350%;
   }
+}
+
+.btn-shine {
+  background-position: -100%;
+  background-size: 10rem;
+  background-repeat: no-repeat;
+
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    $shine-color,
+    transparent
+  );
+
+  animation: shine 1.8s infinite linear;
+  animation-direction: reverse;
+}
+
+.btn-shine.btn-shine--primary {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    lighten($primary, 30%),
+    transparent
+  );
 }

@@ -18,6 +18,7 @@ import { TwaSaveFleetModel } from './layout/TWA/models/requests';
 import { UsermanagementVesselModel } from './layout/usermanagement/usermanagement.component';
 import { UserService } from './shared/services/user.service';
 import { CTVDprInputModel } from './layout/reports/dpr/ctv/ctvreport/ctvreport.component';
+import { CtvConsumptionWidgetModel } from './layout/reports/dpr/ctv/ctv-summary/widgets/ctv-summary-consumption/ctv-summary-consumption.component';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -185,8 +186,11 @@ export class CommonService {
   getCommentsForVessel(vessel: VesselObjectModel) {
     return this.post('/api/getCommentsForVessel/', vessel);
   }
-  getCtvDprInput(mmsi, date): Observable<CTVDprInputModel> {
+  getCtvDprInput(mmsi: number, date: number): Observable<CTVDprInputModel> {
     return this.post('/api/getCtvDprInput', { mmsi, date });
+  }
+  updateCtvDprInputConsumption(mmsi: number, date: number, data: CtvConsumptionWidgetModel): Observable<CTVDprInputModel> {
+    return this.post('/api/updateCtvDprInputConsumption', { mmsi, date, data })
   }
 
 

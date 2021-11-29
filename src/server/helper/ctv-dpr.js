@@ -153,12 +153,11 @@ async function updateCtvDprInputConsumption(req, res) {
   if (isNotDefined(data)) {
     return res.status(400).send({ error: "data required in body" });
   }
-  const parsed = JSON.parse(data);
-  if (typeof parsed !== "object") {
+  if (typeof data !== "object") {
     return res.status(400).send({ error: "invalid data" });
   }
 
-  const { fuel, water, shorePower } = parsed;
+  const { fuel, water, shorePower } = data;
   if (!fuel || !water || !shorePower) {
     return res
       .status(400)
