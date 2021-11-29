@@ -7,9 +7,11 @@ import {
   OnDestroy,
   Output,
 } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { Subscription } from "rxjs";
-import { map, catchError } from "rxjs/operators";
+import { of, Subscription } from "rxjs";
+import { map, catchError, finalize } from "rxjs/operators";
+import { Moment } from "moment";
 
 // Services
 import { AlertService } from "@app/supportModules/alert.service";
@@ -260,6 +262,65 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     this.weatherDowntimeWidget.pop();
   }
 
+  // Saving access day type + hours + weather downtime
+
+  public get checkAccessHoursWeather() {
+    return this._checkAccessHoursWeather();
+  }
+
+  private _checkAccessHoursWeather() {
+    return (
+      this.accessDayType !== "" && this.hoursOnHireGroupForm.status === "VALID"
+    );
+  }
+
+  private _isSavingAccessHoursWeather = false;
+
+  public get isSavingAccessHoursWeather() {
+    return this._isSavingAccessHoursWeather;
+  }
+
+  private _lastSaveAccessHoursWeather: Moment | undefined;
+
+  public get lastSaveAccessHoursWeather() {
+    return this._lastSaveAccessHoursWeather;
+  }
+
+  private _saveErrorAccessHoursWeather: Moment | false;
+
+  public get saveErrorAccessHoursWeather() {
+    return this._saveErrorAccessHoursWeather;
+  }
+
+  public saveAccessHoursWeather() {
+    if (!this.checkAccessHoursWeather) {
+      return;
+    }
+    this._isSavingAccessHoursWeather = true;
+
+    let lastValue;
+    this.newService
+      .updateCtvDprAccessHoursWeather(this.data.mmsi, this.data.date, {
+        accessDayType: this.accessDayType,
+        amountOfHoursOnHire: this._hoursOnHire,
+        engineHours: this._engineHours,
+        weatherDowntime: this.weatherDowntimeWidget,
+      })
+      .pipe(
+        catchError((err) => of(err)),
+        finalize(() => {
+          this._isSavingAccessHoursWeather = false;
+          if (lastValue instanceof HttpErrorResponse) {
+            this._saveErrorAccessHoursWeather = this.dateService.now();
+            return;
+          }
+          this._saveErrorAccessHoursWeather = false;
+          this._lastSaveAccessHoursWeather = this.dateService.now();
+        })
+      )
+      .subscribe((v) => (lastValue = v));
+  }
+
   // HSE
 
   public HSECountTotalAmountOf(input: CtvHSERowOptionModel[]): number {
@@ -472,6 +533,10 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByIndex(index: number, obj: any): any {
     return index;
+  }
+
+  public formatDate(date: Moment): string {
+    return date.format("Do MMM YYYY, HH:mm:ss");
   }
 }
 

@@ -283,6 +283,38 @@
             </button>
           </div>
         </div>
+        <div class="ctv-summary-widget__cell">
+          <div
+            *ngIf="saveErrorAccessHoursWeather"
+            class="alert alert-danger m-unset"
+            role="alert"
+          >
+            Something went wrong while saving at
+            {{ formatDate(saveErrorAccessHoursWeather) }}. Please check if you
+            have an active internet connection and try again. Contact us if this
+            problem persists.
+          </div>
+          <div
+            *ngIf="lastSaveAccessHoursWeather"
+            class="alert alert-success m-unset"
+            role="alert"
+          >
+            Successfully saved at {{ formatDate(lastSaveAccessHoursWeather) }}
+          </div>
+          <button
+            (click)="saveAccessHoursWeather()"
+            class="btn btn-primary btn-shine--primary"
+            [ngClass]="{
+              disabled: isSaving || !checkAccessHoursWeather,
+              'btn-shine': isSavingAccessHoursWeather,
+              'btn-warning': !checkAccessHoursWeather,
+              'btn--saving': isSavingAccessHoursWeather
+            }"
+            [disabled]="isSavingAccessHoursWeather || !checkAccessHoursWeather"
+          >
+            Save
+          </button>
+        </div>
         <div
           *ngIf="showSkeletonOverlay"
           class="skeleton-overlay"
@@ -537,6 +569,17 @@
               Remove last drill
             </button>
           </div>
+        </div>
+        <div class="ctv-summary-widget__cell">
+          <div class="alert alert-danger m-unset" role="alert">
+            Something went wrong while saving at. Please check if you have an
+            active internet connection and try again. Contact us if this problem
+            persists.
+          </div>
+          <div class="alert alert-success m-unset" role="alert">
+            Successfully saved at
+          </div>
+          <button class="btn btn-primary btn-shine--primary">Save</button>
         </div>
         <div
           *ngIf="showSkeletonOverlay"

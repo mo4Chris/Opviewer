@@ -137,6 +137,16 @@ async function getCtvDprInput(req, res) {
   return res.status(200).send(newData);
 }
 
+/**
+ * POST /api/updateCtvDprInputConsumption
+ * Required multipart form options:
+ * - mmsi
+ * - date
+ * - data {CtvConsumptionWidgetModel}
+ *
+ * @param {Request} req The Express request
+ * @param {Response} res The Express response
+ */
 async function updateCtvDprInputConsumption(req, res) {
   await promiseValidatePermissionToViewVesselData(req, res);
 
@@ -172,7 +182,60 @@ async function updateCtvDprInputConsumption(req, res) {
   return res.status(200).send(response);
 }
 
+/**
+ * POST /api/updateCtvDprAccessHoursWeather
+ * Required multipart form options:
+ * - mmsi
+ * - date
+ * - data {CtvDprAccessHoursWeatherModel}
+ *
+ * @param {Request} req The Express request
+ * @param {Response} res The Express response
+ */
+async function updateCtvDprAccessHoursWeather(req, res) {
+  await promiseValidatePermissionToViewVesselData(req, res);
+
+  const { mmsi, date, data } = req.body;
+  if (isNotDefined(mmsi)) {
+    return res.status(400).send({ error: "mmsi required in body" });
+  }
+  if (isNotDefined(date)) {
+    return res.status(400).send({ error: "date required in body" });
+  }
+  if (date < 0) {
+    return res.status(400).send({ error: "invalid date" });
+  }
+  if (isNotDefined(data)) {
+    return res.status(400).send({ error: "data required in body" });
+  }
+  if (typeof data !== "object") {
+    return res.status(400).send({ error: "invalid data" });
+  }
+
+  const { accessDayType, amountOfHoursOnHire, engineHours, weatherDowntime } =
+    data;
+  if (
+    !accessDayType ||
+    typeof amountOfHoursOnHire !== "number" ||
+    typeof engineHours !== "number" ||
+    !Array.isArray(weatherDowntime)
+  ) {
+    return res.status(400).send({
+      error:
+        "accessDayType, amountOfHoursOnHire, engineHours or weatherDowntime is invalid",
+    });
+  }
+
+  const response = await CtvDprInputModel.findOneAndUpdate(
+    { mmsi, date },
+    { accessDayType, amountOfHoursOnHire, engineHours, weatherDowntime }
+  ).exec();
+
+  return res.status(200).send(response);
+}
+
 module.exports = {
   getCtvDprInput,
   updateCtvDprInputConsumption,
+  updateCtvDprAccessHoursWeather,
 };
