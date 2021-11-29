@@ -178,13 +178,7 @@
     </tr>
     <tr>
       <td
-        *ngIf="
-          consumptionWidgetForm.status === 'INVALID' ||
-          consumptionWidget.fuel.remainingOnBoard < 0 ||
-          consumptionWidget.water.remainingOnBoard < 0 ||
-          consumptionWidget.shorePower.remainingOnBoard < 0 ||
-          lastSave
-        "
+        *ngIf="!check || lastSave || saveError"
         class="flow-2 p-2"
         colspan="4"
       >
@@ -216,6 +210,11 @@
         >
           The remaining shore power cannot be negative.
         </div>
+        <div *ngIf="saveError" class="alert alert-danger m-unset" role="alert">
+          Something went wrong while saving at {{ formatDate(saveError) }}.
+          Please check if you have an active internet connection and try again.
+          Contact us if this problem persists.
+        </div>
         <div *ngIf="lastSave" class="alert alert-success m-unset" role="alert">
           Successfully saved at {{ formatDate(lastSave) }}
         </div>
@@ -227,11 +226,12 @@
           (click)="save()"
           class="btn btn-primary btn-shine--primary"
           [ngClass]="{
-            disabled: !touchedForm,
-            disabled: isSaving,
-            'btn-shine': isSaving
+            disabled: !touchedForm || isSaving || !check,
+            'btn-shine': isSaving,
+            'btn-warning': !check,
+            'btn--saving': isSaving
           }"
-          [disabled]="!touchedForm"
+          [disabled]="!touchedForm || isSaving || !check"
         >
           Save
         </button>

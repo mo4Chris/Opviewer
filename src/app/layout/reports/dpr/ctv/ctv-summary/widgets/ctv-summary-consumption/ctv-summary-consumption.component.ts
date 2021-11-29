@@ -1,7 +1,9 @@
 // Third party dependencies
 import { Component, Input, OnInit, OnDestroy, OnChanges } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { Subscription } from "rxjs";
+import { of, Subscription } from "rxjs";
+import { catchError, finalize, last } from "rxjs/operators";
 import { Moment } from "moment";
 
 // Services
@@ -68,6 +70,7 @@ export class CtvSummaryConsumptionComponent
 
     if (this._dataReady) {
       this._removeSkeletonOverlay();
+      this._check();
     } else {
       if (this.data) {
         this._setupData(this.data);
@@ -110,6 +113,22 @@ export class CtvSummaryConsumptionComponent
     this._removeSkeletonOverlay();
   }
 
+  public get check() {
+    return this._check();
+  }
+
+  private _check() {
+    const { status } = this.consumptionWidgetForm;
+    const { fuel, water, shorePower } = this.consumptionWidget;
+
+    return (
+      status === "VALID" &&
+      fuel.remainingOnBoard >= 0 &&
+      water.remainingOnBoard >= 0 &&
+      shorePower.remainingOnBoard >= 0
+    );
+  }
+
   public get showSkeletonOverlay() {
     return this._showSkeletonOverlay;
   }
@@ -138,23 +157,42 @@ export class CtvSummaryConsumptionComponent
     return this._lastSave;
   }
 
+  private _saveError: Moment | false;
+
+  public get saveError() {
+    return this._saveError;
+  }
+
   public formatDate(date: Moment): string {
     return date.format("Do MMM YYYY, HH:mm:ss");
   }
 
   public save() {
-    console.log(this.consumptionWidget);
+    if (!this.check) {
+      return;
+    }
     this._isSaving = true;
+
+    let lastValue;
     this._commonService
       .updateCtvDprInputConsumption(
         this.mmsi,
         this.date,
         this.consumptionWidget
       )
-      .subscribe((v) => {
-        this._isSaving = false;
-        this._lastSave = this._datetimeService.now();
-      });
+      .pipe(
+        catchError((err) => of(err)),
+        finalize(() => {
+          this._isSaving = false;
+          if (lastValue instanceof HttpErrorResponse) {
+            this._saveError = this._datetimeService.now();
+            return;
+          }
+          this._saveError = false;
+          this._lastSave = this._datetimeService.now();
+        })
+      )
+      .subscribe((v) => (lastValue = v));
   }
 
   private _consumptionWidget: CtvConsumptionWidgetModel = {

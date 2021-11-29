@@ -168,6 +168,10 @@
   cursor: not-allowed;
 }
 
+.btn.btn--saving {
+  cursor: wait;
+}
+
 $base-color: #ddd;
 $shine-color: #e8e8e8;
 
